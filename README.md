@@ -93,6 +93,16 @@ Eight specialized agents that ride alongside you:
 
 ## Key Features
 
+### Loa Constructs (Commercial Skills)
+
+Extend Loa with commercial skill packs from the registry:
+
+```bash
+.claude/scripts/constructs-install.sh pack gtm-collective
+```
+
+See **[INSTALLATION.md](INSTALLATION.md#loa-constructs-commercial-skills)** for setup and authentication.
+
 ### Enterprise-Grade Managed Scaffolding
 
 - **Projen-Level Synthesis Protection**: System Zone is immutable, checksums enforce integrity

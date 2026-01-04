@@ -295,6 +295,88 @@ git checkout --theirs .claude/
 git checkout --ours loa-grimoire/
 ```
 
+## Loa Constructs (Commercial Skills)
+
+Loa Constructs is a registry for commercial skill packs that extend Loa with specialized capabilities (GTM strategy, security auditing, etc.).
+
+### Authentication
+
+```bash
+# Option 1: Environment variable (recommended for scripts)
+export LOA_CONSTRUCTS_API_KEY="sk_your_api_key_here"
+
+# Option 2: Credentials file
+mkdir -p ~/.loa
+echo '{"api_key": "sk_your_api_key_here"}' > ~/.loa/credentials.json
+```
+
+Contact the THJ team for API key access.
+
+### Installing Packs
+
+```bash
+# Install a pack (downloads and symlinks commands)
+.claude/scripts/constructs-install.sh pack gtm-collective
+
+# Install individual skill
+.claude/scripts/constructs-install.sh skill thj/market-analyst
+
+# Re-link commands if needed
+.claude/scripts/constructs-install.sh link-commands gtm-collective
+
+# Remove a pack
+.claude/scripts/constructs-install.sh uninstall pack gtm-collective
+```
+
+### What Gets Installed
+
+```
+.claude/constructs/
+├── packs/{slug}/
+│   ├── .license.json      # JWT license token
+│   ├── manifest.json      # Pack metadata
+│   ├── skills/            # Bundled skills
+│   └── commands/          # Pack commands (auto-symlinked)
+└── skills/{vendor}/{slug}/
+    ├── .license.json
+    ├── index.yaml
+    └── SKILL.md
+```
+
+Pack commands are automatically symlinked to `.claude/commands/` on install, making them immediately available.
+
+### Loading Priority
+
+| Priority | Source | Description |
+|----------|--------|-------------|
+| 1 | `.claude/skills/` | Local (built-in) |
+| 2 | `.claude/overrides/skills/` | User overrides |
+| 3 | `.claude/constructs/skills/` | Registry skills |
+| 4 | `.claude/constructs/packs/.../skills/` | Pack skills |
+
+Local skills always win. The loader resolves conflicts silently by priority.
+
+### Offline Support
+
+Skills are validated via JWT with grace periods:
+- **Individual/Pro**: 24 hours
+- **Team**: 72 hours
+- **Enterprise**: 168 hours
+
+Force offline mode: `export LOA_OFFLINE=1`
+
+### Configuration
+
+```yaml
+# .loa.config.yaml
+registry:
+  enabled: true
+  offline_grace_hours: 24
+  check_updates_on_setup: true
+```
+
+See [CLI-INSTALLATION.md](loa-grimoire/context/CLI-INSTALLATION.md) for the full setup guide.
+
 ## Next Steps
 
 After installation:
