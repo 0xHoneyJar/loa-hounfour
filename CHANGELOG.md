@@ -5,6 +5,69 @@ All notable changes to Loa will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-20 — Beads Migration & Security Hardening
+
+### Why This Release
+
+This release introduces comprehensive bd → br migration tooling for projects transitioning from Python beads to beads_rust, plus security hardening that brings the framework to Grade A audit status.
+
+### Added
+
+- **Migration Tooling** (`migrate-to-br.sh`)
+  - Full bd → br migration script with schema compatibility handling
+  - Prefix normalization for mixed JSONL files (e.g., `arrakis-*` → `loa-*`)
+  - Daemon cleanup and lockfile handling
+  - `--dry-run` mode for safe preview
+  - `--force` mode for re-migration
+  - Automatic backup creation
+
+- **Enhanced Beads Detection** (`check-beads.sh` rewrite)
+  - Detects bd vs br installation
+  - Returns `MIGRATION_NEEDED` (exit 3) when bd found
+  - JSON output mode for scripting (`--json`)
+  - Detailed status reporting
+
+- **Symlink Validation** (`constructs-install.sh`)
+  - New `validate_symlink_target()` function
+  - Prevents path traversal attacks via symlinks
+  - Validates targets stay within constructs directory
+
+- **Config Validation** (`update.sh`)
+  - New `validate_config()` function
+  - Validates YAML syntax before processing
+  - Graceful fallback to defaults on invalid config
+
+### Security Hardening
+
+All MEDIUM findings from security audit remediated:
+
+| Finding | Fix |
+|---------|-----|
+| M-002: Missing strict mode | All 57 scripts now have `set -euo pipefail` |
+| M-001: Temp file leaks | Cleanup traps added to 6 mktemp locations |
+| M-003: Symlink validation | Path traversal prevention implemented |
+| L-003: Config validation | YAML syntax validation before use |
+
+**Security Grade: A** (upgraded from A-)
+
+### Changed
+
+- `analytics.sh` - Added strict mode, cleanup trap, BASH_SOURCE fix
+- `context-check.sh` - Added strict mode
+- `git-safety.sh` - Added strict mode
+- `detect-drift.sh` - Added cleanup trap, removed manual rm
+- `update.sh` - Added config validation, cleanup traps (4 locations)
+
+### Scripts
+
+New/updated scripts in `.claude/scripts/beads/`:
+
+| Script | Purpose |
+|--------|---------|
+| `migrate-to-br.sh` | **NEW** - Full bd → br migration |
+| `check-beads.sh` | Rewritten for bd/br detection |
+| `install-br.sh` | Updated with better error handling |
+
 ## [1.1.1] - 2026-01-20 — br Permissions
 
 ### Added
