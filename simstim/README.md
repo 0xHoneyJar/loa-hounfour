@@ -17,17 +17,14 @@ Simstim provides a mobile-friendly interface for monitoring and controlling your
 ## Installation
 
 ```bash
-# Using pipx (recommended for CLI tools)
-pipx install simstim
-
-# Using uv (fast Python package manager)
-uv tool install simstim
-
-# Or install from source with uv
-git clone https://github.com/0xHoneyJar/loa
-cd loa/simstim
+# From Loa repository (recommended)
+cd /path/to/loa/simstim
 uv sync
 uv run simstim --help
+
+# Or install globally with pipx from local path
+cd /path/to/loa/simstim
+pipx install .
 ```
 
 ## Quick Start

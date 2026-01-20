@@ -143,15 +143,15 @@ See **[CLAUDE.md](CLAUDE.md#run-mode-v0180)** for full documentation.
 Remote monitoring and control of Loa sessions via Telegram. Ported from [takopi.dev](https://takopi.dev/) and adapted for Loa workflows:
 
 ```bash
-# Install Simstim
-pipx install simstim  # or: uv tool install simstim
+# Install Simstim (from Loa repo)
+cd simstim && uv sync
 
 # Configure
 export SIMSTIM_BOT_TOKEN="your-bot-token"
-simstim config --init
+uv run simstim config --init
 
 # Start Loa with Simstim bridge
-simstim start -- /implement sprint-1
+uv run simstim start -- /implement sprint-1
 ```
 
 **Features**:
