@@ -144,7 +144,7 @@ Remote monitoring and control of Loa sessions via Telegram. Ported from [takopi.
 
 ```bash
 # Install Simstim
-pip install simstim
+pipx install simstim  # or: uv tool install simstim
 
 # Configure
 export SIMSTIM_BOT_TOKEN="your-bot-token"
