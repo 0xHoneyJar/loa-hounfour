@@ -866,6 +866,59 @@ visual_communication:
     er: true
 
 # =============================================================================
+# Oracle Configuration (v1.11.0)
+# =============================================================================
+# Extended oracle with Loa compound learnings support (Issue #76)
+oracle:
+  # -------------------------------------------------------------------------
+  # Source Weights (Hierarchical)
+  # -------------------------------------------------------------------------
+  # Results are ranked by weighted_score = match_score * source_weight
+  weights:
+    loa: 1.0         # Highest priority - Loa's own proven patterns
+    anthropic: 0.8   # Authoritative - Anthropic official documentation
+    community: 0.5   # Useful but less verified community contributions
+
+  # -------------------------------------------------------------------------
+  # Loa Source Configuration
+  # -------------------------------------------------------------------------
+  # Sources for Loa's compound learnings
+  loa_sources:
+    skills:
+      enabled: true
+      paths: [".claude/skills/**/*.md"]
+    feedback:
+      enabled: true
+      paths: ["grimoires/loa/feedback/*.yaml"]
+    decisions:
+      enabled: true
+      paths: ["grimoires/loa/decisions.yaml"]
+    learnings:
+      enabled: true
+      paths: ["grimoires/loa/a2a/compound/learnings.json"]
+
+  # -------------------------------------------------------------------------
+  # Index Settings
+  # -------------------------------------------------------------------------
+  index:
+    # Auto-refresh index after N hours (0 = manual only)
+    auto_refresh_hours: 24
+    # Cache directory for index files
+    cache_dir: "~/.loa/cache/oracle"
+
+  # -------------------------------------------------------------------------
+  # Query Settings
+  # -------------------------------------------------------------------------
+  query:
+    # Default indexer: auto (use QMD if available, fallback to grep)
+    # Options: auto | qmd | grep
+    default_indexer: auto
+    # Default result limit
+    default_limit: 10
+    # Default scope when not specified: all | loa | anthropic
+    default_scope: all
+
+# =============================================================================
 # Autonomous Agent Orchestration (v1.11.0)
 # =============================================================================
 # Meta-orchestrator for exhaustive Loa process compliance

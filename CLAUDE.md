@@ -508,6 +508,76 @@ echo 'graph TD; A-->B' | .claude/scripts/mermaid-url.sh --stdin --theme dracula
 
 **Protocol**: See `.claude/protocols/visual-communication.md`
 
+## Oracle (v1.11.0)
+
+Extended oracle with Loa compound learnings support. Query both Anthropic official documentation and Loa's own proven patterns.
+
+**Commands**:
+| Command | Description |
+|---------|-------------|
+| `/oracle-analyze` | Analyze Anthropic updates (with optional --scope) |
+| `/oracle-analyze --scope loa` | Analyze Loa learnings only |
+| `/oracle-analyze --scope all` | Analyze both Loa and Anthropic sources |
+
+**CLI Usage**:
+```bash
+# Check for Anthropic updates
+.claude/scripts/anthropic-oracle.sh check
+
+# Query Loa learnings
+.claude/scripts/anthropic-oracle.sh query "auth token" --scope loa
+
+# Query all sources with weighted ranking
+.claude/scripts/anthropic-oracle.sh query "hooks" --scope all
+
+# Build/update Loa learnings index
+.claude/scripts/loa-learnings-index.sh index
+```
+
+**Source Weights** (hierarchical):
+| Source | Weight | Description |
+|--------|--------|-------------|
+| Loa | 1.0 | Highest priority - our proven patterns |
+| Anthropic | 0.8 | Authoritative external documentation |
+| Community | 0.5 | Useful but less verified |
+
+**Loa Sources Indexed**:
+- Skills: `.claude/skills/**/*.md`
+- Feedback: `grimoires/loa/feedback/*.yaml`
+- Decisions: `grimoires/loa/decisions.yaml`
+- Learnings: `grimoires/loa/a2a/compound/learnings.json`
+
+**Recursive Improvement Loop**:
+```
+Executions → Feedback → Index → Query → Skills → Executions
+     ↑                                              ↓
+     └────────── Compound Learning ─────────────────┘
+```
+
+**Configuration** (`.loa.config.yaml`):
+```yaml
+oracle:
+  weights:
+    loa: 1.0
+    anthropic: 0.8
+    community: 0.5
+  loa_sources:
+    skills:
+      enabled: true
+      paths: [".claude/skills/**/*.md"]
+    feedback:
+      enabled: true
+      paths: ["grimoires/loa/feedback/*.yaml"]
+  query:
+    default_indexer: auto  # auto | qmd | grep
+    default_limit: 10
+    default_scope: all
+```
+
+**Schema**: See `.claude/schemas/learnings.schema.json` for feedback file format.
+
+**Protocol**: See `.claude/commands/oracle-analyze.md`
+
 ## Helper Scripts
 
 Core scripts in `.claude/scripts/`. See `.claude/protocols/helper-scripts.md` for full documentation.
