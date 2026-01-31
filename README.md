@@ -1,6 +1,6 @@
 # Loa
 
-[![Version](https://img.shields.io/badge/version-1.12.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.13.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE.md)
 [![Release](https://img.shields.io/badge/release-Oracle%20Compound%20Learnings-purple.svg)](CHANGELOG.md#1120---2026-02-01--oracle-compound-learnings)
 
@@ -33,7 +33,7 @@ See **[INSTALLATION.md](INSTALLATION.md)** for detailed setup options and prereq
 | 5.5 | `/audit-sprint sprint-N` | Security Approval |
 | 6 | `/deploy-production` | Infrastructure |
 
-**Ad-hoc**: `/audit`, `/translate`, `/validate`, `/compound`, `/feedback`, `/update-loa`, `/loa` (guided workflow)
+**Ad-hoc**: `/audit`, `/translate`, `/validate`, `/compound`, `/feedback`, `/constructs`, `/update-loa`, `/loa` (guided workflow)
 
 See **[PROCESS.md](PROCESS.md)** for complete workflow documentation.
 
