@@ -6,20 +6,26 @@ Power user interface: 47 slash commands (truenames).
 Architecture: Three-zone model (System: .claude/, State: grimoires/ + .beads/, App: src/).
 Configuration: .loa.config.yaml (user-owned, never modified by framework).
 Health check: /loa doctor
-Version: 1.31.0
+Version: 1.32.0
 -->
 
-[![Version](https://img.shields.io/badge/version-1.31.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.32.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE.md)
-[![Release](https://img.shields.io/badge/release-Bridgebuilder%20Release-purple.svg)](CHANGELOG.md#1310---2026-02-07--bridgebuilder-release)
+[![Release](https://img.shields.io/badge/release-Hounfour%20Release-purple.svg)](CHANGELOG.md#1320---2026-02-10--hounfour-release)
 
 > *"The Loa are pragmatic entities... They're not worshipped for salvation—they're worked with for practical results."*
 
-## Why "Loa"?
+## What Is This?
+
+Loa is an agent-driven development framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's official CLI). It adds 17 specialized AI agents, quality gates, persistent memory, and structured workflows on top of Claude Code. Works on macOS and Linux.
+
+### Why "Loa"?
 
 In William Gibson's Sprawl trilogy, Loa are AI entities that "ride" humans through neural interfaces. These agents don't replace you—they **ride with you**, channeling expertise through the interface.
 
 ## Quick Start (~2 minutes)
+
+**Prerequisites**: [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's CLI for Claude), Git, jq, [yq v4+](https://github.com/mikefarah/yq). See **[INSTALLATION.md](INSTALLATION.md)** for full details.
 
 ```bash
 # Install (one command, any existing repo)
@@ -28,6 +34,7 @@ curl -fsSL https://raw.githubusercontent.com/0xHoneyJar/loa/main/.claude/scripts
 # Start Claude Code
 claude
 
+# These are slash commands typed inside Claude Code, not your terminal.
 # 5 commands. Full development cycle.
 /plan      # Requirements -> Architecture -> Sprints
 /build     # Implement the current sprint
@@ -35,9 +42,11 @@ claude
 /ship      # Deploy and archive
 ```
 
-Not sure where you are? `/loa` shows your current state, health, and next step. 
+After install, you should see a `.claude/` directory, `grimoires/loa/`, and `.loa.config.yaml` in your repo. Run `/loa doctor` inside Claude Code to verify everything is healthy.
 
-New project? See **[INSTALLATION.md](INSTALLATION.md)** to clone the template and start riding with loa. For detailed setup, prerequisites, and configuration, start there too.
+Not sure where you are? `/loa` shows your current state, health, and next step.
+
+New project? See **[INSTALLATION.md](INSTALLATION.md)** to clone the template. For detailed setup, optional tools (beads, ck), and configuration, start there too.
 
 ## Why Loa?
 
@@ -64,9 +73,11 @@ New project? See **[INSTALLATION.md](INSTALLATION.md)** to clone the template an
 | `/review` | Review and audit your work |
 | `/ship` | Deploy and archive |
 
-Each Golden Path command auto-detects context and does the right thing. No arguments needed.
+Each Golden Path command auto-detects context and does the right thing. No arguments needed. First run of `/plan` takes 2-5 minutes and creates `grimoires/loa/prd.md`.
 
 ### Diagnostics
+
+If something isn't working, start here:
 
 ```bash
 /loa doctor          # Full system health check with structured error codes
@@ -135,7 +146,7 @@ Loa uses a **three-zone model** inspired by AWS Projen and Google's ADK:
 | **Adversarial Dissent** | Cross-model challenge during review and audit | [CHANGELOG.md](CHANGELOG.md) |
 | **Cross-Repo Patterns** | 25 reusable patterns in 5 library modules | [Lib](.claude/lib/) |
 | **DRY Constraint Registry** | Single-source constraint generation from JSON | [Data](.claude/data/constraints.json) |
-| **Beads-First Architecture** | Task tracking as expected default, not optional | [CLAUDE.md](CLAUDE.md#beads-first-architecture) |
+| **Beads-First Architecture** | Persistent task tracking (recommended; required for `/run` mode, works without for interactive use) | [CLAUDE.md](CLAUDE.md#beads-first-architecture) |
 | **Persistent Memory** | Session-spanning observations with progressive disclosure | [Scripts](.claude/scripts/memory-query.sh) |
 | **Input Guardrails** | PII filtering, injection detection, danger levels | [Protocol](.claude/protocols/input-guardrails.md) |
 | **Portable Persistence** | WAL-based persistence with circuit breakers | [Lib](.claude/lib/persistence/) |
