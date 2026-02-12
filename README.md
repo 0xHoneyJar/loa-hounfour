@@ -185,4 +185,4 @@ pnpm run semver:check   # Check for breaking changes
 
 ## License
 
-MIT
+Commercial licenses are available for organizations that wish to use Loa without AGPL obligations.
