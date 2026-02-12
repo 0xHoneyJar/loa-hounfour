@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "RoutingPolicy",
+  "type": "object",
+  "required": [
+    "version",
+    "personalities"
+  ],
+  "properties": {
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "personalities": {
+      "type": "array",
+      "items": {
+        "$id": "PersonalityRouting",
+        "type": "object",
+        "required": [
+          "personality_id",
+          "task_routing"
+        ],
+        "properties": {
+          "personality_id": {
+            "description": "NFT personality identifier",
+            "type": "string"
+          },
+          "task_routing": {
+            "description": "Task type → pool mapping",
+            "type": "object",
+            "required": [
+              "chat",
+              "analysis",
+              "architecture",
+              "code",
+              "default"
+            ],
+            "properties": {
+              "chat": {
+                "$id": "PoolId",
+                "description": "Canonical pool identifier",
+                "anyOf": [
+                  {
+                    "const": "cheap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fast-code",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reviewer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reasoning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "architect",
+                    "type": "string"
+                  }
+                ]
+              },
+              "analysis": {
+                "$id": "PoolId",
+                "description": "Canonical pool identifier",
+                "anyOf": [
+                  {
+                    "const": "cheap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fast-code",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reviewer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reasoning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "architect",
+                    "type": "string"
+                  }
+                ]
+              },
+              "architecture": {
+                "$id": "PoolId",
+                "description": "Canonical pool identifier",
+                "anyOf": [
+                  {
+                    "const": "cheap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fast-code",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reviewer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reasoning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "architect",
+                    "type": "string"
+                  }
+                ]
+              },
+              "code": {
+                "$id": "PoolId",
+                "description": "Canonical pool identifier",
+                "anyOf": [
+                  {
+                    "const": "cheap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fast-code",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reviewer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reasoning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "architect",
+                    "type": "string"
+                  }
+                ]
+              },
+              "default": {
+                "$id": "PoolId",
+                "description": "Canonical pool identifier",
+                "anyOf": [
+                  {
+                    "const": "cheap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "fast-code",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reviewer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reasoning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "architect",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          },
+          "preferences": {
+            "type": "object",
+            "properties": {
+              "temperature": {
+                "minimum": 0,
+                "maximum": 2,
+                "type": "number"
+              },
+              "max_tokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "system_prompt_path": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

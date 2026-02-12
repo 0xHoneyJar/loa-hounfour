@@ -1,0 +1,88 @@
+{
+  "description": "Price table versioning — verifies correct cost when pricing changes between requests",
+  "format_version": 1,
+  "notes": {
+    "price_table_version": "Monotonic integer. Requests use the price table active at request start time.",
+    "remainder_isolation": "Remainder accumulators are scope-keyed, NOT price-version-keyed. Remainders carry across price changes within the same scope."
+  },
+  "price_comparison_vectors": [
+    {
+      "id": "pc-01",
+      "note": "Same 1k tokens, old vs new gpt-4o input price",
+      "tokens": 1000,
+      "old_price": {"version": 1, "micro_per_million": 2500000},
+      "new_price": {"version": 2, "micro_per_million": 3000000},
+      "expected_old_cost_micro": 2500,
+      "expected_new_cost_micro": 3000
+    },
+    {
+      "id": "pc-02",
+      "note": "Price drop — sonnet input gets cheaper",
+      "tokens": 8192,
+      "old_price": {"version": 1, "micro_per_million": 3000000},
+      "new_price": {"version": 2, "micro_per_million": 2500000},
+      "expected_old_cost_micro": 24576,
+      "expected_new_cost_micro": 20480
+    },
+    {
+      "id": "pc-03",
+      "note": "Zero-price model (free tier or beta)",
+      "tokens": 10000,
+      "old_price": {"version": 1, "micro_per_million": 0},
+      "new_price": {"version": 2, "micro_per_million": 0},
+      "expected_old_cost_micro": 0,
+      "expected_new_cost_micro": 0
+    },
+    {
+      "id": "pc-04",
+      "note": "Free → paid transition",
+      "tokens": 1000,
+      "old_price": {"version": 1, "micro_per_million": 0},
+      "new_price": {"version": 2, "micro_per_million": 5000000},
+      "expected_old_cost_micro": 0,
+      "expected_new_cost_micro": 5000
+    }
+  ],
+  "total_cost_comparison_vectors": [
+    {
+      "id": "pc-05",
+      "note": "Full gpt-4o request — old vs new pricing",
+      "input": {"prompt_tokens": 1000, "completion_tokens": 500, "reasoning_tokens": 0},
+      "old_pricing": {"version": 1, "input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+      "new_pricing": {"version": 2, "input_micro_per_million": 3000000, "output_micro_per_million": 12000000},
+      "expected_old": {"input_cost_micro": 2500, "output_cost_micro": 5000, "total_cost_micro": 7500},
+      "expected_new": {"input_cost_micro": 3000, "output_cost_micro": 6000, "total_cost_micro": 9000}
+    },
+    {
+      "id": "pc-06",
+      "note": "Opus price reduction — both input and output cheaper",
+      "input": {"prompt_tokens": 4096, "completion_tokens": 2048, "reasoning_tokens": 0},
+      "old_pricing": {"version": 3, "input_micro_per_million": 15000000, "output_micro_per_million": 75000000},
+      "new_pricing": {"version": 4, "input_micro_per_million": 12000000, "output_micro_per_million": 60000000},
+      "expected_old": {"input_cost_micro": 61440, "output_cost_micro": 153600, "total_cost_micro": 215040},
+      "expected_new": {"input_cost_micro": 49152, "output_cost_micro": 122880, "total_cost_micro": 172032}
+    }
+  ],
+  "idempotency_vectors": [
+    {
+      "id": "pc-07",
+      "note": "Same request, same price version → identical cost (idempotent)",
+      "tokens": 7777,
+      "price_micro_per_million": 15000000,
+      "price_table_version": 1,
+      "expected_cost_micro": 116655,
+      "expected_remainder_micro": 0,
+      "idempotent": true
+    },
+    {
+      "id": "pc-08",
+      "note": "Re-billing at different price version → different cost (NOT idempotent)",
+      "tokens": 7777,
+      "old_price": {"version": 1, "micro_per_million": 15000000},
+      "new_price": {"version": 2, "micro_per_million": 16000000},
+      "expected_old_cost_micro": 116655,
+      "expected_new_cost_micro": 124432,
+      "idempotent": false
+    }
+  ]
+}

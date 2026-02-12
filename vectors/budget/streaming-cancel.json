@@ -1,0 +1,137 @@
+{
+  "description": "Streaming cancellation scenarios — partial responses, billing method attribution, and abort edge cases",
+  "format_version": 1,
+  "total_cost_vectors": [
+    {
+      "id": "sc-01",
+      "note": "Zero output — prompt-only billing",
+      "input": {
+        "prompt_tokens": 1000, "completion_tokens": 0, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "prompt_only"
+      },
+      "expected": {
+        "input_cost_micro": 2500, "output_cost_micro": 0, "reasoning_cost_micro": 0,
+        "total_cost_micro": 2500
+      }
+    },
+    {
+      "id": "sc-02",
+      "note": "Cancel after 50 output tokens — overcount billing",
+      "input": {
+        "prompt_tokens": 1000, "completion_tokens": 50, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 2500, "output_cost_micro": 500, "reasoning_cost_micro": 0,
+        "total_cost_micro": 3000
+      }
+    },
+    {
+      "id": "sc-03",
+      "note": "Cancel after 1 output token",
+      "input": {
+        "prompt_tokens": 1000, "completion_tokens": 1, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 2500, "output_cost_micro": 10, "reasoning_cost_micro": 0,
+        "total_cost_micro": 2510
+      }
+    },
+    {
+      "id": "sc-04",
+      "note": "Max context gpt-4o, provider error — prompt only",
+      "input": {
+        "prompt_tokens": 128000, "completion_tokens": 0, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "prompt_only"
+      },
+      "expected": {
+        "input_cost_micro": 320000, "output_cost_micro": 0, "reasoning_cost_micro": 0,
+        "total_cost_micro": 320000
+      }
+    },
+    {
+      "id": "sc-05",
+      "note": "o3 cancel with partial reasoning — reasoning tokens still billed",
+      "input": {
+        "prompt_tokens": 2000, "completion_tokens": 100, "reasoning_tokens": 5000,
+        "pricing": {"input_micro_per_million": 10000000, "output_micro_per_million": 40000000, "reasoning_micro_per_million": 40000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 20000, "output_cost_micro": 4000, "reasoning_cost_micro": 200000,
+        "total_cost_micro": 224000
+      }
+    },
+    {
+      "id": "sc-06",
+      "note": "Tiny stream — 1 input token, no output (remainder present)",
+      "input": {
+        "prompt_tokens": 1, "completion_tokens": 0, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "prompt_only"
+      },
+      "expected": {
+        "input_cost_micro": 2, "output_cost_micro": 0, "reasoning_cost_micro": 0,
+        "total_cost_micro": 2,
+        "input_remainder_micro": 500000
+      }
+    },
+    {
+      "id": "sc-07",
+      "note": "Opus cancel after significant output",
+      "input": {
+        "prompt_tokens": 4096, "completion_tokens": 16384, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 15000000, "output_micro_per_million": 75000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 61440, "output_cost_micro": 1228800, "reasoning_cost_micro": 0,
+        "total_cost_micro": 1290240
+      }
+    },
+    {
+      "id": "sc-08",
+      "note": "All zero usage — connection failed before any processing",
+      "input": {
+        "prompt_tokens": 0, "completion_tokens": 0, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 15000000, "output_micro_per_million": 75000000},
+        "billing_method": "prompt_only"
+      },
+      "expected": {
+        "input_cost_micro": 0, "output_cost_micro": 0, "reasoning_cost_micro": 0,
+        "total_cost_micro": 0
+      }
+    },
+    {
+      "id": "sc-09",
+      "note": "Max context gpt-4o cancel at 1 output token",
+      "input": {
+        "prompt_tokens": 128000, "completion_tokens": 1, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 320000, "output_cost_micro": 10, "reasoning_cost_micro": 0,
+        "total_cost_micro": 320010
+      }
+    },
+    {
+      "id": "sc-10",
+      "note": "Sonnet cancel — reasoning generated but no output",
+      "input": {
+        "prompt_tokens": 500, "completion_tokens": 0, "reasoning_tokens": 10000,
+        "pricing": {"input_micro_per_million": 3000000, "output_micro_per_million": 15000000, "reasoning_micro_per_million": 15000000},
+        "billing_method": "observed_chunks_overcount"
+      },
+      "expected": {
+        "input_cost_micro": 1500, "output_cost_micro": 0, "reasoning_cost_micro": 150000,
+        "total_cost_micro": 151500
+      }
+    }
+  ]
+}

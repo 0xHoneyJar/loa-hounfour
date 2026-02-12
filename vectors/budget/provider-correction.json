@@ -1,0 +1,76 @@
+{
+  "description": "Provider-reported usage corrections — reconciliation between estimated (chunk-counted) and actual (provider-reported) costs",
+  "format_version": 1,
+  "notes": {
+    "billing_method_precedence": "provider_reported > observed_chunks_overcount > prompt_only",
+    "correction_formula": "correction_micro = actual_cost_micro - estimated_cost_micro",
+    "positive_correction": "Provider reported MORE usage than estimated (undercount) — tenant owes more",
+    "negative_correction": "Provider reported LESS usage than estimated (overcount) — tenant gets credit"
+  },
+  "correction_vectors": [
+    {
+      "id": "pr-01",
+      "note": "Provider confirms exact estimate — zero correction",
+      "estimated": {"completion_tokens": 1000, "price_micro_per_million": 10000000, "cost_micro": 10000},
+      "actual": {"completion_tokens": 1000, "price_micro_per_million": 10000000, "cost_micro": 10000},
+      "expected_correction_micro": 0,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-02",
+      "note": "Provider reports 5% more tokens (undercount)",
+      "estimated": {"completion_tokens": 1000, "price_micro_per_million": 10000000, "cost_micro": 10000},
+      "actual": {"completion_tokens": 1050, "price_micro_per_million": 10000000, "cost_micro": 10500},
+      "expected_correction_micro": 500,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-03",
+      "note": "Provider reports 5% fewer tokens (overcount)",
+      "estimated": {"completion_tokens": 1000, "price_micro_per_million": 10000000, "cost_micro": 10000},
+      "actual": {"completion_tokens": 950, "price_micro_per_million": 10000000, "cost_micro": 9500},
+      "expected_correction_micro": -500,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-04",
+      "note": "Provider reports null usage — keep estimated (conservative)",
+      "estimated": {"completion_tokens": 1000, "price_micro_per_million": 10000000, "cost_micro": 10000},
+      "actual": null,
+      "expected_correction_micro": 0,
+      "billing_method": "observed_chunks_overcount"
+    },
+    {
+      "id": "pr-05",
+      "note": "Zero estimated, provider reports late-arriving usage",
+      "estimated": {"completion_tokens": 0, "price_micro_per_million": 10000000, "cost_micro": 0},
+      "actual": {"completion_tokens": 100, "price_micro_per_million": 10000000, "cost_micro": 1000},
+      "expected_correction_micro": 1000,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-06",
+      "note": "Large streaming overcount — 15% correction",
+      "estimated": {"completion_tokens": 10000, "price_micro_per_million": 10000000, "cost_micro": 100000},
+      "actual": {"completion_tokens": 8500, "price_micro_per_million": 10000000, "cost_micro": 85000},
+      "expected_correction_micro": -15000,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-07",
+      "note": "Correction with remainder handling — 7 vs 8 tokens",
+      "estimated": {"completion_tokens": 7, "price_micro_per_million": 2500000, "cost_micro": 17},
+      "actual": {"completion_tokens": 8, "price_micro_per_million": 2500000, "cost_micro": 20},
+      "expected_correction_micro": 3,
+      "billing_method": "provider_reported"
+    },
+    {
+      "id": "pr-08",
+      "note": "Opus large correction — provider reports 20% less",
+      "estimated": {"completion_tokens": 10000, "price_micro_per_million": 75000000, "cost_micro": 750000},
+      "actual": {"completion_tokens": 8000, "price_micro_per_million": 75000000, "cost_micro": 600000},
+      "expected_correction_micro": -150000,
+      "billing_method": "provider_reported"
+    }
+  ]
+}

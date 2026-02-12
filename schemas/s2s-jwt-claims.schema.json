@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "S2SJwtClaims",
+  "additionalProperties": false,
+  "description": "Service-to-service JWT claims",
+  "type": "object",
+  "required": [
+    "iss",
+    "aud",
+    "sub",
+    "iat",
+    "exp"
+  ],
+  "properties": {
+    "iss": {
+      "description": "Issuer — service identity",
+      "type": "string"
+    },
+    "aud": {
+      "description": "Audience — target service (e.g., \"arrakis\")",
+      "type": "string"
+    },
+    "sub": {
+      "description": "Subject — source service identity",
+      "type": "string"
+    },
+    "iat": {
+      "type": "number"
+    },
+    "exp": {
+      "description": "Short-lived: max 60s for GETs, 300s for mutations",
+      "type": "number"
+    },
+    "jti": {
+      "description": "Optional for GETs (exp ≤ 60s compensates)",
+      "type": "string"
+    },
+    "scope": {
+      "description": "Permission scope (e.g., \"admin:jwks\")",
+      "type": "string"
+    }
+  }
+}

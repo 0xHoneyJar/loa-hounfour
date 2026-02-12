@@ -1,0 +1,98 @@
+{
+  "description": "Basic pricing calculations using integer micro-USD arithmetic. Formula: cost_micro = floor(tokens * price_micro_per_million / 1_000_000)",
+  "format_version": 1,
+  "single_cost_vectors": [
+    {"id": "bp-01", "tokens": 1000, "price_micro_per_million": 2500000, "expected_cost_micro": 2500, "expected_remainder_micro": 0, "note": "gpt-4o input 1k tokens ($2.50/1M)"},
+    {"id": "bp-02", "tokens": 1000, "price_micro_per_million": 10000000, "expected_cost_micro": 10000, "expected_remainder_micro": 0, "note": "gpt-4o output 1k tokens ($10/1M)"},
+    {"id": "bp-03", "tokens": 4096, "price_micro_per_million": 15000000, "expected_cost_micro": 61440, "expected_remainder_micro": 0, "note": "opus input 4096 tokens ($15/1M)"},
+    {"id": "bp-04", "tokens": 4096, "price_micro_per_million": 75000000, "expected_cost_micro": 307200, "expected_remainder_micro": 0, "note": "opus output 4096 tokens ($75/1M)"},
+    {"id": "bp-05", "tokens": 8192, "price_micro_per_million": 3000000, "expected_cost_micro": 24576, "expected_remainder_micro": 0, "note": "sonnet input 8192 tokens ($3/1M)"},
+    {"id": "bp-06", "tokens": 2048, "price_micro_per_million": 15000000, "expected_cost_micro": 30720, "expected_remainder_micro": 0, "note": "sonnet output 2048 tokens ($15/1M)"},
+    {"id": "bp-07", "tokens": 1024, "price_micro_per_million": 40000000, "expected_cost_micro": 40960, "expected_remainder_micro": 0, "note": "o3 reasoning 1024 tokens ($40/1M)"},
+    {"id": "bp-08", "tokens": 10000, "price_micro_per_million": 10000, "expected_cost_micro": 100, "expected_remainder_micro": 0, "note": "qwen local 10k tokens ($0.01/1M)"},
+    {"id": "bp-09", "tokens": 7, "price_micro_per_million": 2500000, "expected_cost_micro": 17, "expected_remainder_micro": 500000, "note": "gpt-4o input 7 tokens — has remainder"},
+    {"id": "bp-10", "tokens": 1, "price_micro_per_million": 75000000, "expected_cost_micro": 75, "expected_remainder_micro": 0, "note": "opus output single token — exact division"},
+    {"id": "bp-11", "tokens": 3, "price_micro_per_million": 333333, "expected_cost_micro": 0, "expected_remainder_micro": 999999, "note": "non-round price 3 tokens — sub-micro total"}
+  ],
+  "total_cost_vectors": [
+    {
+      "id": "bp-12",
+      "note": "Full gpt-4o request",
+      "input": {
+        "prompt_tokens": 1000, "completion_tokens": 500, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 2500000, "output_micro_per_million": 10000000}
+      },
+      "expected": {
+        "input_cost_micro": 2500, "output_cost_micro": 5000, "reasoning_cost_micro": 0,
+        "total_cost_micro": 7500
+      }
+    },
+    {
+      "id": "bp-13",
+      "note": "Full opus request with reasoning",
+      "input": {
+        "prompt_tokens": 4096, "completion_tokens": 2048, "reasoning_tokens": 1024,
+        "pricing": {"input_micro_per_million": 15000000, "output_micro_per_million": 75000000, "reasoning_micro_per_million": 75000000}
+      },
+      "expected": {
+        "input_cost_micro": 61440, "output_cost_micro": 153600, "reasoning_cost_micro": 76800,
+        "total_cost_micro": 291840
+      }
+    },
+    {
+      "id": "bp-14",
+      "note": "Full sonnet request (no reasoning)",
+      "input": {
+        "prompt_tokens": 8192, "completion_tokens": 4096, "reasoning_tokens": 0,
+        "pricing": {"input_micro_per_million": 3000000, "output_micro_per_million": 15000000}
+      },
+      "expected": {
+        "input_cost_micro": 24576, "output_cost_micro": 61440, "reasoning_cost_micro": 0,
+        "total_cost_micro": 86016
+      }
+    },
+    {
+      "id": "bp-15",
+      "note": "Full o3 request — reasoning-heavy",
+      "input": {
+        "prompt_tokens": 2000, "completion_tokens": 500, "reasoning_tokens": 3000,
+        "pricing": {"input_micro_per_million": 10000000, "output_micro_per_million": 40000000, "reasoning_micro_per_million": 40000000}
+      },
+      "expected": {
+        "input_cost_micro": 20000, "output_cost_micro": 20000, "reasoning_cost_micro": 120000,
+        "total_cost_micro": 160000
+      }
+    }
+  ],
+  "remainder_accumulator_sequences": [
+    {
+      "id": "bp-seq-01",
+      "note": "4 requests at non-round price — carry on 4th request",
+      "scope_key": "tenant:test",
+      "steps": [
+        {"tokens": 1, "price_micro_per_million": 333333, "expected_carry": 0, "expected_accumulated": 333333},
+        {"tokens": 1, "price_micro_per_million": 333333, "expected_carry": 0, "expected_accumulated": 666666},
+        {"tokens": 1, "price_micro_per_million": 333333, "expected_carry": 0, "expected_accumulated": 999999},
+        {"tokens": 1, "price_micro_per_million": 333333, "expected_carry": 1, "expected_accumulated": 333332}
+      ]
+    },
+    {
+      "id": "bp-seq-02",
+      "note": "Two half-micro remainders combine for exact carry",
+      "scope_key": "tenant:half",
+      "steps": [
+        {"tokens": 1, "price_micro_per_million": 2500000, "expected_carry": 0, "expected_accumulated": 500000},
+        {"tokens": 1, "price_micro_per_million": 2500000, "expected_carry": 1, "expected_accumulated": 0}
+      ]
+    },
+    {
+      "id": "bp-seq-03",
+      "note": "Zero remainder does not affect accumulator",
+      "scope_key": "tenant:exact",
+      "steps": [
+        {"tokens": 1000, "price_micro_per_million": 2500000, "expected_carry": 0, "expected_accumulated": 0},
+        {"tokens": 1000, "price_micro_per_million": 2500000, "expected_carry": 0, "expected_accumulated": 0}
+      ]
+    }
+  ]
+}

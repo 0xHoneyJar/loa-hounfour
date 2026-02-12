@@ -1,0 +1,43 @@
+{
+  "name": "@0xhoneyjar/loa-hounfour",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "vectors"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "schema:generate": "tsx scripts/generate-schemas.ts",
+    "schema:check": "tsx scripts/check-schemas.ts",
+    "semver:check": "tsx scripts/semver-check.ts",
+    "test": "vitest run",
+    "test:vectors": "vitest run --reporter=verbose tests/vectors/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.48",
+    "jose": "^6.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

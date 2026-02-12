@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "UsageReport",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "trace_id",
+    "tenant_id",
+    "provider",
+    "model",
+    "pool_id",
+    "usage",
+    "cost",
+    "billing_method",
+    "idempotency_key",
+    "timestamp",
+    "contract_version"
+  ],
+  "properties": {
+    "trace_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "pool_id": {
+      "type": "string"
+    },
+    "usage": {
+      "$id": "Usage",
+      "type": "object",
+      "required": [
+        "prompt_tokens",
+        "completion_tokens"
+      ],
+      "properties": {
+        "prompt_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "completion_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "cost": {
+      "$id": "CostBreakdown",
+      "type": "object",
+      "required": [
+        "input_cost_micro",
+        "output_cost_micro",
+        "total_cost_micro"
+      ],
+      "properties": {
+        "input_cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "output_cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "reasoning_cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "total_cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        }
+      }
+    },
+    "billing_method": {
+      "anyOf": [
+        {
+          "const": "provider_reported",
+          "type": "string"
+        },
+        {
+          "const": "observed_chunks_overcount",
+          "type": "string"
+        },
+        {
+          "const": "prompt_only",
+          "type": "string"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "description": "Derived via deriveIdempotencyKey()",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "type": "string"
+    },
+    "nft_id": {
+      "type": "string"
+    },
+    "ensemble_id": {
+      "type": "string"
+    }
+  }
+}

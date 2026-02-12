@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "StreamEvent",
+  "discriminator": {
+    "propertyName": "type"
+  },
+  "anyOf": [
+    {
+      "$id": "StreamStart",
+      "type": "object",
+      "required": [
+        "type",
+        "model",
+        "provider",
+        "pool_id",
+        "trace_id",
+        "contract_version"
+      ],
+      "properties": {
+        "type": {
+          "const": "stream_start",
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "pool_id": {
+          "type": "string"
+        },
+        "trace_id": {
+          "type": "string"
+        },
+        "contract_version": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "StreamChunk",
+      "type": "object",
+      "required": [
+        "type",
+        "delta"
+      ],
+      "properties": {
+        "type": {
+          "const": "chunk",
+          "type": "string"
+        },
+        "delta": {
+          "description": "Incremental text content",
+          "type": "string"
+        },
+        "index": {
+          "minimum": 0,
+          "description": "Choice index for multi-choice",
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "$id": "StreamToolCall",
+      "type": "object",
+      "required": [
+        "type",
+        "index",
+        "function"
+      ],
+      "properties": {
+        "type": {
+          "const": "tool_call",
+          "type": "string"
+        },
+        "index": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "description": "Tool call ID (present on first chunk)",
+          "type": "string"
+        },
+        "function": {
+          "type": "object",
+          "required": [
+            "arguments"
+          ],
+          "properties": {
+            "name": {
+              "description": "Function name (present on first chunk)",
+              "type": "string"
+            },
+            "arguments": {
+              "description": "Incremental JSON arguments",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "$id": "StreamUsage",
+      "type": "object",
+      "required": [
+        "type",
+        "prompt_tokens",
+        "completion_tokens"
+      ],
+      "properties": {
+        "type": {
+          "const": "usage",
+          "type": "string"
+        },
+        "prompt_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "completion_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "$id": "StreamEnd",
+      "type": "object",
+      "required": [
+        "type",
+        "finish_reason",
+        "billing_method",
+        "cost_micro"
+      ],
+      "properties": {
+        "type": {
+          "const": "stream_end",
+          "type": "string"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "const": "stop",
+              "type": "string"
+            },
+            {
+              "const": "tool_calls",
+              "type": "string"
+            },
+            {
+              "const": "length",
+              "type": "string"
+            },
+            {
+              "const": "content_filter",
+              "type": "string"
+            }
+          ]
+        },
+        "billing_method": {
+          "anyOf": [
+            {
+              "const": "provider_reported",
+              "type": "string"
+            },
+            {
+              "const": "observed_chunks_overcount",
+              "type": "string"
+            },
+            {
+              "const": "prompt_only",
+              "type": "string"
+            }
+          ]
+        },
+        "cost_micro": {
+          "pattern": "^[0-9]+$",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "StreamError",
+      "type": "object",
+      "required": [
+        "type",
+        "code",
+        "message",
+        "retryable"
+      ],
+      "properties": {
+        "type": {
+          "const": "error",
+          "type": "string"
+        },
+        "code": {
+          "description": "Error code from HounfourErrorCode",
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

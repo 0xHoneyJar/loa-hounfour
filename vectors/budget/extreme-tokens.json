@@ -1,0 +1,85 @@
+{
+  "description": "Numeric boundary and overflow test cases. Tests safe integer limits, BigInt-required values, and overflow detection.",
+  "format_version": 1,
+  "notes": {
+    "MAX_SAFE_INTEGER": "9007199254740991 (2^53 - 1)",
+    "MAX_REDIS_INT64": "9223372036854775807 (2^63 - 1)",
+    "bigint_vectors": "Use string values for tokens/prices/costs beyond Number.MAX_SAFE_INTEGER. Implementations must parse as BigInt (TS) or int (Python)."
+  },
+  "single_cost_vectors": [
+    {"id": "et-01", "tokens": 0, "price_micro_per_million": 75000000, "expected_cost_micro": 0, "expected_remainder_micro": 0, "note": "zero tokens, any price → zero cost"},
+    {"id": "et-02", "tokens": 1000, "price_micro_per_million": 0, "expected_cost_micro": 0, "expected_remainder_micro": 0, "note": "any tokens, zero price → zero cost"},
+    {"id": "et-03", "tokens": 1, "price_micro_per_million": 1, "expected_cost_micro": 0, "expected_remainder_micro": 1, "note": "minimum nonzero input — pure remainder"},
+    {"id": "et-04", "tokens": 1, "price_micro_per_million": 1000000, "expected_cost_micro": 1, "expected_remainder_micro": 0, "note": "single token at $1/1M — exact boundary"},
+    {"id": "et-05", "tokens": 1, "price_micro_per_million": 999999, "expected_cost_micro": 0, "expected_remainder_micro": 999999, "note": "single token just under $1/1M — max sub-micro remainder"},
+    {"id": "et-06", "tokens": 1, "price_micro_per_million": 1000001, "expected_cost_micro": 1, "expected_remainder_micro": 1, "note": "single token just over $1/1M — minimal carry"},
+    {"id": "et-07", "tokens": 1000000, "price_micro_per_million": 1000000, "expected_cost_micro": 1000000, "expected_remainder_micro": 0, "note": "1M tokens at $1/1M = exactly $1"},
+    {"id": "et-08", "tokens": 9000000, "price_micro_per_million": 1000000, "expected_cost_micro": 9000000, "expected_remainder_micro": 0, "note": "large safe product — 9×10^12 < MAX_SAFE_INTEGER"}
+  ],
+  "overflow_vectors": [
+    {
+      "id": "et-09",
+      "tokens": 100000000,
+      "price_micro_per_million": 100000000,
+      "expected_error": "BUDGET_OVERFLOW",
+      "note": "tokens × price = 10^16 > MAX_SAFE_INTEGER"
+    },
+    {
+      "id": "et-10",
+      "tokens": 1000000000,
+      "price_micro_per_million": 10000000000,
+      "expected_error": "BUDGET_OVERFLOW",
+      "note": "tokens × price = 10^19 >> MAX_SAFE_INTEGER"
+    },
+    {
+      "id": "et-11",
+      "tokens": 9007200,
+      "price_micro_per_million": 1000000000,
+      "expected_error": "BUDGET_OVERFLOW",
+      "note": "just over MAX_SAFE_INTEGER boundary — 9.0072×10^15 > 9.00719925×10^15"
+    }
+  ],
+  "bigint_vectors": [
+    {
+      "id": "et-12",
+      "tokens": "9007199254740991",
+      "price_micro_per_million": "1",
+      "expected_cost_micro": "9007199254",
+      "expected_remainder_micro": "740991",
+      "note": "2^53-1 (MAX_SAFE_INTEGER) tokens — BigInt required"
+    },
+    {
+      "id": "et-13",
+      "tokens": "9007199254740992",
+      "price_micro_per_million": "1",
+      "expected_cost_micro": "9007199254",
+      "expected_remainder_micro": "740992",
+      "note": "2^53 tokens — beyond JS Number precision"
+    },
+    {
+      "id": "et-14",
+      "tokens": "9007199254740993",
+      "price_micro_per_million": "1",
+      "expected_cost_micro": "9007199254",
+      "expected_remainder_micro": "740993",
+      "note": "2^53+1 tokens — cannot be represented as JS Number"
+    },
+    {
+      "id": "et-15",
+      "tokens": "9223372036854775807",
+      "price_micro_per_million": "1",
+      "expected_cost_micro": "9223372036854",
+      "expected_remainder_micro": "775807",
+      "note": "2^63-1 (max Redis signed int64) tokens"
+    }
+  ],
+  "serialization_vectors": [
+    {"id": "et-ser-01", "micro_usd_string": "0", "note": "zero serializes cleanly"},
+    {"id": "et-ser-02", "micro_usd_string": "1", "note": "minimum nonzero"},
+    {"id": "et-ser-03", "micro_usd_string": "2500", "note": "typical small cost"},
+    {"id": "et-ser-04", "micro_usd_string": "1000000", "note": "$1.00 exactly"},
+    {"id": "et-ser-05", "micro_usd_string": "9007199254740991", "note": "MAX_SAFE_INTEGER — last value representable as JS Number"},
+    {"id": "et-ser-06", "micro_usd_string": "9007199254740992", "note": "2^53 — requires BigInt parsing in JS"},
+    {"id": "et-ser-07", "micro_usd_string": "9223372036854775807", "note": "2^63-1 — max Redis int64"}
+  ]
+}

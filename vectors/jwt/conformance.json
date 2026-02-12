@@ -1,0 +1,110 @@
+{
+  "$comment": "JWT conformance test vectors for loa-hounfour protocol",
+  "vectors": [
+    {
+      "id": "jwt-valid-invoke",
+      "description": "Valid invoke JWT with all required claims",
+      "claims": {
+        "iss": "https://auth.honeyjar.xyz",
+        "aud": "loa-finn",
+        "sub": "user-123",
+        "tenant_id": "tenant-abc",
+        "tier": "pro",
+        "req_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "iat": 1707700000,
+        "exp": 1707703600,
+        "jti": "unique-jti-001"
+      },
+      "expected": "valid"
+    },
+    {
+      "id": "jwt-expired",
+      "description": "Expired JWT (exp in the past)",
+      "claims": {
+        "iss": "https://auth.honeyjar.xyz",
+        "aud": "loa-finn",
+        "sub": "user-123",
+        "tenant_id": "tenant-abc",
+        "tier": "pro",
+        "req_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "iat": 1707600000,
+        "exp": 1707600001,
+        "jti": "unique-jti-002"
+      },
+      "expected": "invalid",
+      "error": "JWT_EXPIRED"
+    },
+    {
+      "id": "jwt-wrong-aud",
+      "description": "Wrong audience (arrakis instead of loa-finn)",
+      "claims": {
+        "iss": "https://auth.honeyjar.xyz",
+        "aud": "arrakis",
+        "sub": "user-123",
+        "tenant_id": "tenant-abc",
+        "tier": "pro",
+        "req_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "iat": 1707700000,
+        "exp": 1707703600,
+        "jti": "unique-jti-003"
+      },
+      "expected": "invalid",
+      "error": "AUDIENCE_MISMATCH"
+    },
+    {
+      "id": "jwt-rotated-key",
+      "description": "JWT signed with previous key (kid mismatch on primary, valid on rotated)",
+      "claims": {
+        "iss": "https://auth.honeyjar.xyz",
+        "aud": "loa-finn",
+        "sub": "user-456",
+        "tenant_id": "tenant-def",
+        "tier": "enterprise",
+        "req_hash": "sha256:abc123def456abc123def456abc123def456abc123def456abc123def456abcd",
+        "iat": 1707700000,
+        "exp": 1707703600,
+        "jti": "unique-jti-004"
+      },
+      "kid": "key-v1",
+      "jwks_contains": ["key-v2", "key-v1"],
+      "expected": "valid",
+      "notes": "Must validate against rotated key in JWKS"
+    },
+    {
+      "id": "jwt-disallowed-iss",
+      "description": "Issuer not in allowlist",
+      "claims": {
+        "iss": "https://evil.example.com",
+        "aud": "loa-finn",
+        "sub": "user-789",
+        "tenant_id": "tenant-ghi",
+        "tier": "free",
+        "req_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "iat": 1707700000,
+        "exp": 1707703600,
+        "jti": "unique-jti-005"
+      },
+      "expected": "invalid",
+      "error": "ISSUER_NOT_ALLOWED"
+    },
+    {
+      "id": "jwt-jwks-timeout",
+      "description": "JWKS endpoint unreachable — DEGRADED state behavior",
+      "claims": {
+        "iss": "https://auth.honeyjar.xyz",
+        "aud": "loa-finn",
+        "sub": "user-123",
+        "tenant_id": "tenant-abc",
+        "tier": "pro",
+        "req_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "iat": 1707700000,
+        "exp": 1707703600,
+        "jti": "unique-jti-006"
+      },
+      "jwks_state": "DEGRADED",
+      "kid": "known-kid",
+      "expected": "valid",
+      "notes": "Known kid accepted in DEGRADED; unknown kid rejected"
+    }
+  ]
+}

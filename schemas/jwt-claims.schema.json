@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "JwtClaims",
+  "additionalProperties": false,
+  "description": "Canonical JWT claims for loa-finn ↔ arrakis protocol",
+  "type": "object",
+  "required": [
+    "iss",
+    "aud",
+    "sub",
+    "iat",
+    "exp",
+    "tenant_id",
+    "tier",
+    "req_hash"
+  ],
+  "properties": {
+    "iss": {
+      "description": "Issuer — must match allowlist (exact string match, per-environment)",
+      "type": "string"
+    },
+    "aud": {
+      "description": "Audience — \"loa-finn\" for invoke, \"loa-finn-admin\" for admin, \"arrakis\" for S2S",
+      "type": "string"
+    },
+    "sub": {
+      "description": "Subject — user or service identifier",
+      "type": "string"
+    },
+    "iat": {
+      "description": "Issued at (Unix seconds)",
+      "type": "number"
+    },
+    "exp": {
+      "description": "Expiration (Unix seconds)",
+      "type": "number"
+    },
+    "jti": {
+      "description": "JWT ID — required for invoke/admin, optional for S2S GET (short exp ≤ 60s compensates)",
+      "type": "string"
+    },
+    "tenant_id": {
+      "minLength": 1,
+      "description": "Tenant identifier",
+      "type": "string"
+    },
+    "tier": {
+      "$id": "Tier",
+      "description": "Tenant subscription tier",
+      "anyOf": [
+        {
+          "const": "free",
+          "type": "string"
+        },
+        {
+          "const": "pro",
+          "type": "string"
+        },
+        {
+          "const": "enterprise",
+          "type": "string"
+        }
+      ]
+    },
+    "req_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 hex digest of canonical request body",
+      "type": "string"
+    },
+    "nft_id": {
+      "description": "NFT identifier for personality-based routing",
+      "type": "string"
+    },
+    "model_preferences": {
+      "description": "Task type → pool ID overrides",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "type": "string"
+        }
+      }
+    },
+    "byok": {
+      "$id": "ByokClaims",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "token_id",
+        "provider",
+        "scopes"
+      ],
+      "properties": {
+        "token_id": {
+          "description": "Reference to stored key in arrakis (never the raw key)",
+          "type": "string"
+        },
+        "provider": {
+          "description": "Target provider (e.g., openai, anthropic)",
+          "type": "string"
+        },
+        "scopes": {
+          "description": "Permitted operations",
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
