@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "InvokeResponse",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/invoke-response",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -144,5 +144,6 @@
       "description": "Protocol version",
       "type": "string"
     }
-  }
+  },
+  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
 }

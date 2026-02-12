@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "UsageReport",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/usage-report",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -118,5 +118,6 @@
     "ensemble_id": {
       "type": "string"
     }
-  }
+  },
+  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
 }

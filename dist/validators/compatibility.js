@@ -36,9 +36,10 @@ export function validateCompatibility(remoteVersion) {
                 `Major version changes require coordinated upgrade.`,
         };
     }
-    // Below minimum supported
+    // Below minimum supported (full semver: major → minor → patch)
     if (remote.major < min.major ||
-        (remote.major === min.major && remote.minor < min.minor)) {
+        (remote.major === min.major && remote.minor < min.minor) ||
+        (remote.major === min.major && remote.minor === min.minor && remote.patch < min.patch)) {
         return {
             compatible: false,
             error: `Version ${remoteVersion} is below minimum supported ${MIN_SUPPORTED_VERSION}.`,

@@ -35,4 +35,15 @@ export declare const ERROR_CODES: {
     readonly SSE_PARSE_ERROR: "SSE_PARSE_ERROR";
 };
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
+/**
+ * Canonical HTTP status mapping for error codes.
+ *
+ * Ensures arrakis and loa-finn return consistent HTTP statuses
+ * for the same error conditions. Without this, intermediaries
+ * (load balancers, API gateways) cannot make correct routing
+ * decisions based on HTTP status alone.
+ *
+ * @see PR #61 BridgeBuilder review — Finding 2
+ */
+export declare const ERROR_HTTP_STATUS: Record<ErrorCode, number>;
 //# sourceMappingURL=errors.d.ts.map

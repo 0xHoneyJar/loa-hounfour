@@ -1,9 +1,13 @@
 /**
  * Server-derived idempotency key.
  *
- * Canonical derivation (SDD 6.1):
+ * Canonical derivation (SDD 6.1, updated per BridgeBuilder Finding 1):
  *   deriveIdempotencyKey(tenant, reqHash, provider, model) =
- *     SHA256(tenant + ":" + reqHash + ":" + provider + ":" + model)
+ *     SHA256(JSON.stringify([tenant, reqHash, provider, model]))
+ *
+ * Uses JSON array serialization instead of colon-delimited concatenation
+ * to prevent collision when components contain the delimiter character.
+ * See: PR #61 BridgeBuilder review — Finding 1.
  *
  * This key is deterministic for the same logical request regardless of:
  * - retry attempt number
@@ -32,7 +36,9 @@ export function deriveIdempotencyKey(tenant, reqHash, provider, model) {
     if (!tenant || !reqHash || !provider || !model) {
         throw new Error('All idempotency key components are required');
     }
-    const canonical = `${tenant}:${reqHash}:${provider}:${model}`;
+    // JSON array serialization is collision-proof: no delimiter ambiguity.
+    // ["a:b","x","y","z"] !== ["a","b:x","y","z"]
+    const canonical = JSON.stringify([tenant, reqHash, provider, model]);
     return createHash('sha256').update(canonical, 'utf8').digest('hex');
 }
 /**

@@ -19,12 +19,14 @@ export declare const StreamStartSchema: import("@sinclair/typebox").TObject<{
     pool_id: import("@sinclair/typebox").TString;
     trace_id: import("@sinclair/typebox").TString;
     contract_version: import("@sinclair/typebox").TString;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /** Content chunk — incremental text delta. */
 export declare const StreamChunkSchema: import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"chunk">;
     delta: import("@sinclair/typebox").TString;
     index: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /** Tool call — incremental function call data. */
 export declare const StreamToolCallSchema: import("@sinclair/typebox").TObject<{
@@ -35,6 +37,7 @@ export declare const StreamToolCallSchema: import("@sinclair/typebox").TObject<{
         name: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         arguments: import("@sinclair/typebox").TString;
     }>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /** Usage report — token counts. Must appear before stream_end. */
 export declare const StreamUsageSchema: import("@sinclair/typebox").TObject<{
@@ -42,6 +45,7 @@ export declare const StreamUsageSchema: import("@sinclair/typebox").TObject<{
     prompt_tokens: import("@sinclair/typebox").TInteger;
     completion_tokens: import("@sinclair/typebox").TInteger;
     reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /** Stream end — always last on success. */
 export declare const StreamEndSchema: import("@sinclair/typebox").TObject<{
@@ -49,6 +53,7 @@ export declare const StreamEndSchema: import("@sinclair/typebox").TObject<{
     finish_reason: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"stop">, import("@sinclair/typebox").TLiteral<"tool_calls">, import("@sinclair/typebox").TLiteral<"length">, import("@sinclair/typebox").TLiteral<"content_filter">]>;
     billing_method: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider_reported">, import("@sinclair/typebox").TLiteral<"observed_chunks_overcount">, import("@sinclair/typebox").TLiteral<"prompt_only">]>;
     cost_micro: import("@sinclair/typebox").TString;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /** Error event — terminal, replaces stream_end on failure. */
 export declare const StreamErrorSchema: import("@sinclair/typebox").TObject<{
@@ -56,6 +61,7 @@ export declare const StreamErrorSchema: import("@sinclair/typebox").TObject<{
     code: import("@sinclair/typebox").TString;
     message: import("@sinclair/typebox").TString;
     retryable: import("@sinclair/typebox").TBoolean;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 /**
  * Discriminated union of all stream event types.
@@ -74,10 +80,12 @@ export declare const StreamEventSchema: import("@sinclair/typebox").TUnion<[impo
     pool_id: import("@sinclair/typebox").TString;
     trace_id: import("@sinclair/typebox").TString;
     contract_version: import("@sinclair/typebox").TString;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"chunk">;
     delta: import("@sinclair/typebox").TString;
     index: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"tool_call">;
     index: import("@sinclair/typebox").TInteger;
@@ -86,21 +94,25 @@ export declare const StreamEventSchema: import("@sinclair/typebox").TUnion<[impo
         name: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         arguments: import("@sinclair/typebox").TString;
     }>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"usage">;
     prompt_tokens: import("@sinclair/typebox").TInteger;
     completion_tokens: import("@sinclair/typebox").TInteger;
     reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"stream_end">;
     finish_reason: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"stop">, import("@sinclair/typebox").TLiteral<"tool_calls">, import("@sinclair/typebox").TLiteral<"length">, import("@sinclair/typebox").TLiteral<"content_filter">]>;
     billing_method: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider_reported">, import("@sinclair/typebox").TLiteral<"observed_chunks_overcount">, import("@sinclair/typebox").TLiteral<"prompt_only">]>;
     cost_micro: import("@sinclair/typebox").TString;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"error">;
     code: import("@sinclair/typebox").TString;
     message: import("@sinclair/typebox").TString;
     retryable: import("@sinclair/typebox").TBoolean;
+    sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>]>;
 export type StreamEvent = Static<typeof StreamEventSchema>;
 export type StreamStart = Static<typeof StreamStartSchema>;

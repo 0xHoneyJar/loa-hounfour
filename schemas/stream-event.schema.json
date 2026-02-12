@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "StreamEvent",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/stream-event",
   "discriminator": {
     "propertyName": "type"
   },
@@ -35,6 +35,11 @@
         },
         "contract_version": {
           "type": "string"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
+          "type": "integer"
         }
       }
     },
@@ -57,6 +62,11 @@
         "index": {
           "minimum": 0,
           "description": "Choice index for multi-choice",
+          "type": "integer"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
           "type": "integer"
         }
       }
@@ -97,6 +107,11 @@
               "type": "string"
             }
           }
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
+          "type": "integer"
         }
       }
     },
@@ -123,6 +138,11 @@
         },
         "reasoning_tokens": {
           "minimum": 0,
+          "type": "integer"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
           "type": "integer"
         }
       }
@@ -180,6 +200,11 @@
         "cost_micro": {
           "pattern": "^[0-9]+$",
           "type": "string"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
+          "type": "integer"
         }
       }
     },
@@ -206,8 +231,14 @@
         },
         "retryable": {
           "type": "boolean"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
+          "type": "integer"
         }
       }
     }
-  ]
+  ],
+  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
 }

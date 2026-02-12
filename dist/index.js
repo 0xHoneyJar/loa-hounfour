@@ -18,9 +18,9 @@ export { StreamEventSchema, StreamStartSchema, StreamChunkSchema, StreamToolCall
 // Schemas — Routing Policy
 export { RoutingPolicySchema, PersonalityRoutingSchema, TaskTypeSchema, } from './schemas/routing-policy.js';
 // Vocabulary — Pools
-export { POOL_IDS, PoolIdSchema, TIER_POOL_ACCESS, TIER_DEFAULT_POOL, isValidPoolId, tierHasAccess, } from './vocabulary/pools.js';
+export { POOL_IDS, PoolIdSchema, TIER_POOL_ACCESS, TIER_DEFAULT_POOL, PoolCapabilitiesSchema, isValidPoolId, tierHasAccess, } from './vocabulary/pools.js';
 // Vocabulary — Errors
-export { ERROR_CODES } from './vocabulary/errors.js';
+export { ERROR_CODES, ERROR_HTTP_STATUS } from './vocabulary/errors.js';
 // Validators
 export { validate, validators } from './validators/index.js';
 export { validateCompatibility } from './validators/compatibility.js';

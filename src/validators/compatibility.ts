@@ -43,10 +43,11 @@ export function validateCompatibility(remoteVersion: string): CompatibilityResul
     };
   }
 
-  // Below minimum supported
+  // Below minimum supported (full semver: major → minor → patch)
   if (
     remote.major < min.major ||
-    (remote.major === min.major && remote.minor < min.minor)
+    (remote.major === min.major && remote.minor < min.minor) ||
+    (remote.major === min.major && remote.minor === min.minor && remote.patch < min.patch)
   ) {
     return {
       compatible: false,

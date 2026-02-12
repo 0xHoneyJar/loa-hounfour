@@ -73,13 +73,15 @@ export {
   PoolIdSchema,
   TIER_POOL_ACCESS,
   TIER_DEFAULT_POOL,
+  PoolCapabilitiesSchema,
   isValidPoolId,
   tierHasAccess,
   type PoolId,
+  type PoolCapabilities,
 } from './vocabulary/pools.js';
 
 // Vocabulary — Errors
-export { ERROR_CODES, type ErrorCode } from './vocabulary/errors.js';
+export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 
 // Validators
 export { validate, validators } from './validators/index.js';

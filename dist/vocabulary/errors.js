@@ -42,4 +42,55 @@ export const ERROR_CODES = {
     // SSE
     SSE_PARSE_ERROR: 'SSE_PARSE_ERROR',
 };
+/**
+ * Canonical HTTP status mapping for error codes.
+ *
+ * Ensures arrakis and loa-finn return consistent HTTP statuses
+ * for the same error conditions. Without this, intermediaries
+ * (load balancers, API gateways) cannot make correct routing
+ * decisions based on HTTP status alone.
+ *
+ * @see PR #61 BridgeBuilder review — Finding 2
+ */
+export const ERROR_HTTP_STATUS = {
+    // Auth → 401/403
+    JWT_INVALID: 401,
+    JWT_EXPIRED: 401,
+    JTI_REQUIRED: 401,
+    JTI_REPLAY: 401,
+    ISSUER_NOT_ALLOWED: 403,
+    AUDIENCE_MISMATCH: 403,
+    REQ_HASH_MISMATCH: 403,
+    TIER_INSUFFICIENT: 403,
+    JWKS_UNAVAILABLE: 503,
+    // Budget → 402/429
+    BUDGET_EXCEEDED: 402,
+    BUDGET_OVERFLOW: 400,
+    RATE_LIMITED: 429,
+    // Request → 400/413/415
+    CONTRACT_VERSION_MISMATCH: 400,
+    POOL_UNKNOWN: 400,
+    BODY_TOO_LARGE: 413,
+    ENCODING_UNSUPPORTED: 415,
+    DECOMPRESSION_BOMB: 413,
+    // Provider → 502/503/504
+    PROVIDER_UNAVAILABLE: 503,
+    PROVIDER_TIMEOUT: 504,
+    PROVIDER_ERROR: 502,
+    MODEL_UNAVAILABLE: 503,
+    // Runtime → 500/504
+    NATIVE_RUNTIME_SPAWN_FAILED: 500,
+    NATIVE_RUNTIME_TIMEOUT: 504,
+    NATIVE_RUNTIME_ORPHAN: 500,
+    ENSEMBLE_ALL_FAILED: 502,
+    // BYOK → 401/429
+    BYOK_SESSION_EXPIRED: 401,
+    BYOK_BOUNDED_USE_EXCEEDED: 429,
+    BYOK_NONCE_REPLAY: 401,
+    // Reconciliation → 503
+    RECONCILIATION_DRIFT: 503,
+    RECONCILIATION_FAIL_CLOSED: 503,
+    // SSE → 400
+    SSE_PARSE_ERROR: 400,
+};
 //# sourceMappingURL=errors.js.map

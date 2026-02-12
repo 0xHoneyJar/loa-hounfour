@@ -39,7 +39,28 @@ export class DecompressionError extends Error {
 }
 /**
  * Parse and validate Content-Encoding header.
- * Returns encodings in application order (outermost first for unwrapping).
+ * Returns encodings in unwrap order for decompression.
+ *
+ * HTTP Content-Encoding semantics (RFC 9110 §8.4):
+ *
+ *   Content-Encoding: gzip, br
+ *
+ * means the body was first compressed with brotli, then gzip was applied
+ * on top. The header lists encodings in the order they were applied
+ * (innermost-last). To decompress, we must unwrap in reverse:
+ *
+ *   1. gunzip  (outermost layer — listed first in header)
+ *   2. brotli  (innermost layer — listed last in header)
+ *
+ * This function reverses the header order so callers can iterate
+ * left-to-right to peel layers from outside in.
+ *
+ * Example:
+ *   parseEncodings("gzip, br") → ["gzip", "br"]
+ *   // Step 1: gunzip the wire bytes
+ *   // Step 2: brotli-decompress the result → original body
+ *
+ * @see PR #61 BridgeBuilder review — Finding 7
  */
 function parseEncodings(contentEncoding) {
     if (!contentEncoding || contentEncoding === 'identity')
@@ -56,7 +77,8 @@ function parseEncodings(contentEncoding) {
             throw new DecompressionError(`Unsupported encoding: "${enc}". Allowed: ${[...ALLOWED_ENCODINGS].join(', ')}`, 'ENCODING_UNSUPPORTED', 415);
         }
     }
-    // Return in reverse order for unwrapping (outermost first)
+    // Reverse: header lists innermost-last, we unwrap outermost-first.
+    // "gzip, br" → ["gzip", "br"] (gunzip first, then brotli).
     return encodings.reverse();
 }
 /**

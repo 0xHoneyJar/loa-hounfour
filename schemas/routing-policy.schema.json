@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "RoutingPolicy",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/routing-policy",
   "type": "object",
   "required": [
     "version",
@@ -188,5 +188,6 @@
         }
       }
     }
-  }
+  },
+  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
 }

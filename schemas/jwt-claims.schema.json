@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "JwtClaims",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/jwt-claims",
   "additionalProperties": false,
   "description": "Canonical JWT claims for loa-finn ↔ arrakis protocol",
   "type": "object",
@@ -108,5 +108,6 @@
         }
       }
     }
-  }
+  },
+  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
 }

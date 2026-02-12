@@ -37,6 +37,21 @@ describe('deriveIdempotencyKey', () => {
     expect(key1).not.toBe(key2);
   });
 
+  it('components containing colons produce distinct keys (Finding 1)', () => {
+    // With colon-delimited concatenation, these would collide:
+    // "a:b" + "x" → "a:b:x:..." vs "a" + "b:x" → "a:b:x:..."
+    // JSON array serialization prevents this:
+    // ["a:b","x",...] !== ["a","b:x",...]
+    const key1 = deriveIdempotencyKey('tenant:a', 'sha256:hash', 'openai', 'gpt-4o');
+    const key2 = deriveIdempotencyKey('tenant', 'a:sha256:hash', 'openai', 'gpt-4o');
+    expect(key1).not.toBe(key2);
+
+    // Another collision scenario with provider/model boundary
+    const key3 = deriveIdempotencyKey('t', 'sha256:x', 'open:ai', 'gpt-4o');
+    const key4 = deriveIdempotencyKey('t', 'sha256:x', 'open', 'ai:gpt-4o');
+    expect(key3).not.toBe(key4);
+  });
+
   it('throws on empty components', () => {
     expect(() => deriveIdempotencyKey('', 'sha256:x', 'openai', 'gpt-4o')).toThrow();
     expect(() => deriveIdempotencyKey('t', '', 'openai', 'gpt-4o')).toThrow();

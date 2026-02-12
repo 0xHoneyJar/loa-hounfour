@@ -11,6 +11,7 @@ import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../src/schemas/jwt-claims.j
 import { InvokeResponseSchema, UsageReportSchema } from '../src/schemas/invoke-response.js';
 import { StreamEventSchema } from '../src/schemas/stream-events.js';
 import { RoutingPolicySchema } from '../src/schemas/routing-policy.js';
+import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '..', 'schemas');
@@ -30,6 +31,9 @@ for (const { name, schema } of schemas) {
   const jsonSchema = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     ...schema,
+    // Override TypeBox $id with versioned URI (must come after spread)
+    $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
+    $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
   const path = join(outDir, `${name}.schema.json`);
   writeFileSync(path, JSON.stringify(jsonSchema, null, 2) + '\n');

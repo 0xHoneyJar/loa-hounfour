@@ -105,10 +105,12 @@ export declare const validators: {
         pool_id: import("@sinclair/typebox").TString;
         trace_id: import("@sinclair/typebox").TString;
         contract_version: import("@sinclair/typebox").TString;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>, import("@sinclair/typebox").TObject<{
         type: import("@sinclair/typebox").TLiteral<"chunk">;
         delta: import("@sinclair/typebox").TString;
         index: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>, import("@sinclair/typebox").TObject<{
         type: import("@sinclair/typebox").TLiteral<"tool_call">;
         index: import("@sinclair/typebox").TInteger;
@@ -117,21 +119,25 @@ export declare const validators: {
             name: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             arguments: import("@sinclair/typebox").TString;
         }>;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>, import("@sinclair/typebox").TObject<{
         type: import("@sinclair/typebox").TLiteral<"usage">;
         prompt_tokens: import("@sinclair/typebox").TInteger;
         completion_tokens: import("@sinclair/typebox").TInteger;
         reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>, import("@sinclair/typebox").TObject<{
         type: import("@sinclair/typebox").TLiteral<"stream_end">;
         finish_reason: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"stop">, import("@sinclair/typebox").TLiteral<"tool_calls">, import("@sinclair/typebox").TLiteral<"length">, import("@sinclair/typebox").TLiteral<"content_filter">]>;
         billing_method: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider_reported">, import("@sinclair/typebox").TLiteral<"observed_chunks_overcount">, import("@sinclair/typebox").TLiteral<"prompt_only">]>;
         cost_micro: import("@sinclair/typebox").TString;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>, import("@sinclair/typebox").TObject<{
         type: import("@sinclair/typebox").TLiteral<"error">;
         code: import("@sinclair/typebox").TString;
         message: import("@sinclair/typebox").TString;
         retryable: import("@sinclair/typebox").TBoolean;
+        sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>]>>;
     readonly routingPolicy: () => TypeCheck<import("@sinclair/typebox").TObject<{
         version: import("@sinclair/typebox").TString;
