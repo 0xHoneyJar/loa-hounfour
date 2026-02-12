@@ -1,0 +1,1 @@
+{"version":3,"file":"compatibility.d.ts","sourceRoot":"","sources":["../../src/validators/compatibility.ts"],"names":[],"mappings":"AAYA,MAAM,MAAM,mBAAmB,GAC3B;IAAE,UAAU,EAAE,IAAI,CAAC;IAAC,OAAO,CAAC,EAAE,MAAM,CAAA;CAAE,GACtC;IAAE,UAAU,EAAE,KAAK,CAAC;IAAC,KAAK,EAAE,MAAM,CAAA;CAAE,CAAC;AAEzC;;;;;GAKG;AACH,wBAAgB,qBAAqB,CAAC,aAAa,EAAE,MAAM,GAAG,mBAAmB,CA8ChF"}

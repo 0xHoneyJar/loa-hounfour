@@ -20,7 +20,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "tsc",
     "prepublishOnly": "tsc",
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "schema:check": "tsx scripts/check-schemas.ts",
