@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/saga-context",
+  "additionalProperties": false,
+  "description": "Saga execution context for multi-step distributed operations",
+  "type": "object",
+  "required": [
+    "saga_id",
+    "step",
+    "direction"
+  ],
+  "properties": {
+    "saga_id": {
+      "minLength": 1,
+      "description": "Saga/workflow execution ID",
+      "type": "string"
+    },
+    "step": {
+      "minimum": 1,
+      "description": "Step number within the saga",
+      "type": "integer"
+    },
+    "total_steps": {
+      "minimum": 1,
+      "description": "Total expected steps (if known)",
+      "type": "integer"
+    },
+    "direction": {
+      "description": "Whether this batch progresses or compensates the saga",
+      "anyOf": [
+        {
+          "const": "forward",
+          "type": "string"
+        },
+        {
+          "const": "compensation",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
+}

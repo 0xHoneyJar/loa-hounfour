@@ -6,7 +6,64 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
-## v2.1.0 (Unreleased)
+## v2.2.0 (Unreleased)
+
+**Theme:** Post-Flatline Deep Excellence — trust boundaries, vocabulary, structured events, capability negotiation, and schema discovery.
+
+### DomainEvent
+- **Enhanced:** `metadata` description now includes namespace conventions: `loa.*` (protocol), `trace.*` (OpenTelemetry), `x-*` (consumer) — BB-V3-001
+
+### DomainEventBatch
+- **Added:** `context` optional field — envelope-level routing context (`transfer_id`, `aggregate_id`, `aggregate_type`) avoids payload inspection (BB-V3-010)
+- **Added:** `saga` optional field — saga execution context with `saga_id`, `step`, `direction` (forward/compensation) for distributed saga tracking (BB-V3-012)
+
+### SagaContext (NEW)
+- Saga execution context for multi-step distributed operations (BB-V3-012)
+- Fields: `saga_id`, `step`, `total_steps`, `direction` (forward | compensation)
+
+### LifecycleTransitionPayload
+- **Added:** `reason_code` optional field — machine-readable Kubernetes-style reason code for filtering and monitoring (BB-V3-009)
+- **Enhanced:** `reason` description clarified as human-readable (was ambiguous)
+
+### ConversationSealingPolicy
+- **Added:** `$comment` documenting cross-field invariant for cross-language consumers (BB-V3-008)
+- **Added:** JSON Schema `if/then` conditional validation for encryption → key_derivation constraint (BB-V3-008)
+- **Deprecated:** `previous_owner_access` field — will be replaced by richer `access_policy` in v3.0.0 (BB-V3-004)
+
+### BillingEntry
+- **Enhanced:** `metadata` description now includes namespace conventions (BB-V3-001)
+
+### InvokeResponse
+- **Enhanced:** `metadata` description now includes namespace conventions (BB-V3-001)
+
+### Capability (NEW)
+- Agent capability descriptor: `skill_id`, `input_modes`, `output_modes`, `models`, `max_latency_ms` (BB-V3-005)
+
+### CapabilityQuery (NEW)
+- Capability discovery query: `required_skills`, `preferred_models`, `max_latency_ms`, `min_context_tokens` (BB-V3-005)
+- `additionalProperties: true` for future extensibility
+
+### CapabilityResponse (NEW)
+- Response to capability query: `agent_id`, `capabilities[]`, `available`, `contract_version` (BB-V3-005)
+
+### ProtocolDiscovery (NEW)
+- Schema discovery document for `/.well-known/loa-hounfour` convention (BB-V3-006)
+- Fields: `contract_version`, `min_supported_version`, `schemas[]`, `capabilities`
+- Helper: `buildDiscoveryDocument()` generates from current package state
+
+### Vocabulary Additions
+- `METADATA_NAMESPACES` — reserved metadata namespace prefixes (BB-V3-001)
+- `LIFECYCLE_REASON_CODES` — 10 canonical lifecycle transition reason codes (BB-V3-009)
+- `EVENT_TYPES` — 20 canonical domain event types across 6 aggregates (BB-V3-011)
+
+### Deprecation Convention
+- Established TypeBox `deprecated: true` → JSON Schema `"deprecated": true` pipeline (BB-V3-004)
+- Lifecycle: add deprecated → warn → remove at major version boundary
+- Exemplar: `previous_owner_access` on ConversationSealingPolicy
+
+---
+
+## v2.1.0
 
 **Theme:** Bridgebuilder Excellence Refinements — extending the protocol for observability, atomic delivery, and cross-language interoperability.
 

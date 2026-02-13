@@ -29,6 +29,9 @@ import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema } fr
 import { TransferSpecSchema, TransferEventSchema } from '../schemas/transfer-spec.js';
 import { DomainEventSchema, DomainEventBatchSchema } from '../schemas/domain-event.js';
 import { LifecycleTransitionPayloadSchema } from '../schemas/lifecycle-event-payload.js';
+import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../schemas/capability.js';
+import { ProtocolDiscoverySchema } from '../schemas/discovery.js';
+import { SagaContextSchema } from '../schemas/domain-event.js';
 
 // Compile cache — lazily populated on first use
 const cache = new Map<string, TypeCheck<TSchema>>();
@@ -92,4 +95,11 @@ export const validators = {
   // v2.1.0
   domainEventBatch: () => getOrCompile(DomainEventBatchSchema),
   lifecycleTransitionPayload: () => getOrCompile(LifecycleTransitionPayloadSchema),
+
+  // v2.2.0
+  capability: () => getOrCompile(CapabilitySchema),
+  capabilityQuery: () => getOrCompile(CapabilityQuerySchema),
+  capabilityResponse: () => getOrCompile(CapabilityResponseSchema),
+  protocolDiscovery: () => getOrCompile(ProtocolDiscoverySchema),
+  sagaContext: () => getOrCompile(SagaContextSchema),
 } as const;

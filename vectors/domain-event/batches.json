@@ -96,6 +96,94 @@
         "contract_version": "2.0.0"
       },
       "note": "batch with event containing metadata (BB-C2-001 — composition test)"
+    },
+    {
+      "id": "batch-004",
+      "data": {
+        "batch_id": "batch_ctx_001",
+        "correlation_id": "corr_ctx_001",
+        "events": [
+          {
+            "event_id": "evt_b4_001",
+            "aggregate_id": "agent_ctx",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T12:00:00Z",
+            "actor": "transfer-service",
+            "payload": { "agent_id": "agent_ctx" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "transfer-service",
+        "produced_at": "2026-01-15T12:00:01Z",
+        "contract_version": "2.2.0",
+        "context": {
+          "transfer_id": "xfer_001",
+          "aggregate_id": "agent_ctx",
+          "aggregate_type": "agent"
+        }
+      },
+      "note": "batch with routing context (BB-V3-010 — O(1) routing)"
+    },
+    {
+      "id": "batch-005",
+      "data": {
+        "batch_id": "batch_saga_fwd",
+        "correlation_id": "corr_saga_001",
+        "events": [
+          {
+            "event_id": "evt_b5_001",
+            "aggregate_id": "agent_saga",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T13:00:00Z",
+            "actor": "transfer-service",
+            "payload": { "agent_id": "agent_saga" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "transfer-service",
+        "produced_at": "2026-01-15T13:00:01Z",
+        "contract_version": "2.2.0",
+        "saga": {
+          "saga_id": "saga_xfer_001",
+          "step": 1,
+          "total_steps": 3,
+          "direction": "forward"
+        }
+      },
+      "note": "batch with forward saga context (BB-V3-012)"
+    },
+    {
+      "id": "batch-006",
+      "data": {
+        "batch_id": "batch_saga_comp",
+        "correlation_id": "corr_saga_002",
+        "events": [
+          {
+            "event_id": "evt_b6_001",
+            "aggregate_id": "agent_comp",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T14:00:00Z",
+            "actor": "transfer-service",
+            "payload": { "agent_id": "agent_comp" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "transfer-service",
+        "produced_at": "2026-01-15T14:00:01Z",
+        "contract_version": "2.2.0",
+        "saga": {
+          "saga_id": "saga_xfer_001",
+          "step": 2,
+          "direction": "compensation"
+        }
+      },
+      "note": "batch with compensation saga context (BB-V3-012 — rollback)"
     }
   ],
   "invalid_batches": [

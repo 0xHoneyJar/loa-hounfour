@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/protocol-discovery",
+  "additionalProperties": false,
+  "description": "Protocol discovery document for /.well-known/loa-hounfour",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "min_supported_version",
+    "schemas"
+  ],
+  "properties": {
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Current contract version",
+      "type": "string"
+    },
+    "min_supported_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Minimum version this endpoint supports",
+      "type": "string"
+    },
+    "schemas": {
+      "description": "List of supported schema $id URLs",
+      "type": "array",
+      "items": {
+        "format": "uri",
+        "description": "Schema $id URL",
+        "type": "string"
+      }
+    },
+    "capabilities": {
+      "description": "Supported aggregate types (e.g. \"agent\", \"billing\")",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
+}

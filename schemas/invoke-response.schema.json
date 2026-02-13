@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/invoke-response",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/invoke-response",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -122,12 +122,12 @@
       "type": "string"
     },
     "metadata": {
-      "description": "Consumer-extensible metadata (not validated by protocol contract)",
+      "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
       "type": "object",
       "patternProperties": {
         "^(.*)$": {}
       }
     }
   },
-  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
 }

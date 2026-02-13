@@ -207,6 +207,23 @@ export { MicroUSD } from './vocabulary/currency.js';
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 
+// Schemas — Capability Negotiation (v2.2.0, BB-V3-005)
+export {
+  CapabilitySchema,
+  CapabilityQuerySchema,
+  CapabilityResponseSchema,
+  type Capability,
+  type CapabilityQuery,
+  type CapabilityResponse,
+} from './schemas/capability.js';
+
+// Schemas — Protocol Discovery (v2.2.0, BB-V3-006)
+export {
+  ProtocolDiscoverySchema,
+  buildDiscoveryDocument,
+  type ProtocolDiscovery,
+} from './schemas/discovery.js';
+
 // Vocabulary — Metadata Namespaces (v2.2.0, BB-V3-001)
 export { METADATA_NAMESPACES, type MetadataNamespace } from './vocabulary/metadata.js';
 

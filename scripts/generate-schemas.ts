@@ -18,6 +18,9 @@ import { ConversationSchema, MessageSchema } from '../src/schemas/conversation.j
 import { TransferSpecSchema, TransferEventSchema } from '../src/schemas/transfer-spec.js';
 import { DomainEventSchema, DomainEventBatchSchema } from '../src/schemas/domain-event.js';
 import { LifecycleTransitionPayloadSchema } from '../src/schemas/lifecycle-event-payload.js';
+import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../src/schemas/capability.js';
+import { ProtocolDiscoverySchema } from '../src/schemas/discovery.js';
+import { SagaContextSchema } from '../src/schemas/domain-event.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -43,6 +46,12 @@ const schemas = [
   // v2.1.0
   { name: 'domain-event-batch', schema: DomainEventBatchSchema },
   { name: 'lifecycle-transition-payload', schema: LifecycleTransitionPayloadSchema },
+  // v2.2.0
+  { name: 'capability', schema: CapabilitySchema },
+  { name: 'capability-query', schema: CapabilityQuerySchema },
+  { name: 'capability-response', schema: CapabilityResponseSchema },
+  { name: 'protocol-discovery', schema: ProtocolDiscoverySchema },
+  { name: 'saga-context', schema: SagaContextSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

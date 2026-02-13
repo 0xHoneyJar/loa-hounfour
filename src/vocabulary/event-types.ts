@@ -45,6 +45,7 @@ export const EVENT_TYPES = {
   // Message aggregate
   'message.content.created': 'Message content created',
   'message.content.moderated': 'Message content moderated',
+  'message.content.redacted': 'Message content redacted for compliance',
 } as const;
 
 /** Registered event type string. */

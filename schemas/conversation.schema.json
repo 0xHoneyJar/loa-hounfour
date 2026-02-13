@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/conversation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/conversation",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -51,6 +51,7 @@
     "sealing_policy": {
       "$id": "ConversationSealingPolicy",
       "additionalProperties": false,
+      "$comment": "Cross-field invariant: when encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
       "type": "object",
       "required": [
         "encryption_scheme",
@@ -91,6 +92,8 @@
           "type": "boolean"
         },
         "previous_owner_access": {
+          "deprecated": true,
+          "description": "Deprecated in v2.2.0. Will be replaced by a richer access_policy in v3.0.0. Consumers should treat this field as informational only.",
           "anyOf": [
             {
               "const": "none",
@@ -101,6 +104,30 @@
               "type": "string"
             }
           ]
+        }
+      },
+      "if": {
+        "properties": {
+          "encryption_scheme": {
+            "not": {
+              "const": "none"
+            }
+          }
+        },
+        "required": [
+          "encryption_scheme"
+        ]
+      },
+      "then": {
+        "required": [
+          "key_reference"
+        ],
+        "properties": {
+          "key_derivation": {
+            "not": {
+              "const": "none"
+            }
+          }
         }
       }
     },
@@ -130,5 +157,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
 }

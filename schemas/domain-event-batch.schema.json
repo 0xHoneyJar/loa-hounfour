@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/domain-event-batch",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event-batch",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -113,7 +113,7 @@
             "type": "string"
           },
           "metadata": {
-            "description": "Consumer-extensible metadata (not validated by protocol contract)",
+            "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
             "type": "object",
             "patternProperties": {
               "^(.*)$": {}
@@ -134,7 +134,91 @@
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
+    },
+    "context": {
+      "additionalProperties": true,
+      "description": "Envelope-level routing context (avoids payload inspection)",
+      "type": "object",
+      "properties": {
+        "transfer_id": {
+          "description": "Associated transfer ID",
+          "type": "string"
+        },
+        "aggregate_id": {
+          "description": "Primary aggregate this batch concerns",
+          "type": "string"
+        },
+        "aggregate_type": {
+          "anyOf": [
+            {
+              "const": "agent",
+              "type": "string"
+            },
+            {
+              "const": "conversation",
+              "type": "string"
+            },
+            {
+              "const": "billing",
+              "type": "string"
+            },
+            {
+              "const": "tool",
+              "type": "string"
+            },
+            {
+              "const": "transfer",
+              "type": "string"
+            },
+            {
+              "const": "message",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "saga": {
+      "$id": "SagaContext",
+      "additionalProperties": false,
+      "description": "Saga execution context for multi-step distributed operations",
+      "type": "object",
+      "required": [
+        "saga_id",
+        "step",
+        "direction"
+      ],
+      "properties": {
+        "saga_id": {
+          "minLength": 1,
+          "description": "Saga/workflow execution ID",
+          "type": "string"
+        },
+        "step": {
+          "minimum": 1,
+          "description": "Step number within the saga",
+          "type": "integer"
+        },
+        "total_steps": {
+          "minimum": 1,
+          "description": "Total expected steps (if known)",
+          "type": "integer"
+        },
+        "direction": {
+          "description": "Whether this batch progresses or compensates the saga",
+          "anyOf": [
+            {
+              "const": "forward",
+              "type": "string"
+            },
+            {
+              "const": "compensation",
+              "type": "string"
+            }
+          ]
+        }
+      }
     }
   },
-  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
 }
