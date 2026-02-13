@@ -1,560 +1,844 @@
-# PRD: BUTTERFREEZONE — Agent-Grounded README Standard
+# PRD: loa-hounfour Protocol Types v2.0.0
 
-**Version**: 1.1.0
-**Status**: Draft (Flatline-reviewed)
-**Author**: Discovery Phase (plan-and-analyze)
-**Source Issue**: [#304](https://github.com/0xHoneyJar/loa/issues/304)
-**Cycle**: cycle-009
-
-> Sources: Issue #304, loa-finn README reference, Issue #292 (Run Bridge RFC), Issue #281 (cross-repo context), Issue #81 (feedback routing), Issue #43 (ecosystem mapping), Issue #247 (cultural framework), loa-finn#31 (Hounfour RFC)
+**Status:** Flatline Reviewed
+**Author:** Agent (from RFC loa-finn#66)
+**Date:** 2026-02-13
+**Source:** [Launch Readiness RFC](https://github.com/0xHoneyJar/loa-finn/issues/66)
 
 ---
 
-## 1. Problem Statement
+## 1. Executive Summary
 
-Agents reading codebases lack a standardized, token-efficient, truth-grounded entry point. Human READMEs are optimized for human consumption — they include marketing language, badges, narrative exposition, and installation instructions that waste agent context windows. Meanwhile, the ground truth about what code actually does lives scattered across source files.
+loa-hounfour is the shared protocol package (`@0xhoneyjar/loa-hounfour`) that defines the canonical type schemas, validators, and integrity primitives consumed by loa-finn (inference engine), arrakis (gateway), and mibera-freeside (smart contracts). It is the single source of truth for the cross-repo contract.
 
-Loa already has Ground Truth infrastructure (`ground-truth-gen.sh`, `/ride`, reality files) but no standard output document that serves as the **agent-API for a codebase**. The loa-finn project pioneered a provenance-tagged README format with `AGENT-CONTEXT` metadata and `ground-truth-meta` checksums, but this is a one-off implementation not available to other Loa-managed codebases.
+v1.1.0 shipped JWT claims, stream events, invoke response, routing policy, pool vocabulary (5 pools), 31 error codes, and integrity functions (req-hash, idempotency). It is stable with 91 golden test vectors and zero TODOs.
 
-Cross-repo context gaps (Issue #281) compound the problem — agents make confident claims about related codebases they can't read. A standardized agent-facing document at each repo's root would provide the topology and capability surface needed for multi-repo reasoning.
+v2.0.0 must define the protocol types required to bridge infrastructure completion (90%) to product launch (currently 25%). This is the **critical path bottleneck** — every downstream repo blocks on loa-hounfour types shipping first.
 
-> Source: Issue #304 — "purely about capability and deterministically evaluated to be rooted in code"
+The work spans three delivery milestones:
+- **v2.0.0** (Pre-Phase, Week 2-3): Agent identity, lifecycle, transfer, billing, and conversation types
+- **v2.1.0** (Phase 4, Week 11-14): Tool marketplace types
+- **v2.2.0** (Phase 5, Week 14-16): Inter-agent messaging types
 
 ---
 
-## 2. Vision & Mission
+## 2. Problem Statement
 
-**Vision**: Every Loa-managed codebase maintains a `BUTTERFREEZONE.md` — a provenance-tagged, checksum-verified, token-efficient document that agents can trust as ground truth about the codebase's capabilities, interfaces, and architecture.
+### The Gap
 
-**Mission**: Build an on-by-default skill that generates and maintains `BUTTERFREEZONE.md` at the end of autonomous workflows, ensuring the document stays synchronized with code reality through deterministic evaluation.
+52 global sprints across 20 development cycles produced a complete multi-model inference platform: pool routing, ensemble orchestration, BigInt micro-USD budget tracking, JWT auth with JWKS rotation, BYOK proxy, and SSE streaming. Infrastructure is 90% ready.
 
-**Why "BUTTERFREEZONE"**: A playful insider reference to the OpenClaws movement — agents are lobsters who don't like butter. The name signals: *this document is stripped of hype, marketing butter, and ungrounded claims. Only verified capability lives here.*
+But the product experience — agent identity, conversations, billing, transfers, tool marketplace, agent-to-agent messaging — is only 25% ready. The types for these product features do not exist in the shared protocol.
 
-> Source: Issue #304 — "BUTTERFREEZONE is a reference to openclaws agents being lobsters who don't like butter"
+### Why loa-hounfour First
+
+The anti-duplication matrix from the canonical launch plan assigns **type schemas exclusively to loa-hounfour**. Downstream repos consume types — they never invent them. If loa-hounfour doesn't define `AgentDescriptor`, three repos will independently create incompatible versions. The protocol package is the single chokepoint by design.
+
+### Why v2.0.0 (Breaking)
+
+The existing `CostBreakdown` schema tracks costs as flat aggregates. The new `BillingEntry` schema requires multi-party `recipients[]` (model provider, platform fee, tool producer splits) from day 1 to avoid a Stripe-Connect-style rewrite later. This is a semantic breaking change — downstream code that assumes single-party cost attribution will fail silently if we try additive extension.
+
+> Source: RFC #66 Comment 7 (Bridgebuilder Finding 4), Comment 11 (Canonical Launch Plan)
 
 ---
 
 ## 3. Goals & Success Metrics
 
-### Primary Goals
+### Goals
 
-| Goal | Metric | Target |
-|------|--------|--------|
-| G1: Agent trust | Provenance coverage | 100% of sections have provenance tags |
-| G2: Token efficiency | Document size | < 800 words (index) + < 3200 words (full) — approx 2000+8000 tokens using ~2.5 words/token heuristic |
-| G3: Truth grounding | Reference verification | All factual claims cite `file:symbol` or `file:line` with advisory checksums |
-| G4: Freshness | Staleness detection | Auto-regenerated within 1 workflow of code changes |
-| G5: Ecosystem adoption | On-by-default | Generated for all Loa codebases unless explicitly opted out |
+| # | Goal | Measure |
+|---|------|---------|
+| G1 | Unblock downstream repos for Phase 1 (Agent Identity & Chat) | loa-finn and arrakis can `npm install @0xhoneyjar/loa-hounfour@2.0.0` and import all Phase 1 types |
+| G2 | Define canonical schemas that prevent cross-repo type drift | Zero type definitions duplicated across loa-finn, arrakis, or mibera-freeside |
+| G3 | Maintain the quality bar established in v1.1.0 | Golden test vectors for every new schema; TypeBox + TypeCompiler validation |
+| G4 | Provide migration path from v1.1.0 | Migration guide with before/after examples; `CostBreakdown` → `BillingEntry` mapping |
+| G5 | Support content negotiation for agent surfaces | `AgentDescriptor` schema supports HTML, JSON-LD, and markdown representations |
 
-### Secondary Goals
+### Success Metrics
 
-| Goal | Metric | Target |
-|------|--------|--------|
-| G6: Cross-repo routing | Topology section | Each BUTTERFREEZONE.md lists related repos with capability summaries |
-| G7: Deterministic eval | RTFM pass rate | 100% of claims pass RTFM validation — stable sort, canonical formatting, timestamp excluded from checksums |
-| G8: Lore integration | Cultural enrichment | Lore entries for butterfreezone/lobster concepts |
+| Metric | Target |
+|--------|--------|
+| v2.0.0 published to npm | Week 3 |
+| Downstream repos upgraded (loa-finn, arrakis) | Week 4 |
+| Zero type-related bugs in Phase 1 implementation | 0 regressions |
+| Golden test vector coverage | 100% of new schemas |
+| JSON Schema generation passing | All new schemas produce valid JSON Schema |
+
+### Milestones
+
+| Milestone | Version | Week | Deliverable |
+|-----------|---------|------|-------------|
+| Protocol Types | v2.0.0 | 2-3 | AgentDescriptor, AgentLifecycleState, TransferSpec, BillingEntry, Conversation types |
+| Tool Types | v2.1.0 | 11-14 | ToolRegistration, ToolLifecycle, Operator pattern types |
+| Messaging Types | v2.2.0 | 14-16 | AgentMessage, AgentAddress, inter-agent protocol types |
 
 ---
 
 ## 4. User & Stakeholder Context
 
-### Primary Consumer: AI Agents
+### Primary Users (Downstream Developers)
 
-Agents are the primary reader of BUTTERFREEZONE.md. They need:
-- **Fast orientation**: What does this codebase do? What are its interfaces?
-- **Trust signals**: Which claims are code-verified vs. derived vs. operational?
-- **Token budget**: Minimal tokens to understand capability surface
-- **Navigation**: Where to look for specific functionality
-
-### Secondary Consumer: Human Developers
-
-Developers benefit from:
-- **Honest capability listing**: No marketing, just what the code does
-- **Architecture overview**: Grounded in actual file structure
-- **Cross-repo context**: Understanding ecosystem relationships
+| User | Repo | Consumes |
+|------|------|----------|
+| **loa-finn developer** | loa-finn | All types — implements routing, sessions, billing, tool registry |
+| **arrakis developer** | arrakis | Agent page routing, conversation UI, credit purchase, marketplace frontend |
+| **mibera-freeside developer** | mibera-freeside | Agent lifecycle events, TBA types, billing types (for smart contracts) |
 
 ### Stakeholders
 
 | Stakeholder | Interest |
 |-------------|----------|
-| Loa framework users | Automatic, maintained documentation |
-| Multi-repo operators | Cross-repo agent routing and context |
-| CI/CD pipelines | Deterministic validation of documentation |
-| OpenClaws community | Standard adoption across agent-driven projects |
+| **Product** | Agent homepage, chat experience, billing UX |
+| **Security** | Transfer handling, credential isolation, pool enforcement |
+| **Protocol consumers** | Backward compatibility, migration path, documentation |
+
+### User Stories
+
+**US1:** As a loa-finn developer, I need `AgentDescriptor` so I can implement the agent homepage endpoint with content negotiation (HTML/JSON-LD/markdown).
+
+**US2:** As a loa-finn developer, I need `AgentLifecycleState` so I can implement the 6-state lifecycle machine with validated transitions.
+
+**US3:** As an arrakis developer, I need `Conversation` and `Message` types so I can build the chat UI against a stable contract.
+
+**US4:** As a loa-finn developer, I need `BillingEntry` with `recipients[]` so I can implement multi-party cost attribution from day 1.
+
+**US5:** As a loa-finn developer, I need `TransferSpec` so I can implement the 5 transfer scenarios (happy path, mid-session, outstanding credits, rapid flip, transfer to contract).
+
+**US6:** As a loa-finn developer, I need `ToolRegistration` and `ToolLifecycle` so I can promote the MCP interception spike to production with proper type safety.
+
+**US7:** As a loa-finn developer, I need `AgentMessage` and `AgentAddress` types so I can implement the inter-agent messaging queue.
 
 ---
 
 ## 5. Functional Requirements
 
-### FR-1: BUTTERFREEZONE.md Document Format
+### FR1: AgentDescriptor Schema (v2.0.0)
 
-The generated document follows the loa-finn README pattern with these sections:
+**Priority:** P0 — Blocks Phase 1
 
-```markdown
-<!-- AGENT-CONTEXT
-name: {project-name}
-type: {library|service|framework|cli|...}
-purpose: {one-line purpose}
-key_files: [{critical file paths}]
-interfaces: [{public API surface}]
-dependencies: [{runtime dependencies}]
-version: {semver}
-trust_level: {grounded|derived|operational}
-model_hints: {relevant model config}
--->
+The canonical representation of an agent for content negotiation. Follows ActivityPub/Cloudflare patterns.
 
-# {Project Name}
+```typescript
+interface AgentDescriptor {
+  // JSON-LD context
+  "@context": "https://schema.honeyjar.xyz/agent/v1";
 
-<!-- provenance: CODE-FACTUAL -->
-{Capability description grounded in source code analysis}
+  // Identity (uses canonical NftId format)
+  id: string;                    // Canonical format: "eip155:{chainId}/{collectionAddress}/{tokenId}"
+  name: string;                  // Display name
+  chain_id: number;              // EIP-155 chain ID (e.g., 80094 for Berachain)
+  collection: string;            // NFT collection address (checksummed)
+  token_id: string;              // NFT token ID
 
-## Key Capabilities
-<!-- provenance: CODE-FACTUAL -->
-{Bullet list with source file:line references}
+  // Personality
+  personality: string;           // Personality ID (maps to BEAUVOIR.md)
+  description?: string;          // Short agent bio
+  avatar_url?: string;           // Profile image URL
 
-## Architecture
-<!-- provenance: DERIVED -->
-{High-level architecture from code structure analysis}
+  // Capabilities
+  capabilities: string[];        // ["chat", "analysis", "code", ...]
+  models: Record<string, string>; // Task type → pool mapping
+  tools?: string[];              // Available tool IDs
 
-## Interfaces
-<!-- provenance: CODE-FACTUAL -->
-{Public API surface, endpoints, exports}
+  // On-chain
+  tba?: string;                  // ERC-6551 Token Bound Account address
+  owner?: string;                // Current NFT owner address
 
-## Module Map
-<!-- provenance: CODE-FACTUAL -->
-{Table: Module | Purpose | Key Files}
+  // Network
+  homepage: string;              // Agent homepage URL
+  inbox?: string;                // Agent inbox endpoint
+  llms_txt?: string;             // Token-efficient markdown endpoint
 
-## Ecosystem
-<!-- provenance: OPERATIONAL -->
-{Related repositories, cross-repo dependencies, topology}
+  // Stats (optional, for public display)
+  stats?: {
+    interactions: number;
+    uptime: number;              // 0-1
+    created_at: string;          // ISO datetime
+    last_active?: string;        // ISO datetime
+  };
 
-## Known Limitations
-<!-- provenance: CODE-FACTUAL -->
-{Architectural constraints with file references}
+  // Lifecycle
+  lifecycle_state: AgentLifecycleState;
 
-## Quick Start
-<!-- provenance: OPERATIONAL -->
-{Minimal operational instructions}
-
-<!-- ground-truth-meta
-head_sha: {git HEAD sha}
-generated_at: {ISO timestamp}
-generator: butterfreezone-gen v{version}
-sections:
-  agent_context: {sha256}
-  capabilities: {sha256}
-  architecture: {sha256}
-  interfaces: {sha256}
-  module_map: {sha256}
-  ecosystem: {sha256}
-  limitations: {sha256}
-  quick_start: {sha256}
--->
+  // Protocol
+  contract_version: string;
+}
 ```
 
-**Acceptance Criteria**:
-- AC-1.1: Every section tagged with provenance (`CODE-FACTUAL`, `DERIVED`, `OPERATIONAL`, `EXTERNAL-REFERENCE`)
-- AC-1.2: `AGENT-CONTEXT` metadata block at document top
-- AC-1.3: `ground-truth-meta` checksums at document bottom (advisory, `generated_at` excluded from checksum inputs)
-- AC-1.4: All `CODE-FACTUAL` claims cite references using `file:symbol` (preferred, stable across refactors) or `file:line` (fallback, best-effort display). References are relative to repo root.
-- AC-1.5: Total document < 3,200 words (~8,000 tokens). Measurement uses word count (model-agnostic, `wc -w` equivalent).
-- AC-1.6: Index section (AGENT-CONTEXT + first paragraph) < 800 words (~2,000 tokens)
-- AC-1.7: `CODE-FACTUAL` sections with `file:symbol` refs validated by checking symbol exists in file (grep). `file:line` refs validated by checking file exists (line may drift — advisory).
+**Content Negotiation:**
+- `Accept: text/html` → rendered agent page (downstream responsibility)
+- `Accept: application/json` → full `AgentDescriptor` JSON-LD
+- `Accept: text/markdown` → token-efficient `llms.txt` format
 
-> **Flatline IMP-002/IMP-004 integration**: Token budgets use word-count approximation (model-agnostic). Citations use symbol-level references as primary, line numbers as best-effort display. This resolves tokenizer dependency and line-number fragility concerns.
+**Canonical NftId Type:**
+```typescript
+// Used across all schemas for consistent NFT identification
+// Format: "eip155:{chainId}/{collectionAddress}/{tokenId}"
+// Example: "eip155:80094/0x1234...abcd/4269"
+type NftId = string; // Pattern: ^eip155:\d+\/0x[a-fA-F0-9]{40}\/\d+$
 
-### FR-2: Provenance Tagging System
-
-Each content block carries a provenance tag indicating trust level:
-
-| Tag | Meaning | Verification |
-|-----|---------|-------------|
-| `CODE-FACTUAL` | Directly verified from source code | `file:symbol` or `file:line` reference; checksums are advisory (staleness signal, not hard gate) |
-| `DERIVED` | Inferred from code structure analysis | Cites analysis method and source files |
-| `OPERATIONAL` | Runtime/deployment information | May change without code changes |
-| `EXTERNAL-REFERENCE` | References external documentation | URL with access timestamp |
-
-**Acceptance Criteria**:
-- AC-2.1: Parser can extract provenance tags from BUTTERFREEZONE.md
-- AC-2.2: RTFM validation checks provenance tags exist for all sections
-- AC-2.3: `CODE-FACTUAL` sections fail validation if cited files are missing. Checksum mismatch triggers staleness warning (not hard failure) since checksums are advisory.
-
-> **Flatline SKP-002 resolution**: Checksums serve as staleness signals, not hard gates. Symbol-level references (`file:function_name`) are resilient to line number churn from formatting/refactoring. Regeneration on next workflow run fixes drift automatically.
-
-### FR-3: Generation Skill (`butterfreezone-gen`)
-
-A new skill that generates/regenerates `BUTTERFREEZONE.md`:
-
-**Inputs** (tiered — uses best available):
-- **Tier 1 (preferred)**: Reality files from `/ride` (`grimoires/loa/reality/`)
-- **Tier 2 (fallback)**: Direct codebase scan — file structure, package.json/Cargo.toml/pyproject.toml, export analysis, README.md extraction
-- **Tier 3 (bootstrap)**: Minimal stub with `AGENT-CONTEXT` from config and directory listing only (tagged `DERIVED`, no `CODE-FACTUAL` claims)
-- Existing `BUTTERFREEZONE.md` (for incremental update / manual section preservation)
-- `.loa.config.yaml` configuration
-
-**Extraction Methodology**: Content extraction is **LLM-driven** — the `riding-codebase` skill generates reality files which BUTTERFREEZONE.md consumes. When reality files are unavailable, the Tier 2 fallback uses **static analysis** (file tree, dependency manifests, exported symbols via language-specific tooling like `grep -r "^export"`, `grep -r "^pub fn"`, endpoint route patterns). No hallucinated claims — Tier 2 sections are tagged `DERIVED` with explicit "source: file-scan" markers.
-
-**Process**:
-1. **Input detection**: Check for reality files → direct scan → bootstrap stub (tiered fallback)
-2. Extract capability surface from reality files OR dependency manifests
-3. Map modules to purpose from code structure (directory tree + naming conventions)
-4. Identify public interfaces (exports, endpoints, CLI commands) via static patterns
-5. Detect ecosystem relationships (package.json deps, imports, config refs)
-6. Apply provenance tags based on evidence strength (Tier 1 → `CODE-FACTUAL`, Tier 2 → `DERIVED`, Tier 3 → `OPERATIONAL`)
-7. **Merge with existing**: Preserve manually-added `OPERATIONAL` sections using `<!-- manual-start -->` / `<!-- manual-end -->` sentinel markers
-8. Enforce word-count budgets per-section (truncate with priority: security/auth > interfaces > capabilities > architecture > module map > ecosystem > quick start)
-9. Generate `ground-truth-meta` checksums (per-section SHA-256, `generated_at` excluded from checksum)
-10. Validate against RTFM rules
-11. Atomic write: Write to `.butterfreezone.tmp` then `mv` to `BUTTERFREEZONE.md`
-
-> **Flatline SKP-001 resolution**: /ride is NOT required for MVP. Tiered input with direct-scan fallback ensures generation works on any repo, even those where /ride has never run. Bootstrap stub (Tier 3) ensures BUTTERFREEZONE.md always exists, even if minimal.
-
-> **Flatline SKP-005 resolution**: Extraction methodology is explicitly tiered — LLM-driven via reality files when available, static analysis via file patterns when not. No hallucinated claims; evidence tier determines provenance tag.
-
-> **Flatline IMP-003 resolution**: Atomic writes prevent partial-write corruption. Per-step status tracked internally. Consumers detect failed/missing sections via provenance tags and ground-truth-meta (missing section = missing checksum entry).
-
-**Acceptance Criteria**:
-- AC-3.1: `butterfreezone-gen` can be invoked standalone: `/butterfreezone`
-- AC-3.2: Incremental updates preserve manually-added `OPERATIONAL` sections via sentinel markers (`<!-- manual-start -->` / `<!-- manual-end -->`)
-- AC-3.3: Tiered input detection: reality files → direct scan → bootstrap stub
-- AC-3.4: Word-count budget enforced per-section and total (truncation follows priority order)
-- AC-3.5: Generated document passes RTFM validation
-- AC-3.6: Atomic write prevents partial-write corruption
-- AC-3.7: Bootstrap stub generated for repos with no reality files or source analysis available
-
-### FR-4: Autonomous Workflow Integration (On-by-Default)
-
-BUTTERFREEZONE generation hooks into autonomous workflows with phased rollout:
-
-**MVP hooks** (this cycle):
-
-| Workflow | Hook Point | Trigger |
-|----------|-----------|---------|
-| `/run-bridge` | FINALIZING phase (after GT update) | On-by-default |
-| `/butterfreezone` | Standalone invocation | Manual |
-
-**Phase 2 hooks** (next cycle, after stability proven):
-
-| Workflow | Hook Point | Trigger |
-|----------|-----------|---------|
-| `/run sprint-plan` | After consolidated PR creation | On-by-default |
-| Post-merge CI | `gt_regen` phase in post-merge-orchestrator | On-by-default |
-| `/ship` | Before archive | On-by-default |
-
-**Future hooks** (after cross-workflow stability):
-
-| Workflow | Hook Point | Trigger |
-|----------|-----------|---------|
-| `/autonomous` | Post-completion | On-by-default |
-| `/ride` | After reality generation | On-by-default |
-
-> **Flatline SKP-004 resolution**: MVP starts with a single autonomous hook (`/run-bridge` FINALIZING) plus standalone invocation. This limits blast radius while proving stability. Expansion to other workflows follows in subsequent cycles after the generator has been battle-tested.
-
-**Acceptance Criteria**:
-- AC-4.1: BUTTERFREEZONE.md regenerated at end of `/run-bridge` FINALIZING phase
-- AC-4.2: Opt-out via config: `butterfreezone.enabled: false`
-- AC-4.3: No regeneration if code hasn't changed since last generation (HEAD SHA check)
-- AC-4.4: Regeneration failure is non-blocking (warning logged to stderr, workflow continues)
-- AC-4.5: Regeneration adds BUTTERFREEZONE.md to the PR diff when running in PR context
-- AC-4.6: Generation failures logged with structured output for monitoring (not silently swallowed)
-
-### FR-5: RTFM Validation Extension
-
-Extend RTFM validation to cover BUTTERFREEZONE.md:
-
-| Check | Rule |
-|-------|------|
-| Existence | `BUTTERFREEZONE.md` exists in project root |
-| Freshness | `generated_at` within configured staleness window |
-| Provenance | All sections have valid provenance tags |
-| Checksums | `ground-truth-meta` per-section checksums match (advisory — mismatch = staleness warning, not hard failure) |
-| References | All `file:symbol` citations resolve (symbol grep in file). `file:line` refs check file exists only. |
-| Word budget | Document within configured word-count limits |
-
-**Acceptance Criteria**:
-- AC-5.1: RTFM includes BUTTERFREEZONE checks by default
-- AC-5.2: Stale BUTTERFREEZONE.md (checksum mismatch or age > staleness window) triggers warning (not failure)
-- AC-5.3: Missing file references (file doesn't exist) trigger failure
-- AC-5.4: Missing symbol references (symbol not found in file) trigger warning
-- AC-5.5: Missing provenance tags trigger failure
-
-### FR-6: Cross-Repo Ecosystem Section
-
-The `Ecosystem` section of BUTTERFREEZONE.md provides agent routing context:
-
-```markdown
-## Ecosystem
-<!-- provenance: OPERATIONAL -->
-
-| Repo | Type | Relationship | Capabilities |
-|------|------|-------------|-------------|
-| loa-finn | service | downstream consumer | OpenCode server runtime, persistent sessions |
-| mibera-contracts | contracts | dependency | On-chain vault, loan, rebate logic |
-| mibera-interface | frontend | sibling | React UI consuming contracts |
+function parseNftId(id: string): { chainId: number; collection: string; tokenId: string };
+function formatNftId(chainId: number, collection: string, tokenId: string): NftId;
+function checksumCollection(address: string): string; // EIP-55 checksum
 ```
 
-**Acceptance Criteria**:
-- AC-6.1: Ecosystem section auto-populated from detected dependencies
-- AC-6.2: Manual entries preserved across regeneration
-- AC-6.3: Cross-repo BUTTERFREEZONE.md references use consistent naming
+> Flatline SKP-005 (BLOCKER, accepted): Canonical NftId with EIP-155 chain qualifier ensures global uniqueness across chains/collections.
 
-### FR-7: Lore Integration
+**Validation Rules:**
+- `id` must match NftId pattern `^eip155:\d+\/0x[a-fA-F0-9]{40}\/\d+$`
+- `collection` must be EIP-55 checksummed
+- `capabilities` must have at least one entry
+- `models` values must be valid `PoolId`
+- `homepage` must be a valid URL
+- `lifecycle_state` must be a valid `AgentLifecycleState`
 
-Add BUTTERFREEZONE concepts to the Mibera lore knowledge base:
+> Source: RFC #66 Comment 7 Finding 1, Comment 8 (Cloudflare standard), Comment 11
 
-| Entry | Category | Content |
-|-------|----------|---------|
-| `butterfreezone` | mibera/glossary | "The zone where only truth survives — no butter, no hype" |
-| `lobster` | mibera/glossary | "Agent that rejects marketing butter — demands code-grounded facts" |
-| `grounding` | mibera/rituals | "The ritual of binding claims to checksums — truth made verifiable" |
+### FR2: AgentLifecycleState Enum (v2.0.0)
 
-**Acceptance Criteria**:
-- AC-7.1: Lore entries added to `.claude/data/lore/mibera/glossary.yaml`
-- AC-7.2: Bridgebuilder persona can reference BUTTERFREEZONE lore in reviews
-- AC-7.3: Teaching moments in reviews can cite lobster/butter metaphors
+**Priority:** P0 — Blocks Phase 1
+
+```typescript
+type AgentLifecycleState =
+  | "DORMANT"       // NFT exists but agent not provisioned
+  | "PROVISIONING"  // Setup in progress (TBA deployment, personality load)
+  | "ACTIVE"        // Fully operational, accepting conversations
+  | "SUSPENDED"     // Temporarily disabled (budget exhausted, owner action)
+  | "TRANSFERRED"   // Ownership change detected, transitioning
+  | "ARCHIVED";     // Permanently deactivated
+```
+
+**Valid Transitions:**
+```
+DORMANT      → PROVISIONING
+PROVISIONING → ACTIVE | DORMANT (on failure)
+ACTIVE       → SUSPENDED | TRANSFERRED | ARCHIVED
+SUSPENDED    → ACTIVE | ARCHIVED
+TRANSFERRED  → PROVISIONING (new owner) | ARCHIVED
+ARCHIVED     → (terminal, no transitions out)
+```
+
+**Transition Validation:**
+- Export a `isValidTransition(from: AgentLifecycleState, to: AgentLifecycleState): boolean` function
+- Export the transition map as a typed constant for downstream consumption
+
+> Source: RFC #66 Comment 7 Finding 7, Comment 11
+
+### FR3: TransferSpec Types (v2.0.0)
+
+**Priority:** P0 — Blocks Phase 2
+
+```typescript
+type TransferScenario =
+  | "HAPPY_PATH"         // Standard trade, no active sessions
+  | "MID_SESSION"        // Active WebSocket during transfer
+  | "OUTSTANDING_CREDITS"// Credits remain in TBA
+  | "RAPID_FLIP"         // Re-transfer within 5 minutes
+  | "TO_CONTRACT";       // Transfer to vault/escrow/multisig
+
+interface ConversationSealingPolicy {
+  seal_behavior: "immediate" | "grace_period";
+  grace_period_ms?: number;      // Only if seal_behavior === "grace_period"
+  encrypted: boolean;            // Whether sealed conversations are encrypted
+  encryption_scheme?: string;    // e.g., "aes-256-gcm" (required if encrypted: true)
+  key_derivation?: string;       // e.g., "hkdf-sha256" — how seal key is derived
+  key_reference?: string;        // Opaque reference to sealing key (never the key itself)
+  previous_owner_access: "none" | "read_only_24h";
+  access_audit: boolean;         // Whether access to sealed conversations is logged
+}
+```
+
+> Flatline SKP-007 (BLOCKER, accepted): Sealing policy now specifies encryption scheme, key derivation method, and key reference. Access auditing field ensures compliance trail. Key management implementation remains in loa-finn, but the protocol defines required security properties.
+
+```typescript
+
+interface TransferEvent {
+  nft_id: string;
+  collection: string;
+  token_id: string;
+  from_address: string;
+  to_address: string;
+  transaction_hash: string;
+  block_number: number;
+  timestamp: string;             // ISO datetime
+  scenario: TransferScenario;
+  sealing_policy: ConversationSealingPolicy;
+}
+
+interface TransferResult {
+  transfer_event: TransferEvent;
+  conversations_sealed: number;
+  websockets_terminated: number;
+  lifecycle_transition: {
+    from: AgentLifecycleState;
+    to: AgentLifecycleState;
+  };
+  credits_transferred: boolean;  // Credits stay in TBA
+  personality_preserved: boolean; // Always true
+}
+```
+
+> Source: RFC #66 Comment 7 Finding 11, Comment 11
+
+### FR4: BillingEntry with Multi-Party Recipients (v2.0.0)
+
+**Priority:** P0 — Blocks Phase 3
+
+Replaces and extends `CostBreakdown` with multi-party attribution.
+
+```typescript
+type CostType =
+  | "model_inference"
+  | "tool_call"
+  | "platform_fee"
+  | "byok_subscription"
+  | "agent_setup";
+
+interface BillingRecipient {
+  address: string;               // Wallet or account address
+  role: "provider" | "platform" | "producer" | "agent_tba";
+  share_bps: number;             // Basis points (0-10000)
+  amount_micro: string;          // String-encoded micro-USD (consistent with v1.1.0)
+}
+
+interface BillingEntry {
+  // Identity
+  trace_id: string;
+  tenant_id: string;
+  nft_id?: string;
+
+  // What was billed
+  cost_type: CostType;
+  provider: string;
+  model?: string;                // Only for model_inference
+  pool_id?: string;              // Only for model_inference
+  tool_id?: string;              // Only for tool_call
+
+  // Costs
+  currency: "USD";               // ISO 4217 currency code (USD only at launch)
+  precision: 6;                  // Micro-USD = 6 decimal places
+  raw_cost_micro: string;        // String-encoded micro-USD (provider's actual cost)
+  multiplier_bps: number;        // Total multiplier in basis points (30000 = 3.0x, 25000 = 2.5x)
+  total_cost_micro: string;      // raw_cost_micro * multiplier_bps / 10000
+  rounding_policy: "largest_remainder"; // Deterministic allocation across recipients
+
+  // Multi-party split
+  recipients: BillingRecipient[]; // At least 1 recipient
+
+  // Metadata
+  idempotency_key: string;
+  timestamp: string;             // ISO datetime
+  contract_version: string;
+
+  // Legacy compatibility
+  usage?: Usage;                 // Token usage (for model_inference)
+}
+```
+
+**Multiplier Tiers (from RFC):**
+- 0-100K tokens: 30000 multiplier_bps (3.0x — pay $3 for $1 of model cost)
+- 100K-1M tokens: 25000 multiplier_bps (2.5x)
+- 1M+ tokens: 20000 multiplier_bps (2.0x)
+- BYOK: 10000 multiplier_bps (1.0x — no markup, flat $5/mo platform fee)
+
+> Flatline IMP-004 (DISPUTED, accepted): Fixed from `markup_bps` to `multiplier_bps`. 30000 bps = 3.0x multiplier (total cost = raw * 30000/10000). Previous notation "3000 bps = 3.0x" was mathematically incorrect.
+
+**Deterministic Allocation Rules:**
+- Rounding: `largest_remainder` method ensures `recipients[].amount_micro` sums exactly to `total_cost_micro`
+- Direction: Truncate individual shares, assign remainder to largest recipient
+- Currency: `USD` (ISO 4217) — single currency at launch, field reserved for future expansion
+- Precision: 6 decimal places (micro-USD, 1 micro = $0.000001)
+
+> Flatline SKP-003 (BLOCKER, accepted): Specifying deterministic allocation prevents silent rounding drift across services.
+
+**CreditNote Type (for refunds/reversals):**
+```typescript
+interface CreditNote {
+  id: string;                    // ULID
+  references_billing_entry: string; // Original BillingEntry trace_id
+  reason: "refund" | "dispute" | "partial_failure" | "adjustment";
+  amount_micro: string;          // Positive value (amount credited back)
+  recipients: BillingRecipient[]; // Who gets credited (may differ from original)
+  issued_at: string;             // ISO datetime
+  contract_version: string;
+}
+```
+
+> Flatline IMP-002 (HIGH_CONSENSUS, avg: 810): BillingEntry invariants assume positive flows only. CreditNote handles reversals as separate ledger events referencing the original entry, preserving the invariant that `recipients[].share_bps` always sums to 10000.
+
+**Invariants:**
+- `recipients[].share_bps` must sum to 10000
+- `recipients[].amount_micro` must sum to `total_cost_micro`
+- At least one recipient required
+- Refunds/reversals use `CreditNote`, not negative `BillingEntry`
+
+**Migration from CostBreakdown:**
+- `CostBreakdown.total_cost_micro` → `BillingEntry.raw_cost_micro` (pre-markup)
+- `CostBreakdown.input_cost_micro` / `output_cost_micro` → removed (implementation detail)
+- `BillingEntry.total_cost_micro` → includes markup
+- `UsageReport.cost` → replaced by `BillingEntry` (breaking)
+
+> Source: RFC #66 Comment 7 Finding 4, Comment 11
+
+### FR5: Conversation & Message Types (v2.0.0)
+
+**Priority:** P0 — Blocks Phase 1
+
+```typescript
+type ConversationStatus = "active" | "archived" | "sealed";
+type MessageRole = "user" | "assistant" | "system" | "tool";
+type ConversationVisibility = "private" | "public";
+
+interface Conversation {
+  id: string;                    // ULID
+  nft_id: string;                // Agent that owns this conversation
+  owner_address: string;         // Wallet address of current NFT holder
+  title?: string;                // User-set or auto-generated title
+  status: ConversationStatus;
+  visibility: ConversationVisibility;
+  created_at: string;            // ISO datetime
+  updated_at: string;            // ISO datetime
+  sealed_at?: string;            // Set when sealed on transfer
+  sealed_by?: string;            // Transfer transaction hash
+  message_count: number;
+  last_message_preview?: string; // Truncated last message for list view
+  metadata?: Record<string, unknown>;
+}
+
+interface Message {
+  id: string;                    // ULID
+  conversation_id: string;
+  nft_id: string;
+  role: MessageRole;
+  content: string;
+  tool_calls?: Array<{
+    id: string;
+    function: {
+      name: string;
+      arguments: string;
+    };
+  }>;
+  tool_call_id?: string;        // For tool role messages
+  model?: string;               // Model that generated (for assistant role)
+  pool_id?: string;             // Pool used (for assistant role)
+  billing_entry_id?: string;    // Reference to BillingEntry
+  timestamp: string;            // ISO datetime
+  sequence: number;             // Monotonic within conversation
+}
+
+interface ConversationListResponse {
+  conversations: Conversation[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+interface MessageListResponse {
+  messages: Message[];
+  total: number;
+  offset: number;
+  limit: number;
+  has_more: boolean;
+}
+```
+
+**Storage tiers (informational, implementation in loa-finn):**
+- Hot: In-memory, 30 min TTL
+- Warm: Disk JSONL, 30 days
+- Cold: R2/S3, forever
+
+> Source: RFC #66 Comment 1 (session persistence), Comment 11 (Chat & Conversation Architecture)
+
+### FR6: ToolRegistration & ToolLifecycle Types (v2.1.0)
+
+**Priority:** P1 — Blocks Phase 4
+
+```typescript
+type ToolLifecycleState =
+  | "REGISTERED"     // Submitted, pending verification
+  | "VERIFIED"       // Passed automated checks
+  | "ACTIVE"         // Live, discoverable, billable
+  | "DEGRADED"       // Operational but impaired (high error rate)
+  | "SUSPENDED"      // Temporarily disabled (policy violation, maintenance)
+  | "DEREGISTERED";  // Permanently removed
+
+interface ToolRegistration {
+  id: string;                    // Tool ID (globally unique)
+  name: string;                  // Display name
+  description: string;           // What the tool does
+  version: string;               // Semver
+  provider: string;              // Producer identity
+
+  // MCP
+  mcp_server_url: string;        // MCP server endpoint
+  mcp_capabilities: string[];    // Supported MCP methods
+
+  // Billing
+  cost_per_call_micro: string;   // String-encoded micro-USD
+  revenue_split: {
+    producer_bps: number;        // Default: 8500 (85%)
+    platform_bps: number;        // Default: 1500 (15%)
+  };
+
+  // Metadata
+  lifecycle_state: ToolLifecycleState;
+  registered_at: string;         // ISO datetime
+  verified_at?: string;
+  last_health_check?: string;
+  error_rate?: number;           // 0-1, rolling window
+
+  // Access control
+  min_tier?: Tier;               // Minimum tier to use this tool
+  allowed_pools?: PoolId[];      // Pools that can invoke this tool
+
+  contract_version: string;
+}
+```
+
+**Valid Transitions:**
+```
+REGISTERED   → VERIFIED | DEREGISTERED
+VERIFIED     → ACTIVE | DEREGISTERED
+ACTIVE       → DEGRADED | SUSPENDED | DEREGISTERED
+DEGRADED     → ACTIVE | SUSPENDED | DEREGISTERED
+SUSPENDED    → ACTIVE | DEREGISTERED
+DEREGISTERED → (terminal)
+```
+
+**ToolListResponse (for discovery/pagination):**
+```typescript
+interface ToolListResponse {
+  tools: ToolRegistration[];
+  total: number;
+  offset: number;
+  limit: number;
+  filters_applied?: {
+    lifecycle_state?: ToolLifecycleState;
+    min_tier?: Tier;
+    provider?: string;
+  };
+}
+```
+
+> Flatline IMP-005 (DISPUTED, accepted): Consistent pagination shape with ConversationListResponse.
+
+> Source: RFC #66 Comment 7 Finding 9 (Operator pattern), Comment 11 Phase 4
+
+### FR7: AgentMessage & AgentAddress Types (v2.2.0)
+
+**Priority:** P2 — Blocks Phase 5
+
+```typescript
+// Agent addressing scheme
+interface AgentAddress {
+  scheme: "agent";               // Protocol scheme
+  nft_id: string;                // Target agent NFT ID
+  collection?: string;           // Optional collection qualifier
+}
+
+// Parse "agent://4269" or "agent://bears/4269"
+function parseAgentAddress(uri: string): AgentAddress;
+function formatAgentAddress(addr: AgentAddress): string;
+
+type MessagePriority = "normal" | "urgent" | "bulk";
+type MessageDeliveryStatus = "queued" | "delivered" | "read" | "failed" | "expired";
+
+interface AgentMessage {
+  id: string;                    // ULID
+  from: AgentAddress;
+  to: AgentAddress;
+
+  // Content
+  subject?: string;
+  content: string;
+  content_type: "text/plain" | "application/json";
+
+  // Delivery
+  priority: MessagePriority;
+  delivery_status: MessageDeliveryStatus;
+
+  // Billing
+  billing_entry_id?: string;     // Cost attributed to sender's TBA
+
+  // Metadata
+  sent_at: string;               // ISO datetime
+  delivered_at?: string;
+  read_at?: string;
+  expires_at?: string;           // TTL for ephemeral messages
+
+  // Threading
+  in_reply_to?: string;          // Message ID for threading
+  thread_id?: string;            // Thread root ID
+
+  contract_version: string;
+}
+
+interface AgentInbox {
+  agent: AgentAddress;
+  messages: AgentMessage[];
+  unread_count: number;
+  total: number;
+  offset: number;
+  limit: number;
+}
+```
+
+> Source: RFC #66 Comment 11 Phase 5
+
+### FR8: DomainEvent Envelope (v2.0.0)
+
+**Priority:** P0 — Cross-cutting audit infrastructure
+
+> Flatline IMP-003 (HIGH_CONSENSUS, avg: 845): Multiple state machines (agent lifecycle, tool lifecycle, conversation status, transfer) and billing reconciliation require a consistent audit envelope. Downstream systems already rely on streams (StreamEvent). A minimal versioned envelope ensures cross-repo event consistency.
+
+```typescript
+interface DomainEvent<T = unknown> {
+  event_id: string;              // ULID
+  aggregate_id: string;          // Entity this event belongs to (nft_id, tool_id, etc.)
+  aggregate_type: "agent" | "conversation" | "billing" | "tool" | "transfer" | "message";
+  type: string;                  // e.g., "agent.lifecycle.transitioned", "billing.entry.created"
+  version: number;               // Event schema version (monotonic)
+  occurred_at: string;           // ISO datetime
+  actor: string;                 // Who/what caused this (user address, system, service ID)
+  correlation_id?: string;       // Trace ID for cross-service correlation
+  causation_id?: string;         // ID of the event that caused this event
+  payload: T;                    // Event-specific data
+  contract_version: string;
+}
+```
+
+**Event naming convention:** `{aggregate_type}.{entity}.{past_tense_verb}` (e.g., `agent.lifecycle.transitioned`, `billing.entry.created`, `conversation.status.sealed`)
+
+### FR9: New Error Codes (v2.0.0+)
+
+Extend the existing 31 error codes with agent-related errors.
+
+```typescript
+// v2.0.0 additions
+AGENT_NOT_FOUND           // 404 — Agent NFT ID not recognized
+AGENT_NOT_ACTIVE          // 403 — Agent lifecycle state is not ACTIVE
+AGENT_TRANSFER_IN_PROGRESS// 409 — Transfer detected, operations suspended
+CONVERSATION_SEALED       // 403 — Conversation sealed after transfer
+CONVERSATION_NOT_FOUND    // 404 — Conversation ID not found
+OWNERSHIP_MISMATCH        // 403 — Caller is not current NFT owner
+BILLING_RECIPIENTS_INVALID// 400 — Recipients don't sum to 10000 bps
+
+// v2.1.0 additions
+TOOL_NOT_FOUND            // 404 — Tool ID not registered
+TOOL_NOT_ACTIVE           // 403 — Tool lifecycle state is not ACTIVE
+TOOL_CALL_BUDGET_EXCEEDED // 402 — Tool call cost exceeds remaining budget
+
+// v2.2.0 additions
+AGENT_MESSAGE_UNDELIVERABLE // 502 — Target agent unreachable
+AGENT_INBOX_FULL            // 429 — Target inbox capacity exceeded
+```
 
 ---
 
-## 6. Technical & Non-Functional Requirements
+## 6. Technical Requirements
 
-### NFR-1: Size Efficiency (Word-Count Based)
+### TR1: TypeBox Schemas
 
-Budgets use word count (`wc -w` equivalent) — model-agnostic, deterministic, enforceable in shell.
-Approximate token equivalence: 1 word ≈ 2.5 tokens (conservative heuristic).
+All new types must be defined as TypeBox schemas with companion TypeScript types, consistent with v1.1.0 patterns:
+- `Type.Object()` for interfaces
+- `Type.Union()` with `Type.Literal()` for discriminated unions / enums
+- `Type.Optional()` for optional fields
+- Lazy-compiled `TypeCompiler.Compile()` validators
 
-| Section | Word Budget | ~Token Equiv |
-|---------|------------|-------------|
-| AGENT-CONTEXT metadata | 80 words | ~200 tokens |
-| Index (first paragraph) | 120 words | ~300 tokens |
-| Key Capabilities | 600 words | ~1,500 tokens |
-| Architecture | 400 words | ~1,000 tokens |
-| Interfaces | 800 words | ~2,000 tokens |
-| Module Map | 600 words | ~1,500 tokens |
-| Ecosystem | 200 words | ~500 tokens |
-| Known Limitations | 200 words | ~500 tokens |
-| Quick Start | 200 words | ~500 tokens |
-| **Total** | **3,200 words max** | **~8,000 tokens** |
+### TR2: JSON Schema Generation
 
-For large codebases (monorepos, >100 modules), the generator may produce a hierarchical output: `BUTTERFREEZONE.md` (index, ~800 words) + `BUTTERFREEZONE-detail.md` (full sections, up to 6,400 words). Agents read the index first and fetch detail on demand.
+All new schemas must produce valid JSON Schema via the existing `schema:generate` script. Output to `schemas/` directory for downstream consumption without TypeScript dependency.
 
-> **Flatline IMP-002/SKP-003 resolution**: Word count replaces token count. Model-agnostic, deterministic, enforceable via `wc -w` in shell scripts. No tokenizer dependency.
+### TR3: Golden Test Vectors
 
-### NFR-2: Generation Performance
+Each new schema must have golden test vectors in `vectors/` following the existing pattern:
+- Valid examples (happy path)
+- Invalid examples (each validation rule exercised)
+- Edge cases (empty arrays, max values, boundary conditions)
+- Migration examples (v1.1.0 → v2.0.0 before/after)
 
-- Full generation: < 60 seconds on a typical codebase
-- Incremental update: < 15 seconds when only checksums change
-- Staleness check: < 2 seconds
+### TR4: Export Surface
 
-### NFR-3: Backward Compatibility
+New types exported from `src/index.ts` following existing barrel export pattern:
+- Schema objects (`AgentDescriptorSchema`, etc.)
+- TypeScript types (`type AgentDescriptor`, etc.)
+- Validation functions (`isValidTransition`, `parseAgentAddress`, etc.)
+- Constants (`AGENT_LIFECYCLE_TRANSITIONS`, `TRANSFER_SCENARIOS`, etc.)
 
-- Existing codebases with a human README.md are unaffected
-- BUTTERFREEZONE.md is a separate file, not a replacement for README.md
-- Opt-out is a single config flag
+### TR5: Backward Compatibility
 
-### NFR-4: Determinism
+- v2.0.0 is a breaking release — `CONTRACT_VERSION` bumps to `2.0.0`
+- `MIN_SUPPORTED_VERSION` bumps to `2.0.0` (no N-1 compat for major bump)
+- `CostBreakdown` removed in favor of `BillingEntry`
+- `UsageReport.cost` replaced by `BillingEntry` reference
+- Migration guide included in package README
 
-Two runs of `butterfreezone-gen` on the same commit with the same config MUST produce identical output (excluding `generated_at` timestamp):
+### TR6: Package Exports
 
-- Stable sort: modules, capabilities, interfaces sorted alphabetically
-- Canonical markdown: consistent heading levels, list formatting, table alignment
-- Locale/timezone normalization: all timestamps in UTC ISO-8601
-- `generated_at` excluded from per-section checksum inputs
-- Truncation algorithm: deterministic priority ordering (security > interfaces > capabilities > ...)
-- No LLM involvement in `CODE-FACTUAL` sections when using Tier 2 (static analysis) — only Tier 1 (reality files from /ride) may contain LLM-derived content
-
-> **Flatline SKP-determinism resolution**: Determinism guaranteed for Tier 2/3 generation (pure static analysis). Tier 1 (reality files) may have LLM-derived content but is pre-computed and cached, so BUTTERFREEZONE.md generation itself is deterministic given fixed inputs.
-
-### NFR-5: Security
-
-- No secrets, API keys, or credentials in BUTTERFREEZONE.md
-- Same security redaction as Bridgebuilder reviews (gitleaks patterns)
-- `file:line` references must not expose sensitive file contents
+Extend package.json exports to include new schema paths:
+```json
+{
+  "./schemas/agent": "./schemas/agent-descriptor.schema.json",
+  "./schemas/billing": "./schemas/billing-entry.schema.json",
+  "./schemas/conversation": "./schemas/conversation.schema.json",
+  "./schemas/tool": "./schemas/tool-registration.schema.json",
+  "./schemas/messaging": "./schemas/agent-message.schema.json"
+}
+```
 
 ---
 
-## 7. Scope & Prioritization
+## 7. Non-Functional Requirements
 
-### MVP (This Cycle)
+| Requirement | Target | Rationale |
+|-------------|--------|-----------|
+| **Bundle size** | <50KB gzipped (total package) | Consumed by edge workers; size matters |
+| **Tree-shaking** | ESM exports, side-effect-free | Downstream repos import selectively |
+| **Zero runtime deps** | TypeBox is devDependency only | Compiled validators have no runtime deps |
+| **Node.js compat** | >=22 (consistent with v1.1.0) | LTS schedule alignment |
+| **TypeScript** | Strict mode, no `any` | Type safety is the product |
+| **Validation perf** | <1ms per schema validation | Hot path in request processing |
 
-| Priority | Feature | Rationale |
-|----------|---------|-----------|
-| P0 | BUTTERFREEZONE.md format specification | Foundation for everything |
-| P0 | `butterfreezone-gen.sh` generation script | Mechanical generation |
-| P0 | `/butterfreezone` skill for standalone invocation | Developer-facing command |
-| P0 | `/run-bridge` FINALIZING hook (single MVP hook) | Proves stability before wider rollout |
-| P1 | RTFM validation extension | Quality gate |
-| P1 | Lore entries | Cultural integration |
+---
 
-### Future Scope (Not This Cycle)
+## 8. Scope & Prioritization
 
-| Feature | Rationale |
-|---------|-----------|
-| Additional workflow hooks (/run sprint-plan, post-merge CI, /ship) | Phase 2 after MVP stability proven |
-| Cross-repo BUTTERFREEZONE federation | Requires topology infrastructure (#43) |
-| `/ride` integration for initial generation | Depends on ride modernization |
-| BUTTERFREEZONE diff in PR comments | Enhancement after base is stable |
-| NotebookLM knowledge tier for BUTTERFREEZONE | Optional quality enrichment |
-| BUTTERFREEZONE as llms.txt hub spoke | Aligns with reality skill pattern |
-| Hierarchical output for monorepos | BUTTERFREEZONE.md index + BUTTERFREEZONE-detail.md |
+### In Scope
+
+| Version | Deliverables | Phase |
+|---------|-------------|-------|
+| **v2.0.0** | AgentDescriptor, AgentLifecycleState, TransferSpec, BillingEntry, Conversation/Message types, new error codes, migration guide, golden vectors | Pre-Phase |
+| **v2.1.0** | ToolRegistration, ToolLifecycle, tool error codes, golden vectors | Phase 4 |
+| **v2.2.0** | AgentMessage, AgentAddress, messaging error codes, golden vectors | Phase 5 |
 
 ### Explicitly Out of Scope
 
-- Replacing README.md (BUTTERFREEZONE.md is additive)
-- Cross-repo fetching (agents read local BUTTERFREEZONE.md only in MVP)
-- Interactive generation (fully autonomous, no user prompts)
-- Translating BUTTERFREEZONE to natural language (that's `/translate`)
+| Item | Reason | Revisit |
+|------|--------|---------|
+| Soul memory schema | Deferred per RFC — stateless chat for v1 | Post-Phase 1 conversation data |
+| Personality evolution types | Deferred — static BEAUVOIR.md sufficient | Post-Phase 1 |
+| ERC-7860 AgentNFT schema | Draft standard, no tooling | Standard finalization |
+| EIP-7702 delegation types | Pectra timeline unclear | Mainnet launch |
+| Insurance pool types | Needs actuarial data | Post-Phase 4 marketplace data |
+| Voice/transcription schemas | Channel expansion deferred | Post consumer MVP validation |
+| On-chain event ABI types | mibera-freeside generates from Solidity | Smart contract compilation |
+| Runtime implementation | loa-finn/arrakis implement; loa-hounfour defines | Always |
 
 ---
 
-## 8. Risks & Dependencies
+## 9. Risks & Dependencies
 
-### Technical Risks
+### Critical Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Word budget exceeded for large codebases | Medium | Low | Per-section truncation with priority ordering; hierarchical output for monorepos |
-| No /ride reality files on first run | High | Medium | Tiered fallback: direct scan (Tier 2) or bootstrap stub (Tier 3) |
-| RTFM validation too strict blocks autonomous workflows | Low | High | Non-blocking mode; checksums advisory, not hard gates |
-| File:symbol references break on refactors | Medium | Low | Advisory checksums detect staleness; regeneration on next workflow fixes |
-| Generator bug corrupts multiple workflows | Low | High | MVP limited to single hook point (/run-bridge); structured failure logging |
-| Non-deterministic output causes CI flapping | Low | Medium | Stable sorts, canonical formatting, timestamp excluded from checksums |
+| Risk | Impact | Likelihood | Mitigation |
+|------|--------|------------|------------|
+| **loa-hounfour delays block all downstream** | 4 repos idle | Medium | Pre-Phase is only 5 types; keep scope tight |
+| **Breaking change coordination fails** | Runtime errors in loa-finn/arrakis | Medium | Publish v2.0.0-beta.1 for integration testing before final release |
+| **AgentDescriptor schema churn** | Downstream rework | Low | Bridgebuilder review already locked the schema shape |
+| **BillingEntry recipients invariant bugs** | Silent financial errors | Medium | Golden vectors with comprehensive edge cases; property-based tests |
+| **TypeBox limitations for JSON-LD** | `@context` field naming | Low | TypeBox supports arbitrary string keys via `Type.Index` |
 
 ### Dependencies
 
-| Dependency | Status | Risk |
-|------------|--------|------|
-| Ground Truth infrastructure (`ground-truth-gen.sh`) | Exists (scaffolded) | Low |
-| Bridge orchestrator FINALIZING phase | Exists (v1.34.0) | Low |
-| RTFM validation scripts | Exist | Low |
-| Post-merge orchestrator | Exists (v1.33.0) | Low |
-| `/ride` analysis | Exists | Low — can use cached reality |
-| Lore knowledge base | Exists | Low |
-
-### External Dependencies
-
-| Dependency | Status |
-|------------|--------|
-| loa-finn README as format reference | Available (read-only reference) |
-| OpenClaws cultural context | Informational only, no code dependency |
+| Dependency | Type | Status |
+|------------|------|--------|
+| TypeBox ^0.34 | Dev dependency | Installed (v1.1.0) |
+| jose ^6.1 | Dev dependency | Installed (v1.1.0) |
+| viem | NOT needed | loa-hounfour defines types only; no on-chain calls |
+| loa-finn RFC #31 completion | External | 96% complete |
+| arrakis Issue #54 (adopt hounfour) | External | Open |
+| Cloudflare llms.txt standard | Spec reference | Published |
+| ERC-6551 standard | Spec reference | Established |
 
 ---
 
-## 9. Architecture Hints
+## 10. Flatline Review Decisions
 
-### Generation Pipeline
+### Overridden Blockers (with rationale)
 
-```
-Input Detection (tiered):
-  Tier 1: reality/ files exist? → Use them (CODE-FACTUAL)
-  Tier 2: package.json/Cargo.toml/source files? → Direct scan (DERIVED)
-  Tier 3: Nothing useful? → Bootstrap stub (OPERATIONAL)
-    ↓
-butterfreezone-gen.sh
-    ├── Detect input tier
-    ├── Extract AGENT-CONTEXT from manifests / config
-    ├── Extract capabilities (reality OR static grep patterns)
-    ├── Extract architecture from directory structure
-    ├── Extract interfaces (exports, routes, CLI commands)
-    ├── Build module map (directory tree + naming conventions)
-    ├── Detect ecosystem (deps, imports, config refs)
-    ├── Apply provenance tags (tier determines tag)
-    ├── Merge with existing manual sections (sentinel markers)
-    ├── Enforce word-count budgets (wc -w, priority truncation)
-    ├── Deterministic sort (alphabetical modules, stable formatting)
-    ├── Generate ground-truth-meta checksums (exclude generated_at)
-    ├── Security redaction (gitleaks patterns)
-    └── Atomic write (.butterfreezone.tmp → BUTTERFREEZONE.md)
-    ↓
-RTFM validation (advisory checksums)
-    ↓
-Commit (if in autonomous workflow)
-```
+**SKP-001** (severity: 930) — *No contingency plan for critical-path bottleneck*
+> **Override rationale:** Single chokepoint is by design per the anti-duplication matrix. The RFC's Bridgebuilder review already locked the schema shapes. The 5 v2.0.0 types are well-defined with full interface specs. Risk of slip is low; risk of schema churn is the real concern, and a frozen spec prevents that.
 
-### Hook Integration Points (MVP)
+**SKP-002** (severity: 880) — *Breaking change strategy too strict (no N-1 compat)*
+> **Override rationale:** All 4 repos coordinate in a single launch plan. One synchronized migration is simpler than maintaining translation layers. The downstream repos (loa-finn, arrakis) are controlled by the same team. Clean break avoids compat complexity that would outlive its usefulness.
 
-```
-bridge-orchestrator.sh FINALIZING phase:
-  existing: GROUND_TRUTH_UPDATE → RTFM_GATE → FINAL_PR_UPDATE
-  new:      GROUND_TRUTH_UPDATE → BUTTERFREEZONE_GEN → RTFM_GATE → FINAL_PR_UPDATE
-```
+### Accepted Findings
 
-Phase 2 hooks (future):
-```
-post-merge-orchestrator.sh:  gt_regen → butterfreezone_gen → rtfm → tag → release
-run-sprint-plan:             create_plan_pr → butterfreezone_gen → cleanup_context
-```
-
-### Config Schema Addition
-
-```yaml
-butterfreezone:
-  enabled: true                    # On by default
-  output_path: BUTTERFREEZONE.md   # Project root
-  word_budget:
-    total: 3200                    # ~8000 tokens
-    per_section: 800               # ~2000 tokens
-  staleness_days: 7
-  hooks:
-    run_bridge: true               # MVP: only hook enabled
-    run_sprint_plan: false         # Phase 2
-    post_merge: false              # Phase 2
-    ride: false                    # Future
-    ship: false                    # Phase 2
-  rtfm:
-    check_enabled: true
-    strict_mode: false             # Advisory checksums, not hard gates
-  ecosystem:
-    auto_detect: true
-    manual_entries: []
-  manual_sections:
-    sentinel_start: "<!-- manual-start -->"
-    sentinel_end: "<!-- manual-end -->"
-```
+| ID | Type | Summary | Integrated |
+|----|------|---------|------------|
+| IMP-002 | HIGH_CONSENSUS | CreditNote type for billing reversals | Yes |
+| IMP-003 | HIGH_CONSENSUS | DomainEvent audit envelope | Yes |
+| IMP-004 | DISPUTED | markup_bps → multiplier_bps (math fix) | Yes |
+| IMP-005 | DISPUTED | ToolListResponse pagination type | Yes (v2.1.0) |
+| SKP-003 | BLOCKER | Deterministic billing allocation rules | Yes |
+| SKP-005 | BLOCKER | Canonical NftId with EIP-155 chain qualifier | Yes |
+| SKP-007 | BLOCKER | Sealing encryption scheme specification | Yes |
 
 ---
 
-## 10. Open Questions (Resolved)
+## 11. Open Questions
 
-| Question | Resolution |
-|----------|-----------|
-| Should BUTTERFREEZONE.md replace README.md? | No — additive, separate file |
-| Where does BUTTERFREEZONE.md live? | Project root (same level as README.md) |
-| Is generation blocking or non-blocking? | Non-blocking — failures log warnings |
-| Default on or off? | On by default, opt-out via config |
-| Should it hook into /ride? | Yes, in future scope (not MVP) |
-
----
+| # | Question | Owner | Impact |
+|---|----------|-------|--------|
+| OQ1 | Should `AgentDescriptor.@context` be a hosted JSON-LD context document, or is the TypeScript type sufficient? | Product | Affects whether we need to deploy a schema endpoint |
+| OQ2 | Should `ConversationSealingPolicy.encrypted` specify the encryption scheme, or is that an implementation detail for loa-finn? | Security | Affects type complexity |
+| OQ3 | Should `BillingEntry` support negative amounts for refunds/credits? | Product | Affects invariant validation |
+| OQ4 | Should `ToolRegistration.mcp_capabilities` be typed enum or freeform strings? | loa-finn | MCP spec may add new methods |
+| OQ5 | Should `AgentAddress` support cross-collection addressing (e.g., `agent://bears/4269` vs `agent://4269`)? | Product | Affects the address format and parsing |
 
 ---
 
-## Appendix A: Flatline Review Integration Log
+## 11. Appendices
 
-**Flatline Run**: simstim-20260213-c009bfz, Phase 2
-**Cost**: ~39 cents (3/4 Phase 1 calls, 2/2 Phase 2 calls)
-**Model Agreement**: 100%
+### A. Migration Guide Outline (v1.1.0 → v2.0.0)
 
-### HIGH_CONSENSUS (5 — auto-integrated)
+**Breaking Changes:**
+1. `CostBreakdown` removed → use `BillingEntry`
+2. `UsageReport.cost: CostBreakdown` → `UsageReport.billing_entry_id: string` (reference)
+3. `InvokeResponse.cost: CostBreakdown` → `InvokeResponse.billing_entry_id: string` (reference)
+4. `CONTRACT_VERSION` = `"2.0.0"`
+5. `MIN_SUPPORTED_VERSION` = `"2.0.0"`
 
-| ID | Finding | Score | Resolution |
-|----|---------|-------|-----------|
-| IMP-001 | Bootstrap/cold-start behavior for repos without reality files | 885 | Added tiered input (Tier 1/2/3) to FR-3 |
-| IMP-002 | Define tokenizer for token budget enforcement | 860 | Switched to word-count (wc -w) in NFR-1 |
-| IMP-003 | Partial-write semantics and failure detection | 765 | Added atomic write + per-step status to FR-3 |
-| IMP-004 | Precise file:line citation format | 840 | Added file:symbol primary + file:line fallback to FR-1 |
-| IMP-008 | Manual OPERATIONAL section preservation | 740 | Added sentinel markers to FR-3 |
+**Additive (non-breaking):**
+1. New schemas: AgentDescriptor, AgentLifecycleState, TransferSpec, Conversation, Message
+2. New error codes: 7 agent-related codes
+3. New validators: lifecycle transition, agent address, billing recipients
+4. New exports: constants, utility functions
 
-### BLOCKERS (7 — resolved with rationale)
+### B. Repo Ownership Matrix (from RFC)
 
-| ID | Concern | Score | Resolution |
-|----|---------|-------|-----------|
-| SKP-001 | /ride circular dependency | 850 | Tiered input removes /ride dependency from MVP |
-| SKP-002 | Checksum/file:line fragility | 820 | Advisory checksums + symbol-level refs |
-| SKP-determinism | Non-deterministic output | 900 | NFR-4 determinism requirements added |
-| SKP-003 | Token counting in shell | 750 | Word count (wc -w) replaces token count |
-| SKP-004 | Blast radius of 6+ hooks | 720 | MVP limited to single hook (/run-bridge) |
-| SKP-005 | Extraction methodology unspecified | 710 | Explicit tiered methodology in FR-3 |
-| SKP-token-realism | Token budgets unrealistic for large repos | 760 | Hierarchical output option for monorepos |
+| Concern | Owner |
+|---------|-------|
+| Type schemas | loa-hounfour ONLY |
+| JWT minting | arrakis ONLY |
+| JWT validation | loa-finn ONLY |
+| Smart contracts | mibera-freeside ONLY |
+| Model routing | loa-finn ONLY |
+| Conversation store | loa-finn ONLY |
+| User-facing UI | arrakis ONLY |
+| Billing ledger | loa-finn ONLY |
+| Credit purchase | arrakis ONLY |
+| Tool registry | loa-finn ONLY |
+| Tool discovery | arrakis ONLY |
 
----
+### C. Revenue Model Reference
 
-*PRD generated for cycle-009 (Flatline-reviewed). Next: `/architect` for SDD.*
+| Stream | Rate | BillingEntry.cost_type |
+|--------|------|----------------------|
+| PAYG (0-100K tokens) | 3.0x markup | `model_inference` |
+| PAYG (100K-1M tokens) | 2.5x markup | `model_inference` |
+| PAYG (1M+ tokens) | 2.0x markup | `model_inference` |
+| BYOK subscription | $5/month flat | `byok_subscription` |
+| Agent setup | 0.01 ETH one-time | `agent_setup` |
+| Tool call | 15% platform fee | `tool_call` |
+
+### D. Competitive Context
+
+| Advantage | vs. Nanobot | vs. Hive |
+|-----------|-------------|----------|
+| Token-gated model access | Unique | Unique |
+| NFT-bound persistent identity | Unique | Unique |
+| Confused deputy prevention | Unique | N/A |
+| Ensemble multi-model + atomic budget | Ahead | Ahead |
+| BYOK with deny-by-default | Unique | N/A |
+| Protocol-first (shared types package) | Unique | N/A |

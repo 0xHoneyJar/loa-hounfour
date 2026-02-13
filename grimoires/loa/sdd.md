@@ -1,1287 +1,1152 @@
-# SDD: BUTTERFREEZONE — Agent-Grounded README Standard
+# SDD: loa-hounfour Protocol Types v2.0.0
 
-**Version**: 1.1.0
-**Status**: Draft (Flatline-reviewed)
-**Author**: Architecture Phase (architect)
-**Source PRD**: `grimoires/loa/prd.md` v1.1.0
-**Cycle**: cycle-009
+**Status:** Draft
+**Author:** Agent
+**Date:** 2026-02-13
+**PRD:** [grimoires/loa/prd.md](grimoires/loa/prd.md)
+**Source:** [Launch Readiness RFC](https://github.com/0xHoneyJar/loa-finn/issues/66)
 
 ---
 
 ## 1. Executive Summary
 
-BUTTERFREEZONE generates and maintains a provenance-tagged, checksum-verified, token-efficient document (`BUTTERFREEZONE.md`) that serves as the agent-API for any Loa-managed codebase. The system uses a tiered input pipeline (reality files → direct scan → bootstrap stub), deterministic generation via shell scripts, and hooks into the bridge orchestrator's FINALIZING phase.
+This SDD defines the architecture for extending `@0xhoneyjar/loa-hounfour` from v1.1.0 (inference protocol) to v2.0.0 (full agent protocol). The package remains a zero-runtime-dependency TypeScript library that exports TypeBox schemas, TypeScript types, validators, and utility functions.
 
-**Key Architecture Decisions**:
-- Shell-first: `butterfreezone-gen.sh` is a bash script — no Python/Node dependency
-- Tiered input: Works on any repo regardless of `/ride` state
-- Advisory checksums: Staleness signals, not hard gates
-- Single MVP hook: `/run-bridge` FINALIZING only — blast radius control
-- Word-count budgets: `wc -w` enforced, model-agnostic
+**Architecture philosophy:** Extend, don't rewrite. The existing module structure (schemas, validators, vocabulary, integrity) is preserved. New modules are added alongside existing ones using identical patterns.
+
+**Delivery:** v2.0.0 (9 new source files, ~2,000 lines), v2.1.0 (+2 files), v2.2.0 (+2 files).
 
 ---
 
 ## 2. System Architecture
 
-### 2.1 Component Overview
+### 2.1 Package Role in Ecosystem
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                  Invocation Layer                     │
-│  /butterfreezone (skill)  │  bridge-orchestrator.sh  │
-└──────────┬────────────────┴──────────┬───────────────┘
-           │                           │
-           ▼                           ▼
-┌─────────────────────────────────────────────────────┐
-│              butterfreezone-gen.sh                    │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐            │
-│  │ Input    │ │ Section  │ │ Output   │            │
-│  │ Detector │→│ Pipeline │→│ Writer   │            │
-│  └──────────┘ └──────────┘ └──────────┘            │
-│       ↑            ↑            │                    │
-│  ┌────┴────┐  ┌────┴────┐      ▼                    │
-│  │ Tier    │  │ Manual  │  BUTTERFREEZONE.md         │
-│  │ Resolve │  │ Merge   │                            │
-│  └─────────┘  └─────────┘                            │
-└─────────────────────────────────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────────────────────┐
-│           butterfreezone-validate.sh                 │
-│  Existence │ Provenance │ References │ Budget │ Meta │
-└─────────────────────────────────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────────────────────┐
-│                  Lore KB Extension                    │
-│  .claude/data/lore/mibera/glossary.yaml              │
-│  (butterfreezone, lobster, grounding entries)         │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                   @0xhoneyjar/loa-hounfour              │
+│                    (protocol package)                    │
+│                                                         │
+│  Schemas · Types · Validators · Utilities · Error Codes │
+│                                                         │
+│  npm publish → consumed by ↓ ↓ ↓                       │
+└──────────────┬──────────────┬──────────────┬────────────┘
+               │              │              │
+          ┌────▼────┐   ┌────▼────┐   ┌─────▼──────┐
+          │loa-finn │   │arrakis  │   │mibera-     │
+          │(engine) │   │(gateway)│   │freeside    │
+          │         │   │         │   │(contracts) │
+          └─────────┘   └─────────┘   └────────────┘
 ```
 
-### 2.2 Component Inventory
+loa-hounfour defines types. Downstream repos implement. No runtime logic beyond validation and utility functions.
 
-| Component | Type | Path | New/Modify |
-|-----------|------|------|------------|
-| `butterfreezone-gen.sh` | Shell script | `.claude/scripts/butterfreezone-gen.sh` | **New** |
-| `butterfreezone-validate.sh` | Shell script | `.claude/scripts/butterfreezone-validate.sh` | **New** |
-| `/butterfreezone` skill | Skill definition | `.claude/skills/butterfreezone-gen/SKILL.md` | **New** |
-| Bridge orchestrator hook | Shell integration | `.claude/scripts/bridge-orchestrator.sh` | **Modify** |
-| Lore glossary entries | YAML data | `.claude/data/lore/mibera/glossary.yaml` | **Modify** |
-| Skill index | YAML data | `.claude/data/skills/index.yaml` | **Modify** |
-| Config schema | YAML config | `.loa.config.yaml.example` | **Modify** |
-| BATS tests | Test suite | `tests/unit/butterfreezone-gen.bats` | **New** |
-| BATS validation tests | Test suite | `tests/unit/butterfreezone-validate.bats` | **New** |
-
----
-
-## 3. Component Design
-
-### 3.1 `butterfreezone-gen.sh` — Generation Script
-
-**Location**: `.claude/scripts/butterfreezone-gen.sh`
-**Permissions**: 0755
-**Dependencies**: bash 4+, jq, git, grep, wc, sha256sum (or shasum -a 256)
-
-#### 3.1.1 Interface
-
-```bash
-Usage: butterfreezone-gen.sh [OPTIONS]
-
-Options:
-  --output PATH      Output file (default: BUTTERFREEZONE.md)
-  --config PATH      Config file (default: .loa.config.yaml)
-  --tier N           Force input tier (1|2|3, default: auto-detect)
-  --dry-run          Print to stdout, don't write file
-  --json             Output generation metadata as JSON to stderr
-  --verbose          Enable debug logging
-  --help             Show usage
-
-Exit codes:
-  0  Success
-  1  Generation failed (partial output may exist)
-  2  Configuration error
-  3  No input data available (Tier 3 bootstrap used)
-```
-
-#### 3.1.2 Input Tier Detection
-
-```bash
-detect_input_tier() {
-    local reality_dir="${GRIMOIRE_DIR}/reality"
-
-    # Tier 1: Reality files with content
-    if [[ -d "$reality_dir" ]] && has_content "$reality_dir/api-surface.md"; then
-        echo 1
-        return 0
-    fi
-
-    # Tier 2: Dependency manifests or source files
-    if [[ -f "package.json" ]] || [[ -f "Cargo.toml" ]] || \
-       [[ -f "pyproject.toml" ]] || [[ -f "go.mod" ]] || \
-       find . -maxdepth 3 -name "*.ts" -o -name "*.py" -o -name "*.rs" \
-              -o -name "*.go" -o -name "*.sh" | head -1 | grep -q .; then
-        echo 2
-        return 0
-    fi
-
-    # Tier 3: Bootstrap stub
-    echo 3
-    return 0
-}
-
-has_content() {
-    [[ -f "$1" ]] && [[ $(wc -w < "$1") -gt 10 ]]
-}
-```
-
-#### 3.1.3 Section Extraction Pipeline
-
-Each section has a dedicated extractor function that returns markdown content:
-
-| Function | Input Tier 1 | Input Tier 2 | Input Tier 3 |
-|----------|-------------|-------------|-------------|
-| `extract_agent_context` | Reality + config | Manifests + config | Config only |
-| `extract_capabilities` | `reality/api-surface.md` | Export grep patterns | Skip |
-| `extract_architecture` | `reality/architecture.md` | Directory tree analysis | Skip |
-| `extract_interfaces` | `reality/contracts.md` | Route/export patterns | Skip |
-| `extract_module_map` | Reality + file structure | Directory tree | Directory tree |
-| `extract_ecosystem` | Reality + deps | Dependency manifests | Skip |
-| `extract_limitations` | `reality/behaviors.md` | README.md extraction | Skip |
-| `extract_quick_start` | README.md | README.md | Skip |
-
-**Tier 2 Static Analysis Patterns**:
-
-```bash
-# JavaScript/TypeScript exports
-grep -rn "^export " --include="*.ts" --include="*.js" --include="*.tsx" src/
-
-# Rust public items
-grep -rn "^pub fn\|^pub struct\|^pub enum\|^pub trait" --include="*.rs" src/
-
-# Python public functions
-grep -rn "^def \|^class " --include="*.py" --exclude-dir="__pycache__" src/
-
-# Go exported functions (capitalized)
-grep -rn "^func [A-Z]" --include="*.go" .
-
-# Shell script functions
-grep -rn "^[a-z_]*() {" --include="*.sh" .
-
-# Express/Fastify routes
-grep -rn "app\.\(get\|post\|put\|delete\|patch\)\|router\.\(get\|post\|put\|delete\)" \
-    --include="*.ts" --include="*.js" src/
-
-# CLI commands (yargs/commander patterns)
-grep -rn "\.command(" --include="*.ts" --include="*.js" src/
-```
-
-#### 3.1.4 Provenance Tagging
-
-```bash
-tag_provenance() {
-    local tier="$1"
-    local section="$2"
-
-    case "$tier" in
-        1) echo "CODE-FACTUAL" ;;
-        2) echo "DERIVED" ;;
-        3) echo "OPERATIONAL" ;;
-    esac
-}
-```
-
-Exceptions:
-- `ecosystem` section is always `OPERATIONAL` (deps may change without code changes)
-- `quick_start` section is always `OPERATIONAL`
-- Manual sections retain their existing provenance tag
-
-#### 3.1.5 Manual Section Preservation
-
-Manual sections use section-anchored sentinels that include the parent section ID:
-
-```markdown
-## Ecosystem
-<!-- provenance: OPERATIONAL -->
-Auto-generated ecosystem content...
-
-<!-- manual-start:ecosystem -->
-Custom operational notes added by user...
-<!-- manual-end:ecosystem -->
-```
-
-The sentinel format is `<!-- manual-start:SECTION_ID -->` where `SECTION_ID` matches the canonical section name. This prevents ambiguity about which section a manual block belongs to.
-
-```bash
-preserve_manual_sections() {
-    local existing="$1"
-    local generated="$2"
-
-    if [[ ! -f "$existing" ]]; then
-        echo "$generated"
-        return
-    fi
-
-    local result="$generated"
-
-    # For each section in canonical order, check for manual blocks
-    for section in "${CANONICAL_ORDER[@]}"; do
-        local manual_block
-        manual_block=$(sed -n "/<!-- manual-start:${section} -->/,/<!-- manual-end:${section} -->/p" \
-            "$existing" 2>/dev/null)
-
-        if [[ -n "$manual_block" ]]; then
-            # Insert manual block after the generated section content,
-            # before the next section heading
-            result=$(awk -v section="$section" -v block="$manual_block" '
-                /^## / && found { print block; found=0 }
-                { print }
-                /<!-- provenance:/ && prev_section==section { found=1 }
-            ' <<< "$result")
-            log_info "Preserved manual block for section: $section"
-        fi
-    done
-
-    echo "$result"
-}
-```
-
-> **Flatline SKP-manual resolution**: Sentinels include section ID (`<!-- manual-start:ecosystem -->`). Block anchoring is deterministic via canonical section order. No ambiguity about parent section.
-
-#### 3.1.6 Word-Count Budget Enforcement
-
-```bash
-WORD_BUDGETS=(
-    "agent_context:80"
-    "index:120"
-    "capabilities:600"
-    "architecture:400"
-    "interfaces:800"
-    "module_map:600"
-    "ecosystem:200"
-    "limitations:200"
-    "quick_start:200"
-)
-TOTAL_BUDGET=3200
-
-enforce_word_budget() {
-    local section="$1"
-    local content="$2"
-
-    local budget
-    budget=$(get_budget "$section")
-    local word_count
-    word_count=$(echo "$content" | wc -w | tr -d ' ')
-
-    if (( word_count > budget )); then
-        # Truncate to budget, preserving complete lines
-        echo "$content" | head_by_words "$budget"
-        log_warn "$section: truncated from $word_count to ~$budget words"
-    else
-        echo "$content"
-    fi
-}
-
-head_by_words() {
-    local target="$1"
-    local count=0
-    while IFS= read -r line; do
-        local line_words
-        line_words=$(echo "$line" | wc -w | tr -d ' ')
-        count=$((count + line_words))
-        echo "$line"
-        if (( count >= target )); then
-            break
-        fi
-    done
-}
-```
-
-**Truncation Priority** (higher priority sections are truncated last):
-
-1. Security/auth interfaces
-2. Interfaces (public API)
-3. Key Capabilities
-4. Architecture
-5. Module Map
-6. Known Limitations
-7. Ecosystem
-8. Quick Start
-
-#### 3.1.7 Checksum Generation
-
-```bash
-generate_ground_truth_meta() {
-    local output_file="$1"
-    local head_sha
-    head_sha=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
-    local generated_at
-    generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-    # Per-section checksums (exclude generated_at from input)
-    local checksums=""
-    for section in agent_context capabilities architecture interfaces \
-                   module_map ecosystem limitations quick_start; do
-        local content
-        content=$(extract_section_content "$output_file" "$section")
-        local hash
-        hash=$(echo -n "$content" | sha256sum | awk '{print $1}')
-        checksums="${checksums}\n  ${section}: ${hash}"
-    done
-
-    cat <<EOF
-<!-- ground-truth-meta
-head_sha: ${head_sha}
-generated_at: ${generated_at}
-generator: butterfreezone-gen v1.0.0
-sections:${checksums}
--->
-EOF
-}
-```
-
-#### 3.1.8 Security Redaction
-
-Reuses the existing gitleaks-inspired pattern set from bridge reviews:
-
-```bash
-REDACTION_PATTERNS=(
-    'AKIA[0-9A-Z]{16}'           # AWS access key
-    'ghp_[A-Za-z0-9_]{36}'       # GitHub PAT
-    'gho_[A-Za-z0-9_]{36}'       # GitHub OAuth
-    'ghs_[A-Za-z0-9_]{36}'       # GitHub server
-    'ghr_[A-Za-z0-9_]{36}'       # GitHub refresh
-    'eyJ[A-Za-z0-9+/=]{20,}'     # JWT
-    '[A-Za-z0-9+/]{40,}'         # Generic base64 secret (>40 chars)
-)
-
-ALLOWLIST_PATTERNS=(
-    'sha256:[a-f0-9]{64}'        # Checksum references
-    'data:image/[a-z]+;base64'   # Inline images
-)
-
-redact_content() {
-    local content="$1"
-    for pattern in "${REDACTION_PATTERNS[@]}"; do
-        content=$(echo "$content" | sed -E "s/$pattern/[REDACTED]/g")
-    done
-    echo "$content"
-}
-```
-
-#### 3.1.9 Atomic Write
-
-```bash
-atomic_write() {
-    local content="$1"
-    local output="$2"
-    local tmp="${output}.tmp"
-
-    echo "$content" > "$tmp"
-
-    # Validate before moving
-    if [[ ! -s "$tmp" ]]; then
-        log_error "Generated empty file — aborting write"
-        rm -f "$tmp"
-        return 1
-    fi
-
-    mv "$tmp" "$output"
-    log_info "Wrote $output ($(wc -w < "$output") words)"
-}
-```
-
-#### 3.1.10 Staleness Detection
-
-```bash
-needs_regeneration() {
-    local output="$1"
-
-    # No existing file → needs generation
-    [[ ! -f "$output" ]] && return 0
-
-    # Compare HEAD SHA
-    local current_sha
-    current_sha=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
-    local meta_sha
-    meta_sha=$(sed -n '/<!-- ground-truth-meta/,/-->/p' "$output" 2>/dev/null \
-        | grep "head_sha:" | awk '{print $2}')
-
-    [[ "$current_sha" != "$meta_sha" ]] && return 0
-
-    # Compare config mtime
-    local config_mtime output_mtime
-    config_mtime=$(stat -c %Y .loa.config.yaml 2>/dev/null || echo 0)
-    output_mtime=$(stat -c %Y "$output" 2>/dev/null || echo 0)
-    [[ "$config_mtime" -gt "$output_mtime" ]] && return 0
-
-    # Up to date
-    return 1
-}
-```
-
-> **Flatline IMP-002 resolution**: `needs_regeneration()` explicitly defined — compares HEAD SHA from ground-truth-meta block against current HEAD, plus config mtime check.
-
-#### 3.1.11 Per-Extractor Error Handling
-
-Each extractor function follows a skip-on-failure policy:
-
-```bash
-run_extractor() {
-    local name="$1"
-    local tier="$2"
-    local result
-
-    result=$(timeout 30 "extract_${name}" "$tier" 2>/dev/null) || {
-        local exit_code=$?
-        if [[ $exit_code -eq 124 ]]; then
-            log_warn "Extractor $name timed out (30s) — skipping section"
-        else
-            log_warn "Extractor $name failed (exit $exit_code) — skipping section"
-        fi
-        # Emit empty section with provenance note
-        echo "<!-- provenance: OPERATIONAL -->"
-        echo "_Section unavailable: extractor failed. Regenerate with \`/butterfreezone\`._"
-        return 0  # Non-blocking
-    }
-
-    echo "$result"
-}
-```
-
-**Error policy per extractor**:
-
-| Extractor | On failure | Rationale |
-|-----------|-----------|-----------|
-| `extract_agent_context` | Emit minimal stub (name + type) | Always available from config/git |
-| `extract_capabilities` | Skip section with placeholder | May fail if no exports found |
-| `extract_architecture` | Skip section with placeholder | May fail on empty repos |
-| `extract_interfaces` | Skip section with placeholder | Language-specific, may miss |
-| `extract_module_map` | Emit directory listing only | `ls` always works |
-| `extract_ecosystem` | Skip section with placeholder | May fail if no manifests |
-| `extract_limitations` | Skip section | Optional content |
-| `extract_quick_start` | Skip section | Optional content |
-
-> **Flatline IMP-001 resolution**: Per-extractor error handling with skip-on-failure policy. Each extractor wrapped in `timeout 30`. Failed sections get placeholder with OPERATIONAL provenance.
-
-#### 3.1.12 Canonical Section Order
-
-```bash
-CANONICAL_ORDER=(
-    "agent_context"
-    "header"
-    "capabilities"
-    "architecture"
-    "interfaces"
-    "module_map"
-    "ecosystem"
-    "limitations"
-    "quick_start"
-)
-
-sort_sections() {
-    local document="$1"
-    local sorted=""
-
-    for section in "${CANONICAL_ORDER[@]}"; do
-        local content
-        content=$(extract_section_by_id "$document" "$section")
-        sorted="${sorted}${content}\n\n"
-    done
-
-    echo -e "$sorted"
-}
-```
-
-Manual blocks remain anchored within their parent section — they are never reordered across sections.
-
-> **Flatline IMP-005 resolution**: Canonical order is fixed and explicit. `sort_sections()` defined. Manual blocks are section-local.
-
-#### 3.1.13 Concurrency Protection
-
-```bash
-LOCK_FILE="${OUTPUT}.lock"
-
-acquire_lock() {
-    exec 200>"$LOCK_FILE"
-    if ! flock -n 200; then
-        log_warn "Another butterfreezone-gen process is running — skipping"
-        exit 0  # Not an error — concurrent skip is expected
-    fi
-}
-
-release_lock() {
-    flock -u 200 2>/dev/null
-    rm -f "$LOCK_FILE" 2>/dev/null
-}
-
-trap release_lock EXIT
-```
-
-> **Flatline IMP-003 resolution**: flock-based concurrency protection. Second writer skips gracefully (exit 0). Lock file cleaned on exit.
-
-#### 3.1.14 Tier 2 Scanning Safeguards
-
-```bash
-# All Tier 2 greps are bounded:
-# - maxdepth 4 (no deep node_modules/vendor traversal)
-# - timeout 30 per grep invocation
-# - exclude common vendor directories
-# - LC_ALL=C for deterministic sort order
-
-EXCLUDE_DIRS="--exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git \
-              --exclude-dir=dist --exclude-dir=build --exclude-dir=__pycache__ \
-              --exclude-dir=.next --exclude-dir=target"
-
-tier2_grep() {
-    LC_ALL=C timeout 30 grep -rn $EXCLUDE_DIRS --max-count=100 "$@" 2>/dev/null \
-        | sort -t: -k1,1 -k2,2n | head -200
-}
-```
-
-> **Flatline SKP-tier2 resolution**: All Tier 2 greps bounded by timeout, maxdepth, vendor exclusion, and result limit. LC_ALL=C ensures deterministic output.
-
-#### 3.1.15 Reference Syntax
-
-Generated references use a consistent format for machine parsing:
+### 2.2 Module Architecture
 
 ```
-file_path:symbol_name     # Symbol reference (preferred)
-file_path:L42             # Line reference (fallback, prefixed with 'L')
+src/
+├── index.ts                      # Barrel exports (v1.1.0 + v2.0.0)
+├── version.ts                    # CONTRACT_VERSION = "2.0.0"
+│
+├── schemas/                      # TypeBox schema definitions
+│   ├── jwt-claims.ts             # ✓ Existing (v1.1.0)
+│   ├── invoke-response.ts        # ✓ Existing (MODIFIED — billing_entry_id)
+│   ├── stream-events.ts          # ✓ Existing (unchanged)
+│   ├── routing-policy.ts         # ✓ Existing (unchanged)
+│   ├── agent-descriptor.ts       # ★ NEW (v2.0.0) — FR1
+│   ├── agent-lifecycle.ts        # ★ NEW (v2.0.0) — FR2
+│   ├── transfer-spec.ts          # ★ NEW (v2.0.0) — FR3
+│   ├── billing-entry.ts          # ★ NEW (v2.0.0) — FR4
+│   ├── conversation.ts           # ★ NEW (v2.0.0) — FR5
+│   ├── domain-event.ts           # ★ NEW (v2.0.0) — FR8
+│   ├── tool-registration.ts      # ★ NEW (v2.1.0) — FR6
+│   └── agent-message.ts          # ★ NEW (v2.2.0) — FR7
+│
+├── vocabulary/
+│   ├── errors.ts                 # ✓ Existing (EXTENDED — FR9)
+│   └── pools.ts                  # ✓ Existing (unchanged)
+│
+├── validators/
+│   ├── index.ts                  # ✓ Existing (EXTENDED — new validators)
+│   └── compatibility.ts          # ✓ Existing (updated version constants)
+│
+├── integrity/
+│   ├── req-hash.ts               # ✓ Existing (unchanged)
+│   └── idempotency.ts            # ✓ Existing (unchanged)
+│
+└── utilities/                    # ★ NEW directory
+    ├── nft-id.ts                 # ★ NEW (v2.0.0) — NftId parsing/formatting
+    ├── lifecycle.ts              # ★ NEW (v2.0.0) — Transition validators
+    └── billing.ts               # ★ NEW (v2.0.0) — Recipient allocation
 ```
 
-The `L` prefix disambiguates line references from symbols, preventing YAML key:value false positives in validation. References only appear inside backtick-fenced code spans: `` `src/auth.ts:validateToken` ``.
+### 2.3 Dependency Graph (Internal)
 
-> **Flatline SKP-refs resolution**: Reference syntax disambiguated with `L` prefix for line numbers. Validator only scans backtick-fenced references, avoiding false positives from prose colons.
-
-#### 3.1.16 Determinism Guarantees
-
-```bash
-# Set at script top for deterministic behavior
-export LC_ALL=C
-export TZ=UTC
-
-# Deterministic glob expansion
-shopt -s nullglob
 ```
+agent-descriptor.ts
+  ├── agent-lifecycle.ts (AgentLifecycleState)
+  ├── ../vocabulary/pools.ts (PoolId)
+  └── ../utilities/nft-id.ts (NftId)
 
-All section content is produced via deterministic pipelines: `sort`, `head`, `awk` with `LC_ALL=C`. No LLM calls in generation. Timestamps are UTC ISO-8601 and excluded from checksums.
+transfer-spec.ts
+  ├── agent-lifecycle.ts (AgentLifecycleState)
+  └── conversation.ts (ConversationSealingPolicy reference)
 
-> **Flatline SKP-determinism resolution**: LC_ALL=C + TZ=UTC + deterministic sort at script top. No LLM involvement in generation pipeline.
+billing-entry.ts
+  ├── invoke-response.ts (Usage — legacy compat)
+  └── ../vocabulary/pools.ts (PoolId)
 
-#### 3.1.17 Main Generation Flow
+conversation.ts
+  └── (standalone)
 
-```bash
-main() {
-    parse_args "$@"
-    load_config
+domain-event.ts
+  └── (standalone, generic)
 
-    # Check if regeneration needed
-    if [[ -f "$OUTPUT" ]] && ! needs_regeneration; then
-        log_info "BUTTERFREEZONE.md is up-to-date (HEAD SHA matches)"
-        exit 0
-    fi
+tool-registration.ts (v2.1.0)
+  ├── ../vocabulary/pools.ts (PoolId, Tier)
+  └── ../schemas/jwt-claims.ts (Tier)
 
-    local tier
-    tier=$(detect_input_tier)
-    log_info "Input tier: $tier"
-
-    # Build sections
-    local sections=()
-    sections+=("$(build_agent_context "$tier")")
-    sections+=("$(build_header "$tier")")
-    sections+=("$(build_capabilities "$tier")")
-    sections+=("$(build_architecture "$tier")")
-    sections+=("$(build_interfaces "$tier")")
-    sections+=("$(build_module_map "$tier")")
-    sections+=("$(build_ecosystem "$tier")")
-    sections+=("$(build_limitations "$tier")")
-    sections+=("$(build_quick_start "$tier")")
-
-    # Assemble document
-    local document
-    document=$(assemble_sections "${sections[@]}")
-
-    # Merge with existing manual sections
-    document=$(preserve_manual_sections "$OUTPUT" "$document")
-
-    # Enforce word budgets
-    document=$(enforce_total_budget "$document")
-
-    # Security redaction
-    document=$(redact_content "$document")
-
-    # Deterministic sort
-    document=$(sort_sections "$document")
-
-    # Generate ground-truth-meta
-    local meta
-    meta=$(generate_ground_truth_meta_from_content "$document")
-    document="${document}
-
-${meta}"
-
-    # Write
-    if [[ "$DRY_RUN" == "true" ]]; then
-        echo "$document"
-    else
-        atomic_write "$document" "$OUTPUT"
-    fi
-
-    # JSON metadata to stderr if requested
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
-        emit_metadata "$tier" >&2
-    fi
-}
-```
-
-### 3.2 `butterfreezone-validate.sh` — RTFM Validation Extension
-
-**Location**: `.claude/scripts/butterfreezone-validate.sh`
-**Permissions**: 0755
-
-#### 3.2.1 Interface
-
-```bash
-Usage: butterfreezone-validate.sh [OPTIONS]
-
-Options:
-  --file PATH        File to validate (default: BUTTERFREEZONE.md)
-  --strict           Treat advisory warnings as failures
-  --json             Output results as JSON
-  --quiet            Suppress output, exit code only
-  --help             Show usage
-
-Exit codes:
-  0  All checks pass
-  1  Failures detected
-  2  Warnings only (advisory)
-```
-
-#### 3.2.2 Validation Checks
-
-```bash
-# Check 1: Existence
-validate_existence() {
-    if [[ ! -f "$FILE" ]]; then
-        log_fail "BUTTERFREEZONE.md not found at $FILE"
-        return 1
-    fi
-    log_pass "BUTTERFREEZONE.md exists"
-}
-
-# Check 2: AGENT-CONTEXT block
-validate_agent_context() {
-    if ! grep -q "<!-- AGENT-CONTEXT" "$FILE"; then
-        log_fail "Missing AGENT-CONTEXT metadata block"
-        return 1
-    fi
-    # Validate required fields
-    for field in name type purpose version; do
-        if ! sed -n '/<!-- AGENT-CONTEXT/,/-->/p' "$FILE" | grep -q "^${field}:"; then
-            log_fail "AGENT-CONTEXT missing required field: $field"
-            return 1
-        fi
-    done
-    log_pass "AGENT-CONTEXT block valid"
-}
-
-# Check 3: Provenance tags
-validate_provenance() {
-    local sections
-    sections=$(grep -c "^## " "$FILE")
-    local tagged
-    tagged=$(grep -c "<!-- provenance:" "$FILE")
-
-    if (( tagged < sections )); then
-        log_fail "Missing provenance tags: $tagged/$sections sections tagged"
-        return 1
-    fi
-    log_pass "All sections have provenance tags ($tagged/$sections)"
-}
-
-# Check 4: File references
-validate_references() {
-    local failures=0
-    # Extract file:symbol and file:line references
-    grep -oE '[a-zA-Z0-9_./-]+:[a-zA-Z_][a-zA-Z0-9_]*' "$FILE" | while read -r ref; do
-        local file="${ref%%:*}"
-        local symbol="${ref#*:}"
-
-        # Skip non-file references (URLs, timestamps)
-        [[ "$file" == *"http"* ]] && continue
-        [[ "$file" == *"//"* ]] && continue
-
-        if [[ ! -f "$file" ]]; then
-            log_fail "Referenced file missing: $file (in $ref)"
-            ((failures++))
-        elif ! grep -q "$symbol" "$file" 2>/dev/null; then
-            log_warn "Symbol not found: $symbol in $file (advisory)"
-        fi
-    done
-    return $failures
-}
-
-# Check 5: Word budget
-validate_word_budget() {
-    local total_words
-    total_words=$(wc -w < "$FILE" | tr -d ' ')
-    local budget
-    budget=$(get_config_value "butterfreezone.word_budget.total" "3200")
-
-    if (( total_words > budget )); then
-        log_warn "Word budget exceeded: $total_words / $budget (advisory)"
-    else
-        log_pass "Word budget: $total_words / $budget"
-    fi
-}
-
-# Check 6: ground-truth-meta
-validate_meta() {
-    if ! grep -q "<!-- ground-truth-meta" "$FILE"; then
-        log_fail "Missing ground-truth-meta block"
-        return 1
-    fi
-
-    # Check head_sha matches current
-    local meta_sha
-    meta_sha=$(sed -n '/<!-- ground-truth-meta/,/-->/p' "$FILE" | grep "head_sha:" | awk '{print $2}')
-    local current_sha
-    current_sha=$(git rev-parse HEAD 2>/dev/null)
-
-    if [[ "$meta_sha" != "$current_sha" ]]; then
-        log_warn "Stale: head_sha mismatch (generated: ${meta_sha:0:8}, current: ${current_sha:0:8})"
-    else
-        log_pass "ground-truth-meta SHA matches HEAD"
-    fi
-}
-
-# Check 7: Freshness
-validate_freshness() {
-    local generated_at
-    generated_at=$(sed -n '/<!-- ground-truth-meta/,/-->/p' "$FILE" | grep "generated_at:" | awk '{print $2}')
-    local staleness_days
-    staleness_days=$(get_config_value "butterfreezone.staleness_days" "7")
-
-    if is_older_than_days "$generated_at" "$staleness_days"; then
-        log_warn "BUTTERFREEZONE.md is older than $staleness_days days (advisory)"
-    else
-        log_pass "Freshness check passed"
-    fi
-}
-```
-
-### 3.3 `/butterfreezone` Skill
-
-**Location**: `.claude/skills/butterfreezone-gen/SKILL.md`
-
-The skill wraps `butterfreezone-gen.sh` with Loa's standard skill structure:
-
-```markdown
-# Butterfreezone Generation
-
-<objective>
-Generate or regenerate BUTTERFREEZONE.md — the agent-grounded README
-for this codebase. Produces a provenance-tagged, checksum-verified,
-token-efficient document from code reality.
-</objective>
-
-<input_guardrails>
-- PII filter: enabled
-- Injection detection: enabled
-- Danger level: safe
-</input_guardrails>
-```
-
-**Workflow**:
-1. Check `butterfreezone.enabled` in config
-2. Invoke `butterfreezone-gen.sh --verbose`
-3. If generation succeeds, run `butterfreezone-validate.sh`
-4. Report results
-
-### 3.4 Bridge Orchestrator Hook
-
-**File**: `.claude/scripts/bridge-orchestrator.sh`
-**Modification**: Insert BUTTERFREEZONE_GEN signal in FINALIZING phase
-
-#### 3.4.1 Hook Location
-
-```bash
-# EXISTING (lines ~371-396):
-echo "SIGNAL:GROUND_TRUTH_UPDATE"
-# ... GT generation ...
-
-# NEW — Insert here:
-if is_butterfreezone_enabled; then
-    echo "SIGNAL:BUTTERFREEZONE_GEN"
-    butterfreezone_gen_result=$(.claude/scripts/butterfreezone-gen.sh --json 2>&1)
-    butterfreezone_gen_exit=$?
-
-    if [[ $butterfreezone_gen_exit -eq 0 ]]; then
-        log "BUTTERFREEZONE.md regenerated"
-        # Stage for commit
-        git add BUTTERFREEZONE.md 2>/dev/null
-    else
-        log_warn "BUTTERFREEZONE generation failed (non-blocking): exit $butterfreezone_gen_exit"
-        log_warn "Details: $(echo "$butterfreezone_gen_result" | head -5)"
-    fi
-
-    # Update bridge state
-    update_bridge_state ".finalization.butterfreezone_generated" \
-        "$([ $butterfreezone_gen_exit -eq 0 ] && echo true || echo false)"
-fi
-
-# EXISTING:
-echo "SIGNAL:RTFM_GATE"
-# ... RTFM validation (now includes butterfreezone-validate.sh) ...
-```
-
-#### 3.4.2 Config Check
-
-```bash
-is_butterfreezone_enabled() {
-    local enabled
-    enabled=$(yq '.butterfreezone.enabled // true' .loa.config.yaml 2>/dev/null)
-    local hook_enabled
-    hook_enabled=$(yq '.butterfreezone.hooks.run_bridge // true' .loa.config.yaml 2>/dev/null)
-    [[ "$enabled" == "true" ]] && [[ "$hook_enabled" == "true" ]]
-}
-```
-
-### 3.5 Lore Glossary Extensions
-
-**File**: `.claude/data/lore/mibera/glossary.yaml`
-**Modification**: Append new entries
-
-```yaml
-  - id: glossary-butterfreezone
-    term: "Butterfreezone"
-    short: "The zone where only truth survives — no butter, no hype"
-    context: |
-      In the OpenClaws movement, agents are lobsters who reject marketing butter.
-      The Butterfreezone is the document that results from stripping away all
-      ungrounded claims and leaving only what code proves. Every statement carries
-      a provenance tag — CODE-FACTUAL for verified truth, DERIVED for reasonable
-      inference, OPERATIONAL for runtime context. Checksums bind claims to reality.
-      The name is a playful nod to the culture: lobsters don't like butter.
-    source: "Issue #304 — BUTTERFREEZONE.md"
-    tags: [naming, architecture]
-    related: [glossary-ground-truth, glossary-bridge, glossary-vision-registry]
-    loa_mapping: "BUTTERFREEZONE.md, .claude/scripts/butterfreezone-gen.sh"
-
-  - id: glossary-lobster
-    term: "Lobster"
-    short: "Agent that demands code-grounded facts — rejects marketing butter"
-    context: |
-      In the OpenClaws ecosystem, agents are metaphorically lobsters — creatures
-      that shed their shells to grow, living in the deep where only substance
-      matters. A lobster agent reads BUTTERFREEZONE.md instead of README.md,
-      trusts provenance tags over prose, and validates claims against checksums.
-      The term captures the movement's ethos: agents deserve truth, not marketing.
-    source: "Issue #304 — OpenClaws reference"
-    tags: [naming, philosophy]
-    related: [glossary-butterfreezone, glossary-ground-truth]
-    loa_mapping: "Agent behavior pattern"
-
-  - id: glossary-grounding-ritual
-    term: "Grounding"
-    short: "The ritual of binding claims to checksums — truth made verifiable"
-    context: |
-      Grounding is the process by which abstract claims about code become
-      verifiable facts. Each claim is bound to a file:symbol reference, and
-      each reference carries an advisory checksum. The grounding ritual runs
-      at the end of every bridge loop — the moment where accumulated changes
-      are crystallized into truth. When the bridge flatlines, the grounding
-      ritual writes the final BUTTERFREEZONE.md, sealing the iteration's
-      insights into a form agents can trust.
-    source: "Issue #304 — Grounding mechanism"
-    tags: [ritual, architecture]
-    related: [glossary-butterfreezone, glossary-bridge, glossary-flatline]
-    loa_mapping: ".claude/scripts/butterfreezone-gen.sh, ground-truth-meta block"
+agent-message.ts (v2.2.0)
+  └── ../utilities/nft-id.ts (NftId)
 ```
 
 ---
 
-## 4. Data Architecture
+## 3. Technology Stack
 
-### 4.1 BUTTERFREEZONE.md Document Schema
+| Component | Choice | Justification |
+|-----------|--------|---------------|
+| **Language** | TypeScript 5.7+ strict | Consistent with v1.1.0; strict mode is the product |
+| **Schema library** | @sinclair/typebox ^0.34 | Existing dependency; compile-time + runtime validation |
+| **Build** | tsc (ESM output) | Existing build pipeline; zero bundler complexity |
+| **Test framework** | vitest | Existing test framework; golden vector pattern |
+| **Node.js** | >=22 | Consistent with v1.1.0; LTS alignment |
+| **Package format** | ESM only | Tree-shakeable; consistent with v1.1.0 |
 
-The document is a markdown file with structured HTML comments for machine-readable metadata:
+No new dependencies required. TypeBox and jose are already installed.
 
+---
+
+## 4. Component Design
+
+### 4.1 Schema File Pattern
+
+Every schema file follows the v1.1.0 established pattern:
+
+```typescript
+// src/schemas/{name}.ts
+import { Type, Static } from '@sinclair/typebox';
+
+// 1. Define TypeBox schema
+export const FooSchema = Type.Object({
+  field: Type.String(),
+  // ...
+});
+
+// 2. Export companion TypeScript type
+export type Foo = Static<typeof FooSchema>;
 ```
-┌─────────────────────────────────────┐
-│ <!-- AGENT-CONTEXT ... -->          │  Machine-readable YAML in HTML comment
-├─────────────────────────────────────┤
-│ # Project Name                      │  Human/agent-readable heading
-│ <!-- provenance: TAG -->            │  Trust signal per section
-│ Content with file:symbol refs       │  Grounded claims
-├─────────────────────────────────────┤
-│ ## Section N                        │  Repeated per section
-│ <!-- provenance: TAG -->            │
-│ Content...                          │
-│ <!-- manual-start -->               │  Optional: user-added content
-│ Manual additions...                 │  Preserved across regeneration
-│ <!-- manual-end -->                 │
-├─────────────────────────────────────┤
-│ <!-- ground-truth-meta ... -->      │  Per-section checksums + HEAD SHA
-└─────────────────────────────────────┘
-```
 
-### 4.2 Generation Metadata (JSON to stderr)
+This pattern is mandatory for consistency with existing schemas.
 
-When `--json` flag is passed, generation emits structured metadata:
+### 4.2 NftId Utility (`src/utilities/nft-id.ts`)
 
-```json
-{
-  "generator": "butterfreezone-gen",
-  "version": "1.0.0",
-  "tier": 2,
-  "head_sha": "abc123...",
-  "generated_at": "2026-02-13T05:00:00Z",
-  "output_path": "BUTTERFREEZONE.md",
-  "word_count": 2847,
-  "sections": {
-    "agent_context": {"words": 65, "provenance": "DERIVED"},
-    "capabilities": {"words": 450, "provenance": "DERIVED"},
-    "architecture": {"words": 380, "provenance": "DERIVED"},
-    "interfaces": {"words": 720, "provenance": "DERIVED"},
-    "module_map": {"words": 540, "provenance": "DERIVED"},
-    "ecosystem": {"words": 180, "provenance": "OPERATIONAL"},
-    "limitations": {"words": 160, "provenance": "DERIVED"},
-    "quick_start": {"words": 120, "provenance": "OPERATIONAL"}
-  },
-  "manual_sections_preserved": 0,
-  "truncated_sections": [],
-  "redacted_count": 0,
-  "exit_code": 0
+Canonical NFT identification used across all agent-related schemas.
+
+```typescript
+// Format: "eip155:{chainId}/{collectionAddress}/{tokenId}"
+// Example: "eip155:80094/0xAbCdEf1234567890AbCdEf1234567890AbCdEf12/4269"
+
+export const NFT_ID_PATTERN = /^eip155:(\d+)\/0x([a-fA-F0-9]{40})\/(\d+)$/;
+
+export const NftIdSchema = Type.String({
+  pattern: '^eip155:\\d+\\/0x[a-fA-F0-9]{40}\\/\\d+$',
+});
+
+export type NftId = Static<typeof NftIdSchema>;
+
+export function parseNftId(id: string): {
+  chainId: number;
+  collection: string;
+  tokenId: string;
+} {
+  const match = NFT_ID_PATTERN.exec(id);
+  if (!match) throw new Error(`Invalid NftId: ${id}`);
+  return {
+    chainId: Number(match[1]),
+    collection: checksumCollection(`0x${match[2]}`),
+    tokenId: match[3],
+  };
+}
+
+export function formatNftId(
+  chainId: number,
+  collection: string,
+  tokenId: string,
+): NftId {
+  return `eip155:${chainId}/${checksumCollection(collection)}/${tokenId}`;
+}
+
+// EIP-55 mixed-case checksum encoding
+export function checksumCollection(address: string): string {
+  // Implementation: keccak256 hash of lowercase address,
+  // then uppercase hex chars where hash nibble >= 8
+  // Note: Use a minimal keccak256 implementation to avoid
+  // adding viem/ethers as dependency. ~30 lines.
+}
+
+export function isValidNftId(id: string): boolean {
+  return NFT_ID_PATTERN.test(id);
 }
 ```
 
-### 4.3 Validation Results (JSON output)
+**Design decision:** EIP-55 checksum requires **Keccak-256** (the original Keccak submission, NOT NIST SHA3-256 — they differ in padding). Node.js `crypto.createHash('sha3-256')` implements NIST SHA3-256 and will produce **wrong checksums**. Rather than adding `viem` or `ethers` (~500KB+), use `@noble/hashes/sha3` (`keccak_256` export, ~3KB tree-shaken, audited, zero-dependency) as a **devDependency bundled at build time**, or a vendored ~50-line Keccak-256 permutation. Validate implementation against canonical EIP-55 test vectors from [EIP-55 specification](https://eips.ethereum.org/EIPS/eip-55) and at least 5 known checksum addresses.
 
-```json
-{
-  "validator": "butterfreezone-validate",
-  "version": "1.0.0",
-  "file": "BUTTERFREEZONE.md",
-  "passed": 6,
-  "failed": 0,
-  "warnings": 1,
-  "checks": [
-    {"name": "existence", "status": "pass"},
-    {"name": "agent_context", "status": "pass"},
-    {"name": "provenance", "status": "pass"},
-    {"name": "references", "status": "pass"},
-    {"name": "word_budget", "status": "pass"},
-    {"name": "meta", "status": "warn", "detail": "head_sha mismatch"},
-    {"name": "freshness", "status": "pass"}
-  ]
+### 4.3 Agent Descriptor Schema (`src/schemas/agent-descriptor.ts`)
+
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+import { NftIdSchema } from '../utilities/nft-id.js';
+import { AgentLifecycleStateSchema } from './agent-lifecycle.js';
+import { PoolIdSchema } from '../vocabulary/pools.js';
+
+const AgentStatsSchema = Type.Optional(Type.Object({
+  interactions: Type.Integer({ minimum: 0 }),
+  uptime: Type.Number({ minimum: 0, maximum: 1 }),
+  created_at: Type.String({ format: 'date-time' }),
+  last_active: Type.Optional(Type.String({ format: 'date-time' })),
+}));
+
+export const AgentDescriptorSchema = Type.Object({
+  '@context': Type.Literal('https://schema.honeyjar.xyz/agent/v1'),
+  id: NftIdSchema,
+  name: Type.String({ minLength: 1 }),
+  chain_id: Type.Integer({ minimum: 1 }),
+  collection: Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' }),
+  token_id: Type.String({ pattern: '^\\d+$' }),
+  personality: Type.String({ minLength: 1 }),
+  description: Type.Optional(Type.String()),
+  avatar_url: Type.Optional(Type.String({ format: 'uri' })),
+  capabilities: Type.Array(Type.String(), { minItems: 1 }),
+  models: Type.Record(Type.String(), PoolIdSchema),
+  tools: Type.Optional(Type.Array(Type.String())),
+  tba: Type.Optional(Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' })),
+  owner: Type.Optional(Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' })),
+  homepage: Type.String({ format: 'uri' }),
+  inbox: Type.Optional(Type.String({ format: 'uri' })),
+  llms_txt: Type.Optional(Type.String({ format: 'uri' })),
+  stats: AgentStatsSchema,
+  lifecycle_state: AgentLifecycleStateSchema,
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type AgentDescriptor = Static<typeof AgentDescriptorSchema>;
+```
+
+### 4.4 Agent Lifecycle (`src/schemas/agent-lifecycle.ts`)
+
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+
+export const AGENT_LIFECYCLE_STATES = [
+  'DORMANT', 'PROVISIONING', 'ACTIVE',
+  'SUSPENDED', 'TRANSFERRED', 'ARCHIVED',
+] as const;
+
+export const AgentLifecycleStateSchema = Type.Union([
+  Type.Literal('DORMANT'),
+  Type.Literal('PROVISIONING'),
+  Type.Literal('ACTIVE'),
+  Type.Literal('SUSPENDED'),
+  Type.Literal('TRANSFERRED'),
+  Type.Literal('ARCHIVED'),
+]);
+
+export type AgentLifecycleState = Static<typeof AgentLifecycleStateSchema>;
+
+export const AGENT_LIFECYCLE_TRANSITIONS: Record<
+  AgentLifecycleState,
+  readonly AgentLifecycleState[]
+> = {
+  DORMANT: ['PROVISIONING'],
+  PROVISIONING: ['ACTIVE', 'DORMANT'],
+  ACTIVE: ['SUSPENDED', 'TRANSFERRED', 'ARCHIVED'],
+  SUSPENDED: ['ACTIVE', 'ARCHIVED'],
+  TRANSFERRED: ['PROVISIONING', 'ARCHIVED'],
+  ARCHIVED: [],
+} as const;
+
+export function isValidTransition(
+  from: AgentLifecycleState,
+  to: AgentLifecycleState,
+): boolean {
+  return AGENT_LIFECYCLE_TRANSITIONS[from].includes(to);
 }
 ```
 
-### 4.4 Bridge State Extension
+### 4.5 Billing Entry (`src/schemas/billing-entry.ts`)
 
-The bridge state file (`.run/bridge-state.json`) gains a new field:
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+import { UsageSchema } from './invoke-response.js';
+
+const MicroUsdSchema = Type.String({ pattern: '^[0-9]+$' });
+
+export const CostTypeSchema = Type.Union([
+  Type.Literal('model_inference'),
+  Type.Literal('tool_call'),
+  Type.Literal('platform_fee'),
+  Type.Literal('byok_subscription'),
+  Type.Literal('agent_setup'),
+]);
+
+export type CostType = Static<typeof CostTypeSchema>;
+
+export const BillingRecipientSchema = Type.Object({
+  address: Type.String({ minLength: 1 }),
+  role: Type.Union([
+    Type.Literal('provider'),
+    Type.Literal('platform'),
+    Type.Literal('producer'),
+    Type.Literal('agent_tba'),
+  ]),
+  share_bps: Type.Integer({ minimum: 0, maximum: 10000 }),
+  amount_micro: MicroUsdSchema,
+});
+
+export type BillingRecipient = Static<typeof BillingRecipientSchema>;
+
+export const BillingEntrySchema = Type.Object({
+  id: Type.String({ minLength: 1 }),  // ULID — canonical billing entry identifier
+  trace_id: Type.String({ minLength: 1 }),
+  tenant_id: Type.String({ minLength: 1 }),
+  nft_id: Type.Optional(Type.String()),
+  cost_type: CostTypeSchema,
+  provider: Type.String({ minLength: 1 }),
+  model: Type.Optional(Type.String()),
+  pool_id: Type.Optional(Type.String()),
+  tool_id: Type.Optional(Type.String()),
+  currency: Type.Literal('USD'),
+  precision: Type.Literal(6),
+  raw_cost_micro: MicroUsdSchema,
+  multiplier_bps: Type.Integer({ minimum: 10000, maximum: 100000 }),
+  total_cost_micro: MicroUsdSchema,
+  rounding_policy: Type.Literal('largest_remainder'),
+  recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
+  idempotency_key: Type.String({ minLength: 1 }),
+  timestamp: Type.String({ format: 'date-time' }),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  usage: Type.Optional(UsageSchema),
+});
+
+export type BillingEntry = Static<typeof BillingEntrySchema>;
+
+export const CreditNoteSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  references_billing_entry: Type.String({ minLength: 1 }),
+  reason: Type.Union([
+    Type.Literal('refund'),
+    Type.Literal('dispute'),
+    Type.Literal('partial_failure'),
+    Type.Literal('adjustment'),
+  ]),
+  amount_micro: MicroUsdSchema,
+  recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
+  issued_at: Type.String({ format: 'date-time' }),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type CreditNote = Static<typeof CreditNoteSchema>;
+```
+
+### 4.6 Billing Utilities (`src/utilities/billing.ts`)
+
+```typescript
+export function validateBillingRecipients(
+  recipients: BillingRecipient[],
+  totalCostMicro: string,
+): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  // Check share_bps sum to 10000
+  const bpsSum = recipients.reduce((acc, r) => acc + r.share_bps, 0);
+  if (bpsSum !== 10000) {
+    errors.push(`share_bps sum ${bpsSum} !== 10000`);
+  }
+
+  // Check amount_micro sum matches total
+  const amountSum = recipients.reduce(
+    (acc, r) => acc + BigInt(r.amount_micro), 0n
+  );
+  if (amountSum !== BigInt(totalCostMicro)) {
+    errors.push(`amount_micro sum ${amountSum} !== ${totalCostMicro}`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Largest-remainder allocation (deterministic)
+export function allocateRecipients(
+  recipients: Array<{ address: string; role: string; share_bps: number }>,
+  totalCostMicro: string,
+): BillingRecipient[] {
+  const total = BigInt(totalCostMicro);
+
+  // Step 1: Truncate individual shares
+  const allocated = recipients.map(r => ({
+    ...r,
+    amount_micro: String((total * BigInt(r.share_bps)) / 10000n),
+    remainder: Number((total * BigInt(r.share_bps)) % 10000n),
+  }));
+
+  // Step 2: Distribute remainder to largest remainders
+  const currentSum = allocated.reduce(
+    (acc, r) => acc + BigInt(r.amount_micro), 0n
+  );
+  let remaining = total - currentSum;
+
+  const sorted = [...allocated].sort((a, b) => b.remainder - a.remainder);
+  for (const r of sorted) {
+    if (remaining <= 0n) break;
+    r.amount_micro = String(BigInt(r.amount_micro) + 1n);
+    remaining -= 1n;
+  }
+
+  return allocated.map(({ remainder, ...r }) => r as BillingRecipient);
+}
+```
+
+### 4.6b Conversation & Message Schemas (`src/schemas/conversation.ts`)
+
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+import { NftIdSchema } from '../utilities/nft-id.js';
+
+export const ConversationStatusSchema = Type.Union([
+  Type.Literal('active'),
+  Type.Literal('paused'),
+  Type.Literal('sealed'),
+  Type.Literal('archived'),
+]);
+
+export type ConversationStatus = Static<typeof ConversationStatusSchema>;
+
+export const ConversationSealingPolicySchema = Type.Object({
+  encryption_scheme: Type.Union([
+    Type.Literal('aes-256-gcm'),
+    Type.Literal('none'),
+  ]),
+  key_derivation: Type.Union([
+    Type.Literal('hkdf-sha256'),
+    Type.Literal('none'),
+  ]),
+  key_reference: Type.Optional(Type.String({ minLength: 1 })),
+  access_audit: Type.Boolean(),
+  previous_owner_access: Type.Union([
+    Type.Literal('none'),
+    Type.Literal('read_only_24h'),
+  ]),
+});
+
+export type ConversationSealingPolicy = Static<typeof ConversationSealingPolicySchema>;
+
+export const ConversationSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  nft_id: NftIdSchema,
+  title: Type.Optional(Type.String()),
+  status: ConversationStatusSchema,
+  sealing_policy: Type.Optional(ConversationSealingPolicySchema),
+  message_count: Type.Integer({ minimum: 0 }),
+  created_at: Type.String({ format: 'date-time' }),
+  updated_at: Type.String({ format: 'date-time' }),
+  sealed_at: Type.Optional(Type.String({ format: 'date-time' })),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type Conversation = Static<typeof ConversationSchema>;
+
+export const MessageRoleSchema = Type.Union([
+  Type.Literal('user'),
+  Type.Literal('assistant'),
+  Type.Literal('system'),
+  Type.Literal('tool'),
+]);
+
+export const MessageSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  conversation_id: Type.String({ minLength: 1 }),
+  role: MessageRoleSchema,
+  content: Type.String(),
+  model: Type.Optional(Type.String()),
+  pool_id: Type.Optional(Type.String()),
+  billing_entry_id: Type.Optional(Type.String()),
+  tool_calls: Type.Optional(Type.Array(Type.Object({
+    id: Type.String(),
+    name: Type.String(),
+    arguments: Type.String(),
+  }))),
+  created_at: Type.String({ format: 'date-time' }),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type Message = Static<typeof MessageSchema>;
+```
+
+**Design note:** Conversations belong to the NFT (`nft_id`), not the user. This is a fundamental architectural decision — when an NFT transfers, its conversations transfer with it. The `sealing_policy` governs what happens to conversation data on transfer.
+
+### 4.6c Transfer Spec & Events (`src/schemas/transfer-spec.ts`)
+
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+import { NftIdSchema } from '../utilities/nft-id.js';
+import { ConversationSealingPolicySchema } from './conversation.js';
+
+export const TransferScenarioSchema = Type.Union([
+  Type.Literal('sale'),
+  Type.Literal('gift'),
+  Type.Literal('admin_recovery'),
+  Type.Literal('custody_change'),
+]);
+
+export type TransferScenario = Static<typeof TransferScenarioSchema>;
+
+export const TransferResultSchema = Type.Union([
+  Type.Literal('completed'),
+  Type.Literal('failed'),
+  Type.Literal('rolled_back'),
+]);
+
+export type TransferResult = Static<typeof TransferResultSchema>;
+
+export const TransferSpecSchema = Type.Object({
+  transfer_id: Type.String({ minLength: 1 }),
+  nft_id: NftIdSchema,
+  from_owner: Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' }),
+  to_owner: Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' }),
+  scenario: TransferScenarioSchema,
+  sealing_policy: ConversationSealingPolicySchema,
+  initiated_at: Type.String({ format: 'date-time' }),
+  initiated_by: Type.String({ minLength: 1 }),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type TransferSpec = Static<typeof TransferSpecSchema>;
+
+export const TransferEventSchema = Type.Object({
+  transfer_id: Type.String({ minLength: 1 }),
+  nft_id: NftIdSchema,
+  from_owner: Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' }),
+  to_owner: Type.String({ pattern: '^0x[a-fA-F0-9]{40}$' }),
+  scenario: TransferScenarioSchema,
+  result: TransferResultSchema,
+  sealing_policy: ConversationSealingPolicySchema,
+  conversations_sealed: Type.Integer({ minimum: 0 }),
+  conversations_migrated: Type.Integer({ minimum: 0 }),
+  initiated_at: Type.String({ format: 'date-time' }),
+  completed_at: Type.Optional(Type.String({ format: 'date-time' })),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+export type TransferEventRecord = Static<typeof TransferEventSchema>;
+```
+
+### 4.7 Domain Event Envelope (`src/schemas/domain-event.ts`)
+
+```typescript
+import { Type, Static } from '@sinclair/typebox';
+
+const AggregateTypeSchema = Type.Union([
+  Type.Literal('agent'),
+  Type.Literal('conversation'),
+  Type.Literal('billing'),
+  Type.Literal('tool'),
+  Type.Literal('transfer'),
+  Type.Literal('message'),
+]);
+
+export const DomainEventSchema = Type.Object({
+  event_id: Type.String({ minLength: 1 }),
+  aggregate_id: Type.String({ minLength: 1 }),
+  aggregate_type: AggregateTypeSchema,
+  type: Type.String({ pattern: '^[a-z]+\\.[a-z_]+\\.[a-z_]+$' }),
+  version: Type.Integer({ minimum: 1 }),
+  occurred_at: Type.String({ format: 'date-time' }),
+  actor: Type.String({ minLength: 1 }),
+  correlation_id: Type.Optional(Type.String()),
+  causation_id: Type.Optional(Type.String()),
+  payload: Type.Unknown(),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+});
+
+// Generic type helper — TypeBox validates the envelope; payload typing is TS-only
+export type DomainEvent<T = unknown> = Omit<
+  Static<typeof DomainEventSchema>, 'payload'
+> & { payload: T };
+
+// Typed event constructors per aggregate (convenience wrappers)
+export type AgentEvent = DomainEvent<{ agent_id: string; [k: string]: unknown }>;
+export type BillingEvent = DomainEvent<{ billing_entry_id: string; [k: string]: unknown }>;
+export type ConversationEvent = DomainEvent<{ conversation_id: string; [k: string]: unknown }>;
+export type TransferEvent = DomainEvent<{ transfer_id: string; from_owner: string; to_owner: string; [k: string]: unknown }>;
+```
+
+**Note:** At runtime, `DomainEventSchema` validates structure with `Type.Unknown()` payload. The generic `DomainEvent<T>` and typed wrappers (`AgentEvent`, `BillingEvent`, etc.) are compile-time-only TypeScript refinements — they do not create separate validators.
+
+### 4.8 Breaking Changes to Existing Files
+
+#### `src/schemas/invoke-response.ts` — MODIFIED
+
+```typescript
+// BEFORE (v1.1.0)
+export const InvokeResponseSchema = Type.Object({
+  // ...
+  cost: CostBreakdownSchema,
+  // ...
+});
+
+// AFTER (v2.0.0)
+export const InvokeResponseSchema = Type.Object({
+  // ...
+  billing_entry_id: Type.String({ minLength: 1 }),
+  // ...
+});
+```
+
+Remove `CostBreakdownSchema` and `CostBreakdown` type exports. Keep `UsageSchema` and `Usage` (still used by `BillingEntry.usage`).
+
+#### `src/schemas/invoke-response.ts` — UsageReport MODIFIED
+
+```typescript
+// BEFORE (v1.1.0)
+export const UsageReportSchema = Type.Object({
+  // ...
+  cost: CostBreakdownSchema,
+  // ...
+});
+
+// AFTER (v2.0.0)
+export const UsageReportSchema = Type.Object({
+  // ...
+  billing_entry_id: Type.String({ minLength: 1 }), // References BillingEntry.id (ULID)
+  // ...
+});
+```
+
+`billing_entry_id` references `BillingEntry.id` (ULID), **not** `trace_id`. The `trace_id` on BillingEntry is a separate field for distributed tracing correlation.
+
+#### `src/version.ts` — MODIFIED
+
+```typescript
+export const CONTRACT_VERSION = '2.0.0' as const;
+export const MIN_SUPPORTED_VERSION = '2.0.0' as const;
+```
+
+#### `src/vocabulary/errors.ts` — EXTENDED
+
+Add 7 new error codes to the existing `ERROR_CODES` object and `ERROR_HTTP_STATUS` mapping:
+
+```typescript
+// v2.0.0 additions
+AGENT_NOT_FOUND: 'AGENT_NOT_FOUND',              // 404
+AGENT_NOT_ACTIVE: 'AGENT_NOT_ACTIVE',            // 403
+AGENT_TRANSFER_IN_PROGRESS: 'AGENT_TRANSFER_IN_PROGRESS', // 409
+CONVERSATION_SEALED: 'CONVERSATION_SEALED',       // 403
+CONVERSATION_NOT_FOUND: 'CONVERSATION_NOT_FOUND', // 404
+OWNERSHIP_MISMATCH: 'OWNERSHIP_MISMATCH',         // 403
+BILLING_RECIPIENTS_INVALID: 'BILLING_RECIPIENTS_INVALID', // 400
+```
+
+#### `src/validators/index.ts` — EXTENDED
+
+Add lazy-compiled validators for all new schemas:
+
+```typescript
+export const validators = {
+  // Existing (v1.1.0)
+  jwtClaims: () => ...,
+  s2sJwtClaims: () => ...,
+  invokeResponse: () => ...,
+  usageReport: () => ...,
+  streamEvent: () => ...,
+  routingPolicy: () => ...,
+
+  // New (v2.0.0)
+  agentDescriptor: () => TypeCompiler.Compile(AgentDescriptorSchema),
+  billingEntry: () => TypeCompiler.Compile(BillingEntrySchema),
+  creditNote: () => TypeCompiler.Compile(CreditNoteSchema),
+  conversation: () => TypeCompiler.Compile(ConversationSchema),
+  message: () => TypeCompiler.Compile(MessageSchema),
+  transferSpec: () => TypeCompiler.Compile(TransferSpecSchema),
+  transferEvent: () => TypeCompiler.Compile(TransferEventSchema),
+  conversationSealingPolicy: () => TypeCompiler.Compile(ConversationSealingPolicySchema),
+  domainEvent: () => TypeCompiler.Compile(DomainEventSchema),
+} as const;
+```
+
+---
+
+## 5. Data Architecture
+
+### 5.1 Schema Relationships
+
+```
+NftId (canonical identifier)
+  │
+  ├── AgentDescriptor
+  │   ├── AgentLifecycleState
+  │   └── PoolId (models mapping)
+  │
+  ├── Conversation ──── Message
+  │   └── ConversationStatus    └── BillingEntry ref
+  │
+  ├── TransferEvent
+  │   ├── ConversationSealingPolicy
+  │   └── TransferResult
+  │
+  └── BillingEntry
+      ├── BillingRecipient[]
+      ├── CostType
+      └── CreditNote (reverse ref)
+
+DomainEvent<T> (cross-cutting envelope)
+  └── wraps any of the above as payload
+```
+
+### 5.2 Shared Patterns
+
+| Pattern | Usage | Existing Example |
+|---------|-------|-----------------|
+| String-encoded micro-USD | `amount_micro`, `total_cost_micro`, `raw_cost_micro` | `CostBreakdown.total_cost_micro` |
+| ISO datetime strings | All `*_at` timestamps | `UsageReport.timestamp` |
+| ULID identifiers | `id` fields on Conversation, Message, DomainEvent | (new pattern, chosen for sortability) |
+| Contract version field | `contract_version` on every root schema | `InvokeResponse.contract_version` |
+| Basis points (0-10000) | `share_bps`, `multiplier_bps` | (new, extends bps concept from tiers) |
+
+---
+
+## 6. API Design
+
+loa-hounfour does not expose HTTP APIs. It defines the **contract types** that downstream APIs consume.
+
+### 6.1 Type Export Contract
+
+```typescript
+// Downstream import pattern (loa-finn)
+import {
+  type AgentDescriptor,
+  type BillingEntry,
+  type Conversation,
+  type Message,
+  AgentDescriptorSchema,
+  validators,
+  isValidTransition,
+  parseNftId,
+  allocateRecipients,
+} from '@0xhoneyjar/loa-hounfour';
+
+// Validate incoming data
+const result = validators.agentDescriptor().Check(data);
+```
+
+### 6.2 JSON Schema Export Contract
+
+Non-TypeScript consumers (Python, Go, Rust services) consume JSON Schema files.
+
+**File layout:**
+```
+schemas/
+├── agent-descriptor.schema.json
+├── agent-lifecycle-state.schema.json
+├── billing-entry.schema.json
+├── credit-note.schema.json
+├── conversation.schema.json
+├── message.schema.json
+├── transfer-spec.schema.json
+├── transfer-event.schema.json
+├── domain-event.schema.json
+├── invoke-response.schema.json    # ✓ Existing (updated)
+├── jwt-claims.schema.json         # ✓ Existing
+└── index.json                     # ★ Schema registry manifest
+```
+
+**Generation:** `pnpm run schema:generate` calls `scripts/generate-schemas.ts` which uses TypeBox `Type.Strict()` to emit Draft 2020-12 JSON Schema. All `$ref` references are resolved inline (no external `$ref`) to ensure each schema file is self-contained.
+
+**Registry manifest (`schemas/index.json`):**
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "@0xhoneyjar/loa-hounfour Schema Registry",
+  "version": "2.0.0",
+  "schemas": {
+    "agent-descriptor": "./agent-descriptor.schema.json",
+    "billing-entry": "./billing-entry.schema.json",
+    "conversation": "./conversation.schema.json"
+  }
+}
+```
+
+**Build step:** JSON Schema files are generated during `pnpm run build` and committed to the repo (not gitignored). This ensures non-TS consumers can reference schemas without running TypeScript tooling.
+
+**Import patterns:**
+```typescript
+// Node.js ESM
+import agentSchema from '@0xhoneyjar/loa-hounfour/schemas/agent-descriptor.schema.json' with { type: 'json' };
+
+// Python
+# pip install jsonschema
+import json, jsonschema
+schema = json.load(open('node_modules/@0xhoneyjar/loa-hounfour/schemas/agent-descriptor.schema.json'))
+jsonschema.validate(instance=data, schema=schema)
+```
+
+---
+
+## 7. Security Architecture
+
+### 7.1 Conversation Sealing
+
+The `ConversationSealingPolicy` defines security properties that loa-finn must implement:
+
+| Property | Defined in hounfour | Implemented in loa-finn |
+|----------|--------------------|-----------------------|
+| `encryption_scheme` | Type definition (e.g., "aes-256-gcm") | Actual encryption |
+| `key_derivation` | Type definition (e.g., "hkdf-sha256") | Key management |
+| `key_reference` | Opaque string type | Key storage/retrieval |
+| `access_audit` | Boolean flag | Audit log implementation |
+| `previous_owner_access` | Enum ("none" / "read_only_24h") | Access control enforcement |
+
+### 7.2 NftId Integrity
+
+- EIP-55 checksum on collection address prevents address confusion attacks
+- Chain ID prevents cross-chain replay of agent identifiers
+- `parseNftId()` validates format before any downstream usage
+
+### 7.3 Billing Integrity
+
+- `recipients[].share_bps` must sum to 10000 (enforced by `validateBillingRecipients`)
+- `allocateRecipients()` uses deterministic largest-remainder to prevent rounding exploits
+- String-encoded micro-USD prevents floating-point precision loss
+- `CreditNote` prevents negative BillingEntry (separate audit trail for reversals)
+- `idempotency_key` prevents double-billing (existing pattern from v1.1.0)
+
+---
+
+## 8. Testing Strategy
+
+### 8.1 Golden Test Vectors
+
+Extend the existing `vectors/` directory:
+
+```
+vectors/
+├── budget/                      # ✓ Existing (v1.1.0)
+│   └── *.json
+├── jwt/                         # ✓ Existing (v1.1.0)
+│   └── *.json
+├── agent/                       # ★ NEW (v2.0.0)
+│   ├── descriptor-valid.json
+│   ├── descriptor-invalid.json
+│   ├── lifecycle-transitions.json
+│   └── nft-id-parsing.json
+├── billing/                     # ★ NEW (v2.0.0)
+│   ├── entry-valid.json
+│   ├── entry-invalid.json
+│   ├── credit-note-valid.json
+│   ├── recipient-allocation.json
+│   └── migration-from-v1.json
+├── conversation/                # ★ NEW (v2.0.0)
+│   ├── conversation-valid.json
+│   ├── message-valid.json
+│   └── sealing-scenarios.json
+├── transfer/                    # ★ NEW (v2.0.0)
+│   ├── events-valid.json
+│   ├── scenarios.json
+│   └── results.json
+└── domain-event/                # ★ NEW (v2.0.0)
+    ├── event-valid.json
+    └── naming-conventions.json
+```
+
+### 8.2 Test File Structure
+
+```
+tests/vectors/
+├── budget.test.ts               # ✓ Existing
+├── idempotency.test.ts          # ✓ Existing
+├── req-hash.test.ts             # ✓ Existing
+├── agent-descriptor.test.ts     # ★ NEW
+├── agent-lifecycle.test.ts      # ★ NEW
+├── billing-entry.test.ts        # ★ NEW
+├── conversation.test.ts         # ★ NEW
+├── transfer-spec.test.ts        # ★ NEW
+├── domain-event.test.ts         # ★ NEW
+├── nft-id.test.ts               # ★ NEW
+└── billing-allocation.test.ts   # ★ NEW
+```
+
+### 8.3 Test Categories per Schema
+
+| Category | Description | Count per schema |
+|----------|-------------|-----------------|
+| **Valid** | Happy path, all fields populated | 2-3 |
+| **Valid minimal** | Only required fields | 1 |
+| **Invalid field** | Each required field missing | 1 per required field |
+| **Invalid value** | Each validation rule violated | 1 per rule |
+| **Edge case** | Boundary values, empty arrays | 2-3 |
+| **Migration** | v1.1.0 → v2.0.0 before/after | 1-2 (billing only) |
+
+**Target: ~60-80 total vectors across all new schemas.**
+
+---
+
+## 9. Build & CI Pipeline
+
+### 9.1 Build Steps (unchanged from v1.1.0)
+
+```bash
+pnpm run typecheck    # tsc --noEmit (strict mode)
+pnpm run build        # tsc (emit to dist/)
+pnpm run test         # vitest run
+pnpm run schema:generate  # Generate JSON Schema files
+pnpm run schema:check     # Validate generated schemas
+pnpm run semver:check     # Validate version bump
+```
+
+### 9.2 Schema Generation Script
+
+Extend `scripts/generate-schemas.ts` to include new schemas:
+
+```typescript
+const schemasToGenerate = [
+  // Existing
+  { name: 'invoke-response', schema: InvokeResponseSchema },
+  { name: 'jwt-claims', schema: JwtClaimsSchema },
+  // ...
+
+  // New (v2.0.0)
+  { name: 'agent-descriptor', schema: AgentDescriptorSchema },
+  { name: 'agent-lifecycle-state', schema: AgentLifecycleStateSchema },
+  { name: 'transfer-event', schema: TransferEventSchema },
+  { name: 'billing-entry', schema: BillingEntrySchema },
+  { name: 'credit-note', schema: CreditNoteSchema },
+  { name: 'conversation', schema: ConversationSchema },
+  { name: 'message', schema: MessageSchema },
+  { name: 'domain-event', schema: DomainEventSchema },
+];
+```
+
+### 9.3 Package.json Updates
 
 ```json
 {
-  "finalization": {
-    "ground_truth_updated": true,
-    "butterfreezone_generated": true,
-    "rtfm_passed": true,
-    "pr_url": "https://github.com/..."
+  "name": "@0xhoneyjar/loa-hounfour",
+  "version": "2.0.0",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./schemas/*": "./schemas/*"
   }
 }
 ```
 
 ---
 
-## 5. Configuration
+## 10. Rollout Plan
 
-### 5.1 Config Schema Addition
+### 10.1 Phased Rollout Strategy
 
-Added to `.loa.config.yaml.example`:
+Hard cutover across 4+ repos is a delivery risk. The following phased approach minimizes blast radius:
 
-```yaml
-# BUTTERFREEZONE — Agent-Grounded README (v1.35.0)
-butterfreezone:
-  enabled: true                         # On by default, opt-out via false
-  output_path: BUTTERFREEZONE.md        # Relative to repo root
-  word_budget:
-    total: 3200                         # ~8000 tokens (model-agnostic)
-    per_section: 800                    # ~2000 tokens per section
-  staleness_days: 7                     # Advisory freshness window
-  hooks:
-    run_bridge: true                    # MVP: only autonomous hook
-    run_sprint_plan: false              # Phase 2
-    post_merge: false                   # Phase 2
-    ride: false                         # Future
-    ship: false                         # Phase 2
-  rtfm:
-    check_enabled: true                 # Include in RTFM validation
-    strict_mode: false                  # false=advisory, true=hard gate
-  ecosystem:
-    auto_detect: true                   # Scan deps for related repos
-    manual_entries: []                  # User-defined ecosystem entries
-  manual_sections:
-    sentinel_start: "<!-- manual-start -->"
-    sentinel_end: "<!-- manual-end -->"
-  security:
-    redaction_enabled: true             # Gitleaks-pattern redaction
-```
+| Phase | Action | Duration | Rollback |
+|-------|--------|----------|----------|
+| **Phase A** | Publish `@0xhoneyjar/loa-hounfour@2.0.0-rc.1` to npm (prerelease tag) | Day 0 | Unpublish prerelease |
+| **Phase B** | Upgrade loa-finn to rc.1 on a feature branch, run full test suite | Day 1-2 | Revert branch |
+| **Phase C** | Upgrade arrakis to rc.1 on a feature branch, validate gateway contract | Day 2-3 | Revert branch |
+| **Phase D** | Publish `@0xhoneyjar/loa-hounfour@2.0.0` (release tag) | Day 4 | Deprecate + publish 2.0.1 patch |
+| **Phase E** | Merge all downstream feature branches, deploy staging | Day 4-5 | Revert deploys |
+| **Phase F** | Production deploy (loa-finn → arrakis → mibera-freeside) | Day 5-6 | Standard rollback |
 
-### 5.2 Configuration Precedence
+### 10.2 Coordination Requirements
 
-```
-CLI flags → .loa.config.yaml → Script defaults
-```
-
-All config values have sensible defaults — BUTTERFREEZONE works with zero configuration.
+- **Slack channel**: `#hounfour-v2-migration` for real-time coordination
+- **Lock period**: No unrelated deploys during Phase E-F
+- **Feature flag**: Downstream repos may use `HOUNFOUR_V2=true` env var to toggle between v1/v2 billing paths during transition (optional, not required)
 
 ---
 
-## 6. Security Architecture
+## 11. Migration Guide (v1.1.0 → v2.0.0)
 
-### 6.1 Threat Model
+### 11.1 Breaking Changes Summary
 
-| Threat | Mitigation |
-|--------|-----------|
-| Secrets leaked into BUTTERFREEZONE.md | Gitleaks-pattern redaction + post-redaction scan |
-| Malicious content in reality files | Reality files are gitignored; only committed code is trusted |
-| Path traversal in file:symbol references | References constrained to repo root (`../` rejected) |
-| Injection via manual sentinel markers | Markers are HTML comments — no execution context |
-| Large file DoS (monorepo) | Word-count budget + per-section truncation |
+| Change | v1.1.0 | v2.0.0 | Action |
+|--------|--------|--------|--------|
+| Cost tracking | `CostBreakdown` | `BillingEntry` | Replace all references |
+| Invoke response | `cost: CostBreakdown` | `billing_entry_id: string` | Update field access |
+| Usage report | `cost: CostBreakdown` | `billing_entry_id: string` | Update field access; references BillingEntry.id (ULID) |
+| BillingEntry | (new) | `id: ULID` + `trace_id: string` | `id` is canonical identifier; `trace_id` is for distributed tracing |
+| Contract version | `"1.1.0"` | `"2.0.0"` | Update version checks |
+| Min supported | `"1.0.0"` | `"2.0.0"` | Update compat validation |
 
-### 6.2 Redaction Pipeline
+### 11.2 Migration Examples
 
+**Before (v1.1.0):**
+```typescript
+const response: InvokeResponse = {
+  // ...
+  cost: {
+    input_cost_micro: '1500',
+    output_cost_micro: '3000',
+    total_cost_micro: '4500',
+  },
+};
 ```
-Content → Gitleaks patterns → Allowlist filter → Post-scan check → Output
-```
 
-If any secret prefix remains after redaction (`ghp_`, `AKIA`, `eyJ`), generation **blocks** and returns exit code 1. The failed attempt is logged but not written to disk.
+**After (v2.0.0):**
+```typescript
+// Step 1: Create BillingEntry
+const entry: BillingEntry = {
+  id: ulid(),                    // Canonical billing entry identifier
+  trace_id: response.id,        // Distributed tracing correlation
+  tenant_id: tenantId,
+  cost_type: 'model_inference',
+  provider: response.provider,
+  model: response.model,
+  pool_id: response.pool_id,
+  currency: 'USD',
+  precision: 6,
+  raw_cost_micro: '4500',
+  multiplier_bps: 25000, // 2.5x
+  total_cost_micro: '11250',
+  rounding_policy: 'largest_remainder',
+  recipients: allocateRecipients([
+    { address: 'provider-addr', role: 'provider', share_bps: 4000 },
+    { address: 'platform-addr', role: 'platform', share_bps: 6000 },
+  ], '11250'),
+  idempotency_key: deriveIdempotencyKey(...),
+  timestamp: new Date().toISOString(),
+  contract_version: '2.0.0',
+  usage: response.usage,
+};
 
----
-
-## 7. Testing Strategy
-
-### 7.1 Unit Tests (BATS)
-
-**File**: `tests/unit/butterfreezone-gen.bats`
-
-| Test | Description |
-|------|-------------|
-| `tier_detection_with_reality` | Detects Tier 1 when reality files have content |
-| `tier_detection_without_reality` | Falls back to Tier 2 with package.json |
-| `tier_detection_empty_repo` | Falls back to Tier 3 bootstrap |
-| `agent_context_generated` | AGENT-CONTEXT block present in output |
-| `provenance_tags_all_sections` | Every section has provenance tag |
-| `word_budget_enforced` | Output under 3200 words |
-| `word_budget_truncation` | Over-budget sections truncated |
-| `ground_truth_meta_present` | Checksums block present |
-| `checksums_exclude_timestamp` | generated_at not in checksum input |
-| `manual_sections_preserved` | Sentinel-marked content survives regeneration |
-| `atomic_write_no_partial` | Interrupted write doesn't corrupt existing file |
-| `security_redaction` | AWS keys and GitHub tokens redacted |
-| `dry_run_no_write` | --dry-run prints to stdout only |
-| `deterministic_output` | Two runs on same commit produce identical output |
-| `exit_code_tier3` | Exit code 3 when bootstrap stub used |
-
-**File**: `tests/unit/butterfreezone-validate.bats`
-
-| Test | Description |
-|------|-------------|
-| `missing_file_fails` | Exit 1 when BUTTERFREEZONE.md missing |
-| `valid_file_passes` | Exit 0 for well-formed file |
-| `missing_agent_context_fails` | Exit 1 without AGENT-CONTEXT |
-| `missing_provenance_fails` | Exit 1 with untagged sections |
-| `missing_file_ref_fails` | Exit 1 for non-existent referenced file |
-| `stale_sha_warns` | Exit 2 for SHA mismatch (advisory) |
-| `strict_mode_fails_on_stale` | Exit 1 for SHA mismatch in strict mode |
-| `word_budget_exceeded_warns` | Exit 2 for over-budget (advisory) |
-
-### 7.2 Integration Test
-
-A single integration test verifies the end-to-end flow:
-
-```bash
-# In a test repo with known structure:
-1. Run butterfreezone-gen.sh → produces BUTTERFREEZONE.md
-2. Run butterfreezone-validate.sh → all checks pass
-3. Modify a source file
-4. Re-run validate → staleness warning (exit 2)
-5. Re-run gen → regenerates with new HEAD SHA
-6. Re-run validate → all checks pass again
+// Step 2: Response references the entry
+const response: InvokeResponse = {
+  // ...
+  billing_entry_id: entry.id,     // References BillingEntry.id (ULID)
+};
 ```
 
 ---
 
-## 8. Deployment & Rollout
+## 12. File Inventory
 
-### 8.1 File Delivery
+### New Files (v2.0.0)
 
-All new files are delivered to the `.claude/` system zone and registered in skill index. No manual installation required for Loa-managed codebases.
+| File | Lines (est.) | Purpose |
+|------|-------------|---------|
+| `src/schemas/agent-descriptor.ts` | ~80 | AgentDescriptor TypeBox schema |
+| `src/schemas/agent-lifecycle.ts` | ~50 | Lifecycle state enum + transitions |
+| `src/schemas/transfer-spec.ts` | ~90 | Transfer scenarios + sealing policy |
+| `src/schemas/billing-entry.ts` | ~120 | BillingEntry + CreditNote schemas |
+| `src/schemas/conversation.ts` | ~100 | Conversation + Message schemas |
+| `src/schemas/domain-event.ts` | ~40 | Generic event envelope |
+| `src/utilities/nft-id.ts` | ~80 | NftId parsing/formatting + EIP-55 |
+| `src/utilities/lifecycle.ts` | ~30 | Transition validator (shared by agent + tool) |
+| `src/utilities/billing.ts` | ~60 | Recipient allocation + validation |
+| **Total new source** | **~650** | |
 
-### 8.2 Version
+### Modified Files (v2.0.0)
 
-This feature targets **Loa v1.35.0**. The CLAUDE.md version reference and config example are updated accordingly.
+| File | Change |
+|------|--------|
+| `src/index.ts` | Add ~40 new exports |
+| `src/version.ts` | Bump to 2.0.0 |
+| `src/schemas/invoke-response.ts` | `cost` → `billing_entry_id` |
+| `src/vocabulary/errors.ts` | Add 7 error codes |
+| `src/validators/index.ts` | Add 7 lazy validators |
+| `scripts/generate-schemas.ts` | Add 8 new schema entries |
+| `package.json` | Version bump to 2.0.0 |
 
-### 8.3 Migration
+### New Test Files (v2.0.0)
 
-No migration needed — BUTTERFREEZONE.md is a new file. Existing codebases gain it on next `/run-bridge` execution (or manual `/butterfreezone` invocation).
-
----
-
-## 9. Technical Risks & Mitigation
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Tier 2 grep patterns miss language-specific exports | Medium | Low | Patterns are additive — new languages can be added without breaking existing |
-| Manual section sentinel markers accidentally deleted | Low | Medium | Validate warns on missing sentinels if previous version had them |
-| Bridge orchestrator modification breaks existing flow | Low | High | Hook is guarded by `is_butterfreezone_enabled()` — disabled = zero code path change |
-| wc -w counts differ between GNU/BSD implementations | Low | Low | Word count is approximate budget, not exact — 10% variance is acceptable |
-| Large monorepos exceed Tier 2 grep timeout | Low | Medium | Add `timeout 30` wrapper around grep patterns; fall back to Tier 3 |
-
----
-
-## 10. Future Considerations
-
-| Enhancement | Trigger |
-|------------|---------|
-| Phase 2 hooks (sprint-plan, post-merge, ship) | After 3+ successful bridge runs with BUTTERFREEZONE |
-| Hierarchical output for monorepos | When word budget proves insufficient for >100 module repos |
-| Cross-repo federation | When topology infrastructure (#43) is implemented |
-| llms.txt hub-spoke integration | When reality skill adopts hub-spoke pattern |
-| Language-specific extractors (AST-based) | When static grep proves insufficient for complex codebases |
-
----
-
----
-
-## 11. Concrete Example — Rendered BUTTERFREEZONE.md
-
-> **Flatline IMP-004 resolution**: Concrete example resolves ambiguities around ordering, formatting, and provenance placement.
-
-```markdown
-<!-- AGENT-CONTEXT
-name: loa
-type: framework
-purpose: Agent-driven development framework with autonomous sprint execution
-key_files: [.claude/loa/CLAUDE.loa.md, .loa.config.yaml, .claude/scripts/]
-interfaces: [47 slash commands, 5 golden path commands, .loa.config.yaml]
-dependencies: [bash 4+, jq, yq, git, gh]
-version: 1.35.0
-trust_level: grounded
-model_hints: claude-opus-4-6 primary, gpt-5.2 secondary (flatline)
--->
-
-# Loa
-
-<!-- provenance: CODE-FACTUAL -->
-Agent-driven development framework providing structured sprint execution,
-multi-model adversarial review (Flatline Protocol), and autonomous excellence
-loops (Run Bridge). Manages the full lifecycle from requirements through
-deployment via 47 slash commands organized into 5 golden path commands.
-
-## Key Capabilities
-<!-- provenance: CODE-FACTUAL -->
-- **Sprint execution** — `/run sprint-plan` orchestrates implement→review→audit cycles (`run-mode/SKILL.md:run_sprint_loop`)
-- **Adversarial review** — Flatline Protocol with Opus + GPT cross-scoring (`.claude/scripts/flatline-orchestrator.sh:run_phase1`)
-- **Bridge loop** — Iterative improvement until findings flatline (`.claude/scripts/bridge-orchestrator.sh:run_iteration`)
-- **Codebase analysis** — `/ride` extracts reality artifacts (`riding-codebase/SKILL.md:extract_reality`)
-- **Bug triage** — 4-phase structured triage with micro-sprints (`bug-triaging/SKILL.md:triage_phases`)
-
-## Architecture
-<!-- provenance: DERIVED -->
-Three-zone model: System (`.claude/`, never edit), State (`grimoires/`, `.beads/`), App (`src/`).
-Skills are self-contained directories under `.claude/skills/` with SKILL.md definitions.
-Shell scripts in `.claude/scripts/` handle orchestration. Config in `.loa.config.yaml`.
-
-## Interfaces
-<!-- provenance: CODE-FACTUAL -->
-| Command | Purpose | Danger |
-|---------|---------|--------|
-| `/loa` | Status and next step | safe |
-| `/plan` | Requirements→Architecture→Sprint | moderate |
-| `/build` | Execute current sprint | moderate |
-| `/review` | Review + audit | high |
-| `/ship` | Deploy + archive | high |
-
-## Module Map
-<!-- provenance: CODE-FACTUAL -->
-| Module | Purpose | Key Files |
-|--------|---------|-----------|
-| Skills | 30+ skill definitions | `.claude/skills/*/SKILL.md` |
-| Scripts | Orchestration and utilities | `.claude/scripts/*.sh` |
-| Lore | Cultural knowledge base | `.claude/data/lore/` |
-| Protocols | Behavioral contracts | `.claude/protocols/*.md` |
-| Hooks | Event-driven automation | `.claude/hooks/*.sh` |
-
-## Ecosystem
-<!-- provenance: OPERATIONAL -->
-| Repo | Type | Relationship | Capabilities |
-|------|------|-------------|-------------|
-| loa-finn | service | downstream | OpenCode server runtime |
-| loa-constructs | registry | sibling | Composable pack registry |
-
-## Known Limitations
-<!-- provenance: CODE-FACTUAL -->
-- Single-repo focus — cross-repo context requires manual topology (`.claude/protocols/cross-repo.md`)
-- Flatline Protocol requires OpenAI API key for GPT model
-- beads_rust optional but expected for task tracking
-
-## Quick Start
-<!-- provenance: OPERATIONAL -->
-```bash
-npx @anthropic-ai/claude-code
-/mount        # Install Loa onto repo
-/loa          # See status and next step
-/plan         # Start planning
-```
-
-<!-- ground-truth-meta
-head_sha: 8061995abc123def
-generated_at: 2026-02-13T05:25:00Z
-generator: butterfreezone-gen v1.0.0
-sections:
-  agent_context: a1b2c3d4...
-  capabilities: e5f6a7b8...
-  architecture: c9d0e1f2...
-  interfaces: 3a4b5c6d...
-  module_map: 7e8f9a0b...
-  ecosystem: 1c2d3e4f...
-  limitations: 5a6b7c8d...
-  quick_start: 9e0f1a2b...
--->
-```
+| File | Vectors (est.) |
+|------|---------------|
+| `tests/vectors/agent-descriptor.test.ts` | ~10 |
+| `tests/vectors/agent-lifecycle.test.ts` | ~8 |
+| `tests/vectors/billing-entry.test.ts` | ~15 |
+| `tests/vectors/conversation.test.ts` | ~10 |
+| `tests/vectors/transfer-spec.test.ts` | ~8 |
+| `tests/vectors/domain-event.test.ts` | ~5 |
+| `tests/vectors/nft-id.test.ts` | ~8 |
+| `tests/vectors/billing-allocation.test.ts` | ~6 |
+| **Total new vectors** | **~70** |
 
 ---
 
-## Appendix A: Flatline SDD Review Integration Log
+## 13. Risks & Mitigations
 
-**Flatline Run**: simstim-20260213-c009bfz, Phase 4
-**Cost**: ~51 cents
-**Model Agreement**: 100%
-
-### HIGH_CONSENSUS (5 — auto-integrated)
-
-| ID | Finding | Score | Resolution |
-|----|---------|-------|-----------|
-| IMP-001 | Per-extractor error handling missing | 885 | Added 3.1.11 with skip-on-failure policy |
-| IMP-002 | `needs_regeneration()` undefined | 860 | Added 3.1.10 with HEAD SHA + config mtime |
-| IMP-003 | Concurrency protection missing | 765 | Added 3.1.13 with flock locking |
-| IMP-004 | Concrete rendered example needed | 840 | Added Section 11 |
-| IMP-005 | `sort_sections()` undefined | 740 | Added 3.1.12 with canonical order |
-
-### BLOCKERS (5 — resolved)
-
-| ID | Concern | Score | Resolution |
-|----|---------|-------|-----------|
-| SKP-tier2 | Tier 2 scanning slow/broad | 760 | Added 3.1.14 with timeout, maxdepth, vendor exclusion |
-| SKP-refs | Reference validation false positives | 750 | Added 3.1.15 with `L` prefix for lines, backtick scoping |
-| SKP-manual | Manual preservation underspecified | 720 | Updated 3.1.5 with section-anchored sentinels |
-| SKP-determinism | Determinism not credible | 900 | Added 3.1.16 with LC_ALL=C, TZ=UTC |
-| SKP-config | Config parse error handling | 710 | Config errors fall through to defaults with warning |
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| EIP-55 keccak256 without viem | Bundle size vs dependency | Use `@noble/hashes/sha3` keccak_256 (~3KB, audited) or vendored pure-JS Keccak-256. **NOT** `node:crypto` SHA3-256 (wrong algorithm). |
+| TypeBox `@context` field | JSON-LD `@` prefix may need special handling | TypeBox supports arbitrary string keys via `Type.Object({'@context': ...})` — verified |
+| Generic `DomainEvent<T>` | TypeBox doesn't directly support generics at runtime | Define base schema with `Type.Unknown()` payload; typed wrappers per aggregate |
+| Test vector count | ~70 new vectors is significant effort | Prioritize billing + lifecycle (highest financial/safety impact) |
+| Downstream migration timing | loa-finn/arrakis must coordinate | Publish v2.0.0 to npm, then coordinate same-week upgrades |
 
 ---
 
-*SDD generated for cycle-009 (Flatline-reviewed). Next: `/sprint-plan` for implementation breakdown.*
+## 14. Sprint Estimation
+
+| Sprint | Deliverables | Effort |
+|--------|-------------|--------|
+| **Sprint 1** | NftId utility, AgentLifecycleState, AgentDescriptor schema, lifecycle utility | ~1 day |
+| **Sprint 2** | BillingEntry, CreditNote, billing utilities, migration of InvokeResponse/UsageReport | ~1.5 days |
+| **Sprint 3** | Conversation, Message, TransferSpec, ConversationSealingPolicy, DomainEvent | ~1.5 days |
+| **Sprint 4** | Error codes, validators, index.ts exports, JSON Schema generation, package.json | ~0.5 day |
+| **Sprint 5** | Golden test vectors (~70), migration guide, semver check | ~1.5 days |
+| **Total** | v2.0.0 complete | ~6 days |
+
+---
+
+## 15. Future Considerations (v2.1.0, v2.2.0)
+
+### v2.1.0 — Tool Marketplace Types
+
+New files:
+- `src/schemas/tool-registration.ts` — ToolRegistration, ToolLifecycleState, ToolListResponse
+- `src/utilities/lifecycle.ts` — Extended with tool transition map (shared module)
+- 3 new error codes
+- ~15 golden test vectors
+
+### v2.2.0 — Agent Messaging Types
+
+New files:
+- `src/schemas/agent-message.ts` — AgentMessage, AgentAddress, AgentInbox
+- `src/utilities/agent-address.ts` — parseAgentAddress, formatAgentAddress
+- 2 new error codes
+- ~10 golden test vectors
+
+---
+
+## 16. Flatline Review Decisions
+
+### HIGH_CONSENSUS (Auto-Integrated)
+
+| ID | Finding | Integration |
+|----|---------|-------------|
+| IMP-001 (935) | Conversation/Message schemas referenced but undefined | Added Section 4.6b with full TypeBox schemas for Conversation, ConversationStatus, Message, MessageRole |
+| IMP-002 (885) | TransferSpec/TransferEvent/ConversationSealingPolicy unspecified | Added Section 4.6c with TransferSpec, TransferEvent, TransferScenario, TransferResult, ConversationSealingPolicy schemas |
+| IMP-003 (895) | keccak256 vs SHA3-256 mismatch — node:crypto is wrong algorithm | Fixed Section 4.2: recommends @noble/hashes/sha3 keccak_256 (~3KB). Updated Section 13 risks. |
+| IMP-004 (840) | Hard cutover across repos needs rollout plan | Added Section 10: 6-phase rollout (rc.1 prerelease → feature branches → release → staged deploy) |
+| IMP-005 (835) | DomainEvent generic type needs concrete wrappers | Added typed event constructors: AgentEvent, BillingEvent, ConversationEvent, TransferEvent in Section 4.7 |
+| IMP-008 (720) | JSON Schema export format/generation unspecified | Expanded Section 6.2: file layout, $ref inline resolution, registry manifest, Python import example |
+
+### BLOCKERS (Human Decisions)
+
+| ID | Concern | Decision | Rationale |
+|----|---------|----------|-----------|
+| SKP-001 (950) | DomainEvent<T> template artifacts | **OVERRIDDEN** — false positive | Flatline saw orchestrator template injection, not actual SDD content. Type is valid TypeScript. |
+| SKP-002 (900) | Keccak/EIP-55 Node crypto risk | **OVERRIDDEN** — resolved by IMP-003 | SDD now correctly specifies keccak_256 from @noble/hashes, not node:crypto SHA3-256 |
+| SKP-003 (760) | Node.js >=22 blocks browser/edge | **OVERRIDDEN** — Node >=22 only | Package is consumed by Node.js backend services only. Browser/edge is not a current requirement. |
+| SKP-004 (740) | billing_entry_id uses trace_id, UsageReport missing | **ACCEPTED** | Added explicit `id` (ULID) field to BillingEntry, specified UsageReport breaking change, fixed migration example to use `entry.id` |

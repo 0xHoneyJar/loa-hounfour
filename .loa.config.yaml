@@ -1,0 +1,179 @@
+# Loa Framework Configuration
+# This file is yours to customize - framework updates will never modify it
+
+# =============================================================================
+# Persistence Mode
+# =============================================================================
+# - standard: Commit grimoire and beads to repo (default)
+# - stealth: Add state files to .gitignore, local-only operation
+persistence_mode: standard
+
+# =============================================================================
+# Integrity Enforcement
+# =============================================================================
+# - strict: Block agent execution on System Zone drift (recommended)
+# - warn: Warn but allow execution
+# - disabled: No integrity checks (not recommended)
+integrity_enforcement: strict
+
+# =============================================================================
+# Drift Resolution Policy
+# =============================================================================
+# - code: Update documentation to match implementation (existing codebases)
+# - docs: Create beads to fix code to match documentation (greenfield)
+# - ask: Always prompt for human decision
+drift_resolution: code
+
+# =============================================================================
+# Agent Configuration
+# =============================================================================
+disabled_agents: []
+# disabled_agents:
+#   - auditing-security
+#   - translating-for-executives
+
+# =============================================================================
+# Structured Memory
+# =============================================================================
+memory:
+  notes_file: grimoires/loa/NOTES.md
+  trajectory_dir: grimoires/loa/a2a/trajectory
+  # Auto-compact trajectory logs older than N days
+  trajectory_retention_days: 30
+
+# =============================================================================
+# Evaluation-Driven Development
+# =============================================================================
+edd:
+  enabled: true
+  # Require N test scenarios before marking task complete
+  min_test_scenarios: 3
+  # Audit reasoning trajectory for hallucination
+  trajectory_audit: true
+
+# =============================================================================
+# Context Hygiene
+# =============================================================================
+compaction:
+  enabled: true
+  threshold: 5
+
+# =============================================================================
+# Integrations
+# =============================================================================
+integrations:
+  - github
+
+# =============================================================================
+# Framework Upgrade Behavior
+# =============================================================================
+upgrade:
+  # Create git commit after mount/upgrade (default: true)
+  auto_commit: true
+  # Create version tag after mount/upgrade (default: true)
+  auto_tag: true
+  # Conventional commit prefix (default: "chore")
+  commit_prefix: "chore"
+
+# =============================================================================
+# Beads Configuration
+# =============================================================================
+beads:
+  mode: recommended
+  opt_out:
+    confirmation_interval_hours: 24
+    require_reason: true
+  autonomous:
+    requires_beads: true
+
+# =============================================================================
+# Flatline Protocol — Multi-Model Adversarial Review
+# =============================================================================
+flatline_protocol:
+  enabled: true
+  auto_trigger: true
+  models:
+    primary: opus
+    secondary: gpt-5.2
+  phases:
+    prd: true
+    sdd: true
+    sprint: true
+  knowledge:
+    notebooklm:
+      enabled: false
+      notebook_id: ""
+
+# =============================================================================
+# Autonomous Mode (for Flatline + Run Mode)
+# =============================================================================
+autonomous_mode:
+  enabled: false
+  auto_enable_for_ai: true
+  actions:
+    high_consensus: integrate
+    disputed: log
+    blocker: halt
+    low_value: skip
+  thresholds:
+    disputed_halt_percent: 80
+  snapshots:
+    enabled: true
+    max_count: 100
+    max_bytes: 104857600
+
+# =============================================================================
+# Simstim — HITL Accelerated Development
+# =============================================================================
+simstim:
+  enabled: true
+  flatline:
+    auto_accept_high_consensus: true
+    show_disputed: true
+    show_blockers: true
+    beads_loop: true
+    phases:
+      - prd
+      - sdd
+      - sprint
+      - beads
+  defaults:
+    timeout_hours: 24
+  skip_phases:
+    prd_if_exists: false
+    sdd_if_exists: false
+    sprint_if_exists: false
+
+# =============================================================================
+# Run Bridge — Autonomous Excellence Loop
+# =============================================================================
+run_bridge:
+  enabled: true
+  defaults:
+    depth: 5
+    flatline_threshold: 0.05
+    consecutive_flatline: 2
+
+# =============================================================================
+# Run Mode
+# =============================================================================
+run_mode:
+  enabled: true
+  circuit_breaker:
+    max_failures: 3
+    reset_timeout_minutes: 5
+
+# =============================================================================
+# Guardrails
+# =============================================================================
+guardrails:
+  input:
+    enabled: true
+    pii_filter:
+      enabled: true
+      mode: blocking
+    injection_detection:
+      enabled: true
+      threshold: 0.7
+  danger_level:
+    enforce: true
