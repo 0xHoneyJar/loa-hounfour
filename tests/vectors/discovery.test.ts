@@ -54,11 +54,24 @@ describe('buildDiscoveryDocument', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('builds valid discovery without capabilities', () => {
+  it('builds valid discovery without supported_aggregates', () => {
     const doc = buildDiscoveryDocument([]);
     expect(doc.supported_aggregates).toBeUndefined();
 
     const result = validate(ProtocolDiscoverySchema, doc);
     expect(result.valid).toBe(true);
+  });
+
+  it('throws on invalid schema IDs (BB-V3-F009)', () => {
+    expect(() => buildDiscoveryDocument(['not-a-uri'])).toThrow(
+      /Invalid schema IDs/,
+    );
+  });
+
+  it('throws on mixed valid/invalid schema IDs', () => {
+    expect(() => buildDiscoveryDocument([
+      'https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event',
+      'bad-uri',
+    ])).toThrow(/bad-uri/);
   });
 });

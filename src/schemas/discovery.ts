@@ -43,13 +43,20 @@ export type ProtocolDiscovery = Static<typeof ProtocolDiscoverySchema>;
 /**
  * Build a discovery document from the current package state.
  *
- * @param schemaIds - List of supported schema $id URLs
+ * @param schemaIds - List of supported schema $id URLs (must be valid URIs)
  * @param aggregateTypes - Optional list of supported aggregate types
+ * @throws {Error} If any schemaId is not a valid URI (must start with https://)
  */
 export function buildDiscoveryDocument(
   schemaIds: string[],
   aggregateTypes?: string[],
 ): ProtocolDiscovery {
+  const invalid = schemaIds.filter(id => !id.startsWith('https://'));
+  if (invalid.length > 0) {
+    throw new Error(
+      `Invalid schema IDs (must be https:// URIs): ${invalid.join(', ')}`,
+    );
+  }
   return {
     contract_version: CONTRACT_VERSION,
     min_supported_version: MIN_SUPPORTED_VERSION,

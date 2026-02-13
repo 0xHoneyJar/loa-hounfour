@@ -123,17 +123,24 @@ export {
   type BillingEvent,
   type ConversationEvent,
   type TransferEvent,
+  type ToolEvent,
+  type MessageEvent,
   // v2.2.0 — Runtime payload validation (BB-V3-002)
   AgentEventPayloadSchema,
   BillingEventPayloadSchema,
   ConversationEventPayloadSchema,
   TransferEventPayloadSchema,
+  ToolEventPayloadSchema,
+  MessageEventPayloadSchema,
   isAgentEvent,
   isBillingEvent,
   isConversationEvent,
   isTransferEvent,
+  isToolEvent,
+  isMessageEvent,
   // v2.2.0 — Saga context & batch routing (BB-V3-010, BB-V3-012)
   SagaContextSchema,
+  validateSagaContext,
   type SagaContext,
 } from './schemas/domain-event.js';
 

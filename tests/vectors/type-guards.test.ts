@@ -4,8 +4,11 @@ import {
   isBillingEvent,
   isConversationEvent,
   isTransferEvent,
+  isToolEvent,
+  isMessageEvent,
   type DomainEvent,
 } from '../../src/schemas/domain-event.js';
+import { validateSagaContext, type SagaContext } from '../../src/schemas/saga-context.js';
 import {
   isKnownEventType,
   EVENT_TYPES,
@@ -106,6 +109,79 @@ describe('Runtime Type Guards (BB-V3-002)', () => {
       };
       expect(isTransferEvent(event)).toBe(false);
     });
+  });
+
+  describe('isToolEvent', () => {
+    it('returns true for valid tool event', () => {
+      const event: DomainEvent = {
+        ...baseEvent,
+        aggregate_type: 'tool',
+        type: 'tool.call.started',
+        payload: { tool_call_id: 'tc_001' },
+      };
+      expect(isToolEvent(event)).toBe(true);
+    });
+
+    it('returns false for wrong aggregate_type', () => {
+      expect(isToolEvent({ ...baseEvent, payload: { tool_call_id: 'tc_001' } })).toBe(false);
+    });
+
+    it('returns false for missing tool_call_id', () => {
+      const event: DomainEvent = {
+        ...baseEvent,
+        aggregate_type: 'tool',
+        payload: {},
+      };
+      expect(isToolEvent(event)).toBe(false);
+    });
+  });
+
+  describe('isMessageEvent', () => {
+    it('returns true for valid message event', () => {
+      const event: DomainEvent = {
+        ...baseEvent,
+        aggregate_type: 'message',
+        type: 'message.content.created',
+        payload: { message_id: 'msg_001' },
+      };
+      expect(isMessageEvent(event)).toBe(true);
+    });
+
+    it('returns false for missing message_id', () => {
+      const event: DomainEvent = {
+        ...baseEvent,
+        aggregate_type: 'message',
+        payload: {},
+      };
+      expect(isMessageEvent(event)).toBe(false);
+    });
+  });
+});
+
+describe('validateSagaContext (BB-V3-F008)', () => {
+  it('returns valid for step within total_steps', () => {
+    const ctx: SagaContext = { saga_id: 's1', step: 2, total_steps: 3, direction: 'forward' };
+    expect(validateSagaContext(ctx)).toEqual({ valid: true });
+  });
+
+  it('returns valid for step equal to total_steps', () => {
+    const ctx: SagaContext = { saga_id: 's1', step: 3, total_steps: 3, direction: 'forward' };
+    expect(validateSagaContext(ctx)).toEqual({ valid: true });
+  });
+
+  it('returns invalid for step exceeding total_steps', () => {
+    const ctx: SagaContext = { saga_id: 's1', step: 5, total_steps: 3, direction: 'forward' };
+    const result = validateSagaContext(ctx);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.reason).toContain('5');
+      expect(result.reason).toContain('3');
+    }
+  });
+
+  it('returns valid when total_steps is omitted', () => {
+    const ctx: SagaContext = { saga_id: 's1', step: 100, direction: 'compensation' };
+    expect(validateSagaContext(ctx)).toEqual({ valid: true });
   });
 });
 

@@ -222,6 +222,92 @@
         "contract_version": "2.0.0"
       },
       "note": "empty batch_id rejected (minLength: 1)"
+    },
+    {
+      "id": "batch-inv-saga-001",
+      "data": {
+        "batch_id": "batch_saga_bad_step",
+        "correlation_id": "corr_saga_bad",
+        "events": [
+          {
+            "event_id": "evt_bs1",
+            "aggregate_id": "agent_x",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T15:00:00Z",
+            "actor": "test",
+            "payload": { "agent_id": "agent_x" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "test",
+        "produced_at": "2026-01-15T15:00:01Z",
+        "contract_version": "2.2.0",
+        "saga": {
+          "saga_id": "saga_bad",
+          "step": 0,
+          "direction": "forward"
+        }
+      },
+      "note": "saga step < 1 rejected (minimum: 1)"
+    },
+    {
+      "id": "batch-inv-saga-002",
+      "data": {
+        "batch_id": "batch_saga_bad_dir",
+        "correlation_id": "corr_saga_dir",
+        "events": [
+          {
+            "event_id": "evt_bs2",
+            "aggregate_id": "agent_y",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T15:01:00Z",
+            "actor": "test",
+            "payload": { "agent_id": "agent_y" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "test",
+        "produced_at": "2026-01-15T15:01:01Z",
+        "contract_version": "2.2.0",
+        "saga": {
+          "saga_id": "saga_dir",
+          "step": 1,
+          "direction": "rollback"
+        }
+      },
+      "note": "saga direction not in union rejected (must be forward|compensation)"
+    },
+    {
+      "id": "batch-inv-saga-003",
+      "data": {
+        "batch_id": "batch_saga_no_id",
+        "correlation_id": "corr_saga_noid",
+        "events": [
+          {
+            "event_id": "evt_bs3",
+            "aggregate_id": "agent_z",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T15:02:00Z",
+            "actor": "test",
+            "payload": { "agent_id": "agent_z" },
+            "contract_version": "2.2.0"
+          }
+        ],
+        "source": "test",
+        "produced_at": "2026-01-15T15:02:01Z",
+        "contract_version": "2.2.0",
+        "saga": {
+          "step": 1,
+          "direction": "forward"
+        }
+      },
+      "note": "saga missing required saga_id rejected"
     }
   ]
 }

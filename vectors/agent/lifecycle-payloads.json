@@ -32,6 +32,30 @@
         "triggered_by": "billing-service"
       },
       "note": "suspension with triggered_by but no transfer_id"
+    },
+    {
+      "id": "ltp-004",
+      "data": {
+        "agent_id": "agent_rc1",
+        "previous_state": "ACTIVE",
+        "new_state": "TRANSFERRED",
+        "reason": "NFT ownership transfer initiated",
+        "reason_code": "transfer_initiated",
+        "triggered_by": "transfer-service",
+        "transfer_id": "xfer_rc_001"
+      },
+      "note": "transition with v2.2.0 reason_code (BB-V3-009)"
+    },
+    {
+      "id": "ltp-005",
+      "data": {
+        "agent_id": "agent_rc2",
+        "previous_state": "ACTIVE",
+        "new_state": "SUSPENDED",
+        "reason": "Daily budget limit reached",
+        "reason_code": "budget_exhausted"
+      },
+      "note": "suspension with reason_code, backward-compatible (no triggered_by)"
     }
   ],
   "invalid_payloads": [
@@ -53,6 +77,17 @@
         "new_state": "PROVISIONING"
       },
       "note": "missing required reason field rejected"
+    },
+    {
+      "id": "ltp-inv-003",
+      "data": {
+        "agent_id": "agent_rc_bad",
+        "previous_state": "DORMANT",
+        "new_state": "PROVISIONING",
+        "reason": "Testing invalid reason code",
+        "reason_code": "not_a_real_code"
+      },
+      "note": "unregistered reason_code rejected (v2.2.0)"
     }
   ]
 }

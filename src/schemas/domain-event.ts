@@ -2,7 +2,7 @@ import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import { SagaContextSchema } from './saga-context.js';
 export type { SagaContext } from './saga-context.js';
-export { SagaContextSchema } from './saga-context.js';
+export { SagaContextSchema, validateSagaContext } from './saga-context.js';
 
 /** Aggregate types for domain event routing. */
 const AggregateTypeSchema = Type.Union([
@@ -77,6 +77,12 @@ export type TransferEvent = DomainEvent<{
   [k: string]: unknown;
 }>;
 
+/** Tool aggregate events — payload must include tool_call_id. */
+export type ToolEvent = DomainEvent<{ tool_call_id: string; [k: string]: unknown }>;
+
+/** Message aggregate events — payload must include message_id. */
+export type MessageEvent = DomainEvent<{ message_id: string; [k: string]: unknown }>;
+
 // ---------------------------------------------------------------------------
 // Minimal payload schemas for runtime type guards.
 // `additionalProperties: true` preserves extensibility — these check the
@@ -104,6 +110,16 @@ export const TransferEventPayloadSchema = Type.Object({
   from_owner: Type.String({ minLength: 1 }),
   to_owner: Type.String({ minLength: 1 }),
 }, { $id: 'TransferEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for tool aggregate events. */
+export const ToolEventPayloadSchema = Type.Object({
+  tool_call_id: Type.String({ minLength: 1 }),
+}, { $id: 'ToolEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for message aggregate events. */
+export const MessageEventPayloadSchema = Type.Object({
+  message_id: Type.String({ minLength: 1 }),
+}, { $id: 'MessageEventPayload', additionalProperties: true });
 
 // Lazily compiled payload validators
 const payloadValidators = new Map<string, ReturnType<typeof TypeCompiler.Compile>>();
@@ -153,6 +169,24 @@ export function isConversationEvent(event: DomainEvent): event is ConversationEv
 export function isTransferEvent(event: DomainEvent): event is TransferEvent {
   return event.aggregate_type === 'transfer'
     && checkPayload(TransferEventPayloadSchema, event.payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to ToolEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isToolEvent(event: DomainEvent): event is ToolEvent {
+  return event.aggregate_type === 'tool'
+    && checkPayload(ToolEventPayloadSchema, event.payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to MessageEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isMessageEvent(event: DomainEvent): event is MessageEvent {
+  return event.aggregate_type === 'message'
+    && checkPayload(MessageEventPayloadSchema, event.payload);
 }
 
 // SagaContextSchema re-exported from ./saga-context.ts (BB-V3-F004)
