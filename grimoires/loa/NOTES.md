@@ -11,6 +11,12 @@
 - Largest-remainder allocation with BigInt is deterministic and handles rounding without floating-point — tie-break by array index
 - `allocateRecipients` MUST validate `share_bps` sums to 10000 and reject negative totals — missed in initial implementation, caught by Bridgebuilder
 - Cross-field validation (e.g., encryption_scheme vs key_derivation) cannot be expressed in JSON Schema alone — utility functions like `validateSealingPolicy()` fill this gap
+- TypeBox `Type.Intersect` preserves shared type constraints while allowing description overrides — use instead of re-declaring inline patterns (CreditNote BB-C2-004)
+- AsyncAPI 3.0 spec generation from TypeBox schemas works well via template literal interpolation of `CONTRACT_VERSION` — generated at build time, not hardcoded
+- Cross-language vector runners (Python `jsonschema`, Go `santhosh-tekuri/jsonschema/v6`) validate protocol interoperability — Python runner confirmed 21/21 vectors passing
+- `DomainEventBatch` transactional outbox pattern with `minItems: 1` prevents empty batch submission — composition test vectors should always include metadata-carrying events
+- `LifecycleTransitionPayload` with mandatory `reason` field (Kubernetes-inspired) significantly improves debugging — forced reasoning at write time pays dividends at read time
+- `schemas/index.json` machine-readable registry enables tooling discovery without parsing individual schema files — pair with human-readable README.md for dual audience
 
 ## Blockers
 
@@ -25,3 +31,7 @@
 - Conversations belong to the NFT, not the user — this is a fundamental architectural decision that affects Conversation schema design
 - Run Bridge with 2 Bridgebuilder iterations achieved 93.6% severity reduction (score 47 → 3) — 19 findings addressed across 2 CRITICAL, 5 HIGH, 10 MEDIUM, 5 LOW
 - v2.0.0 final state: 169 tests, 15 JSON schemas, 53 files changed, 8 new TypeBox schemas, 7 new error codes
+- Run Bridge cycle-002 achieved 100% severity reduction (score 4 → 0) in 1 iteration — 4 LOW findings addressed, 3 PRAISE received
+- v2.1.0 final state: 182 tests, 17 JSON schemas, 48 files changed, 23 total findings addressed across both bridge cycles
+- Cumulative bridge trajectory: 47 → 3 → 4 → 0 — three consecutive iterations below flatline threshold confirms kaironic termination
+- SCHEMA-CHANGELOG.md per-schema evolution tracking (Confluent-inspired) proved valuable for cross-team contract visibility
