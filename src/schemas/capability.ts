@@ -81,6 +81,10 @@ export const CapabilityResponseSchema = Type.Object({
     pattern: '^\\d+\\.\\d+\\.\\d+$',
     description: 'Protocol version this agent supports',
   }),
+  responded_at: Type.Optional(Type.String({
+    format: 'date-time',
+    description: 'When the response was generated (for cache freshness)',
+  })),
 }, {
   $id: 'CapabilityResponse',
   additionalProperties: false,

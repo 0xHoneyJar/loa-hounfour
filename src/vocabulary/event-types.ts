@@ -37,12 +37,12 @@ export const EVENT_TYPES = {
   'transfer.saga.failed': 'Transfer failed',
   'transfer.saga.rolled_back': 'Transfer rolled back after failure',
 
-  // Tool aggregate
+  // Tool aggregate (v2.2.0)
   'tool.call.started': 'Tool call execution started',
   'tool.call.completed': 'Tool call execution completed',
   'tool.call.failed': 'Tool call execution failed',
 
-  // Message aggregate
+  // Message aggregate (v2.2.0)
   'message.content.created': 'Message content created',
   'message.content.moderated': 'Message content moderated',
   'message.content.redacted': 'Message content redacted for compliance',

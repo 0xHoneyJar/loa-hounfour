@@ -29,7 +29,7 @@
         "type": "string"
       }
     },
-    "capabilities": {
+    "supported_aggregates": {
       "description": "Supported aggregate types (e.g. \"agent\", \"billing\")",
       "type": "array",
       "items": {

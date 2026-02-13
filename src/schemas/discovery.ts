@@ -29,7 +29,7 @@ export const ProtocolDiscoverySchema = Type.Object({
   }), {
     description: 'List of supported schema $id URLs',
   }),
-  capabilities: Type.Optional(Type.Array(Type.String(), {
+  supported_aggregates: Type.Optional(Type.Array(Type.String(), {
     description: 'Supported aggregate types (e.g. "agent", "billing")',
   })),
 }, {
@@ -54,6 +54,6 @@ export function buildDiscoveryDocument(
     contract_version: CONTRACT_VERSION,
     min_supported_version: MIN_SUPPORTED_VERSION,
     schemas: schemaIds,
-    ...(aggregateTypes ? { capabilities: aggregateTypes } : {}),
+    ...(aggregateTypes ? { supported_aggregates: aggregateTypes } : {}),
   };
 }

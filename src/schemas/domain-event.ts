@@ -1,5 +1,8 @@
 import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
+import { SagaContextSchema } from './saga-context.js';
+export type { SagaContext } from './saga-context.js';
+export { SagaContextSchema } from './saga-context.js';
 
 /** Aggregate types for domain event routing. */
 const AggregateTypeSchema = Type.Union([
@@ -106,7 +109,8 @@ export const TransferEventPayloadSchema = Type.Object({
 const payloadValidators = new Map<string, ReturnType<typeof TypeCompiler.Compile>>();
 
 function checkPayload(schema: TSchema, payload: unknown): boolean {
-  const id = schema.$id!;
+  const id = schema.$id;
+  if (!id) throw new Error('checkPayload requires schema with $id');
   let compiled = payloadValidators.get(id);
   if (!compiled) {
     compiled = TypeCompiler.Compile(schema);
@@ -151,30 +155,7 @@ export function isTransferEvent(event: DomainEvent): event is TransferEvent {
     && checkPayload(TransferEventPayloadSchema, event.payload);
 }
 
-/**
- * Saga execution context for multi-step distributed operations.
- *
- * Distinguishes forward-path events from compensation (rollback) events
- * in transfer sagas. Consumers use `direction` to determine whether a batch
- * progresses or compensates the saga.
- *
- * @see BB-V3-012 — Transfer saga compensation protocol
- */
-export const SagaContextSchema = Type.Object({
-  saga_id: Type.String({ minLength: 1, description: 'Saga/workflow execution ID' }),
-  step: Type.Integer({ minimum: 1, description: 'Step number within the saga' }),
-  total_steps: Type.Optional(Type.Integer({ minimum: 1, description: 'Total expected steps (if known)' })),
-  direction: Type.Union([
-    Type.Literal('forward'),
-    Type.Literal('compensation'),
-  ], { description: 'Whether this batch progresses or compensates the saga' }),
-}, {
-  $id: 'SagaContext',
-  additionalProperties: false,
-  description: 'Saga execution context for multi-step distributed operations',
-});
-
-export type SagaContext = Static<typeof SagaContextSchema>;
+// SagaContextSchema re-exported from ./saga-context.ts (BB-V3-F004)
 
 /**
  * Batch envelope for atomic multi-event delivery.

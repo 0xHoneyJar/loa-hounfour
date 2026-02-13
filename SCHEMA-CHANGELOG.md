@@ -48,7 +48,7 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ### ProtocolDiscovery (NEW)
 - Schema discovery document for `/.well-known/loa-hounfour` convention (BB-V3-006)
-- Fields: `contract_version`, `min_supported_version`, `schemas[]`, `capabilities`
+- Fields: `contract_version`, `min_supported_version`, `schemas[]`, `supported_aggregates`
 - Helper: `buildDiscoveryDocument()` generates from current package state
 
 ### Vocabulary Additions

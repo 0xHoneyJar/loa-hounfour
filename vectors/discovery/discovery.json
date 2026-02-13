@@ -9,9 +9,9 @@
           "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event",
           "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/billing-entry"
         ],
-        "capabilities": ["agent", "billing", "conversation"]
+        "supported_aggregates": ["agent", "billing", "conversation"]
       },
-      "note": "full discovery document with capabilities"
+      "note": "full discovery document with supported_aggregates"
     },
     {
       "id": "disc-002",

@@ -48,7 +48,7 @@ describe('buildDiscoveryDocument', () => {
     expect(doc.contract_version).toBe(CONTRACT_VERSION);
     expect(doc.min_supported_version).toBe(MIN_SUPPORTED_VERSION);
     expect(doc.schemas).toHaveLength(1);
-    expect(doc.capabilities).toEqual(['agent', 'billing']);
+    expect(doc.supported_aggregates).toEqual(['agent', 'billing']);
 
     const result = validate(ProtocolDiscoverySchema, doc);
     expect(result.valid).toBe(true);
@@ -56,7 +56,7 @@ describe('buildDiscoveryDocument', () => {
 
   it('builds valid discovery without capabilities', () => {
     const doc = buildDiscoveryDocument([]);
-    expect(doc.capabilities).toBeUndefined();
+    expect(doc.supported_aggregates).toBeUndefined();
 
     const result = validate(ProtocolDiscoverySchema, doc);
     expect(result.valid).toBe(true);

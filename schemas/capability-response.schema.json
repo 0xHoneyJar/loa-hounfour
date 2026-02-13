@@ -74,6 +74,11 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Protocol version this agent supports",
       "type": "string"
+    },
+    "responded_at": {
+      "format": "date-time",
+      "description": "When the response was generated (for cache freshness)",
+      "type": "string"
     }
   },
   "$comment": "contract_version=2.2.0, min_supported=2.0.0"
