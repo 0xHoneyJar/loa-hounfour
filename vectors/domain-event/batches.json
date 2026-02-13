@@ -71,6 +71,31 @@
         "contract_version": "2.0.0"
       },
       "note": "multi-event batch — lifecycle + conversation seal + billing (transactional outbox)"
+    },
+    {
+      "id": "batch-003",
+      "data": {
+        "batch_id": "batch_meta_001",
+        "correlation_id": "corr_meta_001",
+        "events": [
+          {
+            "event_id": "evt_b3_001",
+            "aggregate_id": "agent_meta",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T11:00:00Z",
+            "actor": "system",
+            "payload": { "agent_id": "agent_meta" },
+            "contract_version": "2.0.0",
+            "metadata": { "trace_source": "loa-finn", "region": "us-east-1" }
+          }
+        ],
+        "source": "test-service",
+        "produced_at": "2026-01-15T11:00:01Z",
+        "contract_version": "2.0.0"
+      },
+      "note": "batch with event containing metadata (BB-C2-001 — composition test)"
     }
   ],
   "invalid_batches": [

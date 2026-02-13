@@ -45,9 +45,17 @@
       ]
     },
     "amount_micro": {
-      "pattern": "^[0-9]+$",
-      "description": "Credit amount in micro-USD (must not exceed referenced entry total)",
-      "type": "string"
+      "allOf": [
+        {
+          "pattern": "^[0-9]+$",
+          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        {
+          "description": "Credit amount in micro-USD (must not exceed referenced entry total)",
+          "type": "string"
+        }
+      ]
     },
     "recipients": {
       "minItems": 1,

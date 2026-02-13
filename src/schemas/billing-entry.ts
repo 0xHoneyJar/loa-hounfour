@@ -112,10 +112,9 @@ export const CreditNoteSchema = Type.Object(
       Type.Literal('partial_failure'),
       Type.Literal('adjustment'),
     ]),
-    amount_micro: Type.String({
-      pattern: '^[0-9]+$',
+    amount_micro: Type.Intersect([MicroUSD, Type.String({
       description: 'Credit amount in micro-USD (must not exceed referenced entry total)',
-    }),
+    })]),
     recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
     issued_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

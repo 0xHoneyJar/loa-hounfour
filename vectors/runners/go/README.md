@@ -5,7 +5,7 @@ Cross-language golden vector validation for loa-hounfour protocol schemas.
 ## Setup
 
 ```bash
-go mod download
+go mod tidy    # Downloads dependencies and generates go.sum
 ```
 
 ## Run
