@@ -165,6 +165,9 @@ export {
   type PoolCapabilities,
 } from './vocabulary/pools.js';
 
+// Vocabulary — Currency (v2.0.0)
+export { MicroUSD } from './vocabulary/currency.js';
+
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 
