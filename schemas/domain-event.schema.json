@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/domain-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/domain-event",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -84,7 +84,14 @@
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
+    },
+    "metadata": {
+      "description": "Consumer-extensible metadata (not validated by protocol contract)",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
     }
   },
-  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
 }

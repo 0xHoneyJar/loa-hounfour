@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/lifecycle-transition-payload",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "agent_id",
+    "previous_state",
+    "new_state",
+    "reason"
+  ],
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "description": "Agent this transition belongs to",
+      "type": "string"
+    },
+    "previous_state": {
+      "$id": "AgentLifecycleState",
+      "description": "Agent lifecycle state",
+      "anyOf": [
+        {
+          "const": "DORMANT",
+          "type": "string"
+        },
+        {
+          "const": "PROVISIONING",
+          "type": "string"
+        },
+        {
+          "const": "ACTIVE",
+          "type": "string"
+        },
+        {
+          "const": "SUSPENDED",
+          "type": "string"
+        },
+        {
+          "const": "TRANSFERRED",
+          "type": "string"
+        },
+        {
+          "const": "ARCHIVED",
+          "type": "string"
+        }
+      ]
+    },
+    "new_state": {
+      "$id": "AgentLifecycleState",
+      "description": "Agent lifecycle state",
+      "anyOf": [
+        {
+          "const": "DORMANT",
+          "type": "string"
+        },
+        {
+          "const": "PROVISIONING",
+          "type": "string"
+        },
+        {
+          "const": "ACTIVE",
+          "type": "string"
+        },
+        {
+          "const": "SUSPENDED",
+          "type": "string"
+        },
+        {
+          "const": "TRANSFERRED",
+          "type": "string"
+        },
+        {
+          "const": "ARCHIVED",
+          "type": "string"
+        }
+      ]
+    },
+    "reason": {
+      "minLength": 1,
+      "description": "Human/agent-readable reason for transition",
+      "type": "string"
+    },
+    "triggered_by": {
+      "description": "Actor or event that triggered the transition",
+      "type": "string"
+    },
+    "transfer_id": {
+      "description": "Associated transfer ID (for TRANSFERRED state)",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
+}

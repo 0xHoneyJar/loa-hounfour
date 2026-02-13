@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/conversation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.1.0/conversation",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -120,10 +120,15 @@
       "format": "date-time",
       "type": "string"
     },
+    "sealed_by": {
+      "minLength": 1,
+      "description": "Transfer ID that caused sealing (causal audit trail)",
+      "type": "string"
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.1.0, min_supported=2.0.0"
 }
