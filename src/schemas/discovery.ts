@@ -51,10 +51,17 @@ export function buildDiscoveryDocument(
   schemaIds: string[],
   aggregateTypes?: string[],
 ): ProtocolDiscovery {
-  const invalid = schemaIds.filter(id => !id.startsWith('https://'));
+  const invalid = schemaIds.filter(id => {
+    try {
+      const url = new URL(id);
+      return url.protocol !== 'https:';
+    } catch {
+      return true;
+    }
+  });
   if (invalid.length > 0) {
     throw new Error(
-      `Invalid schema IDs (must be https:// URIs): ${invalid.join(', ')}`,
+      `Invalid schema IDs (must be valid https:// URIs): ${invalid.join(', ')}`,
     );
   }
   return {

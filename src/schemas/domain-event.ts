@@ -1,8 +1,6 @@
 import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import { SagaContextSchema } from './saga-context.js';
-export type { SagaContext } from './saga-context.js';
-export { SagaContextSchema, validateSagaContext } from './saga-context.js';
 
 /** Aggregate types for domain event routing. */
 const AggregateTypeSchema = Type.Union([

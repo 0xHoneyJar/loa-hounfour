@@ -138,11 +138,14 @@ export {
   isTransferEvent,
   isToolEvent,
   isMessageEvent,
-  // v2.2.0 — Saga context & batch routing (BB-V3-010, BB-V3-012)
+} from './schemas/domain-event.js';
+
+// Schemas — Saga Context (v2.2.0, BB-V3-012)
+export {
   SagaContextSchema,
   validateSagaContext,
   type SagaContext,
-} from './schemas/domain-event.js';
+} from './schemas/saga-context.js';
 
 // Schemas — Lifecycle Event Payload (v2.1.0)
 export {
