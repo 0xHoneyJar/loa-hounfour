@@ -35,3 +35,12 @@
 - v2.1.0 final state: 182 tests, 17 JSON schemas, 48 files changed, 23 total findings addressed across both bridge cycles
 - Cumulative bridge trajectory: 47 → 3 → 4 → 0 — three consecutive iterations below flatline threshold confirms kaironic termination
 - SCHEMA-CHANGELOG.md per-schema evolution tracking (Confluent-inspired) proved valuable for cross-team contract visibility
+- Post-flatline Bridgebuilder deep review (BB-V3-001 through BB-V3-018) revealed 13 forward-looking findings at a deeper level of inquiry — flatline means methodology exhaustion, not finding exhaustion
+- Metadata namespace conventions (loa.*, x-*, trace.*) should be established before consumers create shadow schemas — Google FieldMask cautionary tale
+- DomainEvent typed wrappers (AgentEvent, BillingEvent) have no runtime enforcement — compile-time safety ends at the trust boundary between services
+- `parseEncodings` in req-hash.ts has correct code but comments describe the wrong decompression order — documentation-code divergence caught
+- Cross-field validation (validateSealingPolicy) is invisible to JSON Schema consumers — Go/Python implementers won't know it exists without reading TypeScript
+- LifecycleTransitionPayload reason field should evolve to Kubernetes-style reason_code + reason_message split for machine-parseable event filtering
+- Schema deprecation mechanism needed before first field removal — TypeBox supports `deprecated: true` flowing through to JSON Schema
+- Event type vocabulary registry would prevent multi-model naming divergence (agent.lifecycle.transitioned vs agent.state.changed)
+- Transfer saga compensation path has no protocol representation — DomainEventBatch needs optional saga context for forward vs compensation distinction
