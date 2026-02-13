@@ -1,0 +1,98 @@
+{
+  "valid_events": [
+    {
+      "id": "de-001",
+      "data": {
+        "event_id": "evt_001",
+        "aggregate_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "aggregate_type": "agent",
+        "type": "agent.lifecycle.transitioned",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:00:00Z",
+        "actor": "system",
+        "payload": { "agent_id": "agent_abc", "from": "DORMANT", "to": "PROVISIONING" },
+        "contract_version": "2.0.0"
+      },
+      "note": "agent lifecycle transition event"
+    },
+    {
+      "id": "de-002",
+      "data": {
+        "event_id": "evt_002",
+        "aggregate_id": "01JARX9ABC123",
+        "aggregate_type": "billing",
+        "type": "billing.entry.created",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:00:00Z",
+        "actor": "loa-finn",
+        "correlation_id": "req-abc-123",
+        "causation_id": "evt_001",
+        "payload": { "billing_entry_id": "01JARX9ABC123", "total_cost_micro": "4500" },
+        "contract_version": "2.0.0"
+      },
+      "note": "billing entry created with correlation"
+    },
+    {
+      "id": "de-003",
+      "data": {
+        "event_id": "evt_003",
+        "aggregate_id": "conv_abc123",
+        "aggregate_type": "conversation",
+        "type": "conversation.status.changed",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:00:00Z",
+        "actor": "user-wallet-0x1234",
+        "payload": { "conversation_id": "conv_abc123", "from": "active", "to": "sealed" },
+        "contract_version": "2.0.0"
+      },
+      "note": "conversation sealed event"
+    },
+    {
+      "id": "de-004",
+      "data": {
+        "event_id": "evt_004",
+        "aggregate_id": "xfer_sale_001",
+        "aggregate_type": "transfer",
+        "type": "transfer.ownership.completed",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:05:00Z",
+        "actor": "marketplace-contract",
+        "payload": { "transfer_id": "xfer_sale_001", "from_owner": "0x1111", "to_owner": "0x2222" },
+        "contract_version": "2.0.0"
+      },
+      "note": "transfer completed event"
+    }
+  ],
+  "invalid": [
+    {
+      "id": "de-inv-001",
+      "data": {
+        "event_id": "evt_bad",
+        "aggregate_id": "x",
+        "aggregate_type": "agent",
+        "type": "InvalidType",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:00:00Z",
+        "actor": "test",
+        "payload": {},
+        "contract_version": "2.0.0"
+      },
+      "note": "invalid type pattern — must be dotted"
+    },
+    {
+      "id": "de-inv-002",
+      "data": {
+        "event_id": "evt_bad2",
+        "aggregate_id": "x",
+        "aggregate_type": "agent",
+        "type": "agent.lifecycle.transitioned",
+        "version": 0,
+        "occurred_at": "2026-01-15T10:00:00Z",
+        "actor": "test",
+        "payload": {},
+        "contract_version": "2.0.0"
+      },
+      "note": "version must be >= 1"
+    }
+  ]
+}

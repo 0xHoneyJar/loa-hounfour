@@ -7,7 +7,18 @@
  * @see SDD 4.1 — Schema Validation
  */
 import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
-import { type TSchema } from '@sinclair/typebox';
+import { type TSchema, FormatRegistry } from '@sinclair/typebox';
+
+// Register string formats so TypeCompiler validates them at runtime.
+// ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
+if (!FormatRegistry.Has('date-time')) {
+  FormatRegistry.Set('date-time', (v) =>
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/.test(v),
+  );
+}
+if (!FormatRegistry.Has('uri')) {
+  FormatRegistry.Set('uri', (v) => /^https?:\/\/.+/.test(v));
+}
 import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
