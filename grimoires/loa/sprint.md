@@ -1,10 +1,9 @@
-# Sprint Plan: Protocol Resilience & Completeness v2.3.0
+# Sprint Plan: Protocol Maturity & v3.0.0 — The Sovereignty Release
 
-**Cycle:** cycle-004 — Protocol Resilience & Completeness
+**Cycle:** cycle-005 — Protocol Maturity & v3.0.0
 **PRD:** [grimoires/loa/prd.md](prd.md)
 **SDD:** [grimoires/loa/sdd.md](sdd.md)
-**Source:** [PR #1 Bridgebuilder Post-Flatline Deep Review](https://github.com/0xHoneyJar/loa-hounfour/pull/1)
-**Findings:** BB-POST-001 through BB-POST-004 (4 forward-looking findings from post-flatline examination)
+**Source:** [PR #1 Bridgebuilder Deep Review](https://github.com/0xHoneyJar/loa-hounfour/pull/1) — BB-C4-ADV-001 through ADV-008 + v3.0.0 deprecation targets
 **Created:** 2026-02-14
 
 ---
@@ -13,245 +12,426 @@
 
 | Property | Value |
 |----------|-------|
-| **Total sprints** | 2 |
-| **Total tasks** | 9 |
-| **Scope** | v2.3.0 — Protocol resilience for Cambrian Phase 3 (external consumer adoption) |
+| **Total sprints** | 3 |
+| **Total tasks** | 18 |
+| **Scope** | v2.4.0 → v3.0.0 — Complete Bridgebuilder findings + breaking v3 changes |
 | **Team** | 1 AI agent |
-| **Operator** | Single-operator autonomous (via `/run sprint-plan` or `/run-bridge`) |
+| **Operator** | Autonomous (via `/run sprint-plan` or `/run-bridge`) |
 | **Quality gates** | Review + Audit per sprint |
-| **Version bump** | v2.2.0 → v2.3.0 (MINOR — new optional fields, new utility, documentation, no breaking changes) |
+| **Version strategy** | Sprint 1-2: v2.4.0 (additive), Sprint 3: v3.0.0 (breaking — deprecation removal + access_policy) |
 
 ### Philosophy
 
-> *"The bridge holds. What crosses it next will determine whether it becomes a thoroughfare or a monument."* — The Bridgebuilder
+> *"Every Cambrian explosion resolves into a smaller number of body plans that actually work. The protocols that survive aren't the ones with the most features — they're the ones with the clearest contracts."*
 
-Cycles 001-003 built a protocol that is correct, well-tested, and internally consistent. Cycle-004 prepares it for Phase 3 of the Cambrian pattern — the moment when external consumers, Go/Python services, and model providers the team doesn't control start building against these schemas.
+Cycles 001-004 built a protocol from nothing to 22 schemas, 270 tests, and four flatlines. This cycle pushes through the v2/v3 boundary: addressing every Bridgebuilder finding, adding the multi-model metadata conventions the Hounfour needs, centralizing financial arithmetic, and completing the v3.0.0 breaking changes (removing `previous_owner_access`, replacing with `access_policy`).
 
-The Bridgebuilder's post-flatline review identified 4 findings that the convergence loop *couldn't* have found (they require a wider lens than code correctness): schema evolution strategy, saga choreography specification, capability-discovery composition, and lifecycle guard conditions. These are the questions that mature protocols (gRPC, CloudEvents, OpenTelemetry) discovered through years of production exposure. We address them before production.
+### Findings Backlog (Sources)
 
-### Sprint Sequencing
-
-```
-Sprint 1: Protocol Resilience — Schema Evolution & Cross-Version Strategy  ── 1 session
-  BB-POST-001: Schema evolution migration strategy document
-  BB-POST-001: validateBillingEntry() cross-field utility
-  BB-POST-004: Lifecycle guard condition documentation
-  Forward-looking: Version bump to v2.3.0
-    |
-Sprint 2: Protocol Completeness — Saga Choreography & Discovery Composition ── 1 session
-  BB-POST-002: TransferSagaSpec choreography constants
-  BB-POST-002: Saga choreography test vectors (5 scenarios)
-  BB-POST-003: capabilities_url on ProtocolDiscovery
-  BB-POST-003: Discovery → Capability integration test
-  BB-POST-004: Guard condition predicates for lifecycle transitions
-```
+| ID | Severity | Source | Description |
+|----|----------|--------|-------------|
+| BB-C4-ADV-001 | HIGH | Cycle-004 deep | Guard predicates return bare boolean — no error message |
+| BB-C4-ADV-002 | HIGH | Cycle-004 deep | No spec for compensation failure (sad path of sad path) |
+| BB-C4-ADV-003 | MEDIUM | Cycle-004 deep | `validateBillingEntry()` not in validation pipeline |
+| BB-C4-ADV-004 | MEDIUM | Cycle-004 deep | No metadata namespace for model reasoning traces |
+| BB-C4-ADV-005 | MEDIUM | Cycle-004 deep | Guard definitions conflate logic and binding |
+| BB-C4-ADV-006 | MEDIUM | Cycle-004 deep | MicroUSD arithmetic not centralized |
+| BB-C4-ADV-007 | LOW | Cycle-004 deep | check-migration.ts not in CI pipeline |
+| BB-C4-ADV-008 | LOW | Cycle-004 deep | Choreography could generate Mermaid diagrams |
+| BB-V3-004 | MEDIUM | Cycle-003 | `previous_owner_access` deprecated — needs replacement |
+| BB-ADV-003 | LOW | Cycle-001 arch | Document CreditNote invariants (no over-credit) |
 
 ---
 
-## Sprint 1: Protocol Resilience — Schema Evolution & Cross-Version Strategy
+## Sprint 1: Guard Architecture & Financial Safety (v2.4.0-prep)
 
-**Global ID:** 12
-**Label:** Protocol Resilience — Schema Evolution & Cross-Version Strategy
-**Goal:** Harden the protocol for cross-version communication and fill remaining cross-field validation gaps.
-**Findings addressed:** BB-POST-001, BB-POST-004 (partial)
+> *"Booleans answer 'what happened' but never 'why it happened.'"*
 
-### S1-T1: Schema Evolution Migration Strategy Document
+### Goal
+Elevate the guard predicate system from boolean returns to structured results, centralize financial arithmetic to prevent the BigInt footgun, and wire check-migration.ts into CI.
 
-**Finding:** BB-POST-001 (Medium — `additionalProperties: false` prevents N/N-1 wire compat)
-**Description:** Create `MIGRATION.md` section (or extend existing) documenting the schema evolution strategy for cross-version communication. Address: (1) what happens when a v2.2.0 producer sends to a v2.1.0 consumer with strict validation, (2) recommended consumer patterns for forward-compatible validation, (3) which schemas are "strict" (`additionalProperties: false`) vs "extensible" (`additionalProperties: true`), (4) the relationship between `MIN_SUPPORTED_VERSION` and wire-level compatibility.
+### S1-T1: Structured Guard Results (BB-C4-ADV-001)
+
+**Description:** Replace `TransitionGuard<T>` return type from `boolean` to `GuardResult`. Update `createTransitionValidator()` to surface guard key and rejection reason. Update `DEFAULT_GUARDS` to return structured results.
+
+**Files:** `src/utilities/lifecycle.ts`, `src/index.ts`
+
+**Changes:**
+- Add `GuardResult` type: `{ valid: true } | { valid: false; reason: string; guard: string }`
+- Update `TransitionGuard<T>` signature to return `GuardResult`
+- Update `TransitionValidator.isValid()` to return `GuardResult` instead of `boolean`
+- Update all 4 `DEFAULT_GUARDS` predicates with descriptive reasons
+- Add `isValidTransitionResult()` convenience function for backward compat
 
 **Acceptance Criteria:**
-- [ ] Document lists every schema with its `additionalProperties` policy and rationale
-- [ ] Document includes "Consumer Upgrade Guide" with version matrix
-- [ ] Document addresses the `DomainEventBatch.saga` forward-compat scenario explicitly
-- [ ] Document recommends "validate then strip unknown fields" pattern for strict consumers
-- [ ] SCHEMA-CHANGELOG updated with v2.3.0 section referencing the strategy
+- [ ] `validator.isValid('ACTIVE', 'TRANSFERRED')` returns `{ valid: false, reason: 'ACTIVE→TRANSFERRED requires context.transfer_id', guard: 'ACTIVE→TRANSFERRED' }`
+- [ ] `validator.isValid('ACTIVE', 'TRANSFERRED', { transfer_id: 'tx-1' })` returns `{ valid: true }`
+- [ ] All existing lifecycle tests updated for new return type
+- [ ] Backward compat: `isValidTransitionResult(result)` narrows to valid/invalid
 
-**Effort:** Medium
-**Testing:** Documentation review — verify all schema names match actual `$id` values
+**Tests:** 8+ new tests for structured results, reason messages, guard key reporting
 
 ---
 
-### S1-T2: validateBillingEntry() Cross-Field Utility
+### S1-T2: Named Guard Functions (BB-C4-ADV-005)
 
-**Finding:** BB-POST-001 (derived — Bridgebuilder noted the billing multiplier gap)
-**Description:** Create `validateBillingEntry()` utility that checks the cross-field invariant: `total_cost_micro = raw_cost_micro * multiplier_bps / 10000` (using BigInt arithmetic). This completes the defense-in-depth picture alongside `validateBillingRecipients()` and `validateSealingPolicy()`.
+**Description:** Extract guard logic from inline lambdas into named, testable, reusable functions. Bind them in `DEFAULT_GUARDS` by reference.
+
+**Files:** `src/utilities/lifecycle.ts`
+
+**Changes:**
+- Extract `requiresTransferId()`, `requiresNoActiveTransfer()`, `requiresReasonResolved()`, `requiresTransferCompleted()` as named exports
+- `DEFAULT_GUARDS` references these by name instead of defining inline
+- Add TSDoc to each guard function explaining the business rule
 
 **Acceptance Criteria:**
-- [ ] Function signature: `validateBillingEntry(entry: BillingEntry): { valid: true } | { valid: false; reason: string }`
-- [ ] Validates: `BigInt(total_cost_micro) === BigInt(raw_cost_micro) * BigInt(multiplier_bps) / 10000n`
-- [ ] Validates: recipients `share_bps` sums to 10000 (delegates to `validateBillingRecipients`)
-- [ ] Validates: recipients `amount_micro` sums to `total_cost_micro`
-- [ ] Exported from barrel `src/index.ts`
-- [ ] At least 5 test cases: valid entry, mismatched total, mismatched recipients, zero cost, max multiplier boundary
+- [ ] Each guard is independently importable and testable
+- [ ] `DEFAULT_GUARDS` uses named references (no inline lambdas)
+- [ ] TSDoc on each guard explains the precondition in business terms
 
-**Effort:** Medium
-**Testing:** Unit tests in `tests/vectors/billing-allocation.test.ts`
-**Dependencies:** None
+**Tests:** 4 isolated guard function tests (separate from validator integration tests)
 
 ---
 
-### S1-T3: Lifecycle Guard Condition Documentation
+### S1-T3: Centralized MicroUSD Arithmetic (BB-C4-ADV-006)
 
-**Finding:** BB-POST-004 (Low — lifecycle transitions lack guard conditions)
-**Description:** Add TSDoc comments to the `AGENT_LIFECYCLE_TRANSITIONS` map documenting the expected guard conditions for each transition. Not runtime enforcement — protocol-level expectations for consumers.
+**Description:** Add utility functions for safe micro-USD arithmetic using BigInt, preventing the `parseInt` footgun across consumers.
+
+**Files:** `src/vocabulary/currency.ts`, `src/index.ts`
+
+**Changes:**
+- Add `addMicro(a: string, b: string): string`
+- Add `subtractMicro(a: string, b: string): string` with underflow guard
+- Add `multiplyBps(amount: string, bps: number): string` — `(BigInt(amount) * BigInt(bps)) / 10000n`
+- Add `compareMicro(a: string, b: string): -1 | 0 | 1`
+- Add `ZERO_MICRO: '0'` constant
+- Export all from barrel
 
 **Acceptance Criteria:**
-- [ ] Each transition in `AGENT_LIFECYCLE_TRANSITIONS` has a TSDoc `@remarks` or inline comment documenting the expected guard condition
-- [ ] `ACTIVE → TRANSFERRED`: "requires active transfer_id"
-- [ ] `ACTIVE → ARCHIVED`: "requires owner_requested or admin_action, must NOT have active transfer"
-- [ ] `TRANSFERRED → PROVISIONING`: "requires transfer completed, new owner authenticated"
-- [ ] `SUSPENDED → ACTIVE`: "requires suspension reason resolved"
-- [ ] Comments reference the Kubernetes pod lifecycle parallel
+- [ ] `multiplyBps('1000000', 15000)` returns `'1500000'` (1.5x markup)
+- [ ] `subtractMicro('100', '200')` throws (underflow protection)
+- [ ] `addMicro('999999999999999999', '1')` returns `'1000000000000000000'` (no precision loss)
+- [ ] All functions handle string-encoded integers only (reject non-numeric strings)
 
-**Effort:** Low
-**Testing:** No code changes beyond comments — verified by schema generation passing
+**Tests:** 12+ tests covering arithmetic, edge cases (zero, max safe int, overflow), underflow protection
 
 ---
 
-### S1-T4: Version Bump to v2.3.0
+### S1-T4: Billing Validation Pipeline (BB-C4-ADV-003)
 
-**Description:** Bump `CONTRACT_VERSION` in `version.ts` from `2.2.0` to `2.3.0`. Update `package.json`. Regenerate all schemas. Run full test suite.
+**Description:** Create a composed validation function that chains TypeBox schema validation with cross-field validation, making the full validation discoverable.
+
+**Files:** `src/validators/billing.ts` (new), `src/validators/index.ts`, `src/index.ts`
+
+**Changes:**
+- Create `validateBillingEntryFull(data: unknown): { valid: true; entry: BillingEntry } | { valid: false; errors: string[] }`
+- Chains: TypeBox schema validation → `validateBillingEntry()` cross-field check
+- Export from barrel
+- Add to `validators` object
 
 **Acceptance Criteria:**
-- [ ] `version.ts` CONTRACT_VERSION = '2.3.0'
-- [ ] `package.json` version = '2.3.0'
-- [ ] All 22+ schemas regenerated with `scripts/generate-schemas.ts`
-- [ ] Schema check passes: `scripts/check-schemas.ts`
-- [ ] All tests pass
-- [ ] SCHEMA-CHANGELOG v2.3.0 section complete
+- [ ] Invalid schema (missing field) → returns schema validation error
+- [ ] Valid schema, bad arithmetic → returns cross-field error
+- [ ] Valid everything → returns typed `BillingEntry`
+- [ ] Consumer calls ONE function, not two
 
-**Effort:** Low
-**Testing:** Full test suite + schema generation + schema check
-**Dependencies:** S1-T1, S1-T2, S1-T3 (version bump happens after all changes land)
+**Tests:** 6+ tests covering schema failure, cross-field failure, success, edge cases
 
 ---
 
-## Sprint 2: Protocol Completeness — Saga Choreography & Discovery Composition
+### S1-T5: Wire check-migration.ts into CI (BB-C4-ADV-007)
 
-**Global ID:** 13
-**Label:** Protocol Completeness — Saga Choreography & Discovery Composition
-**Goal:** Specify the transfer saga choreography, connect capability negotiation to protocol discovery, and add guard condition predicates.
-**Findings addressed:** BB-POST-002, BB-POST-003, BB-POST-004 (completion)
+**Description:** Add check-migration.ts to package.json scripts and create a `check:all` aggregation script.
 
-### S2-T1: Transfer Saga Choreography Constants
+**Files:** `package.json`
 
-**Finding:** BB-POST-002 (Medium — transfer saga choreography unspecified)
-**Description:** Create `src/vocabulary/transfer-choreography.ts` defining the expected event sequence for each `TransferScenario`. This is the "state machine documentation" that tells Go/Python consumers what events to expect during a transfer.
+**Changes:**
+- Add `"check:migration": "tsx scripts/check-migration.ts"`
+- Add `"check:all": "npm run schema:check && npm run vectors:check && npm run check:migration"`
+- Document in MIGRATION.md that `npm run check:all` is the RTFM gate
 
 **Acceptance Criteria:**
-- [ ] `TRANSFER_CHOREOGRAPHY` constant maps each `TransferScenario` to an ordered array of `EventType` values
-- [ ] `sale` scenario: `[transfer.saga.initiated, conversation.thread.sealed, agent.lifecycle.transitioned (→TRANSFERRED), billing.entry.created, transfer.saga.completed]`
-- [ ] `gift` scenario: `[transfer.saga.initiated, conversation.thread.sealed, agent.lifecycle.transitioned (→TRANSFERRED), transfer.saga.completed]` (no billing)
-- [ ] `admin_recovery` scenario: `[transfer.saga.initiated, agent.lifecycle.transitioned (→TRANSFERRED), transfer.saga.completed]` (no sealing — admin override)
-- [ ] `custody_change` scenario: `[transfer.saga.initiated, conversation.thread.sealed, agent.lifecycle.transitioned (→TRANSFERRED), transfer.saga.completed]`
-- [ ] Compensation (rollback) sequences documented for each scenario
-- [ ] Exported from barrel `src/index.ts`
-- [ ] TypeScript type `TransferChoreography` for the mapping shape
-
-**Effort:** Medium
-**Testing:** Type checks + unit tests verifying choreography arrays contain valid EventType values
+- [ ] `npm run check:migration` passes
+- [ ] `npm run check:all` runs all three checks
+- [ ] MIGRATION.md references the CI command
 
 ---
 
-### S2-T2: Saga Choreography Test Vectors
+### S1-T6: Version Bump to v2.4.0
 
-**Finding:** BB-POST-002 (derived)
-**Description:** Create JSON test vectors in `vectors/transfer/choreography.json` that exercise each transfer scenario's expected event sequence. Each vector contains a sequence of `DomainEvent` objects representing a complete saga.
+**Description:** Bump version and update changelog.
+
+**Files:** `src/version.ts`, `package.json`, `vectors/VERSION`, `SCHEMA-CHANGELOG.md`
 
 **Acceptance Criteria:**
-- [ ] 5 valid vectors: one per TransferScenario (sale, gift, admin_recovery, custody_change) + one compensation/rollback
-- [ ] 3 invalid vectors: out-of-order events, missing required events, duplicate saga steps
-- [ ] Each vector includes `saga` context with correct `step`, `direction`, `total_steps`
-- [ ] Test file validates vectors against DomainEventSchema + SagaContextSchema
-- [ ] Vectors include realistic `event_id`, `aggregate_id`, `correlation_id` values
-
-**Effort:** Medium
-**Testing:** New test file `tests/vectors/transfer-choreography.test.ts`
-**Dependencies:** S2-T1
+- [ ] `CONTRACT_VERSION = '2.4.0'`
+- [ ] `npm run check:all` passes
+- [ ] SCHEMA-CHANGELOG v2.4.0 section added
 
 ---
 
-### S2-T3: capabilities_url on ProtocolDiscovery
+## Sprint 2: Multi-Model Topology & Saga Resilience (v2.4.0)
 
-**Finding:** BB-POST-003 (Low — capability and discovery schemas disconnected)
-**Description:** Add `capabilities_url` optional field to `ProtocolDiscoverySchema` — a pointer to the capability negotiation endpoint. This turns the discovery document into a navigable gateway: schemas + aggregates + capabilities.
+> *"Namespace reservation costs nothing when the ecosystem is small and prevents everything when the ecosystem is large."*
+
+### Goal
+Prepare the protocol for the Hounfour's multi-model routing by establishing model metadata conventions, add compensation failure invariants to choreography, and generate visual documentation.
+
+### S2-T1: Model Metadata Namespace (BB-C4-ADV-004)
+
+**Description:** Reserve `model.*` metadata namespace for model-provenance tracking. Add vocabulary entries and document conventions.
+
+**Files:** `src/vocabulary/metadata.ts`, `src/index.ts`
+
+**Changes:**
+- Add `model.id`, `model.provider`, `model.thinking_trace_available`, `model.context_window_used` to `METADATA_NAMESPACES`
+- Add `MODEL_METADATA_KEYS` constant with descriptions
+- Document in metadata.ts TSDoc that `model.*` is reserved for the Hounfour's multi-model routing layer
 
 **Acceptance Criteria:**
-- [ ] `capabilities_url` field added: `Type.Optional(Type.String({ format: 'uri', description: 'URL for capability negotiation endpoint' }))`
-- [ ] `buildDiscoveryDocument()` updated to accept optional `capabilitiesUrl` parameter
-- [ ] JSON Schema regenerated
-- [ ] Discovery test vectors updated with `capabilities_url` example
-- [ ] SCHEMA-CHANGELOG entry for ProtocolDiscovery v2.3.0
+- [ ] `METADATA_NAMESPACES` includes `model` alongside existing `loa`, `trace`, `x-`
+- [ ] `MODEL_METADATA_KEYS` documents each key with type and description
+- [ ] TSDoc references [The Hounfour RFC](https://github.com/0xHoneyJar/loa-finn/issues/31)
 
-**Effort:** Low
-**Testing:** Update existing `tests/vectors/discovery.test.ts`
+**Tests:** 3+ tests verifying namespace registration and key validation
 
 ---
 
-### S2-T4: Discovery-Capability Integration Test
+### S2-T2: Transfer Compensation Invariants (BB-C4-ADV-002)
 
-**Finding:** BB-POST-003 (derived)
-**Description:** Create an integration test that demonstrates the full discovery → capability flow: build discovery document → extract capabilities_url → build capability query → validate capability response. This proves the schemas compose into a navigable system.
+**Description:** Add `TRANSFER_INVARIANTS` constant alongside `TRANSFER_CHOREOGRAPHY` documenting safety properties that must hold regardless of event ordering or compensation failure.
+
+**Files:** `src/vocabulary/transfer-choreography.ts`, `src/index.ts`
+
+**Changes:**
+- Add `TransferInvariant` interface: `{ description: string; enforceable: boolean; enforcement_mechanism: string }`
+- Add `TRANSFER_INVARIANTS` constant per scenario
+- Document: billing atomicity (void MUST succeed), seal permanence, terminal event exactly-once, compensation retry semantics
+- Export from barrel
 
 **Acceptance Criteria:**
-- [ ] Test demonstrates: `buildDiscoveryDocument()` → extract `capabilities_url` → construct `CapabilityQuery` → validate mock `CapabilityResponse` → verify `contract_version` matches across all three
-- [ ] Test validates that `CapabilityResponse.contract_version` matches `ProtocolDiscovery.contract_version`
-- [ ] Test verifies `CapabilityResponse.responded_at` is a valid ISO 8601 datetime
+- [ ] Each scenario has at least 2 invariants
+- [ ] `sale` invariants include billing atomicity
+- [ ] All scenarios include terminal event exactly-once
+- [ ] TSDoc explains what happens when compensation itself fails
 
-**Effort:** Low
-**Testing:** New test in `tests/vectors/discovery.test.ts` or `tests/integration/`
-**Dependencies:** S2-T3
+**Tests:** 5+ tests verifying invariant structure and cross-referencing with choreography
 
 ---
 
-### S2-T5: Lifecycle Guard Condition Predicates
+### S2-T3: Choreography Mermaid Diagram Generation (BB-C4-ADV-008)
 
-**Finding:** BB-POST-004 (completion)
-**Description:** Extend `createTransitionValidator()` in `src/utilities/lifecycle.ts` with optional named guard predicates that document (and optionally enforce) the expected conditions for each transition. This is the code-level companion to the TSDoc comments from S1-T3.
+**Description:** Create a script that generates Mermaid sequence diagrams from `TRANSFER_CHOREOGRAPHY`.
+
+**Files:** `scripts/generate-choreography-diagrams.ts` (new)
+
+**Changes:**
+- Read `TRANSFER_CHOREOGRAPHY` at build time
+- Generate a Mermaid sequence diagram per scenario (forward + compensation)
+- Output to `docs/choreography/` as `.md` files with embedded Mermaid
+- Add `"docs:choreography": "tsx scripts/generate-choreography-diagrams.ts"` to package.json
 
 **Acceptance Criteria:**
-- [ ] New type: `TransitionGuard = (from: AgentLifecycleState, to: AgentLifecycleState, context?: Record<string, unknown>) => boolean`
-- [ ] `DEFAULT_GUARDS` constant with guard predicates for key transitions (ACTIVE→TRANSFERRED requires `context.transfer_id`, ACTIVE→ARCHIVED requires no active transfer)
-- [ ] `createTransitionValidator()` accepts optional `guards` parameter
-- [ ] When guards provided, transitions are checked against both the transition map AND the guard predicate
-- [ ] Exported from barrel `src/index.ts`
-- [ ] At least 4 test cases: valid guarded transition, rejected by guard, no guard (permissive), custom guard
+- [ ] Generates 4 Mermaid diagrams (sale, gift, admin_recovery, custody_change)
+- [ ] Each diagram shows forward path with green arrows and compensation with red
+- [ ] Diagrams render correctly in GitHub markdown
+- [ ] Script is idempotent (re-running produces identical output)
 
-**Effort:** Medium
-**Testing:** Unit tests in `tests/vectors/agent-lifecycle.test.ts`
-**Dependencies:** S1-T3
+**Tests:** 1 snapshot test verifying diagram output hasn't drifted
+
+---
+
+### S2-T4: CreditNote Invariant Documentation (BB-ADV-003)
+
+**Description:** Document CreditNote business invariants in schema description and MIGRATION.md.
+
+**Files:** `src/schemas/billing-entry.ts`, `MIGRATION.md`
+
+**Changes:**
+- Add TSDoc to `CreditNoteSchema` documenting: no over-credit (sum of credits ≤ original entry total), referential integrity (referenced billing entry must exist), at-most-one void per entry
+- Add CreditNote section to MIGRATION.md consumer guidance
+
+**Acceptance Criteria:**
+- [ ] CreditNote schema has `$comment` listing invariants
+- [ ] MIGRATION.md includes CreditNote cross-field validation guidance
+- [ ] Invariants documented but NOT enforced at schema level (service-layer responsibility)
+
+---
+
+### S2-T5: tool_calls model_source Field
+
+**Description:** Add optional `model_source` field to tool call sub-objects for multi-model debugging.
+
+**Files:** `src/schemas/conversation.ts`
+
+**Changes:**
+- Add `model_source: Type.Optional(Type.String({ description: 'Model that generated this tool call' }))` to tool_calls sub-object
+- Update generated schemas
+
+**Acceptance Criteria:**
+- [ ] Field is optional (no breaking change)
+- [ ] Existing tool_calls without `model_source` still validate
+- [ ] JSON schema regenerated and verified
+
+**Tests:** 2 tests: with and without model_source
+
+---
+
+### S2-T6: SCHEMA-CHANGELOG v2.4.0 Finalization
+
+**Description:** Complete the v2.4.0 changelog section with all sprint 1-2 changes.
+
+**Files:** `SCHEMA-CHANGELOG.md`
+
+---
+
+## Sprint 3: The v3.0.0 Breaking Release — The Sovereignty Release
+
+> *"Major versions are the protocol's constitutional amendments. Every one should be necessary, documented, and irreversible."*
+
+### Goal
+Execute the v3.0.0 breaking changes: remove deprecated `previous_owner_access`, replace with richer `access_policy`, update MIN_SUPPORTED_VERSION, and ensure all consumers have migration guidance.
+
+### S3-T1: AccessPolicy Schema (replaces previous_owner_access)
+
+**Description:** Design and implement the `AccessPolicySchema` that replaces the deprecated `previous_owner_access` field on `ConversationSealingPolicy`.
+
+**Files:** `src/schemas/conversation.ts`, `src/index.ts`
+
+**Changes:**
+- Create `AccessPolicySchema` with fields:
+  - `type`: `'none' | 'read_only' | 'time_limited' | 'role_based'`
+  - `duration_hours`: optional integer (for time_limited)
+  - `roles`: optional array of strings (for role_based)
+  - `audit_required`: boolean
+  - `revocable`: boolean (can the new owner revoke access?)
+- Remove `previous_owner_access` from `ConversationSealingPolicySchema`
+- Add `access_policy: Type.Optional(AccessPolicySchema)` to `ConversationSealingPolicySchema`
+- Update `validateSealingPolicy()` for new field
+
+**Acceptance Criteria:**
+- [ ] `previous_owner_access` field removed (BREAKING)
+- [ ] `AccessPolicySchema` supports 4 access types
+- [ ] Time-limited access has duration validation
+- [ ] Role-based access has non-empty roles validation
+- [ ] Cross-field: time_limited requires duration_hours, role_based requires roles
+
+**Tests:** 10+ tests covering each access type, cross-field validation, backward incompat detection
+
+---
+
+### S3-T2: Major Version Bump
+
+**Description:** Bump to v3.0.0, update MIN_SUPPORTED_VERSION, update all version references.
+
+**Files:** `src/version.ts`, `package.json`, `vectors/VERSION`
+
+**Changes:**
+- `CONTRACT_VERSION = '3.0.0'`
+- `MIN_SUPPORTED_VERSION = '2.4.0'` (support N-1 minor of previous major)
+- `package.json` version `"3.0.0"`
+- `vectors/VERSION` → `3.0.0`
+
+**Acceptance Criteria:**
+- [ ] `npm run semver:check` detects major bump
+- [ ] `npm run vectors:check` passes
+- [ ] `npm run check:all` passes
+
+---
+
+### S3-T3: v3.0.0 Migration Guide
+
+**Description:** Update MIGRATION.md with v2→v3 migration guide including the `previous_owner_access` → `access_policy` migration path.
+
+**Files:** `MIGRATION.md`, `SCHEMA-CHANGELOG.md`
+
+**Changes:**
+- Add "## v2 → v3 Migration" section to MIGRATION.md
+- Document the field removal and replacement with code examples
+- TypeScript migration: search-and-replace pattern
+- Go migration: struct field rename pattern
+- Python migration: Pydantic model update pattern
+- Update consumer upgrade matrix
+
+**Acceptance Criteria:**
+- [ ] Before/after code examples for TypeScript, Go, Python
+- [ ] Breaking change clearly identified with rationale
+- [ ] `npm run check:migration` passes with new schema
+
+---
+
+### S3-T4: Update Golden Vectors for v3.0.0
+
+**Description:** Update all conversation and sealing policy vectors to use `access_policy` instead of `previous_owner_access`.
+
+**Files:** `vectors/conversations/*.json`, `vectors/transfer/*.json`
+
+**Changes:**
+- Update conversation vectors to use new `access_policy` field
+- Add vectors for each access type (none, read_only, time_limited, role_based)
+- Add invalid access_policy vectors (time_limited without duration, role_based without roles)
+- Remove any vectors using `previous_owner_access`
+
+**Acceptance Criteria:**
+- [ ] All vectors validate against v3.0.0 schemas
+- [ ] At least 1 vector per access_policy type
+- [ ] At least 2 invalid vectors for cross-field validation
+- [ ] No reference to `previous_owner_access` in any vector
+
+**Tests:** All existing conversation tests pass with updated vectors
+
+---
+
+### S3-T5: SCHEMA-CHANGELOG v3.0.0 & Final Checks
+
+**Description:** Complete v3.0.0 changelog, run all checks, verify schema generation.
+
+**Files:** `SCHEMA-CHANGELOG.md`
+
+**Changes:**
+- Add v3.0.0 section documenting breaking changes
+- Run `npm run schema:generate && npm run check:all && npm test`
+- Verify all 22+ schemas generated correctly
+
+**Acceptance Criteria:**
+- [ ] `npm test` passes (280+ tests expected)
+- [ ] `npm run check:all` passes
+- [ ] SCHEMA-CHANGELOG v3.0.0 section complete
+- [ ] Generated JSON schemas reflect v3.0.0 changes
+
+---
+
+### S3-T6: Build & Publish Readiness
+
+**Description:** Final pre-publish verification — build, test, schema generation, all checks.
+
+**Files:** None (verification only)
+
+**Acceptance Criteria:**
+- [ ] `npm run build` passes with zero TypeScript errors
+- [ ] `npm test` all passing
+- [ ] `npm run schema:generate && npm run schema:check` passes
+- [ ] `npm run check:all` passes
+- [ ] `npm pack --dry-run` produces correct package contents
 
 ---
 
 ## Risk Assessment
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Schema evolution doc reveals deeper `additionalProperties` issues | Medium | High | Document the issue honestly; recommend consumer patterns rather than retroactive schema changes |
-| Transfer choreography events don't match loa-finn's actual implementation | Low | Medium | Cross-reference with loa-finn event emission code; choreography is *expected* sequence, not enforced |
-| `capabilities_url` added to strict schema may break v2.2.0 consumers | Low | Low | Field is Optional — strict consumers with `additionalProperties: false` on ProtocolDiscovery will reject v2.3.0 documents (this is exactly the scenario S1-T1 documents) |
-| Guard condition predicates add runtime overhead | Low | Low | Guards are optional — `createTransitionValidator()` without guards behaves identically to current |
-
-## Dependencies
-
-```
-S1-T1 (Migration doc)        ──┐
-S1-T2 (validateBillingEntry) ──┤── S1-T4 (version bump)
-S1-T3 (Guard docs)           ──┘
-                                      |
-S2-T1 (Choreography)         ── S2-T2 (Choreography vectors)
-S2-T3 (capabilities_url)     ── S2-T4 (Integration test)
-S1-T3 (Guard docs)           ── S2-T5 (Guard predicates)
-```
+|------|------------|--------|------------|
+| v3.0.0 breaking change breaks consumers | Medium | High | Comprehensive migration guide with code examples per language |
+| Guard result type change breaks consumers | Low | Medium | `isValidTransitionResult()` convenience function for gradual migration |
+| MicroUSD arithmetic edge cases | Low | High | Extensive golden vectors for arithmetic operations |
+| AccessPolicy over-engineering | Medium | Low | Start with 4 types, extend later; no custom policy DSL |
 
 ## Success Metrics
 
 | Metric | Target |
 |--------|--------|
-| All existing 232 tests still passing | 0 regressions |
-| New test count | +15 minimum |
-| Schema evolution strategy documented | Complete |
-| Transfer choreography specified for all 4 scenarios | Complete |
-| Discovery → Capability composition demonstrated | Integration test passing |
-| Version bumped to v2.3.0 | Published |
+| Tests | 310+ (270 → 310, +40 new) |
+| Schemas | 23+ (22 + AccessPolicy) |
+| Bridge findings addressed | 10/10 from BB-C4-ADV backlog |
+| Deprecations removed | 1 (`previous_owner_access`) |
+| Breaking changes | 1 (v3.0.0 field removal + replacement) |
+| CI checks | 4 (schema, vectors, migration, all) |
