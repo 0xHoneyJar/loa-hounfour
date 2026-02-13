@@ -152,11 +152,39 @@ export function isTransferEvent(event: DomainEvent): event is TransferEvent {
 }
 
 /**
+ * Saga execution context for multi-step distributed operations.
+ *
+ * Distinguishes forward-path events from compensation (rollback) events
+ * in transfer sagas. Consumers use `direction` to determine whether a batch
+ * progresses or compensates the saga.
+ *
+ * @see BB-V3-012 — Transfer saga compensation protocol
+ */
+export const SagaContextSchema = Type.Object({
+  saga_id: Type.String({ minLength: 1, description: 'Saga/workflow execution ID' }),
+  step: Type.Integer({ minimum: 1, description: 'Step number within the saga' }),
+  total_steps: Type.Optional(Type.Integer({ minimum: 1, description: 'Total expected steps (if known)' })),
+  direction: Type.Union([
+    Type.Literal('forward'),
+    Type.Literal('compensation'),
+  ], { description: 'Whether this batch progresses or compensates the saga' }),
+}, {
+  $id: 'SagaContext',
+  additionalProperties: false,
+  description: 'Saga execution context for multi-step distributed operations',
+});
+
+export type SagaContext = Static<typeof SagaContextSchema>;
+
+/**
  * Batch envelope for atomic multi-event delivery.
  *
  * When a transfer completes, it emits multiple events (lifecycle transition,
  * conversation sealing, billing adjustment). A batch with a shared correlation_id
  * enables atomic processing — the transactional outbox pattern.
+ *
+ * v2.2.0 adds `context` for envelope-level routing (BB-V3-010) and `saga`
+ * for distributed saga forward/compensation tracking (BB-V3-012).
  */
 export const DomainEventBatchSchema = Type.Object({
   batch_id: Type.String({ minLength: 1, description: 'Unique batch identifier' }),
@@ -165,6 +193,15 @@ export const DomainEventBatchSchema = Type.Object({
   source: Type.String({ minLength: 1, description: 'System that produced the batch' }),
   produced_at: Type.String({ format: 'date-time' }),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  context: Type.Optional(Type.Object({
+    transfer_id: Type.Optional(Type.String({ description: 'Associated transfer ID' })),
+    aggregate_id: Type.Optional(Type.String({ description: 'Primary aggregate this batch concerns' })),
+    aggregate_type: Type.Optional(AggregateTypeSchema),
+  }, {
+    additionalProperties: true,
+    description: 'Envelope-level routing context (avoids payload inspection)',
+  })),
+  saga: Type.Optional(SagaContextSchema),
 }, {
   $id: 'DomainEventBatch',
   additionalProperties: false,

@@ -132,6 +132,9 @@ export {
   isBillingEvent,
   isConversationEvent,
   isTransferEvent,
+  // v2.2.0 — Saga context & batch routing (BB-V3-010, BB-V3-012)
+  SagaContextSchema,
+  type SagaContext,
 } from './schemas/domain-event.js';
 
 // Schemas — Lifecycle Event Payload (v2.1.0)
@@ -140,6 +143,21 @@ export {
   type LifecycleTransitionPayload,
   type LifecycleTransitionEvent,
 } from './schemas/lifecycle-event-payload.js';
+
+// Vocabulary — Lifecycle Reason Codes (v2.2.0, BB-V3-009)
+export {
+  LIFECYCLE_REASON_CODES,
+  LIFECYCLE_REASON_CODE_VALUES,
+  type LifecycleReasonCode,
+} from './vocabulary/lifecycle-reasons.js';
+
+// Vocabulary — Event Types (v2.2.0, BB-V3-011)
+export {
+  EVENT_TYPES,
+  EVENT_TYPE_VALUES,
+  isKnownEventType,
+  type EventType,
+} from './vocabulary/event-types.js';
 
 // Schemas — Stream Events
 export {

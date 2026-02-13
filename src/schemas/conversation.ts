@@ -37,7 +37,11 @@ export const ConversationSealingPolicySchema = Type.Object({
   previous_owner_access: Type.Union([
     Type.Literal('none'),
     Type.Literal('read_only_24h'),
-  ]),
+  ], {
+    deprecated: true,
+    description: 'Deprecated in v2.2.0. Will be replaced by a richer access_policy '
+      + 'in v3.0.0. Consumers should treat this field as informational only.',
+  }),
 }, {
   $id: 'ConversationSealingPolicy',
   additionalProperties: false,
