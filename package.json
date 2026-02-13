@@ -29,6 +29,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@noble/hashes": "^2.0.1",
     "@sinclair/typebox": "^0.34.48",
     "jose": "^6.1.3"
   },
