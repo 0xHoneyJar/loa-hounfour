@@ -31,6 +31,10 @@ export const ProtocolDiscoverySchema = Type.Object({
     supported_aggregates: Type.Optional(Type.Array(Type.String(), {
         description: 'Supported aggregate types (e.g. "agent", "billing")',
     })),
+    capabilities_url: Type.Optional(Type.String({
+        format: 'uri',
+        description: 'URL for capability negotiation endpoint — connects discovery to capability queries',
+    })),
 }, {
     $id: 'ProtocolDiscovery',
     additionalProperties: false,
@@ -41,9 +45,11 @@ export const ProtocolDiscoverySchema = Type.Object({
  *
  * @param schemaIds - List of supported schema $id URLs (must be valid URIs)
  * @param aggregateTypes - Optional list of supported aggregate types
+ * @param capabilitiesUrl - Optional URL for capability negotiation endpoint (v2.3.0)
  * @throws {Error} If any schemaId is not a valid URI (must start with https://)
+ * @throws {Error} If capabilitiesUrl is not a valid https:// URI
  */
-export function buildDiscoveryDocument(schemaIds, aggregateTypes) {
+export function buildDiscoveryDocument(schemaIds, aggregateTypes, capabilitiesUrl) {
     const invalid = schemaIds.filter(id => {
         try {
             const url = new URL(id);
@@ -56,11 +62,25 @@ export function buildDiscoveryDocument(schemaIds, aggregateTypes) {
     if (invalid.length > 0) {
         throw new Error(`Invalid schema IDs (must be valid https:// URIs): ${invalid.join(', ')}`);
     }
+    if (capabilitiesUrl !== undefined) {
+        try {
+            const url = new URL(capabilitiesUrl);
+            if (url.protocol !== 'https:') {
+                throw new Error(`capabilities_url must be https://, got ${url.protocol}`);
+            }
+        }
+        catch (e) {
+            if (e instanceof Error && e.message.startsWith('capabilities_url'))
+                throw e;
+            throw new Error(`Invalid capabilities_url (must be valid https:// URI): ${capabilitiesUrl}`);
+        }
+    }
     return {
         contract_version: CONTRACT_VERSION,
         min_supported_version: MIN_SUPPORTED_VERSION,
         schemas: schemaIds,
         ...(aggregateTypes ? { supported_aggregates: aggregateTypes } : {}),
+        ...(capabilitiesUrl ? { capabilities_url: capabilitiesUrl } : {}),
     };
 }
 //# sourceMappingURL=discovery.js.map

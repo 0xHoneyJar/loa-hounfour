@@ -6,6 +6,10 @@ import {
   ProtocolDiscoverySchema,
   buildDiscoveryDocument,
 } from '../../src/schemas/discovery.js';
+import {
+  CapabilityQuerySchema,
+  CapabilityResponseSchema,
+} from '../../src/schemas/capability.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 
 const VECTORS_DIR = join(__dirname, '../../vectors/discovery');
@@ -42,7 +46,7 @@ describe('ProtocolDiscovery Golden Vectors', () => {
 describe('buildDiscoveryDocument', () => {
   it('builds valid discovery document from schema IDs', () => {
     const doc = buildDiscoveryDocument(
-      ['https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event'],
+      ['https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event'],
       ['agent', 'billing'],
     );
     expect(doc.contract_version).toBe(CONTRACT_VERSION);
@@ -62,6 +66,23 @@ describe('buildDiscoveryDocument', () => {
     expect(result.valid).toBe(true);
   });
 
+  it('builds valid discovery with capabilities_url', () => {
+    const doc = buildDiscoveryDocument(
+      ['https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event'],
+      ['agent'],
+      'https://api.0xhoneyjar.com/v1/capabilities',
+    );
+    expect(doc.capabilities_url).toBe('https://api.0xhoneyjar.com/v1/capabilities');
+
+    const result = validate(ProtocolDiscoverySchema, doc);
+    expect(result.valid).toBe(true);
+  });
+
+  it('omits capabilities_url when not provided', () => {
+    const doc = buildDiscoveryDocument([]);
+    expect(doc.capabilities_url).toBeUndefined();
+  });
+
   it('throws on invalid schema IDs (BB-V3-F009)', () => {
     expect(() => buildDiscoveryDocument(['not-a-uri'])).toThrow(
       /Invalid schema IDs/,
@@ -70,8 +91,71 @@ describe('buildDiscoveryDocument', () => {
 
   it('throws on mixed valid/invalid schema IDs', () => {
     expect(() => buildDiscoveryDocument([
-      'https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event',
+      'https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event',
       'bad-uri',
     ])).toThrow(/bad-uri/);
+  });
+
+  it('throws on invalid capabilities_url', () => {
+    expect(() => buildDiscoveryDocument([], undefined, 'not-a-url')).toThrow(
+      /capabilities_url/,
+    );
+  });
+
+  it('throws on http capabilities_url (must be https)', () => {
+    expect(() => buildDiscoveryDocument([], undefined, 'http://insecure.example.com')).toThrow(
+      /capabilities_url must be https/,
+    );
+  });
+});
+
+describe('Discovery → Capability Integration (BB-POST-003)', () => {
+  it('demonstrates full discovery → capability flow', () => {
+    // Step 1: Build discovery document with capabilities_url
+    const doc = buildDiscoveryDocument(
+      [
+        'https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event',
+        'https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/billing-entry',
+      ],
+      ['agent', 'billing', 'conversation'],
+      'https://api.0xhoneyjar.com/v1/capabilities',
+    );
+
+    // Validate discovery document
+    const discResult = validate(ProtocolDiscoverySchema, doc);
+    expect(discResult.valid).toBe(true);
+
+    // Step 2: Extract capabilities_url
+    expect(doc.capabilities_url).toBe('https://api.0xhoneyjar.com/v1/capabilities');
+
+    // Step 3: Construct a CapabilityQuery
+    const query = {
+      required_skills: ['text-generation', 'code-review'],
+      preferred_models: ['claude-opus-4-6'],
+      max_latency_ms: 5000,
+    };
+    const queryResult = validate(CapabilityQuerySchema, query);
+    expect(queryResult.valid).toBe(true);
+
+    // Step 4: Validate a mock CapabilityResponse
+    const response = {
+      agent_id: 'agent-loa-001',
+      capabilities: [
+        { skill_id: 'text-generation', input_modes: ['text'], output_modes: ['text'] },
+        { skill_id: 'code-review', input_modes: ['text', 'code'], output_modes: ['text'] },
+      ],
+      available: true,
+      contract_version: CONTRACT_VERSION,
+      responded_at: '2026-02-14T10:00:00Z',
+    };
+    const respResult = validate(CapabilityResponseSchema, response);
+    expect(respResult.valid).toBe(true);
+
+    // Step 5: Verify contract_version matches across all three
+    expect(doc.contract_version).toBe(response.contract_version);
+
+    // Step 6: Verify responded_at is valid ISO 8601
+    const parsed = new Date(response.responded_at);
+    expect(parsed.getTime()).not.toBeNaN();
   });
 });

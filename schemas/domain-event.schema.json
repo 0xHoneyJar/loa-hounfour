@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -93,5 +93,5 @@
       }
     }
   },
-  "$comment": "contract_version=2.2.0, min_supported=2.0.0"
+  "$comment": "contract_version=2.3.0, min_supported=2.0.0"
 }

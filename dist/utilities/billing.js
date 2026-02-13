@@ -16,6 +16,37 @@ export function validateBillingRecipients(recipients, totalCostMicro) {
     return { valid: errors.length === 0, errors };
 }
 /**
+ * Validate all cross-field invariants of a BillingEntry:
+ *
+ * 1. `total_cost_micro === raw_cost_micro * multiplier_bps / 10000` (BigInt arithmetic)
+ * 2. Recipients `share_bps` sums to 10000 (delegates to `validateBillingRecipients`)
+ * 3. Recipients `amount_micro` sums to `total_cost_micro`
+ *
+ * This completes the defense-in-depth picture alongside `validateBillingRecipients()`
+ * and `validateSealingPolicy()`.
+ *
+ * @see BB-POST-001 — Billing multiplier cross-field gap
+ */
+export function validateBillingEntry(entry) {
+    // Check multiplier invariant: total = raw * multiplier / 10000
+    const raw = BigInt(entry.raw_cost_micro);
+    const multiplier = BigInt(entry.multiplier_bps);
+    const expectedTotal = (raw * multiplier) / 10000n;
+    const actualTotal = BigInt(entry.total_cost_micro);
+    if (actualTotal !== expectedTotal) {
+        return {
+            valid: false,
+            reason: `total_cost_micro (${entry.total_cost_micro}) !== raw_cost_micro (${entry.raw_cost_micro}) * multiplier_bps (${entry.multiplier_bps}) / 10000 (expected ${String(expectedTotal)})`,
+        };
+    }
+    // Delegate recipient validation
+    const recipientResult = validateBillingRecipients(entry.recipients, entry.total_cost_micro);
+    if (!recipientResult.valid) {
+        return { valid: false, reason: recipientResult.errors[0] };
+    }
+    return { valid: true };
+}
+/**
  * Deterministic largest-remainder allocation.
  *
  * Input convention: callers provide share_bps only. This function computes

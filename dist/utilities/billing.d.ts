@@ -1,4 +1,4 @@
-import type { BillingRecipient } from '../schemas/billing-entry.js';
+import type { BillingEntry, BillingRecipient } from '../schemas/billing-entry.js';
 /**
  * Validate that billing recipients satisfy invariants:
  * - share_bps must sum to 10000
@@ -7,6 +7,24 @@ import type { BillingRecipient } from '../schemas/billing-entry.js';
 export declare function validateBillingRecipients(recipients: BillingRecipient[], totalCostMicro: string): {
     valid: boolean;
     errors: string[];
+};
+/**
+ * Validate all cross-field invariants of a BillingEntry:
+ *
+ * 1. `total_cost_micro === raw_cost_micro * multiplier_bps / 10000` (BigInt arithmetic)
+ * 2. Recipients `share_bps` sums to 10000 (delegates to `validateBillingRecipients`)
+ * 3. Recipients `amount_micro` sums to `total_cost_micro`
+ *
+ * This completes the defense-in-depth picture alongside `validateBillingRecipients()`
+ * and `validateSealingPolicy()`.
+ *
+ * @see BB-POST-001 — Billing multiplier cross-field gap
+ */
+export declare function validateBillingEntry(entry: BillingEntry): {
+    valid: true;
+} | {
+    valid: false;
+    reason: string;
 };
 /**
  * Deterministic largest-remainder allocation.

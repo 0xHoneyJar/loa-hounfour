@@ -1,138 +1,138 @@
 {
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "min_supported_version": "2.0.0",
-  "generated_at": "2026-02-13T11:49:59.870Z",
+  "generated_at": "2026-02-13T12:27:57.277Z",
   "schemas": [
     {
       "name": "jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/jwt-claims",
       "file": "jwt-claims.schema.json",
       "description": "Canonical JWT claims for loa-finn ↔ arrakis protocol"
     },
     {
       "name": "s2s-jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/s2s-jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/s2s-jwt-claims",
       "file": "s2s-jwt-claims.schema.json",
       "description": "Service-to-service JWT claims"
     },
     {
       "name": "invoke-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/invoke-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/invoke-response",
       "file": "invoke-response.schema.json",
       "description": "InvokeResponse"
     },
     {
       "name": "usage-report",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/usage-report",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/usage-report",
       "file": "usage-report.schema.json",
       "description": "UsageReport"
     },
     {
       "name": "stream-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/stream-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/stream-event",
       "file": "stream-event.schema.json",
       "description": "StreamEvent"
     },
     {
       "name": "routing-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/routing-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/routing-policy",
       "file": "routing-policy.schema.json",
       "description": "RoutingPolicy"
     },
     {
       "name": "agent-descriptor",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/agent-descriptor",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/agent-descriptor",
       "file": "agent-descriptor.schema.json",
       "description": "Canonical agent representation for content negotiation"
     },
     {
       "name": "agent-lifecycle-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/agent-lifecycle-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/agent-lifecycle-state",
       "file": "agent-lifecycle-state.schema.json",
       "description": "Agent lifecycle state"
     },
     {
       "name": "billing-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/billing-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/billing-entry",
       "file": "billing-entry.schema.json",
       "description": "Multi-party billing entry replacing CostBreakdown"
     },
     {
       "name": "credit-note",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/credit-note",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/credit-note",
       "file": "credit-note.schema.json",
       "description": "Billing reversal/refund referencing an original BillingEntry"
     },
     {
       "name": "conversation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/conversation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/conversation",
       "file": "conversation.schema.json",
       "description": "Conversation"
     },
     {
       "name": "message",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/message",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/message",
       "file": "message.schema.json",
       "description": "Message"
     },
     {
       "name": "transfer-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/transfer-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/transfer-spec",
       "file": "transfer-spec.schema.json",
       "description": "TransferSpec"
     },
     {
       "name": "transfer-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/transfer-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/transfer-event",
       "file": "transfer-event.schema.json",
       "description": "TransferEventRecord"
     },
     {
       "name": "domain-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event",
       "file": "domain-event.schema.json",
       "description": "DomainEvent"
     },
     {
       "name": "domain-event-batch",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/domain-event-batch",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event-batch",
       "file": "domain-event-batch.schema.json",
       "description": "DomainEventBatch"
     },
     {
       "name": "lifecycle-transition-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/lifecycle-transition-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/lifecycle-transition-payload",
       "file": "lifecycle-transition-payload.schema.json",
       "description": "LifecycleTransitionPayload"
     },
     {
       "name": "capability",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/capability",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability",
       "file": "capability.schema.json",
       "description": "A single capability an agent can provide"
     },
     {
       "name": "capability-query",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/capability-query",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability-query",
       "file": "capability-query.schema.json",
       "description": "Query to discover agents with specific capabilities"
     },
     {
       "name": "capability-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/capability-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability-response",
       "file": "capability-response.schema.json",
       "description": "Response to a capability query"
     },
     {
       "name": "protocol-discovery",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/protocol-discovery",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/protocol-discovery",
       "file": "protocol-discovery.schema.json",
       "description": "Protocol discovery document for /.well-known/loa-hounfour"
     },
     {
       "name": "saga-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.2.0/saga-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/saga-context",
       "file": "saga-context.schema.json",
       "description": "Saga execution context for multi-step distributed operations"
     }

@@ -1,3 +1,137 @@
+# Migration & Schema Evolution Guide
+
+> Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## Schema Evolution Strategy
+
+### Version Support Policy
+
+| Property | Value |
+|----------|-------|
+| **Current Version** | 2.3.0 |
+| **Minimum Supported** | 2.0.0 |
+| **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
+| **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
+| **Minor Mismatch** | `X-Contract-Version-Warning` header |
+
+### Consumer Upgrade Matrix
+
+| Consumer | Producer 2.0.0 | Producer 2.1.0 | Producer 2.2.0 | Producer 2.3.0 |
+|----------|----------------|----------------|----------------|----------------|
+| **2.0.0** | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* |
+| **2.1.0** | Full | Full | Fwd-compat* | Fwd-compat* |
+| **2.2.0** | Full | Full | Full | Fwd-compat* |
+| **2.3.0** | Full | Full | Full | Full |
+
+\* Requires validate-then-strip for strict schemas. See below.
+
+### Schema `additionalProperties` Policy
+
+Every schema has an explicit policy for unknown properties. Strict schemas reject unknown fields — a v2.2.0 consumer with strict validation will reject v2.3.0 documents containing new fields.
+
+#### Strict Schemas (`additionalProperties: false`)
+
+| Schema `$id` | Rationale |
+|--------------|-----------|
+| `AgentDescriptor` | Security boundary — agent identity must not contain unvetted fields |
+| `BillingEntry` | Financial data — strict validation prevents billing injection |
+| `BillingRecipient` | Financial sub-document |
+| `CreditNote` | Financial reversal |
+| `Conversation` | Ownership data transferred with NFT |
+| `ConversationSealingPolicy` | Encryption configuration |
+| `Message` | Content record |
+| `TransferSpec` | Ownership transfer initiation |
+| `TransferEventRecord` | Transfer outcome record |
+| `DomainEvent` | Event envelope — strict to prevent payload confusion |
+| `DomainEventBatch` | Batch envelope |
+| `SagaContext` | Saga tracking |
+| `LifecycleTransitionPayload` | Lifecycle event data |
+| `Capability` | Agent capability descriptor |
+| `CapabilityResponse` | Response to capability query |
+| `ProtocolDiscovery` | Discovery document |
+
+#### Extensible Schemas (`additionalProperties: true`)
+
+| Schema `$id` | Rationale |
+|--------------|-----------|
+| `CapabilityQuery` | Query extensibility — future parameters without schema changes |
+
+#### Union Types (no object properties)
+
+`AgentLifecycleState`, `CostType`, `TransferScenario`, `TransferResult`, `MessageRole`, `ConversationStatus` — string literal unions with no `additionalProperties` concern.
+
+### Forward Compatibility: `DomainEventBatch.saga`
+
+The `saga` field was added to `DomainEventBatch` in v2.2.0. Since `DomainEventBatch` uses `additionalProperties: false`:
+
+- **Go** with `DisallowUnknownFields`: **Rejects** the batch
+- **Python** Pydantic with `extra="forbid"`: **Rejects** the batch
+- **TypeScript** TypeBox `TypeCompiler`: **Rejects** — enforces `additionalProperties: false`
+- **Loose consumer** without strict validation: **Accepts**
+
+### Forward Compatibility: `ProtocolDiscovery.capabilities_url`
+
+Added in v2.3.0. Same impact as above — v2.2.0 strict consumers reject v2.3.0 discovery documents.
+
+### Consumer Patterns for Forward Compatibility
+
+#### Pattern: Validate Then Strip Unknown Fields
+
+```go
+// Go: validate known fields, strip unknown
+func validateAndStrip(data []byte, version string) (map[string]interface{}, error) {
+    var raw map[string]interface{}
+    json.Unmarshal(data, &raw)
+    knownFields := getKnownFields(version)
+    stripped := make(map[string]interface{})
+    for k, v := range raw {
+        if contains(knownFields, k) {
+            stripped[k] = v
+        }
+    }
+    return stripped, validate(stripped)
+}
+```
+
+```python
+# Python: Pydantic v2 with extra="ignore"
+class DomainEventBatch(BaseModel):
+    model_config = ConfigDict(extra="ignore")  # Strip unknown fields
+    batch_id: str
+    correlation_id: str
+    events: list[DomainEvent]
+```
+
+```typescript
+// TypeScript: Value.Clean strips unknown properties before validation
+import { Value } from '@sinclair/typebox/value';
+
+function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T> {
+  const cleaned = Value.Clean(schema, structuredClone(data));
+  const result = validate(schema, cleaned);
+  if (!result.valid) throw new Error(result.errors.join(', '));
+  return cleaned as Static<T>;
+}
+```
+
+### `MIN_SUPPORTED_VERSION` and Wire Compatibility
+
+- **Forward**: v2.0.0 consumer CAN validate v2.3.0 data IF it strips unknown fields
+- **Backward**: v2.3.0 consumer CAN always validate v2.0.0 data (no fields removed)
+- **Breaking**: v3.0.0 with required field additions will bump `MIN_SUPPORTED_VERSION`
+
+### Migration Checklist for New Versions
+
+1. **New optional fields on strict schemas**: Document here and in SCHEMA-CHANGELOG
+2. **New schemas**: No compatibility impact
+3. **New vocabulary entries**: No impact — `isKnownEventType()` returns false for unknown types by design
+4. **Deprecation**: Mark `deprecated: true` in TypeBox; remove only at major version boundary
+5. **Required field addition**: MAJOR version bump required
+
+---
+
 # Migration Guide: v1.1.0 → v2.0.0
 
 ## Breaking Changes

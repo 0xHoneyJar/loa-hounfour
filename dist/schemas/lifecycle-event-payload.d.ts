@@ -16,7 +16,7 @@ export declare const LifecycleTransitionPayloadSchema: import("@sinclair/typebox
     previous_state: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"DORMANT">, import("@sinclair/typebox").TLiteral<"PROVISIONING">, import("@sinclair/typebox").TLiteral<"ACTIVE">, import("@sinclair/typebox").TLiteral<"SUSPENDED">, import("@sinclair/typebox").TLiteral<"TRANSFERRED">, import("@sinclair/typebox").TLiteral<"ARCHIVED">]>;
     new_state: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"DORMANT">, import("@sinclair/typebox").TLiteral<"PROVISIONING">, import("@sinclair/typebox").TLiteral<"ACTIVE">, import("@sinclair/typebox").TLiteral<"SUSPENDED">, import("@sinclair/typebox").TLiteral<"TRANSFERRED">, import("@sinclair/typebox").TLiteral<"ARCHIVED">]>;
     reason: import("@sinclair/typebox").TString;
-    reason_code: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"owner_requested" | "budget_exhausted" | "inactivity_timeout" | "transfer_initiated" | "transfer_completed" | "admin_action" | "provisioning_complete" | "provisioning_failed" | "policy_violation" | "system_maintenance">[]>>;
+    reason_code: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"transfer_completed" | "owner_requested" | "budget_exhausted" | "inactivity_timeout" | "transfer_initiated" | "admin_action" | "provisioning_complete" | "provisioning_failed" | "policy_violation" | "system_maintenance">[]>>;
     triggered_by: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     transfer_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
 }>;

@@ -1,0 +1,344 @@
+{
+  "description": "Transfer saga choreography test vectors — expected event sequences per TransferScenario",
+  "valid_choreographies": [
+    {
+      "id": "choreo-001",
+      "scenario": "sale",
+      "direction": "forward",
+      "events": [
+        {
+          "event_id": "evt-sale-001",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.initiated",
+          "version": 1,
+          "aggregate_id": "transfer-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:00:00Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-sale-001", "scenario": "sale" }
+        },
+        {
+          "event_id": "evt-sale-002",
+          "aggregate_type": "conversation",
+          "type": "conversation.thread.sealed",
+          "version": 1,
+          "aggregate_id": "conv-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:00:01Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "conversation_id": "conv-001", "sealed_by": "tx-sale-001" }
+        },
+        {
+          "event_id": "evt-sale-003",
+          "aggregate_type": "agent",
+          "type": "agent.lifecycle.transitioned",
+          "version": 1,
+          "aggregate_id": "agent-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:00:02Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "previous_state": "ACTIVE", "new_state": "TRANSFERRED" }
+        },
+        {
+          "event_id": "evt-sale-004",
+          "aggregate_type": "billing",
+          "type": "billing.entry.created",
+          "version": 1,
+          "aggregate_id": "bill-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:00:03Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "billing_entry_id": "bill-001" }
+        },
+        {
+          "event_id": "evt-sale-005",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.completed",
+          "version": 1,
+          "aggregate_id": "transfer-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:00:04Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-sale-001", "result": "completed" }
+        }
+      ],
+      "saga": {
+        "saga_id": "saga-sale-001",
+        "step": 5,
+        "total_steps": 5,
+        "direction": "forward"
+      },
+      "note": "Sale: full forward path with billing"
+    },
+    {
+      "id": "choreo-002",
+      "scenario": "gift",
+      "direction": "forward",
+      "events": [
+        {
+          "event_id": "evt-gift-001",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.initiated",
+          "version": 1,
+          "aggregate_id": "transfer-002",
+          "correlation_id": "corr-gift-001",
+          "occurred_at": "2026-02-14T11:00:00Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-gift-001", "scenario": "gift" }
+        },
+        {
+          "event_id": "evt-gift-002",
+          "aggregate_type": "conversation",
+          "type": "conversation.thread.sealed",
+          "version": 1,
+          "aggregate_id": "conv-002",
+          "correlation_id": "corr-gift-001",
+          "occurred_at": "2026-02-14T11:00:01Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "conversation_id": "conv-002" }
+        },
+        {
+          "event_id": "evt-gift-003",
+          "aggregate_type": "agent",
+          "type": "agent.lifecycle.transitioned",
+          "version": 1,
+          "aggregate_id": "agent-002",
+          "correlation_id": "corr-gift-001",
+          "occurred_at": "2026-02-14T11:00:02Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "previous_state": "ACTIVE", "new_state": "TRANSFERRED" }
+        },
+        {
+          "event_id": "evt-gift-004",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.completed",
+          "version": 1,
+          "aggregate_id": "transfer-002",
+          "correlation_id": "corr-gift-001",
+          "occurred_at": "2026-02-14T11:00:03Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-gift-001", "result": "completed" }
+        }
+      ],
+      "saga": {
+        "saga_id": "saga-gift-001",
+        "step": 4,
+        "total_steps": 4,
+        "direction": "forward"
+      },
+      "note": "Gift: forward path without billing"
+    },
+    {
+      "id": "choreo-003",
+      "scenario": "admin_recovery",
+      "direction": "forward",
+      "events": [
+        {
+          "event_id": "evt-admin-001",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.initiated",
+          "version": 1,
+          "aggregate_id": "transfer-003",
+          "correlation_id": "corr-admin-001",
+          "occurred_at": "2026-02-14T12:00:00Z",
+          "actor": "admin",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-admin-001", "scenario": "admin_recovery" }
+        },
+        {
+          "event_id": "evt-admin-002",
+          "aggregate_type": "agent",
+          "type": "agent.lifecycle.transitioned",
+          "version": 1,
+          "aggregate_id": "agent-003",
+          "correlation_id": "corr-admin-001",
+          "occurred_at": "2026-02-14T12:00:01Z",
+          "actor": "admin",
+          "contract_version": "2.3.0",
+          "payload": { "previous_state": "ACTIVE", "new_state": "TRANSFERRED" }
+        },
+        {
+          "event_id": "evt-admin-003",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.completed",
+          "version": 1,
+          "aggregate_id": "transfer-003",
+          "correlation_id": "corr-admin-001",
+          "occurred_at": "2026-02-14T12:00:02Z",
+          "actor": "admin",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-admin-001", "result": "completed" }
+        }
+      ],
+      "saga": {
+        "saga_id": "saga-admin-001",
+        "step": 3,
+        "total_steps": 3,
+        "direction": "forward"
+      },
+      "note": "Admin recovery: no sealing, no billing (admin override)"
+    },
+    {
+      "id": "choreo-004",
+      "scenario": "custody_change",
+      "direction": "forward",
+      "events": [
+        {
+          "event_id": "evt-custody-001",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.initiated",
+          "version": 1,
+          "aggregate_id": "transfer-004",
+          "correlation_id": "corr-custody-001",
+          "occurred_at": "2026-02-14T13:00:00Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-custody-001", "scenario": "custody_change" }
+        },
+        {
+          "event_id": "evt-custody-002",
+          "aggregate_type": "conversation",
+          "type": "conversation.thread.sealed",
+          "version": 1,
+          "aggregate_id": "conv-003",
+          "correlation_id": "corr-custody-001",
+          "occurred_at": "2026-02-14T13:00:01Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "conversation_id": "conv-003" }
+        },
+        {
+          "event_id": "evt-custody-003",
+          "aggregate_type": "agent",
+          "type": "agent.lifecycle.transitioned",
+          "version": 1,
+          "aggregate_id": "agent-004",
+          "correlation_id": "corr-custody-001",
+          "occurred_at": "2026-02-14T13:00:02Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "previous_state": "ACTIVE", "new_state": "TRANSFERRED" }
+        },
+        {
+          "event_id": "evt-custody-004",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.completed",
+          "version": 1,
+          "aggregate_id": "transfer-004",
+          "correlation_id": "corr-custody-001",
+          "occurred_at": "2026-02-14T13:00:03Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-custody-001", "result": "completed" }
+        }
+      ],
+      "saga": {
+        "saga_id": "saga-custody-001",
+        "step": 4,
+        "total_steps": 4,
+        "direction": "forward"
+      },
+      "note": "Custody change: seals conversations, no billing"
+    },
+    {
+      "id": "choreo-005",
+      "scenario": "sale",
+      "direction": "compensation",
+      "events": [
+        {
+          "event_id": "evt-comp-001",
+          "aggregate_type": "billing",
+          "type": "billing.entry.voided",
+          "version": 1,
+          "aggregate_id": "bill-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:01:00Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "billing_entry_id": "bill-001", "reason": "transfer_failed" }
+        },
+        {
+          "event_id": "evt-comp-002",
+          "aggregate_type": "agent",
+          "type": "agent.lifecycle.transitioned",
+          "version": 1,
+          "aggregate_id": "agent-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:01:01Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "previous_state": "TRANSFERRED", "new_state": "ACTIVE" }
+        },
+        {
+          "event_id": "evt-comp-003",
+          "aggregate_type": "transfer",
+          "type": "transfer.saga.rolled_back",
+          "version": 1,
+          "aggregate_id": "transfer-001",
+          "correlation_id": "corr-sale-001",
+          "occurred_at": "2026-02-14T10:01:02Z",
+          "actor": "loa-finn",
+          "contract_version": "2.3.0",
+          "payload": { "transfer_id": "tx-sale-001", "result": "rolled_back" }
+        }
+      ],
+      "saga": {
+        "saga_id": "saga-sale-001",
+        "step": 3,
+        "total_steps": 3,
+        "direction": "compensation"
+      },
+      "note": "Sale compensation: void billing, rollback lifecycle, mark rolled back"
+    }
+  ],
+  "invalid_choreographies": [
+    {
+      "id": "choreo-inv-001",
+      "scenario": "sale",
+      "direction": "forward",
+      "event_types": [
+        "transfer.saga.initiated",
+        "billing.entry.created",
+        "conversation.thread.sealed",
+        "agent.lifecycle.transitioned",
+        "transfer.saga.completed"
+      ],
+      "note": "Out-of-order: billing before sealing"
+    },
+    {
+      "id": "choreo-inv-002",
+      "scenario": "sale",
+      "direction": "forward",
+      "event_types": [
+        "transfer.saga.initiated",
+        "conversation.thread.sealed",
+        "billing.entry.created",
+        "transfer.saga.completed"
+      ],
+      "note": "Missing required event: agent.lifecycle.transitioned"
+    },
+    {
+      "id": "choreo-inv-003",
+      "scenario": "sale",
+      "direction": "forward",
+      "event_types": [
+        "transfer.saga.initiated",
+        "conversation.thread.sealed",
+        "agent.lifecycle.transitioned",
+        "agent.lifecycle.transitioned",
+        "billing.entry.created",
+        "transfer.saga.completed"
+      ],
+      "note": "Duplicate event: agent.lifecycle.transitioned appears twice"
+    }
+  ]
+}

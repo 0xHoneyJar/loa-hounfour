@@ -77,11 +77,14 @@ export {
 // Utilities — Lifecycle (v2.0.0)
 export {
   createTransitionValidator,
+  DEFAULT_GUARDS,
   type TransitionValidator,
+  type TransitionGuard,
 } from './utilities/lifecycle.js';
 
 // Utilities — Billing (v2.0.0)
 export {
+  validateBillingEntry,
   validateBillingRecipients,
   allocateRecipients,
 } from './utilities/billing.js';
@@ -213,6 +216,13 @@ export {
 
 // Vocabulary — Currency (v2.0.0)
 export { MicroUSD } from './vocabulary/currency.js';
+
+// Vocabulary — Transfer Choreography (v2.3.0, BB-POST-002)
+export {
+  TRANSFER_CHOREOGRAPHY,
+  type TransferChoreography,
+  type ScenarioChoreography,
+} from './vocabulary/transfer-choreography.js';
 
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';

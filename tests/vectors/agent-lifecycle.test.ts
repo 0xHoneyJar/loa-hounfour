@@ -7,7 +7,7 @@ import {
   AGENT_LIFECYCLE_TRANSITIONS,
   type AgentLifecycleState,
 } from '../../src/schemas/agent-lifecycle.js';
-import { createTransitionValidator } from '../../src/utilities/lifecycle.js';
+import { createTransitionValidator, DEFAULT_GUARDS } from '../../src/utilities/lifecycle.js';
 
 const VECTORS_DIR = join(__dirname, '../../vectors/agent');
 function loadVectors(filename: string) {
@@ -66,5 +66,62 @@ describe('createTransitionValidator', () => {
 
   it('getValidTargets returns empty for terminal state', () => {
     expect(validator.getValidTargets('ARCHIVED')).toHaveLength(0);
+  });
+});
+
+describe('Lifecycle Guard Predicates (BB-POST-004)', () => {
+  const guarded = createTransitionValidator(AGENT_LIFECYCLE_TRANSITIONS, DEFAULT_GUARDS);
+
+  it('ACTIVE → TRANSFERRED requires transfer_id context', () => {
+    expect(guarded.isValid('ACTIVE', 'TRANSFERRED', { transfer_id: 'tx-123' })).toBe(true);
+  });
+
+  it('ACTIVE → TRANSFERRED rejected without transfer_id', () => {
+    expect(guarded.isValid('ACTIVE', 'TRANSFERRED')).toBe(false);
+    expect(guarded.isValid('ACTIVE', 'TRANSFERRED', {})).toBe(false);
+  });
+
+  it('ACTIVE → ARCHIVED rejected when transfer in progress', () => {
+    expect(guarded.isValid('ACTIVE', 'ARCHIVED', { transfer_id: 'tx-active' })).toBe(false);
+  });
+
+  it('ACTIVE → ARCHIVED allowed without active transfer', () => {
+    expect(guarded.isValid('ACTIVE', 'ARCHIVED')).toBe(true);
+    expect(guarded.isValid('ACTIVE', 'ARCHIVED', {})).toBe(true);
+  });
+
+  it('SUSPENDED → ACTIVE requires reason_resolved', () => {
+    expect(guarded.isValid('SUSPENDED', 'ACTIVE', { reason_resolved: true })).toBe(true);
+    expect(guarded.isValid('SUSPENDED', 'ACTIVE')).toBe(false);
+    expect(guarded.isValid('SUSPENDED', 'ACTIVE', { reason_resolved: false })).toBe(false);
+  });
+
+  it('TRANSFERRED → PROVISIONING requires transfer_completed and new_owner', () => {
+    expect(guarded.isValid('TRANSFERRED', 'PROVISIONING', {
+      transfer_completed: true,
+      new_owner: '0xNewOwner',
+    })).toBe(true);
+    expect(guarded.isValid('TRANSFERRED', 'PROVISIONING')).toBe(false);
+    expect(guarded.isValid('TRANSFERRED', 'PROVISIONING', {
+      transfer_completed: true,
+    })).toBe(false);
+  });
+
+  it('unguarded transitions still work (no guard defined)', () => {
+    // DORMANT → PROVISIONING has no guard — should be permissive
+    expect(guarded.isValid('DORMANT', 'PROVISIONING')).toBe(true);
+  });
+
+  it('structurally invalid transitions are still rejected with guards', () => {
+    expect(guarded.isValid('DORMANT', 'ACTIVE')).toBe(false);
+    expect(guarded.isValid('ARCHIVED', 'ACTIVE')).toBe(false);
+  });
+
+  it('custom guard overrides default behavior', () => {
+    const customGuards = {
+      'DORMANT\u2192PROVISIONING': () => false, // always reject
+    };
+    const customValidator = createTransitionValidator(AGENT_LIFECYCLE_TRANSITIONS, customGuards);
+    expect(customValidator.isValid('DORMANT', 'PROVISIONING')).toBe(false);
   });
 });

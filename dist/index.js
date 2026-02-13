@@ -21,9 +21,9 @@ export { AgentLifecycleStateSchema, AGENT_LIFECYCLE_STATES, AGENT_LIFECYCLE_TRAN
 // Utilities — NFT Identity (v2.0.0)
 export { NftIdSchema, NFT_ID_PATTERN, parseNftId, formatNftId, isValidNftId, checksumAddress, } from './utilities/nft-id.js';
 // Utilities — Lifecycle (v2.0.0)
-export { createTransitionValidator, } from './utilities/lifecycle.js';
+export { createTransitionValidator, DEFAULT_GUARDS, } from './utilities/lifecycle.js';
 // Utilities — Billing (v2.0.0)
-export { validateBillingRecipients, allocateRecipients, } from './utilities/billing.js';
+export { validateBillingEntry, validateBillingRecipients, allocateRecipients, } from './utilities/billing.js';
 // Schemas — Conversation & Message (v2.0.0)
 export { ConversationSchema, ConversationStatusSchema, ConversationSealingPolicySchema, MessageSchema, MessageRoleSchema, validateSealingPolicy, } from './schemas/conversation.js';
 // Schemas — Transfer (v2.0.0)
@@ -48,6 +48,8 @@ export { RoutingPolicySchema, PersonalityRoutingSchema, TaskTypeSchema, } from '
 export { POOL_IDS, PoolIdSchema, TIER_POOL_ACCESS, TIER_DEFAULT_POOL, PoolCapabilitiesSchema, isValidPoolId, tierHasAccess, } from './vocabulary/pools.js';
 // Vocabulary — Currency (v2.0.0)
 export { MicroUSD } from './vocabulary/currency.js';
+// Vocabulary — Transfer Choreography (v2.3.0, BB-POST-002)
+export { TRANSFER_CHOREOGRAPHY, } from './vocabulary/transfer-choreography.js';
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS } from './vocabulary/errors.js';
 // Schemas — Capability Negotiation (v2.2.0, BB-V3-005)

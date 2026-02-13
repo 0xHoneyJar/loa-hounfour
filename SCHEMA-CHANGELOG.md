@@ -6,7 +6,29 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
-## v2.2.0 (Unreleased)
+## v2.3.0 (Unreleased)
+
+**Theme:** Protocol Resilience & Completeness — schema evolution strategy, saga choreography, capability-discovery composition, lifecycle guards.
+
+### ProtocolDiscovery
+- **Added:** `capabilities_url` optional field — URI pointer to capability negotiation endpoint, connecting discovery to capability queries (BB-POST-003)
+
+### Vocabulary Additions
+- `TRANSFER_CHOREOGRAPHY` — expected event sequences per `TransferScenario` with forward and compensation paths (BB-POST-002)
+
+### Utility Additions
+- `validateBillingEntry()` — cross-field validation: `total_cost_micro === raw_cost_micro * multiplier_bps / 10000` plus recipient invariants (BB-POST-001)
+- `DEFAULT_GUARDS` — lifecycle transition guard predicates for `createTransitionValidator()` (BB-POST-004)
+- `TransitionGuard` type — guard predicate signature for state machine transitions (BB-POST-004)
+- `createTransitionValidator()` — now accepts optional `guards` parameter (BB-POST-004)
+
+### Documentation
+- Schema evolution migration strategy document (`MIGRATION.md`) with consumer upgrade matrix and `additionalProperties` policy catalog (BB-POST-001)
+- Lifecycle guard condition TSDoc on `AGENT_LIFECYCLE_TRANSITIONS` with Kubernetes pod lifecycle parallels (BB-POST-004)
+
+---
+
+## v2.2.0
 
 **Theme:** Post-Flatline Deep Excellence — trust boundaries, vocabulary, structured events, capability negotiation, and schema discovery.
 

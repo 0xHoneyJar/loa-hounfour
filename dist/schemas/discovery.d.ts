@@ -17,6 +17,7 @@ export declare const ProtocolDiscoverySchema: import("@sinclair/typebox").TObjec
     min_supported_version: import("@sinclair/typebox").TString;
     schemas: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
     supported_aggregates: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
+    capabilities_url: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
 }>;
 export type ProtocolDiscovery = Static<typeof ProtocolDiscoverySchema>;
 /**
@@ -24,7 +25,9 @@ export type ProtocolDiscovery = Static<typeof ProtocolDiscoverySchema>;
  *
  * @param schemaIds - List of supported schema $id URLs (must be valid URIs)
  * @param aggregateTypes - Optional list of supported aggregate types
+ * @param capabilitiesUrl - Optional URL for capability negotiation endpoint (v2.3.0)
  * @throws {Error} If any schemaId is not a valid URI (must start with https://)
+ * @throws {Error} If capabilitiesUrl is not a valid https:// URI
  */
-export declare function buildDiscoveryDocument(schemaIds: string[], aggregateTypes?: string[]): ProtocolDiscovery;
+export declare function buildDiscoveryDocument(schemaIds: string[], aggregateTypes?: string[], capabilitiesUrl?: string): ProtocolDiscovery;
 //# sourceMappingURL=discovery.d.ts.map

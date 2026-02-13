@@ -14,8 +14,8 @@ export { BillingEntrySchema, BillingRecipientSchema, CostTypeSchema, CreditNoteS
 export { AgentDescriptorSchema, type AgentDescriptor, } from './schemas/agent-descriptor.js';
 export { AgentLifecycleStateSchema, AGENT_LIFECYCLE_STATES, AGENT_LIFECYCLE_TRANSITIONS, isValidTransition, type AgentLifecycleState, } from './schemas/agent-lifecycle.js';
 export { NftIdSchema, NFT_ID_PATTERN, parseNftId, formatNftId, isValidNftId, checksumAddress, type NftId, type ParsedNftId, } from './utilities/nft-id.js';
-export { createTransitionValidator, type TransitionValidator, } from './utilities/lifecycle.js';
-export { validateBillingRecipients, allocateRecipients, } from './utilities/billing.js';
+export { createTransitionValidator, DEFAULT_GUARDS, type TransitionValidator, type TransitionGuard, } from './utilities/lifecycle.js';
+export { validateBillingEntry, validateBillingRecipients, allocateRecipients, } from './utilities/billing.js';
 export { ConversationSchema, ConversationStatusSchema, ConversationSealingPolicySchema, MessageSchema, MessageRoleSchema, validateSealingPolicy, type Conversation, type ConversationStatus, type ConversationSealingPolicy, type Message, type MessageRole, } from './schemas/conversation.js';
 export { TransferSpecSchema, TransferEventSchema, TransferScenarioSchema, TransferResultSchema, type TransferSpec, type TransferEventRecord, type TransferScenario, type TransferResult, } from './schemas/transfer-spec.js';
 export { DomainEventSchema, DomainEventBatchSchema, type DomainEvent, type DomainEventBatch, type AgentEvent, type BillingEvent, type ConversationEvent, type TransferEvent, type ToolEvent, type MessageEvent, AgentEventPayloadSchema, BillingEventPayloadSchema, ConversationEventPayloadSchema, TransferEventPayloadSchema, ToolEventPayloadSchema, MessageEventPayloadSchema, isAgentEvent, isBillingEvent, isConversationEvent, isTransferEvent, isToolEvent, isMessageEvent, } from './schemas/domain-event.js';
@@ -27,6 +27,7 @@ export { StreamEventSchema, StreamStartSchema, StreamChunkSchema, StreamToolCall
 export { RoutingPolicySchema, PersonalityRoutingSchema, TaskTypeSchema, type RoutingPolicy, type PersonalityRouting, type TaskType, } from './schemas/routing-policy.js';
 export { POOL_IDS, PoolIdSchema, TIER_POOL_ACCESS, TIER_DEFAULT_POOL, PoolCapabilitiesSchema, isValidPoolId, tierHasAccess, type PoolId, type PoolCapabilities, } from './vocabulary/pools.js';
 export { MicroUSD } from './vocabulary/currency.js';
+export { TRANSFER_CHOREOGRAPHY, type TransferChoreography, type ScenarioChoreography, } from './vocabulary/transfer-choreography.js';
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 export { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema, type Capability, type CapabilityQuery, type CapabilityResponse, } from './schemas/capability.js';
 export { ProtocolDiscoverySchema, buildDiscoveryDocument, type ProtocolDiscovery, } from './schemas/discovery.js';
