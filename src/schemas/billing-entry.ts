@@ -53,6 +53,9 @@ export const BillingEntrySchema = Type.Object(
     currency: Type.Literal('USD', { description: 'ISO 4217 currency code' }),
     precision: Type.Literal(6, { description: 'Micro-USD = 6 decimal places' }),
     raw_cost_micro: MicroUSD,
+    // multiplier_bps bounded [10000, 100000]: 10000 = 1.0x (cost pass-through), 100000 = 10.0x
+    // (maximum markup). Business constraint from pricing model — no sub-cost pricing allowed
+    // (providers would lose money), no >10x markup (consumer protection / regulatory).
     multiplier_bps: Type.Integer({
       minimum: 10000,
       maximum: 100000,
@@ -85,12 +88,23 @@ export const BillingEntrySchema = Type.Object(
 
 export type BillingEntry = Static<typeof BillingEntrySchema>;
 
+/**
+ * Billing reversal/refund referencing an original BillingEntry.
+ *
+ * **Service-layer invariants** (not enforceable at schema level):
+ *
+ * 1. `amount_micro` must not exceed the referenced `BillingEntry.total_cost_micro`.
+ * 2. `references_billing_entry` must reference a valid, existing `BillingEntry.id`.
+ * 3. Multiple CreditNotes can reference the same BillingEntry (partial refunds).
+ * 4. The sum of all `CreditNote.amount_micro` for a single entry must not exceed
+ *    that entry's `total_cost_micro` (no over-refunding).
+ */
 export const CreditNoteSchema = Type.Object(
   {
     id: Type.String({ minLength: 1, description: 'ULID' }),
     references_billing_entry: Type.String({
       minLength: 1,
-      description: 'BillingEntry.id this note references',
+      description: 'BillingEntry.id this note references (must exist in billing store)',
     }),
     reason: Type.Union([
       Type.Literal('refund'),
@@ -98,7 +112,10 @@ export const CreditNoteSchema = Type.Object(
       Type.Literal('partial_failure'),
       Type.Literal('adjustment'),
     ]),
-    amount_micro: MicroUSD,
+    amount_micro: Type.String({
+      pattern: '^[0-9]+$',
+      description: 'Credit amount in micro-USD (must not exceed referenced entry total)',
+    }),
     recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
     issued_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

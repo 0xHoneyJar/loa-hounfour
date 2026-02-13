@@ -23,6 +23,11 @@ export const DomainEventSchema = Type.Object({
   event_id: Type.String({ minLength: 1, description: 'Globally unique event ID' }),
   aggregate_id: Type.String({ minLength: 1, description: 'ID of the aggregate this event belongs to' }),
   aggregate_type: AggregateTypeSchema,
+  // Event type: three-segment dotted convention {aggregate}.{noun}.{verb}
+  // Examples: agent.lifecycle.transitioned, billing.entry.created, conversation.thread.sealed
+  // Three segments chosen for routing: segment 1 selects the event bus partition,
+  // segment 2 selects the handler group, segment 3 selects the specific handler.
+  // This maps to Kafka topic.consumer-group.handler in the loa-finn event system.
   type: Type.String({
     pattern: '^[a-z]+\\.[a-z_]+\\.[a-z_]+$',
     description: 'Dotted event type: {aggregate}.{noun}.{verb}',

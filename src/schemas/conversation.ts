@@ -18,6 +18,11 @@ export type ConversationStatus = Static<typeof ConversationStatusSchema>;
  * and key_reference must be provided. The reverse is not enforced at the
  * schema level — encryption_scheme: 'none' with key_reference is valid (ignored).
  */
+// AES-256-GCM chosen over XChaCha20-Poly1305: GCM is the NIST standard with hardware
+// acceleration on modern CPUs (AES-NI), and all three downstream repos (loa-finn, arrakis,
+// mibera-freeside) already depend on Node.js crypto which provides GCM natively. XChaCha20
+// would require an additional dependency (@noble/ciphers) for marginal nonce-misuse
+// resistance benefit.
 export const ConversationSealingPolicySchema = Type.Object({
   encryption_scheme: Type.Union([
     Type.Literal('aes-256-gcm'),
