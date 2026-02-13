@@ -94,7 +94,7 @@
     },
     "raw_cost_micro": {
       "pattern": "^[0-9]+$",
-      "description": "Micro-USD amount as string",
+      "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
       "type": "string"
     },
     "multiplier_bps": {
@@ -105,7 +105,7 @@
     },
     "total_cost_micro": {
       "pattern": "^[0-9]+$",
-      "description": "Micro-USD amount as string",
+      "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
       "type": "string"
     },
     "rounding_policy": {
@@ -161,7 +161,7 @@
           },
           "amount_micro": {
             "pattern": "^[0-9]+$",
-            "description": "Micro-USD amount as string",
+            "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
             "type": "string"
           }
         }
@@ -181,6 +181,7 @@
     },
     "usage": {
       "$id": "Usage",
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "prompt_tokens",

@@ -41,7 +41,19 @@ export function allocateRecipients(
   recipients: ReadonlyArray<{ address: string; role: string; share_bps: number }>,
   totalCostMicro: string,
 ): BillingRecipient[] {
+  if (recipients.length === 0) {
+    throw new Error('recipients must not be empty');
+  }
+
+  const bpsSum = recipients.reduce((acc, r) => acc + r.share_bps, 0);
+  if (bpsSum !== 10000) {
+    throw new Error(`share_bps must sum to 10000, got ${bpsSum}`);
+  }
+
   const total = BigInt(totalCostMicro);
+  if (total < 0n) {
+    throw new Error('totalCostMicro must be non-negative');
+  }
 
   // Step 1: Compute truncated shares and track remainders
   const allocated = recipients.map((r, index) => {

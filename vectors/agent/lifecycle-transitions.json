@@ -8,7 +8,8 @@
     { "id": "lc-006", "from": "ACTIVE", "to": "ARCHIVED", "note": "archive active agent" },
     { "id": "lc-007", "from": "SUSPENDED", "to": "ACTIVE", "note": "reactivate" },
     { "id": "lc-008", "from": "SUSPENDED", "to": "ARCHIVED", "note": "archive suspended" },
-    { "id": "lc-009", "from": "TRANSFERRED", "to": "PROVISIONING", "note": "new owner provisions" }
+    { "id": "lc-009", "from": "TRANSFERRED", "to": "PROVISIONING", "note": "new owner provisions" },
+    { "id": "lc-010", "from": "TRANSFERRED", "to": "ARCHIVED", "note": "archive during transfer" }
   ],
   "invalid_transitions": [
     { "id": "lc-inv-001", "from": "DORMANT", "to": "ACTIVE", "note": "must go through provisioning" },

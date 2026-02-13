@@ -63,4 +63,22 @@ describe('Billing Allocation Golden Vectors', () => {
       expect(result.errors[0]).toContain('share_bps sum');
     });
   });
+
+  describe('input guards', () => {
+    it('throws on empty recipients', () => {
+      expect(() => allocateRecipients([], '10000')).toThrow('recipients must not be empty');
+    });
+
+    it('throws on share_bps not summing to 10000', () => {
+      expect(() => allocateRecipients([
+        { address: '0xA', role: 'provider', share_bps: 5000 },
+      ], '10000')).toThrow('share_bps must sum to 10000');
+    });
+
+    it('throws on negative totalCostMicro', () => {
+      expect(() => allocateRecipients([
+        { address: '0xA', role: 'provider', share_bps: 10000 },
+      ], '-1000')).toThrow('totalCostMicro must be non-negative');
+    });
+  });
 });

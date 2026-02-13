@@ -39,6 +39,7 @@
     "tool_calls": {
       "type": "array",
       "items": {
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
@@ -49,6 +50,7 @@
             "type": "string"
           },
           "function": {
+            "additionalProperties": false,
             "type": "object",
             "required": [
               "name",
@@ -68,6 +70,7 @@
     },
     "usage": {
       "$id": "Usage",
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "prompt_tokens",

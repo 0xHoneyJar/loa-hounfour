@@ -1,11 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { UsageSchema } from './invoke-response.js';
-
-/** String-encoded micro-USD integer. 1 USD = 1,000,000 micro-USD. */
-const MicroUSD = Type.String({
-  pattern: '^[0-9]+$',
-  description: 'Micro-USD amount as string',
-});
+import { MicroUSD } from '../vocabulary/currency.js';
 
 export const CostTypeSchema = Type.Union(
   [

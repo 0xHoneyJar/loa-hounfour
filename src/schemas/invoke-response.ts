@@ -7,19 +7,14 @@
  * @see SDD 4.3 — Budget System
  */
 import { Type, type Static } from '@sinclair/typebox';
-
-/** Pattern for string-encoded micro-USD integers. */
-const MicroUSD = Type.String({
-  pattern: '^[0-9]+$',
-  description: 'Micro-USD amount as string (1 USD = 1,000,000 micro-USD)',
-});
+import { MicroUSD } from '../vocabulary/currency.js';
 
 /** Token usage breakdown. */
 export const UsageSchema = Type.Object({
   prompt_tokens: Type.Integer({ minimum: 0 }),
   completion_tokens: Type.Integer({ minimum: 0 }),
   reasoning_tokens: Type.Optional(Type.Integer({ minimum: 0 })),
-}, { $id: 'Usage' });
+}, { $id: 'Usage', additionalProperties: false });
 
 export type Usage = Static<typeof UsageSchema>;
 
@@ -35,8 +30,8 @@ export const InvokeResponseSchema = Type.Object({
     function: Type.Object({
       name: Type.String(),
       arguments: Type.String(),
-    }),
-  }))),
+    }, { additionalProperties: false }),
+  }, { additionalProperties: false }))),
   usage: UsageSchema,
   billing_entry_id: Type.String({
     minLength: 1,

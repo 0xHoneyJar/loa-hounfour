@@ -57,6 +57,7 @@
     "tool_calls": {
       "type": "array",
       "items": {
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",

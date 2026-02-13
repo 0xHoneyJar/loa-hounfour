@@ -93,6 +93,7 @@ export {
   ConversationSealingPolicySchema,
   MessageSchema,
   MessageRoleSchema,
+  validateSealingPolicy,
   type Conversation,
   type ConversationStatus,
   type ConversationSealingPolicy,

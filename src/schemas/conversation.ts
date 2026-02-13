@@ -41,6 +41,26 @@ export const ConversationSealingPolicySchema = Type.Object({
 export type ConversationSealingPolicy = Static<typeof ConversationSealingPolicySchema>;
 
 /**
+ * Validate cross-field invariants for a sealing policy:
+ * - When encryption_scheme !== 'none', key_derivation must be non-'none'
+ *   and key_reference must be provided.
+ */
+export function validateSealingPolicy(
+  policy: ConversationSealingPolicy,
+): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  if (policy.encryption_scheme !== 'none') {
+    if (policy.key_derivation === 'none') {
+      errors.push('key_derivation must not be "none" when encryption is enabled');
+    }
+    if (!policy.key_reference) {
+      errors.push('key_reference is required when encryption is enabled');
+    }
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * Conversation belonging to an NFT agent.
  * Conversations transfer with the NFT — they belong to the agent, not the user.
  */
@@ -85,7 +105,7 @@ export const MessageSchema = Type.Object({
     id: Type.String(),
     name: Type.String(),
     arguments: Type.String(),
-  }))),
+  }, { additionalProperties: false }))),
   created_at: Type.String({ format: 'date-time' }),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {

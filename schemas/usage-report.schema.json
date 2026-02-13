@@ -34,6 +34,7 @@
     },
     "usage": {
       "$id": "Usage",
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "prompt_tokens",

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { validate } from '../../src/validators/index.js';
-import { ConversationSchema, MessageSchema } from '../../src/schemas/conversation.js';
+import { ConversationSchema, MessageSchema, validateSealingPolicy } from '../../src/schemas/conversation.js';
 
 const VECTORS_DIR = join(__dirname, '../../vectors/conversation');
 function loadVectors(filename: string) {
@@ -59,5 +59,51 @@ describe('Conversation Golden Vectors', () => {
       });
       expect(result.valid).toBe(false);
     });
+  });
+});
+
+describe('Sealing Policy Validation', () => {
+  it('accepts valid encrypted policy', () => {
+    const result = validateSealingPolicy({
+      encryption_scheme: 'aes-256-gcm',
+      key_derivation: 'hkdf-sha256',
+      key_reference: 'kref-001',
+      access_audit: true,
+      previous_owner_access: 'none',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('accepts no-encryption policy', () => {
+    const result = validateSealingPolicy({
+      encryption_scheme: 'none',
+      key_derivation: 'none',
+      access_audit: false,
+      previous_owner_access: 'read_only_24h',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects encryption without key_derivation', () => {
+    const result = validateSealingPolicy({
+      encryption_scheme: 'aes-256-gcm',
+      key_derivation: 'none',
+      key_reference: 'kref-001',
+      access_audit: true,
+      previous_owner_access: 'none',
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('key_derivation');
+  });
+
+  it('rejects encryption without key_reference', () => {
+    const result = validateSealingPolicy({
+      encryption_scheme: 'aes-256-gcm',
+      key_derivation: 'hkdf-sha256',
+      access_audit: true,
+      previous_owner_access: 'none',
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('key_reference');
   });
 });

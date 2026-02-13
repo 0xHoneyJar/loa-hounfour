@@ -46,7 +46,7 @@
     },
     "amount_micro": {
       "pattern": "^[0-9]+$",
-      "description": "Micro-USD amount as string",
+      "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
       "type": "string"
     },
     "recipients": {
@@ -96,7 +96,7 @@
           },
           "amount_micro": {
             "pattern": "^[0-9]+$",
-            "description": "Micro-USD amount as string",
+            "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
             "type": "string"
           }
         }

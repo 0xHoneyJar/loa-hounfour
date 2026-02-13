@@ -56,5 +56,9 @@ describe('NftId Golden Vectors', () => {
         expect(isValidNftId(v.input)).toBe(false);
       });
     }
+
+    it('parseNftId throws on invalid input', () => {
+      expect(() => parseNftId('not-valid')).toThrow('Invalid NftId');
+    });
   });
 });
