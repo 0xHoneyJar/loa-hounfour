@@ -92,31 +92,57 @@
           "global_id": 9,
           "label": "Protocol Safety — Trust Boundaries & Correctness",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 10,
           "label": "Schema Evolution — Vocabulary & Structured Events",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 11,
           "label": "Interoperability, Vectors & Distribution",
           "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-13T23:30:00Z",
+      "archived_at": "2026-02-14T02:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"
+    },
+    {
+      "id": "cycle-004",
+      "label": "Protocol Resilience & Completeness v2.3.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 12,
+          "label": "Protocol Resilience — Schema Evolution & Cross-Version Strategy",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 13,
+          "label": "Protocol Completeness — Saga Choreography & Discovery Composition",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
           "status": "pending"
         }
       ],
       "status": "active",
-      "created_at": "2026-02-13T23:30:00Z",
+      "created_at": "2026-02-14T02:00:00Z",
       "archived_at": null,
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"
     }
   ],
-  "active_cycle": "cycle-003",
+  "active_cycle": "cycle-004",
   "active_bugfix": null,
-  "global_sprint_counter": 11,
+  "global_sprint_counter": 13,
   "bugfix_cycles": []
 }
