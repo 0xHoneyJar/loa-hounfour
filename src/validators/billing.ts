@@ -1,0 +1,39 @@
+/**
+ * Composed billing validation pipeline (v2.4.0, BB-C4-ADV-003).
+ *
+ * Chains TypeBox schema validation with cross-field invariant checking
+ * so consumers call ONE function instead of two. This is the billing
+ * equivalent of Stripe's API validation: return all errors in one pass.
+ */
+import { validate } from './index.js';
+import { BillingEntrySchema, type BillingEntry } from '../schemas/billing-entry.js';
+import { validateBillingEntry } from '../utilities/billing.js';
+
+/**
+ * Full billing entry validation pipeline.
+ *
+ * 1. TypeBox schema validation (field presence, types, formats, patterns)
+ * 2. Cross-field invariant check (`total_cost_micro === raw * multiplier / 10000`)
+ * 3. Recipient invariants (share_bps sums to 10000, amount_micro sums to total)
+ *
+ * @param data - Unknown data to validate as a BillingEntry
+ * @returns Typed BillingEntry on success, or error array on failure
+ */
+export function validateBillingEntryFull(
+  data: unknown,
+): { valid: true; entry: BillingEntry } | { valid: false; errors: string[] } {
+  // Step 1: Schema validation
+  const schemaResult = validate(BillingEntrySchema, data);
+  if (!schemaResult.valid) {
+    return { valid: false, errors: schemaResult.errors };
+  }
+
+  // Step 2: Cross-field validation (data is now a valid BillingEntry shape)
+  const entry = data as BillingEntry;
+  const crossField = validateBillingEntry(entry);
+  if (!crossField.valid) {
+    return { valid: false, errors: [crossField.reason] };
+  }
+
+  return { valid: true, entry };
+}

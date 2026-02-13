@@ -10,7 +10,7 @@
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 2.3.0 |
+| **Current Version** | 2.4.0 |
 | **Minimum Supported** | 2.0.0 |
 | **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
 | **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
@@ -18,14 +18,17 @@
 
 ### Consumer Upgrade Matrix
 
-| Consumer | Producer 2.0.0 | Producer 2.1.0 | Producer 2.2.0 | Producer 2.3.0 |
-|----------|----------------|----------------|----------------|----------------|
-| **2.0.0** | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* |
-| **2.1.0** | Full | Full | Fwd-compat* | Fwd-compat* |
-| **2.2.0** | Full | Full | Full | Fwd-compat* |
-| **2.3.0** | Full | Full | Full | Full |
+| Consumer | Producer 2.0.0 | Producer 2.1.0 | Producer 2.2.0 | Producer 2.3.0 | Producer 2.4.0 |
+|----------|----------------|----------------|----------------|----------------|----------------|
+| **2.0.0** | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* | Fwd-compat* |
+| **2.1.0** | Full | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* |
+| **2.2.0** | Full | Full | Full | Fwd-compat* | Fwd-compat* |
+| **2.3.0** | Full | Full | Full | Full | Fwd-compat** |
+| **2.4.0** | Full | Full | Full | Full | Full |
 
 \* Requires validate-then-strip for strict schemas. See below.
+
+\*\* v2.4.0 changes `TransitionValidator.isValid()` return type from `boolean` to `GuardResult`. This is a **utility API change**, not a schema change — wire format is unaffected. Consumers using `isValid()` directly must update to check `.valid` property. Run `npm run check:all` to verify CI gate.
 
 ### Schema `additionalProperties` Policy
 

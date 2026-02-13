@@ -6,7 +6,31 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
-## v2.3.0 (Unreleased)
+## v2.4.0
+
+**Theme:** Protocol Maturity — structured guard results, centralized financial arithmetic, billing validation pipeline, CI wiring.
+
+### Utility Changes
+- `TransitionGuard<T>` return type changed from `boolean` to `GuardResult` — structured rejection with `reason` and `guard` key (BB-C4-ADV-001)
+- `TransitionValidator.isValid()` now returns `GuardResult` instead of `boolean` (BB-C4-ADV-001)
+- `isValidGuardResult()` — type narrowing convenience function for backward compatibility
+- `guardKey()` — now exported for custom guard construction
+- Named guard functions exported: `requiresTransferId`, `requiresNoActiveTransfer`, `requiresReasonResolved`, `requiresTransferCompleted` (BB-C4-ADV-005)
+
+### Vocabulary Additions
+- `addMicro()`, `subtractMicro()`, `multiplyBps()`, `compareMicro()` — centralized BigInt arithmetic for micro-USD (BB-C4-ADV-006)
+- `ZERO_MICRO` constant — zero in micro-USD
+
+### Validator Additions
+- `validateBillingEntryFull()` — composed validation pipeline: TypeBox schema → cross-field invariants → recipient sums (BB-C4-ADV-003)
+
+### CI/Build
+- `check:migration` script — runs `check-migration.ts` (BB-C4-ADV-007)
+- `check:all` script — aggregates `schema:check`, `vectors:check`, `check:migration`
+
+---
+
+## v2.3.0
 
 **Theme:** Protocol Resilience & Completeness — schema evolution strategy, saga choreography, capability-discovery composition, lifecycle guards.
 

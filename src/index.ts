@@ -74,12 +74,20 @@ export {
   type ParsedNftId,
 } from './utilities/nft-id.js';
 
-// Utilities — Lifecycle (v2.0.0)
+// Utilities — Lifecycle (v2.0.0, structured results v2.4.0)
 export {
   createTransitionValidator,
   DEFAULT_GUARDS,
+  guardKey,
+  isValidGuardResult,
+  // Named guard functions (BB-C4-ADV-005)
+  requiresTransferId,
+  requiresNoActiveTransfer,
+  requiresReasonResolved,
+  requiresTransferCompleted,
   type TransitionValidator,
   type TransitionGuard,
+  type GuardResult,
 } from './utilities/lifecycle.js';
 
 // Utilities — Billing (v2.0.0)
@@ -214,8 +222,15 @@ export {
   type PoolCapabilities,
 } from './vocabulary/pools.js';
 
-// Vocabulary — Currency (v2.0.0)
-export { MicroUSD } from './vocabulary/currency.js';
+// Vocabulary — Currency (v2.0.0, centralized arithmetic v2.4.0)
+export {
+  MicroUSD,
+  ZERO_MICRO,
+  addMicro,
+  subtractMicro,
+  multiplyBps,
+  compareMicro,
+} from './vocabulary/currency.js';
 
 // Vocabulary — Transfer Choreography (v2.3.0, BB-POST-002)
 export {
@@ -250,6 +265,7 @@ export { METADATA_NAMESPACES, type MetadataNamespace } from './vocabulary/metada
 // Validators
 export { validate, validators } from './validators/index.js';
 export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
+export { validateBillingEntryFull } from './validators/billing.js';
 
 // Integrity — Request Hash
 export {

@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "type": "module",
   "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
   "license": "MIT",
@@ -26,6 +26,8 @@
     "semver:check": "tsx scripts/semver-check.ts",
     "vectors:check": "tsx scripts/check-vectors.ts",
     "spec:generate": "tsx scripts/generate-asyncapi.ts",
+    "check:migration": "tsx scripts/check-migration.ts",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"

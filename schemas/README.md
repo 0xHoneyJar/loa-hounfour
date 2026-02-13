@@ -1,6 +1,6 @@
 # Schema Registry
 
-**Contract version:** 2.3.0
+**Contract version:** 2.4.0
 **Min supported:** 2.0.0
 **Schemas:** 22
 
@@ -8,34 +8,34 @@
 
 | Schema | $id | File |
 |--------|-----|------|
-| jwt-claims | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/jwt-claims` | [jwt-claims.schema.json](jwt-claims.schema.json) |
-| s2s-jwt-claims | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/s2s-jwt-claims` | [s2s-jwt-claims.schema.json](s2s-jwt-claims.schema.json) |
-| invoke-response | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/invoke-response` | [invoke-response.schema.json](invoke-response.schema.json) |
-| usage-report | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/usage-report` | [usage-report.schema.json](usage-report.schema.json) |
-| stream-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/stream-event` | [stream-event.schema.json](stream-event.schema.json) |
-| routing-policy | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/routing-policy` | [routing-policy.schema.json](routing-policy.schema.json) |
-| agent-descriptor | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/agent-descriptor` | [agent-descriptor.schema.json](agent-descriptor.schema.json) |
-| agent-lifecycle-state | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/agent-lifecycle-state` | [agent-lifecycle-state.schema.json](agent-lifecycle-state.schema.json) |
-| billing-entry | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/billing-entry` | [billing-entry.schema.json](billing-entry.schema.json) |
-| credit-note | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/credit-note` | [credit-note.schema.json](credit-note.schema.json) |
-| conversation | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/conversation` | [conversation.schema.json](conversation.schema.json) |
-| message | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/message` | [message.schema.json](message.schema.json) |
-| transfer-spec | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/transfer-spec` | [transfer-spec.schema.json](transfer-spec.schema.json) |
-| transfer-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/transfer-event` | [transfer-event.schema.json](transfer-event.schema.json) |
-| domain-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event` | [domain-event.schema.json](domain-event.schema.json) |
-| domain-event-batch | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/domain-event-batch` | [domain-event-batch.schema.json](domain-event-batch.schema.json) |
-| lifecycle-transition-payload | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/lifecycle-transition-payload` | [lifecycle-transition-payload.schema.json](lifecycle-transition-payload.schema.json) |
-| capability | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability` | [capability.schema.json](capability.schema.json) |
-| capability-query | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability-query` | [capability-query.schema.json](capability-query.schema.json) |
-| capability-response | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/capability-response` | [capability-response.schema.json](capability-response.schema.json) |
-| protocol-discovery | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/protocol-discovery` | [protocol-discovery.schema.json](protocol-discovery.schema.json) |
-| saga-context | `https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/saga-context` | [saga-context.schema.json](saga-context.schema.json) |
+| jwt-claims | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/jwt-claims` | [jwt-claims.schema.json](jwt-claims.schema.json) |
+| s2s-jwt-claims | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/s2s-jwt-claims` | [s2s-jwt-claims.schema.json](s2s-jwt-claims.schema.json) |
+| invoke-response | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/invoke-response` | [invoke-response.schema.json](invoke-response.schema.json) |
+| usage-report | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/usage-report` | [usage-report.schema.json](usage-report.schema.json) |
+| stream-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/stream-event` | [stream-event.schema.json](stream-event.schema.json) |
+| routing-policy | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/routing-policy` | [routing-policy.schema.json](routing-policy.schema.json) |
+| agent-descriptor | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/agent-descriptor` | [agent-descriptor.schema.json](agent-descriptor.schema.json) |
+| agent-lifecycle-state | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/agent-lifecycle-state` | [agent-lifecycle-state.schema.json](agent-lifecycle-state.schema.json) |
+| billing-entry | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/billing-entry` | [billing-entry.schema.json](billing-entry.schema.json) |
+| credit-note | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/credit-note` | [credit-note.schema.json](credit-note.schema.json) |
+| conversation | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/conversation` | [conversation.schema.json](conversation.schema.json) |
+| message | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/message` | [message.schema.json](message.schema.json) |
+| transfer-spec | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/transfer-spec` | [transfer-spec.schema.json](transfer-spec.schema.json) |
+| transfer-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/transfer-event` | [transfer-event.schema.json](transfer-event.schema.json) |
+| domain-event | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/domain-event` | [domain-event.schema.json](domain-event.schema.json) |
+| domain-event-batch | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/domain-event-batch` | [domain-event-batch.schema.json](domain-event-batch.schema.json) |
+| lifecycle-transition-payload | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/lifecycle-transition-payload` | [lifecycle-transition-payload.schema.json](lifecycle-transition-payload.schema.json) |
+| capability | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/capability` | [capability.schema.json](capability.schema.json) |
+| capability-query | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/capability-query` | [capability-query.schema.json](capability-query.schema.json) |
+| capability-response | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/capability-response` | [capability-response.schema.json](capability-response.schema.json) |
+| protocol-discovery | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/protocol-discovery` | [protocol-discovery.schema.json](protocol-discovery.schema.json) |
+| saga-context | `https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/saga-context` | [saga-context.schema.json](saga-context.schema.json) |
 
 ## Usage
 
 ```bash
 # Fetch a schema by $id
-curl https://schemas.0xhoneyjar.com/loa-hounfour/2.3.0/billing-entry
+curl https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/billing-entry
 ```
 
 ## Programmatic Access
