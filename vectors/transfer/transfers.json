@@ -13,13 +13,17 @@
           "key_derivation": "hkdf-sha256",
           "key_reference": "kref-xfer-001",
           "access_audit": true,
-          "previous_owner_access": "none"
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
         },
         "initiated_at": "2026-01-15T10:00:00Z",
         "initiated_by": "marketplace-contract",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
-      "note": "sale transfer with encryption"
+      "note": "sale transfer with encryption and access_policy type=none"
     },
     {
       "id": "xfer-002",
@@ -33,13 +37,17 @@
           "encryption_scheme": "none",
           "key_derivation": "none",
           "access_audit": false,
-          "previous_owner_access": "read_only_24h"
+          "access_policy": {
+            "type": "read_only",
+            "audit_required": false,
+            "revocable": true
+          }
         },
         "initiated_at": "2026-01-15T12:00:00Z",
         "initiated_by": "owner-wallet",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
-      "note": "gift with read-only access for previous owner"
+      "note": "gift with read_only access policy for previous owner"
     }
   ],
   "valid_events": [
@@ -57,13 +65,17 @@
           "key_derivation": "hkdf-sha256",
           "key_reference": "kref-xfer-001",
           "access_audit": true,
-          "previous_owner_access": "none"
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
         },
         "conversations_sealed": 5,
         "conversations_migrated": 3,
         "initiated_at": "2026-01-15T10:00:00Z",
         "completed_at": "2026-01-15T10:05:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "completed sale transfer"
     },
@@ -80,12 +92,16 @@
           "encryption_scheme": "none",
           "key_derivation": "none",
           "access_audit": true,
-          "previous_owner_access": "none"
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
         },
         "conversations_sealed": 0,
         "conversations_migrated": 0,
         "initiated_at": "2026-01-15T10:00:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "failed admin recovery — no completed_at"
     }

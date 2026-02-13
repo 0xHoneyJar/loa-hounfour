@@ -2,7 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { validate } from '../../src/validators/index.js';
-import { ConversationSchema, MessageSchema, validateSealingPolicy } from '../../src/schemas/conversation.js';
+import {
+  ConversationSchema,
+  MessageSchema,
+  ConversationSealingPolicySchema,
+  AccessPolicySchema,
+  validateSealingPolicy,
+  validateAccessPolicy,
+} from '../../src/schemas/conversation.js';
 
 const VECTORS_DIR = join(__dirname, '../../vectors/conversation');
 function loadVectors(filename: string) {
@@ -43,7 +50,7 @@ describe('Conversation Golden Vectors', () => {
         message_count: 0,
         created_at: '2026-01-15T10:00:00Z',
         updated_at: '2026-01-15T10:00:00Z',
-        contract_version: '2.0.0',
+        contract_version: '3.0.0',
       });
       expect(result.valid).toBe(false);
     });
@@ -55,21 +62,156 @@ describe('Conversation Golden Vectors', () => {
         role: 'admin',
         content: 'test',
         created_at: '2026-01-15T10:00:00Z',
-        contract_version: '2.0.0',
+        contract_version: '3.0.0',
+      });
+      expect(result.valid).toBe(false);
+    });
+
+    it('rejects previous_owner_access (removed in v3.0.0)', () => {
+      const result = validate(ConversationSealingPolicySchema, {
+        encryption_scheme: 'none',
+        key_derivation: 'none',
+        access_audit: false,
+        previous_owner_access: 'none',
       });
       expect(result.valid).toBe(false);
     });
   });
 });
 
-describe('Sealing Policy Validation', () => {
-  it('accepts valid encrypted policy', () => {
+describe('AccessPolicy Schema (v3.0.0)', () => {
+  it('accepts type=none', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'none',
+      audit_required: false,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('accepts type=read_only', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'read_only',
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('accepts type=time_limited with duration_hours', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'time_limited',
+      duration_hours: 24,
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('accepts type=role_based with roles', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'role_based',
+      roles: ['auditor', 'compliance'],
+      audit_required: true,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects invalid type', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'custom',
+      audit_required: false,
+      revocable: false,
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects duration_hours < 1', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'time_limited',
+      duration_hours: 0,
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects duration_hours > 8760 (1 year)', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'time_limited',
+      duration_hours: 9000,
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('validateAccessPolicy cross-field invariants', () => {
+  it('accepts time_limited with duration_hours', () => {
+    const result = validateAccessPolicy({
+      type: 'time_limited',
+      duration_hours: 24,
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects time_limited without duration_hours', () => {
+    const result = validateAccessPolicy({
+      type: 'time_limited',
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('duration_hours');
+  });
+
+  it('accepts role_based with roles', () => {
+    const result = validateAccessPolicy({
+      type: 'role_based',
+      roles: ['admin'],
+      audit_required: true,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects role_based without roles', () => {
+    const result = validateAccessPolicy({
+      type: 'role_based',
+      audit_required: true,
+      revocable: false,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('roles');
+  });
+
+  it('accepts none without optional fields', () => {
+    const result = validateAccessPolicy({
+      type: 'none',
+      audit_required: false,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+  });
+});
+
+describe('Sealing Policy Validation (v3.0.0)', () => {
+  it('accepts valid encrypted policy with access_policy', () => {
     const result = validateSealingPolicy({
       encryption_scheme: 'aes-256-gcm',
       key_derivation: 'hkdf-sha256',
       key_reference: 'kref-001',
       access_audit: true,
-      previous_owner_access: 'none',
+      access_policy: {
+        type: 'time_limited',
+        duration_hours: 24,
+        audit_required: true,
+        revocable: true,
+      },
     });
     expect(result.valid).toBe(true);
   });
@@ -79,7 +221,6 @@ describe('Sealing Policy Validation', () => {
       encryption_scheme: 'none',
       key_derivation: 'none',
       access_audit: false,
-      previous_owner_access: 'read_only_24h',
     });
     expect(result.valid).toBe(true);
   });
@@ -90,7 +231,6 @@ describe('Sealing Policy Validation', () => {
       key_derivation: 'none',
       key_reference: 'kref-001',
       access_audit: true,
-      previous_owner_access: 'none',
     });
     expect(result.valid).toBe(false);
     expect(result.errors[0]).toContain('key_derivation');
@@ -101,9 +241,24 @@ describe('Sealing Policy Validation', () => {
       encryption_scheme: 'aes-256-gcm',
       key_derivation: 'hkdf-sha256',
       access_audit: true,
-      previous_owner_access: 'none',
     });
     expect(result.valid).toBe(false);
     expect(result.errors[0]).toContain('key_reference');
+  });
+
+  it('propagates access_policy cross-field errors', () => {
+    const result = validateSealingPolicy({
+      encryption_scheme: 'none',
+      key_derivation: 'none',
+      access_audit: false,
+      access_policy: {
+        type: 'time_limited',
+        audit_required: true,
+        revocable: true,
+        // Missing duration_hours
+      },
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('duration_hours');
   });
 });

@@ -20,7 +20,13 @@ export declare const TransferSpecSchema: import("@sinclair/typebox").TObject<{
         key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
         key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         access_audit: import("@sinclair/typebox").TBoolean;
-        previous_owner_access: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only_24h">]>;
+        access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">]>;
+            duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+            roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
+            audit_required: import("@sinclair/typebox").TBoolean;
+            revocable: import("@sinclair/typebox").TBoolean;
+        }>>;
     }>;
     initiated_at: import("@sinclair/typebox").TString;
     initiated_by: import("@sinclair/typebox").TString;
@@ -45,7 +51,13 @@ export declare const TransferEventSchema: import("@sinclair/typebox").TObject<{
         key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
         key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         access_audit: import("@sinclair/typebox").TBoolean;
-        previous_owner_access: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only_24h">]>;
+        access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">]>;
+            duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+            roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
+            audit_required: import("@sinclair/typebox").TBoolean;
+            revocable: import("@sinclair/typebox").TBoolean;
+        }>>;
     }>;
     conversations_sealed: import("@sinclair/typebox").TInteger;
     conversations_migrated: import("@sinclair/typebox").TInteger;

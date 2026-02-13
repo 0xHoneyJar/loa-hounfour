@@ -10,25 +10,23 @@
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 2.4.0 |
-| **Minimum Supported** | 2.0.0 |
+| **Current Version** | 3.0.0 |
+| **Minimum Supported** | 2.4.0 |
 | **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
 | **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
 | **Minor Mismatch** | `X-Contract-Version-Warning` header |
 
 ### Consumer Upgrade Matrix
 
-| Consumer | Producer 2.0.0 | Producer 2.1.0 | Producer 2.2.0 | Producer 2.3.0 | Producer 2.4.0 |
-|----------|----------------|----------------|----------------|----------------|----------------|
-| **2.0.0** | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* | Fwd-compat* |
-| **2.1.0** | Full | Full | Fwd-compat* | Fwd-compat* | Fwd-compat* |
-| **2.2.0** | Full | Full | Full | Fwd-compat* | Fwd-compat* |
-| **2.3.0** | Full | Full | Full | Full | Fwd-compat** |
-| **2.4.0** | Full | Full | Full | Full | Full |
+| Consumer | Producer 2.4.0 | Producer 3.0.0 |
+|----------|----------------|----------------|
+| **2.0.0–2.3.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) |
+| **2.4.0** | Full | Fwd-compat** |
+| **3.0.0** | Full | Full |
 
 \* Requires validate-then-strip for strict schemas. See below.
 
-\*\* v2.4.0 changes `TransitionValidator.isValid()` return type from `boolean` to `GuardResult`. This is a **utility API change**, not a schema change — wire format is unaffected. Consumers using `isValid()` directly must update to check `.valid` property. Run `npm run check:all` to verify CI gate.
+\*\* v3.0.0 removes `previous_owner_access` from `ConversationSealingPolicy` and adds optional `access_policy`. A v2.4.0 consumer with strict validation will reject v3.0.0 sealing policies containing `access_policy` (unknown field). Use validate-then-strip pattern. Consumers using `previous_owner_access` must migrate to `access_policy`.
 
 ### Schema `additionalProperties` Policy
 
@@ -123,7 +121,7 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 
 - **Forward**: v2.0.0 consumer CAN validate v2.3.0 data IF it strips unknown fields
 - **Backward**: v2.3.0 consumer CAN always validate v2.0.0 data (no fields removed)
-- **Breaking**: v3.0.0 with required field additions will bump `MIN_SUPPORTED_VERSION`
+- **Breaking**: v3.0.0 removed `previous_owner_access` and bumped `MIN_SUPPORTED_VERSION` to `2.4.0`
 
 ### Migration Checklist for New Versions
 
@@ -132,6 +130,148 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 3. **New vocabulary entries**: No impact — `isKnownEventType()` returns false for unknown types by design
 4. **Deprecation**: Mark `deprecated: true` in TypeBox; remove only at major version boundary
 5. **Required field addition**: MAJOR version bump required
+
+### Strict Schema Additions (v3.0.0)
+
+| Schema `$id` | Rationale |
+|--------------|-----------|
+| `AccessPolicy` | Access control configuration — strict to prevent unvetted fields |
+
+---
+
+# Migration Guide: v2.4.0 → v3.0.0
+
+## Breaking Changes
+
+### 1. `previous_owner_access` removed from `ConversationSealingPolicy`
+
+The deprecated `previous_owner_access` string field has been removed. Use `access_policy` instead.
+
+**Before (v2.4.0):**
+
+```typescript
+const sealingPolicy = {
+  encryption_scheme: 'aes-256-gcm',
+  key_derivation: 'hkdf-sha256',
+  key_reference: 'kref-001',
+  access_audit: true,
+  previous_owner_access: 'read_only_24h',
+};
+```
+
+**After (v3.0.0):**
+
+```typescript
+import { validateSealingPolicy, validateAccessPolicy } from '@0xhoneyjar/loa-hounfour';
+
+const sealingPolicy = {
+  encryption_scheme: 'aes-256-gcm',
+  key_derivation: 'hkdf-sha256',
+  key_reference: 'kref-001',
+  access_audit: true,
+  access_policy: {
+    type: 'time_limited',
+    duration_hours: 24,
+    audit_required: true,
+    revocable: true,
+  },
+};
+```
+
+#### Migration mapping for `previous_owner_access` values
+
+| v2.x `previous_owner_access` | v3.0.0 `access_policy.type` | Additional fields |
+|-------------------------------|-----------------------------|--------------------|
+| `"none"` | `"none"` | `audit_required: false, revocable: false` |
+| `"read_only_24h"` | `"time_limited"` | `duration_hours: 24, audit_required: true, revocable: true` |
+| `"read_only"` | `"read_only"` | `audit_required: true, revocable: true` |
+
+```go
+// Go: migrate previous_owner_access to access_policy
+func migrateAccessPolicy(old string) map[string]interface{} {
+    switch old {
+    case "none":
+        return map[string]interface{}{
+            "type": "none", "audit_required": false, "revocable": false,
+        }
+    case "read_only_24h":
+        return map[string]interface{}{
+            "type": "time_limited", "duration_hours": 24,
+            "audit_required": true, "revocable": true,
+        }
+    case "read_only":
+        return map[string]interface{}{
+            "type": "read_only", "audit_required": true, "revocable": true,
+        }
+    default:
+        return map[string]interface{}{
+            "type": "none", "audit_required": false, "revocable": false,
+        }
+    }
+}
+```
+
+```python
+# Python: migrate previous_owner_access to access_policy
+def migrate_access_policy(old: str) -> dict:
+    mapping = {
+        "none": {"type": "none", "audit_required": False, "revocable": False},
+        "read_only_24h": {
+            "type": "time_limited", "duration_hours": 24,
+            "audit_required": True, "revocable": True,
+        },
+        "read_only": {"type": "read_only", "audit_required": True, "revocable": True},
+    }
+    return mapping.get(old, mapping["none"])
+```
+
+### 2. `MIN_SUPPORTED_VERSION` bumped to `2.4.0`
+
+Consumers on v2.0.0–v2.3.0 will receive `CONTRACT_VERSION_MISMATCH` errors. All consumers must be at v2.4.0+ before deploying v3.0.0.
+
+### 3. `CONTRACT_VERSION` bumped to `3.0.0`
+
+```typescript
+// Before
+expect(CONTRACT_VERSION).toBe('2.4.0');
+
+// After
+expect(CONTRACT_VERSION).toBe('3.0.0');
+```
+
+## New Schemas
+
+| Schema | Import | Description |
+|--------|--------|-------------|
+| `AccessPolicy` | `AccessPolicySchema` | Structured access control for sealed conversations |
+
+## New Validators
+
+| Function | Description |
+|----------|-------------|
+| `validateAccessPolicy(policy)` | Cross-field validation: `time_limited` requires `duration_hours`, `role_based` requires `roles` |
+
+## Cross-Field Validation
+
+`validateSealingPolicy()` now chains `validateAccessPolicy()` when `access_policy` is present. Always use `validateSealingPolicy()` — it validates both the sealing policy and any embedded access policy.
+
+```typescript
+import { validateSealingPolicy } from '@0xhoneyjar/loa-hounfour';
+
+const result = validateSealingPolicy(policy);
+if (!result.valid) {
+  console.error(result.errors); // Includes access_policy validation errors
+}
+```
+
+## Key Notes
+
+- **`access_policy` is optional** — sealing policies without it are valid
+- **`access_policy.type` determines required fields**:
+  - `time_limited` → `duration_hours` required (1–8760)
+  - `role_based` → `roles` required (non-empty array)
+  - `none`, `read_only` → no additional required fields
+- **Transfer vectors updated** — all golden vectors now use `access_policy` instead of `previous_owner_access`
 
 ---
 

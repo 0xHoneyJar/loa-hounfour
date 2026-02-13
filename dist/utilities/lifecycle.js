@@ -1,13 +1,22 @@
 /**
  * Generic state transition validator factory.
  * Used by agent lifecycle (v2.0.0) and tool lifecycle (v2.1.0).
+ *
+ * v2.4.0: Structured guard results (BB-C4-ADV-001) and named guard functions (BB-C4-ADV-005).
  */
+/**
+ * Narrow a `GuardResult` to its valid or invalid branch.
+ * Convenience function for backward compatibility and type narrowing.
+ */
+export function isValidGuardResult(result) {
+    return result.valid;
+}
 /** Separator used in guard key format: `"FROM→TO"`. */
 const GUARD_SEP = '→';
 /**
  * Build a guard lookup key from a state transition pair.
  */
-function guardKey(from, to) {
+export function guardKey(from, to) {
     return `${from}${GUARD_SEP}${to}`;
 }
 /**
@@ -33,8 +42,11 @@ function guardKey(from, to) {
  *   AGENT_LIFECYCLE_TRANSITIONS,
  *   DEFAULT_GUARDS,
  * );
- * validator.isValid('ACTIVE', 'TRANSFERRED', { transfer_id: 'tx-123' }); // true
- * validator.isValid('ACTIVE', 'TRANSFERRED');                             // false — no transfer_id
+ * const result = validator.isValid('ACTIVE', 'TRANSFERRED', { transfer_id: 'tx-123' });
+ * // { valid: true }
+ *
+ * const rejected = validator.isValid('ACTIVE', 'TRANSFERRED');
+ * // { valid: false, reason: 'ACTIVE→TRANSFERRED requires context.transfer_id', guard: 'ACTIVE→TRANSFERRED' }
  * ```
  *
  * @see {@link AGENT_LIFECYCLE_TRANSITIONS} for the agent state machine definition
@@ -45,20 +57,96 @@ export function createTransitionValidator(transitions, guards) {
         isValid(from, to, context) {
             const targets = transitions[from];
             if (targets === undefined || !targets.includes(to)) {
-                return false;
+                return {
+                    valid: false,
+                    reason: `Transition ${from}→${to} is not structurally valid`,
+                    guard: 'transition_map',
+                };
             }
             if (guards) {
                 const key = guardKey(from, to);
                 const guard = guards[key];
-                if (guard && !guard(from, to, context)) {
-                    return false;
+                if (guard) {
+                    const result = guard(from, to, context);
+                    if (!result.valid) {
+                        return result;
+                    }
                 }
             }
-            return true;
+            return { valid: true };
         },
         getValidTargets(from) {
             return transitions[from] ?? [];
         },
+    };
+}
+// ---------------------------------------------------------------------------
+// Named guard functions (BB-C4-ADV-005)
+//
+// Extracted from inline lambdas for testability, reusability, and
+// documentation. Each function encodes a single business rule as a
+// named export with TSDoc explaining the precondition.
+// ---------------------------------------------------------------------------
+/**
+ * Guard: ACTIVE → TRANSFERRED requires an active `transfer_id` in context.
+ *
+ * Business rule: an agent cannot enter TRANSFERRED state without a transfer
+ * operation in progress. The transfer_id links the lifecycle transition to
+ * the TransferSpec and saga context.
+ */
+export function requiresTransferId(from, to, context) {
+    const key = guardKey(from, to);
+    if (context !== undefined && typeof context.transfer_id === 'string' && context.transfer_id.length > 0) {
+        return { valid: true };
+    }
+    return { valid: false, reason: `${key} requires context.transfer_id`, guard: key };
+}
+/**
+ * Guard: ACTIVE → ARCHIVED requires no active transfer.
+ *
+ * Business rule: archiving an agent while a transfer is in progress would
+ * strand the buyer. Archival is only permitted when no transfer_id is set.
+ */
+export function requiresNoActiveTransfer(from, to, context) {
+    const key = guardKey(from, to);
+    if (context === undefined || !context.transfer_id) {
+        return { valid: true };
+    }
+    return { valid: false, reason: `${key} requires no active transfer_id`, guard: key };
+}
+/**
+ * Guard: SUSPENDED → ACTIVE requires `reason_resolved` to be true.
+ *
+ * Business rule: a suspended agent can only return to active duty when the
+ * suspension cause has been addressed. This prevents premature reactivation
+ * and ensures accountability for the suspension event.
+ */
+export function requiresReasonResolved(from, to, context) {
+    const key = guardKey(from, to);
+    if (context !== undefined && context.reason_resolved === true) {
+        return { valid: true };
+    }
+    return { valid: false, reason: `${key} requires context.reason_resolved === true`, guard: key };
+}
+/**
+ * Guard: TRANSFERRED → PROVISIONING requires `transfer_completed` and `new_owner`.
+ *
+ * Business rule: after a transfer completes, the new owner must be
+ * authenticated before the agent can be reprovisioned. Both conditions
+ * prevent premature provisioning and ensure custody chain integrity.
+ */
+export function requiresTransferCompleted(from, to, context) {
+    const key = guardKey(from, to);
+    if (context !== undefined
+        && context.transfer_completed === true
+        && typeof context.new_owner === 'string'
+        && context.new_owner.length > 0) {
+        return { valid: true };
+    }
+    return {
+        valid: false,
+        reason: `${key} requires context.transfer_completed === true and context.new_owner`,
+        guard: key,
     };
 }
 /**
@@ -69,27 +157,21 @@ export function createTransitionValidator(transitions, guards) {
  * `createTransitionValidator()` is called without guards, all
  * structurally valid transitions are permitted.
  *
+ * v2.4.0: Guards now use named functions for testability and return
+ * structured `GuardResult` with rejection reasons (BB-C4-ADV-001, BB-C4-ADV-005).
+ *
  * @see BB-POST-004 — Lifecycle guard condition predicates
+ * @see BB-C4-ADV-001 — Structured guard results
+ * @see BB-C4-ADV-005 — Guard definitions conflate logic and binding
  */
 export const DEFAULT_GUARDS = {
     /** ACTIVE → TRANSFERRED requires an active transfer_id. */
-    ['ACTIVE→TRANSFERRED']: (_from, _to, context) => {
-        return context !== undefined && typeof context.transfer_id === 'string' && context.transfer_id.length > 0;
-    },
+    [guardKey('ACTIVE', 'TRANSFERRED')]: requiresTransferId,
     /** ACTIVE → ARCHIVED requires no active transfer. */
-    ['ACTIVE→ARCHIVED']: (_from, _to, context) => {
-        return context === undefined || !context.transfer_id;
-    },
+    [guardKey('ACTIVE', 'ARCHIVED')]: requiresNoActiveTransfer,
     /** SUSPENDED → ACTIVE requires suspension reason resolved. */
-    ['SUSPENDED→ACTIVE']: (_from, _to, context) => {
-        return context !== undefined && context.reason_resolved === true;
-    },
+    [guardKey('SUSPENDED', 'ACTIVE')]: requiresReasonResolved,
     /** TRANSFERRED → PROVISIONING requires transfer completed and new owner authenticated. */
-    ['TRANSFERRED→PROVISIONING']: (_from, _to, context) => {
-        return context !== undefined
-            && context.transfer_completed === true
-            && typeof context.new_owner === 'string'
-            && context.new_owner.length > 0;
-    },
+    [guardKey('TRANSFERRED', 'PROVISIONING')]: requiresTransferCompleted,
 };
 //# sourceMappingURL=lifecycle.js.map

@@ -58,4 +58,48 @@ export type TransferChoreography = Readonly<Record<TransferScenario, ScenarioCho
  * automatically re-mounted if the drain fails — recovery requires explicit action.
  */
 export declare const TRANSFER_CHOREOGRAPHY: TransferChoreography;
+/**
+ * A safety property that must hold for a transfer scenario.
+ */
+export interface TransferInvariant {
+    /** Human-readable description of the invariant. */
+    readonly description: string;
+    /**
+     * Whether this invariant can be enforced at the protocol layer (true)
+     * or is a service-layer responsibility (false).
+     */
+    readonly enforceable: boolean;
+    /** How this invariant is or should be enforced. */
+    readonly enforcement_mechanism: string;
+}
+/** Maps each TransferScenario to its safety invariants. */
+export type TransferInvariants = Readonly<Record<TransferScenario, readonly TransferInvariant[]>>;
+/**
+ * Safety invariants for each transfer scenario.
+ *
+ * These properties must hold regardless of event ordering, network
+ * partitions, or compensation failure. When compensation itself fails
+ * (the "sad path of sad path"), these invariants describe what the
+ * system MUST guarantee.
+ *
+ * **What happens when compensation fails?**
+ *
+ * 1. **billing_atomicity**: If `billing.entry.voided` fails after
+ *    `billing.entry.created`, the billing store enters an inconsistent
+ *    state. The invariant requires that voiding MUST eventually succeed
+ *    (at-least-once delivery with idempotent void). Consumers should
+ *    implement a dead letter queue for failed voids.
+ *
+ * 2. **seal_permanence**: Sealed conversations stay sealed regardless
+ *    of saga outcome. This is a design choice, not a limitation. See
+ *    the TSDoc on `TRANSFER_CHOREOGRAPHY` for rationale.
+ *
+ * 3. **terminal_event_exactly_once**: The saga MUST produce exactly one
+ *    of `saga.completed` or `saga.rolled_back`. If neither fires
+ *    (e.g., process crash), a saga recovery sweep must detect orphaned
+ *    sagas and emit the terminal event.
+ *
+ * @see BB-C4-ADV-002 — No spec for compensation failure
+ */
+export declare const TRANSFER_INVARIANTS: TransferInvariants;
 //# sourceMappingURL=transfer-choreography.d.ts.map

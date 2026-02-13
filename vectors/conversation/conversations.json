@@ -10,7 +10,7 @@
         "message_count": 5,
         "created_at": "2026-01-15T10:00:00Z",
         "updated_at": "2026-01-15T10:30:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "active conversation without sealing"
     },
@@ -25,15 +25,19 @@
           "key_derivation": "hkdf-sha256",
           "key_reference": "kref-abc123",
           "access_audit": true,
-          "previous_owner_access": "none"
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
         },
         "message_count": 100,
         "created_at": "2026-01-01T00:00:00Z",
         "updated_at": "2026-01-15T10:00:00Z",
         "sealed_at": "2026-01-15T10:00:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
-      "note": "sealed conversation with encryption"
+      "note": "sealed conversation with encryption and access_policy type=none"
     },
     {
       "id": "conv-003",
@@ -45,14 +49,18 @@
           "encryption_scheme": "none",
           "key_derivation": "none",
           "access_audit": false,
-          "previous_owner_access": "read_only_24h"
+          "access_policy": {
+            "type": "read_only",
+            "audit_required": false,
+            "revocable": true
+          }
         },
         "message_count": 0,
         "created_at": "2026-01-01T00:00:00Z",
         "updated_at": "2026-01-01T00:00:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
-      "note": "archived with no-encryption sealing policy"
+      "note": "archived with no-encryption sealing policy and read_only access"
     },
     {
       "id": "conv-004",
@@ -65,16 +73,67 @@
           "key_derivation": "hkdf-sha256",
           "key_reference": "kref-xfer-001",
           "access_audit": true,
-          "previous_owner_access": "none"
+          "access_policy": {
+            "type": "time_limited",
+            "duration_hours": 24,
+            "audit_required": true,
+            "revocable": true
+          }
         },
         "message_count": 42,
         "created_at": "2026-01-01T00:00:00Z",
         "updated_at": "2026-01-15T12:00:00Z",
         "sealed_at": "2026-01-15T12:00:00Z",
         "sealed_by": "xfer_sale_001",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
-      "note": "sealed conversation with sealed_by transfer reference (v2.1.0 BB-ADV-002)"
+      "note": "sealed conversation with time_limited access policy (24h)"
+    },
+    {
+      "id": "conv-005",
+      "data": {
+        "id": "conv_role_based",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/99",
+        "status": "sealed",
+        "sealing_policy": {
+          "encryption_scheme": "aes-256-gcm",
+          "key_derivation": "hkdf-sha256",
+          "key_reference": "kref-role-001",
+          "access_audit": true,
+          "access_policy": {
+            "type": "role_based",
+            "roles": ["auditor", "compliance"],
+            "audit_required": true,
+            "revocable": false
+          }
+        },
+        "message_count": 200,
+        "created_at": "2026-01-01T00:00:00Z",
+        "updated_at": "2026-02-14T10:00:00Z",
+        "sealed_at": "2026-02-14T10:00:00Z",
+        "sealed_by": "xfer_custody_001",
+        "contract_version": "3.0.0"
+      },
+      "note": "sealed conversation with role_based access policy (v3.0.0)"
+    },
+    {
+      "id": "conv-006",
+      "data": {
+        "id": "conv_no_policy",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "status": "sealed",
+        "sealing_policy": {
+          "encryption_scheme": "none",
+          "key_derivation": "none",
+          "access_audit": false
+        },
+        "message_count": 10,
+        "created_at": "2026-01-01T00:00:00Z",
+        "updated_at": "2026-02-14T10:00:00Z",
+        "sealed_at": "2026-02-14T10:00:00Z",
+        "contract_version": "3.0.0"
+      },
+      "note": "sealed without access_policy (field is optional)"
     }
   ],
   "valid_messages": [
@@ -86,7 +145,7 @@
         "role": "user",
         "content": "Hello, what can you do?",
         "created_at": "2026-01-15T10:00:00Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "basic user message"
     },
@@ -101,7 +160,7 @@
         "pool_id": "opus-main",
         "billing_entry_id": "01JARX9ABC123",
         "created_at": "2026-01-15T10:00:01Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "assistant message with billing"
     },
@@ -116,9 +175,30 @@
           { "id": "call_1", "name": "search", "arguments": "{\"query\": \"test\"}" }
         ],
         "created_at": "2026-01-15T10:00:02Z",
-        "contract_version": "2.0.0"
+        "contract_version": "3.0.0"
       },
       "note": "tool message with tool_calls"
+    },
+    {
+      "id": "msg-004",
+      "data": {
+        "id": "msg_multi_model",
+        "conversation_id": "conv_abc123",
+        "role": "assistant",
+        "content": "Multi-model response",
+        "model": "kimi-k2-thinking",
+        "tool_calls": [
+          {
+            "id": "call_2",
+            "name": "calculate",
+            "arguments": "{\"x\": 42}",
+            "model_source": "kimi-k2-thinking"
+          }
+        ],
+        "created_at": "2026-02-14T10:00:00Z",
+        "contract_version": "3.0.0"
+      },
+      "note": "tool_calls with model_source for multi-model debugging (v2.4.0)"
     }
   ],
   "invalid": [

@@ -151,24 +151,24 @@
           "global_id": 14,
           "label": "Guard Architecture & Financial Safety (v2.4.0-prep)",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 15,
           "label": "Multi-Model Topology & Saga Resilience (v2.4.0)",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 16,
           "label": "v3.0.0 Breaking Release — The Sovereignty Release",
           "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6"],
-          "status": "pending"
+          "status": "completed"
         }
       ],
-      "status": "active",
+      "status": "completed",
       "created_at": "2026-02-14T10:00:00Z",
       "archived_at": null,
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"

@@ -1,32 +1,30 @@
 {
-  "plan_id": "plan-20260213-bridge1",
+  "plan_id": "plan-20260214-c005",
   "branch": "feature/protocol-types-v2",
   "state": "JACKED_OUT",
   "timestamps": {
-    "started": "2026-02-13T21:15:00Z",
-    "last_activity": "2026-02-13T21:40:00Z"
+    "started": "2026-02-14T10:00:00Z",
+    "last_activity": "2026-02-14T11:00:00Z"
   },
   "sprints": {
-    "total": 5,
-    "completed": 5,
+    "total": 3,
+    "completed": 3,
     "current": null,
     "list": [
-      {"id": "sprint-1", "status": "completed", "cycles": 1, "files_changed": 5},
-      {"id": "sprint-2", "status": "completed", "cycles": 1, "files_changed": 5},
-      {"id": "sprint-3", "status": "completed", "cycles": 1, "files_changed": 4},
-      {"id": "sprint-4", "status": "completed", "cycles": 1, "files_changed": 20},
-      {"id": "sprint-5", "status": "completed", "cycles": 1, "files_changed": 14}
+      {"id": "sprint-1", "status": "completed", "cycles": 1, "files_changed": 18},
+      {"id": "sprint-2", "status": "completed", "cycles": 1, "files_changed": 12},
+      {"id": "sprint-3", "status": "completed", "cycles": 1, "files_changed": 15}
     ]
   },
   "options": {
     "from": 1,
-    "to": 5,
+    "to": 3,
     "max_cycles": 20,
     "timeout_hours": 8
   },
   "metrics": {
-    "total_cycles": 5,
-    "total_files_changed": 48,
-    "total_findings_fixed": 0
+    "total_cycles": 3,
+    "total_files_changed": 45,
+    "total_findings_fixed": 10
   }
 }

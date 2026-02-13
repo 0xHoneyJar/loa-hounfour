@@ -6,6 +6,43 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
+## v3.0.0
+
+**Theme:** The Sovereignty Release — replacing deprecated `previous_owner_access` with a richer `AccessPolicy` model, completing the v2.2.0 deprecation cycle.
+
+### Breaking Changes
+
+#### `ConversationSealingPolicy.previous_owner_access` REMOVED
+- The `previous_owner_access` string field (deprecated in v2.2.0) has been **removed**
+- Replaced by the structured `access_policy` optional object
+- Any document containing `previous_owner_access` will be **rejected** by strict validation
+
+#### `ConversationSealingPolicy.access_policy` ADDED (optional)
+- New `AccessPolicy` sub-schema with types: `none`, `read_only`, `time_limited`, `role_based`
+- Cross-field validation via `validateAccessPolicy()`:
+  - `time_limited` requires `duration_hours` (1–8760)
+  - `role_based` requires non-empty `roles` array
+- `validateSealingPolicy()` now chains `validateAccessPolicy()` when present
+
+### Schema Additions
+
+#### AccessPolicy (NEW)
+- Structured access control replacing the flat `previous_owner_access` string
+- Fields: `type`, `duration_hours` (optional), `roles` (optional), `audit_required`, `revocable`
+- `additionalProperties: false` — strict validation
+
+### Version Bump
+- `CONTRACT_VERSION`: `2.4.0` → `3.0.0`
+- `MIN_SUPPORTED_VERSION`: `2.0.0` → `2.4.0` — v2.3.0 and earlier consumers will receive `CONTRACT_VERSION_MISMATCH`
+
+### Golden Vector Updates
+- All conversation vectors updated to `contract_version: "3.0.0"` with `access_policy`
+- All transfer vectors updated to `contract_version: "3.0.0"` with `access_policy`
+- Added conv-005 (role_based access), conv-006 (no access_policy)
+- Added msg-004 (tool_calls with model_source)
+
+---
+
 ## v2.4.0
 
 **Theme:** Protocol Maturity — structured guard results, centralized financial arithmetic, billing validation pipeline, CI wiring.

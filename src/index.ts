@@ -97,17 +97,20 @@ export {
   allocateRecipients,
 } from './utilities/billing.js';
 
-// Schemas — Conversation & Message (v2.0.0)
+// Schemas — Conversation & Message (v2.0.0, access_policy v3.0.0)
 export {
   ConversationSchema,
   ConversationStatusSchema,
   ConversationSealingPolicySchema,
+  AccessPolicySchema,
   MessageSchema,
   MessageRoleSchema,
   validateSealingPolicy,
+  validateAccessPolicy,
   type Conversation,
   type ConversationStatus,
   type ConversationSealingPolicy,
+  type AccessPolicy,
   type Message,
   type MessageRole,
 } from './schemas/conversation.js';

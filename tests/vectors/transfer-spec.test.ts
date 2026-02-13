@@ -46,11 +46,10 @@ describe('Transfer Golden Vectors', () => {
           encryption_scheme: 'none',
           key_derivation: 'none',
           access_audit: false,
-          previous_owner_access: 'none',
         },
         initiated_at: '2026-01-15T10:00:00Z',
         initiated_by: 'test',
-        contract_version: '2.0.0',
+        contract_version: '3.0.0',
       });
       expect(result.valid).toBe(false);
     });
