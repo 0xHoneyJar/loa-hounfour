@@ -31,12 +31,60 @@ export {
   InvokeResponseSchema,
   UsageReportSchema,
   UsageSchema,
-  CostBreakdownSchema,
   type InvokeResponse,
   type UsageReport,
   type Usage,
-  type CostBreakdown,
 } from './schemas/invoke-response.js';
+
+// Schemas — Billing (v2.0.0)
+export {
+  BillingEntrySchema,
+  BillingRecipientSchema,
+  CostTypeSchema,
+  CreditNoteSchema,
+  type BillingEntry,
+  type BillingRecipient,
+  type CostType,
+  type CreditNote,
+} from './schemas/billing-entry.js';
+
+// Schemas — Agent (v2.0.0)
+export {
+  AgentDescriptorSchema,
+  type AgentDescriptor,
+} from './schemas/agent-descriptor.js';
+
+export {
+  AgentLifecycleStateSchema,
+  AGENT_LIFECYCLE_STATES,
+  AGENT_LIFECYCLE_TRANSITIONS,
+  isValidTransition,
+  type AgentLifecycleState,
+} from './schemas/agent-lifecycle.js';
+
+// Utilities — NFT Identity (v2.0.0)
+export {
+  NftIdSchema,
+  NFT_ID_PATTERN,
+  parseNftId,
+  formatNftId,
+  isValidNftId,
+  checksumAddress,
+  type NftId,
+  type ParsedNftId,
+} from './utilities/nft-id.js';
+
+// Utilities — Lifecycle (v2.0.0)
+export {
+  createTransitionValidator,
+  type TransitionValidator,
+} from './utilities/lifecycle.js';
+
+// Utilities — Billing (v2.0.0)
+export {
+  validateBillingRecipients,
+  allocateRecipients,
+} from './utilities/billing.js';
 
 // Schemas — Stream Events
 export {

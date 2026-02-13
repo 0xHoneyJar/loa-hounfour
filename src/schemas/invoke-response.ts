@@ -23,16 +23,6 @@ export const UsageSchema = Type.Object({
 
 export type Usage = Static<typeof UsageSchema>;
 
-/** Cost breakdown in micro-USD. */
-export const CostBreakdownSchema = Type.Object({
-  input_cost_micro: MicroUSD,
-  output_cost_micro: MicroUSD,
-  reasoning_cost_micro: Type.Optional(MicroUSD),
-  total_cost_micro: MicroUSD,
-}, { $id: 'CostBreakdown' });
-
-export type CostBreakdown = Static<typeof CostBreakdownSchema>;
-
 /** Invoke response returned to the client. */
 export const InvokeResponseSchema = Type.Object({
   id: Type.String({ description: 'Request trace ID' }),
@@ -48,7 +38,10 @@ export const InvokeResponseSchema = Type.Object({
     }),
   }))),
   usage: UsageSchema,
-  cost: CostBreakdownSchema,
+  billing_entry_id: Type.String({
+    minLength: 1,
+    description: 'References BillingEntry.id (ULID)',
+  }),
   billing_method: Type.Union([
     Type.Literal('provider_reported'),
     Type.Literal('observed_chunks_overcount'),
@@ -74,7 +67,10 @@ export const UsageReportSchema = Type.Object({
   model: Type.String(),
   pool_id: Type.String(),
   usage: UsageSchema,
-  cost: CostBreakdownSchema,
+  billing_entry_id: Type.String({
+    minLength: 1,
+    description: 'References BillingEntry.id (ULID)',
+  }),
   billing_method: Type.Union([
     Type.Literal('provider_reported'),
     Type.Literal('observed_chunks_overcount'),

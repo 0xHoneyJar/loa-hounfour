@@ -1,6 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
-import { keccak_256 } from '@noble/hashes/sha3';
-import { bytesToHex } from '@noble/hashes/utils';
+import { keccak_256 } from '@noble/hashes/sha3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 
 /**
  * Canonical NFT identification: eip155:{chainId}/{collectionAddress}/{tokenId}
