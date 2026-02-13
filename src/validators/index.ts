@@ -12,6 +12,11 @@ import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
 import { RoutingPolicySchema } from '../schemas/routing-policy.js';
+import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
+import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
+import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema } from '../schemas/conversation.js';
+import { TransferSpecSchema, TransferEventSchema } from '../schemas/transfer-spec.js';
+import { DomainEventSchema } from '../schemas/domain-event.js';
 
 // Compile cache — lazily populated on first use
 const cache = new Map<string, TypeCheck<TSchema>>();
@@ -52,4 +57,15 @@ export const validators = {
   usageReport: () => getOrCompile(UsageReportSchema),
   streamEvent: () => getOrCompile(StreamEventSchema),
   routingPolicy: () => getOrCompile(RoutingPolicySchema),
+
+  // v2.0.0
+  agentDescriptor: () => getOrCompile(AgentDescriptorSchema),
+  billingEntry: () => getOrCompile(BillingEntrySchema),
+  creditNote: () => getOrCompile(CreditNoteSchema),
+  conversation: () => getOrCompile(ConversationSchema),
+  message: () => getOrCompile(MessageSchema),
+  conversationSealingPolicy: () => getOrCompile(ConversationSealingPolicySchema),
+  transferSpec: () => getOrCompile(TransferSpecSchema),
+  transferEvent: () => getOrCompile(TransferEventSchema),
+  domainEvent: () => getOrCompile(DomainEventSchema),
 } as const;

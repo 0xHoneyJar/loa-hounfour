@@ -11,6 +11,12 @@ import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../src/schemas/jwt-claims.j
 import { InvokeResponseSchema, UsageReportSchema } from '../src/schemas/invoke-response.js';
 import { StreamEventSchema } from '../src/schemas/stream-events.js';
 import { RoutingPolicySchema } from '../src/schemas/routing-policy.js';
+import { AgentDescriptorSchema } from '../src/schemas/agent-descriptor.js';
+import { AgentLifecycleStateSchema } from '../src/schemas/agent-lifecycle.js';
+import { BillingEntrySchema, CreditNoteSchema } from '../src/schemas/billing-entry.js';
+import { ConversationSchema, MessageSchema } from '../src/schemas/conversation.js';
+import { TransferSpecSchema, TransferEventSchema } from '../src/schemas/transfer-spec.js';
+import { DomainEventSchema } from '../src/schemas/domain-event.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +29,16 @@ const schemas = [
   { name: 'usage-report', schema: UsageReportSchema },
   { name: 'stream-event', schema: StreamEventSchema },
   { name: 'routing-policy', schema: RoutingPolicySchema },
+  // v2.0.0
+  { name: 'agent-descriptor', schema: AgentDescriptorSchema },
+  { name: 'agent-lifecycle-state', schema: AgentLifecycleStateSchema },
+  { name: 'billing-entry', schema: BillingEntrySchema },
+  { name: 'credit-note', schema: CreditNoteSchema },
+  { name: 'conversation', schema: ConversationSchema },
+  { name: 'message', schema: MessageSchema },
+  { name: 'transfer-spec', schema: TransferSpecSchema },
+  { name: 'transfer-event', schema: TransferEventSchema },
+  { name: 'domain-event', schema: DomainEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

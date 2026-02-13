@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/transfer-spec",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "transfer_id",
+    "nft_id",
+    "from_owner",
+    "to_owner",
+    "scenario",
+    "sealing_policy",
+    "initiated_at",
+    "initiated_by",
+    "contract_version"
+  ],
+  "properties": {
+    "transfer_id": {
+      "minLength": 1,
+      "description": "Transfer ID",
+      "type": "string"
+    },
+    "nft_id": {
+      "$id": "NftId",
+      "pattern": "^eip155:\\d+\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
+      "type": "string"
+    },
+    "from_owner": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "type": "string"
+    },
+    "to_owner": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "type": "string"
+    },
+    "scenario": {
+      "$id": "TransferScenario",
+      "anyOf": [
+        {
+          "const": "sale",
+          "type": "string"
+        },
+        {
+          "const": "gift",
+          "type": "string"
+        },
+        {
+          "const": "admin_recovery",
+          "type": "string"
+        },
+        {
+          "const": "custody_change",
+          "type": "string"
+        }
+      ]
+    },
+    "sealing_policy": {
+      "$id": "ConversationSealingPolicy",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "encryption_scheme",
+        "key_derivation",
+        "access_audit",
+        "previous_owner_access"
+      ],
+      "properties": {
+        "encryption_scheme": {
+          "anyOf": [
+            {
+              "const": "aes-256-gcm",
+              "type": "string"
+            },
+            {
+              "const": "none",
+              "type": "string"
+            }
+          ]
+        },
+        "key_derivation": {
+          "anyOf": [
+            {
+              "const": "hkdf-sha256",
+              "type": "string"
+            },
+            {
+              "const": "none",
+              "type": "string"
+            }
+          ]
+        },
+        "key_reference": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "access_audit": {
+          "type": "boolean"
+        },
+        "previous_owner_access": {
+          "anyOf": [
+            {
+              "const": "none",
+              "type": "string"
+            },
+            {
+              "const": "read_only_24h",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "initiated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "initiated_by": {
+      "minLength": 1,
+      "description": "Actor who initiated the transfer",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+}

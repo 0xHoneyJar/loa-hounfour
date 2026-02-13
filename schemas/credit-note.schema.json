@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/credit-note",
+  "additionalProperties": false,
+  "description": "Billing reversal/refund referencing an original BillingEntry",
+  "type": "object",
+  "required": [
+    "id",
+    "references_billing_entry",
+    "reason",
+    "amount_micro",
+    "recipients",
+    "issued_at",
+    "contract_version"
+  ],
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "description": "ULID",
+      "type": "string"
+    },
+    "references_billing_entry": {
+      "minLength": 1,
+      "description": "BillingEntry.id this note references",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "const": "refund",
+          "type": "string"
+        },
+        {
+          "const": "dispute",
+          "type": "string"
+        },
+        {
+          "const": "partial_failure",
+          "type": "string"
+        },
+        {
+          "const": "adjustment",
+          "type": "string"
+        }
+      ]
+    },
+    "amount_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Micro-USD amount as string",
+      "type": "string"
+    },
+    "recipients": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$id": "BillingRecipient",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "address",
+          "role",
+          "share_bps",
+          "amount_micro"
+        ],
+        "properties": {
+          "address": {
+            "minLength": 1,
+            "description": "Wallet or account address",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "const": "provider",
+                "type": "string"
+              },
+              {
+                "const": "platform",
+                "type": "string"
+              },
+              {
+                "const": "producer",
+                "type": "string"
+              },
+              {
+                "const": "agent_tba",
+                "type": "string"
+              }
+            ]
+          },
+          "share_bps": {
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Basis points share (0-10000)",
+            "type": "integer"
+          },
+          "amount_micro": {
+            "pattern": "^[0-9]+$",
+            "description": "Micro-USD amount as string",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "issued_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+}

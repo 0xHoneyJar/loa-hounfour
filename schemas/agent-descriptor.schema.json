@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/agent-descriptor",
+  "additionalProperties": false,
+  "description": "Canonical agent representation for content negotiation",
+  "type": "object",
+  "required": [
+    "@context",
+    "id",
+    "name",
+    "chain_id",
+    "collection",
+    "token_id",
+    "personality",
+    "capabilities",
+    "models",
+    "homepage",
+    "lifecycle_state",
+    "contract_version"
+  ],
+  "properties": {
+    "@context": {
+      "description": "JSON-LD context",
+      "const": "https://schema.honeyjar.xyz/agent/v1",
+      "type": "string"
+    },
+    "id": {
+      "$id": "NftId",
+      "pattern": "^eip155:\\d+\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "description": "Display name",
+      "type": "string"
+    },
+    "chain_id": {
+      "minimum": 1,
+      "description": "EIP-155 chain ID",
+      "type": "integer"
+    },
+    "collection": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "NFT collection address",
+      "type": "string"
+    },
+    "token_id": {
+      "pattern": "^\\d+$",
+      "description": "NFT token ID",
+      "type": "string"
+    },
+    "personality": {
+      "minLength": 1,
+      "description": "Personality ID",
+      "type": "string"
+    },
+    "description": {
+      "description": "Short agent bio",
+      "type": "string"
+    },
+    "avatar_url": {
+      "format": "uri",
+      "description": "Profile image URL",
+      "type": "string"
+    },
+    "capabilities": {
+      "minItems": 1,
+      "description": "Agent capabilities list",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "models": {
+      "description": "Task type → pool mapping",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "$id": "PoolId",
+          "description": "Canonical pool identifier",
+          "anyOf": [
+            {
+              "const": "cheap",
+              "type": "string"
+            },
+            {
+              "const": "fast-code",
+              "type": "string"
+            },
+            {
+              "const": "reviewer",
+              "type": "string"
+            },
+            {
+              "const": "reasoning",
+              "type": "string"
+            },
+            {
+              "const": "architect",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "tools": {
+      "description": "Available tool IDs",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tba": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "ERC-6551 TBA address",
+      "type": "string"
+    },
+    "owner": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Current NFT owner address",
+      "type": "string"
+    },
+    "homepage": {
+      "format": "uri",
+      "description": "Agent homepage URL",
+      "type": "string"
+    },
+    "inbox": {
+      "format": "uri",
+      "description": "Agent inbox endpoint",
+      "type": "string"
+    },
+    "llms_txt": {
+      "format": "uri",
+      "description": "Token-efficient markdown endpoint",
+      "type": "string"
+    },
+    "stats": {
+      "$id": "AgentStats",
+      "additionalProperties": false,
+      "description": "Agent statistics",
+      "type": "object",
+      "required": [
+        "interactions",
+        "uptime",
+        "created_at"
+      ],
+      "properties": {
+        "interactions": {
+          "minimum": 0,
+          "description": "Total interactions count",
+          "type": "integer"
+        },
+        "uptime": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Uptime ratio (0-1)",
+          "type": "number"
+        },
+        "created_at": {
+          "format": "date-time",
+          "description": "Agent creation timestamp",
+          "type": "string"
+        },
+        "last_active": {
+          "format": "date-time",
+          "description": "Last activity timestamp",
+          "type": "string"
+        }
+      }
+    },
+    "lifecycle_state": {
+      "$id": "AgentLifecycleState",
+      "description": "Agent lifecycle state",
+      "anyOf": [
+        {
+          "const": "DORMANT",
+          "type": "string"
+        },
+        {
+          "const": "PROVISIONING",
+          "type": "string"
+        },
+        {
+          "const": "ACTIVE",
+          "type": "string"
+        },
+        {
+          "const": "SUSPENDED",
+          "type": "string"
+        },
+        {
+          "const": "TRANSFERRED",
+          "type": "string"
+        },
+        {
+          "const": "ARCHIVED",
+          "type": "string"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/message",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "id",
+    "conversation_id",
+    "role",
+    "content",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "description": "Message ID",
+      "type": "string"
+    },
+    "conversation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "role": {
+      "$id": "MessageRole",
+      "anyOf": [
+        {
+          "const": "user",
+          "type": "string"
+        },
+        {
+          "const": "assistant",
+          "type": "string"
+        },
+        {
+          "const": "system",
+          "type": "string"
+        },
+        {
+          "const": "tool",
+          "type": "string"
+        }
+      ]
+    },
+    "content": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "pool_id": {
+      "type": "string"
+    },
+    "billing_entry_id": {
+      "type": "string"
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "arguments"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=2.0.0, min_supported=2.0.0"
+}
