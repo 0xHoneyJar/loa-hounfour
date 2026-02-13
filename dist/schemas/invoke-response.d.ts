@@ -14,14 +14,6 @@ export declare const UsageSchema: import("@sinclair/typebox").TObject<{
     reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
 }>;
 export type Usage = Static<typeof UsageSchema>;
-/** Cost breakdown in micro-USD. */
-export declare const CostBreakdownSchema: import("@sinclair/typebox").TObject<{
-    input_cost_micro: import("@sinclair/typebox").TString;
-    output_cost_micro: import("@sinclair/typebox").TString;
-    reasoning_cost_micro: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-    total_cost_micro: import("@sinclair/typebox").TString;
-}>;
-export type CostBreakdown = Static<typeof CostBreakdownSchema>;
 /** Invoke response returned to the client. */
 export declare const InvokeResponseSchema: import("@sinclair/typebox").TObject<{
     id: import("@sinclair/typebox").TString;
@@ -41,15 +33,11 @@ export declare const InvokeResponseSchema: import("@sinclair/typebox").TObject<{
         completion_tokens: import("@sinclair/typebox").TInteger;
         reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>;
-    cost: import("@sinclair/typebox").TObject<{
-        input_cost_micro: import("@sinclair/typebox").TString;
-        output_cost_micro: import("@sinclair/typebox").TString;
-        reasoning_cost_micro: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-        total_cost_micro: import("@sinclair/typebox").TString;
-    }>;
+    billing_entry_id: import("@sinclair/typebox").TString;
     billing_method: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider_reported">, import("@sinclair/typebox").TLiteral<"observed_chunks_overcount">, import("@sinclair/typebox").TLiteral<"prompt_only">]>;
     latency_ms: import("@sinclair/typebox").TInteger;
     contract_version: import("@sinclair/typebox").TString;
+    metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
 }>;
 export type InvokeResponse = Static<typeof InvokeResponseSchema>;
 /**
@@ -67,12 +55,7 @@ export declare const UsageReportSchema: import("@sinclair/typebox").TObject<{
         completion_tokens: import("@sinclair/typebox").TInteger;
         reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>;
-    cost: import("@sinclair/typebox").TObject<{
-        input_cost_micro: import("@sinclair/typebox").TString;
-        output_cost_micro: import("@sinclair/typebox").TString;
-        reasoning_cost_micro: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-        total_cost_micro: import("@sinclair/typebox").TString;
-    }>;
+    billing_entry_id: import("@sinclair/typebox").TString;
     billing_method: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider_reported">, import("@sinclair/typebox").TLiteral<"observed_chunks_overcount">, import("@sinclair/typebox").TLiteral<"prompt_only">]>;
     idempotency_key: import("@sinclair/typebox").TString;
     timestamp: import("@sinclair/typebox").TString;

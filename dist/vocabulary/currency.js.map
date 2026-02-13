@@ -1,0 +1,1 @@
+{"version":3,"file":"currency.js","sourceRoot":"","sources":["../../src/vocabulary/currency.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,mBAAmB,CAAC;AAEzC,qEAAqE;AACrE,MAAM,CAAC,MAAM,QAAQ,GAAG,IAAI,CAAC,MAAM,CAAC;IAClC,OAAO,EAAE,UAAU;IACnB,WAAW,EAAE,0DAA0D;CACxE,CAAC,CAAC"}

@@ -31,7 +31,7 @@ import { DomainEventSchema, DomainEventBatchSchema } from '../schemas/domain-eve
 import { LifecycleTransitionPayloadSchema } from '../schemas/lifecycle-event-payload.js';
 import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../schemas/capability.js';
 import { ProtocolDiscoverySchema } from '../schemas/discovery.js';
-import { SagaContextSchema } from '../schemas/domain-event.js';
+import { SagaContextSchema } from '../schemas/saga-context.js';
 
 // Compile cache — lazily populated on first use
 const cache = new Map<string, TypeCheck<TSchema>>();

@@ -10,8 +10,8 @@
  * On minor mismatch: `X-Contract-Version-Warning` header.
  * On major mismatch: 400 with `CONTRACT_VERSION_MISMATCH` error.
  */
-export declare const CONTRACT_VERSION: "1.1.0";
-export declare const MIN_SUPPORTED_VERSION: "1.0.0";
+export declare const CONTRACT_VERSION: "2.2.0";
+export declare const MIN_SUPPORTED_VERSION: "2.0.0";
 /**
  * Parse a semver string into components.
  */

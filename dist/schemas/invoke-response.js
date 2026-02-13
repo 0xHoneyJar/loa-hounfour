@@ -7,24 +7,12 @@
  * @see SDD 4.3 — Budget System
  */
 import { Type } from '@sinclair/typebox';
-/** Pattern for string-encoded micro-USD integers. */
-const MicroUSD = Type.String({
-    pattern: '^[0-9]+$',
-    description: 'Micro-USD amount as string (1 USD = 1,000,000 micro-USD)',
-});
 /** Token usage breakdown. */
 export const UsageSchema = Type.Object({
     prompt_tokens: Type.Integer({ minimum: 0 }),
     completion_tokens: Type.Integer({ minimum: 0 }),
     reasoning_tokens: Type.Optional(Type.Integer({ minimum: 0 })),
-}, { $id: 'Usage' });
-/** Cost breakdown in micro-USD. */
-export const CostBreakdownSchema = Type.Object({
-    input_cost_micro: MicroUSD,
-    output_cost_micro: MicroUSD,
-    reasoning_cost_micro: Type.Optional(MicroUSD),
-    total_cost_micro: MicroUSD,
-}, { $id: 'CostBreakdown' });
+}, { $id: 'Usage', additionalProperties: false });
 /** Invoke response returned to the client. */
 export const InvokeResponseSchema = Type.Object({
     id: Type.String({ description: 'Request trace ID' }),
@@ -37,10 +25,13 @@ export const InvokeResponseSchema = Type.Object({
         function: Type.Object({
             name: Type.String(),
             arguments: Type.String(),
-        }),
-    }))),
+        }, { additionalProperties: false }),
+    }, { additionalProperties: false }))),
     usage: UsageSchema,
-    cost: CostBreakdownSchema,
+    billing_entry_id: Type.String({
+        minLength: 1,
+        description: 'References BillingEntry.id (ULID)',
+    }),
     billing_method: Type.Union([
         Type.Literal('provider_reported'),
         Type.Literal('observed_chunks_overcount'),
@@ -48,6 +39,13 @@ export const InvokeResponseSchema = Type.Object({
     ], { description: 'How cost was determined' }),
     latency_ms: Type.Integer({ minimum: 0 }),
     contract_version: Type.String({ description: 'Protocol version' }),
+    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
+        description: 'Consumer-extensible metadata. Namespace conventions: '
+            + 'loa.* reserved for protocol-level metadata, '
+            + 'trace.* for OpenTelemetry-compatible observability, '
+            + 'x-* for consumer-defined extensions. '
+            + 'Not validated by protocol contract.',
+    })),
 }, {
     $id: 'InvokeResponse',
     additionalProperties: false,
@@ -63,7 +61,10 @@ export const UsageReportSchema = Type.Object({
     model: Type.String(),
     pool_id: Type.String(),
     usage: UsageSchema,
-    cost: CostBreakdownSchema,
+    billing_entry_id: Type.String({
+        minLength: 1,
+        description: 'References BillingEntry.id (ULID)',
+    }),
     billing_method: Type.Union([
         Type.Literal('provider_reported'),
         Type.Literal('observed_chunks_overcount'),

@@ -56,9 +56,9 @@ export class DecompressionError extends Error {
  * left-to-right to peel layers from outside in.
  *
  * Example:
- *   parseEncodings("gzip, br") → ["gzip", "br"]
- *   // Step 1: gunzip the wire bytes
- *   // Step 2: brotli-decompress the result → original body
+ *   parseEncodings("gzip, br") → ["br", "gzip"]
+ *   // Step 1: brotli-decompress (outermost layer)
+ *   // Step 2: gunzip (innermost layer) → original body
  *
  * @see PR #61 BridgeBuilder review — Finding 7
  */
@@ -78,7 +78,7 @@ function parseEncodings(contentEncoding) {
         }
     }
     // Reverse: header lists innermost-last, we unwrap outermost-first.
-    // "gzip, br" → ["gzip", "br"] (gunzip first, then brotli).
+    // "gzip, br" → reversed to ["br", "gzip"] (brotli first, then gunzip).
     return encodings.reverse();
 }
 /**
