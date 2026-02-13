@@ -24,6 +24,20 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 ### Validator Additions
 - `validateBillingEntryFull()` — composed validation pipeline: TypeBox schema → cross-field invariants → recipient sums (BB-C4-ADV-003)
 
+### Schema Changes
+- `Message.tool_calls[].model_source` — optional field for multi-model debugging
+- `CreditNote.$comment` — documents 4 service-layer invariants (BB-ADV-003)
+
+### Vocabulary Additions
+- `METADATA_NAMESPACES.MODEL` — reserved `model.*` namespace for Hounfour multi-model routing (BB-C4-ADV-004)
+- `MODEL_METADATA_KEYS` — documented keys: `model.id`, `model.provider`, `model.thinking_trace_available`, `model.context_window_used`
+- `TRANSFER_INVARIANTS` — safety properties per transfer scenario: billing atomicity, seal permanence, terminal event exactly-once (BB-C4-ADV-002)
+- `TransferInvariant` interface — structured invariant descriptor
+
+### Documentation
+- Choreography Mermaid diagrams: `docs/choreography/{sale,gift,admin_recovery,custody_change}.md` (BB-C4-ADV-008)
+- `docs:choreography` script — generates diagrams from `TRANSFER_CHOREOGRAPHY`
+
 ### CI/Build
 - `check:migration` script — runs `check-migration.ts` (BB-C4-ADV-007)
 - `check:all` script — aggregates `schema:check`, `vectors:check`, `check:migration`

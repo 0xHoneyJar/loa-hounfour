@@ -26,6 +26,7 @@
     "semver:check": "tsx scripts/semver-check.ts",
     "vectors:check": "tsx scripts/check-vectors.ts",
     "spec:generate": "tsx scripts/generate-asyncapi.ts",
+    "docs:choreography": "tsx scripts/generate-choreography-diagrams.ts",
     "check:migration": "tsx scripts/check-migration.ts",
     "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration",
     "test": "vitest run",

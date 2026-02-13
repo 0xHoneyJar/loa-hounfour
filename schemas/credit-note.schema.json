@@ -3,6 +3,7 @@
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/credit-note",
   "additionalProperties": false,
   "description": "Billing reversal/refund referencing an original BillingEntry",
+  "$comment": "contract_version=2.4.0, min_supported=2.0.0",
   "type": "object",
   "required": [
     "id",
@@ -118,6 +119,5 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
     }
-  },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  }
 }

@@ -232,11 +232,14 @@ export {
   compareMicro,
 } from './vocabulary/currency.js';
 
-// Vocabulary — Transfer Choreography (v2.3.0, BB-POST-002)
+// Vocabulary — Transfer Choreography (v2.3.0, invariants v2.4.0)
 export {
   TRANSFER_CHOREOGRAPHY,
+  TRANSFER_INVARIANTS,
   type TransferChoreography,
   type ScenarioChoreography,
+  type TransferInvariant,
+  type TransferInvariants,
 } from './vocabulary/transfer-choreography.js';
 
 // Vocabulary — Errors
@@ -259,8 +262,13 @@ export {
   type ProtocolDiscovery,
 } from './schemas/discovery.js';
 
-// Vocabulary — Metadata Namespaces (v2.2.0, BB-V3-001)
-export { METADATA_NAMESPACES, type MetadataNamespace } from './vocabulary/metadata.js';
+// Vocabulary — Metadata Namespaces (v2.2.0, model namespace v2.4.0)
+export {
+  METADATA_NAMESPACES,
+  MODEL_METADATA_KEYS,
+  type MetadataNamespace,
+  type ModelMetadataKey,
+} from './vocabulary/metadata.js';
 
 // Validators
 export { validate, validators } from './validators/index.js';

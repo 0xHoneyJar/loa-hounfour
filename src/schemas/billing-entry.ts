@@ -127,6 +127,11 @@ export const CreditNoteSchema = Type.Object(
     $id: 'CreditNote',
     additionalProperties: false,
     description: 'Billing reversal/refund referencing an original BillingEntry',
+    $comment: 'Invariants (service-layer, not schema-enforced): '
+      + '(1) amount_micro <= referenced BillingEntry.total_cost_micro (no over-credit). '
+      + '(2) references_billing_entry must reference a valid, existing BillingEntry.id. '
+      + '(3) Sum of all CreditNote.amount_micro for a single entry <= that entry total_cost_micro. '
+      + '(4) At most one void-type CreditNote per BillingEntry (reason=refund with full amount).',
   },
 );
 

@@ -122,6 +122,9 @@ export const MessageSchema = Type.Object({
     id: Type.String(),
     name: Type.String(),
     arguments: Type.String(),
+    model_source: Type.Optional(Type.String({
+      description: 'Model that generated this tool call (for multi-model debugging)',
+    })),
   }, { additionalProperties: false }))),
   created_at: Type.String({ format: 'date-time' }),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

@@ -73,6 +73,10 @@
           },
           "arguments": {
             "type": "string"
+          },
+          "model_source": {
+            "description": "Model that generated this tool call (for multi-model debugging)",
+            "type": "string"
           }
         }
       }
