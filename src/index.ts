@@ -86,6 +86,42 @@ export {
   allocateRecipients,
 } from './utilities/billing.js';
 
+// Schemas — Conversation & Message (v2.0.0)
+export {
+  ConversationSchema,
+  ConversationStatusSchema,
+  ConversationSealingPolicySchema,
+  MessageSchema,
+  MessageRoleSchema,
+  type Conversation,
+  type ConversationStatus,
+  type ConversationSealingPolicy,
+  type Message,
+  type MessageRole,
+} from './schemas/conversation.js';
+
+// Schemas — Transfer (v2.0.0)
+export {
+  TransferSpecSchema,
+  TransferEventSchema,
+  TransferScenarioSchema,
+  TransferResultSchema,
+  type TransferSpec,
+  type TransferEventRecord,
+  type TransferScenario,
+  type TransferResult,
+} from './schemas/transfer-spec.js';
+
+// Schemas — Domain Event (v2.0.0)
+export {
+  DomainEventSchema,
+  type DomainEvent,
+  type AgentEvent,
+  type BillingEvent,
+  type ConversationEvent,
+  type TransferEvent,
+} from './schemas/domain-event.js';
+
 // Schemas — Stream Events
 export {
   StreamEventSchema,
