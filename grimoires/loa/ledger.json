@@ -125,14 +125,14 @@
           "global_id": 12,
           "label": "Protocol Resilience — Schema Evolution & Cross-Version Strategy",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 13,
           "label": "Protocol Completeness — Saga Choreography & Discovery Composition",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
-          "status": "pending"
+          "status": "completed"
         }
       ],
       "status": "active",
