@@ -12,45 +12,78 @@
           "global_id": 1,
           "label": "Foundation — Agent Identity & Lifecycle",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 2,
           "label": "Billing — Multi-Party Cost Attribution",
           "tasks": ["S2-T1", "S2-T2", "S2-T3"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 3,
           "label": "Conversations, Transfers & Events",
           "tasks": ["S3-T1", "S3-T2", "S3-T3"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 4,
           "label": "Integration — Wiring Everything Together",
           "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-5",
           "global_id": 5,
           "label": "Quality — Golden Test Vectors & Migration",
           "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-13T19:00:00Z",
+      "archived_at": "2026-02-13T22:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-finn/issues/66"
+    },
+    {
+      "id": "cycle-002",
+      "label": "Bridgebuilder Excellence Refinements v2.1.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 6,
+          "label": "Schema Enrichment — Extending the Protocol",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 7,
+          "label": "Decision Trails — Documentation as Architecture",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 8,
+          "label": "Interoperability & Distribution",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5"],
           "status": "pending"
         }
       ],
       "status": "active",
-      "created_at": "2026-02-13T19:00:00Z",
+      "created_at": "2026-02-13T22:00:00Z",
       "archived_at": null,
-      "source_issue": "https://github.com/0xHoneyJar/loa-finn/issues/66"
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"
     }
   ],
-  "active_cycle": "cycle-001",
+  "active_cycle": "cycle-002",
   "active_bugfix": null,
-  "global_sprint_counter": 5,
+  "global_sprint_counter": 8,
   "bugfix_cycles": []
 }

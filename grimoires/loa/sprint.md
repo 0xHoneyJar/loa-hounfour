@@ -1,9 +1,10 @@
-# Sprint Plan: loa-hounfour Protocol Types v2.0.0
+# Sprint Plan: loa-hounfour Excellence Refinements v2.1.0
 
-**Cycle:** cycle-001 — Protocol Types v2.0.0
+**Cycle:** cycle-002 — Bridgebuilder Excellence Refinements
 **PRD:** [grimoires/loa/prd.md](prd.md)
 **SDD:** [grimoires/loa/sdd.md](sdd.md)
-**Source:** [RFC loa-finn#66](https://github.com/0xHoneyJar/loa-finn/issues/66)
+**Source:** [PR #1 Bridgebuilder Review](https://github.com/0xHoneyJar/loa-hounfour/pull/1)
+**Findings:** BB-ADV-001 through BB-ADV-011, LOW-003
 **Created:** 2026-02-13
 
 ---
@@ -12,708 +13,563 @@
 
 | Property | Value |
 |----------|-------|
-| **Total sprints** | 5 |
-| **Scope** | v2.0.0 only (v2.1.0/v2.2.0 in future cycles) |
+| **Total sprints** | 3 |
+| **Scope** | v2.1.0 — Excellence refinements from Bridgebuilder architectural review |
 | **Team** | 1 AI agent |
 | **Operator** | Single-operator autonomous (via `/run sprint-plan`) |
 | **Quality gates** | Review + Audit per sprint |
+| **Version bump** | v2.0.0 → v2.1.0 (MINOR — additive optional fields, new schemas, no breaking changes) |
 
-### Sprint Sequencing & Timeboxing
+### Philosophy
+
+> *"The best codebases I've worked on read like a trail of breadcrumbs."*
+
+Cycle-001 built the bridge — 8 new TypeBox schemas, 169 tests, 15 JSON schemas, zero TypeScript errors. The Bridgebuilder review flatlined at 93.6% severity reduction. The bridge is sound.
+
+Cycle-002 makes the bridge *beautiful*. Every finding from the Bridgebuilder architectural review — from HIGH to LOW — gets addressed. Not because we must, but because what we're building matters. These schemas will be consumed by every agent in the system. The decision trails we leave now will be read by humans and agents for years. Excellence for its own sake, as an expression of care.
+
+### Sprint Sequencing
 
 ```
-Sprint 1: Foundation (NftId, Lifecycle, AgentDescriptor)     ── 1 session
+Sprint 1: Schema Enrichment & New Types              ── 1 session
+  BB-ADV-001: metadata extension fields
+  BB-ADV-002: sealed_by on Conversation
+  BB-ADV-004: DomainEventBatch schema
+  BB-ADV-005: transition_reason via typed lifecycle payloads
     ↓
-Sprint 2: Billing (BillingEntry, CreditNote, allocation)     ── 1 session
+Sprint 2: Decision Trails & Documentation             ── 1 session
+  BB-ADV-003: CreditNote invariant documentation
+  BB-ADV-007: Design choice documentation (AES-256-GCM, multiplier_bps, event type convention)
+  BB-ADV-011: Schema-level changelog (SCHEMA-CHANGELOG.md)
+  LOW-003: TSDoc on createTransitionValidator
     ↓
-Sprint 3: Conversations & Transfers (Conv, Msg, Transfer, DomainEvent) ── 1 session
-    ↓
-Sprint 4: Integration (errors, validators, exports, JSON Schema)       ── 1 session
-    ↓
-Sprint 5: Quality (golden vectors, migration guide, CI pipeline)       ── 1-2 sessions
+Sprint 3: Interoperability & Distribution             ── 1-2 sessions
+  BB-ADV-006: vectors/VERSION file + CI validation
+  BB-ADV-008: Resolvable JSON Schema $id (schema landing pages)
+  BB-ADV-009: OpenAPI/AsyncAPI spec generation
+  BB-ADV-010: Cross-language golden vector runners (Python, Go)
 ```
 
-**Timebox unit:** 1 session = 1 `/run sprint-N` invocation (~200K context). Each sprint is scoped to complete within a single autonomous session except Sprint 5 which may require 2 sessions for the ~70 vector files.
-
-Sprints 1-3 are schema sprints (can't parallelize — Sprint 2 depends on Sprint 1 utilities, Sprint 3 depends on Sprint 2 billing refs). Sprint 4 is the integration sprint that wires everything together. Sprint 5 is the quality sprint.
+**Version bump happens in Sprint 3** after all changes land.
 
 ---
 
-## Sprint 1: Foundation — Agent Identity & Lifecycle
+## Sprint 1: Schema Enrichment — Extending the Protocol
 
-**Goal:** Establish the foundational types that all other schemas depend on: NftId canonical format, agent lifecycle state machine, agent descriptor, and lifecycle transition utilities.
+**Goal:** Enrich existing schemas with suggested fields and add the `DomainEventBatch` schema. All new fields are `Type.Optional()` — no breaking changes, no major version bump.
 
-**Dependencies:** None (first sprint)
+**Dependencies:** None (builds on v2.0.0 foundation)
+
+**Findings addressed:** BB-ADV-001, BB-ADV-002, BB-ADV-004, BB-ADV-005
 
 ### Tasks
 
-#### S1-T1: NftId Utility Module
+#### S1-T1: Metadata Extension Fields on Envelope Schemas
 
-**File:** `src/utilities/nft-id.ts`
+**Finding:** BB-ADV-001 (Medium)
+**Files:** `src/schemas/domain-event.ts`, `src/schemas/billing-entry.ts`, `src/schemas/invoke-response.ts`
 
-**Description:** Create the canonical NFT identification utility with EIP-55 checksum support. This is the most depended-on module in v2.0.0 — every agent-related schema references NftId.
+**Description:** Add an optional `metadata` field to the top-level envelope schemas to future-proof the strict `additionalProperties: false` contract. This follows the pattern used by AWS CloudFormation, Kubernetes, and CloudEvents — strict schemas with a designated escape hatch for consumer-specific metadata.
+
+> **FAANG Parallel (from review):** "Strict schemas are great until your first customer needs to pass through a trace header you didn't anticipate."
 
 **Implementation details:**
-- `NftIdSchema`: TypeBox `Type.String()` with pattern `^eip155:\d+\/0x[a-fA-F0-9]{40}\/\d+$`
-- `NFT_ID_PATTERN`: Compiled regex for runtime parsing
-- `parseNftId(id)`: Extract chainId, collection (checksummed), tokenId
-- `formatNftId(chainId, collection, tokenId)`: Construct canonical NftId string
-- `checksumCollection(address)`: EIP-55 mixed-case checksum encoding using Keccak-256
-- `isValidNftId(id)`: Boolean predicate
-- Keccak-256: Use `@noble/hashes/sha3` (`keccak_256` export, ~3KB) or vendored pure-JS implementation. **NOT** `node:crypto` SHA3-256 (different algorithm, wrong checksums).
+- Add `metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown()))` to:
+  - `DomainEventSchema` — for consumer-specific routing metadata
+  - `BillingEntrySchema` — for billing system extensions (tax jurisdiction, currency pair, etc.)
+  - `InvokeResponseSchema` — for provider-specific response metadata
+- Add description: `'Consumer-extensible metadata (not validated by protocol contract)'`
+- Do NOT add to leaf schemas (`MessageSchema`, `BillingRecipientSchema`) — only top-level envelopes
 
 **Acceptance criteria:**
-- [ ] `parseNftId("eip155:80094/0xAbCdEf.../4269")` returns `{ chainId: 80094, collection: "0xAbCdEf...", tokenId: "4269" }`
-- [ ] `parseNftId("invalid")` throws with descriptive error
-- [ ] `formatNftId(80094, "0xabcdef...", "4269")` returns EIP-55 checksummed NftId
-- [ ] `checksumCollection` matches canonical EIP-55 test vectors (at least 5 known addresses)
-- [ ] `isValidNftId` returns true/false without throwing
-- [ ] TypeBox schema validates correct NftId strings, rejects malformed ones
-- [ ] **Strictness:** `parseNftId` accepts any valid hex address (lowercase, uppercase, or mixed-case) but `formatNftId` always outputs EIP-55 checksummed. Validation does NOT require checksum-correct input — it normalizes.
-- [ ] **Scope:** tokenId is always decimal (no hex encoding). ERC-1155 is out of scope (HoneyJar is ERC-721 only). chainId must be positive integer.
-- [ ] **Edge cases:** tokenId "0" is valid, leading zeros in tokenId are valid, max tokenId (uint256 range) is valid, empty collection address is invalid
+- [ ] `DomainEventSchema` accepts objects with and without `metadata` field
+- [ ] `metadata` field accepts arbitrary key-value pairs
+- [ ] Existing tests still pass (field is optional, no existing test data breaks)
+- [ ] JSON Schema output includes `metadata` as optional property
+- [ ] New test vectors: event with metadata, event without metadata (both valid)
 
-**Testing:** 10 vectors (valid parsing, roundtrip, all-lowercase input, all-uppercase input, wrong checksum input normalizes, boundary tokenIds, invalid formats)
+**Testing:** 4 new vectors (1 per schema + 1 negative: metadata on leaf schema rejected)
 
 ---
 
-#### S1-T2: Agent Lifecycle State Machine
+#### S1-T2: Conversation `sealed_by` Field
 
-**File:** `src/schemas/agent-lifecycle.ts`
+**Finding:** BB-ADV-002 (Medium)
+**File:** `src/schemas/conversation.ts`
 
-**Description:** Define the 6-state agent lifecycle enum and transition map. Used by AgentDescriptor and TransferSpec.
+**Description:** Add a `sealed_by` field to `ConversationSchema` — a reference to the `transfer_id` that caused the sealing. Currently, sealed conversations record *when* (`sealed_at`) but not *why*. In audit-heavy environments (NFT ownership transfers), the causal chain matters.
+
+> **FAANG Parallel (from review):** "AWS CloudTrail captures not just what happened, but the request ID that triggered it."
 
 **Implementation details:**
-- `AGENT_LIFECYCLE_STATES` array constant
-- `AgentLifecycleStateSchema`: TypeBox `Type.Union()` of 6 `Type.Literal()` values
-- `AGENT_LIFECYCLE_TRANSITIONS`: Typed constant mapping each state to valid target states
-- `isValidTransition(from, to)`: Boolean validator
+- Add `sealed_by: Type.Optional(Type.String({ minLength: 1, description: 'Transfer ID that caused sealing (causal audit trail)' }))` to `ConversationSchema`
+- Position: after `sealed_at` for logical grouping
+- Only relevant when `status === 'sealed'` — runtime validation of this invariant is documented but not enforced at schema level (same approach as `validateSealingPolicy`)
 
 **Acceptance criteria:**
-- [ ] All 6 states defined: DORMANT, PROVISIONING, ACTIVE, SUSPENDED, TRANSFERRED, ARCHIVED
-- [ ] ARCHIVED is terminal (no valid transitions out)
-- [ ] `isValidTransition('ACTIVE', 'SUSPENDED')` returns true
-- [ ] `isValidTransition('ARCHIVED', 'ACTIVE')` returns false
-- [ ] Schema validates valid state strings, rejects unknown strings
+- [ ] `ConversationSchema` accepts sealed conversations with `sealed_by` field
+- [ ] `ConversationSchema` accepts sealed conversations without `sealed_by` field (backward-compatible)
+- [ ] Existing conversation test vectors still pass unchanged
+- [ ] New vector: sealed conversation with `sealed_by` referencing a transfer_id
 
-**Testing:** 8 vectors (valid states, invalid states, all valid transitions, all invalid transitions)
+**Testing:** 2 new vectors
 
 ---
 
-#### S1-T3: Lifecycle Transition Utility
+#### S1-T3: DomainEventBatch Schema
 
-**File:** `src/utilities/lifecycle.ts`
+**Finding:** BB-ADV-004 (Medium)
+**File:** `src/schemas/domain-event.ts`
 
-**Description:** Shared transition validation utility for agent lifecycle (v2.0.0) and later tool lifecycle (v2.1.0).
+**Description:** Add a `DomainEventBatch` schema for atomic multi-event delivery. When a transfer completes, it emits multiple events (lifecycle transition, conversation sealing, billing adjustment). If these arrive as individual messages, consumers must handle partial failures. A batch with a shared `correlation_id` enables atomic processing.
+
+> **FAANG Parallel (from review):** "This is the 'transactional outbox' pattern from Microservices Patterns (Chris Richardson), and it's how Stripe delivers webhook events for complex operations."
 
 **Implementation details:**
-- `createTransitionValidator<T extends string>(transitions: Record<T, readonly T[]>)`: Generic factory
-- Returns `{ isValid(from, to): boolean; getValidTargets(from): readonly T[] }`
-- Export pre-built `agentLifecycleValidator` using `AGENT_LIFECYCLE_TRANSITIONS`
+- `DomainEventBatchSchema`: `Type.Object()` with:
+  - `batch_id: Type.String({ minLength: 1, description: 'Unique batch identifier' })`
+  - `correlation_id: Type.String({ minLength: 1, description: 'Shared correlation across all events in batch' })`
+  - `events: Type.Array(DomainEventSchema, { minItems: 1, description: 'Ordered list of domain events' })`
+  - `source: Type.String({ minLength: 1, description: 'System that produced the batch' })`
+  - `produced_at: Type.String({ format: 'date-time' })`
+  - `contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' })`
+- `$id: 'DomainEventBatch'`, `additionalProperties: false`
+- Export type: `type DomainEventBatch = Static<typeof DomainEventBatchSchema>`
+- Add to barrel exports in `src/index.ts`
+- Add lazy validator in `src/validators/index.ts`
+- Add to `scripts/generate-schemas.ts` and `scripts/check-schemas.ts`
 
 **Acceptance criteria:**
-- [ ] Generic factory works with any string union type
-- [ ] `agentLifecycleValidator.isValid('DORMANT', 'PROVISIONING')` returns true
-- [ ] `agentLifecycleValidator.getValidTargets('ACTIVE')` returns `['SUSPENDED', 'TRANSFERRED', 'ARCHIVED']`
+- [ ] Schema validates a batch with 1-N events
+- [ ] Empty events array rejected (minItems: 1)
+- [ ] Each event in the batch is independently valid per DomainEventSchema
+- [ ] JSON Schema generated successfully
+- [ ] Validator available via `validators.domainEventBatch()`
 
-**Testing:** Covered by S1-T2 lifecycle vectors
+**Testing:** 4 new vectors (single-event batch, multi-event batch, empty batch rejected, batch with metadata)
 
 ---
 
-#### S1-T4: Agent Descriptor Schema
+#### S1-T4: Typed Lifecycle Event Payloads with Transition Reason
 
-**File:** `src/schemas/agent-descriptor.ts`
+**Finding:** BB-ADV-005 (Low)
+**File:** `src/schemas/agent-lifecycle.ts` (extend), new: `src/schemas/lifecycle-event-payload.ts`
 
-**Description:** The canonical agent representation for content negotiation. Most complex new schema — references NftId, AgentLifecycleState, and PoolId.
+**Description:** Create typed payload schemas for lifecycle transition events that include a `reason` field. Kubernetes tracks `reason` and `message` on pod condition changes for production debugging. "Why did this agent go SUSPENDED?" should be answerable from the event stream.
+
+> **FAANG Parallel (from review):** "Kubernetes tracks reason and message on pod condition changes, which makes debugging production issues enormously easier."
 
 **Implementation details:**
-- `AgentStatsSchema`: Optional nested object (interactions, uptime, created_at, last_active)
-- `AgentDescriptorSchema`: Full schema per SDD Section 4.3
-- Imports: `NftIdSchema`, `AgentLifecycleStateSchema`, `PoolIdSchema`
-- `@context` field: `Type.Literal('https://schema.honeyjar.xyz/agent/v1')`
+- `LifecycleTransitionPayloadSchema`: `Type.Object()` with:
+  - `agent_id: Type.String({ minLength: 1 })`
+  - `previous_state: AgentLifecycleStateSchema`
+  - `new_state: AgentLifecycleStateSchema`
+  - `reason: Type.String({ minLength: 1, description: 'Human/agent-readable reason for transition' })`
+  - `triggered_by: Type.Optional(Type.String({ description: 'Actor or event that triggered the transition' }))`
+  - `transfer_id: Type.Optional(Type.String({ description: 'Associated transfer ID (for TRANSFERRED state)' }))`
+- Export convenience type: `type LifecycleTransitionPayload = Static<typeof LifecycleTransitionPayloadSchema>`
+- Add `LifecycleTransitionEvent` type alias: `DomainEvent<LifecycleTransitionPayload>`
+- Add to barrel exports and validators
 
 **Acceptance criteria:**
-- [ ] Schema compiles without TypeBox errors
-- [ ] Valid descriptor with all fields passes validation
-- [ ] Valid descriptor with only required fields passes validation
-- [ ] Missing `capabilities` (required) fails validation
-- [ ] Empty `capabilities` array fails validation (minItems: 1)
-- [ ] Invalid `lifecycle_state` value fails validation
-- [ ] `@context` must be exact literal string
-- [ ] `models` values must be valid PoolId strings
+- [ ] Schema validates a payload with required fields (agent_id, previous_state, new_state, reason)
+- [ ] Optional fields (`triggered_by`, `transfer_id`) accepted when present
+- [ ] States must be valid `AgentLifecycleState` values
+- [ ] `LifecycleTransitionEvent` type compiles correctly as DomainEvent wrapper
+- [ ] JSON Schema generated
 
-**Testing:** 10 vectors (full valid, minimal valid, each required field missing, invalid values)
+**Testing:** 3 new vectors (basic transition, transfer-triggered, invalid state rejected)
 
 ---
 
 ### Sprint 1 Summary
 
-| Task | File | Est. Lines | Depends On |
-|------|------|-----------|------------|
-| S1-T1 | `src/utilities/nft-id.ts` | ~80 | None |
-| S1-T2 | `src/schemas/agent-lifecycle.ts` | ~50 | None |
-| S1-T3 | `src/utilities/lifecycle.ts` | ~30 | S1-T2 |
-| S1-T4 | `src/schemas/agent-descriptor.ts` | ~80 | S1-T1, S1-T2 |
-| **Total** | | **~240** | |
+| Task | Finding | Files | Est. Lines | Depends On |
+|------|---------|-------|-----------|------------|
+| S1-T1 | BB-ADV-001 | domain-event, billing-entry, invoke-response | ~15 | None |
+| S1-T2 | BB-ADV-002 | conversation.ts | ~5 | None |
+| S1-T3 | BB-ADV-004 | domain-event.ts, index.ts, validators, scripts | ~60 | None |
+| S1-T4 | BB-ADV-005 | lifecycle-event-payload.ts, agent-lifecycle.ts | ~50 | S1-T3 |
+| **Total** | | | **~130** | |
 
 ---
 
-## Sprint 2: Billing — Multi-Party Cost Attribution
+## Sprint 2: Decision Trails — Documentation as Architecture
 
-**Goal:** Replace the v1.1.0 `CostBreakdown` with `BillingEntry` + `CreditNote`, implement deterministic recipient allocation, and create the breaking changes to `InvokeResponse` and `UsageReport`.
+**Goal:** Document the "why" behind every key design decision. Transform the codebase from "trail of breadcrumbs" to "annotated trail with maps." Add TSDoc, schema-level changelog, and invariant documentation.
 
-**Dependencies:** Sprint 1 (NftId for `BillingEntry.nft_id`)
+**Dependencies:** Sprint 1 (new schemas need documenting)
+
+**Findings addressed:** BB-ADV-003, BB-ADV-007, BB-ADV-011, LOW-003
 
 ### Tasks
 
-#### S2-T1: BillingEntry & CreditNote Schemas
+#### S2-T1: CreditNote Invariant Documentation
 
+**Finding:** BB-ADV-003 (Low)
 **File:** `src/schemas/billing-entry.ts`
 
-**Description:** Define the multi-party billing schema that replaces CostBreakdown. This is the key breaking change driving v2.0.0.
+**Description:** Document the business logic invariants that the schema alone cannot express. A `CreditNote` should never issue credits exceeding the original `BillingEntry` amount. A `CreditNote` should reference an existing `BillingEntry.id`. These are service-layer validations, but documenting them in the schema prevents future implementers from building incorrect assumptions.
+
+> **Bridgebuilder:** "These are business logic validations that belong at the service layer, but documenting the invariants in the schema description or a dedicated ADR would help future implementers."
 
 **Implementation details:**
-- `MicroUsdSchema`: `Type.String({ pattern: '^[0-9]+$' })`
-- `CostTypeSchema`: Union of 5 cost types
-- `BillingRecipientSchema`: address, role, share_bps, amount_micro
-- `BillingEntrySchema`: Full schema per SDD Section 4.5, including new `id` field (ULID)
-- `CreditNoteSchema`: Reversal type per PRD FR4
+- Add TSDoc block to `CreditNoteSchema` documenting:
+  - `amount_micro` must not exceed the referenced `BillingEntry.total_cost_micro`
+  - `references_billing_entry` must reference a valid `BillingEntry.id`
+  - Multiple `CreditNote`s can reference the same `BillingEntry` (partial refunds)
+  - Sum of all `CreditNote.amount_micro` for a single entry must not exceed the entry's total
+- Add `description` to `amount_micro` field: `'Credit amount in micro-USD (must not exceed referenced entry total)'`
+- Add inline code comment documenting the invariant for agents
 
 **Acceptance criteria:**
-- [ ] `BillingEntry.id` field exists (ULID, canonical identifier)
-- [ ] `BillingEntry.trace_id` field exists (distributed tracing, separate from `id`)
-- [ ] `recipients[].share_bps` validated as integer 0-10000
-- [ ] `multiplier_bps` validated as integer 10000-100000
-- [ ] `currency` locked to literal `"USD"`
-- [ ] `precision` locked to literal `6`
-- [ ] `rounding_policy` locked to literal `"largest_remainder"`
-- [ ] `CreditNote.references_billing_entry` is required string
-- [ ] `CreditNote.reason` is one of 4 valid values
+- [ ] TSDoc on `CreditNoteSchema` documents all 4 invariants
+- [ ] `amount_micro` field has descriptive `description` property
+- [ ] No runtime changes — documentation only
+- [ ] JSON Schema output includes enhanced descriptions
 
-**Testing:** 15 vectors (valid entry, valid minimal, invalid share_bps, invalid multiplier_bps, valid credit note, invalid reason, edge cases)
+**Testing:** No new tests (documentation only)
 
 ---
 
-#### S2-T2: Billing Allocation Utilities
+#### S2-T2: Design Choice Documentation
 
-**File:** `src/utilities/billing.ts`
+**Finding:** BB-ADV-007 (Medium)
+**Files:** `src/schemas/conversation.ts`, `src/schemas/billing-entry.ts`, `src/schemas/domain-event.ts`
 
-**Description:** Deterministic largest-remainder allocation and recipient validation.
+**Description:** Document the "why" behind three key design choices that future agents and developers will encounter:
+
+1. **AES-256-GCM** in `ConversationSealingPolicy` — why not XChaCha20-Poly1305?
+2. **`multiplier_bps` bounded 10000-100000** in `BillingEntry` — business or technical constraint?
+3. **Three-segment event type** pattern `^[a-z]+\.[a-z_]+\.[a-z_]+$` in `DomainEvent` — why three?
+
+> **Bridgebuilder:** "A one-line comment like `// WebSocket chosen over SSE for bidirectional heartbeat requirement (see ADR-007)` turns this from a mystery into a mapped decision."
 
 **Implementation details:**
-- `validateBillingRecipients(recipients, totalCostMicro)`: Checks share_bps sum and amount_micro sum
-- `allocateRecipients(recipients, totalCostMicro)`: Largest-remainder algorithm using BigInt arithmetic
-- All arithmetic uses `BigInt` to prevent floating-point issues
+- Add inline comments explaining each choice:
+  - `// AES-256-GCM chosen over XChaCha20-Poly1305: GCM is the NIST standard with hardware acceleration`
+    `// on modern CPUs (AES-NI), and all three downstream repos (loa-finn, arrakis, mibera-freeside)`
+    `// already depend on Node.js crypto which provides GCM natively. XChaCha20 would require`
+    `// an additional dependency (@noble/ciphers) for marginal nonce-misuse resistance benefit.`
+  - `// multiplier_bps bounded [10000, 100000]: 10000 = 1.0x (cost pass-through), 100000 = 10.0x`
+    `// (maximum markup). Business constraint from pricing model — no sub-cost pricing allowed`
+    `// (providers would lose money), no >10x markup (consumer protection / regulatory).`
+  - `// Event type: three-segment dotted convention {aggregate}.{noun}.{verb}`
+    `// Examples: agent.lifecycle.transitioned, billing.entry.created, conversation.thread.sealed`
+    `// Three segments chosen for routing: segment 1 selects the event bus partition,`
+    `// segment 2 selects the handler group, segment 3 selects the specific handler.`
+    `// This maps to Kafka topic.consumer-group.handler in the loa-finn event system.`
 
 **Acceptance criteria:**
-- [ ] `allocateRecipients` output amounts sum exactly to `totalCostMicro` (zero dust)
-- [ ] Largest remainder goes to recipient with highest truncation remainder
-- [ ] 2-party split: 60/40 of "100" → "60" / "40"
-- [ ] 3-party split: 33.33/33.33/33.34 of "100" → "33" / "33" / "34" (largest remainder to third)
-- [ ] Single recipient (10000 bps) gets full amount
-- [ ] `validateBillingRecipients` returns errors for bps sum !== 10000
-- [ ] `validateBillingRecipients` returns errors for amount sum !== total
-- [ ] **Input convention:** `allocateRecipients` takes `share_bps` only; it computes `amount_micro`. Callers never provide `amount_micro` to `allocateRecipients` — the schema stores both fields but only `allocateRecipients` is the correct producer.
-- [ ] **Zero total:** `allocateRecipients("0", recipients)` returns all recipients with `amount_micro: "0"` (no error)
-- [ ] **Tie-breaking:** When two recipients have equal remainders, the one appearing first in the input array receives the extra micro-unit (deterministic by position)
-- [ ] **Uniqueness:** Recipients are NOT required to have unique address+role pairs (same address can appear twice with different roles)
+- [ ] Each of the 3 design choices has a comment explaining rationale
+- [ ] Comments reference concrete technical reasons (not just "we chose this")
+- [ ] Comments are positioned adjacent to the relevant schema field
+- [ ] No runtime changes
 
-**Testing:** 8 vectors (2-party, 3-party, single, edge amounts, zero total, equal-remainder tie-break, validation failures)
+**Testing:** No new tests (documentation only)
 
 ---
 
-#### S2-T3: InvokeResponse Breaking Change
+#### S2-T3: TSDoc on createTransitionValidator
 
-**File:** `src/schemas/invoke-response.ts` (MODIFY)
+**Finding:** LOW-003 (deferred from bridge iteration 2)
+**File:** `src/utilities/lifecycle.ts`
 
-**Description:** Remove `CostBreakdownSchema` and `CostBreakdown` type. Replace `cost` field with `billing_entry_id`. Update `UsageReport` similarly.
+**Description:** Add comprehensive TSDoc with usage examples to `createTransitionValidator`. This is the generic factory that will be reused for tool lifecycle (v2.1.0) and any future state machines.
 
 **Implementation details:**
-- Remove: `CostBreakdownSchema`, `CostBreakdown` type export
-- Keep: `UsageSchema`, `Usage` type export (still used by BillingEntry.usage)
-- Add: `billing_entry_id: Type.String({ minLength: 1 })` to `InvokeResponseSchema`
-- Add: `billing_entry_id: Type.String({ minLength: 1 })` to `UsageReportSchema`
-- `billing_entry_id` references `BillingEntry.id` (ULID), NOT `trace_id`
+- Add TSDoc `@example` blocks showing:
+  1. Creating a validator from `AGENT_LIFECYCLE_TRANSITIONS`
+  2. Checking a valid transition
+  3. Getting valid targets from a state
+  4. Using with a custom state machine (e.g., tool lifecycle)
+- Add `@typeParam T` documentation
+- Add `@see` reference to `AGENT_LIFECYCLE_TRANSITIONS` and `isValidTransition`
 
 **Acceptance criteria:**
-- [ ] `CostBreakdownSchema` removed from file
-- [ ] `CostBreakdown` type removed from exports
-- [ ] `UsageSchema` and `Usage` still exported
-- [ ] `InvokeResponse` has `billing_entry_id: string` field
-- [ ] `UsageReport` has `billing_entry_id: string` field
-- [ ] Existing InvokeResponse tests updated for new shape
-- [ ] Existing budget test vectors updated for breaking change
+- [ ] TSDoc includes at least 2 `@example` blocks
+- [ ] `@typeParam T` is documented
+- [ ] `@see` references related exports
+- [ ] TypeDoc/TSDoc renders correctly (verify with IDE hover)
 
-**Testing:** Update existing vectors + 2 new migration vectors
+**Testing:** No new tests (documentation only)
+
+---
+
+#### S2-T4: Schema-Level Changelog
+
+**Finding:** BB-ADV-011 (Low)
+**File:** New: `SCHEMA-CHANGELOG.md`
+
+**Description:** Create a schema-level changelog that tracks per-schema evolution across versions. When v2.1.0 lands, consumers need to know "what changed between 2.0.0 and 2.1.0?" at the schema level, not the file level.
+
+> **FAANG Parallel (from review):** "Confluent's Schema Registry for Kafka serves exactly this purpose — it tracks schema evolution across versions and enforces compatibility rules."
+
+**Implementation details:**
+- Create `SCHEMA-CHANGELOG.md` at repo root with format:
+
+```markdown
+# Schema Changelog
+
+## v2.1.0 (Unreleased)
+
+### DomainEvent
+- Added: `metadata` optional field (BB-ADV-001)
+
+### DomainEventBatch (NEW)
+- New schema for atomic multi-event delivery (BB-ADV-004)
+
+### BillingEntry
+- Added: `metadata` optional field (BB-ADV-001)
+
+### Conversation
+- Added: `sealed_by` optional field (BB-ADV-002)
+
+### InvokeResponse
+- Added: `metadata` optional field (BB-ADV-001)
+
+### LifecycleTransitionPayload (NEW)
+- New schema for typed lifecycle event payloads (BB-ADV-005)
+
+## v2.0.0
+
+### AgentDescriptor (NEW)
+- Full agent identity with NFT binding, capabilities, content negotiation
+
+### AgentLifecycleState (NEW)
+- 6-state lifecycle machine: DORMANT → PROVISIONING → ACTIVE → SUSPENDED → TRANSFERRED → ARCHIVED
+...
+```
+
+**Acceptance criteria:**
+- [ ] Every schema has an entry for every version it was modified in
+- [ ] Each entry links to the finding/issue that motivated the change
+- [ ] Format is consumable by automated tooling (consistent heading structure)
+- [ ] v2.0.0 section includes all schemas from cycle-001
+
+**Testing:** No new tests (documentation only)
 
 ---
 
 ### Sprint 2 Summary
 
-| Task | File | Est. Lines | Depends On |
-|------|------|-----------|------------|
-| S2-T1 | `src/schemas/billing-entry.ts` | ~120 | S1-T1 (NftId) |
-| S2-T2 | `src/utilities/billing.ts` | ~60 | S2-T1 |
-| S2-T3 | `src/schemas/invoke-response.ts` | ~-20 (net) | S2-T1 |
-| **Total** | | **~160** | |
+| Task | Finding | Files | Est. Lines | Depends On |
+|------|---------|-------|-----------|------------|
+| S2-T1 | BB-ADV-003 | billing-entry.ts | ~15 | None |
+| S2-T2 | BB-ADV-007 | conversation.ts, billing-entry.ts, domain-event.ts | ~20 | None |
+| S2-T3 | LOW-003 | lifecycle.ts | ~25 | None |
+| S2-T4 | BB-ADV-011 | SCHEMA-CHANGELOG.md (new) | ~100 | Sprint 1 |
+| **Total** | | | **~160** | |
 
 ---
 
-## Sprint 3: Conversations, Transfers & Events
+## Sprint 3: Interoperability & Distribution — From Library to Protocol
 
-**Goal:** Define conversation/message types, transfer spec/events, and the cross-cutting DomainEvent envelope. Completes all v2.0.0 schema files.
+**Goal:** Transform loa-hounfour from a "TypeScript library" into a "protocol specification with a TypeScript reference implementation." This sprint makes the schemas discoverable, consumable, and verifiable across any language and tooling ecosystem.
 
-**Dependencies:** Sprint 1 (NftId, lifecycle), Sprint 2 (billing refs)
+**Dependencies:** Sprint 1 + Sprint 2
+
+**Findings addressed:** BB-ADV-006, BB-ADV-008, BB-ADV-009, BB-ADV-010
 
 ### Tasks
 
-#### S3-T1: Conversation & Message Schemas
+#### S3-T1: Vector Versioning & CI Validation
 
-**File:** `src/schemas/conversation.ts`
+**Finding:** BB-ADV-006 (Low)
+**File:** New: `vectors/VERSION`, update: `scripts/check-schemas.ts`
 
-**Description:** Conversation and Message types per SDD Section 4.6b. Conversations belong to the NFT, not the user.
+**Description:** Add a `vectors/VERSION` file tracking which contract version the vectors were generated for, and a CI check that fails if vectors exist for a version that doesn't match `CONTRACT_VERSION`.
 
 **Implementation details:**
-- `ConversationStatusSchema`: Union of 4 statuses (active, paused, sealed, archived)
-- `ConversationSealingPolicySchema`: encryption_scheme, key_derivation, key_reference, access_audit, previous_owner_access
-- `ConversationSchema`: Full schema with nft_id, status, sealing_policy, timestamps
-- `MessageRoleSchema`: Union of 4 roles (user, assistant, system, tool)
-- `MessageSchema`: Full schema with conversation_id, role, content, tool_calls, billing_entry_id
+- Create `vectors/VERSION` file: single line containing the contract version (e.g., `2.1.0`)
+- Update `scripts/check-schemas.ts` (or create `scripts/check-vectors.ts`) to:
+  1. Read `vectors/VERSION`
+  2. Compare against `CONTRACT_VERSION` from `src/version.ts`
+  3. Fail with descriptive error if they don't match
+- Add npm script: `"vectors:check": "tsx scripts/check-vectors.ts"`
 
 **Acceptance criteria:**
-- [ ] `Conversation.nft_id` uses `NftIdSchema` (not plain string)
-- [ ] `Conversation.sealing_policy` is optional
-- [ ] `ConversationSealingPolicy.encryption_scheme` validates "aes-256-gcm" | "none"
-- [ ] `ConversationSealingPolicy.previous_owner_access` validates "none" | "read_only_24h"
-- [ ] `Message.tool_calls` is optional array with id, name, arguments
-- [ ] `Message.billing_entry_id` is optional (only assistant/tool messages have billing)
-- [ ] All datetime fields validate as ISO format strings
-- [ ] **Sealing policy required fields:** When `encryption_scheme !== "none"`, `key_derivation` must also be non-"none" and `key_reference` must be provided (TypeBox conditional validation or documented invariant with dedicated validator)
-- [ ] **Sealing policy edge cases:** `encryption_scheme: "none"` with `key_reference` present is valid (ignored). `access_audit: true` without encryption is valid (audits unencrypted access).
+- [ ] `vectors/VERSION` exists and contains the current contract version
+- [ ] `scripts/check-vectors.ts` exits 0 when versions match
+- [ ] `scripts/check-vectors.ts` exits 1 with descriptive error when versions mismatch
+- [ ] npm script `vectors:check` registered in package.json
 
-**Testing:** 12 vectors (valid conversation, valid message, sealed conversation, message with tool_calls, invalid status, invalid role, sealing with encryption, sealing without encryption, missing key_reference when encrypted)
+**Testing:** Manual verification (script tested with correct and incorrect version)
 
 ---
 
-#### S3-T2: Transfer Spec & Events
+#### S3-T2: Schema Landing Pages (Resolvable $id URLs)
 
-**File:** `src/schemas/transfer-spec.ts`
+**Finding:** BB-ADV-008 (Medium)
+**Files:** New: `schemas/index.html` (static), update: `scripts/generate-schemas.ts`
 
-**Description:** Transfer specification and event schemas per SDD Section 4.6c. Defines the transfer scenarios and their outcomes.
+**Description:** Make the JSON Schema `$id` URLs resolvable. Currently schemas reference `https://schemas.0xhoneyjar.com/loa-hounfour/2.0.0/billing-entry` but these URLs return 404. Resolvable $id URLs enable IDE validation, SchemaStore.org integration, and any tooling that fetches schemas by $id.
 
 **Implementation details:**
-- `TransferScenarioSchema`: Union of 4 scenarios (sale, gift, admin_recovery, custody_change)
-- `TransferResultSchema`: Union of 3 results (completed, failed, rolled_back)
-- `TransferSpecSchema`: transfer_id, nft_id, from_owner, to_owner, scenario, sealing_policy
-- `TransferEventSchema`: Extends TransferSpec with result, conversations_sealed/migrated counts, completed_at
-- **Naming convention:** The schema type is `TransferEventRecord` (per SDD) to avoid collision with `TransferEvent` DomainEvent typed wrapper in domain-event.ts. Barrel export will export both — `TransferEventRecord` (schema) and `TransferEvent` (DomainEvent wrapper).
+- Generate a `schemas/index.json` manifest listing all schemas with their $id URLs and file paths
+- Generate a `schemas/README.md` with a table of all schemas, their $ids, and descriptions
+- These serve as the human-readable and machine-readable schema registry
+- The actual hosting (Vercel/Cloudflare Pages) is out of scope — we produce the artifacts that can be deployed as static files
+- Update `scripts/generate-schemas.ts` to produce `index.json` and `README.md` alongside the `.schema.json` files
 
 **Acceptance criteria:**
-- [ ] `TransferSpec.from_owner` and `to_owner` validate Ethereum address pattern
-- [ ] `TransferSpec.sealing_policy` uses `ConversationSealingPolicySchema` (imported from conversation.ts)
-- [ ] `TransferEvent.conversations_sealed` is non-negative integer
-- [ ] `TransferEvent.result` validates the 3 result values
-- [ ] `TransferEvent.completed_at` is optional (null if still in progress)
+- [ ] `schemas/index.json` lists all schemas with `$id`, `file`, `description`, and `version`
+- [ ] `schemas/README.md` renders as a human-readable schema catalog
+- [ ] Schema generation script produces both files alongside the JSON schemas
+- [ ] `schemas/index.json` validates as valid JSON
+- [ ] Every schema file listed in `index.json` exists on disk
 
-**Testing:** 8 vectors (valid spec, valid event per scenario, failed transfer, invalid addresses)
+**Testing:** Assertion in `check-schemas.ts` that index.json references match actual files
 
 ---
 
-#### S3-T3: Domain Event Envelope
+#### S3-T3: AsyncAPI Spec Generation
 
-**File:** `src/schemas/domain-event.ts`
+**Finding:** BB-ADV-009 (Medium)
+**Files:** New: `specs/asyncapi.yaml`, new: `scripts/generate-asyncapi.ts`
 
-**Description:** Generic event envelope for cross-service audit consistency per SDD Section 4.7.
+**Description:** Generate an AsyncAPI specification for the event-driven schemas (`DomainEvent`, `DomainEventBatch`, `StreamEvent`). AsyncAPI is the standard for documenting event-driven APIs, analogous to OpenAPI for REST APIs. This makes the protocol discoverable by any API tooling in the ecosystem.
 
 **Implementation details:**
-- `AggregateTypeSchema`: Union of 6 aggregate types
-- `DomainEventSchema`: TypeBox schema with `Type.Unknown()` payload
-- `DomainEvent<T>`: Generic TypeScript type (`Omit<Static<...>, 'payload'> & { payload: T }`)
-- Typed wrappers: `AgentEvent`, `BillingEvent`, `ConversationEvent`, `TransferEvent`
-- Event type pattern: `^[a-z]+\.[a-z_]+\.[a-z_]+$`
+- Create `scripts/generate-asyncapi.ts` that:
+  1. Imports the relevant schemas
+  2. Generates an AsyncAPI 3.0 YAML document with:
+     - `info`: package name, version, description
+     - `channels`: one per event type (domain-events, stream-events)
+     - `messages`: referencing the JSON Schema files
+     - `schemas`: inline or $ref to generated JSON schemas
+- Output: `specs/asyncapi.yaml`
+- Add npm script: `"spec:generate": "tsx scripts/generate-asyncapi.ts"`
 
 **Acceptance criteria:**
-- [ ] Schema validates envelope structure with any payload
-- [ ] Generic `DomainEvent<T>` type compiles correctly
-- [ ] Typed wrappers compile and narrow payload type
-- [ ] `type` field validates naming convention pattern
-- [ ] `version` is positive integer (minimum: 1)
-- [ ] `correlation_id` and `causation_id` are optional
+- [ ] `specs/asyncapi.yaml` is valid AsyncAPI 3.0 (validate with `@asyncapi/parser`)
+- [ ] Spec references all event-related schemas (DomainEvent, DomainEventBatch, StreamEvent)
+- [ ] Spec includes message examples from golden vectors
+- [ ] npm script registered in package.json
 
-**Testing:** 5 vectors (valid event per aggregate type, invalid type pattern, invalid version)
+**Testing:** Validation via AsyncAPI parser (dev dependency), or manual schema validation
+
+---
+
+#### S3-T4: Cross-Language Golden Vector Runners
+
+**Finding:** BB-ADV-010 (High — the highest-priority interop finding)
+**Files:** New: `vectors/runners/python/test_vectors.py`, new: `vectors/runners/go/vectors_test.go`
+
+**Description:** Create minimal test runners in Python and Go that load the golden vector JSON files and validate them against native JSON Schema implementations. This transforms loa-hounfour from a "TypeScript library" into a "protocol specification with cross-language verification."
+
+> **FAANG Parallel (from review):** "Every serious cryptographic standard ships with test vectors — known input/output pairs that any conforming implementation must reproduce."
+
+**Implementation details:**
+
+**Python runner** (`vectors/runners/python/test_vectors.py`):
+- Use `jsonschema` library (the reference JSON Schema implementation)
+- Load each `schemas/*.schema.json` file
+- Load corresponding vectors from `vectors/`
+- Validate `valid` vectors pass, `invalid` vectors fail
+- Run with: `cd vectors/runners/python && pip install jsonschema && python test_vectors.py`
+- Minimal: ~80 lines, zero framework dependencies beyond `jsonschema`
+
+**Go runner** (`vectors/runners/go/vectors_test.go`):
+- Use `github.com/santhosh-tekuri/jsonschema/v6` (fastest Go JSON Schema library)
+- Same pattern: load schemas, load vectors, validate
+- Run with: `cd vectors/runners/go && go test ./...`
+- Minimal: ~100 lines, single dependency
+
+Both runners should:
+- Report pass/fail per vector with vector ID
+- Exit non-zero on any failure
+- Be self-contained (no dependency on the TypeScript build)
+
+**Acceptance criteria:**
+- [ ] Python runner validates all valid vectors pass and all invalid vectors fail
+- [ ] Go runner validates all valid vectors pass and all invalid vectors fail
+- [ ] Both runners can be executed independently (no TypeScript toolchain required)
+- [ ] Both runners include a `README.md` with setup/run instructions
+- [ ] Vector runners consume the same JSON files as the TypeScript tests (no duplication)
+
+**Testing:** The runners ARE the tests. Each language validates against the golden vectors.
+
+---
+
+#### S3-T5: Version Bump and Final Integration
+
+**Files:** `src/version.ts`, `package.json`, `vectors/VERSION`, `SCHEMA-CHANGELOG.md`
+
+**Description:** Bump version to 2.1.0, regenerate all schemas (including new DomainEventBatch and LifecycleTransitionPayload), update version references, and run full test suite.
+
+**Implementation details:**
+- Update `CONTRACT_VERSION` to `'2.1.0'`
+- Update `MIN_SUPPORTED_VERSION` to `'2.0.0'` (v2.0.0 consumers can still read v2.1.0 — additive only)
+- Update `package.json` version to `2.1.0`
+- Update `vectors/VERSION` to `2.1.0`
+- Regenerate all JSON schemas (new schemas get `$id` URLs with `/2.1.0/`)
+- Run `schema:check` to verify all schemas up to date
+- Run full test suite
+- Finalize `SCHEMA-CHANGELOG.md` v2.1.0 section
+
+**Acceptance criteria:**
+- [ ] `CONTRACT_VERSION === '2.1.0'`
+- [ ] `MIN_SUPPORTED_VERSION === '2.0.0'` (backward compatible)
+- [ ] All JSON schemas regenerated with v2.1.0 $id URLs
+- [ ] `schema:check` passes
+- [ ] `vectors:check` passes
+- [ ] All tests pass (existing 169 + new ~15)
+- [ ] TypeScript strict mode — 0 errors
+- [ ] `SCHEMA-CHANGELOG.md` v2.1.0 section finalized
+
+**Testing:** Full suite: `pnpm test`, `pnpm typecheck`, `pnpm schema:check`
 
 ---
 
 ### Sprint 3 Summary
 
-| Task | File | Est. Lines | Depends On |
-|------|------|-----------|------------|
-| S3-T1 | `src/schemas/conversation.ts` | ~100 | S1-T1 (NftId) |
-| S3-T2 | `src/schemas/transfer-spec.ts` | ~90 | S1-T2 (lifecycle), S3-T1 (sealing policy) |
-| S3-T3 | `src/schemas/domain-event.ts` | ~40 | None |
-| **Total** | | **~230** | |
-
----
-
-## Sprint 4: Integration — Wiring Everything Together
-
-**Goal:** Connect all new schemas to the existing package infrastructure: error codes, validators, barrel exports, JSON Schema generation, and package.json version bump.
-
-**Dependencies:** Sprints 1-3 (all schemas must exist)
-
-### Tasks
-
-#### S4-T1: New Error Codes
-
-**File:** `src/vocabulary/errors.ts` (MODIFY)
-
-**Description:** Add 7 new v2.0.0 error codes to the existing ERROR_CODES object and ERROR_HTTP_STATUS mapping.
-
-**Implementation details:**
-- Add to `ERROR_CODES`: AGENT_NOT_FOUND, AGENT_NOT_ACTIVE, AGENT_TRANSFER_IN_PROGRESS, CONVERSATION_SEALED, CONVERSATION_NOT_FOUND, OWNERSHIP_MISMATCH, BILLING_RECIPIENTS_INVALID
-- Add to `ERROR_HTTP_STATUS`: 404, 403, 409, 403, 404, 403, 400 respectively
-
-**Acceptance criteria:**
-- [ ] 7 new error codes added (total: 38)
-- [ ] Each error code has corresponding HTTP status mapping
-- [ ] Existing 31 error codes unchanged
-- [ ] TypeScript union type includes new codes
-
-**Testing:** Verify error code count and HTTP status mapping in Sprint 5 vectors
-
----
-
-#### S4-T2: Lazy-Compiled Validators
-
-**File:** `src/validators/index.ts` (MODIFY)
-
-**Description:** Add lazy-compiled `TypeCompiler.Compile()` validators for all new schemas.
-
-**Implementation details:**
-- Add validators: `agentDescriptor`, `billingEntry`, `creditNote`, `conversation`, `message`, `transferSpec`, `transferEvent`, `conversationSealingPolicy`, `domainEvent`
-- Follow existing pattern: `() => TypeCompiler.Compile(Schema)`
-- Import all new schemas
-
-**Acceptance criteria:**
-- [ ] 9 new validators added (total ~15)
-- [ ] Lazy compilation — validator compiled only on first `.Check()` call
-- [ ] Each validator correctly validates corresponding schema
-- [ ] Existing validators unchanged and still functional
-
-**Testing:** Each validator tested in Sprint 5 with at least 1 valid + 1 invalid input
-
----
-
-#### S4-T3: Version Bump & Compatibility
-
-**File:** `src/version.ts` (MODIFY)
-
-**Description:** Bump contract version and minimum supported version.
-
-**Implementation details:**
-- `CONTRACT_VERSION = '2.0.0' as const`
-- `MIN_SUPPORTED_VERSION = '2.0.0' as const`
-
-**Acceptance criteria:**
-- [ ] `CONTRACT_VERSION` is `'2.0.0'`
-- [ ] `MIN_SUPPORTED_VERSION` is `'2.0.0'`
-- [ ] Existing compatibility check functions work with new version
-
-**Testing:** 2 vectors (version string match, compat check)
-
----
-
-#### S4-T4: Barrel Exports
-
-**File:** `src/index.ts` (MODIFY)
-
-**Description:** Add all new schemas, types, utilities, and constants to the barrel export.
-
-**Implementation details:**
-- Export from `./schemas/agent-descriptor.js`
-- Export from `./schemas/agent-lifecycle.js`
-- Export from `./schemas/transfer-spec.js`
-- Export from `./schemas/billing-entry.js`
-- Export from `./schemas/conversation.js`
-- Export from `./schemas/domain-event.js`
-- Export from `./utilities/nft-id.js`
-- Export from `./utilities/lifecycle.js`
-- Export from `./utilities/billing.js`
-- ~40 new named exports
-
-**Acceptance criteria:**
-- [ ] All new schemas importable from package root
-- [ ] All new types importable from package root
-- [ ] All new utility functions importable from package root
-- [ ] Existing exports unchanged
-- [ ] No circular dependency issues (`tsc --noEmit` passes)
-
-**Testing:** Compile check (tsc --noEmit); import check in Sprint 5
-
----
-
-#### S4-T5: JSON Schema Generation
-
-**File:** `scripts/generate-schemas.ts` (MODIFY)
-
-**Description:** Register all new schemas in the JSON Schema generation script.
-
-**Implementation details:**
-- Add 8 new entries to `schemasToGenerate` array (per SDD Section 9.2)
-- Generate `schemas/index.json` manifest
-- All `$ref` references resolved inline (self-contained files)
-
-**Acceptance criteria:**
-- [ ] `pnpm run schema:generate` produces 8 new `.schema.json` files
-- [ ] `schemas/index.json` manifest lists all schemas with version
-- [ ] Each JSON Schema file is valid Draft 2020-12
-- [ ] No external `$ref` — all references inlined
-- [ ] Existing schemas still generated correctly
-
-**Testing:** `pnpm run schema:check` passes
-
----
-
-#### S4-T6: Package.json Updates
-
-**File:** `package.json` (MODIFY)
-
-**Description:** Bump version and add schema export paths.
-
-**Implementation details:**
-- Version: `"2.0.0"`
-- Add `exports` entries for `"./schemas/*": "./schemas/*"`
-- Verify `engines.node` still `">=22"`
-
-**Acceptance criteria:**
-- [ ] `version` is `"2.0.0"`
-- [ ] `exports["./schemas/*"]` maps to `"./schemas/*"`
-- [ ] No new runtime dependencies added
-- [ ] `pnpm run build` succeeds
-
-**Testing:** Build verification
-
----
-
-### Sprint 4 Summary
-
-| Task | File | Est. Lines | Depends On |
-|------|------|-----------|------------|
-| S4-T1 | `src/vocabulary/errors.ts` | ~+20 | None |
-| S4-T2 | `src/validators/index.ts` | ~+20 | S1-S3 (all schemas) |
-| S4-T3 | `src/version.ts` | ~2 | None |
-| S4-T4 | `src/index.ts` | ~+40 | S1-S3 (all schemas) |
-| S4-T5 | `scripts/generate-schemas.ts` | ~+20 | S4-T4 |
-| S4-T6 | `package.json` | ~+5 | S4-T3 |
-| **Total** | | **~107** | |
-
----
-
-## Sprint 5: Quality — Golden Test Vectors & Migration Guide
-
-**Goal:** Create comprehensive golden test vectors for all new schemas, update existing vectors for breaking changes, and write the migration guide. This sprint ensures v2.0.0 meets the quality bar set by v1.1.0's 91 vectors.
-
-**Dependencies:** Sprint 4 (all schemas integrated and exportable)
-
-### Tasks
-
-#### S5-T1: Agent Test Vectors
-
-**Files:**
-- `vectors/agent/descriptor-valid.json`
-- `vectors/agent/descriptor-invalid.json`
-- `vectors/agent/lifecycle-transitions.json`
-- `vectors/agent/nft-id-parsing.json`
-- `tests/vectors/agent-descriptor.test.ts`
-- `tests/vectors/agent-lifecycle.test.ts`
-- `tests/vectors/nft-id.test.ts`
-
-**Description:** Golden vectors for AgentDescriptor, AgentLifecycleState, and NftId.
-
-**Acceptance criteria:**
-- [ ] ~26 vectors covering: valid descriptors (full + minimal), each required field missing, each validation rule, lifecycle transitions (all valid + invalid), NftId parsing (valid formats, checksum verification, roundtrip, invalid formats)
-- [ ] All tests pass with `pnpm run test`
-- [ ] Vectors are JSON files consumable by other languages
-
-**Testing:** Self-testing (these ARE the tests)
-
----
-
-#### S5-T2: Billing Test Vectors
-
-**Files:**
-- `vectors/billing/entry-valid.json`
-- `vectors/billing/entry-invalid.json`
-- `vectors/billing/credit-note-valid.json`
-- `vectors/billing/recipient-allocation.json`
-- `vectors/billing/migration-from-v1.json`
-- `tests/vectors/billing-entry.test.ts`
-- `tests/vectors/billing-allocation.test.ts`
-
-**Description:** Golden vectors for BillingEntry, CreditNote, and allocation utilities. This is the highest-priority test area (financial correctness).
-
-**Acceptance criteria:**
-- [ ] ~21 vectors covering: valid entries (all cost types), invalid share_bps (sum !== 10000), invalid multiplier_bps (out of range), credit note (all reasons), allocation (2-party, 3-party, single, edge amounts, zero dust guarantee), migration before/after
-- [ ] All BigInt arithmetic produces deterministic results
-- [ ] Allocation vectors verify exact micro-USD amounts (no rounding drift)
-
-**Testing:** Self-testing
-
----
-
-#### S5-T3: Conversation & Transfer Test Vectors
-
-**Files:**
-- `vectors/conversation/conversation-valid.json`
-- `vectors/conversation/message-valid.json`
-- `vectors/conversation/sealing-scenarios.json`
-- `vectors/transfer/events-valid.json`
-- `vectors/transfer/scenarios.json`
-- `tests/vectors/conversation.test.ts`
-- `tests/vectors/transfer-spec.test.ts`
-
-**Description:** Golden vectors for Conversation, Message, ConversationSealingPolicy, TransferSpec, and TransferEvent.
-
-**Acceptance criteria:**
-- [ ] ~18 vectors covering: valid conversations (active, sealed, archived), messages (all roles, with tool_calls), sealing policies (encrypted + unencrypted), transfers (all scenarios), transfer results (completed, failed, rolled_back)
-- [ ] Sealed conversations have sealed_at timestamp set
-- [ ] Transfer events reference valid sealing policies
-
-**Testing:** Self-testing
-
----
-
-#### S5-T4: Domain Event & Error Code Test Vectors
-
-**Files:**
-- `vectors/domain-event/event-valid.json`
-- `vectors/domain-event/naming-conventions.json`
-- `tests/vectors/domain-event.test.ts`
-
-**Description:** Golden vectors for DomainEvent envelope and new error codes.
-
-**Acceptance criteria:**
-- [ ] ~5 vectors covering: one valid event per aggregate type, invalid type pattern, invalid version
-- [ ] Event naming convention validated: `{aggregate}.{entity}.{verb}`
-- [ ] Error code count validated: 38 total (31 existing + 7 new)
-
-**Testing:** Self-testing
-
----
-
-#### S5-T5: Migration Guide
-
-**File:** `MIGRATION.md` (in package root, included in npm publish)
-
-**Description:** Produce a standalone migration guide for downstream developers upgrading from v1.1.0 to v2.0.0. This is a stated success criterion in the PRD.
-
-**Implementation details:**
-- Breaking changes table with before/after code snippets
-- `CostBreakdown` → `BillingEntry` field-by-field mapping
-- `InvokeResponse.cost` → `InvokeResponse.billing_entry_id` example
-- `UsageReport.cost` → `UsageReport.billing_entry_id` example
-- New type imports checklist
-- `allocateRecipients()` usage example
-
-**Acceptance criteria:**
-- [ ] `MIGRATION.md` exists at package root
-- [ ] Covers all 5 breaking changes from SDD Section 11.1
-- [ ] Includes runnable before/after TypeScript code examples
-- [ ] References BillingEntry.id (ULID) as the canonical identifier (not trace_id)
-
-**Testing:** Human-readable document; no automated tests
-
----
-
-#### S5-T6: Update Existing Test Vectors
-
-**Files:**
-- `tests/vectors/budget.test.ts` (MODIFY)
-- Existing `vectors/budget/*.json` (MODIFY)
-
-**Description:** Update existing v1.1.0 test vectors that reference CostBreakdown to use the new billing_entry_id field.
-
-**Acceptance criteria:**
-- [ ] All existing 91 vectors still pass (with updates for breaking changes)
-- [ ] Budget vectors use `billing_entry_id` instead of `cost: CostBreakdown`
-- [ ] No false positives from stale test data
-
-**Testing:** `pnpm run test` — all green
-
----
-
-#### S5-T7: Full CI Pipeline Verification
-
-**Description:** Run the complete CI pipeline to verify everything works end-to-end.
-
-**Acceptance criteria:**
-- [ ] `pnpm run typecheck` passes (strict mode, no errors)
-- [ ] `pnpm run build` produces clean dist/ output
-- [ ] `pnpm run test` all vectors pass (~160+ total: 91 existing + ~70 new)
-- [ ] `pnpm run schema:generate` produces all JSON Schema files
-- [ ] `pnpm run schema:check` validates generated schemas
-- [ ] No circular dependencies, no `any` types, no implicit returns
-
-**Testing:** Full pipeline run
-
----
-
-### Sprint 5 Summary
-
-| Task | Files | Est. Vectors | Depends On |
-|------|-------|-------------|------------|
-| S5-T1 | 7 files | ~26 | Sprint 1 schemas |
-| S5-T2 | 7 files | ~21 | Sprint 2 schemas |
-| S5-T3 | 7 files | ~18 | Sprint 3 schemas |
-| S5-T4 | 3 files | ~5 | Sprint 3 (DomainEvent) |
-| S5-T5 | 1 file | - | All sprints |
-| S5-T6 | 2+ files | ~0 (updates) | All sprints |
-| S5-T7 | - | - | All sprints |
-| **Total** | | **~70 new** | |
+| Task | Finding | Files | Est. Lines | Depends On |
+|------|---------|-------|-----------|------------|
+| S3-T1 | BB-ADV-006 | vectors/VERSION, scripts/check-vectors.ts | ~30 | None |
+| S3-T2 | BB-ADV-008 | scripts/generate-schemas.ts, schemas/index.json | ~80 | None |
+| S3-T3 | BB-ADV-009 | scripts/generate-asyncapi.ts, specs/asyncapi.yaml | ~120 | S3-T2 |
+| S3-T4 | BB-ADV-010 | vectors/runners/python/, vectors/runners/go/ | ~200 | None |
+| S3-T5 | — | version.ts, package.json, schemas | ~20 | S3-T1..T4 |
+| **Total** | | | **~450** | |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|------------|------------|
-| EIP-55 Keccak implementation | Blocks Sprint 1 | Low | Use audited @noble/hashes; test against known vectors |
-| TypeBox `@context` field | Blocks S1-T4 | Low | Verified: TypeBox supports arbitrary string keys |
-| Breaking change to invoke-response | Breaks existing tests | Certain | S2-T3 handles carefully; S5-T5 updates vectors |
-| 70 new vectors is significant | Effort overrun in Sprint 5 | Medium | Prioritize billing + lifecycle first (financial impact) |
-| JSON Schema generation for new types | May need script modifications | Low | TypeBox's JSON Schema output is well-tested |
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| AsyncAPI spec generation complexity | Medium | Low | Generate manually if automated generation is too complex; AsyncAPI is YAML |
+| Go vector runner dependency management | Low | Low | Use `go mod init` with single dependency; Go modules are well-understood |
+| New optional fields cause JSON Schema drift | Low | Medium | `schema:check` script catches any drift; CI prevents merge with stale schemas |
+| Version bump confuses downstream consumers | Low | Medium | `MIN_SUPPORTED_VERSION` stays at 2.0.0; MIGRATION.md already exists |
+
+## Success Metrics
+
+| Metric | Target |
+|--------|--------|
+| All Bridgebuilder findings addressed | 12/12 |
+| New test vectors added | ~15 |
+| Cross-language runners passing | Python + Go |
+| Schema changelog complete | All schemas documented |
+| Design decisions documented | 3/3 key choices |
+| Version bump | 2.0.0 → 2.1.0 (minor, backward-compatible) |
 
 ---
 
-## Success Criteria (Cycle Complete)
+## Appendix: Finding → Task Traceability
 
-- [ ] `@0xhoneyjar/loa-hounfour@2.0.0` publishable to npm
-- [ ] CONTRACT_VERSION = "2.0.0"
-- [ ] ~160+ golden test vectors passing (91 existing + ~70 new)
-- [ ] Zero type definitions requiring downstream repos to invent their own
-- [ ] JSON Schema files generated for all new types
-- [ ] Migration guide with before/after examples
-- [ ] Clean `pnpm run typecheck && pnpm run build && pnpm run test`
-
----
-
-## Flatline Review Decisions
-
-### HIGH_CONSENSUS (Auto-Integrated)
-
-| ID | Finding | Integration |
-|----|---------|-------------|
-| IMP-001 (835) | No timebox/duration per sprint | Added session-based timeboxing in Sprint Sequencing section |
-| IMP-003 (860) | Migration guide missing as explicit task | Added S5-T5: Migration Guide with acceptance criteria |
-| IMP-008 (825) | TransferEvent naming collision with DomainEvent wrapper | Clarified: schema type = `TransferEventRecord`, DomainEvent wrapper = `TransferEvent` |
-| IMP-010 (870) | Template artifacts (false positive) | Overridden — orchestrator template injection artifact |
-
-### BLOCKERS (Human Decisions)
-
-| ID | Concern | Decision | Rationale |
-|----|---------|----------|-----------|
-| SKP-001 (920) | Template artifacts | **OVERRIDDEN** — false positive | Flatline sees orchestrator template markers, not actual document |
-| SKP-002 (880) | Single AI agent quality risk | **OVERRIDDEN** | Review + Audit quality gates per sprint; `/run` enforces implement→review→audit cycle |
-| SKP-003 (760) | NftId format assumptions | **ACCEPTED** | Added edge case vectors: all-lowercase, all-uppercase, boundary tokenIds, ERC-721 scope |
-| SKP-004 (740) | EIP-55 checksum strictness | **ACCEPTED** | Added parse/format strictness rules: parse normalizes, format checksums |
-| SKP-005 (900) | Billing allocation rules incomplete | **ACCEPTED** | Added: shares-only input convention, zero total handling, tie-breaking rule, uniqueness policy |
-| SKP-008 (780) | Sealing policy lacks concrete requirements | **ACCEPTED** | Added: required fields when encryption enabled, edge case vectors |
+| Finding | Severity | Sprint | Task | Status |
+|---------|----------|--------|------|--------|
+| BB-ADV-001 | Medium | 1 | S1-T1 | Pending |
+| BB-ADV-002 | Medium | 1 | S1-T2 | Pending |
+| BB-ADV-004 | Medium | 1 | S1-T3 | Pending |
+| BB-ADV-005 | Low | 1 | S1-T4 | Pending |
+| BB-ADV-003 | Low | 2 | S2-T1 | Pending |
+| BB-ADV-007 | Medium | 2 | S2-T2 | Pending |
+| LOW-003 | Low | 2 | S2-T3 | Pending |
+| BB-ADV-011 | Low | 2 | S2-T4 | Pending |
+| BB-ADV-006 | Low | 3 | S3-T1 | Pending |
+| BB-ADV-008 | Medium | 3 | S3-T2 | Pending |
+| BB-ADV-009 | Medium | 3 | S3-T3 | Pending |
+| BB-ADV-010 | High | 3 | S3-T4 | Pending |
