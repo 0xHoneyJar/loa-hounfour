@@ -30,7 +30,7 @@
   ],
   "invalid": [
     { "id": "nftid-inv-001", "input": "eip155:1/0xZZZZ/42", "note": "invalid hex in address" },
-    { "id": "nftid-inv-002", "input": "eip155:/0x5af0d9827e0c53e4799bb226655a1de152a425a5/42", "note": "missing chainId" },
+    { "id": "nftid-inv-002", "input": "eip155:0/0x5af0d9827e0c53e4799bb226655a1de152a425a5/42", "note": "chainId 0 is invalid" },
     { "id": "nftid-inv-003", "input": "not-a-nft-id", "note": "garbage input" },
     { "id": "nftid-inv-004", "input": "eip155:1/0x5af0d9827e0c53e4799bb226655a1de152a425a5/", "note": "missing tokenId" },
     { "id": "nftid-inv-005", "input": "0x5af0d9827e0c53e4799bb226655a1de152a425a5", "note": "bare address without prefix" }

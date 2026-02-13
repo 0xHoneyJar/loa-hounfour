@@ -22,7 +22,7 @@
     },
     "nft_id": {
       "$id": "NftId",
-      "pattern": "^eip155:\\d+\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
       "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
       "type": "string"
     },

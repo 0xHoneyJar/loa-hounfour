@@ -9,13 +9,13 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 
 export const NftIdSchema = Type.String({
   $id: 'NftId',
-  pattern: '^eip155:\\d+\\/0x[a-fA-F0-9]{40}\\/\\d+$',
+  pattern: '^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$',
   description: 'Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}',
 });
 
 export type NftId = Static<typeof NftIdSchema>;
 
-export const NFT_ID_PATTERN = /^eip155:(\d+)\/0x([a-fA-F0-9]{40})\/(\d+)$/;
+export const NFT_ID_PATTERN = /^eip155:([1-9]\d*)\/0x([a-fA-F0-9]{40})\/(\d+)$/;
 
 export interface ParsedNftId {
   chainId: number;

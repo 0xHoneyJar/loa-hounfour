@@ -65,7 +65,7 @@ export const TransferEventSchema = Type.Object({
   completed_at: Type.Optional(Type.String({ format: 'date-time' })),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
-  $id: 'TransferEvent',
+  $id: 'TransferEventRecord',
   additionalProperties: false,
 });
 

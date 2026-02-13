@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { UsageSchema } from './invoke-response.js';
 import { MicroUSD } from '../vocabulary/currency.js';
+import { NftIdSchema } from '../utilities/nft-id.js';
 
 export const CostTypeSchema = Type.Union(
   [
@@ -41,7 +42,7 @@ export const BillingEntrySchema = Type.Object(
     id: Type.String({ minLength: 1, description: 'ULID — canonical billing entry identifier' }),
     trace_id: Type.String({ minLength: 1, description: 'Distributed tracing correlation ID' }),
     tenant_id: Type.String({ minLength: 1 }),
-    nft_id: Type.Optional(Type.String({ description: 'Agent NFT ID (if applicable)' })),
+    nft_id: Type.Optional(NftIdSchema),
 
     cost_type: CostTypeSchema,
     provider: Type.String({ minLength: 1 }),
