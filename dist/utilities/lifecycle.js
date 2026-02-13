@@ -2,43 +2,14 @@
  * Generic state transition validator factory.
  * Used by agent lifecycle (v2.0.0) and tool lifecycle (v2.1.0).
  */
+/** Separator used in guard key format: `"FROM→TO"`. */
+const GUARD_SEP = '→';
 /**
- * Create a transition validator from a state transition map.
- *
- * Generic factory for building state machine validators. Used by the agent
- * lifecycle (v2.0.0) and designed for reuse with tool lifecycle, conversation
- * status, and any future state machines.
- *
- * @typeParam T - String literal union representing the state enum (e.g. `AgentLifecycleState`)
- * @param transitions - Map of state → valid target states
- * @returns Validator with `isValid` and `getValidTargets` methods
- *
- * @example Agent lifecycle validator
- * ```ts
- * import { createTransitionValidator } from './lifecycle.js';
- * import { AGENT_LIFECYCLE_TRANSITIONS, type AgentLifecycleState } from '../schemas/agent-lifecycle.js';
- *
- * const validator = createTransitionValidator<AgentLifecycleState>(AGENT_LIFECYCLE_TRANSITIONS);
- * validator.isValid('DORMANT', 'PROVISIONING'); // true
- * validator.isValid('DORMANT', 'ACTIVE');        // false — must provision first
- * validator.getValidTargets('ACTIVE');            // ['SUSPENDED', 'TRANSFERRED', 'ARCHIVED']
- * ```
- *
- * @example Custom state machine
- * ```ts
- * type ToolState = 'REGISTERED' | 'ENABLED' | 'DISABLED' | 'DEPRECATED';
- * const TOOL_TRANSITIONS: Record<ToolState, readonly ToolState[]> = {
- *   REGISTERED: ['ENABLED'],
- *   ENABLED: ['DISABLED', 'DEPRECATED'],
- *   DISABLED: ['ENABLED', 'DEPRECATED'],
- *   DEPRECATED: [],
- * };
- * const toolValidator = createTransitionValidator<ToolState>(TOOL_TRANSITIONS);
- * ```
- *
- * @see {@link AGENT_LIFECYCLE_TRANSITIONS} for the agent state machine definition
- * @see {@link isValidTransition} for direct agent lifecycle validation
+ * Build a guard lookup key from a state transition pair.
  */
+function guardKey(from, to) {
+    return `${from}${GUARD_SEP}${to}`;
+}
 /**
  * Create a transition validator from a state transition map.
  *
@@ -77,7 +48,7 @@ export function createTransitionValidator(transitions, guards) {
                 return false;
             }
             if (guards) {
-                const key = `${from}\u2192${to}`;
+                const key = guardKey(from, to);
                 const guard = guards[key];
                 if (guard && !guard(from, to, context)) {
                     return false;
@@ -102,19 +73,19 @@ export function createTransitionValidator(transitions, guards) {
  */
 export const DEFAULT_GUARDS = {
     /** ACTIVE → TRANSFERRED requires an active transfer_id. */
-    'ACTIVE\u2192TRANSFERRED': (_from, _to, context) => {
+    ['ACTIVE→TRANSFERRED']: (_from, _to, context) => {
         return context !== undefined && typeof context.transfer_id === 'string' && context.transfer_id.length > 0;
     },
     /** ACTIVE → ARCHIVED requires no active transfer. */
-    'ACTIVE\u2192ARCHIVED': (_from, _to, context) => {
+    ['ACTIVE→ARCHIVED']: (_from, _to, context) => {
         return context === undefined || !context.transfer_id;
     },
     /** SUSPENDED → ACTIVE requires suspension reason resolved. */
-    'SUSPENDED\u2192ACTIVE': (_from, _to, context) => {
+    ['SUSPENDED→ACTIVE']: (_from, _to, context) => {
         return context !== undefined && context.reason_resolved === true;
     },
     /** TRANSFERRED → PROVISIONING requires transfer completed and new owner authenticated. */
-    'TRANSFERRED\u2192PROVISIONING': (_from, _to, context) => {
+    ['TRANSFERRED→PROVISIONING']: (_from, _to, context) => {
         return context !== undefined
             && context.transfer_completed === true
             && typeof context.new_owner === 'string'

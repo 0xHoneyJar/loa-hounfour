@@ -39,6 +39,23 @@ export type TransferChoreography = Readonly<Record<TransferScenario, ScenarioCho
  *
  * **custody_change**: Organizational custody transfer — seals conversations
  * but no billing (internal transfer).
+ *
+ * ### Compensation and Sealed Conversations
+ *
+ * Compensation paths do NOT unseal conversations. Sealed conversations remain
+ * sealed after a rollback — this is intentional:
+ *
+ * 1. **Data integrity**: Unsealing requires decryption key re-derivation, which
+ *    may not be possible if the key material was rotated during the transfer.
+ * 2. **Audit trail**: The sealing event is part of the permanent event log.
+ *    Unsealing would require a separate `conversation.thread.unsealed` event
+ *    type (not yet defined in the vocabulary).
+ * 3. **Admin override**: If conversations must be restored after a failed
+ *    transfer, an admin can issue explicit unsealing through the admin_recovery
+ *    scenario, which bypasses sealing entirely.
+ *
+ * This matches the Kubernetes pattern: a drained pod's data volumes are not
+ * automatically re-mounted if the drain fails — recovery requires explicit action.
  */
 export declare const TRANSFER_CHOREOGRAPHY: TransferChoreography;
 //# sourceMappingURL=transfer-choreography.d.ts.map

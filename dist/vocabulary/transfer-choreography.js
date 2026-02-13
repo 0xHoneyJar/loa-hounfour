@@ -11,6 +11,23 @@
  *
  * **custody_change**: Organizational custody transfer — seals conversations
  * but no billing (internal transfer).
+ *
+ * ### Compensation and Sealed Conversations
+ *
+ * Compensation paths do NOT unseal conversations. Sealed conversations remain
+ * sealed after a rollback — this is intentional:
+ *
+ * 1. **Data integrity**: Unsealing requires decryption key re-derivation, which
+ *    may not be possible if the key material was rotated during the transfer.
+ * 2. **Audit trail**: The sealing event is part of the permanent event log.
+ *    Unsealing would require a separate `conversation.thread.unsealed` event
+ *    type (not yet defined in the vocabulary).
+ * 3. **Admin override**: If conversations must be restored after a failed
+ *    transfer, an admin can issue explicit unsealing through the admin_recovery
+ *    scenario, which bypasses sealing entirely.
+ *
+ * This matches the Kubernetes pattern: a drained pod's data volumes are not
+ * automatically re-mounted if the drain fails — recovery requires explicit action.
  */
 export const TRANSFER_CHOREOGRAPHY = {
     sale: {
@@ -21,6 +38,7 @@ export const TRANSFER_CHOREOGRAPHY = {
             'billing.entry.created',
             'transfer.saga.completed',
         ],
+        // Compensation: void billing, rollback lifecycle. Conversations remain sealed.
         compensation: [
             'billing.entry.voided',
             'agent.lifecycle.transitioned', // → ACTIVE (rollback)
@@ -34,6 +52,7 @@ export const TRANSFER_CHOREOGRAPHY = {
             'agent.lifecycle.transitioned', // → TRANSFERRED
             'transfer.saga.completed',
         ],
+        // Compensation: rollback lifecycle. Conversations remain sealed.
         compensation: [
             'agent.lifecycle.transitioned', // → ACTIVE (rollback)
             'transfer.saga.rolled_back',
@@ -45,6 +64,7 @@ export const TRANSFER_CHOREOGRAPHY = {
             'agent.lifecycle.transitioned', // → TRANSFERRED
             'transfer.saga.completed',
         ],
+        // Compensation: rollback lifecycle. No conversations were sealed (admin override).
         compensation: [
             'agent.lifecycle.transitioned', // → ACTIVE (rollback)
             'transfer.saga.rolled_back',
@@ -57,6 +77,7 @@ export const TRANSFER_CHOREOGRAPHY = {
             'agent.lifecycle.transitioned', // → TRANSFERRED
             'transfer.saga.completed',
         ],
+        // Compensation: rollback lifecycle. Conversations remain sealed.
         compensation: [
             'agent.lifecycle.transitioned', // → ACTIVE (rollback)
             'transfer.saga.rolled_back',

@@ -42,7 +42,7 @@ export function validateBillingEntry(entry) {
     // Delegate recipient validation
     const recipientResult = validateBillingRecipients(entry.recipients, entry.total_cost_micro);
     if (!recipientResult.valid) {
-        return { valid: false, reason: recipientResult.errors[0] };
+        return { valid: false, reason: recipientResult.errors.join('; ') };
     }
     return { valid: true };
 }
