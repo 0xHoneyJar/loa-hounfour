@@ -44,8 +44,16 @@ function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
 }
 
 /**
- * Validate data against a schema.
- * Returns { valid: true } or { valid: false, errors: [...] }.
+ * Validate data against any TypeBox schema.
+ *
+ * @remarks For protocol schemas, prefer using the `validators` object
+ * which provides pre-defined, cached validators for all protocol types.
+ * This function creates and caches compiled validators for any schema,
+ * which is suitable for a bounded set of schemas but not for
+ * dynamically-generated schemas in long-running processes — the cache
+ * has no eviction policy.
+ *
+ * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`
  */
 export function validate<T extends TSchema>(
   schema: T,

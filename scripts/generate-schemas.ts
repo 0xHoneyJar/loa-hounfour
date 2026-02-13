@@ -48,13 +48,35 @@ const schemas = [
 mkdirSync(outDir, { recursive: true });
 
 for (const { name, schema } of schemas) {
-  const jsonSchema = {
+  const jsonSchema: Record<string, unknown> = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     ...schema,
     // Override TypeBox $id with versioned URI (must come after spread)
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
     $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
+
+  // Inject cross-field validation for ConversationSealingPolicy (BB-V3-008).
+  // JSON Schema 2020-12 if/then expresses the invariant that Go/Python
+  // validators can enforce natively without reading TypeScript source.
+  if (name === 'conversation') {
+    const props = jsonSchema.properties as Record<string, unknown> | undefined;
+    if (props?.sealing_policy) {
+      const sp = props.sealing_policy as Record<string, unknown>;
+      // Preserve existing $comment from TypeBox schema options
+      sp.if = {
+        properties: { encryption_scheme: { not: { const: 'none' } } },
+        required: ['encryption_scheme'],
+      };
+      sp.then = {
+        required: ['key_reference'],
+        properties: {
+          key_derivation: { not: { const: 'none' } },
+        },
+      };
+    }
+  }
+
   const path = join(outDir, `${name}.schema.json`);
   writeFileSync(path, JSON.stringify(jsonSchema, null, 2) + '\n');
   console.log(`Generated: ${path}`);

@@ -76,7 +76,11 @@ export const BillingEntrySchema = Type.Object(
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     usage: Type.Optional(UsageSchema),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
-      description: 'Consumer-extensible metadata (not validated by protocol contract)',
+      description: 'Consumer-extensible metadata. Namespace conventions: '
+        + 'loa.* reserved for protocol-level metadata, '
+        + 'trace.* for OpenTelemetry-compatible observability, '
+        + 'x-* for consumer-defined extensions. '
+        + 'Not validated by protocol contract.',
     })),
   },
   {

@@ -1,0 +1,21 @@
+/**
+ * Metadata namespace conventions for protocol extensibility.
+ *
+ * All envelope schemas (DomainEvent, BillingEntry, InvokeResponse) carry an
+ * optional `metadata` record. These namespace prefixes prevent implicit
+ * contracts — the Google FieldMask cautionary tale.
+ *
+ * @see BB-V3-001 — Metadata namespace conventions
+ */
+
+/** Reserved metadata namespace prefixes. */
+export const METADATA_NAMESPACES = {
+  /** Protocol-level metadata reserved for loa-hounfour evolution. */
+  PROTOCOL: 'loa.',
+  /** OpenTelemetry-compatible observability data. */
+  TRACE: 'trace.',
+  /** Consumer-defined extensions. */
+  CONSUMER: 'x-',
+} as const;
+
+export type MetadataNamespace = typeof METADATA_NAMESPACES[keyof typeof METADATA_NAMESPACES];

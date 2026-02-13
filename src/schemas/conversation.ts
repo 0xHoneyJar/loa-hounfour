@@ -41,6 +41,10 @@ export const ConversationSealingPolicySchema = Type.Object({
 }, {
   $id: 'ConversationSealingPolicy',
   additionalProperties: false,
+  $comment: 'Cross-field invariant: when encryption_scheme !== "none", '
+    + 'key_derivation must be non-"none" and key_reference must be provided. '
+    + 'Enforced by validateSealingPolicy() in TypeScript. '
+    + 'Cross-language consumers should implement equivalent validation.',
 });
 
 export type ConversationSealingPolicy = Static<typeof ConversationSealingPolicySchema>;

@@ -1,4 +1,5 @@
-import { Type, type Static } from '@sinclair/typebox';
+import { Type, type Static, type TSchema } from '@sinclair/typebox';
+import { TypeCompiler } from '@sinclair/typebox/compiler';
 
 /** Aggregate types for domain event routing. */
 const AggregateTypeSchema = Type.Union([
@@ -40,7 +41,11 @@ export const DomainEventSchema = Type.Object({
   payload: Type.Unknown(),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
-    description: 'Consumer-extensible metadata (not validated by protocol contract)',
+    description: 'Consumer-extensible metadata. Namespace conventions: '
+      + 'loa.* reserved for protocol-level metadata, '
+      + 'trace.* for OpenTelemetry-compatible observability, '
+      + 'x-* for consumer-defined extensions. '
+      + 'Not validated by protocol contract.',
   })),
 }, {
   $id: 'DomainEvent',
@@ -68,6 +73,83 @@ export type TransferEvent = DomainEvent<{
   to_owner: string;
   [k: string]: unknown;
 }>;
+
+// ---------------------------------------------------------------------------
+// Minimal payload schemas for runtime type guards.
+// `additionalProperties: true` preserves extensibility — these check the
+// minimum contract, not the full payload shape.
+// ---------------------------------------------------------------------------
+
+/** Minimum payload contract for agent aggregate events. */
+export const AgentEventPayloadSchema = Type.Object({
+  agent_id: Type.String({ minLength: 1 }),
+}, { $id: 'AgentEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for billing aggregate events. */
+export const BillingEventPayloadSchema = Type.Object({
+  billing_entry_id: Type.String({ minLength: 1 }),
+}, { $id: 'BillingEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for conversation aggregate events. */
+export const ConversationEventPayloadSchema = Type.Object({
+  conversation_id: Type.String({ minLength: 1 }),
+}, { $id: 'ConversationEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for transfer aggregate events. */
+export const TransferEventPayloadSchema = Type.Object({
+  transfer_id: Type.String({ minLength: 1 }),
+  from_owner: Type.String({ minLength: 1 }),
+  to_owner: Type.String({ minLength: 1 }),
+}, { $id: 'TransferEventPayload', additionalProperties: true });
+
+// Lazily compiled payload validators
+const payloadValidators = new Map<string, ReturnType<typeof TypeCompiler.Compile>>();
+
+function checkPayload(schema: TSchema, payload: unknown): boolean {
+  const id = schema.$id!;
+  let compiled = payloadValidators.get(id);
+  if (!compiled) {
+    compiled = TypeCompiler.Compile(schema);
+    payloadValidators.set(id, compiled);
+  }
+  return compiled.Check(payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to AgentEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isAgentEvent(event: DomainEvent): event is AgentEvent {
+  return event.aggregate_type === 'agent'
+    && checkPayload(AgentEventPayloadSchema, event.payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to BillingEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isBillingEvent(event: DomainEvent): event is BillingEvent {
+  return event.aggregate_type === 'billing'
+    && checkPayload(BillingEventPayloadSchema, event.payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to ConversationEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isConversationEvent(event: DomainEvent): event is ConversationEvent {
+  return event.aggregate_type === 'conversation'
+    && checkPayload(ConversationEventPayloadSchema, event.payload);
+}
+
+/**
+ * Runtime type guard: narrows a DomainEvent to TransferEvent.
+ * Validates both aggregate_type and minimum payload contract.
+ */
+export function isTransferEvent(event: DomainEvent): event is TransferEvent {
+  return event.aggregate_type === 'transfer'
+    && checkPayload(TransferEventPayloadSchema, event.payload);
+}
 
 /**
  * Batch envelope for atomic multi-event delivery.

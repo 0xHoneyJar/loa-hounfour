@@ -123,6 +123,15 @@ export {
   type BillingEvent,
   type ConversationEvent,
   type TransferEvent,
+  // v2.2.0 — Runtime payload validation (BB-V3-002)
+  AgentEventPayloadSchema,
+  BillingEventPayloadSchema,
+  ConversationEventPayloadSchema,
+  TransferEventPayloadSchema,
+  isAgentEvent,
+  isBillingEvent,
+  isConversationEvent,
+  isTransferEvent,
 } from './schemas/domain-event.js';
 
 // Schemas — Lifecycle Event Payload (v2.1.0)
@@ -179,6 +188,9 @@ export { MicroUSD } from './vocabulary/currency.js';
 
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
+
+// Vocabulary — Metadata Namespaces (v2.2.0, BB-V3-001)
+export { METADATA_NAMESPACES, type MetadataNamespace } from './vocabulary/metadata.js';
 
 // Validators
 export { validate, validators } from './validators/index.js';
