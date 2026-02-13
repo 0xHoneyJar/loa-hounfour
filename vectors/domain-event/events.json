@@ -61,6 +61,38 @@
         "contract_version": "2.0.0"
       },
       "note": "transfer completed event"
+    },
+    {
+      "id": "de-005",
+      "data": {
+        "event_id": "evt_005",
+        "aggregate_id": "agent_xyz",
+        "aggregate_type": "agent",
+        "type": "agent.lifecycle.transitioned",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:10:00Z",
+        "actor": "system",
+        "payload": { "agent_id": "agent_xyz" },
+        "contract_version": "2.0.0",
+        "metadata": { "trace_source": "loa-finn", "region": "us-east-1", "priority": 1 }
+      },
+      "note": "event with consumer metadata (v2.1.0 BB-ADV-001)"
+    },
+    {
+      "id": "de-006",
+      "data": {
+        "event_id": "evt_006",
+        "aggregate_id": "agent_abc",
+        "aggregate_type": "agent",
+        "type": "agent.status.updated",
+        "version": 1,
+        "occurred_at": "2026-01-15T10:15:00Z",
+        "actor": "system",
+        "payload": {},
+        "contract_version": "2.0.0",
+        "metadata": {}
+      },
+      "note": "event with empty metadata object (valid)"
     }
   ],
   "invalid": [

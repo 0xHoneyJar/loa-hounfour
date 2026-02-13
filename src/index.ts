@@ -116,12 +116,21 @@ export {
 // Schemas — Domain Event (v2.0.0)
 export {
   DomainEventSchema,
+  DomainEventBatchSchema,
   type DomainEvent,
+  type DomainEventBatch,
   type AgentEvent,
   type BillingEvent,
   type ConversationEvent,
   type TransferEvent,
 } from './schemas/domain-event.js';
+
+// Schemas — Lifecycle Event Payload (v2.1.0)
+export {
+  LifecycleTransitionPayloadSchema,
+  type LifecycleTransitionPayload,
+  type LifecycleTransitionEvent,
+} from './schemas/lifecycle-event-payload.js';
 
 // Schemas — Stream Events
 export {

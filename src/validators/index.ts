@@ -27,7 +27,8 @@ import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
 import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema } from '../schemas/conversation.js';
 import { TransferSpecSchema, TransferEventSchema } from '../schemas/transfer-spec.js';
-import { DomainEventSchema } from '../schemas/domain-event.js';
+import { DomainEventSchema, DomainEventBatchSchema } from '../schemas/domain-event.js';
+import { LifecycleTransitionPayloadSchema } from '../schemas/lifecycle-event-payload.js';
 
 // Compile cache — lazily populated on first use
 const cache = new Map<string, TypeCheck<TSchema>>();
@@ -79,4 +80,8 @@ export const validators = {
   transferSpec: () => getOrCompile(TransferSpecSchema),
   transferEvent: () => getOrCompile(TransferEventSchema),
   domainEvent: () => getOrCompile(DomainEventSchema),
+
+  // v2.1.0
+  domainEventBatch: () => getOrCompile(DomainEventBatchSchema),
+  lifecycleTransitionPayload: () => getOrCompile(LifecycleTransitionPayloadSchema),
 } as const;

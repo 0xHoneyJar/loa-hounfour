@@ -34,6 +34,9 @@ export const DomainEventSchema = Type.Object({
   causation_id: Type.Optional(Type.String({ description: 'Direct cause event ID' })),
   payload: Type.Unknown(),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
+    description: 'Consumer-extensible metadata (not validated by protocol contract)',
+  })),
 }, {
   $id: 'DomainEvent',
   additionalProperties: false,
@@ -60,3 +63,24 @@ export type TransferEvent = DomainEvent<{
   to_owner: string;
   [k: string]: unknown;
 }>;
+
+/**
+ * Batch envelope for atomic multi-event delivery.
+ *
+ * When a transfer completes, it emits multiple events (lifecycle transition,
+ * conversation sealing, billing adjustment). A batch with a shared correlation_id
+ * enables atomic processing — the transactional outbox pattern.
+ */
+export const DomainEventBatchSchema = Type.Object({
+  batch_id: Type.String({ minLength: 1, description: 'Unique batch identifier' }),
+  correlation_id: Type.String({ minLength: 1, description: 'Shared correlation across all events in batch' }),
+  events: Type.Array(DomainEventSchema, { minItems: 1, description: 'Ordered list of domain events' }),
+  source: Type.String({ minLength: 1, description: 'System that produced the batch' }),
+  produced_at: Type.String({ format: 'date-time' }),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+}, {
+  $id: 'DomainEventBatch',
+  additionalProperties: false,
+});
+
+export type DomainEventBatch = Static<typeof DomainEventBatchSchema>;

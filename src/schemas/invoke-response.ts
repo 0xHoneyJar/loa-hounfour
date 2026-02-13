@@ -44,6 +44,9 @@ export const InvokeResponseSchema = Type.Object({
   ], { description: 'How cost was determined' }),
   latency_ms: Type.Integer({ minimum: 0 }),
   contract_version: Type.String({ description: 'Protocol version' }),
+  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
+    description: 'Consumer-extensible metadata (not validated by protocol contract)',
+  })),
 }, {
   $id: 'InvokeResponse',
   additionalProperties: false,

@@ -53,6 +53,28 @@
         "contract_version": "2.0.0"
       },
       "note": "archived with no-encryption sealing policy"
+    },
+    {
+      "id": "conv-004",
+      "data": {
+        "id": "conv_sealed_by",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "status": "sealed",
+        "sealing_policy": {
+          "encryption_scheme": "aes-256-gcm",
+          "key_derivation": "hkdf-sha256",
+          "key_reference": "kref-xfer-001",
+          "access_audit": true,
+          "previous_owner_access": "none"
+        },
+        "message_count": 42,
+        "created_at": "2026-01-01T00:00:00Z",
+        "updated_at": "2026-01-15T12:00:00Z",
+        "sealed_at": "2026-01-15T12:00:00Z",
+        "sealed_by": "xfer_sale_001",
+        "contract_version": "2.0.0"
+      },
+      "note": "sealed conversation with sealed_by transfer reference (v2.1.0 BB-ADV-002)"
     }
   ],
   "valid_messages": [

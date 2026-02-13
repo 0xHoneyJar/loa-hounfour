@@ -1,0 +1,58 @@
+{
+  "valid_payloads": [
+    {
+      "id": "ltp-001",
+      "data": {
+        "agent_id": "agent_abc",
+        "previous_state": "DORMANT",
+        "new_state": "PROVISIONING",
+        "reason": "Agent activated by owner"
+      },
+      "note": "basic transition with required fields only"
+    },
+    {
+      "id": "ltp-002",
+      "data": {
+        "agent_id": "agent_def",
+        "previous_state": "ACTIVE",
+        "new_state": "TRANSFERRED",
+        "reason": "NFT sold on marketplace",
+        "triggered_by": "marketplace-contract",
+        "transfer_id": "xfer_sale_001"
+      },
+      "note": "transfer-triggered transition with all optional fields"
+    },
+    {
+      "id": "ltp-003",
+      "data": {
+        "agent_id": "agent_ghi",
+        "previous_state": "ACTIVE",
+        "new_state": "SUSPENDED",
+        "reason": "Budget exhausted — daily limit reached",
+        "triggered_by": "billing-service"
+      },
+      "note": "suspension with triggered_by but no transfer_id"
+    }
+  ],
+  "invalid_payloads": [
+    {
+      "id": "ltp-inv-001",
+      "data": {
+        "agent_id": "agent_x",
+        "previous_state": "ACTIVE",
+        "new_state": "INVALID_STATE",
+        "reason": "test"
+      },
+      "note": "invalid new_state value rejected"
+    },
+    {
+      "id": "ltp-inv-002",
+      "data": {
+        "agent_id": "agent_x",
+        "previous_state": "DORMANT",
+        "new_state": "PROVISIONING"
+      },
+      "note": "missing required reason field rejected"
+    }
+  ]
+}

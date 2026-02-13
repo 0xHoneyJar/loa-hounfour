@@ -72,6 +72,9 @@ export const BillingEntrySchema = Type.Object(
     timestamp: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     usage: Type.Optional(UsageSchema),
+    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
+      description: 'Consumer-extensible metadata (not validated by protocol contract)',
+    })),
   },
   {
     $id: 'BillingEntry',

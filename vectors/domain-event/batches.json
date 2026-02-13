@@ -1,0 +1,114 @@
+{
+  "valid_batches": [
+    {
+      "id": "batch-001",
+      "data": {
+        "batch_id": "batch_xfer_001",
+        "correlation_id": "corr_xfer_001",
+        "events": [
+          {
+            "event_id": "evt_b1_001",
+            "aggregate_id": "agent_abc",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T10:00:00Z",
+            "actor": "transfer-service",
+            "payload": { "agent_id": "agent_abc", "from": "ACTIVE", "to": "TRANSFERRED" },
+            "contract_version": "2.0.0"
+          }
+        ],
+        "source": "transfer-service",
+        "produced_at": "2026-01-15T10:00:01Z",
+        "contract_version": "2.0.0"
+      },
+      "note": "single-event batch (minimal valid case)"
+    },
+    {
+      "id": "batch-002",
+      "data": {
+        "batch_id": "batch_xfer_002",
+        "correlation_id": "corr_xfer_002",
+        "events": [
+          {
+            "event_id": "evt_b2_001",
+            "aggregate_id": "agent_def",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T10:00:00Z",
+            "actor": "transfer-service",
+            "payload": { "agent_id": "agent_def", "from": "ACTIVE", "to": "TRANSFERRED" },
+            "contract_version": "2.0.0"
+          },
+          {
+            "event_id": "evt_b2_002",
+            "aggregate_id": "conv_sealed",
+            "aggregate_type": "conversation",
+            "type": "conversation.status.changed",
+            "version": 1,
+            "occurred_at": "2026-01-15T10:00:01Z",
+            "actor": "transfer-service",
+            "correlation_id": "corr_xfer_002",
+            "payload": { "conversation_id": "conv_sealed", "from": "active", "to": "sealed" },
+            "contract_version": "2.0.0"
+          },
+          {
+            "event_id": "evt_b2_003",
+            "aggregate_id": "01JARX_CREDIT",
+            "aggregate_type": "billing",
+            "type": "billing.entry.created",
+            "version": 1,
+            "occurred_at": "2026-01-15T10:00:02Z",
+            "actor": "transfer-service",
+            "correlation_id": "corr_xfer_002",
+            "payload": { "billing_entry_id": "01JARX_CREDIT" },
+            "contract_version": "2.0.0"
+          }
+        ],
+        "source": "transfer-service",
+        "produced_at": "2026-01-15T10:00:03Z",
+        "contract_version": "2.0.0"
+      },
+      "note": "multi-event batch — lifecycle + conversation seal + billing (transactional outbox)"
+    }
+  ],
+  "invalid_batches": [
+    {
+      "id": "batch-inv-001",
+      "data": {
+        "batch_id": "batch_empty",
+        "correlation_id": "corr_empty",
+        "events": [],
+        "source": "test",
+        "produced_at": "2026-01-15T10:00:00Z",
+        "contract_version": "2.0.0"
+      },
+      "note": "empty events array rejected (minItems: 1)"
+    },
+    {
+      "id": "batch-inv-002",
+      "data": {
+        "batch_id": "",
+        "correlation_id": "corr_x",
+        "events": [
+          {
+            "event_id": "evt_x",
+            "aggregate_id": "x",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-01-15T10:00:00Z",
+            "actor": "test",
+            "payload": {},
+            "contract_version": "2.0.0"
+          }
+        ],
+        "source": "test",
+        "produced_at": "2026-01-15T10:00:00Z",
+        "contract_version": "2.0.0"
+      },
+      "note": "empty batch_id rejected (minLength: 1)"
+    }
+  ]
+}

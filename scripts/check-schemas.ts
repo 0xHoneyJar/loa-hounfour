@@ -15,7 +15,8 @@ import { AgentLifecycleStateSchema } from '../src/schemas/agent-lifecycle.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../src/schemas/billing-entry.js';
 import { ConversationSchema, MessageSchema } from '../src/schemas/conversation.js';
 import { TransferSpecSchema, TransferEventSchema } from '../src/schemas/transfer-spec.js';
-import { DomainEventSchema } from '../src/schemas/domain-event.js';
+import { DomainEventSchema, DomainEventBatchSchema } from '../src/schemas/domain-event.js';
+import { LifecycleTransitionPayloadSchema } from '../src/schemas/lifecycle-event-payload.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,9 @@ const schemas = [
   { name: 'transfer-spec', schema: TransferSpecSchema },
   { name: 'transfer-event', schema: TransferEventSchema },
   { name: 'domain-event', schema: DomainEventSchema },
+  // v2.1.0
+  { name: 'domain-event-batch', schema: DomainEventBatchSchema },
+  { name: 'lifecycle-transition-payload', schema: LifecycleTransitionPayloadSchema },
 ];
 
 let stale = false;

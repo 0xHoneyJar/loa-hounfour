@@ -74,6 +74,10 @@ export const ConversationSchema = Type.Object({
   created_at: Type.String({ format: 'date-time' }),
   updated_at: Type.String({ format: 'date-time' }),
   sealed_at: Type.Optional(Type.String({ format: 'date-time' })),
+  sealed_by: Type.Optional(Type.String({
+    minLength: 1,
+    description: 'Transfer ID that caused sealing (causal audit trail)',
+  })),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
   $id: 'Conversation',
