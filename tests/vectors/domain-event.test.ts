@@ -37,8 +37,8 @@ describe('DomainEvent Golden Vectors', () => {
 });
 
 describe('Error Codes v2.0.0', () => {
-  it('has 38 total error codes (31 existing + 7 new)', () => {
-    expect(Object.keys(ERROR_CODES)).toHaveLength(38);
+  it('has 39 total error codes (31 existing + 7 v2.0.0 + 1 v4.0.0)', () => {
+    expect(Object.keys(ERROR_CODES)).toHaveLength(39);
   });
 
   it('every error code has an HTTP status mapping', () => {

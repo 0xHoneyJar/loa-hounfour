@@ -64,6 +64,9 @@ export const ERROR_CODES = {
 
   // Billing (v2.0.0)
   BILLING_RECIPIENTS_INVALID: 'BILLING_RECIPIENTS_INVALID',
+
+  // Routing (v4.0.0)
+  ROUTING_CONSTRAINT_VIOLATED: 'ROUTING_CONSTRAINT_VIOLATED',
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
@@ -140,4 +143,7 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
 
   // Billing → 400
   BILLING_RECIPIENTS_INVALID: 400,
+
+  // Routing → 403
+  ROUTING_CONSTRAINT_VIOLATED: 403,
 };

@@ -1,9 +1,15 @@
 import { Type } from '@sinclair/typebox';
 
-/** String-encoded micro-USD integer. 1 USD = 1,000,000 micro-USD. */
+/** String-encoded micro-USD integer (signed). 1 USD = 1,000,000 micro-USD. Allows negative amounts for credits/refunds. */
 export const MicroUSD = Type.String({
+  pattern: '^-?[0-9]+$',
+  description: 'Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.',
+});
+
+/** String-encoded unsigned micro-USD integer. Use when negative amounts must be rejected. */
+export const MicroUSDUnsigned = Type.String({
   pattern: '^[0-9]+$',
-  description: 'Micro-USD amount as string (1 USD = 1,000,000 micro-USD)',
+  description: 'Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)',
 });
 
 // ---------------------------------------------------------------------------
@@ -26,6 +32,13 @@ const MICRO_PATTERN = /^[0-9]+$/;
 const SIGNED_MICRO_PATTERN = /^-?[0-9]+$/;
 
 function assertMicro(value: string, label: string): bigint {
+  if (!SIGNED_MICRO_PATTERN.test(value)) {
+    throw new Error(`${label} must be an integer string, got "${value}"`);
+  }
+  return BigInt(value);
+}
+
+function assertUnsignedMicro(value: string, label: string): bigint {
   if (!MICRO_PATTERN.test(value)) {
     throw new Error(`${label} must be a non-negative integer string, got "${value}"`);
   }
@@ -110,16 +123,13 @@ export function compareMicro(a: string, b: string): -1 | 0 | 1 {
 // ---------------------------------------------------------------------------
 
 /**
- * String-encoded signed micro-USD integer. Allows negative amounts
- * for credits, refunds, and adjustments.
+ * Alias for MicroUSD — MicroUSD is now signed by default (v4.0.0).
  *
  * @see BB-C5-Part5-§3 — CreditMicro signed amount type
  * @since v3.2.0
+ * @deprecated Use MicroUSD directly; it now accepts signed values.
  */
-export const MicroUSDSigned = Type.String({
-  pattern: '^-?[0-9]+$',
-  description: 'Signed micro-USD amount as string (negative for credits/refunds)',
-});
+export const MicroUSDSigned = MicroUSD;
 
 function assertSignedMicro(value: string, label: string): bigint {
   if (!SIGNED_MICRO_PATTERN.test(value)) {

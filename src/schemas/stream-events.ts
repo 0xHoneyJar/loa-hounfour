@@ -29,7 +29,7 @@ export const StreamStartSchema = Type.Object({
     description: 'Distinguishes Claude Code native runtime sessions from remote model API calls. '
       + 'native = running in Claude Code runtime, remote = external model API call.',
   })),
-}, { $id: 'StreamStart' });
+}, { $id: 'StreamStart', additionalProperties: true });
 
 /** Content chunk — incremental text delta. */
 export const StreamChunkSchema = Type.Object({
@@ -37,7 +37,7 @@ export const StreamChunkSchema = Type.Object({
   delta: Type.String({ description: 'Incremental text content' }),
   index: Type.Optional(Type.Integer({ minimum: 0, description: 'Choice index for multi-choice' })),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
-}, { $id: 'StreamChunk' });
+}, { $id: 'StreamChunk', additionalProperties: true });
 
 /** Tool call — incremental function call data. */
 export const StreamToolCallSchema = Type.Object({
@@ -49,7 +49,7 @@ export const StreamToolCallSchema = Type.Object({
     arguments: Type.String({ description: 'Incremental JSON arguments' }),
   }),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
-}, { $id: 'StreamToolCall' });
+}, { $id: 'StreamToolCall', additionalProperties: true });
 
 /** Usage report — token counts. Must appear before stream_end. */
 export const StreamUsageSchema = Type.Object({
@@ -58,7 +58,7 @@ export const StreamUsageSchema = Type.Object({
   completion_tokens: Type.Integer({ minimum: 0 }),
   reasoning_tokens: Type.Optional(Type.Integer({ minimum: 0 })),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
-}, { $id: 'StreamUsage' });
+}, { $id: 'StreamUsage', additionalProperties: true });
 
 /** Stream end — always last on success. */
 export const StreamEndSchema = Type.Object({
@@ -76,7 +76,7 @@ export const StreamEndSchema = Type.Object({
   ]),
   cost_micro: Type.String({ pattern: '^[0-9]+$' }),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
-}, { $id: 'StreamEnd' });
+}, { $id: 'StreamEnd', additionalProperties: true });
 
 /** Error event — terminal, replaces stream_end on failure. */
 export const StreamErrorSchema = Type.Object({
@@ -85,7 +85,7 @@ export const StreamErrorSchema = Type.Object({
   message: Type.String(),
   retryable: Type.Boolean(),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
-}, { $id: 'StreamError' });
+}, { $id: 'StreamError', additionalProperties: true });
 
 /**
  * Discriminated union of all stream event types.

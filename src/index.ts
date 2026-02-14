@@ -130,7 +130,7 @@ export {
   type TransferResult,
 } from './schemas/transfer-spec.js';
 
-// Schemas — Domain Event (v2.0.0)
+// Schemas — Domain Event (v2.0.0, v4.0.0 aggregate extension)
 export {
   DomainEventSchema,
   DomainEventBatchSchema,
@@ -142,6 +142,11 @@ export {
   type TransferEvent,
   type ToolEvent,
   type MessageEvent,
+  // v4.0.0 — Value economy aggregate events
+  type PerformanceEvent,
+  type GovernanceEvent,
+  type ReputationEvent,
+  type EconomyEvent,
   // v2.2.0 — Runtime payload validation (BB-V3-002)
   AgentEventPayloadSchema,
   BillingEventPayloadSchema,
@@ -149,12 +154,22 @@ export {
   TransferEventPayloadSchema,
   ToolEventPayloadSchema,
   MessageEventPayloadSchema,
+  // v4.0.0 — Value economy payload schemas
+  PerformanceEventPayloadSchema,
+  GovernanceEventPayloadSchema,
+  ReputationEventPayloadSchema,
+  EconomyEventPayloadSchema,
   isAgentEvent,
   isBillingEvent,
   isConversationEvent,
   isTransferEvent,
   isToolEvent,
   isMessageEvent,
+  // v4.0.0 — Value economy type guards
+  isPerformanceEvent,
+  isGovernanceEvent,
+  isReputationEvent,
+  isEconomyEvent,
 } from './schemas/domain-event.js';
 
 // Schemas — Saga Context (v2.2.0, BB-V3-012)
@@ -228,9 +243,10 @@ export {
   type PoolCapabilities,
 } from './vocabulary/pools.js';
 
-// Vocabulary — Currency (v2.0.0, centralized arithmetic v2.4.0)
+// Vocabulary — Currency (v2.0.0, centralized arithmetic v2.4.0, signed default v4.0.0)
 export {
   MicroUSD,
+  MicroUSDUnsigned,
   MicroUSDSigned,
   ZERO_MICRO,
   addMicro,
@@ -251,6 +267,12 @@ export {
   type TransferInvariant,
   type TransferInvariants,
 } from './vocabulary/transfer-choreography.js';
+
+// Schemas — Routing Constraint (v4.0.0)
+export {
+  RoutingConstraintSchema,
+  type RoutingConstraint,
+} from './schemas/routing-constraint.js';
 
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';

@@ -24,6 +24,7 @@ import { SagaContextSchema } from '../src/schemas/saga-context.js';
 import { HealthStatusSchema } from '../src/schemas/health-status.js';
 import { ThinkingTraceSchema } from '../src/schemas/thinking-trace.js';
 import { ToolCallSchema } from '../src/schemas/tool-call.js';
+import { RoutingConstraintSchema } from '../src/schemas/routing-constraint.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -60,6 +61,8 @@ const schemas = [
   { name: 'health-status', schema: HealthStatusSchema },
   { name: 'thinking-trace', schema: ThinkingTraceSchema },
   { name: 'tool-call', schema: ToolCallSchema },
+  // v4.0.0
+  { name: 'routing-constraint', schema: RoutingConstraintSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

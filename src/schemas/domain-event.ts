@@ -10,6 +10,10 @@ const AggregateTypeSchema = Type.Union([
   Type.Literal('tool'),
   Type.Literal('transfer'),
   Type.Literal('message'),
+  Type.Literal('performance'),
+  Type.Literal('governance'),
+  Type.Literal('reputation'),
+  Type.Literal('economy'),
 ]);
 
 /**
@@ -51,7 +55,7 @@ export const DomainEventSchema = Type.Object({
 }, {
   $id: 'DomainEvent',
   description: 'Cross-cutting event envelope for aggregate state changes',
-  additionalProperties: false,
+  additionalProperties: true,
 });
 
 /** Generic DomainEvent type — payload typed as T at compile time. */
@@ -81,6 +85,18 @@ export type ToolEvent = DomainEvent<{ tool_call_id: string; [k: string]: unknown
 
 /** Message aggregate events — payload must include message_id. */
 export type MessageEvent = DomainEvent<{ message_id: string; [k: string]: unknown }>;
+
+/** Performance aggregate events — payload must include performance_record_id. */
+export type PerformanceEvent = DomainEvent<{ performance_record_id: string; [k: string]: unknown }>;
+
+/** Governance aggregate events — payload must include governance_action_id. */
+export type GovernanceEvent = DomainEvent<{ governance_action_id: string; [k: string]: unknown }>;
+
+/** Reputation aggregate events — payload must include agent_id. */
+export type ReputationEvent = DomainEvent<{ agent_id: string; [k: string]: unknown }>;
+
+/** Economy aggregate events — payload must include transaction_id. */
+export type EconomyEvent = DomainEvent<{ transaction_id: string; [k: string]: unknown }>;
 
 // ---------------------------------------------------------------------------
 // Minimal payload schemas for runtime type guards.
@@ -119,6 +135,26 @@ export const ToolEventPayloadSchema = Type.Object({
 export const MessageEventPayloadSchema = Type.Object({
   message_id: Type.String({ minLength: 1 }),
 }, { $id: 'MessageEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for performance aggregate events. */
+export const PerformanceEventPayloadSchema = Type.Object({
+  performance_record_id: Type.String({ minLength: 1 }),
+}, { $id: 'PerformanceEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for governance aggregate events. */
+export const GovernanceEventPayloadSchema = Type.Object({
+  governance_action_id: Type.String({ minLength: 1 }),
+}, { $id: 'GovernanceEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for reputation aggregate events. */
+export const ReputationEventPayloadSchema = Type.Object({
+  agent_id: Type.String({ minLength: 1 }),
+}, { $id: 'ReputationEventPayload', additionalProperties: true });
+
+/** Minimum payload contract for economy aggregate events. */
+export const EconomyEventPayloadSchema = Type.Object({
+  transaction_id: Type.String({ minLength: 1 }),
+}, { $id: 'EconomyEventPayload', additionalProperties: true });
 
 // Lazily compiled payload validators
 const payloadValidators = new Map<string, ReturnType<typeof TypeCompiler.Compile>>();
@@ -188,6 +224,26 @@ export function isMessageEvent(event: DomainEvent): event is MessageEvent {
     && checkPayload(MessageEventPayloadSchema, event.payload);
 }
 
+export function isPerformanceEvent(event: DomainEvent): event is PerformanceEvent {
+  return event.aggregate_type === 'performance'
+    && checkPayload(PerformanceEventPayloadSchema, event.payload);
+}
+
+export function isGovernanceEvent(event: DomainEvent): event is GovernanceEvent {
+  return event.aggregate_type === 'governance'
+    && checkPayload(GovernanceEventPayloadSchema, event.payload);
+}
+
+export function isReputationEvent(event: DomainEvent): event is ReputationEvent {
+  return event.aggregate_type === 'reputation'
+    && checkPayload(ReputationEventPayloadSchema, event.payload);
+}
+
+export function isEconomyEvent(event: DomainEvent): event is EconomyEvent {
+  return event.aggregate_type === 'economy'
+    && checkPayload(EconomyEventPayloadSchema, event.payload);
+}
+
 // SagaContextSchema re-exported from ./saga-context.ts (BB-V3-F004)
 
 /**
@@ -219,7 +275,7 @@ export const DomainEventBatchSchema = Type.Object({
 }, {
   $id: 'DomainEventBatch',
   description: 'Atomic multi-event delivery with shared correlation',
-  additionalProperties: false,
+  additionalProperties: true,
 });
 
 export type DomainEventBatch = Static<typeof DomainEventBatchSchema>;

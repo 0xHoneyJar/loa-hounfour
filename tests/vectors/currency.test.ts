@@ -31,15 +31,15 @@ describe('Centralized MicroUSD Arithmetic (BB-C4-ADV-006)', () => {
     });
 
     it('throws on non-numeric string', () => {
-      expect(() => addMicro('abc', '100')).toThrow('non-negative integer string');
+      expect(() => addMicro('abc', '100')).toThrow('integer string');
     });
 
-    it('throws on negative number', () => {
-      expect(() => addMicro('-100', '200')).toThrow('non-negative integer string');
+    it('accepts negative numbers (signed MicroUSD)', () => {
+      expect(addMicro('-100', '200')).toBe('100');
     });
 
     it('throws on decimal', () => {
-      expect(() => addMicro('10.5', '100')).toThrow('non-negative integer string');
+      expect(() => addMicro('10.5', '100')).toThrow('integer string');
     });
   });
 
@@ -65,7 +65,7 @@ describe('Centralized MicroUSD Arithmetic (BB-C4-ADV-006)', () => {
     });
 
     it('throws on non-numeric string', () => {
-      expect(() => subtractMicro('abc', '100')).toThrow('non-negative integer string');
+      expect(() => subtractMicro('abc', '100')).toThrow('integer string');
     });
   });
 
@@ -112,7 +112,7 @@ describe('Centralized MicroUSD Arithmetic (BB-C4-ADV-006)', () => {
     });
 
     it('throws on non-numeric amount', () => {
-      expect(() => multiplyBps('abc', 10000)).toThrow('non-negative integer string');
+      expect(() => multiplyBps('abc', 10000)).toThrow('integer string');
     });
   });
 
@@ -138,7 +138,7 @@ describe('Centralized MicroUSD Arithmetic (BB-C4-ADV-006)', () => {
     });
 
     it('throws on non-numeric string', () => {
-      expect(() => compareMicro('abc', '100')).toThrow('non-negative integer string');
+      expect(() => compareMicro('abc', '100')).toThrow('integer string');
     });
   });
 
