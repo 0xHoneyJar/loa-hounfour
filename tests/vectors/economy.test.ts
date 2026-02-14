@@ -1034,3 +1034,255 @@ describe('RoutingConstraintSchema', () => {
     });
   });
 });
+
+// ===========================================================================
+// Cross-field validators (v4.x) — BB-C7-I2-TEST-001
+// ===========================================================================
+
+describe('Cross-field validators (v4.x)', () => {
+  // These tests use validate() with default crossField:true to exercise
+  // the cross-field validators registered in src/validators/index.ts.
+
+  // ---------------------------------------------------------------------------
+  // EscrowEntry cross-field
+  // ---------------------------------------------------------------------------
+  describe('EscrowEntry cross-field', () => {
+    const validHeldEscrow = { ...VALID_ESCROW_ENTRY };
+
+    it('rejects self-escrow (payer === payee)', () => {
+      const doc = { ...validHeldEscrow, payer_id: 'a1', payee_id: 'a1' };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('self-escrow'))).toBe(true);
+    });
+
+    it('rejects released state without released_at', () => {
+      const doc = { ...validHeldEscrow, state: 'released' };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('released_at is required'))).toBe(true);
+    });
+
+    it('rejects held state with released_at', () => {
+      const doc = { ...validHeldEscrow, state: 'held', released_at: '2026-01-15T00:00:00Z' };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('released_at must not be present'))).toBe(true);
+    });
+
+    it('rejects disputed state without dispute_id', () => {
+      const doc = { ...validHeldEscrow, state: 'disputed' };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('dispute_id is required'))).toBe(true);
+    });
+
+    it('rejects released_at before held_at', () => {
+      const doc = {
+        ...validHeldEscrow,
+        state: 'released',
+        held_at: '2026-02-01T00:00:00Z',
+        released_at: '2026-01-01T00:00:00Z',
+      };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('released_at must be >= held_at'))).toBe(true);
+    });
+
+    it('accepts valid released escrow', () => {
+      const doc = {
+        ...validHeldEscrow,
+        state: 'released',
+        released_at: '2026-01-15T00:00:00Z',
+      };
+      const result = validate(EscrowEntrySchema, doc);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // StakePosition cross-field
+  // ---------------------------------------------------------------------------
+  describe('StakePosition cross-field', () => {
+    it('rejects vesting conservation violation (vested+remaining !== total)', () => {
+      const doc = {
+        ...VALID_STAKE_POSITION,
+        amount_micro: '500000',
+        vesting: {
+          schedule: 'performance_gated',
+          vested_micro: '300000',
+          remaining_micro: '100000', // 300000 + 100000 !== 500000
+        },
+      };
+      const result = validate(StakePositionSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('vesting conservation violated'))).toBe(true);
+    });
+
+    it('rejects immediate schedule with non-zero remaining', () => {
+      const doc = {
+        ...VALID_STAKE_POSITION,
+        amount_micro: '500000',
+        vesting: {
+          schedule: 'immediate',
+          vested_micro: '300000',
+          remaining_micro: '200000',
+        },
+      };
+      const result = validate(StakePositionSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('remaining_micro must be "0"'))).toBe(true);
+    });
+
+    it('accepts valid conservation (500000 = 300000 + 200000)', () => {
+      const doc = {
+        ...VALID_STAKE_POSITION,
+        amount_micro: '500000',
+        vesting: {
+          schedule: 'performance_gated',
+          vested_micro: '300000',
+          remaining_micro: '200000',
+        },
+      };
+      const result = validate(StakePositionSchema, doc);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // MutualCredit cross-field
+  // ---------------------------------------------------------------------------
+  describe('MutualCredit cross-field', () => {
+    it('rejects self-credit (creditor === debtor)', () => {
+      const doc = { ...VALID_MUTUAL_CREDIT, creditor_id: 'a1', debtor_id: 'a1' };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('self-credit'))).toBe(true);
+    });
+
+    it('rejects settled:true without settled_at', () => {
+      const doc = {
+        ...VALID_MUTUAL_CREDIT,
+        settled: true,
+        settlement: { settlement_method: 'direct_payment' },
+      };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('settled_at is required'))).toBe(true);
+    });
+
+    it('rejects settled:true without settlement', () => {
+      const doc = {
+        ...VALID_MUTUAL_CREDIT,
+        settled: true,
+        settled_at: '2026-01-15T00:00:00Z',
+      };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('settlement is required'))).toBe(true);
+    });
+
+    it('rejects settled_at when settled:false', () => {
+      const doc = {
+        ...VALID_MUTUAL_CREDIT,
+        settled: false,
+        settled_at: '2026-01-15T00:00:00Z',
+      };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('settled_at must not be present'))).toBe(true);
+    });
+
+    it('rejects settled_at before issued_at', () => {
+      const doc = {
+        ...VALID_MUTUAL_CREDIT,
+        settled: true,
+        issued_at: '2026-02-01T00:00:00Z',
+        settled_at: '2026-01-01T00:00:00Z',
+        settlement: { settlement_method: 'direct_payment' },
+      };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('settled_at must be >= issued_at'))).toBe(true);
+    });
+
+    it('accepts valid settled credit', () => {
+      const doc = {
+        ...VALID_MUTUAL_CREDIT,
+        settled: true,
+        settled_at: '2026-01-15T00:00:00Z',
+        settlement: { settlement_method: 'direct_payment' },
+      };
+      const result = validate(MutualCreditSchema, doc);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // CommonsDividend cross-field
+  // ---------------------------------------------------------------------------
+  describe('CommonsDividend cross-field', () => {
+    it('rejects period_end <= period_start', () => {
+      const doc = {
+        ...VALID_COMMONS_DIVIDEND,
+        period_start: '2026-02-01T00:00:00Z',
+        period_end: '2026-01-01T00:00:00Z',
+      };
+      const result = validate(CommonsDividendSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('period_end must be after period_start'))).toBe(true);
+    });
+
+    it('accepts valid period ordering', () => {
+      const result = validate(CommonsDividendSchema, VALID_COMMONS_DIVIDEND);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // DisputeRecord cross-field
+  // ---------------------------------------------------------------------------
+  describe('DisputeRecord cross-field', () => {
+    it('rejects self-dispute (filed_by === filed_against)', () => {
+      const doc = { ...VALID_DISPUTE_RECORD, filed_by: 'a1', filed_against: 'a1' };
+      const result = validate(DisputeRecordSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('self-dispute'))).toBe(true);
+    });
+
+    it('accepts different parties', () => {
+      const result = validate(DisputeRecordSchema, VALID_DISPUTE_RECORD);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Sanction cross-field
+  // ---------------------------------------------------------------------------
+  describe('Sanction cross-field', () => {
+    it('rejects expires_at on terminated severity', () => {
+      const doc = {
+        ...VALID_SANCTION,
+        severity: 'terminated',
+        expires_at: '2026-06-01T00:00:00Z',
+      };
+      const result = validate(SanctionSchema, doc);
+      expect(result.valid).toBe(false);
+      expect(result.valid === false && result.errors.some((e) => e.includes('terminated'))).toBe(true);
+    });
+
+    it('warns on missing expires_at for warning severity', () => {
+      const doc = { ...VALID_SANCTION, severity: 'warning' };
+      // No expires_at on VALID_SANCTION — should produce a warning but still be valid
+      const result = validate(SanctionSchema, doc);
+      expect(result.valid).toBe(true);
+      expect(result.valid === true && result.warnings?.some((w) => w.includes('expires_at recommended'))).toBe(true);
+    });
+
+    it('accepts terminated without expires_at', () => {
+      const doc = { ...VALID_SANCTION, severity: 'terminated' };
+      const result = validate(SanctionSchema, doc);
+      expect(result.valid).toBe(true);
+    });
+  });
+});
