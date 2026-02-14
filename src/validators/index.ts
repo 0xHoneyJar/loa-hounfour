@@ -137,7 +137,7 @@ registerCrossFieldValidator('PerformanceRecord', (data) => {
 // --- v4.x cross-field validators (BB-C7-VALIDATOR-001..004, BB-C7-SECURITY-001..002) ---
 
 registerCrossFieldValidator('EscrowEntry', (data) => {
-  const entry = data as { state: string; released_at?: string; held_at: string; dispute_id?: string; payer_id: string; payee_id: string };
+  const entry = data as { state: string; released_at?: string; held_at: string; expires_at?: string; dispute_id?: string; payer_id: string; payee_id: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -155,6 +155,17 @@ registerCrossFieldValidator('EscrowEntry', (data) => {
   }
   if (entry.state === 'disputed' && !entry.dispute_id) {
     errors.push('dispute_id is required when state is "disputed"');
+  }
+
+  // Escrow timeout (BB-V4-DEEP-002)
+  if (entry.state === 'held' && !entry.expires_at) {
+    warnings.push('held escrow should have expires_at for TTL enforcement');
+  }
+  if (entry.expires_at && entry.held_at && new Date(entry.expires_at) <= new Date(entry.held_at)) {
+    errors.push('expires_at must be after held_at');
+  }
+  if (entry.state === 'expired' && !entry.expires_at) {
+    errors.push('expired state requires expires_at');
   }
 
   // Temporal ordering
@@ -224,13 +235,21 @@ registerCrossFieldValidator('MutualCredit', (data) => {
 });
 
 registerCrossFieldValidator('CommonsDividend', (data) => {
-  const dividend = data as { period_start: string; period_end: string; distribution?: { recipients: Array<{ share_bps: number }> } };
+  const dividend = data as { period_start: string; period_end: string; source_performance_ids?: string[]; distribution?: { recipients: Array<{ share_bps: number }> } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // Temporal ordering
   if (new Date(dividend.period_end) <= new Date(dividend.period_start)) {
     errors.push('period_end must be after period_start');
+  }
+
+  // Source performance linkage (BB-V4-DEEP-003)
+  if (!dividend.source_performance_ids) {
+    warnings.push('dividend should link to source performance records for audit trail');
+  }
+  if (dividend.distribution && !dividend.source_performance_ids) {
+    warnings.push('distributed dividend without provenance');
   }
 
   // Distribution share validation
@@ -256,8 +275,10 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
+
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string };
+  const sanction = data as { severity: string; expires_at?: string; trigger: { violation_type: string; occurrence_count: number } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -266,6 +287,44 @@ registerCrossFieldValidator('Sanction', (data) => {
   }
   if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
     warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
+  }
+
+  // Escalation rules wiring (BB-V4-DEEP-004)
+  const rule = ESCALATION_RULES[sanction.trigger.violation_type as keyof typeof ESCALATION_RULES];
+  if (rule) {
+    // Find which threshold bracket the occurrence_count falls into
+    let expectedSeverity: string | undefined;
+    for (let i = rule.thresholds.length - 1; i >= 0; i--) {
+      if (sanction.trigger.occurrence_count >= rule.thresholds[i]) {
+        expectedSeverity = rule.severity_progression[i];
+        break;
+      }
+    }
+    if (expectedSeverity && sanction.severity !== expectedSeverity) {
+      warnings.push(`severity "${sanction.severity}" does not match escalation rule for ${sanction.trigger.violation_type} at occurrence ${sanction.trigger.occurrence_count} (expected "${expectedSeverity}")`);
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+import { MIN_REPUTATION_SAMPLE_SIZE } from '../vocabulary/reputation.js';
+
+registerCrossFieldValidator('ReputationScore', (data) => {
+  const score = data as { score: number; sample_size: number; decay_applied: boolean };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (score.sample_size < MIN_REPUTATION_SAMPLE_SIZE) {
+    warnings.push(`sample_size (${score.sample_size}) is below minimum threshold (${MIN_REPUTATION_SAMPLE_SIZE})`);
+  }
+
+  if (score.score === 1.0 && score.sample_size < 10) {
+    warnings.push('perfect score with low sample is suspicious');
+  }
+
+  if (score.decay_applied === true && score.score > 1.0) {
+    errors.push('score must not exceed 1.0 when decay_applied is true');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

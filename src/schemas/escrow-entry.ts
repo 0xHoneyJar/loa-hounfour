@@ -18,6 +18,7 @@ export const EscrowEntrySchema = Type.Object(
     ]),
     held_at: Type.String({ format: 'date-time' }),
     released_at: Type.Optional(Type.String({ format: 'date-time' })),
+    expires_at: Type.Optional(Type.String({ format: 'date-time' })),
     dispute_id: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },

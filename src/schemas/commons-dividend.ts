@@ -15,6 +15,7 @@ export const CommonsDividendSchema = Type.Object(
     ]),
     period_start: Type.String({ format: 'date-time' }),
     period_end: Type.String({ format: 'date-time' }),
+    source_performance_ids: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
     distribution: Type.Optional(Type.Object({
       recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
     }, { additionalProperties: false })),

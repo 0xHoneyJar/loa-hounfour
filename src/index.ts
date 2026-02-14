@@ -357,6 +357,9 @@ export {
   type MutualCredit,
 } from './schemas/mutual-credit.js';
 
+// Utilities — Reputation (v4.5.0)
+export { isReliableReputation } from './utilities/reputation.js';
+
 // Utilities — Lifecycle sanction guard (v4.2.0)
 export {
   requiresSanctionEvidence,
