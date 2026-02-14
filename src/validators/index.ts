@@ -32,6 +32,9 @@ import { LifecycleTransitionPayloadSchema } from '../schemas/lifecycle-event-pay
 import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../schemas/capability.js';
 import { ProtocolDiscoverySchema } from '../schemas/discovery.js';
 import { SagaContextSchema } from '../schemas/saga-context.js';
+import { HealthStatusSchema } from '../schemas/health-status.js';
+import { ThinkingTraceSchema } from '../schemas/thinking-trace.js';
+import { ToolCallSchema } from '../schemas/tool-call.js';
 
 // Compile cache — lazily populated on first use
 const cache = new Map<string, TypeCheck<TSchema>>();
@@ -105,4 +108,9 @@ export const validators = {
 
   // v3.0.0
   accessPolicy: () => getOrCompile(AccessPolicySchema),
+
+  // v3.1.0
+  healthStatus: () => getOrCompile(HealthStatusSchema),
+  thinkingTrace: () => getOrCompile(ThinkingTraceSchema),
+  toolCall: () => getOrCompile(ToolCallSchema),
 } as const;

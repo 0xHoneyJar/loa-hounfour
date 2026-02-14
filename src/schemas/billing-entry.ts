@@ -50,6 +50,21 @@ export const BillingEntrySchema = Type.Object(
     pool_id: Type.Optional(Type.String({ description: 'Pool ID (model_inference only)' })),
     tool_id: Type.Optional(Type.String({ description: 'Tool ID (tool_call only)' })),
 
+    // v3.1.0 — Per-model cost attribution (BB-HFR-004)
+    model_id: Type.Optional(Type.String({
+      description: 'Model that generated this cost (for per-model attribution in budget dashboards)',
+    })),
+    cost_provider: Type.Optional(Type.String({
+      description: 'Provider name for cost attribution (maps to Hounfour config key)',
+    })),
+    pricing_model: Type.Optional(Type.Union([
+      Type.Literal('per_token'),
+      Type.Literal('gpu_hourly'),
+      Type.Literal('flat_rate'),
+    ], {
+      description: 'Cost structure for this billing entry (per_token, gpu_hourly, flat_rate)',
+    })),
+
     currency: Type.Literal('USD', { description: 'ISO 4217 currency code' }),
     precision: Type.Literal(6, { description: 'Micro-USD = 6 decimal places' }),
     raw_cost_micro: MicroUSD,

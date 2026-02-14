@@ -1,5 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { NftIdSchema } from '../utilities/nft-id.js';
+import { ToolCallSchema } from './tool-call.js';
 
 /** Conversation lifecycle status. */
 export const ConversationStatusSchema = Type.Union([
@@ -206,14 +207,7 @@ export const MessageSchema = Type.Object({
   model: Type.Optional(Type.String()),
   pool_id: Type.Optional(Type.String()),
   billing_entry_id: Type.Optional(Type.String()),
-  tool_calls: Type.Optional(Type.Array(Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-    arguments: Type.String(),
-    model_source: Type.Optional(Type.String({
-      description: 'Model that generated this tool call (for multi-model debugging)',
-    })),
-  }, { additionalProperties: false }))),
+  tool_calls: Type.Optional(Type.Array(ToolCallSchema)),
   created_at: Type.String({ format: 'date-time' }),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {

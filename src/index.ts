@@ -248,6 +248,26 @@ export {
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 
+// Schemas — Health Status (v3.1.0, BB-HFR-001)
+export {
+  HealthStatusSchema,
+  CircuitStateSchema,
+  type HealthStatus,
+  type CircuitState,
+} from './schemas/health-status.js';
+
+// Schemas — Thinking Trace (v3.1.0, BB-HFR-002)
+export {
+  ThinkingTraceSchema,
+  type ThinkingTrace,
+} from './schemas/thinking-trace.js';
+
+// Schemas — Tool Call (v3.1.0, BB-HFR-003)
+export {
+  ToolCallSchema,
+  type ToolCall,
+} from './schemas/tool-call.js';
+
 // Schemas — Capability Negotiation (v2.2.0, BB-V3-005)
 export {
   CapabilitySchema,

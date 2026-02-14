@@ -21,6 +21,14 @@ export const StreamStartSchema = Type.Object({
   trace_id: Type.String(),
   contract_version: Type.String(),
   sequence: Type.Optional(Type.Integer({ minimum: 0, description: 'Monotonic SSE sequence number for reconnection via Last-Event-ID' })),
+  // v3.1.0 — Execution mode for Hounfour native runtime distinction (BB-HFR-005)
+  execution_mode: Type.Optional(Type.Union([
+    Type.Literal('native'),
+    Type.Literal('remote'),
+  ], {
+    description: 'Distinguishes Claude Code native runtime sessions from remote model API calls. '
+      + 'native = running in Claude Code runtime, remote = external model API call.',
+  })),
 }, { $id: 'StreamStart' });
 
 /** Content chunk — incremental text delta. */
