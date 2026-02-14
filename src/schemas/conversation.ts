@@ -64,16 +64,40 @@ export const AccessPolicySchema = Type.Object({
 export type AccessPolicy = Static<typeof AccessPolicySchema>;
 
 /**
+ * Options for access policy validation.
+ *
+ * @since v3.1.0
+ */
+export interface AccessPolicyValidationOptions {
+  /**
+   * When `true`, warnings are promoted to errors. Use this in production
+   * deployment where extraneous fields should be treated as hard failures.
+   *
+   * For example, `type: 'none'` with `duration_hours: 24` is valid but
+   * suspicious — in strict mode it becomes an error.
+   *
+   * @default false
+   * @see BB-C5-Part5-§4 — Strict mode for production deployment
+   */
+  strict?: boolean;
+}
+
+/**
  * Validate cross-field invariants for an access policy:
  * - `time_limited` requires `duration_hours`
  * - `role_based` requires `roles` array
  * - Warns when extraneous fields are present for non-matching types
+ *
+ * @param policy - The access policy to validate
+ * @param options - Validation options. `{ strict: true }` promotes warnings to errors.
  */
 export function validateAccessPolicy(
   policy: AccessPolicy,
+  options?: AccessPolicyValidationOptions,
 ): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const strict = options?.strict ?? false;
 
   // Required field checks
   if (policy.type === 'time_limited' && policy.duration_hours === undefined) {
@@ -84,11 +108,22 @@ export function validateAccessPolicy(
   }
 
   // Extraneous field checks (BB-C5-002/005)
+  // In strict mode, these become errors instead of warnings (BB-C5-Part5-§4)
   if (policy.type !== 'time_limited' && policy.duration_hours !== undefined) {
-    warnings.push(`duration_hours is only meaningful when type is "time_limited" (current type: "${policy.type}")`);
+    const msg = `duration_hours is only meaningful when type is "time_limited" (current type: "${policy.type}")`;
+    if (strict) {
+      errors.push(msg);
+    } else {
+      warnings.push(msg);
+    }
   }
   if (policy.type !== 'role_based' && policy.roles !== undefined) {
-    warnings.push(`roles is only meaningful when type is "role_based" (current type: "${policy.type}")`);
+    const msg = `roles is only meaningful when type is "role_based" (current type: "${policy.type}")`;
+    if (strict) {
+      errors.push(msg);
+    } else {
+      warnings.push(msg);
+    }
   }
 
   return { valid: errors.length === 0, errors, warnings };

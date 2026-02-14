@@ -36,43 +36,117 @@ import { HealthStatusSchema } from '../schemas/health-status.js';
 import { ThinkingTraceSchema } from '../schemas/thinking-trace.js';
 import { ToolCallSchema } from '../schemas/tool-call.js';
 
-// Compile cache — lazily populated on first use
+// Compile cache — lazily populated on first use.
+// Only caches schemas with $id to prevent unbounded growth from
+// consumer-supplied schemas (BB-V3-003).
 const cache = new Map<string, TypeCheck<TSchema>>();
 
 function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
-  const id = schema.$id ?? JSON.stringify(schema);
-  let compiled = cache.get(id);
-  if (!compiled) {
-    compiled = TypeCompiler.Compile(schema);
-    cache.set(id, compiled);
+  const id = schema.$id;
+  if (id) {
+    let compiled = cache.get(id);
+    if (!compiled) {
+      compiled = TypeCompiler.Compile(schema);
+      cache.set(id, compiled);
+    }
+    return compiled as TypeCheck<T>;
   }
-  return compiled as TypeCheck<T>;
+  // Non-$id schemas are compiled per-call (no caching) to prevent
+  // unbounded cache growth from arbitrary consumer schemas.
+  return TypeCompiler.Compile(schema) as TypeCheck<T>;
 }
 
 /**
- * Validate data against any TypeBox schema.
+ * Cross-field validator function signature.
+ * Returns errors and warnings for cross-field invariant violations.
+ */
+export type CrossFieldValidator = (data: unknown) => {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+};
+
+/**
+ * Registry of cross-field validators keyed by schema $id.
+ * When a schema $id matches, the validator runs after schema validation.
+ */
+const crossFieldRegistry = new Map<string, CrossFieldValidator>();
+
+/**
+ * Register a cross-field validator for a schema.
+ * Used internally to wire cross-field checks into the main pipeline.
+ */
+export function registerCrossFieldValidator(schemaId: string, validator: CrossFieldValidator): void {
+  crossFieldRegistry.set(schemaId, validator);
+}
+
+// Wire built-in cross-field validators (BB-C4-ADV-003)
+import { validateSealingPolicy, validateAccessPolicy } from '../schemas/conversation.js';
+import { validateBillingEntry } from '../utilities/billing.js';
+
+registerCrossFieldValidator('ConversationSealingPolicy', (data) => {
+  return validateSealingPolicy(data as Parameters<typeof validateSealingPolicy>[0]);
+});
+registerCrossFieldValidator('AccessPolicy', (data) => {
+  return validateAccessPolicy(data as Parameters<typeof validateAccessPolicy>[0]);
+});
+registerCrossFieldValidator('BillingEntry', (data) => {
+  const result = validateBillingEntry(data as Parameters<typeof validateBillingEntry>[0]);
+  if (!result.valid) {
+    return { valid: false, errors: [result.reason], warnings: [] };
+  }
+  return { valid: true, errors: [], warnings: [] };
+});
+
+/**
+ * Validate data against any TypeBox schema, with optional cross-field validation.
+ *
+ * When the schema has a `$id` that matches a registered cross-field validator,
+ * cross-field invariants are checked after schema validation passes.
  *
  * @remarks For protocol schemas, prefer using the `validators` object
  * which provides pre-defined, cached validators for all protocol types.
- * This function creates and caches compiled validators for any schema,
- * which is suitable for a bounded set of schemas but not for
- * dynamically-generated schemas in long-running processes — the cache
- * has no eviction policy.
+ * Schemas without `$id` are compiled per-call (no caching) — suitable
+ * for one-off validation but not high-throughput loops.
  *
- * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`
+ * @param schema - TypeBox schema to validate against
+ * @param data - Unknown data to validate
+ * @param options - Optional: skip cross-field validation with `{ crossField: false }`
+ * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings`
  */
 export function validate<T extends TSchema>(
   schema: T,
   data: unknown,
-): { valid: true } | { valid: false; errors: string[] } {
+  options?: { crossField?: boolean },
+): { valid: true; warnings?: string[] } | { valid: false; errors: string[]; warnings?: string[] } {
   const compiled = getOrCompile(schema);
-  if (compiled.Check(data)) {
-    return { valid: true };
+  if (!compiled.Check(data)) {
+    const errors = [...compiled.Errors(data)].map(
+      (e) => `${e.path}: ${e.message}`,
+    );
+    return { valid: false, errors };
   }
-  const errors = [...compiled.Errors(data)].map(
-    (e) => `${e.path}: ${e.message}`,
-  );
-  return { valid: false, errors };
+
+  // Cross-field validation (BB-C4-ADV-003)
+  const runCrossField = options?.crossField !== false;
+  if (runCrossField && schema.$id) {
+    const crossValidator = crossFieldRegistry.get(schema.$id);
+    if (crossValidator) {
+      const crossResult = crossValidator(data);
+      if (!crossResult.valid) {
+        return {
+          valid: false,
+          errors: crossResult.errors,
+          warnings: crossResult.warnings.length > 0 ? crossResult.warnings : undefined,
+        };
+      }
+      if (crossResult.warnings.length > 0) {
+        return { valid: true, warnings: crossResult.warnings };
+      }
+    }
+  }
+
+  return { valid: true };
 }
 
 // Pre-built validators for common schemas

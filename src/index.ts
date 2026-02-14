@@ -88,6 +88,7 @@ export {
   type TransitionValidator,
   type TransitionGuard,
   type GuardResult,
+  type GuardSeverity,
 } from './utilities/lifecycle.js';
 
 // Utilities — Billing (v2.0.0)
@@ -107,6 +108,7 @@ export {
   MessageRoleSchema,
   validateSealingPolicy,
   validateAccessPolicy,
+  type AccessPolicyValidationOptions,
   type Conversation,
   type ConversationStatus,
   type ConversationSealingPolicy,
@@ -294,7 +296,7 @@ export {
 } from './vocabulary/metadata.js';
 
 // Validators
-export { validate, validators } from './validators/index.js';
+export { validate, validators, registerCrossFieldValidator, type CrossFieldValidator } from './validators/index.js';
 export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
 export { validateBillingEntryFull } from './validators/billing.js';
 

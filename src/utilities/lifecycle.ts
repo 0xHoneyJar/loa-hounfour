@@ -6,16 +6,35 @@
  */
 
 /**
+ * Severity of a guard rejection.
+ *
+ * - `client_error`: The caller can fix the issue (e.g., forgot to provide transfer_id).
+ *   Analogous to HTTP 400 / Kubernetes admission response code 400.
+ * - `policy_violation`: The transition is structurally forbidden (e.g., agent is archived).
+ *   Analogous to HTTP 403 / Kubernetes admission response code 403.
+ *   Requires admin intervention rather than caller retry.
+ *
+ * @see BB-C5-Part5-§2 — GuardResult severity field
+ * @since v3.1.0
+ */
+export type GuardSeverity = 'client_error' | 'policy_violation';
+
+/**
  * Result of a guard predicate evaluation.
  *
  * Structured results replace bare booleans so that consumers can surface
  * meaningful error messages without inspecting transition internals.
  *
+ * The optional `severity` field (v3.1.0) distinguishes recoverable failures
+ * from policy violations, inspired by Kubernetes admission controller
+ * response codes.
+ *
  * @see BB-C4-ADV-001 — Guard predicates return bare boolean — no error message
+ * @see BB-C5-Part5-§2 — Severity field for recoverability
  */
 export type GuardResult =
   | { valid: true }
-  | { valid: false; reason: string; guard: string };
+  | { valid: false; reason: string; guard: string; severity?: GuardSeverity };
 
 /**
  * Narrow a `GuardResult` to its valid or invalid branch.
@@ -153,7 +172,7 @@ export function requiresTransferId(
   if (context !== undefined && typeof context.transfer_id === 'string' && context.transfer_id.length > 0) {
     return { valid: true };
   }
-  return { valid: false, reason: `${key} requires context.transfer_id`, guard: key };
+  return { valid: false, reason: `${key} requires context.transfer_id`, guard: key, severity: 'client_error' };
 }
 
 /**
@@ -161,6 +180,8 @@ export function requiresTransferId(
  *
  * Business rule: archiving an agent while a transfer is in progress would
  * strand the buyer. Archival is only permitted when no transfer_id is set.
+ *
+ * Severity: `policy_violation` — structural impossibility, not a missing field.
  */
 export function requiresNoActiveTransfer(
   from: string,
@@ -171,7 +192,7 @@ export function requiresNoActiveTransfer(
   if (context === undefined || !context.transfer_id) {
     return { valid: true };
   }
-  return { valid: false, reason: `${key} requires no active transfer_id`, guard: key };
+  return { valid: false, reason: `${key} requires no active transfer_id`, guard: key, severity: 'policy_violation' };
 }
 
 /**
@@ -180,6 +201,8 @@ export function requiresNoActiveTransfer(
  * Business rule: a suspended agent can only return to active duty when the
  * suspension cause has been addressed. This prevents premature reactivation
  * and ensures accountability for the suspension event.
+ *
+ * Severity: `client_error` — caller can fix by resolving the suspension reason.
  */
 export function requiresReasonResolved(
   from: string,
@@ -190,7 +213,7 @@ export function requiresReasonResolved(
   if (context !== undefined && context.reason_resolved === true) {
     return { valid: true };
   }
-  return { valid: false, reason: `${key} requires context.reason_resolved === true`, guard: key };
+  return { valid: false, reason: `${key} requires context.reason_resolved === true`, guard: key, severity: 'client_error' };
 }
 
 /**
@@ -199,6 +222,8 @@ export function requiresReasonResolved(
  * Business rule: after a transfer completes, the new owner must be
  * authenticated before the agent can be reprovisioned. Both conditions
  * prevent premature provisioning and ensure custody chain integrity.
+ *
+ * Severity: `client_error` — caller needs to provide transfer_completed and new_owner.
  */
 export function requiresTransferCompleted(
   from: string,
@@ -218,6 +243,7 @@ export function requiresTransferCompleted(
     valid: false,
     reason: `${key} requires context.transfer_completed === true and context.new_owner`,
     guard: key,
+    severity: 'client_error',
   };
 }
 
