@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/escrow-entry",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "escrow_id",
+    "payer_id",
+    "payee_id",
+    "amount_micro",
+    "state",
+    "held_at",
+    "contract_version"
+  ],
+  "properties": {
+    "escrow_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "payer_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "payee_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "amount_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "state": {
+      "anyOf": [
+        {
+          "const": "held",
+          "type": "string"
+        },
+        {
+          "const": "released",
+          "type": "string"
+        },
+        {
+          "const": "disputed",
+          "type": "string"
+        },
+        {
+          "const": "refunded",
+          "type": "string"
+        },
+        {
+          "const": "expired",
+          "type": "string"
+        }
+      ]
+    },
+    "held_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "released_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "dispute_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/performance-record",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "record_id",
+    "agent_id",
+    "billing_entry_id",
+    "occurred_at",
+    "output",
+    "contract_version"
+  ],
+  "properties": {
+    "record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "billing_entry_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "tokens_consumed",
+        "model_used"
+      ],
+      "properties": {
+        "tokens_consumed": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "model_used": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    },
+    "outcome": {
+      "$id": "PerformanceOutcome",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "user_rating": {
+          "minimum": 0,
+          "maximum": 5,
+          "type": "number"
+        },
+        "resolution_signal": {
+          "type": "boolean"
+        },
+        "amplification_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "outcome_validated": {
+          "type": "boolean"
+        },
+        "validated_by": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dividend_target": {
+      "anyOf": [
+        {
+          "const": "private",
+          "type": "string"
+        },
+        {
+          "const": "commons",
+          "type": "string"
+        },
+        {
+          "const": "mixed",
+          "type": "string"
+        }
+      ]
+    },
+    "dividend_split_bps": {
+      "minimum": 0,
+      "maximum": 10000,
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

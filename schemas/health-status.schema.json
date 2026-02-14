@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/health-status",
+  "additionalProperties": false,
+  "description": "Health status report for a model provider endpoint",
+  "type": "object",
+  "required": [
+    "healthy",
+    "latency_ms",
+    "provider",
+    "model_id",
+    "checked_at",
+    "circuit_state"
+  ],
+  "properties": {
+    "healthy": {
+      "description": "Whether the provider endpoint is currently healthy",
+      "type": "boolean"
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "description": "Last observed latency in milliseconds",
+      "type": "integer"
+    },
+    "provider": {
+      "minLength": 1,
+      "description": "Provider identifier (e.g., \"anthropic\", \"openai\", \"qwen\")",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model identifier within the provider",
+      "type": "string"
+    },
+    "checked_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last health check",
+      "type": "string"
+    },
+    "error": {
+      "description": "Error message when unhealthy (omitted when healthy)",
+      "type": "string"
+    },
+    "circuit_state": {
+      "$id": "CircuitState",
+      "anyOf": [
+        {
+          "const": "closed",
+          "type": "string"
+        },
+        {
+          "const": "open",
+          "type": "string"
+        },
+        {
+          "const": "half_open",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

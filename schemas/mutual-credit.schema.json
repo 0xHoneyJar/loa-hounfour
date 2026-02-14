@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/mutual-credit",
+  "additionalProperties": false,
+  "x-experimental": true,
+  "type": "object",
+  "required": [
+    "credit_id",
+    "creditor_id",
+    "debtor_id",
+    "amount_micro",
+    "credit_type",
+    "issued_at",
+    "settled",
+    "contract_version"
+  ],
+  "properties": {
+    "credit_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "creditor_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "debtor_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "amount_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "credit_type": {
+      "anyOf": [
+        {
+          "const": "refund",
+          "type": "string"
+        },
+        {
+          "const": "prepayment",
+          "type": "string"
+        },
+        {
+          "const": "obligation",
+          "type": "string"
+        },
+        {
+          "const": "delegation",
+          "type": "string"
+        }
+      ]
+    },
+    "issued_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "settled": {
+      "type": "boolean"
+    },
+    "settled_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "settlement": {
+      "type": "object",
+      "required": [
+        "settlement_method"
+      ],
+      "properties": {
+        "settlement_method": {
+          "anyOf": [
+            {
+              "const": "direct_payment",
+              "type": "string"
+            },
+            {
+              "const": "reciprocal_performance",
+              "type": "string"
+            },
+            {
+              "const": "commons_contribution",
+              "type": "string"
+            },
+            {
+              "const": "forgiven",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

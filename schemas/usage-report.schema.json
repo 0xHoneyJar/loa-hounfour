@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/usage-report",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/usage-report",
+  "description": "Token usage report for billing and rate limiting",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -94,5 +95,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

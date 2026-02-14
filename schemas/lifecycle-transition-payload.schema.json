@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/lifecycle-transition-payload",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/lifecycle-transition-payload",
+  "description": "Payload for agent lifecycle state transitions",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -122,6 +123,30 @@
         {
           "const": "system_maintenance",
           "type": "string"
+        },
+        {
+          "const": "sanction_warning_issued",
+          "type": "string"
+        },
+        {
+          "const": "sanction_rate_limited",
+          "type": "string"
+        },
+        {
+          "const": "sanction_pool_restricted",
+          "type": "string"
+        },
+        {
+          "const": "sanction_suspended",
+          "type": "string"
+        },
+        {
+          "const": "sanction_terminated",
+          "type": "string"
+        },
+        {
+          "const": "sanction_appealed_successfully",
+          "type": "string"
         }
       ]
     },
@@ -134,5 +159,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

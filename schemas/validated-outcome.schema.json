@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/validated-outcome",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "validation_id",
+    "performance_record_id",
+    "validator_agent_id",
+    "validator_stake_micro",
+    "rating",
+    "validated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "validation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "performance_record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "validator_agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "validator_stake_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "rating": {
+      "minimum": 0,
+      "maximum": 5,
+      "type": "number"
+    },
+    "validated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "dispute_outcome": {
+      "anyOf": [
+        {
+          "const": "upheld",
+          "type": "string"
+        },
+        {
+          "const": "overturned",
+          "type": "string"
+        },
+        {
+          "const": "split",
+          "type": "string"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

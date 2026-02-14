@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/message",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/message",
+  "description": "Individual message within an NFT-owned conversation",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -57,7 +58,9 @@
     "tool_calls": {
       "type": "array",
       "items": {
+        "$id": "ToolCall",
         "additionalProperties": false,
+        "description": "Canonical tool/function call made by a model",
         "type": "object",
         "required": [
           "id",
@@ -66,12 +69,15 @@
         ],
         "properties": {
           "id": {
+            "description": "Unique tool call identifier",
             "type": "string"
           },
           "name": {
+            "description": "Function/tool name",
             "type": "string"
           },
           "arguments": {
+            "description": "JSON-encoded arguments string",
             "type": "string"
           },
           "model_source": {
@@ -90,5 +96,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

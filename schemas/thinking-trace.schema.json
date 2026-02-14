@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/thinking-trace",
+  "additionalProperties": false,
+  "description": "Normalized thinking/reasoning trace from a model provider",
+  "type": "object",
+  "required": [
+    "content",
+    "model_id",
+    "provider",
+    "redacted"
+  ],
+  "properties": {
+    "content": {
+      "description": "Normalized thinking/reasoning content",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model that produced this trace",
+      "type": "string"
+    },
+    "provider": {
+      "minLength": 1,
+      "description": "Provider identifier (e.g., \"anthropic\", \"openai\", \"kimi\")",
+      "type": "string"
+    },
+    "tokens": {
+      "minimum": 0,
+      "description": "Token count for the thinking trace (if available)",
+      "type": "integer"
+    },
+    "redacted": {
+      "description": "Whether the trace content has been redacted for privacy/safety",
+      "type": "boolean"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "description": "Correlation ID linking to the parent request trace",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

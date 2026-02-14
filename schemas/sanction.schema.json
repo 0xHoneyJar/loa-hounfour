@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/sanction",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "sanction_id",
+    "agent_id",
+    "severity",
+    "trigger",
+    "imposed_by",
+    "imposed_at",
+    "appeal_available",
+    "contract_version"
+  ],
+  "properties": {
+    "sanction_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "severity": {
+      "anyOf": [
+        {
+          "const": "warning",
+          "type": "string"
+        },
+        {
+          "const": "rate_limited",
+          "type": "string"
+        },
+        {
+          "const": "pool_restricted",
+          "type": "string"
+        },
+        {
+          "const": "suspended",
+          "type": "string"
+        },
+        {
+          "const": "terminated",
+          "type": "string"
+        }
+      ]
+    },
+    "trigger": {
+      "type": "object",
+      "required": [
+        "violation_type",
+        "occurrence_count",
+        "evidence_event_ids"
+      ],
+      "properties": {
+        "violation_type": {
+          "anyOf": [
+            {
+              "const": "content_policy",
+              "type": "string"
+            },
+            {
+              "const": "rate_abuse",
+              "type": "string"
+            },
+            {
+              "const": "billing_fraud",
+              "type": "string"
+            },
+            {
+              "const": "identity_spoofing",
+              "type": "string"
+            },
+            {
+              "const": "resource_exhaustion",
+              "type": "string"
+            },
+            {
+              "const": "community_guideline",
+              "type": "string"
+            },
+            {
+              "const": "safety_violation",
+              "type": "string"
+            }
+          ]
+        },
+        "occurrence_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "evidence_event_ids": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "imposed_by": {
+      "anyOf": [
+        {
+          "const": "automatic",
+          "type": "string"
+        },
+        {
+          "const": "moderator",
+          "type": "string"
+        },
+        {
+          "const": "governance_vote",
+          "type": "string"
+        }
+      ]
+    },
+    "imposed_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "appeal_available": {
+      "type": "boolean"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

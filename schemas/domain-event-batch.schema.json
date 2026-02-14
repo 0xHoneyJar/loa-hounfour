@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/domain-event-batch",
-  "additionalProperties": false,
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/domain-event-batch",
+  "description": "Atomic multi-event delivery with shared correlation",
+  "additionalProperties": true,
   "type": "object",
   "required": [
     "batch_id",
@@ -28,7 +29,8 @@
       "type": "array",
       "items": {
         "$id": "DomainEvent",
-        "additionalProperties": false,
+        "description": "Cross-cutting event envelope for aggregate state changes",
+        "additionalProperties": true,
         "type": "object",
         "required": [
           "event_id",
@@ -76,6 +78,22 @@
               },
               {
                 "const": "message",
+                "type": "string"
+              },
+              {
+                "const": "performance",
+                "type": "string"
+              },
+              {
+                "const": "governance",
+                "type": "string"
+              },
+              {
+                "const": "reputation",
+                "type": "string"
+              },
+              {
+                "const": "economy",
                 "type": "string"
               }
             ]
@@ -173,6 +191,22 @@
             {
               "const": "message",
               "type": "string"
+            },
+            {
+              "const": "performance",
+              "type": "string"
+            },
+            {
+              "const": "governance",
+              "type": "string"
+            },
+            {
+              "const": "reputation",
+              "type": "string"
+            },
+            {
+              "const": "economy",
+              "type": "string"
             }
           ]
         }
@@ -220,5 +254,5 @@
       }
     }
   },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

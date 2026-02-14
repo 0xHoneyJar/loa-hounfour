@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/reputation-score",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "agent_id",
+    "score",
+    "components",
+    "sample_size",
+    "last_updated",
+    "decay_applied",
+    "contract_version"
+  ],
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "components": {
+      "type": "object",
+      "required": [
+        "outcome_quality",
+        "performance_consistency",
+        "dispute_ratio",
+        "community_standing"
+      ],
+      "properties": {
+        "outcome_quality": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "performance_consistency": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "dispute_ratio": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "community_standing": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    },
+    "sample_size": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "last_updated": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "decay_applied": {
+      "type": "boolean"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

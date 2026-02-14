@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/2.4.0/conversation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/conversation",
+  "description": "NFT-owned conversation with sealing policy and access control",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -51,13 +52,12 @@
     "sealing_policy": {
       "$id": "ConversationSealingPolicy",
       "additionalProperties": false,
-      "$comment": "Cross-field invariant: when encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
+      "$comment": "Cross-field invariants: (1) When encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. (2) When access_policy.type is \"time_limited\", duration_hours must be set. (3) When access_policy.type is \"role_based\", roles must be non-empty. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
       "type": "object",
       "required": [
         "encryption_scheme",
         "key_derivation",
-        "access_audit",
-        "previous_owner_access"
+        "access_audit"
       ],
       "properties": {
         "encryption_scheme": {
@@ -91,19 +91,62 @@
         "access_audit": {
           "type": "boolean"
         },
-        "previous_owner_access": {
-          "deprecated": true,
-          "description": "Deprecated in v2.2.0. Will be replaced by a richer access_policy in v3.0.0. Consumers should treat this field as informational only.",
-          "anyOf": [
-            {
-              "const": "none",
-              "type": "string"
+        "access_policy": {
+          "$id": "AccessPolicy",
+          "additionalProperties": false,
+          "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. Enforced by validateAccessPolicy() in TypeScript.",
+          "type": "object",
+          "required": [
+            "type",
+            "audit_required",
+            "revocable"
+          ],
+          "properties": {
+            "type": {
+              "description": "Access type governing previous owner data visibility",
+              "anyOf": [
+                {
+                  "const": "none",
+                  "type": "string"
+                },
+                {
+                  "const": "read_only",
+                  "type": "string"
+                },
+                {
+                  "const": "time_limited",
+                  "type": "string"
+                },
+                {
+                  "const": "role_based",
+                  "type": "string"
+                }
+              ]
             },
-            {
-              "const": "read_only_24h",
-              "type": "string"
+            "duration_hours": {
+              "minimum": 1,
+              "maximum": 8760,
+              "description": "Access duration in hours (required for time_limited)",
+              "type": "integer"
+            },
+            "roles": {
+              "minItems": 1,
+              "description": "Roles granted access (required for role_based). Role names are intentionally unconstrained at the protocol level — domain-specific validation (e.g., valid role enums) is the consumer's responsibility.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "audit_required": {
+              "description": "Whether access events must be logged to the audit trail",
+              "type": "boolean"
+            },
+            "revocable": {
+              "description": "Whether the new owner can revoke this access policy",
+              "type": "boolean"
             }
-          ]
+          }
         }
       },
       "if": {
@@ -157,5 +200,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=2.4.0, min_supported=2.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

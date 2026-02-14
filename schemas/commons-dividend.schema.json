@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/commons-dividend",
+  "additionalProperties": false,
+  "x-experimental": true,
+  "type": "object",
+  "required": [
+    "dividend_id",
+    "pool_id",
+    "total_micro",
+    "governance",
+    "period_start",
+    "period_end",
+    "contract_version"
+  ],
+  "properties": {
+    "dividend_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "total_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "governance": {
+      "anyOf": [
+        {
+          "const": "mod_discretion",
+          "type": "string"
+        },
+        {
+          "const": "member_vote",
+          "type": "string"
+        },
+        {
+          "const": "algorithmic",
+          "type": "string"
+        },
+        {
+          "const": "stake_weighted",
+          "type": "string"
+        }
+      ]
+    },
+    "period_start": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "period_end": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "distribution": {
+      "type": "object",
+      "required": [
+        "recipients"
+      ],
+      "properties": {
+        "recipients": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$id": "BillingRecipient",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "address",
+              "role",
+              "share_bps",
+              "amount_micro"
+            ],
+            "properties": {
+              "address": {
+                "minLength": 1,
+                "description": "Wallet or account address",
+                "type": "string"
+              },
+              "role": {
+                "anyOf": [
+                  {
+                    "const": "provider",
+                    "type": "string"
+                  },
+                  {
+                    "const": "platform",
+                    "type": "string"
+                  },
+                  {
+                    "const": "producer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agent_tba",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agent_performer",
+                    "type": "string"
+                  },
+                  {
+                    "const": "commons",
+                    "type": "string"
+                  }
+                ]
+              },
+              "share_bps": {
+                "minimum": 0,
+                "maximum": 10000,
+                "description": "Basis points share (0-10000)",
+                "type": "integer"
+              },
+              "amount_micro": {
+                "pattern": "^-?[0-9]+$",
+                "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}
