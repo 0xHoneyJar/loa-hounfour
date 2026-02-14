@@ -147,6 +147,19 @@ describe('Property Testing: Currency Arithmetic (v4.0.0, S4-T2)', () => {
         { numRuns: 1000 },
       );
     });
+
+    it('approximate distributivity: multiplyBps(a+b, bps) ≈ multiplyBps(a, bps) + multiplyBps(b, bps)', () => {
+      fc.assert(
+        fc.property(microUsdArb, microUsdArb, bpsArb, (a, b, bps) => {
+          const combined = multiplyBps(addMicro(a, b), bps);
+          const separate = addMicro(multiplyBps(a, bps), multiplyBps(b, bps));
+          // Integer division may produce rounding difference of at most 1 micro-unit
+          const diff = BigInt(combined) - BigInt(separate);
+          expect(diff >= -1n && diff <= 1n).toBe(true);
+        }),
+        { numRuns: 1000 },
+      );
+    });
   });
 });
 

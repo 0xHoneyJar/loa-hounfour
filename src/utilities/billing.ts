@@ -80,12 +80,24 @@ export function validateBillingEntry(
  */
 export function validateCreditNote(
   note: CreditNote,
+  options?: { originalEntry?: BillingEntry },
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   // Check amount is non-zero
   if (BigInt(note.amount_micro) === 0n) {
     errors.push('amount_micro must not be zero');
+  }
+
+  // Over-credit check: credit cannot exceed original charge (BB-C6-004)
+  if (options?.originalEntry) {
+    const creditAmount = BigInt(note.amount_micro);
+    const originalAmount = BigInt(options.originalEntry.total_cost_micro);
+    if (creditAmount > originalAmount) {
+      errors.push(
+        `over-credit: credit amount ${note.amount_micro} exceeds original charge ${options.originalEntry.total_cost_micro}`,
+      );
+    }
   }
 
   // Check recipient invariants

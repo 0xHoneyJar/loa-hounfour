@@ -6,6 +6,117 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
+## v3.2.0
+
+**Theme:** Ecosystem & Financial Maturity — signed currency types, credit note validation, resolvable schema URIs, and developer tooling for multi-repo adoption.
+
+### New Types
+
+#### `MicroUSDSigned` (vocabulary/currency)
+- Signed micro-USD amount as string: `^-?[0-9]+$`
+- Allows negative values for credits, refunds, and adjustments
+- Companion functions: `subtractMicroSigned()`, `negateMicro()`, `isNegativeMicro()`
+- Original `MicroUSD` (unsigned) unchanged — backward compatible
+
+### New Utilities
+
+#### `validateCreditNote(note, options?)` (utilities/billing)
+- Validates CreditNote invariants: non-zero amount, recipient share sum, amount sum
+- Optional `originalEntry` parameter for over-credit validation
+- Returns `{ valid: boolean; errors: string[] }`
+
+### New Constants
+
+#### `SCHEMA_BASE_URL` (version)
+- `https://schemas.0xhoneyjar.com/loa-hounfour`
+- Used for resolvable JSON Schema `$id` URIs
+- Format: `{SCHEMA_BASE_URL}/{CONTRACT_VERSION}/{schema-name}`
+
+### Schema Generator Updates
+
+- HealthStatusSchema, ThinkingTraceSchema, ToolCallSchema registered in `generate-schemas.ts`
+- All generated schemas now include `$schema`, `$id` (resolvable URL), and `$comment` with version info
+
+### Golden Vector Additions
+
+- `vectors/health/health-status.json` — 4 valid + 5 invalid vectors
+- `vectors/thinking/thinking-traces.json` — 5 valid + 4 invalid vectors
+
+---
+
+## v3.1.0
+
+**Theme:** Hounfour Protocol Types & Validation Hardening — observability schemas, cross-field validation pipeline, and guard severity for structured error responses.
+
+### New Schemas
+
+#### `HealthStatusSchema` (schemas/health-status)
+- Health check response with circuit breaker state
+- Fields: `healthy`, `latency_ms`, `provider`, `model_id`, `checked_at`, `error` (optional), `circuit_state`
+- `CircuitStateSchema`: `'closed' | 'open' | 'half_open'`
+- `additionalProperties: false`
+
+#### `ThinkingTraceSchema` (schemas/thinking-trace)
+- Normalized thinking/reasoning trace across model providers
+- Fields: `content`, `model_id`, `provider`, `tokens` (optional), `redacted`, `trace_id` (optional)
+- Covers Anthropic thinking blocks, Kimi reasoning_content, OpenAI hidden reasoning
+- `additionalProperties: false`
+
+#### `ToolCallSchema` (schemas/tool-call)
+- Extracted from inline `MessageSchema.tool_calls` array item definition
+- Fields: `id`, `name`, `arguments`, `model_source` (optional)
+- Now independently importable — consumers don't need to pick apart MessageSchema
+- `additionalProperties: false`
+
+### Schema Modifications
+
+#### `BillingEntrySchema` — per-model cost attribution fields
+- `model_id` (optional): Specific model identifier for cost breakdown
+- `cost_provider` (optional): Provider name for multi-provider billing
+- `pricing_model` (optional): `'per_token' | 'gpu_hourly' | 'flat_rate'`
+- All fields optional — backward compatible
+
+#### `StreamStartSchema` — execution mode field
+- `execution_mode` (optional): `'native' | 'remote'`
+- Indicates whether the model runs locally or via remote API
+
+#### `MessageSchema` — ToolCallSchema reference
+- `tool_calls` array now references `ToolCallSchema` instead of inline definition
+- No wire format change — backward compatible
+
+### Validation Pipeline Changes
+
+#### Cross-field validator registry
+- `registerCrossFieldValidator(schemaId, validator)` — register custom validators keyed by `$id`
+- `CrossFieldValidator` type: `(data: unknown) => { valid: boolean; errors: string[]; warnings: string[] }`
+- Built-in validators wired for: ConversationSealingPolicy, AccessPolicy, BillingEntry
+- `validate()` now accepts `options?: { crossField?: boolean }` and returns `warnings?: string[]`
+
+#### Validator cache constraint (BB-V3-003)
+- Cache only stores schemas with `$id` field
+- Schemas without `$id` compiled per-call (no caching)
+- Prevents unbounded cache growth from consumer-supplied schemas
+
+#### `validateAccessPolicy()` strict mode
+- Accepts `options?: AccessPolicyValidationOptions` with `strict?: boolean`
+- In strict mode, warnings (extraneous fields) become errors
+- Default behavior unchanged (`strict: false`)
+
+### Guard Severity (utilities/lifecycle)
+- `GuardSeverity` type: `'client_error' | 'policy_violation'`
+- `GuardResult` invalid branch gains optional `severity?: GuardSeverity`
+- `requiresTransferId` → `severity: 'client_error'`
+- `requiresNoActiveTransfer` → `severity: 'policy_violation'`
+- `requiresReasonResolved` → `severity: 'client_error'`
+- `requiresTransferCompleted` → `severity: 'client_error'`
+- `isValidGuardResult()` unchanged — backward compatible
+
+### Comment Fixes (integrity/req-hash)
+- Fixed `parseEncodings` TSDoc: "brotli, then gzip" → "gzip, then brotli" (correct decompression order)
+- Fixed direction annotation: "innermost-last" → "innermost-first, outermost-last"
+
+---
+
 ## v3.0.0
 
 **Theme:** The Sovereignty Release — replacing deprecated `previous_owner_access` with a richer `AccessPolicy` model, completing the v2.2.0 deprecation cycle.
