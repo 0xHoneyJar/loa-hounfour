@@ -24,6 +24,8 @@ export const BillingRecipientSchema = Type.Object(
       Type.Literal('platform'),
       Type.Literal('producer'),
       Type.Literal('agent_tba'),
+      Type.Literal('agent_performer'),
+      Type.Literal('commons'),
     ]),
     share_bps: Type.Integer({
       minimum: 0,
