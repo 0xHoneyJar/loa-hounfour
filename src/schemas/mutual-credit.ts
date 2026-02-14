@@ -1,6 +1,14 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 
+/**
+ * MutualCredit schema — bilateral credit line between agents with settlement tracking.
+ *
+ * `credit_id` uses `minLength: 1` (consumer-provided opaque identifier).
+ * Consumers may use any format (ULID, nanoid, UUID, etc.) — the protocol
+ * does not enforce a specific ID shape. Compare with `escrow_id` / `stake_id`
+ * which use `UUID_V4_PATTERN` because they are protocol-generated.
+ */
 export const MutualCreditSchema = Type.Object(
   {
     credit_id: Type.String({ minLength: 1 }),

@@ -1,5 +1,13 @@
 import { Type, type Static } from '@sinclair/typebox';
 
+/**
+ * DisputeRecord schema — governance dispute filing with evidence and resolution tracking.
+ *
+ * `dispute_id` uses `minLength: 1` (consumer-provided opaque identifier).
+ * Consumers may use any format (ULID, nanoid, UUID, etc.) — the protocol
+ * does not enforce a specific ID shape. Compare with `escrow_id` / `stake_id`
+ * which use `UUID_V4_PATTERN` because they are protocol-generated.
+ */
 export const DisputeRecordSchema = Type.Object(
   {
     dispute_id: Type.String({ minLength: 1 }),

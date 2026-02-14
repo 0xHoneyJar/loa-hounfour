@@ -33,7 +33,10 @@ export const ECONOMY_FLOW: readonly EconomyFlowEntry[] = [
   {
     source_schema: 'RoutingConstraint',
     target_schema: 'BillingEntry',
-    linking_field: 'routing_policy_id',
+    // Semantic link: routing decisions influence which pool_id is selected in
+    // the billing entry. There is no direct foreign key — the link is causal
+    // (routing → agent selection → billing pool assignment).
+    linking_field: 'pool_id',
     description: 'Routing decisions determine which agent handles work, producing billing entries',
   },
   {

@@ -2,6 +2,14 @@ import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 import { BillingRecipientSchema } from './billing-entry.js';
 
+/**
+ * CommonsDividend schema — commons pool dividend declaration and distribution.
+ *
+ * `dividend_id` uses `minLength: 1` (consumer-provided opaque identifier).
+ * Consumers may use any format (ULID, nanoid, UUID, etc.) — the protocol
+ * does not enforce a specific ID shape. Compare with `escrow_id` / `stake_id`
+ * which use `UUID_V4_PATTERN` because they are protocol-generated.
+ */
 export const CommonsDividendSchema = Type.Object(
   {
     dividend_id: Type.String({ minLength: 1 }),

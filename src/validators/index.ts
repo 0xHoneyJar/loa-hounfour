@@ -232,6 +232,9 @@ registerCrossFieldValidator('MutualCredit', (data) => {
   if (!credit.settled && credit.settled_at) {
     errors.push('settled_at must not be present when settled is false');
   }
+  if (!credit.settled && credit.settlement) {
+    errors.push('settlement must not be present when settled is false');
+  }
 
   // Temporal ordering
   if (credit.settled_at && credit.issued_at) {
@@ -244,7 +247,7 @@ registerCrossFieldValidator('MutualCredit', (data) => {
 });
 
 registerCrossFieldValidator('CommonsDividend', (data) => {
-  const dividend = data as { period_start: string; period_end: string; source_performance_ids?: string[]; distribution?: { recipients: Array<{ share_bps: number }> } };
+  const dividend = data as { period_start: string; period_end: string; total_micro: string; source_performance_ids?: string[]; distribution?: { recipients: Array<{ share_bps: number; amount_micro?: string }> } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -267,18 +270,40 @@ registerCrossFieldValidator('CommonsDividend', (data) => {
     if (totalBps !== 10000) {
       warnings.push(`distribution recipients share_bps sum to ${totalBps}, expected 10000`);
     }
+
+    // Amount conservation: if all recipients have amount_micro, sum must equal total_micro
+    const recipients = dividend.distribution.recipients;
+    const allHaveAmount = recipients.length > 0 && recipients.every((r) => r.amount_micro !== undefined);
+    if (allHaveAmount) {
+      try {
+        const total = BigInt(dividend.total_micro);
+        const sum = recipients.reduce((acc, r) => acc + BigInt(r.amount_micro!), BigInt(0));
+        if (sum !== total) {
+          errors.push(`distribution amount_micro sum (${sum}) does not equal total_micro (${total})`);
+        }
+      } catch {
+        // BigInt parse failures handled by schema validation
+      }
+    }
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('DisputeRecord', (data) => {
-  const dispute = data as { filed_by: string; filed_against: string };
+  const dispute = data as { filed_by: string; filed_against: string; filed_at: string; resolution?: { resolved_at: string } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
   if (dispute.filed_by === dispute.filed_against) {
     errors.push('filed_by and filed_against must be different (self-dispute not allowed)');
+  }
+
+  // Temporal ordering: resolution must not precede filing
+  if (dispute.resolution) {
+    if (new Date(dispute.resolution.resolved_at) < new Date(dispute.filed_at)) {
+      errors.push('resolution.resolved_at must be >= filed_at');
+    }
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
@@ -287,12 +312,19 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string; trigger: { violation_type: string; occurrence_count: number } };
+  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
   if (sanction.severity === 'terminated' && sanction.expires_at) {
     errors.push('expires_at must not be present when severity is "terminated" (termination is permanent)');
+  }
+
+  // Temporal ordering: expiry must be after imposition
+  if (sanction.expires_at && sanction.imposed_at) {
+    if (new Date(sanction.expires_at) <= new Date(sanction.imposed_at)) {
+      errors.push('expires_at must be after imposed_at');
+    }
   }
   if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
     warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
@@ -330,10 +362,6 @@ registerCrossFieldValidator('ReputationScore', (data) => {
 
   if (score.score === 1.0 && score.sample_size < 10) {
     warnings.push('perfect score with low sample is suspicious');
-  }
-
-  if (score.decay_applied === true && score.score > 1.0) {
-    errors.push('score must not exceed 1.0 when decay_applied is true');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
