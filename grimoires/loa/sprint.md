@@ -1,386 +1,669 @@
-# Sprint Plan: Cycle-006 — Hounfour Readiness & Protocol Maturity
+# Sprint Plan: loa-hounfour v4.4.0 — The Agent Economy
 
-> **Cycle**: cycle-006
-> **Version Target**: v3.1.0 (Sprints 1-2), v3.2.0 (Sprint 3), v4.0.0-prep (Sprint 4)
-> **Source**: All outstanding Bridgebuilder findings (BB-HFR, BB-ADV, BB-V3, BB-C4-ADV, BB-POST, Parts 5-6), product mission [loa-finn#66](https://github.com/0xHoneyJar/loa-finn/issues/66)
-> **Sprint count**: 4 sprints, 23 tasks
-> **Team**: 1 AI agent (Claude Opus)
-> **Branch**: `feature/protocol-types-v2` (continuing from cycle-005)
-
-## Context
-
-Cycle-005 delivered v3.0.0 (The Sovereignty Release) with 370 tests across 20 suites. Two bridge iterations achieved 93.3% severity reduction. The Bridgebuilder's deep review (Parts 5-6) identified 5 forward-looking findings (BB-HFR-001 through 005) plus several inline suggestions. Cross-referencing ALL Bridgebuilder feedback across 16 PR comments yields 21 genuinely open items — findings that were suggested but never implemented in subsequent cycles.
-
-This sprint plan addresses every one of them, aligned with the product mission from [loa-finn#66](https://github.com/0xHoneyJar/loa-finn/issues/66): enabling finnNFT agents with multi-model routing, production billing, and ecosystem adoption.
-
-## Finding Cross-Reference
-
-| Finding ID | Sprint | Task | Status Before |
-|------------|--------|------|--------------|
-| BB-HFR-001 | 1 | S1-T1 | Suggested |
-| BB-HFR-002 | 1 | S1-T2 | Suggested |
-| BB-HFR-003 | 1 | S1-T3 | Suggested |
-| BB-HFR-004 | 1 | S1-T4 | Suggested |
-| BB-HFR-005 | 1 | S1-T5 | Suggested |
-| BB-C4-ADV-003 | 2 | S2-T1 | Suggested |
-| BB-V3-008 | 2 | S2-T2 | Suggested |
-| BB-V3-003 | 2 | S2-T3 | Suggested |
-| BB-V3-007 | 2 | S2-T4 | Suggested |
-| Part 5 §2 | 2 | S2-T5 | Suggested |
-| Part 5 §4 | 2 | S2-T6 | Suggested |
-| Part 5 §3 | 3 | S3-T1 | Suggested |
-| BB-ADV-003 | 3 | S3-T2 | Suggested |
-| BB-ADV-008 | 3 | S3-T3 | Suggested |
-| BB-ADV-009 | 3 | S3-T4 | Suggested |
-| BB-C4-ADV-007 | 3 | S3-T5 | Suggested |
-| BB-C4-ADV-008 | 3 | S3-T6 | Suggested |
-| BB-POST-001 | 4 | S4-T1 | Suggested |
-| Part 5 §6 | 4 | S4-T2 | Suggested |
-| Part 5 §5 | 4 | S4-T3 | Suggested |
-| BB-ADV-008 ext | 4 | S4-T4 | Suggested |
-| Comprehensive | 4 | S4-T5 | New |
+**Cycle:** cycle-007
+**PRD:** [grimoires/loa/prd.md](grimoires/loa/prd.md)
+**SDD:** [grimoires/loa/sdd.md](grimoires/loa/sdd.md)
+**Source Mission:** [loa-finn#66 — Launch Readiness](https://github.com/0xHoneyJar/loa-finn/issues/66)
+**Sources:** Bridgebuilder Deep Review Parts 1–10, ECSA Postcapitalist Framework, Flatline SDD Review
+**Date:** 2026-02-14
+**Team:** 1 agent developer (AI-driven)
 
 ---
 
-## Sprint 1: Hounfour Protocol Types (v3.1.0-rc)
+## Overview
 
-**Goal**: New protocol types enabling the multi-model architecture from [Hounfour RFC #31](https://github.com/0xHoneyJar/loa-finn/issues/31).
-**Product alignment**: P0 NativeRuntimeAdapter, multi-model routing, per-model billing ([#66 §6](https://github.com/0xHoneyJar/loa-finn/issues/66)).
-**Estimated tasks**: 6
+6 sprints delivering v3.2.0 → v4.4.0 protocol evolution. Each sprint ships one version (independently publishable). Total estimated effort: ~7.5 days.
 
-### S1-T1: HealthStatus Protocol Schema (BB-HFR-001)
+**Execution strategy:** Version-aligned sprints. Each sprint bumps `CONTRACT_VERSION`, runs the full test suite, and produces a releasable artifact. Sprints 1–5 deliver schemas + vocabulary + validators + vectors. Sprint 6 delivers L2/L3 test infrastructure + final integration.
 
-**Description**: Create `src/schemas/health-status.ts` with a `HealthStatusSchema` for circuit breaker state reporting. The Hounfour router needs a shared health type for provider availability, fallback chain activation, and Arrakis admin dashboards.
-
-**Acceptance Criteria**:
-- [ ] `HealthStatusSchema` with fields: `healthy: boolean`, `latency_ms: integer`, `provider: string`, `model_id: string`, `checked_at: date-time`, `error: optional string`, `circuit_state: 'closed' | 'open' | 'half_open'`
-- [ ] `additionalProperties: false`, `$id: 'HealthStatus'`
-- [ ] Exported from `src/index.ts`
-- [ ] 4+ golden vectors (healthy, unhealthy with error, half_open, invalid)
-
-**Finding**: BB-HFR-001 (Medium, Architecture)
-**FAANG Parallel**: Kubernetes PodStatus as protocol-level health type.
-
-### S1-T2: ThinkingTrace Schema (BB-HFR-002)
-
-**Description**: Create `src/schemas/thinking-trace.ts` with a canonical schema for normalized thinking/reasoning traces across model providers (Claude `thinking` blocks, Kimi-K2 `reasoning_content`, OpenAI hidden).
-
-**Acceptance Criteria**:
-- [ ] `ThinkingTraceSchema` with fields: `content: string`, `model_id: string`, `provider: string`, `tokens: optional integer (min 0)`, `redacted: boolean`, `trace_id: optional string`
-- [ ] `additionalProperties: false`, `$id: 'ThinkingTrace'`
-- [ ] Exported from `src/index.ts`
-- [ ] 4+ golden vectors (Claude trace, Kimi trace, redacted trace, no-trace model)
-
-**Finding**: BB-HFR-002 (Medium, Architecture)
-**FAANG Parallel**: OpenTelemetry Span status normalization across tracing backends.
-
-### S1-T3: Extract ToolCall Canonical Schema (BB-HFR-003)
-
-**Description**: Extract the inline tool_call object from `MessageSchema.tool_calls` (conversation.ts:209-216) into a named `ToolCallSchema`. Reference from both `MessageSchema` and `StreamToolCallSchema` where applicable.
-
-**Acceptance Criteria**:
-- [ ] `ToolCallSchema` in `src/schemas/tool-call.ts` with `id`, `name`, `arguments` (string), `model_source` (optional)
-- [ ] `MessageSchema.tool_calls` references `ToolCallSchema` instead of inline object
-- [ ] Exported from `src/index.ts`
-- [ ] No breaking changes — same wire format
-- [ ] Existing conversation tests still pass
-
-**Finding**: BB-HFR-003 (Low, Architecture)
-**FAANG Parallel**: RFC #31 §5.3 — tool calling contract normalization across OpenAI/Anthropic/Qwen formats.
-
-### S1-T4: Per-Model Cost Attribution on BillingEntry (BB-HFR-004)
-
-**Description**: Add optional `model_id`, `provider`, and `pricing_model` fields to `BillingEntrySchema` for per-model cost attribution. This enables budget dashboards ([#66 P1](https://github.com/0xHoneyJar/loa-finn/issues/66)) to break down costs by model and pricing type.
-
-**Acceptance Criteria**:
-- [ ] `model_id: Optional(String)` — model that generated this cost
-- [ ] `provider: Optional(String)` — provider name (maps to Hounfour config key)
-- [ ] `pricing_model: Optional(Union('per_token', 'gpu_hourly', 'flat_rate'))` — cost structure
-- [ ] All optional (backward compatible with v3.0.0 entries)
-- [ ] Update billing pipeline test to exercise new fields
-- [ ] Update SCHEMA-CHANGELOG.md
-
-**Finding**: BB-HFR-004 (Medium, Billing)
-**FAANG Parallel**: AWS Cost Explorer instance-level attribution (on-demand vs spot vs reserved).
-
-### S1-T5: Execution Mode in StreamStart (BB-HFR-005)
-
-**Description**: Add optional `execution_mode: 'native' | 'remote'` to `StreamStartSchema`. This distinguishes Claude Code native runtime sessions from remote model API calls, enabling consumers to understand the response's provenance.
-
-**Acceptance Criteria**:
-- [ ] `execution_mode: Optional(Union(Literal('native'), Literal('remote')))` in `StreamStartSchema`
-- [ ] Optional (backward compatible)
-- [ ] Update stream event golden vectors
-- [ ] Update SCHEMA-CHANGELOG.md
-
-**Finding**: BB-HFR-005 (Low, Metadata)
-**FAANG Parallel**: Hounfour RFC §5.2 — native_runtime vs remote_model execution mode distinction.
-
-### S1-T6: Golden Vectors & Changelog for New Schemas
-
-**Description**: Create golden test vector files for HealthStatus, ThinkingTrace, and ToolCall. Update SCHEMA-CHANGELOG.md with v3.1.0 section documenting all new types.
-
-**Acceptance Criteria**:
-- [ ] `vectors/health/health-status.json` — valid + invalid vectors
-- [ ] `vectors/thinking/thinking-traces.json` — valid + invalid vectors
-- [ ] Update `vectors/conversation/conversations.json` with tool_call schema reference test
-- [ ] Update `vectors/billing/billing-entries.json` with model attribution test
-- [ ] SCHEMA-CHANGELOG.md v3.1.0 section
-- [ ] All new tests passing, total test count > 380
+**Branch:** `feature/v4-agent-economy`
 
 ---
 
-## Sprint 2: Validation Pipeline Hardening (v3.1.0)
+## Sprint 1: The Breaking Foundation (v4.0.0)
 
-**Goal**: Production-ready validation for Arrakis adoption and deployment.
-**Product alignment**: P0 production deployment, Arrakis adopts loa-hounfour ([#66 §6](https://github.com/0xHoneyJar/loa-finn/issues/66)).
-**Estimated tasks**: 6
+**Goal:** Ship the breaking changes that clean up financial semantics for launch. Signed MicroUSD, envelope relaxation, new routing primitive.
+**Version:** v4.0.0
+**Estimated Effort:** ~1.5 days
+**Priority:** P0 — Launch enabler
 
-### S2-T1: Wire Cross-Field Validators into Main Pipeline (BB-C4-ADV-003)
+### S1-T1: Signed MicroUSD as Default
 
-**Description**: The `validate()` function in `src/validators/index.ts` currently performs schema-only validation. Cross-field validators (`validateSealingPolicy`, `validateAccessPolicy`, `validateBillingEntryFull`) exist but must be called separately. Wire them into the main pipeline so that `validate(ConversationSealingPolicySchema, data)` automatically runs cross-field checks.
+**Description:** Change `MicroUSD` pattern from `^[0-9]+$` to `^-?[0-9]+$` and introduce `MicroUSDUnsigned` type for explicit non-negative enforcement. Update `MicroUSDSigned` to alias `MicroUSD`. Update arithmetic functions to accept signed values.
 
-**Acceptance Criteria**:
-- [ ] `validate()` optionally accepts a `crossFieldValidators` registry
-- [ ] Pre-registered validators for: `ConversationSealingPolicySchema`, `AccessPolicySchema`, `BillingEntrySchema`
-- [ ] Returns cross-field errors alongside schema errors
-- [ ] Backward compatible — existing callers without the registry get schema-only behavior
-- [ ] Tests verify combined validation catches cross-field violations
+**Files:** `src/vocabulary/currency.ts`
 
-**Finding**: BB-C4-ADV-003 (Medium, DX)
+**Acceptance Criteria:**
+- [ ] `MicroUSD` pattern is `^-?[0-9]+$`
+- [ ] `MicroUSDUnsigned` exported with pattern `^[0-9]+$`
+- [ ] `MicroUSDSigned` is now an alias for `MicroUSD`
+- [ ] `assertMicro()` accepts negative values via `SIGNED_MICRO_PATTERN`
+- [ ] `addMicro()` accepts signed values
+- [ ] `subtractMicro()` still throws on negative result
+- [ ] All existing currency tests pass (backward compat)
+- [ ] New tests: negative values accepted by `MicroUSD`, rejected by `MicroUSDUnsigned`
 
-### S2-T2: Cross-Field Validation Discoverability (BB-V3-008)
+**Testing:** L0 golden vectors + L1 property tests for arithmetic
 
-**Description**: JSON Schema consumers (Go, Python) cannot discover that `ConversationSealingPolicy` has cross-field invariants. Add `$comment` annotations to generated JSON Schema pointing to the validator function names. Update MIGRATION.md with cross-language validation guidance.
+### S1-T2: Selective Envelope Relaxation
 
-**Acceptance Criteria**:
-- [ ] All schemas with cross-field validators have `$comment` documenting the validator function name and invariants
-- [ ] MIGRATION.md section: "Cross-Field Validation for Non-TypeScript Consumers"
-- [ ] Go and Python code examples showing equivalent validation logic
+**Description:** Set `additionalProperties: true` on DomainEvent, DomainEventBatch, and all StreamEvent variants. Financial and identity schemas remain strict.
 
-**Finding**: BB-V3-008 (Medium, Interop)
+**Files:** `src/schemas/domain-event.ts`, `src/schemas/stream-events.ts`
 
-### S2-T3: Constrain Validator Cache (BB-V3-003)
+**Acceptance Criteria:**
+- [ ] `DomainEventSchema` has `additionalProperties: true`
+- [ ] `DomainEventBatchSchema` has `additionalProperties: true`
+- [ ] All 6 StreamEvent schemas have `additionalProperties: true`
+- [ ] All financial schemas remain `additionalProperties: false`
+- [ ] Test: extra properties accepted on DomainEvent
+- [ ] Test: extra properties rejected on BillingEntry
 
-**Description**: The validator cache in `src/validators/index.ts` accepts arbitrary TypeBox schemas via the `validate()` public API. Constrain it to only cache protocol-defined schemas (those with `$id`), preventing unbounded cache growth from consumer-supplied schemas.
+**Testing:** Golden vectors for envelope relaxation (valid with extra fields, invalid for strict schemas)
 
-**Acceptance Criteria**:
-- [ ] Validator cache only stores schemas with `$id` field
-- [ ] Schemas without `$id` are compiled per-call (no caching)
-- [ ] Log warning when non-$id schema is validated (dev mode)
-- [ ] Test verifying cache size doesn't grow with arbitrary schemas
+### S1-T3: MIN_SUPPORTED_VERSION Bump + Version Update
 
-**Finding**: BB-V3-003 (Low, Architecture)
+**Description:** Bump `CONTRACT_VERSION` to `'4.0.0'` and `MIN_SUPPORTED_VERSION` to `'3.0.0'`. Update compatibility validator.
 
-### S2-T4: Fix req-hash Comment Drift (BB-V3-007)
+**Files:** `src/version.ts`, `src/validators/compatibility.ts`
 
-**Description**: In `src/integrity/req-hash.ts`, the `parseEncodings` function's comments describe the wrong decompression order. The code is correct (innermost-first), but comments say outermost-first. Fix the comments.
+**Acceptance Criteria:**
+- [ ] `CONTRACT_VERSION === '4.0.0'`
+- [ ] `MIN_SUPPORTED_VERSION === '3.0.0'`
+- [ ] Compatibility validator rejects v2.4.0
+- [ ] Compatibility validator accepts v3.0.0+
+- [ ] Existing compatibility tests updated
 
-**Acceptance Criteria**:
-- [ ] Comments in `parseEncodings` accurately describe innermost-first decompression
-- [ ] Add a code example in the TSDoc showing `Content-Encoding: gzip, br` → decompress br first, then gzip
+**Testing:** Version negotiation golden vectors
 
-**Finding**: BB-V3-007 (Medium, Correctness)
+### S1-T4: RoutingConstraint Schema
 
-### S2-T5: GuardResult Severity Field (Parts 5-6 §2)
+**Description:** Create new `RoutingConstraintSchema` with required_capabilities, max_cost_micro, min_health, allowed_providers, trust_level, min_reputation, and contract_version fields. Per SDD Section 5.4.
 
-**Description**: Add an optional `severity` field to the invalid branch of `GuardResult` to distinguish recoverable failures (caller can fix) from policy violations (requires admin intervention). Inspired by Kubernetes admission controller response codes.
+**Files:** `src/schemas/routing-constraint.ts` (new)
 
-**Acceptance Criteria**:
-- [ ] `GuardResult` invalid branch gains `severity?: 'client_error' | 'policy_violation'`
-- [ ] `requiresTransferId` → `client_error` (caller forgot to provide context)
-- [ ] `requiresNoActiveTransfer` → `policy_violation` (structural impossibility)
-- [ ] `isValidGuardResult` still works unchanged (backward compatible)
-- [ ] Update guard function tests
+**Acceptance Criteria:**
+- [ ] Schema follows established pattern ($id, additionalProperties: false, TSDoc)
+- [ ] `min_reputation` is `Type.Number({ minimum: 0, maximum: 1 })`
+- [ ] All fields except `contract_version` are optional
+- [ ] Compiled validator registered in `src/validators/index.ts`
+- [ ] Golden vectors: `vectors/routing-constraint/valid.json`, `invalid.json`
+- [ ] 8+ test vectors (3 valid, 3 invalid, 2 edge)
 
-**Finding**: Bridgebuilder Part 5 §2 forward-looking suggestion
+**Testing:** L0 golden vectors
 
-### S2-T6: validateAccessPolicyStrict Mode (Parts 5-6 §4)
+### S1-T5: Domain Event Aggregate Extension
 
-**Description**: Add a `strict` option to `validateAccessPolicy()` that promotes warnings to errors. In production deployment, Arrakis may want "no extraneous fields" as a hard constraint.
+**Description:** Add 4 new aggregate types (performance, governance, reputation, economy) to `AggregateTypeSchema`. Add typed event wrappers and `is*Event()` type guards for each new aggregate.
 
-**Acceptance Criteria**:
-- [ ] `validateAccessPolicy(policy, { strict: true })` — warnings become errors
-- [ ] Default behavior unchanged (`strict: false`)
-- [ ] Tests for strict mode: extraneous `duration_hours` on `type: 'none'` → error
-- [ ] TSDoc documents when to use strict mode
+**Files:** `src/schemas/domain-event.ts`
 
-**Finding**: Bridgebuilder Part 5 §4 forward-looking suggestion
+**Acceptance Criteria:**
+- [ ] `AggregateTypeSchema` includes: performance, governance, reputation, economy
+- [ ] `PerformanceEvent`, `GovernanceEvent`, `ReputationEvent`, `EconomyEvent` types exported
+- [ ] `isPerformanceEvent()`, `isGovernanceEvent()`, `isReputationEvent()`, `isEconomyEvent()` guards exported
+- [ ] Existing type guards still work
+- [ ] Golden vectors for new aggregate types
 
----
+**Testing:** L0 schema validation + type guard tests
 
-## Sprint 3: Ecosystem & Financial Maturity (v3.2.0)
+### S1-T6: Error Codes + Billing Updates
 
-**Goal**: Ecosystem readiness for multi-repo adoption, developer tooling, and financial type completeness.
-**Product alignment**: P0 Arrakis adopts loa-hounfour, budget dashboard preparation ([#66 §6-7](https://github.com/0xHoneyJar/loa-finn/issues/66)).
-**Estimated tasks**: 6
+**Description:** Add v4.0.0 error code `ROUTING_CONSTRAINT_VIOLATED`. Update billing utilities to accept signed MicroUSD amounts. Update `validateBillingEntry()` and `allocateRecipients()`.
 
-### S3-T1: CreditMicro Signed Amount Type (Parts 5-6 §3)
+**Files:** `src/vocabulary/errors.ts`, `src/utilities/billing.ts`, `src/validators/billing.ts`
 
-**Description**: Add a `MicroUSDSigned` type and `CreditMicro` arithmetic helpers for negative amounts (refunds, credits). Currently `subtractMicro` throws on negative results, but financial systems need negative amounts for credit notes and refund flows.
+**Acceptance Criteria:**
+- [ ] `ROUTING_CONSTRAINT_VIOLATED` error code with HTTP 403
+- [ ] `validateBillingEntry()` accepts signed `raw_cost_micro` and `total_cost_micro`
+- [ ] `allocateRecipients()` uses signed arithmetic internally
+- [ ] `validateBillingRecipients()` amount sum check uses signed comparison
+- [ ] All existing billing tests pass
+- [ ] New tests: negative amounts in BillingEntry
 
-**Acceptance Criteria**:
-- [ ] `MicroUSDSigned` schema: `Type.String({ pattern: '^-?[0-9]+$' })` — allows negative
-- [ ] `subtractMicroSigned(a, b)` → allows negative results
-- [ ] `negateMicro(a)` → flips sign
-- [ ] `isNegativeMicro(a)` → boolean helper
-- [ ] Original `MicroUSD` and `subtractMicro` unchanged (backward compatible)
-- [ ] 8+ tests for signed arithmetic edge cases (zero, negative-negative, overflow)
+**Testing:** L0 + L1 property tests for allocation
 
-**Finding**: Bridgebuilder Part 5 §3 — Stripe's negative_amount_cents precedent
+### S1-T7: Barrel Exports + Schema Generation (v4.0.0)
 
-### S3-T2: CreditNote Invariant Documentation (BB-ADV-003)
+**Description:** Export new types from `src/index.ts`. Add RoutingConstraint to schema generation script. Update `package.json` version to `4.0.0`.
 
-**Description**: The `CreditNoteSchema` in `billing-entry.ts` lacks documented invariants: no over-credit (credit cannot exceed original charge), referential integrity (must reference valid billing_entry_id), and timing (credit_at must be after original charge).
+**Files:** `src/index.ts`, `scripts/generate-schemas.ts`, `package.json`
 
-**Acceptance Criteria**:
-- [ ] TSDoc on `CreditNoteSchema` documenting 3 invariants
-- [ ] `$comment` on schema with invariant summary
-- [ ] `validateCreditNote()` utility function checking invariants
-- [ ] 4+ tests for invariant violations
+**Acceptance Criteria:**
+- [ ] `RoutingConstraintSchema`, `RoutingConstraint` type exported
+- [ ] `MicroUSDUnsigned` exported from barrel
+- [ ] New aggregate event types and guards exported
+- [ ] `package.json` version is `4.0.0`
+- [ ] Schema generation includes routing-constraint
+- [ ] `pnpm run build` succeeds
+- [ ] `pnpm run test` passes (all existing + new)
+- [ ] v3.2.0 backward compatibility gate: frozen v3.2.0 golden payload suite replayed across all validators (Flatline IMP-003)
+- [ ] Compatibility matrix documented in MIGRATION.md (which v3.x payloads accepted, which rejected, transform scripts for edge cases)
 
-**Finding**: BB-ADV-003 (Low, Billing)
-
-### S3-T3: Resolvable $id URLs (BB-ADV-008)
-
-**Description**: JSON Schema `$id` fields currently use bare identifiers (e.g., `'BillingEntry'`). For ecosystem adoption and JSON Schema tooling compatibility, they should be resolvable URIs (e.g., `https://schemas.honeyjar.xyz/v3/BillingEntry`).
-
-**Acceptance Criteria**:
-- [ ] All schema `$id` fields updated to `https://schemas.honeyjar.xyz/v{major}/{SchemaName}` format
-- [ ] `SCHEMA_BASE_URL` constant exported from `version.ts`
-- [ ] Generated JSON Schema files have resolvable `$id` URIs
-- [ ] MIGRATION.md note: `$id` format change is non-breaking (URIs are identifiers, not locators)
-
-**Finding**: BB-ADV-008 (Medium, Distribution)
-
-### S3-T4: AsyncAPI Spec Generation (BB-ADV-009)
-
-**Description**: Generate an AsyncAPI 3.0 specification from the stream event schemas for developer tooling and documentation. The spec describes the SSE streaming contract for consumers building WebSocket/SSE clients.
-
-**Acceptance Criteria**:
-- [ ] `scripts/generate-asyncapi.ts` script
-- [ ] Generates `dist/asyncapi.yaml` from `StreamEventSchema` + `DomainEventSchema`
-- [ ] `npm run asyncapi` script in package.json
-- [ ] Spec validates against AsyncAPI 3.0 schema
-- [ ] Documents 6 stream event types + ordering invariants
-
-**Finding**: BB-ADV-009 (Medium, Interop)
-
-### S3-T5: check-migration.ts CI Integration (BB-C4-ADV-007)
-
-**Description**: The `check-migration.ts` script validates that MIGRATION.md stays in sync with schema changes. Wire it into the CI pipeline as a package.json script and GitHub Action check.
-
-**Acceptance Criteria**:
-- [ ] `npm run check:migration` script in package.json
-- [ ] Script exits 0 when MIGRATION.md covers all schemas with `additionalProperties: false`
-- [ ] Script exits 1 with clear message when new schemas are missing from migration guide
-- [ ] Added to `npm test` or as separate CI check
-
-**Finding**: BB-C4-ADV-007 (Low, Tooling)
-
-### S3-T6: Mermaid Diagram Generation from Choreography (BB-C4-ADV-008)
-
-**Description**: The `TRANSFER_CHOREOGRAPHY` and `TRANSFER_INVARIANTS` constants are structured enough to auto-generate Mermaid sequence diagrams for each transfer scenario. Create a generation script.
-
-**Acceptance Criteria**:
-- [ ] `scripts/generate-mermaid.ts` reads `TRANSFER_CHOREOGRAPHY` and produces Mermaid sequence diagram markdown
-- [ ] Generates 4 diagrams (sale, gift, admin_recovery, custody_change) with both forward and compensation paths
-- [ ] Output includes invariant annotations as notes
-- [ ] `npm run diagrams` script in package.json
-- [ ] Generated diagrams added to docs/ directory
-
-**Finding**: BB-C4-ADV-008 (Low, Documentation)
+**Testing:** Build + full test suite + v3.2.0 corpus replay
 
 ---
 
-## Sprint 4: Protocol Maturity & v4.0.0 Preparation
+## Sprint 2: The Performance Layer (v4.1.0)
 
-**Goal**: Long-term protocol sustainability, testing rigor, and planning for the next major version.
-**Product alignment**: Post-launch evolution — soul memory, personality evolution, advanced billing ([#66 P3](https://github.com/0xHoneyJar/loa-finn/issues/66)).
-**Estimated tasks**: 5
+**Goal:** Introduce outcome tracking — the core value economy primitive. Track what agents produce AND what value they create.
+**Version:** v4.1.0
+**Estimated Effort:** ~1 day
+**Priority:** P0 — Value economy foundation
+**Dependencies:** Sprint 1 complete
 
-### S4-T1: Schema Evolution Strategy Document (BB-POST-001)
+### S2-T1: PerformanceRecord Schema
 
-**Description**: Document the trade-offs of `additionalProperties: false` for N/N-1 wire compatibility. Currently, strict schemas reject unknown fields, which means a v3.1.0 producer's new optional fields are rejected by a v3.0.0 consumer. Write a strategy document with recommended patterns for both strict and permissive modes.
+**Description:** Create `PerformanceRecordSchema` with output dimension (billing_entry_id, tokens_consumed, model_used), outcome dimension (user_rating, resolution_signal, amplification_count, outcome_validated, validated_by), and dividend dimension (dividend_target, dividend_split_bps). Per SDD Section 6.1.
 
-**Acceptance Criteria**:
-- [ ] `SCHEMA-EVOLUTION.md` document covering: strict vs permissive trade-offs, recommended consumer patterns (strip-then-validate), versioned schema resolution, compatibility window policy
-- [ ] Code examples in TypeScript, Go, Python showing how consumers handle unknown fields
-- [ ] Decision: whether v4.0.0 should relax `additionalProperties` on selected envelope schemas
-- [ ] Document the `Type.Intersect` metadata escape hatch pattern
+**Files:** `src/schemas/performance-record.ts` (new)
 
-**Finding**: BB-POST-001 (Medium, Protocol Design)
+**Acceptance Criteria:**
+- [ ] Schema follows established pattern with `PerformanceOutcomeSchema` sub-schema
+- [ ] `outcome.user_rating` has `minimum: 0, maximum: 5`
+- [ ] `outcome.amplification_count` has `minimum: 0` as `Type.Integer`
+- [ ] `dividend_target` is union of 'private' | 'commons' | 'mixed'
+- [ ] `dividend_split_bps` has `minimum: 0, maximum: 10000`
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 9 vectors (3 valid, 4 invalid, 2 edge)
 
-### S4-T2: Property Testing with fast-check (Parts 5-6 §6)
+**Testing:** L0 golden vectors
 
-**Description**: Add property-based testing using `fast-check` for transfer choreography invariants and billing arithmetic. Random event orderings should verify that safety properties hold regardless of sequence.
+### S2-T2: ContributionRecord Schema
 
-**Acceptance Criteria**:
-- [ ] `fast-check` dev dependency added
-- [ ] Property tests for: `addMicro` commutativity, `subtractMicro` underflow, `multiplyBps` scaling, allocation sum invariant
-- [ ] Property tests for: transfer choreography invariant verification against random event orderings
-- [ ] Minimum 1000 iterations per property
-- [ ] Integrated into `npm test`
+**Description:** Create `ContributionRecordSchema` for non-financial contributions (Ostrom P2). Six contribution types: curation, training, validation, moderation, infrastructure, capital. Per SDD Section 6.2.
 
-**Finding**: Bridgebuilder Part 5 §6 — Amazon's TLA+ formal methods precedent
+**Files:** `src/schemas/contribution-record.ts` (new)
 
-### S4-T3: Rust Golden Vector Runner (Parts 5-6 §5)
+**Acceptance Criteria:**
+- [ ] 6 contribution types defined
+- [ ] `assessed_by` union: self, peer, algorithmic, governance_vote
+- [ ] `value_micro` uses `MicroUSD` (signed — contributions can be negative adjustments)
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
 
-**Description**: Complete the cross-language vector runner set (Go and Python exist) with a Rust runner. Validates protocol interoperability for Rust consumers.
+**Testing:** L0 golden vectors
 
-**Acceptance Criteria**:
-- [ ] `vectors/runners/rust/` directory with Cargo project
-- [ ] Uses `jsonschema` crate for JSON Schema validation
-- [ ] Runs all golden vectors from `vectors/` directory
-- [ ] CI-runnable (or documented manual execution)
-- [ ] README with usage instructions
+### S2-T3: Cross-Field Validator API Contract + PerformanceRecord Validator
 
-**Finding**: Bridgebuilder Part 5 §5 — completing the h2spec cross-language pattern
+**Description:** Formalize the `CrossFieldValidatorResult` interface, `CrossFieldValidatorFn` type, `registerCrossFieldValidator()`, and `runCrossFieldValidation()` functions per SDD Section 11.2 (Flatline IMP-002). Implement PerformanceRecord cross-field validator.
 
-### S4-T4: SchemaStore.org Registration Preparation (BB-ADV-008 extended)
+**Files:** `src/validators/index.ts`
 
-**Description**: Prepare for SchemaStore.org registration by ensuring all generated JSON Schema files meet the registry's requirements: resolvable `$id` URLs, proper `$schema` declarations, and a catalog entry.
+**Acceptance Criteria:**
+- [ ] `CrossFieldValidatorResult` interface exported with `valid`, `errors`, `warnings`
+- [ ] `CrossFieldValidatorFn` type exported
+- [ ] `registerCrossFieldValidator()` validates schema name matches validator key
+- [ ] `runCrossFieldValidation()` returns `{ valid: true, errors: [], warnings: [] }` when no validator registered
+- [ ] PerformanceRecord cross-field: `dividend_split_bps` required when `dividend_target === 'mixed'`
+- [ ] PerformanceRecord cross-field: warning when `outcome_validated` true but `validated_by` empty
+- [ ] Invariant: `result.valid === (result.errors.length === 0)` always holds
+- [ ] Tests for all cross-field validation scenarios
 
-**Acceptance Criteria**:
-- [ ] All generated JSON Schema files include `$schema: "https://json-schema.org/draft/2020-12/schema"`
-- [ ] Draft SchemaStore catalog entry (JSON) for loa-hounfour schemas
-- [ ] Validation against SchemaStore requirements documented
-- [ ] `npm run schemas:validate` verifies all generated schemas
+**Testing:** `tests/cross-field/performance-record.test.ts`
 
-**Finding**: BB-ADV-008 extended (Medium, Distribution)
+### S2-T4: Performance Event Types + Barrel Exports
 
-### S4-T5: v4.0.0 Planning Document
+**Description:** Add performance event types, update barrel exports, bump version to 4.1.0.
 
-**Description**: Based on all work in cycles 001-006, write a planning document for v4.0.0 that catalogs potential breaking changes, assesses their impact on consumers, and proposes a migration timeline aligned with [#66 launch sequence](https://github.com/0xHoneyJar/loa-finn/issues/66).
+**Files:** `src/vocabulary/event-types.ts`, `src/index.ts`, `src/version.ts`, `scripts/generate-schemas.ts`, `package.json`
 
-**Acceptance Criteria**:
-- [ ] `V4-PLANNING.md` document covering:
-  - Signed micro-USD as default (replace unsigned `MicroUSD`)
-  - Schema evolution policy decision (`additionalProperties` relaxation on envelopes)
-  - New aggregates: SoulMemory, InboxPrivacy, PersonalityEvolution (from [#66 P3](https://github.com/0xHoneyJar/loa-finn/issues/66))
-  - `MIN_SUPPORTED_VERSION` bump strategy (drop v2.x support?)
-  - Consumer upgrade matrix (loa-finn, arrakis, mibera-freeside)
-- [ ] Timeline proposal relative to product launch sequence ([#66 §7](https://github.com/0xHoneyJar/loa-finn/issues/66))
+**Acceptance Criteria:**
+- [ ] Event types: `performance.record.created`, `performance.outcome.validated`, `performance.dividend.issued`, `performance.contribution.recorded`
+- [ ] `PerformanceRecordSchema`, `ContributionRecordSchema` + types exported from barrel
+- [ ] Schema generation includes both new schemas
+- [ ] `CONTRACT_VERSION === '4.1.0'`
+- [ ] `package.json` version is `4.1.0`
+- [ ] Full test suite passes
 
-**Finding**: Comprehensive — synthesizes all forward-looking suggestions into a roadmap
+**Testing:** Build + full test suite
 
 ---
 
-## Risk Assessment
+## Sprint 3: The Governance Layer (v4.2.0)
+
+**Goal:** Implement Ostrom-aligned governance primitives — graduated sanctions, dispute resolution, validated outcomes.
+**Version:** v4.2.0
+**Estimated Effort:** ~1.5 days
+**Priority:** P1 — Governance layer
+**Dependencies:** Sprint 2 complete
+
+### S3-T1: Sanctions Vocabulary
+
+**Description:** Create `src/vocabulary/sanctions.ts` with 5 severity levels, 7 violation types, and escalation rules. Per SDD Section 7.1.
+
+**Files:** `src/vocabulary/sanctions.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `SANCTION_SEVERITY_LEVELS`: warning, rate_limited, pool_restricted, suspended, terminated
+- [ ] `SANCTION_SEVERITY_ORDER` record for comparison
+- [ ] `VIOLATION_TYPES`: content_policy, rate_abuse, billing_fraud, identity_spoofing, resource_exhaustion, community_guideline, safety_violation
+- [ ] `ESCALATION_RULES` with thresholds per violation type
+- [ ] All types exported (`SanctionSeverity`, `ViolationType`)
+
+**Testing:** Import validation + type tests
+
+### S3-T2: SanctionSchema
+
+**Description:** Create `SanctionSchema` with graduated severity, trigger (violation_type, occurrence_count, evidence_event_ids with minItems: 1), imposed_by, appeal_available, expiry. Per SDD Section 7.2.
+
+**Files:** `src/schemas/sanction.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] 5 severity levels as union literals
+- [ ] `trigger.evidence_event_ids` has `minItems: 1`
+- [ ] `trigger.occurrence_count` has `minimum: 1`
+- [ ] `imposed_by`: automatic, moderator, governance_vote
+- [ ] `expires_at` is optional (permanent sanctions)
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 8 vectors (3 valid, 3 invalid, 2 edge)
+
+**Testing:** L0 golden vectors
+
+### S3-T3: DisputeRecord Schema
+
+**Description:** Create `DisputeRecordSchema` for non-financial conflict resolution. 5 dispute types, evidence array with minItems: 1, optional resolution with outcome + links. Per SDD Section 7.3.
+
+**Files:** `src/schemas/dispute-record.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] Dispute types: quality, safety, billing, ownership, personality
+- [ ] `evidence` array with `minItems: 1`, each item has event_id + description
+- [ ] Resolution sub-schema: outcome (upheld/dismissed/compromised), optional sanction_id, credit_note_id
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 6 vectors (3 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors
+
+### S3-T4: ValidatedOutcome Schema
+
+**Description:** Create `ValidatedOutcomeSchema` for staked quality validation. Links to PerformanceRecord, includes validator stake, rating, dispute status. Per SDD Section 7.4.
+
+**Files:** `src/schemas/validated-outcome.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `validator_stake_micro` uses `MicroUSD`
+- [ ] `rating` has `minimum: 0, maximum: 5`
+- [ ] `dispute_outcome`: upheld, overturned, split (optional)
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors
+
+### S3-T5: Sanction Lifecycle Guard + Lifecycle Reason Codes
+
+**Description:** Add `requiresSanctionEvidence()` guard to `src/utilities/lifecycle.ts`. Add 6 sanction-related lifecycle reason codes. Per SDD Section 7.2.
+
+**Files:** `src/utilities/lifecycle.ts`, `src/vocabulary/lifecycle-reasons.ts`
+
+**Acceptance Criteria:**
+- [ ] `requiresSanctionEvidence()` exported from lifecycle.ts
+- [ ] Guard allows transitions to SUSPENDED/ARCHIVED when sanction context provided
+- [ ] 6 sanction lifecycle reasons: sanction_warning_issued, sanction_rate_limited, sanction_pool_restricted, sanction_suspended, sanction_terminated, sanction_appealed_successfully
+- [ ] Guard tests for all transition scenarios
+
+**Testing:** Unit tests for guard function
+
+### S3-T6: Governance Event Types + Error Codes + Barrel Exports
+
+**Description:** Add governance event types, error codes, update barrel exports, bump version.
+
+**Files:** `src/vocabulary/event-types.ts`, `src/vocabulary/errors.ts`, `src/index.ts`, `src/version.ts`, `scripts/generate-schemas.ts`, `package.json`
+
+**Acceptance Criteria:**
+- [ ] Governance events: sanction.imposed, sanction.escalated, sanction.expired, sanction.appealed, dispute.filed, dispute.resolved
+- [ ] Error codes: SANCTION_ACTIVE (403), SANCTION_APPEAL_DENIED (403), DISPUTE_NOT_FOUND (404), DISPUTE_ALREADY_RESOLVED (409)
+- [ ] All schemas + vocabulary exported from barrel
+- [ ] Schema generation includes sanction, dispute-record, validated-outcome
+- [ ] `CONTRACT_VERSION === '4.2.0'`
+- [ ] `package.json` version is `4.2.0`
+- [ ] Full test suite passes
+
+**Testing:** Build + full test suite
+
+---
+
+## Sprint 4: The Reputation Layer (v4.3.0)
+
+**Goal:** Build reputation infrastructure for agent quality signals. Connect reputation to routing constraints.
+**Version:** v4.3.0
+**Estimated Effort:** ~0.5 day
+**Priority:** P1 — Quality signals
+**Dependencies:** Sprint 3 complete
+
+### S4-T1: Reputation Vocabulary
+
+**Description:** Create `src/vocabulary/reputation.ts` with reputation component weights, decay parameters, and minimum sample size constant. Per SDD Section 8.1.
+
+**Files:** `src/vocabulary/reputation.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `REPUTATION_WEIGHTS`: outcome_quality (0.4), performance_consistency (0.25), dispute_ratio (0.2), community_standing (0.15)
+- [ ] `REPUTATION_DECAY`: half_life_days 30, floor 0.1, ceiling 1.0, neutral 0.5
+- [ ] `MIN_REPUTATION_SAMPLE_SIZE` = 5
+- [ ] `ReputationComponent` type exported
+
+**Testing:** Import validation + type tests
+
+### S4-T2: ReputationScore Schema
+
+**Description:** Create `ReputationScoreSchema` with normalized 0-1 score, 4 component sub-scores, sample_size, decay status. Per SDD Section 8.2.
+
+**Files:** `src/schemas/reputation-score.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `score` has `minimum: 0, maximum: 1`
+- [ ] `components` sub-object: outcome_quality, performance_consistency, dispute_ratio, community_standing (all 0-1)
+- [ ] `sample_size` is `Type.Integer({ minimum: 0 })`
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors
+
+### S4-T3: Agent-as-BillingRecipient
+
+**Description:** Extend `BillingRecipientSchema.role` union with `agent_performer` and `commons` values. Per SDD Section 8.3.
+
+**Files:** `src/schemas/billing-entry.ts`
+
+**Acceptance Criteria:**
+- [ ] `role` union includes: provider, platform, producer, agent_tba, agent_performer, commons
+- [ ] Existing billing tests pass (backward compat — new union members are additive)
+- [ ] New golden vectors with agent_performer and commons roles
+- [ ] Exhaustive match warning documented for consumers
+
+**Testing:** L0 golden vectors + existing billing test suite
+
+### S4-T4: Reputation Event Types + Error Code + Barrel Exports
+
+**Description:** Add reputation events, error code, update exports, bump version.
+
+**Files:** `src/vocabulary/event-types.ts`, `src/vocabulary/errors.ts`, `src/index.ts`, `src/version.ts`, `scripts/generate-schemas.ts`, `package.json`
+
+**Acceptance Criteria:**
+- [ ] Reputation events: reputation.score.updated, reputation.decay.applied
+- [ ] Error code: REPUTATION_INSUFFICIENT (403)
+- [ ] `ReputationScoreSchema`, `REPUTATION_WEIGHTS`, `REPUTATION_DECAY`, `MIN_REPUTATION_SAMPLE_SIZE` exported
+- [ ] Schema generation includes reputation-score
+- [ ] `CONTRACT_VERSION === '4.3.0'`
+- [ ] `package.json` version is `4.3.0`
+- [ ] Full test suite passes
+
+**Testing:** Build + full test suite
+
+---
+
+## Sprint 5: The Agent Economy (v4.4.0)
+
+**Goal:** Ship escrow, staking, commons dividends, and mutual credit — completing the Value Economy layer. Experimental schemas marked appropriately.
+**Version:** v4.4.0
+**Estimated Effort:** ~1.5 days
+**Priority:** P1 — Agent economy
+**Dependencies:** Sprint 4 complete
+
+### S5-T1: Economic Choreography Vocabulary
+
+**Description:** Create `src/vocabulary/economic-choreography.ts` with stake, escrow, and mutual_credit choreographies following the transfer-choreography pattern. Per SDD Section 9.1.
+
+**Files:** `src/vocabulary/economic-choreography.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `EconomicScenarioChoreography` interface with forward, compensation, invariants
+- [ ] `ECONOMIC_CHOREOGRAPHY` constant with stake, escrow, mutual_credit scenarios
+- [ ] Each scenario has forward path, compensation path, and invariants with enforceable flag
+- [ ] Types exported: `EconomicChoreography`, `EconomicScenarioChoreography`
+
+**Testing:** Import validation + type tests
+
+### S5-T2: EscrowEntry Schema + State Machine
+
+**Description:** Create `EscrowEntrySchema` with hold-and-release lifecycle, UUID v4 pattern, MicroUSDUnsigned amount, dispute_id linkage. Implement escrow state machine with transition rules. Per SDD Sections 9.2 + 9.2.1 (Flatline IMP-001, IMP-003, IMP-006).
+
+**Files:** `src/schemas/escrow-entry.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `escrow_id` has UUID v4 pattern constraint
+- [ ] `amount_micro` uses `MicroUSDUnsigned`
+- [ ] 5 states: held, released, disputed, refunded, expired
+- [ ] `dispute_id` optional field (required when state is 'disputed')
+- [ ] `ESCROW_TRANSITIONS` record with valid transitions per state
+- [ ] `isValidEscrowTransition()` function exported
+- [ ] Terminal states: released, refunded (no valid transitions out)
+- [ ] EscrowEntry cross-field validator: `released_at` required when state is 'released'
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 8 vectors (3 valid, 3 invalid, 2 edge — including state transition tests)
+
+**Testing:** L0 golden vectors + cross-field validation tests + state machine tests
+
+### S5-T3: StakePosition Schema (Experimental)
+
+**Description:** Create `StakePositionSchema` with reciprocal investment primitive, vesting schedule, MicroUSDUnsigned amounts. Marked `x-experimental: true`. Per SDD Section 9.3 (Flatline IMP-001).
+
+**Files:** `src/schemas/stake-position.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `stake_id` has UUID v4 pattern
+- [ ] `amount_micro`, `vesting.vested_micro`, `vesting.remaining_micro` all use `MicroUSDUnsigned`
+- [ ] `stake_type`: conviction, delegation, validation
+- [ ] `vesting.schedule`: immediate, performance_gated, time_gated
+- [ ] `x-experimental: true` in schema options
+- [ ] Cross-field invariant: `vested_micro + remaining_micro == amount_micro` (fails, not warns)
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors + cross-field invariant tests
+
+### S5-T4: CommonsDividend Schema (Experimental)
+
+**Description:** Create `CommonsDividendSchema` for community value pools with governance mechanisms. Per SDD Section 9.4.
+
+**Files:** `src/schemas/commons-dividend.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `governance`: mod_discretion, member_vote, algorithmic, stake_weighted
+- [ ] `distribution` optional sub-object with recipients array (uses BillingRecipientSchema)
+- [ ] `x-experimental: true`
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors
+
+### S5-T5: MutualCredit Schema (Experimental)
+
+**Description:** Create `MutualCreditSchema` for agent-to-agent obligations with settlement methods. Per SDD Section 9.5.
+
+**Files:** `src/schemas/mutual-credit.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `credit_type`: refund, prepayment, obligation, delegation
+- [ ] `settlement.settlement_method`: direct_payment, reciprocal_performance, commons_contribution, forgiven
+- [ ] `x-experimental: true`
+- [ ] MutualCredit cross-field validator: `settled_at` and `settlement_method` required when `settled` is true
+- [ ] Compiled validator registered
+- [ ] Golden vectors: 5 vectors (2 valid, 2 invalid, 1 edge)
+
+**Testing:** L0 golden vectors + cross-field validation tests
+
+### S5-T6: Economy Event Types + Error Codes + Barrel Exports
+
+**Description:** Add economy event types, error codes, update exports, bump to v4.4.0. Wire up all v4.4.0 exports.
+
+**Files:** `src/vocabulary/event-types.ts`, `src/vocabulary/errors.ts`, `src/index.ts`, `src/version.ts`, `scripts/generate-schemas.ts`, `package.json`
+
+**Acceptance Criteria:**
+- [ ] Economy events: escrow.held, escrow.released, escrow.disputed, escrow.refunded, escrow.expired, stake.offered, stake.accepted, stake.returned, dividend.issued, credit.issued, credit.acknowledged, credit.settled, credit.forgiven
+- [ ] Error codes: ESCROW_NOT_FOUND (404), ESCROW_ALREADY_RELEASED (409), ESCROW_EXPIRED (410), STAKE_NOT_FOUND (404), CREDIT_NOT_FOUND (404), CREDIT_ALREADY_SETTLED (409)
+- [ ] All v4.4.0 schemas, types, vocabulary, choreography exported from barrel
+- [ ] Schema generation includes all 4 new schemas
+- [ ] `CONTRACT_VERSION === '4.4.0'`
+- [ ] `package.json` version is `4.4.0`
+- [ ] Full test suite passes
+
+**Testing:** Build + full test suite
+
+---
+
+## Sprint 6: Level 4 Test Epistemology + Final Integration (v4.4.0)
+
+**Goal:** Achieve L4 test epistemology — temporal and economic property testing. Cross-runner format script. Final integration and version validation.
+**Version:** v4.4.0 (test infrastructure, same version)
+**Estimated Effort:** ~1.5 days
+**Priority:** P1 — Test quality gate
+**Dependencies:** Sprint 5 complete
+
+### S6-T1: ProtocolStateTracker (L2 — Temporal)
+
+**Description:** Create test infrastructure for temporal property testing. Tracks agent lifecycle state, sanction state, and event deduplication across random event sequences. Per SDD Section 12.2.
+
+**Files:** `src/test-infrastructure/protocol-state-tracker.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `ProtocolStateTracker` class with `apply(event)` and `isConsistent()` methods
+- [ ] Tracks agent lifecycle state transitions (rejects invalid transitions)
+- [ ] Tracks governance/sanction events
+- [ ] Deduplicates by event_id
+- [ ] `VALID_REJECTION_REASONS` exported
+- [ ] NOT exported from main barrel (test-only)
+
+**Testing:** Unit tests for the tracker itself
+
+### S6-T2: ProtocolLedger (L3 — Economic)
+
+**Description:** Create test infrastructure for economic conservation testing. Tracks billing debits/credits and escrow flows. Verifies trial balance invariant. Per SDD Section 12.3.
+
+**Files:** `src/test-infrastructure/protocol-ledger.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] `ProtocolLedger` class with `record(event)`, `trialBalance()`, and `isConserved()` methods
+- [ ] Tracks billing.entry.created (debits), billing.entry.voided (credits)
+- [ ] Tracks economy.escrow.refunded (credits)
+- [ ] Escrow hold/release has no ledger impact (funds already counted)
+- [ ] `isConserved()` ensures credits never exceed debits
+- [ ] NOT exported from main barrel (test-only)
+
+**Testing:** Unit tests for the ledger itself
+
+### S6-T3: L2 Temporal Property Tests
+
+**Description:** fast-check property tests generating random sequences of domain events and verifying protocol state consistency. Per SDD Section 12.2.
+
+**Files:** `tests/properties/temporal.test.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] Random event sequences of 2-20 events generated via fast-check
+- [ ] Event arbitraries cover all 10 aggregate types
+- [ ] Every event either applies or is rejected with a `VALID_REJECTION_REASONS` reason
+- [ ] `state.isConsistent()` always true after full sequence
+- [ ] 500 iterations minimum
+- [ ] Test runs in <30 seconds
+
+**Testing:** Property-based testing via fast-check
+
+### S6-T4: L3 Economic Property Tests
+
+**Description:** fast-check property tests verifying financial conservation invariants across random billing event sequences. Per SDD Section 12.3.
+
+**Files:** `tests/properties/economic.test.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] Random billing event sequences of 1-50 events generated
+- [ ] `ledger.isConserved()` always true (credits never exceed debits)
+- [ ] Trial balance is always non-negative
+- [ ] Escrow refund flows correctly credit the ledger
+- [ ] Full escrow lifecycle coverage: generators cover all 5 states and all valid transitions via `ESCROW_TRANSITIONS` (Flatline IMP-006)
+- [ ] Conservation invariants asserted per escrow state transition (hold→release, hold→dispute→refund, etc.)
+- [ ] 200 iterations minimum
+
+**Testing:** Property-based testing via fast-check
+
+### S6-T5: Cross-Runner Format Script + Migration Guide
+
+**Description:** Create `scripts/cross-runner-format.ts` that normalizes vector results to common JSON for diffing across TS/Go/Python/Rust runners. Write migration guide content for v3.2.0 → v4.0.0 consumers.
+
+**Files:** `scripts/cross-runner-format.ts` (new)
+
+**Acceptance Criteria:**
+- [ ] Script reads vector results from any runner format
+- [ ] Outputs normalized JSON: `{ schema_name, vector_file, result: "pass"|"fail", errors? }`
+- [ ] Documentation in script header for consumer CI integration
+- [ ] MIGRATION.md section updated with v4.0.0 breaking changes
+
+**Testing:** Script self-test against TS runner output
+
+### S6-T6: Final Integration + Validation
+
+**Description:** Final integration pass: verify all barrel exports, generated JSON schemas (40+), full test suite (600+ target), bundle size check, version consistency.
+
+**Files:** `src/index.ts` (verification), `package.json` (verification)
+
+**Acceptance Criteria:**
+- [ ] `pnpm run build` succeeds
+- [ ] `pnpm run test` passes with 600+ tests
+- [ ] `pnpm run schema:generate` produces 40+ JSON schemas
+- [ ] `pnpm run schema:check` passes
+- [ ] All new schemas have golden vectors (69 new vectors minimum)
+- [ ] Bundle size <60KB gzipped
+- [ ] No TypeScript `any` types
+- [ ] All experimental schemas have `x-experimental: true`
+- [ ] `CONTRACT_VERSION === '4.4.0'`
+- [ ] All 11 new compiled validators registered
+- [ ] All 3 cross-field validators registered and tested
+- [ ] All 4 new aggregate event types tested with type guards
+- [ ] Schema descriptions 100% coverage (SchemaStore requirement)
+
+**Testing:** Full pipeline validation
+
+---
+
+## Summary
+
+| Sprint | Version | Tasks | New Files | Modified Files | Est. Vectors | Est. Effort |
+|--------|---------|-------|-----------|----------------|-------------|-------------|
+| 1 | v4.0.0 | 7 | 1 schema | 8 | 8+ | ~1.5 days |
+| 2 | v4.1.0 | 4 | 2 schemas | 4 | 14+ | ~1 day |
+| 3 | v4.2.0 | 6 | 3 schemas + 1 vocabulary | 5 | 19+ | ~1.5 days |
+| 4 | v4.3.0 | 4 | 1 schema + 1 vocabulary | 4 | 5+ | ~0.5 day |
+| 5 | v4.4.0 | 6 | 4 schemas + 1 vocabulary | 5 | 23+ | ~1.5 days |
+| 6 | v4.4.0 | 6 | 2 test infra + 1 script | 2 | — | ~1.5 days |
+| **Total** | | **33** | **16 new** | **~15 modified** | **69+** | **~7.5 days** |
+
+## Success Criteria
+
+| Metric | Target | Source |
+|--------|--------|--------|
+| Test count | 600+ (up from 447) | PRD G6 |
+| Schema count | 40+ (up from 27) | PRD Metrics |
+| Test epistemology | L4 (temporal + economic) | PRD G6 |
+| Golden vector count | 30+ files (up from 19) | PRD Metrics |
+| v4.0.0 backward compat | 100% v3.2.0 payloads accepted | PRD G7 |
+| Bundle size | <60KB gzipped | NFR |
+| Cross-runner format | Script + documentation | TR2 |
+| Ostrom compliance | 6/8 principles addressed | PRD Scorecard |
+| Bridgebuilder findings | All 11 BB findings integrated | PRD Appendix B |
+
+## Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| New schemas require consumer updates | Medium | Low | All new fields are optional (backward compatible) |
-| AsyncAPI generation complexity | Low | Low | Template approach proven in cycle-002 |
-| fast-check integration conflicts | Low | Medium | Isolate in separate test file |
-| Resolvable $id URL domain not registered | Medium | Medium | Use placeholder domain, document as pre-launch task |
-| v4.0.0 planning scope creep | Medium | Medium | Document scope is read-only analysis, not implementation |
+| Signed MicroUSD breaks consumer regex | Low | Medium | All unsigned values valid under signed pattern. Migration guide. |
+| Envelope relaxation surprises strict consumers | Low | Medium | Only envelopes relaxed. Strip-then-validate documented. |
+| Experimental schemas adopted prematurely | Medium | Medium | `x-experimental: true` + stability warnings. |
+| L2/L3 property tests add build time | Low | Low | Run in parallel. fast-check shrinking keeps failures fast. |
+| 11 new schemas increase bundle size | Low | Low | ESM tree-shaking. Target <60KB gzipped. |
+| Economic choreography is speculative | Medium | Low | Vocabulary only — service-layer implements orchestration. |
+| Release regression after sequential breaking changes | Medium | High | Release gating: each sprint publishes only after v3.2.0 corpus replay passes. Revert strategy: `npm unpublish` within 72h or `npm deprecate` + patch release. Feature flags for barrel exports if partial rollback needed. (Flatline IMP-001) |
 
-## Success Metrics
+## Dependencies
 
-- [ ] All 21 outstanding Bridgebuilder findings addressed (BB-HFR, BB-ADV, BB-V3, BB-C4-ADV, BB-POST, Parts 5-6)
-- [ ] Test count > 400 (currently 370)
-- [ ] Zero breaking changes in v3.1.0 and v3.2.0 (all additive)
-- [ ] Cross-language validation coverage: TypeScript + Go + Python + Rust
-- [ ] v4.0.0 planning document ready for product team review
-- [ ] Product mission alignment: all P0 protocol types ready for Arrakis adoption
+```
+Sprint 1 (v4.0.0) ─── Sprint 2 (v4.1.0) ─── Sprint 3 (v4.2.0) ─── Sprint 4 (v4.3.0) ─── Sprint 5 (v4.4.0) ─── Sprint 6 (L4 Tests)
+     │                      │                      │                      │                      │
+     │                      │                      │                      │                      │
+ Signed MicroUSD       PerformanceRecord       SanctionSchema        ReputationScore        EscrowEntry
+ Envelope relaxation   ContributionRecord      DisputeRecord         Agent-as-Recipient     StakePosition
+ RoutingConstraint     Cross-field API         ValidatedOutcome      Reputation vocabulary  CommonsDividend
+ Aggregates                                    Sanctions vocabulary                         MutualCredit
+                                               Sanction guard                               Economic choreography
+```
+
+Each sprint is independently shippable as an npm release. Sprint 6 adds test infrastructure without changing any production schemas.

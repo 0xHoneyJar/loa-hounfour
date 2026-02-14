@@ -1,44 +1,78 @@
-# PRD: loa-hounfour Protocol Types v2.0.0
+# PRD: loa-hounfour v4.4.0 — The Agent Economy Release
 
-**Status:** Flatline Reviewed
-**Author:** Agent (from RFC loa-finn#66)
-**Date:** 2026-02-13
-**Source:** [Launch Readiness RFC](https://github.com/0xHoneyJar/loa-finn/issues/66)
+**Status:** Draft
+**Author:** Agent (from Bridgebuilder Grand Synthesis + ECSA Framework Analysis)
+**Date:** 2026-02-14
+**Sources:**
+- [Product Mission — Launch Readiness RFC](https://github.com/0xHoneyJar/loa-finn/issues/66)
+- [Hounfour RFC — Multi-Model Provider Abstraction](https://github.com/0xHoneyJar/loa-finn/issues/31)
+- [Bridgebuilder Persona](https://github.com/0xHoneyJar/loa-finn/issues/24)
+- [Arrakis Billing RFC — Path to Revenue](https://github.com/0xHoneyJar/arrakis/issues/62)
+- [ECSA Postcapitalist Framework](https://postcapitalist.agency/)
+- [Arrakis Agent Economy Discussion](https://github.com/0xHoneyJar/arrakis/issues/62)
+- Bridgebuilder Deep Review Parts 1–10 (PR #1 comments 41–50)
+- V4-PLANNING.md (existing forward-looking proposals)
+- SCHEMA-EVOLUTION.md (evolution strategy)
 
 ---
 
 ## 1. Executive Summary
 
-loa-hounfour is the shared protocol package (`@0xhoneyjar/loa-hounfour`) that defines the canonical type schemas, validators, and integrity primitives consumed by loa-finn (inference engine), arrakis (gateway), and mibera-freeside (smart contracts). It is the single source of truth for the cross-repo contract.
+loa-hounfour is the shared protocol contract package (`@0xhoneyjar/loa-hounfour`) that defines the canonical type schemas, validators, vocabulary, and integrity primitives consumed by loa-finn (inference engine), arrakis (gateway), and mibera-freeside (smart contracts).
 
-v1.1.0 shipped JWT claims, stream events, invoke response, routing policy, pool vocabulary (5 pools), 31 error codes, and integrity functions (req-hash, idempotency). It is stable with 91 golden test vectors and zero TODOs.
+**v3.2.0** (current) provides a production-ready protocol for the Phase 1 Consumer MVP: agent identity, lifecycle, billing with multi-party attribution, conversations with access policies, transfers with choreography, domain events with saga context, capability negotiation, protocol discovery, health status, thinking traces, and tool calls. 447 tests across 27 suites. 27 generated JSON schemas. 4-language golden vector runners.
 
-v2.0.0 must define the protocol types required to bridge infrastructure completion (90%) to product launch (currently 25%). This is the **critical path bottleneck** — every downstream repo blocks on loa-hounfour types shipping first.
+**v4.4.0** extends the protocol from a **Transaction Economy** (who pays for what) to a **Value Economy** (who creates what value, and how is it recognized). This is the architectural foundation for the agent economy described in the Hounfour RFC and the postcapitalist economic framework.
 
-The work spans three delivery milestones:
-- **v2.0.0** (Pre-Phase, Week 2-3): Agent identity, lifecycle, transfer, billing, and conversation types
-- **v2.1.0** (Phase 4, Week 11-14): Tool marketplace types
-- **v2.2.0** (Phase 5, Week 14-16): Inter-agent messaging types
+The version number v4.4.0 carries cultural significance within the mibera ecosystem — "meme maff" resonating with the community's identity. The four-four symmetry represents the balanced duality at the heart of the protocol: strict safety for financial schemas, permissive extensibility for event envelopes; cost attribution for consumption, value attribution for creation.
+
+### Version Journey: v3.2.0 → v4.4.0
+
+| Version | Codename | Focus |
+|---------|----------|-------|
+| **v4.0.0** | The Breaking Foundation | Signed MicroUSD default, envelope relaxation, MIN_SUPPORTED bump |
+| **v4.1.0** | The Performance Layer | PerformanceRecord, outcome tracking, contribution records |
+| **v4.2.0** | The Governance Layer | Graduated sanctions, dispute resolution, validated outcomes |
+| **v4.3.0** | The Reputation Layer | Reputation scoring, agent-as-recipient, routing constraints |
+| **v4.4.0** | The Agent Economy | Escrow, staking primitives, commons dividends, mutual credit |
+
+Each minor version is independently shippable and useful. v4.0.0 alone unblocks the product launch with cleaner financial semantics. v4.4.0 completes the vision.
 
 ---
 
 ## 2. Problem Statement
 
-### The Gap
+### The Three Economies Gap
 
-52 global sprints across 20 development cycles produced a complete multi-model inference platform: pool routing, ensemble orchestration, BigInt micro-USD budget tracking, JWT auth with JWKS rotation, BYOK proxy, and SSE streaming. Infrastructure is 90% ready.
+Every multi-agent system operates three economies simultaneously. loa-hounfour v3.2.0 models 1.5 of them:
 
-But the product experience — agent identity, conversations, billing, transfers, tool marketplace, agent-to-agent messaging — is only 25% ready. The types for these product features do not exist in the shared protocol.
+| Economy | Description | v3.2.0 Coverage | v4.4.0 Target |
+|---------|-------------|-----------------|---------------|
+| **Attention Economy** | Who gets to speak? Model routing, capability gating, health-aware scheduling | **Strong** — RoutingPolicy, CapabilitySchema, HealthStatus, pool system | Strengthen with RoutingConstraint |
+| **Transaction Economy** | Who pays for what? Cost tracking, allocation, settlement | **Strong** — BillingEntry, CreditNote, allocateRecipients, MicroUSD | Complete with signed default, escrow |
+| **Value Economy** | Who creates what value? Outcomes, reputation, governance, investment | **Absent** — No outcome tracking, no reputation, no contribution records, no staking | **Full implementation** |
 
-### Why loa-hounfour First
+### Why the Value Economy Matters Now
 
-The anti-duplication matrix from the canonical launch plan assigns **type schemas exclusively to loa-hounfour**. Downstream repos consume types — they never invent them. If loa-hounfour doesn't define `AgentDescriptor`, three repos will independently create incompatible versions. The protocol package is the single chokepoint by design.
+The [product mission](https://github.com/0xHoneyJar/loa-finn/issues/66) describes post-launch capabilities that cannot exist without value economy primitives:
 
-### Why v2.0.0 (Breaking)
+| Product Feature | Required Protocol Primitive |
+|----------------|---------------------------|
+| Soul Memory | PerformanceRecord (tracks what agent learned from interactions) |
+| Personality Evolution | ReputationScore (measures quality over time) |
+| Inter-NFT Communication | MutualCredit (agents extending trust to each other) |
+| Community Credit System | CommonsDividend (community value pools from arrakis#62) |
+| Escrow for Marketplace | EscrowEntry (hold-and-release financial flows) |
+| Agent Compensation | Agent-as-BillingRecipient (agents can receive value, not just incur costs) |
 
-The existing `CostBreakdown` schema tracks costs as flat aggregates. The new `BillingEntry` schema requires multi-party `recipients[]` (model provider, platform fee, tool producer splits) from day 1 to avoid a Stripe-Connect-style rewrite later. This is a semantic breaking change — downstream code that assumes single-party cost attribution will fail silently if we try additive extension.
+### Why v4.4.0 Specifically
 
-> Source: RFC #66 Comment 7 (Bridgebuilder Finding 4), Comment 11 (Canonical Launch Plan)
+1. **Cultural resonance**: "4.4" is meme maff in the mibera religion — launching the Hounfour publicly at this version number creates a cultural moment
+2. **Architectural completeness**: v4.4.0 represents the transition from "protocol for transactions" to "protocol for communities" — a meaningful versioning milestone
+3. **Competitive timing**: No other multi-model protocol has financial attribution + value economy primitives. Shipping v4.4.0 before the Cambrian Threshold (Part 5 of Bridgebuilder review) establishes the vocabulary standard
+4. **Launch compatibility**: v4.0.0 breaking changes are backwards-compatible with v3.2.0 data (signed MicroUSD accepts unsigned values; envelope relaxation is additive). Launch can pin at v4.0.0 and consumers upgrade incrementally through v4.1–v4.4
+
+> Sources: Bridgebuilder Deep Review Parts 1–10 (PR #1), V4-PLANNING.md, ECSA postcapitalist.agency, arrakis#62
 
 ---
 
@@ -48,29 +82,36 @@ The existing `CostBreakdown` schema tracks costs as flat aggregates. The new `Bi
 
 | # | Goal | Measure |
 |---|------|---------|
-| G1 | Unblock downstream repos for Phase 1 (Agent Identity & Chat) | loa-finn and arrakis can `npm install @0xhoneyjar/loa-hounfour@2.0.0` and import all Phase 1 types |
-| G2 | Define canonical schemas that prevent cross-repo type drift | Zero type definitions duplicated across loa-finn, arrakis, or mibera-freeside |
-| G3 | Maintain the quality bar established in v1.1.0 | Golden test vectors for every new schema; TypeBox + TypeCompiler validation |
-| G4 | Provide migration path from v1.1.0 | Migration guide with before/after examples; `CostBreakdown` → `BillingEntry` mapping |
-| G5 | Support content negotiation for agent surfaces | `AgentDescriptor` schema supports HTML, JSON-LD, and markdown representations |
+| G1 | Ship v4.0.0 breaking changes that clean up financial semantics for launch | Signed MicroUSD default, envelope relaxation, MIN_SUPPORTED 3.0.0 |
+| G2 | Introduce the Value Economy layer — outcome tracking and contribution records | PerformanceRecord and ContributionRecord schemas with golden vectors |
+| G3 | Implement Ostrom-aligned governance primitives | Graduated sanctions (5 levels), dispute resolution, validated outcomes |
+| G4 | Build reputation infrastructure for agent quality signals | ReputationScore, agent-as-BillingRecipient, RoutingConstraint |
+| G5 | Ship escrow and commons dividend primitives for the agent economy | EscrowEntry, CommonsDividend, StakePosition schemas |
+| G6 | Achieve Level 4 test epistemology — temporal and economic property testing | Event sequence validation, trial balance tests, cross-runner equivalence CI |
+| G7 | Maintain launch compatibility — v4.0.0 must not block Phase 1 Consumer MVP | All v3.2.0 data remains valid under v4.0.0 schemas |
+| G8 | Reach v4.4.0 as the public launch version of the Hounfour protocol | Cultural milestone aligned with mibera identity |
 
 ### Success Metrics
 
 | Metric | Target |
 |--------|--------|
-| v2.0.0 published to npm | Week 3 |
-| Downstream repos upgraded (loa-finn, arrakis) | Week 4 |
-| Zero type-related bugs in Phase 1 implementation | 0 regressions |
-| Golden test vector coverage | 100% of new schemas |
-| JSON Schema generation passing | All new schemas produce valid JSON Schema |
+| Test count | 600+ (up from 447) |
+| Schema count | 40+ (up from 27) |
+| Test epistemology level | L4 (temporal + economic property tests) |
+| Cross-runner equivalence | All 4 runners agree on 100% of vectors |
+| Golden vector count | 30+ files (up from 19) |
+| v4.0.0 backward compatibility | 100% of v3.2.0 valid payloads accepted |
+| Consumer upgrade time | <1 day per consumer (loa-finn, arrakis) |
 
 ### Milestones
 
-| Milestone | Version | Week | Deliverable |
-|-----------|---------|------|-------------|
-| Protocol Types | v2.0.0 | 2-3 | AgentDescriptor, AgentLifecycleState, TransferSpec, BillingEntry, Conversation types |
-| Tool Types | v2.1.0 | 11-14 | ToolRegistration, ToolLifecycle, Operator pattern types |
-| Messaging Types | v2.2.0 | 14-16 | AgentMessage, AgentAddress, inter-agent protocol types |
+| Milestone | Version | Deliverables |
+|-----------|---------|-------------|
+| Breaking Foundation | v4.0.0 | Signed MicroUSD, envelope relaxation, MIN_SUPPORTED 3.0.0, RoutingConstraint |
+| Performance Layer | v4.1.0 | PerformanceRecord, ContributionRecord, outcome tracking |
+| Governance Layer | v4.2.0 | SanctionSchema, DisputeRecord, ValidatedOutcome |
+| Reputation Layer | v4.3.0 | ReputationScore, agent-as-BillingRecipient, routing integration |
+| Agent Economy | v4.4.0 | EscrowEntry, StakePosition, CommonsDividend, MutualCredit |
 
 ---
 
@@ -78,613 +119,541 @@ The existing `CostBreakdown` schema tracks costs as flat aggregates. The new `Bi
 
 ### Primary Users (Downstream Developers)
 
-| User | Repo | Consumes |
-|------|------|----------|
-| **loa-finn developer** | loa-finn | All types — implements routing, sessions, billing, tool registry |
-| **arrakis developer** | arrakis | Agent page routing, conversation UI, credit purchase, marketplace frontend |
-| **mibera-freeside developer** | mibera-freeside | Agent lifecycle events, TBA types, billing types (for smart contracts) |
+| User | Repo | v4.4.0 Impact |
+|------|------|--------------|
+| **loa-finn developer** | loa-finn | Routing constraints, performance tracking, escrow lifecycle, reputation queries |
+| **arrakis developer** | arrakis | Credit system integration (CommonsDividend), community governance UI, reputation display |
+| **mibera-freeside developer** | mibera-freeside | Staking primitives for on-chain agent economy, escrow smart contracts |
 
-### Stakeholders
+### New Stakeholders (v4.4.0)
 
 | Stakeholder | Interest |
 |-------------|----------|
-| **Product** | Agent homepage, chat experience, billing UX |
-| **Security** | Transfer handling, credential isolation, pool enforcement |
-| **Protocol consumers** | Backward compatibility, migration path, documentation |
+| **Community creators** | Revenue from agent performances via dividends (private + commons) |
+| **Community moderators** | Governance tools — sanctions, dispute resolution, validated outcomes |
+| **Agent economists** | Fair value attribution, Shapley value computation, escrow mechanisms |
+| **Mibera cultural community** | v4.4.0 as the canonical meme maff release |
 
 ### User Stories
 
-**US1:** As a loa-finn developer, I need `AgentDescriptor` so I can implement the agent homepage endpoint with content negotiation (HTML/JSON-LD/markdown).
+**US1:** As a loa-finn developer, I need `RoutingConstraint` so I can compose access, capability, cost, and health signals into a single routing decision without consulting 4 separate subsystems.
 
-**US2:** As a loa-finn developer, I need `AgentLifecycleState` so I can implement the 6-state lifecycle machine with validated transitions.
+**US2:** As an arrakis developer, I need `PerformanceRecord` so I can track both what an agent *produced* (output) and what value it *created* (outcome) for the community credit system.
 
-**US3:** As an arrakis developer, I need `Conversation` and `Message` types so I can build the chat UI against a stable contract.
+**US3:** As a community moderator, I need `SanctionSchema` with graduated severity levels so I can apply proportional responses to agent policy violations (warning → rate-limit → restrict → suspend → terminate).
 
-**US4:** As a loa-finn developer, I need `BillingEntry` with `recipients[]` so I can implement multi-party cost attribution from day 1.
+**US4:** As a loa-finn developer, I need `EscrowEntry` so I can implement hold-and-release financial flows for marketplace transactions where payment must be held until performance is validated.
 
-**US5:** As a loa-finn developer, I need `TransferSpec` so I can implement the 5 transfer scenarios (happy path, mid-session, outstanding credits, rapid flip, transfer to contract).
+**US5:** As a mibera-freeside developer, I need `StakePosition` so I can implement on-chain reciprocal staking — users investing conviction in agents and earning dividends from validated performances.
 
-**US6:** As a loa-finn developer, I need `ToolRegistration` and `ToolLifecycle` so I can promote the MCP interception spike to production with proper type safety.
+**US6:** As a loa-finn developer, I need `ReputationScore` so I can factor agent quality history into routing decisions — higher-reputation agents get priority for quality-sensitive tasks.
 
-**US7:** As a loa-finn developer, I need `AgentMessage` and `AgentAddress` types so I can implement the inter-agent messaging queue.
+**US7:** As an arrakis developer, I need `CommonsDividend` so I can implement community value pools where validated agent performances generate collective returns distributed by governance rules.
+
+**US8:** As a loa-finn developer, I need `MutualCredit` so I can implement agent-to-agent delegation where Agent A can extend credit to Agent B for multi-step sagas, with settlement via reciprocal performance.
+
+**US9:** As a protocol consumer, I need temporal property tests so I can verify that random sequences of domain events never violate lifecycle or choreography invariants — catching bugs that unit tests miss.
+
+**US10:** As an arrakis developer, I need `DisputeRecord` so I can implement non-financial conflict resolution — handling quality complaints, safety concerns, and ownership disputes with evidence trails.
+
+> Sources: Bridgebuilder Parts 2 (RoutingConstraint), 3 (Escrow, Compensation), 4 (Temporal Testing), 7 (PerformanceRecord, StakePosition), 8 (MutualCredit, CommonsDividend), 9 (Ostrom Sanctions, Disputes)
 
 ---
 
 ## 5. Functional Requirements
 
-### FR1: AgentDescriptor Schema (v2.0.0)
+### Phase 1: v4.0.0 — The Breaking Foundation
 
-**Priority:** P0 — Blocks Phase 1
+#### FR1: Signed MicroUSD as Default
 
-The canonical representation of an agent for content negotiation. Follows ActivityPub/Cloudflare patterns.
+**Priority:** P0 — Breaking change, clean financial semantics
+
+Current `MicroUSD` pattern: `^[0-9]+$` (unsigned only)
+New `MicroUSD` pattern: `^-?[0-9]+$` (signed, accepts negative for credits/refunds)
+
+Rename current unsigned type to `MicroUSDUnsigned` for explicit non-negative enforcement.
+
+| Field | v3.x Type | v4.0.0 Type |
+|-------|-----------|-------------|
+| `BillingEntry.raw_cost_micro` | `MicroUSD` (unsigned) | `MicroUSD` (signed) |
+| `BillingEntry.total_cost_micro` | `MicroUSD` (unsigned) | `MicroUSD` (signed) |
+| `CreditNote.amount_micro` | `MicroUSD` (unsigned) | `MicroUSD` (signed) |
+| `BillingRecipient.amount_micro` | `MicroUSD` (unsigned) | `MicroUSD` (signed) |
+
+**Migration**: Existing unsigned values are valid signed values. Consumer regex validators on `^[0-9]+$` need updating.
+
+**Rationale**: Every mature billing system (Stripe, Square, Adyen) uses signed amounts. Unsigned was a premature constraint.
+
+> Source: V4-PLANNING.md, Bridgebuilder Part 3
+
+#### FR2: Selective Envelope Relaxation
+
+**Priority:** P0 — Forward compatibility for ecosystem growth
+
+| Schema Category | v3.x | v4.0.0 |
+|----------------|------|--------|
+| Event envelopes (DomainEvent, DomainEventBatch, StreamEvent variants) | `additionalProperties: false` | `additionalProperties: true` |
+| Financial schemas (BillingEntry, CreditNote, BillingRecipient) | `false` | `false` (unchanged) |
+| Identity schemas (AgentDescriptor, NftId) | `false` | `false` (unchanged) |
+| Transfer schemas (TransferSpec) | `false` | `false` (unchanged) |
+| Query schemas (CapabilityQuery) | `true` | `true` (unchanged) |
+
+**Rationale**: Allows event consumers to add metadata fields without breaking downstream validators. Financial and identity schemas remain strict for security.
+
+> Source: SCHEMA-EVOLUTION.md, Bridgebuilder Part 5 (Cambrian Threshold analysis)
+
+#### FR3: MIN_SUPPORTED_VERSION Bump
+
+**Priority:** P0 — Drop v2.x support
+
+`MIN_SUPPORTED_VERSION` changes from `'2.4.0'` to `'3.0.0'`.
+
+| Version Range | v3.x Support | v4.0.0 Support |
+|---------------|-------------|----------------|
+| v2.0.0–v2.3.0 | Rejected | Rejected |
+| v2.4.0 | Supported (with warning) | **Rejected** |
+| v3.0.0+ | Supported | Supported |
+| v4.0.0+ | — | Supported |
+
+**Rationale**: All consumers should be on v3.x by launch. Three major versions of support window is generous.
+
+> Source: V4-PLANNING.md
+
+#### FR4: RoutingConstraint Schema
+
+**Priority:** P1 — Unifies routing signals for multi-model orchestration
 
 ```typescript
-interface AgentDescriptor {
-  // JSON-LD context
-  "@context": "https://schema.honeyjar.xyz/agent/v1";
+interface RoutingConstraint {
+  required_capabilities?: string[];
+  max_cost_micro?: MicroUSD;
+  min_health?: 'healthy' | 'degraded';
+  allowed_providers?: string[];
+  trust_level?: 'platform' | 'byok' | 'delegated';
+  min_reputation?: number;           // 0-1, links to ReputationScore (v4.3.0)
+  contract_version: string;
+}
+```
 
-  // Identity (uses canonical NftId format)
-  id: string;                    // Canonical format: "eip155:{chainId}/{collectionAddress}/{tokenId}"
-  name: string;                  // Display name
-  chain_id: number;              // EIP-155 chain ID (e.g., 80094 for Berachain)
-  collection: string;            // NFT collection address (checksummed)
-  token_id: string;              // NFT token ID
+**Rationale**: The Hounfour RFC's ModelPort interface needs a single schema to evaluate routing decisions against, rather than consulting 4 separate subsystems (access, capability, cost, health).
 
-  // Personality
-  personality: string;           // Personality ID (maps to BEAUVOIR.md)
-  description?: string;          // Short agent bio
-  avatar_url?: string;           // Profile image URL
+> Source: Bridgebuilder Part 2 (BB-GRAND-001)
 
-  // Capabilities
-  capabilities: string[];        // ["chat", "analysis", "code", ...]
-  models: Record<string, string>; // Task type → pool mapping
-  tools?: string[];              // Available tool IDs
+### Phase 2: v4.1.0 — The Performance Layer
 
-  // On-chain
-  tba?: string;                  // ERC-6551 Token Bound Account address
-  owner?: string;                // Current NFT owner address
+#### FR5: PerformanceRecord Schema
 
-  // Network
-  homepage: string;              // Agent homepage URL
-  inbox?: string;                // Agent inbox endpoint
-  llms_txt?: string;             // Token-efficient markdown endpoint
+**Priority:** P0 — Core value economy primitive
 
-  // Stats (optional, for public display)
-  stats?: {
-    interactions: number;
-    uptime: number;              // 0-1
-    created_at: string;          // ISO datetime
-    last_active?: string;        // ISO datetime
+```typescript
+interface PerformanceRecord {
+  performance_id: string;               // UUID
+  agent_id: string;
+  conversation_id: string;
+
+  // OUTPUT: what was produced (links to existing billing)
+  billing_entry_id: string;
+  tokens_consumed: MicroUSD;
+  model_used: string;
+
+  // OUTCOME: what value was created (NEW)
+  outcome: {
+    user_rating?: number;               // 0-5
+    resolution_signal?: boolean;        // Did this resolve the user's need?
+    amplification_count?: number;       // Shares/references by others
+    outcome_validated: boolean;
+    validated_by?: string[];            // Agent IDs or user IDs who validated
   };
 
-  // Lifecycle
-  lifecycle_state: AgentLifecycleState;
+  // DIVIDEND: how value flows from this performance
+  dividend_target: 'private' | 'commons' | 'mixed';
+  dividend_split_bps?: number;          // 0-10000, share going to commons
 
-  // Protocol
+  occurred_at: string;                  // ISO datetime
   contract_version: string;
 }
 ```
 
-**Content Negotiation:**
-- `Accept: text/html` → rendered agent page (downstream responsibility)
-- `Accept: application/json` → full `AgentDescriptor` JSON-LD
-- `Accept: text/markdown` → token-efficient `llms.txt` format
-
-**Canonical NftId Type:**
-```typescript
-// Used across all schemas for consistent NFT identification
-// Format: "eip155:{chainId}/{collectionAddress}/{tokenId}"
-// Example: "eip155:80094/0x1234...abcd/4269"
-type NftId = string; // Pattern: ^eip155:\d+\/0x[a-fA-F0-9]{40}\/\d+$
-
-function parseNftId(id: string): { chainId: number; collection: string; tokenId: string };
-function formatNftId(chainId: number, collection: string, tokenId: string): NftId;
-function checksumCollection(address: string): string; // EIP-55 checksum
-```
-
-> Flatline SKP-005 (BLOCKER, accepted): Canonical NftId with EIP-155 chain qualifier ensures global uniqueness across chains/collections.
-
-**Validation Rules:**
-- `id` must match NftId pattern `^eip155:\d+\/0x[a-fA-F0-9]{40}\/\d+$`
-- `collection` must be EIP-55 checksummed
-- `capabilities` must have at least one entry
-- `models` values must be valid `PoolId`
-- `homepage` must be a valid URL
-- `lifecycle_state` must be a valid `AgentLifecycleState`
-
-> Source: RFC #66 Comment 7 Finding 1, Comment 8 (Cloudflare standard), Comment 11
-
-### FR2: AgentLifecycleState Enum (v2.0.0)
-
-**Priority:** P0 — Blocks Phase 1
-
-```typescript
-type AgentLifecycleState =
-  | "DORMANT"       // NFT exists but agent not provisioned
-  | "PROVISIONING"  // Setup in progress (TBA deployment, personality load)
-  | "ACTIVE"        // Fully operational, accepting conversations
-  | "SUSPENDED"     // Temporarily disabled (budget exhausted, owner action)
-  | "TRANSFERRED"   // Ownership change detected, transitioning
-  | "ARCHIVED";     // Permanently deactivated
-```
-
-**Valid Transitions:**
-```
-DORMANT      → PROVISIONING
-PROVISIONING → ACTIVE | DORMANT (on failure)
-ACTIVE       → SUSPENDED | TRANSFERRED | ARCHIVED
-SUSPENDED    → ACTIVE | ARCHIVED
-TRANSFERRED  → PROVISIONING (new owner) | ARCHIVED
-ARCHIVED     → (terminal, no transitions out)
-```
-
-**Transition Validation:**
-- Export a `isValidTransition(from: AgentLifecycleState, to: AgentLifecycleState): boolean` function
-- Export the transition map as a typed constant for downstream consumption
-
-> Source: RFC #66 Comment 7 Finding 7, Comment 11
-
-### FR3: TransferSpec Types (v2.0.0)
-
-**Priority:** P0 — Blocks Phase 2
-
-```typescript
-type TransferScenario =
-  | "HAPPY_PATH"         // Standard trade, no active sessions
-  | "MID_SESSION"        // Active WebSocket during transfer
-  | "OUTSTANDING_CREDITS"// Credits remain in TBA
-  | "RAPID_FLIP"         // Re-transfer within 5 minutes
-  | "TO_CONTRACT";       // Transfer to vault/escrow/multisig
-
-interface ConversationSealingPolicy {
-  seal_behavior: "immediate" | "grace_period";
-  grace_period_ms?: number;      // Only if seal_behavior === "grace_period"
-  encrypted: boolean;            // Whether sealed conversations are encrypted
-  encryption_scheme?: string;    // e.g., "aes-256-gcm" (required if encrypted: true)
-  key_derivation?: string;       // e.g., "hkdf-sha256" — how seal key is derived
-  key_reference?: string;        // Opaque reference to sealing key (never the key itself)
-  previous_owner_access: "none" | "read_only_24h";
-  access_audit: boolean;         // Whether access to sealed conversations is logged
-}
-```
-
-> Flatline SKP-007 (BLOCKER, accepted): Sealing policy now specifies encryption scheme, key derivation method, and key reference. Access auditing field ensures compliance trail. Key management implementation remains in loa-finn, but the protocol defines required security properties.
-
-```typescript
-
-interface TransferEvent {
-  nft_id: string;
-  collection: string;
-  token_id: string;
-  from_address: string;
-  to_address: string;
-  transaction_hash: string;
-  block_number: number;
-  timestamp: string;             // ISO datetime
-  scenario: TransferScenario;
-  sealing_policy: ConversationSealingPolicy;
-}
-
-interface TransferResult {
-  transfer_event: TransferEvent;
-  conversations_sealed: number;
-  websockets_terminated: number;
-  lifecycle_transition: {
-    from: AgentLifecycleState;
-    to: AgentLifecycleState;
-  };
-  credits_transferred: boolean;  // Credits stay in TBA
-  personality_preserved: boolean; // Always true
-}
-```
-
-> Source: RFC #66 Comment 7 Finding 11, Comment 11
-
-### FR4: BillingEntry with Multi-Party Recipients (v2.0.0)
-
-**Priority:** P0 — Blocks Phase 3
-
-Replaces and extends `CostBreakdown` with multi-party attribution.
-
-```typescript
-type CostType =
-  | "model_inference"
-  | "tool_call"
-  | "platform_fee"
-  | "byok_subscription"
-  | "agent_setup";
-
-interface BillingRecipient {
-  address: string;               // Wallet or account address
-  role: "provider" | "platform" | "producer" | "agent_tba";
-  share_bps: number;             // Basis points (0-10000)
-  amount_micro: string;          // String-encoded micro-USD (consistent with v1.1.0)
-}
-
-interface BillingEntry {
-  // Identity
-  trace_id: string;
-  tenant_id: string;
-  nft_id?: string;
-
-  // What was billed
-  cost_type: CostType;
-  provider: string;
-  model?: string;                // Only for model_inference
-  pool_id?: string;              // Only for model_inference
-  tool_id?: string;              // Only for tool_call
-
-  // Costs
-  currency: "USD";               // ISO 4217 currency code (USD only at launch)
-  precision: 6;                  // Micro-USD = 6 decimal places
-  raw_cost_micro: string;        // String-encoded micro-USD (provider's actual cost)
-  multiplier_bps: number;        // Total multiplier in basis points (30000 = 3.0x, 25000 = 2.5x)
-  total_cost_micro: string;      // raw_cost_micro * multiplier_bps / 10000
-  rounding_policy: "largest_remainder"; // Deterministic allocation across recipients
-
-  // Multi-party split
-  recipients: BillingRecipient[]; // At least 1 recipient
-
-  // Metadata
-  idempotency_key: string;
-  timestamp: string;             // ISO datetime
-  contract_version: string;
-
-  // Legacy compatibility
-  usage?: Usage;                 // Token usage (for model_inference)
-}
-```
-
-**Multiplier Tiers (from RFC):**
-- 0-100K tokens: 30000 multiplier_bps (3.0x — pay $3 for $1 of model cost)
-- 100K-1M tokens: 25000 multiplier_bps (2.5x)
-- 1M+ tokens: 20000 multiplier_bps (2.0x)
-- BYOK: 10000 multiplier_bps (1.0x — no markup, flat $5/mo platform fee)
-
-> Flatline IMP-004 (DISPUTED, accepted): Fixed from `markup_bps` to `multiplier_bps`. 30000 bps = 3.0x multiplier (total cost = raw * 30000/10000). Previous notation "3000 bps = 3.0x" was mathematically incorrect.
-
-**Deterministic Allocation Rules:**
-- Rounding: `largest_remainder` method ensures `recipients[].amount_micro` sums exactly to `total_cost_micro`
-- Direction: Truncate individual shares, assign remainder to largest recipient
-- Currency: `USD` (ISO 4217) — single currency at launch, field reserved for future expansion
-- Precision: 6 decimal places (micro-USD, 1 micro = $0.000001)
-
-> Flatline SKP-003 (BLOCKER, accepted): Specifying deterministic allocation prevents silent rounding drift across services.
-
-**CreditNote Type (for refunds/reversals):**
-```typescript
-interface CreditNote {
-  id: string;                    // ULID
-  references_billing_entry: string; // Original BillingEntry trace_id
-  reason: "refund" | "dispute" | "partial_failure" | "adjustment";
-  amount_micro: string;          // Positive value (amount credited back)
-  recipients: BillingRecipient[]; // Who gets credited (may differ from original)
-  issued_at: string;             // ISO datetime
-  contract_version: string;
-}
-```
-
-> Flatline IMP-002 (HIGH_CONSENSUS, avg: 810): BillingEntry invariants assume positive flows only. CreditNote handles reversals as separate ledger events referencing the original entry, preserving the invariant that `recipients[].share_bps` always sums to 10000.
+**ECSA parallel**: "Performance" — a socially validated productive act. Distinguishes outputs (recorded on ledger) from outcomes (socially validated effects).
 
 **Invariants:**
-- `recipients[].share_bps` must sum to 10000
-- `recipients[].amount_micro` must sum to `total_cost_micro`
-- At least one recipient required
-- Refunds/reversals use `CreditNote`, not negative `BillingEntry`
+- `billing_entry_id` must reference an existing BillingEntry
+- `dividend_split_bps` required when `dividend_target` is `'mixed'`
+- `outcome.user_rating` must be in [0, 5]
+- `outcome.amplification_count` must be non-negative
 
-**Migration from CostBreakdown:**
-- `CostBreakdown.total_cost_micro` → `BillingEntry.raw_cost_micro` (pre-markup)
-- `CostBreakdown.input_cost_micro` / `output_cost_micro` → removed (implementation detail)
-- `BillingEntry.total_cost_micro` → includes markup
-- `UsageReport.cost` → replaced by `BillingEntry` (breaking)
+> Source: Bridgebuilder Part 7 (BB-POST-002), ECSA Performance framework
 
-> Source: RFC #66 Comment 7 Finding 4, Comment 11
+#### FR6: ContributionRecord Schema
 
-### FR5: Conversation & Message Types (v2.0.0)
-
-**Priority:** P0 — Blocks Phase 1
+**Priority:** P1 — Tracks non-financial contributions (Ostrom Principle 2)
 
 ```typescript
-type ConversationStatus = "active" | "archived" | "sealed";
-type MessageRole = "user" | "assistant" | "system" | "tool";
-type ConversationVisibility = "private" | "public";
-
-interface Conversation {
-  id: string;                    // ULID
-  nft_id: string;                // Agent that owns this conversation
-  owner_address: string;         // Wallet address of current NFT holder
-  title?: string;                // User-set or auto-generated title
-  status: ConversationStatus;
-  visibility: ConversationVisibility;
-  created_at: string;            // ISO datetime
-  updated_at: string;            // ISO datetime
-  sealed_at?: string;            // Set when sealed on transfer
-  sealed_by?: string;            // Transfer transaction hash
-  message_count: number;
-  last_message_preview?: string; // Truncated last message for list view
-  metadata?: Record<string, unknown>;
+interface ContributionRecord {
+  contribution_id: string;              // UUID
+  contributor_id: string;
+  contribution_type: 'curation' | 'training' | 'validation'
+                   | 'moderation' | 'infrastructure' | 'capital';
+  value_micro: MicroUSD;               // Assessed value
+  community_id?: string;
+  assessed_by: 'self' | 'peer' | 'algorithmic' | 'governance_vote';
+  occurred_at: string;
+  contract_version: string;
 }
+```
 
-interface Message {
-  id: string;                    // ULID
-  conversation_id: string;
-  nft_id: string;
-  role: MessageRole;
-  content: string;
-  tool_calls?: Array<{
-    id: string;
-    function: {
-      name: string;
-      arguments: string;
-    };
+**Ostrom parallel**: Principle 2 — Congruence between appropriation and provision rules. What you take out should be proportional to what you put in.
+
+> Source: Bridgebuilder Part 9 (Ostrom P2)
+
+### Phase 3: v4.2.0 — The Governance Layer
+
+#### FR7: SanctionSchema (Graduated Sanctions)
+
+**Priority:** P0 — Ostrom Principle 5
+
+```typescript
+interface Sanction {
+  sanction_id: string;                  // UUID
+  agent_id: string;
+  severity: 'warning' | 'rate_limited' | 'pool_restricted'
+          | 'suspended' | 'terminated';
+  trigger: {
+    violation_type: string;
+    occurrence_count: number;           // >= 1
+    evidence_event_ids: string[];
+  };
+  imposed_by: 'automatic' | 'moderator' | 'governance_vote';
+  appeal_available: boolean;
+  imposed_at: string;
+  expires_at?: string;                  // Null for permanent sanctions
+  contract_version: string;
+}
+```
+
+**Lifecycle integration**: `severity: 'suspended'` triggers `active → suspended` lifecycle transition. The sanction provides the reason and evidence that lifecycle guards check.
+
+**Rationale**: Current `GuardSeverity` has only 2 levels (client_error, policy_violation). Effective commons governance requires graduated responses — Ostrom's research shows this is critical for long-lived communities.
+
+> Source: Bridgebuilder Part 9 (Ostrom P5, BB-POST-003)
+
+#### FR8: DisputeRecord Schema
+
+**Priority:** P1 — Non-financial conflict resolution (Ostrom Principle 6)
+
+```typescript
+interface DisputeRecord {
+  dispute_id: string;                   // UUID
+  dispute_type: 'quality' | 'safety' | 'billing' | 'ownership' | 'personality';
+  complainant_id: string;
+  respondent_id: string;                // Can be agent_id or owner_id
+  evidence: Array<{
+    event_id: string;
+    description: string;
   }>;
-  tool_call_id?: string;        // For tool role messages
-  model?: string;               // Model that generated (for assistant role)
-  pool_id?: string;             // Pool used (for assistant role)
-  billing_entry_id?: string;    // Reference to BillingEntry
-  timestamp: string;            // ISO datetime
-  sequence: number;             // Monotonic within conversation
-}
-
-interface ConversationListResponse {
-  conversations: Conversation[];
-  total: number;
-  offset: number;
-  limit: number;
-}
-
-interface MessageListResponse {
-  messages: Message[];
-  total: number;
-  offset: number;
-  limit: number;
-  has_more: boolean;
-}
-```
-
-**Storage tiers (informational, implementation in loa-finn):**
-- Hot: In-memory, 30 min TTL
-- Warm: Disk JSONL, 30 days
-- Cold: R2/S3, forever
-
-> Source: RFC #66 Comment 1 (session persistence), Comment 11 (Chat & Conversation Architecture)
-
-### FR6: ToolRegistration & ToolLifecycle Types (v2.1.0)
-
-**Priority:** P1 — Blocks Phase 4
-
-```typescript
-type ToolLifecycleState =
-  | "REGISTERED"     // Submitted, pending verification
-  | "VERIFIED"       // Passed automated checks
-  | "ACTIVE"         // Live, discoverable, billable
-  | "DEGRADED"       // Operational but impaired (high error rate)
-  | "SUSPENDED"      // Temporarily disabled (policy violation, maintenance)
-  | "DEREGISTERED";  // Permanently removed
-
-interface ToolRegistration {
-  id: string;                    // Tool ID (globally unique)
-  name: string;                  // Display name
-  description: string;           // What the tool does
-  version: string;               // Semver
-  provider: string;              // Producer identity
-
-  // MCP
-  mcp_server_url: string;        // MCP server endpoint
-  mcp_capabilities: string[];    // Supported MCP methods
-
-  // Billing
-  cost_per_call_micro: string;   // String-encoded micro-USD
-  revenue_split: {
-    producer_bps: number;        // Default: 8500 (85%)
-    platform_bps: number;        // Default: 1500 (15%)
+  resolution?: {
+    outcome: 'upheld' | 'dismissed' | 'compromised';
+    sanction_id?: string;              // Links to SanctionSchema
+    credit_note_id?: string;           // Links to CreditNote for financial resolution
+    resolved_by: string;
+    resolved_at: string;
   };
-
-  // Metadata
-  lifecycle_state: ToolLifecycleState;
-  registered_at: string;         // ISO datetime
-  verified_at?: string;
-  last_health_check?: string;
-  error_rate?: number;           // 0-1, rolling window
-
-  // Access control
-  min_tier?: Tier;               // Minimum tier to use this tool
-  allowed_pools?: PoolId[];      // Pools that can invoke this tool
-
+  filed_at: string;
   contract_version: string;
 }
 ```
 
-**Valid Transitions:**
-```
-REGISTERED   → VERIFIED | DEREGISTERED
-VERIFIED     → ACTIVE | DEREGISTERED
-ACTIVE       → DEGRADED | SUSPENDED | DEREGISTERED
-DEGRADED     → ACTIVE | SUSPENDED | DEREGISTERED
-SUSPENDED    → ACTIVE | DEREGISTERED
-DEREGISTERED → (terminal)
+**Rationale**: Current protocol handles financial disputes (CreditNote) but not operational disputes (quality complaints, safety concerns, personality changes). Communities need both.
+
+> Source: Bridgebuilder Part 9 (Ostrom P6, BB-POST-004)
+
+#### FR9: ValidatedOutcome Schema
+
+**Priority:** P1 — Staked quality validation
+
+```typescript
+interface ValidatedOutcome {
+  outcome_id: string;                   // UUID
+  performance_id: string;              // Links to PerformanceRecord
+  validator_id: string;
+  validator_stake_micro: MicroUSD;     // Skin in the game
+  rating: number;                       // 0-5
+  rationale?: string;
+  disputed: boolean;
+  dispute_outcome?: 'upheld' | 'overturned' | 'split';
+  validated_at: string;
+  contract_version: string;
+}
 ```
 
-**ToolListResponse (for discovery/pagination):**
+**ECSA parallel**: Outcome validation where validators stake on their assessments. If community disagrees, validator's stake is at risk.
+
+> Source: Bridgebuilder Part 9 (Ostrom P4)
+
+### Phase 4: v4.3.0 — The Reputation Layer
+
+#### FR10: ReputationScore Schema
+
+**Priority:** P0 — Agent quality signal for routing
+
 ```typescript
-interface ToolListResponse {
-  tools: ToolRegistration[];
-  total: number;
-  offset: number;
-  limit: number;
-  filters_applied?: {
-    lifecycle_state?: ToolLifecycleState;
-    min_tier?: Tier;
-    provider?: string;
+interface ReputationScore {
+  agent_id: string;
+  score: number;                        // 0-1 normalized
+  components: {
+    outcome_quality: number;            // 0-1, from ValidatedOutcome ratings
+    performance_consistency: number;    // 0-1, variance in performance quality
+    dispute_ratio: number;              // 0-1, fraction of disputes vs performances
+    community_standing: number;         // 0-1, from community governance signals
   };
-}
-```
-
-> Flatline IMP-005 (DISPUTED, accepted): Consistent pagination shape with ConversationListResponse.
-
-> Source: RFC #66 Comment 7 Finding 9 (Operator pattern), Comment 11 Phase 4
-
-### FR7: AgentMessage & AgentAddress Types (v2.2.0)
-
-**Priority:** P2 — Blocks Phase 5
-
-```typescript
-// Agent addressing scheme
-interface AgentAddress {
-  scheme: "agent";               // Protocol scheme
-  nft_id: string;                // Target agent NFT ID
-  collection?: string;           // Optional collection qualifier
-}
-
-// Parse "agent://4269" or "agent://bears/4269"
-function parseAgentAddress(uri: string): AgentAddress;
-function formatAgentAddress(addr: AgentAddress): string;
-
-type MessagePriority = "normal" | "urgent" | "bulk";
-type MessageDeliveryStatus = "queued" | "delivered" | "read" | "failed" | "expired";
-
-interface AgentMessage {
-  id: string;                    // ULID
-  from: AgentAddress;
-  to: AgentAddress;
-
-  // Content
-  subject?: string;
-  content: string;
-  content_type: "text/plain" | "application/json";
-
-  // Delivery
-  priority: MessagePriority;
-  delivery_status: MessageDeliveryStatus;
-
-  // Billing
-  billing_entry_id?: string;     // Cost attributed to sender's TBA
-
-  // Metadata
-  sent_at: string;               // ISO datetime
-  delivered_at?: string;
-  read_at?: string;
-  expires_at?: string;           // TTL for ephemeral messages
-
-  // Threading
-  in_reply_to?: string;          // Message ID for threading
-  thread_id?: string;            // Thread root ID
-
-  contract_version: string;
-}
-
-interface AgentInbox {
-  agent: AgentAddress;
-  messages: AgentMessage[];
-  unread_count: number;
-  total: number;
-  offset: number;
-  limit: number;
-}
-```
-
-> Source: RFC #66 Comment 11 Phase 5
-
-### FR8: DomainEvent Envelope (v2.0.0)
-
-**Priority:** P0 — Cross-cutting audit infrastructure
-
-> Flatline IMP-003 (HIGH_CONSENSUS, avg: 845): Multiple state machines (agent lifecycle, tool lifecycle, conversation status, transfer) and billing reconciliation require a consistent audit envelope. Downstream systems already rely on streams (StreamEvent). A minimal versioned envelope ensures cross-repo event consistency.
-
-```typescript
-interface DomainEvent<T = unknown> {
-  event_id: string;              // ULID
-  aggregate_id: string;          // Entity this event belongs to (nft_id, tool_id, etc.)
-  aggregate_type: "agent" | "conversation" | "billing" | "tool" | "transfer" | "message";
-  type: string;                  // e.g., "agent.lifecycle.transitioned", "billing.entry.created"
-  version: number;               // Event schema version (monotonic)
-  occurred_at: string;           // ISO datetime
-  actor: string;                 // Who/what caused this (user address, system, service ID)
-  correlation_id?: string;       // Trace ID for cross-service correlation
-  causation_id?: string;         // ID of the event that caused this event
-  payload: T;                    // Event-specific data
+  sample_size: number;                  // Number of performances scored
+  last_updated: string;
+  decay_applied: boolean;               // Time-based score decay
   contract_version: string;
 }
 ```
 
-**Event naming convention:** `{aggregate_type}.{entity}.{past_tense_verb}` (e.g., `agent.lifecycle.transitioned`, `billing.entry.created`, `conversation.status.sealed`)
+**Integration**: `RoutingConstraint.min_reputation` (FR4) references this schema. Higher-reputation agents get priority for quality-sensitive tasks.
 
-### FR9: New Error Codes (v2.0.0+)
+> Source: Bridgebuilder Part 10 (BB-POST-001)
 
-Extend the existing 31 error codes with agent-related errors.
+#### FR11: Agent-as-BillingRecipient
+
+**Priority:** P1 — Agents can receive value, not just incur costs
+
+Extend `BillingRecipient.role` union:
 
 ```typescript
-// v2.0.0 additions
-AGENT_NOT_FOUND           // 404 — Agent NFT ID not recognized
-AGENT_NOT_ACTIVE          // 403 — Agent lifecycle state is not ACTIVE
-AGENT_TRANSFER_IN_PROGRESS// 409 — Transfer detected, operations suspended
-CONVERSATION_SEALED       // 403 — Conversation sealed after transfer
-CONVERSATION_NOT_FOUND    // 404 — Conversation ID not found
-OWNERSHIP_MISMATCH        // 403 — Caller is not current NFT owner
-BILLING_RECIPIENTS_INVALID// 400 — Recipients don't sum to 10000 bps
-
-// v2.1.0 additions
-TOOL_NOT_FOUND            // 404 — Tool ID not registered
-TOOL_NOT_ACTIVE           // 403 — Tool lifecycle state is not ACTIVE
-TOOL_CALL_BUDGET_EXCEEDED // 402 — Tool call cost exceeds remaining budget
-
-// v2.2.0 additions
-AGENT_MESSAGE_UNDELIVERABLE // 502 — Target agent unreachable
-AGENT_INBOX_FULL            // 429 — Target inbox capacity exceeded
+type BillingRecipientRole = 'provider' | 'platform' | 'producer' | 'agent_tba'
+                          | 'agent_performer'  // NEW: agent receives performance dividend
+                          | 'commons';         // NEW: community pool receives dividend
 ```
+
+**Rationale**: Currently, recipients are implicitly human-owned accounts. Agent performers and community commons need to be first-class recipients.
+
+> Source: Bridgebuilder Part 10 (BB-POST-006)
+
+### Phase 5: v4.4.0 — The Agent Economy
+
+#### FR12: EscrowEntry Schema
+
+**Priority:** P0 — Hold-and-release financial flows
+
+```typescript
+interface EscrowEntry {
+  escrow_id: string;                    // UUID
+  billing_entry_id: string;            // Links to original charge
+  amount_micro: MicroUSD;
+  state: 'held' | 'released' | 'disputed' | 'refunded' | 'expired';
+  hold_until: string;                   // ISO datetime
+  release_conditions?: string[];
+  released_at?: string;
+  contract_version: string;
+}
+```
+
+**Design decision**: Escrow as separate entity (not billing lifecycle state). Rationale: escrow can outlive its originating conversation, multiple billing entries might fund a single escrow, and escrow disputes need their own audit trail.
+
+> Source: Bridgebuilder Part 3, arrakis#62
+
+#### FR13: StakePosition Schema (Experimental)
+
+**Priority:** P1 — Reciprocal investment primitive
+
+```typescript
+interface StakePosition {
+  stake_id: string;                     // UUID
+  staker_id: string;                   // Human or agent
+  performer_id: string;                // Agent being staked in
+  amount_micro: MicroUSD;
+  stake_type: 'conviction' | 'delegation' | 'validation';
+  vesting: {
+    schedule: 'immediate' | 'performance_gated' | 'time_gated';
+    vested_micro: MicroUSD;
+    remaining_micro: MicroUSD;
+  };
+  created_at: string;
+  contract_version: string;
+}
+```
+
+**ECSA parallel**: "Stake Token" — mutual belief in future performance. Unlike traditional investment (I buy shares), this is reciprocal recognition (I believe in your future performances).
+
+**x-experimental: true** — Schema stability not guaranteed until validated by real usage.
+
+> Source: Bridgebuilder Part 8, ECSA Stake Token framework
+
+#### FR14: CommonsDividend Schema (Experimental)
+
+**Priority:** P1 — Community value pools
+
+```typescript
+interface CommonsDividend {
+  dividend_id: string;                  // UUID
+  community_id: string;
+  source_performance_id: string;       // Links to PerformanceRecord
+  amount_micro: MicroUSD;
+  governance: 'mod_discretion' | 'member_vote' | 'algorithmic' | 'stake_weighted';
+  distribution?: {
+    distributed_at: string;
+    recipients: BillingRecipient[];
+    method: string;
+  };
+  issued_at: string;
+  contract_version: string;
+}
+```
+
+**Ostrom parallel**: Common-pool resource with defined governance. The governance field determines how commons dividends are allocated — matching Ostrom's Principle 3 (collective-choice arrangements).
+
+> Source: Bridgebuilder Part 8-9, ECSA Synthetic Commons, arrakis#62
+
+#### FR15: MutualCredit Schema (Experimental)
+
+**Priority:** P2 — Agent-to-agent obligations
+
+```typescript
+interface MutualCredit {
+  credit_id: string;                    // UUID
+  issuer_id: string;                   // Who extends credit
+  receiver_id: string;                 // Who receives credit
+  amount_micro: MicroUSDSigned;        // Signed — positive or negative
+  credit_type: 'refund' | 'prepayment' | 'obligation' | 'delegation';
+  settlement: {
+    due_at?: string;
+    settled: boolean;
+    settled_at?: string;
+    settlement_method?: 'direct_payment' | 'reciprocal_performance'
+                      | 'commons_contribution' | 'forgiven';
+  };
+  contract_version: string;
+}
+```
+
+**Graeber parallel**: "Debt: The First 5,000 Years" — credit and obligation preceded barter and money. The `settlement_method: 'reciprocal_performance'` enables agents to settle debts through validated work rather than money.
+
+> Source: Bridgebuilder Part 8, ECSA Distributed Credit, Graeber
 
 ---
 
 ## 6. Technical Requirements
 
-### TR1: TypeBox Schemas
+### TR1: Test Epistemology Level 4
 
-All new types must be defined as TypeBox schemas with companion TypeScript types, consistent with v1.1.0 patterns:
-- `Type.Object()` for interfaces
-- `Type.Union()` with `Type.Literal()` for discriminated unions / enums
-- `Type.Optional()` for optional fields
-- Lazy-compiled `TypeCompiler.Compile()` validators
+Extend the test suite to cover 4 epistemological layers:
 
-### TR2: JSON Schema Generation
+| Level | Name | Current | v4.4.0 Target |
+|-------|------|---------|---------------|
+| L0 | Structural (schema validation) | Complete (125 checks, 4 languages) | Maintain |
+| L1 | Behavioral (property tests) | Strong (20 properties, 1000 iterations) | Expand to new schemas |
+| L2 | Temporal (event sequence validation) | **Gap** | **NEW: random event sequence property tests** |
+| L3 | Economic (financial flow conservation) | **Gap** | **NEW: trial balance and multi-step flow tests** |
+| L4 | Interop (cross-runner equivalence) | Partial (golden vectors, no round-trip) | **NEW: CI step diffing all 4 runners** |
 
-All new schemas must produce valid JSON Schema via the existing `schema:generate` script. Output to `schemas/` directory for downstream consumption without TypeScript dependency.
+**Temporal property testing** (L2):
 
-### TR3: Golden Test Vectors
-
-Each new schema must have golden test vectors in `vectors/` following the existing pattern:
-- Valid examples (happy path)
-- Invalid examples (each validation rule exercised)
-- Edge cases (empty arrays, max values, boundary conditions)
-- Migration examples (v1.1.0 → v2.0.0 before/after)
-
-### TR4: Export Surface
-
-New types exported from `src/index.ts` following existing barrel export pattern:
-- Schema objects (`AgentDescriptorSchema`, etc.)
-- TypeScript types (`type AgentDescriptor`, etc.)
-- Validation functions (`isValidTransition`, `parseAgentAddress`, etc.)
-- Constants (`AGENT_LIFECYCLE_TRANSITIONS`, `TRANSFER_SCENARIOS`, etc.)
-
-### TR5: Backward Compatibility
-
-- v2.0.0 is a breaking release — `CONTRACT_VERSION` bumps to `2.0.0`
-- `MIN_SUPPORTED_VERSION` bumps to `2.0.0` (no N-1 compat for major bump)
-- `CostBreakdown` removed in favor of `BillingEntry`
-- `UsageReport.cost` replaced by `BillingEntry` reference
-- Migration guide included in package README
-
-### TR6: Package Exports
-
-Extend package.json exports to include new schema paths:
-```json
-{
-  "./schemas/agent": "./schemas/agent-descriptor.schema.json",
-  "./schemas/billing": "./schemas/billing-entry.schema.json",
-  "./schemas/conversation": "./schemas/conversation.schema.json",
-  "./schemas/tool": "./schemas/tool-registration.schema.json",
-  "./schemas/messaging": "./schemas/agent-message.schema.json"
-}
+```typescript
+fc.assert(
+  fc.property(
+    fc.array(domainEventArb, { minLength: 2, maxLength: 20 }),
+    (events) => {
+      const state = new ProtocolStateTracker();
+      for (const event of events) {
+        const result = state.apply(event);
+        expect(result.applied || VALID_REJECTION_REASONS.includes(result.reason)).toBe(true);
+      }
+      expect(state.isConsistent()).toBe(true);
+    },
+  ),
+  { numRuns: 500 },
+);
 ```
+
+**Economic property testing** (L3):
+
+```typescript
+fc.assert(
+  fc.property(
+    fc.array(billingEventArb, { minLength: 1, maxLength: 50 }),
+    (events) => {
+      const ledger = new ProtocolLedger();
+      for (const event of events) { ledger.record(event); }
+      expect(ledger.trialBalance()).toBe(0n); // Money is conserved
+    },
+  ),
+  { numRuns: 200 },
+);
+```
+
+> Source: Bridgebuilder Part 4 (BB-GRAND-002, BB-GRAND-003)
+
+### TR2: Cross-Runner Equivalence CI
+
+Add a CI step that runs all 4 language runners (TS, Go, Python, Rust) against the same vector set and diffs the results. Any divergence fails the build.
+
+> Source: Bridgebuilder Part 5 (BB-GRAND-004)
+
+### TR3: Experimental Schema Marking
+
+Schemas marked `x-experimental: true` in their JSON Schema output are explicitly unstable. Consumers must opt-in:
+
+```typescript
+// In schema generation
+const schema = Type.Object({...}, {
+  additionalProperties: false,
+  'x-experimental': true,    // Flows through to JSON Schema
+});
+```
+
+Experimental schemas: StakePosition, CommonsDividend, MutualCredit.
+Stable schemas: All others.
+
+### TR4: Backward Compatibility for v4.0.0 Breaking Changes
+
+| Change | Impact | Mitigation |
+|--------|--------|------------|
+| Signed MicroUSD | Consumer regex `^[0-9]+$` breaks | Migration guide with regex update |
+| Envelope relaxation | Strict consumers reject new envelope fields | Strip-then-validate pattern (SCHEMA-EVOLUTION.md) |
+| MIN_SUPPORTED bump | v2.4.0 consumers rejected | All consumers should be on v3.x by launch |
+
+**Critical invariant**: All v3.2.0 valid payloads MUST be accepted by v4.0.0 schemas. The breaking changes affect validation rules, not data shapes.
+
+### TR5: Schema Vocabulary Extensions
+
+New vocabulary files for the value economy:
+
+| File | Contents |
+|------|----------|
+| `src/vocabulary/sanctions.ts` | Graduated severity levels, violation types |
+| `src/vocabulary/reputation.ts` | Reputation component weights, decay parameters |
+| `src/vocabulary/economic-choreography.ts` | Staking/unstaking ceremony step sequences |
+
+### TR6: Economic Choreography
+
+Extend `TRANSFER_CHOREOGRAPHY` vocabulary pattern for economic ceremonies:
+
+```typescript
+const ECONOMIC_CHOREOGRAPHY = {
+  stake: {
+    forward: ['stake_offered', 'stake_accepted', 'performance_began',
+              'output_recorded', 'outcome_validated', 'dividend_issued'],
+    invariants: [
+      { description: 'Staker and performer must be different entities' },
+      { description: 'Stake amount must not exceed staker balance' },
+      { description: 'Dividend cannot issue before outcome validation' },
+    ],
+  },
+  escrow: {
+    forward: ['funds_held', 'conditions_met', 'funds_released'],
+    invariants: [
+      { description: 'Release requires all conditions met or expiry' },
+      { description: 'Disputed escrow cannot be released without resolution' },
+    ],
+  },
+} as const;
+```
+
+> Source: Bridgebuilder Part 8
 
 ---
 
@@ -692,12 +661,14 @@ Extend package.json exports to include new schema paths:
 
 | Requirement | Target | Rationale |
 |-------------|--------|-----------|
-| **Bundle size** | <50KB gzipped (total package) | Consumed by edge workers; size matters |
-| **Tree-shaking** | ESM exports, side-effect-free | Downstream repos import selectively |
-| **Zero runtime deps** | TypeBox is devDependency only | Compiled validators have no runtime deps |
-| **Node.js compat** | >=22 (consistent with v1.1.0) | LTS schedule alignment |
-| **TypeScript** | Strict mode, no `any` | Type safety is the product |
-| **Validation perf** | <1ms per schema validation | Hot path in request processing |
+| Bundle size | <60KB gzipped (up from 50KB) | New schemas add ~10KB |
+| Tree-shaking | ESM exports, side-effect-free | Consumers import selectively |
+| Zero runtime deps | TypeBox is devDependency only | Compiled validators have no runtime deps |
+| Node.js | >=22 | LTS alignment |
+| TypeScript | Strict mode, no `any` | Type safety is the product |
+| Validation perf | <1ms per schema validation | Hot path in request processing |
+| Test count | 600+ | Level 4 epistemology requires more property tests |
+| Schema descriptions | 100% coverage | SchemaStore integration requirement |
 
 ---
 
@@ -705,74 +676,81 @@ Extend package.json exports to include new schema paths:
 
 ### In Scope
 
-| Version | Deliverables | Phase |
-|---------|-------------|-------|
-| **v2.0.0** | AgentDescriptor, AgentLifecycleState, TransferSpec, BillingEntry, Conversation/Message types, new error codes, migration guide, golden vectors | Pre-Phase |
-| **v2.1.0** | ToolRegistration, ToolLifecycle, tool error codes, golden vectors | Phase 4 |
-| **v2.2.0** | AgentMessage, AgentAddress, messaging error codes, golden vectors | Phase 5 |
+| Version | Deliverables | Priority |
+|---------|-------------|----------|
+| **v4.0.0** | Signed MicroUSD, envelope relaxation, MIN_SUPPORTED 3.0.0, RoutingConstraint | P0 — Launch enabler |
+| **v4.1.0** | PerformanceRecord, ContributionRecord, outcome tracking | P0 — Value economy foundation |
+| **v4.2.0** | SanctionSchema, DisputeRecord, ValidatedOutcome | P1 — Governance layer |
+| **v4.3.0** | ReputationScore, agent-as-recipient, routing integration | P1 — Quality signals |
+| **v4.4.0** | EscrowEntry, StakePosition, CommonsDividend, MutualCredit | P1 — Agent economy |
 
 ### Explicitly Out of Scope
 
 | Item | Reason | Revisit |
 |------|--------|---------|
-| Soul memory schema | Deferred per RFC — stateless chat for v1 | Post-Phase 1 conversation data |
-| Personality evolution types | Deferred — static BEAUVOIR.md sufficient | Post-Phase 1 |
-| ERC-7860 AgentNFT schema | Draft standard, no tooling | Standard finalization |
-| EIP-7702 delegation types | Pectra timeline unclear | Mainnet launch |
-| Insurance pool types | Needs actuarial data | Post-Phase 4 marketplace data |
-| Voice/transcription schemas | Channel expansion deferred | Post consumer MVP validation |
-| On-chain event ABI types | mibera-freeside generates from Solidity | Smart contract compilation |
-| Runtime implementation | loa-finn/arrakis implement; loa-hounfour defines | Always |
+| GovernanceProposal schema | Requires Cambrian Threshold (>5 uncoordinated consumers) | v5.0.0+ |
+| AutonomousBudget schema | Agent self-management is post-product-market-fit | v5.0.0+ |
+| PricingSpread (bid-ask negotiation) | Dynamic pricing is ECSA v2 complexity | v6.0.0+ |
+| ValueDenomination (multi-unit accounting) | Single currency (MicroUSD) sufficient for now | v6.0.0+ |
+| Protocol Buffers encoding | JSON-first sufficient for current scale | v5.0.0+ |
+| GraphQL schema generation | Insufficient consumer demand | v5.0.0+ |
 
 ---
 
 ## 9. Risks & Dependencies
 
-### Critical Risks
+### Risks
 
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|------------|------------|
-| **loa-hounfour delays block all downstream** | 4 repos idle | Medium | Pre-Phase is only 5 types; keep scope tight |
-| **Breaking change coordination fails** | Runtime errors in loa-finn/arrakis | Medium | Publish v2.0.0-beta.1 for integration testing before final release |
-| **AgentDescriptor schema churn** | Downstream rework | Low | Bridgebuilder review already locked the schema shape |
-| **BillingEntry recipients invariant bugs** | Silent financial errors | Medium | Golden vectors with comprehensive edge cases; property-based tests |
-| **TypeBox limitations for JSON-LD** | `@context` field naming | Low | TypeBox supports arbitrary string keys via `Type.Index` |
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| v4.0.0 breaking changes delay launch | Low | High | v3.2.0 is already launch-ready; v4.0.0 is launch-enabling, not launch-blocking |
+| Experimental schemas (StakePosition, etc.) create false API stability expectations | Medium | Medium | `x-experimental: true` marking + documentation |
+| Level 4 testing (temporal/economic) is technically complex | Medium | Low | Property testing infrastructure exists; complexity is in arbitraries, not framework |
+| Agent economy schemas are speculative — may need revision | High | Medium | Ship as experimental; don't promise stability until real usage |
+| Consumer upgrade fatigue (v3.2.0 → v4.4.0 in rapid succession) | Medium | Medium | Each minor is independently shippable; consumers upgrade incrementally |
 
 ### Dependencies
 
 | Dependency | Type | Status |
 |------------|------|--------|
-| TypeBox ^0.34 | Dev dependency | Installed (v1.1.0) |
-| jose ^6.1 | Dev dependency | Installed (v1.1.0) |
-| viem | NOT needed | loa-hounfour defines types only; no on-chain calls |
-| loa-finn RFC #31 completion | External | 96% complete |
-| arrakis Issue #54 (adopt hounfour) | External | Open |
-| Cloudflare llms.txt standard | Spec reference | Published |
-| ERC-6551 standard | Spec reference | Established |
+| TypeBox ^0.34 | Dev dependency | Installed |
+| fast-check ^4.5 | Dev dependency | Installed (property testing) |
+| jose ^6.1 | Dev dependency | Installed |
+| arrakis#62 credit system | External — CommonsDividend integration | RFC drafted |
+| loa-finn#66 Phase 1 launch | External — v4.0.0 must not block | v3.2.0 is fallback |
+| loa-finn#31 Hounfour RFC | External — RoutingConstraint integration | 93% complete |
+| ECSA postcapitalist.agency | Research reference | Conceptual |
 
 ---
 
-## 10. Flatline Review Decisions
+## 10. Theoretical Foundations
 
-### Overridden Blockers (with rationale)
+This section documents the economic and governance research informing the v4.4.0 design. Included per Bridgebuilder review recommendation for decision documentation.
 
-**SKP-001** (severity: 930) — *No contingency plan for critical-path bottleneck*
-> **Override rationale:** Single chokepoint is by design per the anti-duplication matrix. The RFC's Bridgebuilder review already locked the schema shapes. The 5 v2.0.0 types are well-defined with full interface specs. Risk of slip is low; risk of schema churn is the real concern, and a frozen spec prevents that.
+### Economic Theories Applied
 
-**SKP-002** (severity: 880) — *Breaking change strategy too strict (no N-1 compat)*
-> **Override rationale:** All 4 repos coordinate in a single launch plan. One synchronized migration is simpler than maintaining translation layers. The downstream repos (loa-finn, arrakis) are controlled by the same team. Clean break avoids compat complexity that would outlive its usefulness.
+| Theory | Author(s) | Protocol Application |
+|--------|-----------|---------------------|
+| **Mechanism Design** | Hurwicz, Maskin, Myerson (Nobel 2007) | BillingRecipient share_bps as mechanism; PerformanceRecord outcome validation as truthful reporting incentive |
+| **Two-Sided Markets** | Rochet & Tirole (Nobel 2014) | Platform as two-sided market (creators + users); protocol controls pricing vocabulary |
+| **Commons Governance** | Ostrom (Nobel 2009) | 8 design principles mapped to protocol schemas (Bridgebuilder Part 9) |
+| **Fair Division** | Shapley (Nobel 2012) | SagaValueAttribution with Shapley values for multi-model contribution splitting |
+| **Debt as Social Fabric** | Graeber | MutualCredit with reciprocal performance settlement |
+| **Commodities by Means of Commodities** | Sraffa | Multi-model saga value attribution — outputs produced by chains of agent outputs |
+| **Postcapitalist Expression** | ECSA | Three-token architecture (stake, commodity, liquidity) mapped to protocol schemas |
 
-### Accepted Findings
+### Ostrom Compliance Scorecard (v4.4.0 Target)
 
-| ID | Type | Summary | Integrated |
-|----|------|---------|------------|
-| IMP-002 | HIGH_CONSENSUS | CreditNote type for billing reversals | Yes |
-| IMP-003 | HIGH_CONSENSUS | DomainEvent audit envelope | Yes |
-| IMP-004 | DISPUTED | markup_bps → multiplier_bps (math fix) | Yes |
-| IMP-005 | DISPUTED | ToolListResponse pagination type | Yes (v2.1.0) |
-| SKP-003 | BLOCKER | Deterministic billing allocation rules | Yes |
-| SKP-005 | BLOCKER | Canonical NftId with EIP-155 chain qualifier | Yes |
-| SKP-007 | BLOCKER | Sealing encryption scheme specification | Yes |
+| Principle | v3.2.0 | v4.4.0 Target |
+|-----------|--------|---------------|
+| 1. Boundaries | Complete | Maintained |
+| 2. Proportionality | Partial | **Complete** (ContributionRecord) |
+| 3. Collective choice | Not yet needed | Future (post-Cambrian) |
+| 4. Monitoring | Strong | **Enhanced** (ValidatedOutcome) |
+| 5. Graduated sanctions | Minimal (2 levels) | **Complete** (5 levels) |
+| 6. Conflict resolution | Financial only | **Complete** (DisputeRecord) |
+| 7. Self-governance | Implicit | Maintained |
+| 8. Nested enterprises | Strong (3-repo) | Maintained |
 
 ---
 
@@ -780,65 +758,75 @@ Extend package.json exports to include new schema paths:
 
 | # | Question | Owner | Impact |
 |---|----------|-------|--------|
-| OQ1 | Should `AgentDescriptor.@context` be a hosted JSON-LD context document, or is the TypeScript type sufficient? | Product | Affects whether we need to deploy a schema endpoint |
-| OQ2 | Should `ConversationSealingPolicy.encrypted` specify the encryption scheme, or is that an implementation detail for loa-finn? | Security | Affects type complexity |
-| OQ3 | Should `BillingEntry` support negative amounts for refunds/credits? | Product | Affects invariant validation |
-| OQ4 | Should `ToolRegistration.mcp_capabilities` be typed enum or freeform strings? | loa-finn | MCP spec may add new methods |
-| OQ5 | Should `AgentAddress` support cross-collection addressing (e.g., `agent://bears/4269` vs `agent://4269`)? | Product | Affects the address format and parsing |
+| OQ1 | Should `PerformanceRecord.outcome.user_rating` use 0-5 stars or 0-1 continuous? | Product | Affects reputation computation |
+| OQ2 | Should `StakePosition` be protocol-level (loa-hounfour) or chain-level (mibera-freeside)? | Architecture | Affects where staking logic lives |
+| OQ3 | How should `CommonsDividend.governance` interact with arrakis community governance? | Arrakis team | Integration design |
+| OQ4 | Should experimental schemas be in a separate npm export path (e.g., `@0xhoneyjar/loa-hounfour/experimental`)? | Engineering | Affects consumer import patterns |
+| OQ5 | How should `ReputationScore.decay_applied` work? Time-based? Activity-based? Both? | Product | Affects score computation |
+| OQ6 | Should `MutualCredit.settlement_method: 'reciprocal_performance'` require a linked PerformanceRecord? | Architecture | Affects settlement validation |
+| OQ7 | Is 5-level graduated sanctions sufficient, or should severity be a continuous scale? | Governance | Affects SanctionSchema design |
 
 ---
 
-## 11. Appendices
+## 12. Appendices
 
-### A. Migration Guide Outline (v1.1.0 → v2.0.0)
+### A. Version History Context
 
-**Breaking Changes:**
-1. `CostBreakdown` removed → use `BillingEntry`
-2. `UsageReport.cost: CostBreakdown` → `UsageReport.billing_entry_id: string` (reference)
-3. `InvokeResponse.cost: CostBreakdown` → `InvokeResponse.billing_entry_id: string` (reference)
-4. `CONTRACT_VERSION` = `"2.0.0"`
-5. `MIN_SUPPORTED_VERSION` = `"2.0.0"`
+| Version | Cycle | Codename | Key Achievement |
+|---------|-------|----------|----------------|
+| v1.1.0 | — | Foundation | JWT, streaming, routing, 91 vectors |
+| v2.0.0 | 001 | Protocol Types | Agent identity, billing, conversations |
+| v2.1.0 | 002 | Excellence Refinements | Lifecycle payloads, credit notes, decision trails |
+| v2.2.0 | 003 | Deep Excellence | Saga context, capability negotiation, discovery |
+| v2.3.0 | 004 | Resilience & Completeness | Transfer choreography, schema evolution strategy |
+| v2.4.0 | 005 | Protocol Maturity | Guard architecture, financial safety, multi-model topology |
+| v3.0.0 | 005 | The Sovereignty Release | Access policies, breaking changes, constitutional rights |
+| v3.1.0 | 006 | Hounfour Protocol Types | HealthStatus, ThinkingTrace, ToolCall, validation hardening |
+| v3.2.0 | 006 | Ecosystem Maturity | Signed arithmetic, credit validation, property testing |
+| **v4.0.0–v4.4.0** | **007** | **The Agent Economy** | **Value economy, governance, reputation, staking** |
 
-**Additive (non-breaking):**
-1. New schemas: AgentDescriptor, AgentLifecycleState, TransferSpec, Conversation, Message
-2. New error codes: 7 agent-related codes
-3. New validators: lifecycle transition, agent address, billing recipients
-4. New exports: constants, utility functions
+### B. Bridgebuilder Findings Integrated
 
-### B. Repo Ownership Matrix (from RFC)
+| Finding ID | Source | Integrated As |
+|-----------|--------|---------------|
+| BB-GRAND-001 | Part 2 | FR4: RoutingConstraint |
+| BB-GRAND-002 | Part 4 | TR1: Temporal property tests |
+| BB-GRAND-003 | Part 4 | TR1: Economic property tests |
+| BB-GRAND-004 | Part 5 | TR2: Cross-runner equivalence CI |
+| BB-POST-001 | Part 10 | FR10: ReputationScore |
+| BB-POST-002 | Part 10 | FR5: PerformanceRecord |
+| BB-POST-003 | Part 10 | FR7: SanctionSchema |
+| BB-POST-004 | Part 10 | FR8: DisputeRecord |
+| BB-POST-005 | Part 10 | FR6: ContributionRecord |
+| BB-POST-006 | Part 10 | FR11: Agent-as-BillingRecipient |
+| BB-POST-007 | Part 10 | FR13/FR14/FR15: Staking + Credit |
 
-| Concern | Owner |
-|---------|-------|
-| Type schemas | loa-hounfour ONLY |
-| JWT minting | arrakis ONLY |
-| JWT validation | loa-finn ONLY |
-| Smart contracts | mibera-freeside ONLY |
-| Model routing | loa-finn ONLY |
-| Conversation store | loa-finn ONLY |
-| User-facing UI | arrakis ONLY |
-| Billing ledger | loa-finn ONLY |
-| Credit purchase | arrakis ONLY |
-| Tool registry | loa-finn ONLY |
-| Tool discovery | arrakis ONLY |
+### C. ECSA Concepts Mapped to Schemas
 
-### C. Revenue Model Reference
+| ECSA Concept | Schema |
+|-------------|--------|
+| Stake Token | StakePosition |
+| Commodity Token | PerformanceRecord (output dimension) |
+| Liquidity Token | MicroUSD (universal denomination) |
+| Performance | PerformanceRecord |
+| Outcome Validation | ValidatedOutcome |
+| Synthetic Commons | CommonsDividend |
+| Distributed Credit | MutualCredit |
+| Graduated Sanctions | SanctionSchema |
+| Performance Indices | ReputationScore.components |
 
-| Stream | Rate | BillingEntry.cost_type |
-|--------|------|----------------------|
-| PAYG (0-100K tokens) | 3.0x markup | `model_inference` |
-| PAYG (100K-1M tokens) | 2.5x markup | `model_inference` |
-| PAYG (1M+ tokens) | 2.0x markup | `model_inference` |
-| BYOK subscription | $5/month flat | `byok_subscription` |
-| Agent setup | 0.01 ETH one-time | `agent_setup` |
-| Tool call | 15% platform fee | `tool_call` |
+### D. Competitive Context Update
 
-### D. Competitive Context
+| Capability | loa-hounfour v3.2.0 | v4.4.0 | Vercel AI SDK | LiteLLM | MCP | A2A (Google) |
+|-----------|---------------------|--------|---------------|---------|-----|-------------|
+| Multi-party billing | Yes | Yes | No | No | No | No |
+| Cost attribution | Yes | Yes | No | No | No | No |
+| Value attribution | No | **Yes** | No | No | No | No |
+| Reputation | No | **Yes** | No | No | No | No |
+| Escrow | No | **Yes** | No | No | No | No |
+| Commons governance | No | **Yes** | No | No | No | No |
+| Agent staking | No | **Yes** | No | No | No | No |
+| Cross-language vectors | 4 languages | 4 languages | No | No | No | No |
+| Graduated sanctions | No | **Yes** | No | No | No | No |
 
-| Advantage | vs. Nanobot | vs. Hive |
-|-----------|-------------|----------|
-| Token-gated model access | Unique | Unique |
-| NFT-bound persistent identity | Unique | Unique |
-| Confused deputy prevention | Unique | N/A |
-| Ensemble multi-model + atomic budget | Ahead | Ahead |
-| BYOK with deny-by-default | Unique | N/A |
-| Protocol-first (shared types package) | Unique | N/A |
+No other multi-model protocol offers financial + value economy primitives.
