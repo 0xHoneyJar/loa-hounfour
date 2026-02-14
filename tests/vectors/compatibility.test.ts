@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateCompatibility } from '../../src/validators/compatibility.js';
+import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 
 describe('Version Compatibility (v3.0.0)', () => {
   it('exact match is fully compatible', () => {
@@ -64,5 +65,11 @@ describe('Version Compatibility (v3.0.0)', () => {
   it('empty string is incompatible', () => {
     const result = validateCompatibility('');
     expect(result.compatible).toBe(false);
+  });
+
+  // Version canary — if these constants change, update the hardcoded test values above
+  it('version constants match expected values', () => {
+    expect(CONTRACT_VERSION).toBe('3.0.0');
+    expect(MIN_SUPPORTED_VERSION).toBe('2.4.0');
   });
 });

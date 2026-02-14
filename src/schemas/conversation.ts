@@ -41,7 +41,9 @@ export const AccessPolicySchema = Type.Object({
   })),
   roles: Type.Optional(Type.Array(Type.String({ minLength: 1 }), {
     minItems: 1,
-    description: 'Roles granted access (required for role_based)',
+    description: 'Roles granted access (required for role_based). '
+      + 'Role names are intentionally unconstrained at the protocol level — '
+      + 'domain-specific validation (e.g., valid role enums) is the consumer\'s responsibility.',
   })),
   audit_required: Type.Boolean({
     description: 'Whether access events must be logged to the audit trail',

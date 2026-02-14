@@ -147,6 +147,16 @@ describe('AccessPolicy Schema (v3.0.0)', () => {
     expect(result.valid).toBe(false);
   });
 
+  it('rejects role_based with empty roles array', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'role_based',
+      roles: [],
+      audit_required: true,
+      revocable: false,
+    });
+    expect(result.valid).toBe(false);
+  });
+
   it('rejects duration_hours > 8760 (1 year)', () => {
     const result = validate(AccessPolicySchema, {
       type: 'time_limited',
