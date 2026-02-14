@@ -278,28 +278,28 @@
           "global_id": 27,
           "label": "Sybil Resistance & Reputation Hardening",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 28,
           "label": "Financial Lifecycle Completeness",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 29,
           "label": "Schema Discoverability, Naming & Standards",
           "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 30,
           "label": "Integration Schema, Test Hardening & Final Release (v4.5.0)",
           "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4"],
-          "status": "pending"
+          "status": "completed"
         }
       ],
       "status": "active",
