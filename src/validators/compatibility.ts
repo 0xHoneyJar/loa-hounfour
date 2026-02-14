@@ -15,7 +15,28 @@ export type CompatibilityResult =
   | { compatible: false; error: string };
 
 /**
+ * Compare two parsed semver versions.
+ * Returns -1 if a < b, 0 if a === b, 1 if a > b.
+ */
+function compareSemver(
+  a: { major: number; minor: number; patch: number },
+  b: { major: number; minor: number; patch: number },
+): -1 | 0 | 1 {
+  if (a.major !== b.major) return a.major < b.major ? -1 : 1;
+  if (a.minor !== b.minor) return a.minor < b.minor ? -1 : 1;
+  if (a.patch !== b.patch) return a.patch < b.patch ? -1 : 1;
+  return 0;
+}
+
+/**
  * Check if a remote contract version is compatible with this package.
+ *
+ * Compatibility window: [MIN_SUPPORTED_VERSION, CONTRACT_VERSION].
+ * - remote < MIN_SUPPORTED_VERSION → incompatible
+ * - remote > CONTRACT_VERSION (future major) → incompatible
+ * - remote in window, different major → compatible with warning
+ * - remote in window, same major, different minor → compatible with warning
+ * - remote in window, same major+minor → fully compatible
  *
  * @param remoteVersion - The version string from the remote service
  * @returns Compatibility result with optional warning or error
@@ -34,30 +55,35 @@ export function validateCompatibility(remoteVersion: string): CompatibilityResul
   const local = parseSemver(CONTRACT_VERSION);
   const min = parseSemver(MIN_SUPPORTED_VERSION);
 
-  // Major version mismatch — incompatible
-  if (remote.major !== local.major) {
-    return {
-      compatible: false,
-      error: `Major version mismatch: remote=${remoteVersion}, local=${CONTRACT_VERSION}. ` +
-        `Major version changes require coordinated upgrade.`,
-    };
-  }
-
-  // Below minimum supported (full semver: major → minor → patch)
-  if (
-    remote.major < min.major ||
-    (remote.major === min.major && remote.minor < min.minor) ||
-    (remote.major === min.major && remote.minor === min.minor && remote.patch < min.patch)
-  ) {
+  // Below minimum supported — incompatible
+  if (compareSemver(remote, min) < 0) {
     return {
       compatible: false,
       error: `Version ${remoteVersion} is below minimum supported ${MIN_SUPPORTED_VERSION}.`,
     };
   }
 
-  // Minor version difference — compatible with warning
-  const minorDiff = Math.abs(remote.minor - local.minor);
-  if (minorDiff > 0) {
+  // Future major version — incompatible (we cannot forward-compat to unknown majors)
+  if (remote.major > local.major) {
+    return {
+      compatible: false,
+      error: `Version ${remoteVersion} is a future major version (local=${CONTRACT_VERSION}). ` +
+        `Upgrade this package to support ${remoteVersion}.`,
+    };
+  }
+
+  // Cross-major within support window — compatible with warning
+  if (remote.major < local.major) {
+    return {
+      compatible: true,
+      warning: `Cross-major version: remote=${remoteVersion}, local=${CONTRACT_VERSION}. ` +
+        `Remote is within support window (>= ${MIN_SUPPORTED_VERSION}). ` +
+        `Set X-Contract-Version-Warning header.`,
+    };
+  }
+
+  // Same major, minor version difference — compatible with warning
+  if (remote.minor !== local.minor) {
     return {
       compatible: true,
       warning: `Minor version mismatch: remote=${remoteVersion}, local=${CONTRACT_VERSION}. ` +

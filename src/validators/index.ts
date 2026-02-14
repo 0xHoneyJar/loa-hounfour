@@ -25,7 +25,7 @@ import { StreamEventSchema } from '../schemas/stream-events.js';
 import { RoutingPolicySchema } from '../schemas/routing-policy.js';
 import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
-import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema } from '../schemas/conversation.js';
+import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema, AccessPolicySchema } from '../schemas/conversation.js';
 import { TransferSpecSchema, TransferEventSchema } from '../schemas/transfer-spec.js';
 import { DomainEventSchema, DomainEventBatchSchema } from '../schemas/domain-event.js';
 import { LifecycleTransitionPayloadSchema } from '../schemas/lifecycle-event-payload.js';
@@ -102,4 +102,7 @@ export const validators = {
   capabilityResponse: () => getOrCompile(CapabilityResponseSchema),
   protocolDiscovery: () => getOrCompile(ProtocolDiscoverySchema),
   sagaContext: () => getOrCompile(SagaContextSchema),
+
+  // v3.0.0
+  accessPolicy: () => getOrCompile(AccessPolicySchema),
 } as const;

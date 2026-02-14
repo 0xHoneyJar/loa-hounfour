@@ -185,6 +185,9 @@ const sealingPolicy = {
 | `"none"` | `"none"` | `audit_required: false, revocable: false` |
 | `"read_only_24h"` | `"time_limited"` | `duration_hours: 24, audit_required: true, revocable: true` |
 | `"read_only"` | `"read_only"` | `audit_required: true, revocable: true` |
+| *(new in v3.0.0)* | `"role_based"` | `roles: ["auditor"], audit_required: true, revocable: false` |
+
+> **Note:** `role_based` is new in v3.0.0 with no v2.x equivalent. It is available for consumers who need fine-grained access control based on organizational roles.
 
 ```go
 // Go: migrate previous_owner_access to access_policy

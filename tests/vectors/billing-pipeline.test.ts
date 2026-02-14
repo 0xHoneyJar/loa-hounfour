@@ -24,7 +24,7 @@ describe('Billing Validation Pipeline (BB-C4-ADV-003)', () => {
       recipients,
       idempotency_key: 'idem-001',
       timestamp: '2026-02-14T10:00:00Z',
-      contract_version: '2.3.0',
+      contract_version: '3.0.0',
     };
   }
 

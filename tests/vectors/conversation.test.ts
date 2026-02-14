@@ -137,6 +137,16 @@ describe('AccessPolicy Schema (v3.0.0)', () => {
     expect(result.valid).toBe(false);
   });
 
+  it('rejects role_based with empty string role', () => {
+    const result = validate(AccessPolicySchema, {
+      type: 'role_based',
+      roles: [''],
+      audit_required: true,
+      revocable: false,
+    });
+    expect(result.valid).toBe(false);
+  });
+
   it('rejects duration_hours > 8760 (1 year)', () => {
     const result = validate(AccessPolicySchema, {
       type: 'time_limited',
@@ -196,6 +206,43 @@ describe('validateAccessPolicy cross-field invariants', () => {
       revocable: false,
     });
     expect(result.valid).toBe(true);
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('warns on extraneous duration_hours for type=none', () => {
+    const result = validateAccessPolicy({
+      type: 'none',
+      duration_hours: 24,
+      audit_required: false,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.warnings[0]).toContain('duration_hours');
+  });
+
+  it('warns on extraneous roles for type=none', () => {
+    const result = validateAccessPolicy({
+      type: 'none',
+      roles: ['admin'],
+      audit_required: false,
+      revocable: false,
+    });
+    expect(result.valid).toBe(true);
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.warnings[0]).toContain('roles');
+  });
+
+  it('warns on both extraneous fields simultaneously', () => {
+    const result = validateAccessPolicy({
+      type: 'read_only',
+      duration_hours: 48,
+      roles: ['admin'],
+      audit_required: true,
+      revocable: true,
+    });
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toHaveLength(2);
   });
 });
 

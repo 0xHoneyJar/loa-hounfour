@@ -64,6 +64,11 @@ export function subtractMicro(a: string, b: string): string {
  *
  * Formula: `(amount * bps) / 10000`
  *
+ * **Note:** This is a raw arithmetic utility with no business-range constraints.
+ * The `BillingEntry.multiplier_bps` schema constrains values to [10000, 100000].
+ * Callers using this function outside of billing validation should be aware that
+ * `bps=0` will zero the result and very large bps values are unconstrained.
+ *
  * @param amount - Micro-USD amount (string-encoded integer)
  * @param bps - Multiplier in basis points (10000 = 1x, 15000 = 1.5x)
  * @returns Result as string-encoded integer (truncated, not rounded)

@@ -64,18 +64,31 @@ export type AccessPolicy = Static<typeof AccessPolicySchema>;
  * Validate cross-field invariants for an access policy:
  * - `time_limited` requires `duration_hours`
  * - `role_based` requires `roles` array
+ * - Warns when extraneous fields are present for non-matching types
  */
 export function validateAccessPolicy(
   policy: AccessPolicy,
-): { valid: boolean; errors: string[] } {
+): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Required field checks
   if (policy.type === 'time_limited' && policy.duration_hours === undefined) {
     errors.push('duration_hours is required when type is "time_limited"');
   }
   if (policy.type === 'role_based' && (!policy.roles || policy.roles.length === 0)) {
     errors.push('roles array is required and must be non-empty when type is "role_based"');
   }
-  return { valid: errors.length === 0, errors };
+
+  // Extraneous field checks (BB-C5-002/005)
+  if (policy.type !== 'time_limited' && policy.duration_hours !== undefined) {
+    warnings.push(`duration_hours is only meaningful when type is "time_limited" (current type: "${policy.type}")`);
+  }
+  if (policy.type !== 'role_based' && policy.roles !== undefined) {
+    warnings.push(`roles is only meaningful when type is "role_based" (current type: "${policy.type}")`);
+  }
+
+  return { valid: errors.length === 0, errors, warnings };
 }
 
 /**
@@ -127,8 +140,9 @@ export type ConversationSealingPolicy = Static<typeof ConversationSealingPolicyS
  */
 export function validateSealingPolicy(
   policy: ConversationSealingPolicy,
-): { valid: boolean; errors: string[] } {
+): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = [];
+  const warnings: string[] = [];
   if (policy.encryption_scheme !== 'none') {
     if (policy.key_derivation === 'none') {
       errors.push('key_derivation must not be "none" when encryption is enabled');
@@ -140,8 +154,9 @@ export function validateSealingPolicy(
   if (policy.access_policy) {
     const apResult = validateAccessPolicy(policy.access_policy);
     errors.push(...apResult.errors);
+    warnings.push(...apResult.warnings);
   }
-  return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors, warnings };
 }
 
 /**
