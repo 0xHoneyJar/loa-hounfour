@@ -9,7 +9,7 @@
  */
 
 // Version
-export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, parseSemver } from './version.js';
+export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
 
 // Schemas — JWT
 export {
@@ -95,6 +95,7 @@ export {
 export {
   validateBillingEntry,
   validateBillingRecipients,
+  validateCreditNote,
   allocateRecipients,
 } from './utilities/billing.js';
 
@@ -230,11 +231,15 @@ export {
 // Vocabulary — Currency (v2.0.0, centralized arithmetic v2.4.0)
 export {
   MicroUSD,
+  MicroUSDSigned,
   ZERO_MICRO,
   addMicro,
   subtractMicro,
+  subtractMicroSigned,
   multiplyBps,
   compareMicro,
+  negateMicro,
+  isNegativeMicro,
 } from './vocabulary/currency.js';
 
 // Vocabulary — Transfer Choreography (v2.3.0, invariants v2.4.0)

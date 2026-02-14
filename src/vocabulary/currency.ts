@@ -22,6 +22,9 @@ export const ZERO_MICRO = '0' as const;
 /** Pattern for valid micro-USD strings (non-negative integers). */
 const MICRO_PATTERN = /^[0-9]+$/;
 
+/** Pattern for valid signed micro-USD strings (allows negative). */
+const SIGNED_MICRO_PATTERN = /^-?[0-9]+$/;
+
 function assertMicro(value: string, label: string): bigint {
   if (!MICRO_PATTERN.test(value)) {
     throw new Error(`${label} must be a non-negative integer string, got "${value}"`);
@@ -96,4 +99,66 @@ export function compareMicro(a: string, b: string): -1 | 0 | 1 {
   if (va < vb) return -1;
   if (va > vb) return 1;
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Signed MicroUSD Arithmetic (v3.2.0, BB-C5-Part5-§3)
+//
+// Financial systems need negative amounts for credits, refunds, and
+// adjustments. Stripe eventually added negative_amount_cents — we
+// anticipate the need here rather than bolting it on later.
+// ---------------------------------------------------------------------------
+
+/**
+ * String-encoded signed micro-USD integer. Allows negative amounts
+ * for credits, refunds, and adjustments.
+ *
+ * @see BB-C5-Part5-§3 — CreditMicro signed amount type
+ * @since v3.2.0
+ */
+export const MicroUSDSigned = Type.String({
+  pattern: '^-?[0-9]+$',
+  description: 'Signed micro-USD amount as string (negative for credits/refunds)',
+});
+
+function assertSignedMicro(value: string, label: string): bigint {
+  if (!SIGNED_MICRO_PATTERN.test(value)) {
+    throw new Error(`${label} must be a signed integer string, got "${value}"`);
+  }
+  return BigInt(value);
+}
+
+/**
+ * Subtract micro-USD amounts allowing negative results (signed arithmetic).
+ *
+ * Unlike `subtractMicro`, this does NOT throw on negative results.
+ * Use for credit/refund flows where negative amounts are expected.
+ *
+ * @param a - Minuend (string-encoded signed integer)
+ * @param b - Subtrahend (string-encoded signed integer)
+ * @returns Difference as string-encoded signed integer
+ */
+export function subtractMicroSigned(a: string, b: string): string {
+  return String(assertSignedMicro(a, 'a') - assertSignedMicro(b, 'b'));
+}
+
+/**
+ * Negate a micro-USD amount (flip sign).
+ *
+ * @param a - Amount to negate (string-encoded signed integer)
+ * @returns Negated amount as string-encoded signed integer
+ */
+export function negateMicro(a: string): string {
+  const val = assertSignedMicro(a, 'a');
+  return String(-val);
+}
+
+/**
+ * Check whether a micro-USD amount is negative.
+ *
+ * @param a - Amount to check (string-encoded signed integer)
+ * @returns true if the amount is less than zero
+ */
+export function isNegativeMicro(a: string): boolean {
+  return assertSignedMicro(a, 'a') < 0n;
 }

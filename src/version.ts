@@ -14,6 +14,16 @@ export const CONTRACT_VERSION = '3.0.0' as const;
 export const MIN_SUPPORTED_VERSION = '2.4.0' as const;
 
 /**
+ * Base URL for resolvable JSON Schema $id URIs.
+ *
+ * Full $id format: `{SCHEMA_BASE_URL}/{CONTRACT_VERSION}/{schema-name}`
+ *
+ * @see BB-ADV-008 — Resolvable $id URLs for ecosystem tooling
+ * @since v3.2.0
+ */
+export const SCHEMA_BASE_URL = 'https://schemas.0xhoneyjar.com/loa-hounfour' as const;
+
+/**
  * Parse a semver string into components.
  */
 export function parseSemver(version: string): { major: number; minor: number; patch: number } {

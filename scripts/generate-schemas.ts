@@ -21,6 +21,9 @@ import { LifecycleTransitionPayloadSchema } from '../src/schemas/lifecycle-event
 import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../src/schemas/capability.js';
 import { ProtocolDiscoverySchema } from '../src/schemas/discovery.js';
 import { SagaContextSchema } from '../src/schemas/saga-context.js';
+import { HealthStatusSchema } from '../src/schemas/health-status.js';
+import { ThinkingTraceSchema } from '../src/schemas/thinking-trace.js';
+import { ToolCallSchema } from '../src/schemas/tool-call.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -53,6 +56,10 @@ const schemas = [
   { name: 'capability-response', schema: CapabilityResponseSchema },
   { name: 'protocol-discovery', schema: ProtocolDiscoverySchema },
   { name: 'saga-context', schema: SagaContextSchema },
+  // v3.1.0
+  { name: 'health-status', schema: HealthStatusSchema },
+  { name: 'thinking-trace', schema: ThinkingTraceSchema },
+  { name: 'tool-call', schema: ToolCallSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

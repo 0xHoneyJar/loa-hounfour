@@ -168,14 +168,54 @@
           "status": "completed"
         }
       ],
-      "status": "completed",
+      "status": "archived",
       "created_at": "2026-02-14T10:00:00Z",
+      "archived_at": "2026-02-14T12:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"
+    },
+    {
+      "id": "cycle-006",
+      "label": "Hounfour Readiness & Protocol Maturity",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 17,
+          "label": "Hounfour Protocol Types (v3.1.0-rc)",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 18,
+          "label": "Validation Pipeline Hardening (v3.1.0)",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 19,
+          "label": "Ecosystem & Financial Maturity (v3.2.0)",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-4",
+          "global_id": 20,
+          "label": "Protocol Maturity & v4.0.0 Preparation",
+          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5"],
+          "status": "pending"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-02-14T12:00:00Z",
       "archived_at": null,
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/1"
     }
   ],
-  "active_cycle": "cycle-005",
+  "active_cycle": "cycle-006",
   "active_bugfix": null,
-  "global_sprint_counter": 16,
+  "global_sprint_counter": 20,
   "bugfix_cycles": []
 }
