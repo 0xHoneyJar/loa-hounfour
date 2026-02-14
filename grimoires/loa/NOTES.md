@@ -44,3 +44,11 @@
 - Schema deprecation mechanism needed before first field removal — TypeBox supports `deprecated: true` flowing through to JSON Schema
 - Event type vocabulary registry would prevent multi-model naming divergence (agent.lifecycle.transitioned vs agent.state.changed)
 - Transfer saga compensation path has no protocol representation — DomainEventBatch needs optional saga context for forward vs compensation distinction
+- Run Bridge cycle-008 (v4.5.0 Hardening Release) achieved flatline in 3 iterations: score 0.100 → 0.060 → 0.000 — 29 findings addressed, 799 tests, 56 files changed
+- BigInt arithmetic for financial conservation checks (CommonsDividend amount_micro sum) catches precision issues that floating-point would miss — always use BigInt for micro-USD validation
+- Negative amount_micro in dividend distribution recipients must be explicitly rejected — BigInt sum conservation alone doesn't catch it because negatives can cancel out
+- Injectable `now` parameter pattern (`now?: number` defaulting to `Date.now()`) makes temporal logic deterministic in tests — apply to all time-dependent validators
+- Cross-field validator discoverability via `x-cross-field-validated: true` schema extension helps consumers know which schemas have validation beyond JSON Schema — pair with `getCrossFieldValidatorSchemas()` utility
+- ECONOMY_FLOW vocabulary linking schemas across the three-economy pipeline (Performance → Reputation → Routing → Billing) uses semantic/causal links, not direct foreign keys — document linking_field semantics clearly
+- Sanction escalation rules as cross-field warnings (not errors) allows operator override while still flagging deviations — warning-level enforcement is appropriate for policy-configurable behavior
+- Bridgebuilder iteration 3 returned ALL PRAISE (5/5) with zero actionable findings — confirms kaironic termination pattern: methodology exhaustion signals diminishing returns
