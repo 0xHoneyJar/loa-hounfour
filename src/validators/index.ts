@@ -277,7 +277,12 @@ registerCrossFieldValidator('CommonsDividend', (data) => {
     if (allHaveAmount) {
       try {
         const total = BigInt(dividend.total_micro);
-        const sum = recipients.reduce((acc, r) => acc + BigInt(r.amount_micro!), BigInt(0));
+        const amounts = recipients.map((r) => BigInt(r.amount_micro!));
+        // Reject negative amounts in dividend context (BB-C8-I2-COR-005)
+        if (amounts.some((a) => a < BigInt(0))) {
+          errors.push('distribution recipient amount_micro must be non-negative');
+        }
+        const sum = amounts.reduce((acc, a) => acc + a, BigInt(0));
         if (sum !== total) {
           errors.push(`distribution amount_micro sum (${sum}) does not equal total_micro (${total})`);
         }

@@ -183,6 +183,36 @@ describe('Sanction escalation rule wiring cross-field validation', () => {
     expect(hasEscalationWarning).toBeFalsy();
   });
 
+  it('rejects when expires_at is before imposed_at (BB-C8-I1-CMP-018)', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'warning',
+      imposed_at: '2026-06-01T00:00:00Z',
+      expires_at: '2026-01-01T00:00:00Z', // before imposed_at
+      trigger: { violation_type: 'content_policy', occurrence_count: 1, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('expires_at must be after imposed_at'))).toBe(true);
+    }
+  });
+
+  it('rejects when expires_at equals imposed_at (BB-C8-I1-CMP-018)', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'warning',
+      imposed_at: '2026-06-01T00:00:00Z',
+      expires_at: '2026-06-01T00:00:00Z', // equal — not strictly after
+      trigger: { violation_type: 'content_policy', occurrence_count: 1, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('expires_at must be after imposed_at'))).toBe(true);
+    }
+  });
+
   it('escalation mismatch is a WARNING, not an error (operators may override)', () => {
     const doc = {
       ...VALID_SANCTION,

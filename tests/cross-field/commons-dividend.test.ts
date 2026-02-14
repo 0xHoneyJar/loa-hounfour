@@ -73,6 +73,42 @@ describe('CommonsDividend source_performance_ids cross-field validation', () => 
     expect(result.valid).toBe(true);
   });
 
+  it('rejects when distribution amount_micro sum does not equal total_micro (BB-C8-I1-CMP-007)', () => {
+    const doc = {
+      ...VALID_COMMONS_DIVIDEND,
+      source_performance_ids: ['r1'],
+      distribution: {
+        recipients: [
+          { address: 'wallet-a1', role: 'provider', share_bps: 5000, amount_micro: '6000000' },
+          { address: 'wallet-a2', role: 'platform', share_bps: 5000, amount_micro: '5000000' },
+        ],
+      },
+    };
+    const result = validate(CommonsDividendSchema, doc);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('distribution amount_micro sum'))).toBe(true);
+    }
+  });
+
+  it('rejects negative amount_micro in distribution recipients (BB-C8-I2-COR-005)', () => {
+    const doc = {
+      ...VALID_COMMONS_DIVIDEND,
+      source_performance_ids: ['r1'],
+      distribution: {
+        recipients: [
+          { address: 'wallet-a1', role: 'provider', share_bps: 5000, amount_micro: '15000000' },
+          { address: 'wallet-a2', role: 'platform', share_bps: 5000, amount_micro: '-5000000' },
+        ],
+      },
+    };
+    const result = validate(CommonsDividendSchema, doc);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('non-negative'))).toBe(true);
+    }
+  });
+
   it('schema rejects empty source_performance_ids array', () => {
     const doc = {
       ...VALID_COMMONS_DIVIDEND,

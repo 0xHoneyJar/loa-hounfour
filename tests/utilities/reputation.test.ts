@@ -3,7 +3,7 @@
  *
  * Finding: BB-V4-DEEP-001 — Sybil resistance hardening.
  */
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { isReliableReputation } from '../../src/utilities/reputation.js';
 import { type ReputationScore } from '../../src/schemas/reputation-score.js';
 import { MIN_REPUTATION_SAMPLE_SIZE, REPUTATION_DECAY } from '../../src/vocabulary/reputation.js';
@@ -36,10 +36,6 @@ function makeScore(overrides: Partial<ReputationScore> = {}): ReputationScore {
 // ---------------------------------------------------------------------------
 
 describe('isReliableReputation', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('returns reliable for score with sufficient sample_size and recent last_updated', () => {
     const result = isReliableReputation(makeScore());
     expect(result.reliable).toBe(true);
@@ -89,5 +85,30 @@ describe('isReliableReputation', () => {
     expect(result.reasons[0]).toContain('sample_size (2) below minimum threshold');
     expect(result.reasons[1]).toContain('stale');
     expect(result.reasons[2]).toContain('score not decayed');
+  });
+
+  it('accepts injectable `now` parameter for deterministic testing (BB-C8-I1-SEC-006)', () => {
+    // Fixed timestamp: 2026-01-15T00:00:00Z
+    const fixedNow = new Date('2026-01-15T00:00:00Z').getTime();
+    const score = makeScore({
+      last_updated: '2026-01-14T00:00:00Z', // 1 day old — well within half-life
+      sample_size: 10,
+      decay_applied: false,
+    });
+    const result = isReliableReputation(score, fixedNow);
+    expect(result.reliable).toBe(true);
+    expect(result.reasons).toEqual([]);
+  });
+
+  it('detects staleness with injectable `now` parameter', () => {
+    const fixedNow = new Date('2026-06-01T00:00:00Z').getTime();
+    const score = makeScore({
+      last_updated: '2026-01-01T00:00:00Z', // ~150 days old — well beyond 2x half-life
+      sample_size: 10,
+      decay_applied: true,
+    });
+    const result = isReliableReputation(score, fixedNow);
+    expect(result.reliable).toBe(false);
+    expect(result.reasons.some((r) => r.includes('stale'))).toBe(true);
   });
 });

@@ -1254,6 +1254,35 @@ describe('Cross-field validators (v4.x)', () => {
       const result = validate(DisputeRecordSchema, VALID_DISPUTE_RECORD);
       expect(result.valid).toBe(true);
     });
+
+    it('rejects resolution.resolved_at before filed_at (BB-C8-I1-CON-009)', () => {
+      const doc = {
+        ...VALID_DISPUTE_RECORD,
+        filed_at: '2026-06-01T00:00:00Z',
+        resolution: {
+          outcome: 'upheld',
+          resolved_at: '2026-01-01T00:00:00Z', // before filed_at
+        },
+      };
+      const result = validate(DisputeRecordSchema, doc);
+      expect(result.valid).toBe(false);
+      if (!result.valid) {
+        expect(result.errors.some((e) => e.includes('resolved_at must be >= filed_at'))).toBe(true);
+      }
+    });
+
+    it('accepts resolution.resolved_at equal to filed_at', () => {
+      const doc = {
+        ...VALID_DISPUTE_RECORD,
+        filed_at: '2026-06-01T00:00:00Z',
+        resolution: {
+          outcome: 'dismissed',
+          resolved_at: '2026-06-01T00:00:00Z', // equal — allowed (>=)
+        },
+      };
+      const result = validate(DisputeRecordSchema, doc);
+      expect(result.valid).toBe(true);
+    });
   });
 
   // ---------------------------------------------------------------------------
