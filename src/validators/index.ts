@@ -35,6 +35,17 @@ import { SagaContextSchema } from '../schemas/saga-context.js';
 import { HealthStatusSchema } from '../schemas/health-status.js';
 import { ThinkingTraceSchema } from '../schemas/thinking-trace.js';
 import { ToolCallSchema } from '../schemas/tool-call.js';
+import { PerformanceRecordSchema } from '../schemas/performance-record.js';
+import { ContributionRecordSchema } from '../schemas/contribution-record.js';
+import { SanctionSchema } from '../schemas/sanction.js';
+import { DisputeRecordSchema } from '../schemas/dispute-record.js';
+import { ValidatedOutcomeSchema } from '../schemas/validated-outcome.js';
+import { ReputationScoreSchema } from '../schemas/reputation-score.js';
+import { EscrowEntrySchema } from '../schemas/escrow-entry.js';
+import { StakePositionSchema } from '../schemas/stake-position.js';
+import { CommonsDividendSchema } from '../schemas/commons-dividend.js';
+import { MutualCreditSchema } from '../schemas/mutual-credit.js';
+import { RoutingConstraintSchema } from '../schemas/routing-constraint.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -83,6 +94,7 @@ export function registerCrossFieldValidator(schemaId: string, validator: CrossFi
 // Wire built-in cross-field validators (BB-C4-ADV-003)
 import { validateSealingPolicy, validateAccessPolicy } from '../schemas/conversation.js';
 import { validateBillingEntry } from '../utilities/billing.js';
+import { type PerformanceRecord } from '../schemas/performance-record.js';
 
 registerCrossFieldValidator('ConversationSealingPolicy', (data) => {
   return validateSealingPolicy(data as Parameters<typeof validateSealingPolicy>[0]);
@@ -96,6 +108,30 @@ registerCrossFieldValidator('BillingEntry', (data) => {
     return { valid: false, errors: [result.reason], warnings: [] };
   }
   return { valid: true, errors: [], warnings: [] };
+});
+
+registerCrossFieldValidator('PerformanceRecord', (data) => {
+  const record = data as PerformanceRecord;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // dividend_split_bps is required when dividend_target is 'mixed'
+  if (record.dividend_target === 'mixed' && record.dividend_split_bps === undefined) {
+    errors.push('dividend_split_bps is required when dividend_target is "mixed"');
+  }
+
+  // Warn when outcome_validated is true but validated_by is empty or missing
+  if (
+    record.outcome?.outcome_validated === true &&
+    (!record.outcome.validated_by || record.outcome.validated_by.length === 0)
+  ) {
+    warnings.push('outcome_validated is true but validated_by is empty or missing');
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors, warnings };
+  }
+  return { valid: true, errors: [], warnings };
 });
 
 /**
@@ -187,4 +223,25 @@ export const validators = {
   healthStatus: () => getOrCompile(HealthStatusSchema),
   thinkingTrace: () => getOrCompile(ThinkingTraceSchema),
   toolCall: () => getOrCompile(ToolCallSchema),
+
+  // v4.0.0
+  routingConstraint: () => getOrCompile(RoutingConstraintSchema),
+
+  // v4.1.0 — Performance
+  performanceRecord: () => getOrCompile(PerformanceRecordSchema),
+  contributionRecord: () => getOrCompile(ContributionRecordSchema),
+
+  // v4.2.0 — Governance
+  sanction: () => getOrCompile(SanctionSchema),
+  disputeRecord: () => getOrCompile(DisputeRecordSchema),
+  validatedOutcome: () => getOrCompile(ValidatedOutcomeSchema),
+
+  // v4.3.0 — Reputation
+  reputationScore: () => getOrCompile(ReputationScoreSchema),
+
+  // v4.4.0 — Economy
+  escrowEntry: () => getOrCompile(EscrowEntrySchema),
+  stakePosition: () => getOrCompile(StakePositionSchema),
+  commonsDividend: () => getOrCompile(CommonsDividendSchema),
+  mutualCredit: () => getOrCompile(MutualCreditSchema),
 } as const;

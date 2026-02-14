@@ -46,6 +46,41 @@ export const EVENT_TYPES = {
   'message.content.created': 'Message content created',
   'message.content.moderated': 'Message content moderated',
   'message.content.redacted': 'Message content redacted for compliance',
+
+  // Performance aggregate (v4.1.0)
+  'performance.record.created': 'Performance record created',
+  'performance.record.validated': 'Performance record validated by peer',
+  'contribution.submitted': 'Contribution submitted for assessment',
+  'contribution.assessed': 'Contribution assessment completed',
+
+  // Governance aggregate (v4.2.0)
+  'sanction.imposed': 'Sanction imposed on agent',
+  'sanction.appealed': 'Sanction appeal submitted',
+  'sanction.lifted': 'Sanction lifted or expired',
+  'dispute.filed': 'Dispute filed against agent or outcome',
+  'dispute.resolved': 'Dispute resolution completed',
+  'governance.vote.started': 'Governance vote initiated',
+  'governance.vote.concluded': 'Governance vote concluded',
+
+  // Reputation aggregate (v4.3.0)
+  'reputation.score.calculated': 'Reputation score recalculated',
+  'reputation.score.decayed': 'Reputation score decayed over time',
+  'reputation.threshold.breached': 'Reputation dropped below threshold',
+
+  // Economy aggregate (v4.4.0)
+  'economy.escrow.created': 'Escrow entry created',
+  'economy.escrow.funded': 'Escrow entry funded',
+  'economy.escrow.released': 'Escrow funds released to payee',
+  'economy.escrow.refunded': 'Escrow funds refunded to payer',
+  'economy.escrow.expired': 'Escrow expired without release',
+  'economy.stake.created': 'Stake position created',
+  'economy.stake.slashed': 'Stake position slashed',
+  'economy.stake.vested': 'Stake vesting milestone reached',
+  'economy.stake.withdrawn': 'Stake position withdrawn',
+  'economy.dividend.declared': 'Commons dividend declared',
+  'economy.dividend.distributed': 'Commons dividend distributed',
+  'economy.credit.extended': 'Mutual credit line extended',
+  'economy.credit.settled': 'Mutual credit settled',
 } as const;
 
 /** Registered event type string. */
