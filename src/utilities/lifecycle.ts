@@ -248,6 +248,38 @@ export function requiresTransferCompleted(
 }
 
 /**
+ * Guard: transitions to SUSPENDED or ARCHIVED require sanction evidence.
+ *
+ * Business rule: when a sanction triggers a lifecycle transition to SUSPENDED
+ * or ARCHIVED, the context must include `evidence_event_ids` — a non-empty
+ * array of event IDs linking the transition to the originating violations.
+ * This ensures every punitive state change is auditable.
+ *
+ * Severity: `client_error` — caller can fix by providing evidence_event_ids.
+ */
+export function requiresSanctionEvidence(
+  from: string,
+  to: string,
+  context?: Record<string, unknown>,
+): GuardResult {
+  const key = guardKey(from, to);
+  if (
+    context !== undefined
+    && Array.isArray(context.evidence_event_ids)
+    && context.evidence_event_ids.length > 0
+    && context.evidence_event_ids.every((id: unknown) => typeof id === 'string' && id.length > 0)
+  ) {
+    return { valid: true };
+  }
+  return {
+    valid: false,
+    reason: `${key} requires context.evidence_event_ids (non-empty string array)`,
+    guard: key,
+    severity: 'client_error',
+  };
+}
+
+/**
  * Default guard predicates for agent lifecycle transitions.
  *
  * These encode the expected preconditions documented in the

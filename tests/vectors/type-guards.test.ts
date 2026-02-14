@@ -203,8 +203,8 @@ describe('Event Type Vocabulary (BB-V3-011)', () => {
 });
 
 describe('Lifecycle Reason Codes (BB-V3-009)', () => {
-  it('has 10 canonical reason codes', () => {
-    expect(LIFECYCLE_REASON_CODE_VALUES).toHaveLength(10);
+  it('has 16 canonical reason codes (10 base + 6 sanction v4.2.0)', () => {
+    expect(LIFECYCLE_REASON_CODE_VALUES).toHaveLength(16);
   });
 
   it('all codes have human-readable descriptions', () => {
