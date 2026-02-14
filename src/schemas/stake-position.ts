@@ -1,7 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
-
-const UUID_V4_PATTERN = '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+import { UUID_V4_PATTERN } from '../vocabulary/patterns.js';
 
 export const StakePositionSchema = Type.Object(
   {
@@ -26,7 +25,7 @@ export const StakePositionSchema = Type.Object(
     staked_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'StakePosition', description: 'Staked position representing conviction, delegation, or validation commitment', additionalProperties: false, 'x-experimental': true },
+  { $id: 'StakePosition', description: 'Staked position representing conviction, delegation, or validation commitment', additionalProperties: false, 'x-experimental': true, 'x-cross-field-validated': true },
 );
 
 export type StakePosition = Static<typeof StakePositionSchema>;

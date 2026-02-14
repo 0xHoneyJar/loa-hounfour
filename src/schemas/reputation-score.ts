@@ -24,7 +24,7 @@ export const ReputationScoreSchema = Type.Object(
     ),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'ReputationScore', description: 'Composite reputation score for an agent with weighted component sub-scores', additionalProperties: false },
+  { $id: 'ReputationScore', description: 'Composite reputation score for an agent with weighted component sub-scores', additionalProperties: false, 'x-cross-field-validated': true },
 );
 
 export type ReputationScore = Static<typeof ReputationScoreSchema>;

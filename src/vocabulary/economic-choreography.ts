@@ -1,21 +1,23 @@
+import { type EventType } from './event-types.js';
+
 export interface EconomicScenarioChoreography {
-  forward: readonly string[];
-  compensation: readonly string[];
+  forward: readonly EventType[];
+  compensation: readonly EventType[];
   invariants: readonly { description: string; enforceable: boolean }[];
 }
 
 export const ECONOMIC_CHOREOGRAPHY = {
   stake: {
-    forward: ['stake.offered', 'stake.accepted'] as const,
-    compensation: ['stake.returned'] as const,
+    forward: ['economy.stake.created', 'economy.stake.vested'] as const,
+    compensation: ['economy.stake.withdrawn', 'economy.stake.slashed'] as const,
     invariants: [
       { description: 'stake.amount_micro > 0', enforceable: true },
       { description: 'vested_micro + remaining_micro == amount_micro', enforceable: true },
     ] as const,
   },
   escrow: {
-    forward: ['escrow.held', 'escrow.released'] as const,
-    compensation: ['escrow.disputed', 'escrow.refunded', 'escrow.expired'] as const,
+    forward: ['economy.escrow.created', 'economy.escrow.released'] as const,
+    compensation: ['economy.escrow.refunded', 'economy.escrow.expired'] as const,
     invariants: [
       { description: 'escrow.amount_micro > 0', enforceable: true },
       { description: 'released + refunded <= held (conservation)', enforceable: true },
@@ -23,8 +25,8 @@ export const ECONOMIC_CHOREOGRAPHY = {
     ] as const,
   },
   mutual_credit: {
-    forward: ['credit.issued', 'credit.acknowledged', 'credit.settled'] as const,
-    compensation: ['credit.forgiven'] as const,
+    forward: ['economy.credit.extended', 'economy.credit.settled'] as const,
+    compensation: ['economy.credit.settled'] as const,
     invariants: [
       { description: 'credit.amount_micro > 0', enforceable: true },
       { description: 'settled amount <= issued amount', enforceable: true },

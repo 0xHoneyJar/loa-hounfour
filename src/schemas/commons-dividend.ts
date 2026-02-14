@@ -21,7 +21,7 @@ export const CommonsDividendSchema = Type.Object(
     }, { additionalProperties: false })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'CommonsDividend', description: 'Commons dividend declaration and distribution to eligible recipients', additionalProperties: false, 'x-experimental': true },
+  { $id: 'CommonsDividend', description: 'Commons dividend declaration and distribution to eligible recipients', additionalProperties: false, 'x-experimental': true, 'x-cross-field-validated': true },
 );
 
 export type CommonsDividend = Static<typeof CommonsDividendSchema>;

@@ -40,6 +40,7 @@ export const PerformanceRecordSchema = Type.Object(
     $id: 'PerformanceRecord',
     description: 'Record of agent performance for a billing entry with optional outcome validation',
     additionalProperties: false,
+    'x-cross-field-validated': true,
   },
 );
 

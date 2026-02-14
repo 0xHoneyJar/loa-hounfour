@@ -331,6 +331,14 @@ registerCrossFieldValidator('ReputationScore', (data) => {
 });
 
 /**
+ * Returns schema $ids that have registered cross-field validators.
+ * Enables consumers to discover which schemas benefit from cross-field validation.
+ */
+export function getCrossFieldValidatorSchemas(): string[] {
+  return Array.from(crossFieldRegistry.keys());
+}
+
+/**
  * Validate data against any TypeBox schema, with optional cross-field validation.
  *
  * When the schema has a `$id` that matches a registered cross-field validator,

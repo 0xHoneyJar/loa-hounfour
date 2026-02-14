@@ -10,7 +10,7 @@ export const DisputeRecordSchema = Type.Object(
       Type.Literal('safety'),
       Type.Literal('billing'),
       Type.Literal('ownership'),
-      Type.Literal('personality'),
+      Type.Literal('behavioral'),
     ]),
     evidence: Type.Array(
       Type.Object({
@@ -38,6 +38,7 @@ export const DisputeRecordSchema = Type.Object(
     $id: 'DisputeRecord',
     description: 'Dispute filed against an agent or outcome with evidence and resolution tracking',
     additionalProperties: false,
+    'x-cross-field-validated': true,
   },
 );
 

@@ -55,6 +55,7 @@ export const AccessPolicySchema = Type.Object({
 }, {
   $id: 'AccessPolicy',
   additionalProperties: false,
+  'x-cross-field-validated': true,
   $comment: 'Cross-field invariants: '
     + '(1) time_limited requires duration_hours. '
     + '(2) role_based requires roles array. '
@@ -160,6 +161,7 @@ export const ConversationSealingPolicySchema = Type.Object({
 }, {
   $id: 'ConversationSealingPolicy',
   additionalProperties: false,
+  'x-cross-field-validated': true,
   $comment: 'Cross-field invariants: '
     + '(1) When encryption_scheme !== "none", key_derivation must be non-"none" and key_reference must be provided. '
     + '(2) When access_policy.type is "time_limited", duration_hours must be set. '

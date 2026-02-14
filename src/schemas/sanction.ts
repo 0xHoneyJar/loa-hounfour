@@ -30,6 +30,7 @@ export const SanctionSchema = Type.Object(
     $id: 'Sanction',
     description: 'Sanction imposed on an agent for policy violations',
     additionalProperties: false,
+    'x-cross-field-validated': true,
   },
 );
 

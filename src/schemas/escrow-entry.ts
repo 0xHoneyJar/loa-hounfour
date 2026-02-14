@@ -1,7 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
-
-const UUID_V4_PATTERN = '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
+import { UUID_V4_PATTERN } from '../vocabulary/patterns.js';
 
 export const EscrowEntrySchema = Type.Object(
   {
@@ -22,7 +21,7 @@ export const EscrowEntrySchema = Type.Object(
     dispute_id: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'EscrowEntry', description: 'Escrow holding for bilateral agent transactions with state machine lifecycle', additionalProperties: false },
+  { $id: 'EscrowEntry', description: 'Escrow holding for bilateral agent transactions with state machine lifecycle', additionalProperties: false, 'x-cross-field-validated': true },
 );
 
 export type EscrowEntry = Static<typeof EscrowEntrySchema>;

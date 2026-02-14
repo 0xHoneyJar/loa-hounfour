@@ -414,9 +414,15 @@ export {
 } from './vocabulary/metadata.js';
 
 // Validators
-export { validate, validators, registerCrossFieldValidator, type CrossFieldValidator } from './validators/index.js';
+export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator } from './validators/index.js';
 export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
 export { validateBillingEntryFull } from './validators/billing.js';
+
+// Vocabulary — Patterns (v4.5.0)
+export { UUID_V4_PATTERN, OPAQUE_ID_CONSTRAINTS } from './vocabulary/patterns.js';
+
+// Vocabulary — Schema Stability (v4.5.0)
+export { SCHEMA_STABILITY_LEVELS, isExperimentalSchema, type SchemaStabilityLevel } from './vocabulary/schema-stability.js';
 
 // Integrity — Request Hash
 export {

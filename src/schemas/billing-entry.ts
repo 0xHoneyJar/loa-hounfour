@@ -103,6 +103,7 @@ export const BillingEntrySchema = Type.Object(
   {
     $id: 'BillingEntry',
     additionalProperties: false,
+    'x-cross-field-validated': true,
     description: 'Multi-party billing entry replacing CostBreakdown',
   },
 );
