@@ -1,0 +1,11 @@
+[package]
+name = "loa-hounfour-vectors"
+version = "0.1.0"
+edition = "2021"
+description = "Cross-language golden vector runner for loa-hounfour"
+publish = false
+
+[dependencies]
+jsonschema = "0.28"
+serde_json = "1"
+glob = "0.3"

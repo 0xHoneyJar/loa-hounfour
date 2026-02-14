@@ -28,7 +28,8 @@
     "spec:generate": "tsx scripts/generate-asyncapi.ts",
     "docs:choreography": "tsx scripts/generate-choreography-diagrams.ts",
     "check:migration": "tsx scripts/check-migration.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration",
+    "schemas:validate": "tsx scripts/validate-schemas.ts",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "fast-check": "^4.5.3",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"

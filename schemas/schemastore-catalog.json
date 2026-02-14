@@ -1,0 +1,35 @@
+{
+  "$comment": "Draft SchemaStore.org catalog entry for loa-hounfour schemas. Submit to https://github.com/SchemaStore/schemastore",
+  "entries": [
+    {
+      "name": "loa-hounfour Billing Entry",
+      "description": "Multi-party billing entry for the loa-hounfour protocol",
+      "fileMatch": ["**/billing-entry.json", "**/billing-entry.schema.json"],
+      "url": "https://schemas.0xhoneyjar.com/loa-hounfour/3.0.0/billing-entry"
+    },
+    {
+      "name": "loa-hounfour Domain Event",
+      "description": "Domain event envelope for the loa-hounfour protocol",
+      "fileMatch": ["**/domain-event.json", "**/domain-event.schema.json"],
+      "url": "https://schemas.0xhoneyjar.com/loa-hounfour/3.0.0/domain-event"
+    },
+    {
+      "name": "loa-hounfour Stream Event",
+      "description": "SSE stream event for the loa-hounfour protocol",
+      "fileMatch": ["**/stream-event.json", "**/stream-event.schema.json"],
+      "url": "https://schemas.0xhoneyjar.com/loa-hounfour/3.0.0/stream-event"
+    },
+    {
+      "name": "loa-hounfour Agent Descriptor",
+      "description": "NFT-bound AI agent descriptor for the loa-hounfour protocol",
+      "fileMatch": ["**/agent-descriptor.json", "**/agent-descriptor.schema.json"],
+      "url": "https://schemas.0xhoneyjar.com/loa-hounfour/3.0.0/agent-descriptor"
+    },
+    {
+      "name": "loa-hounfour Conversation",
+      "description": "NFT-owned conversation for the loa-hounfour protocol",
+      "fileMatch": ["**/conversation.schema.json"],
+      "url": "https://schemas.0xhoneyjar.com/loa-hounfour/3.0.0/conversation"
+    }
+  ]
+}

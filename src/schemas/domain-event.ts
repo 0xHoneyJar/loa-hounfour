@@ -50,6 +50,7 @@ export const DomainEventSchema = Type.Object({
   })),
 }, {
   $id: 'DomainEvent',
+  description: 'Cross-cutting event envelope for aggregate state changes',
   additionalProperties: false,
 });
 
@@ -217,6 +218,7 @@ export const DomainEventBatchSchema = Type.Object({
   saga: Type.Optional(SagaContextSchema),
 }, {
   $id: 'DomainEventBatch',
+  description: 'Atomic multi-event delivery with shared correlation',
   additionalProperties: false,
 });
 

@@ -104,7 +104,7 @@ export const StreamEventSchema = Type.Union([
   StreamUsageSchema,
   StreamEndSchema,
   StreamErrorSchema,
-], { $id: 'StreamEvent', discriminator: { propertyName: 'type' } });
+], { $id: 'StreamEvent', description: 'SSE stream event discriminated union for real-time model responses', discriminator: { propertyName: 'type' } });
 
 export type StreamEvent = Static<typeof StreamEventSchema>;
 export type StreamStart = Static<typeof StreamStartSchema>;

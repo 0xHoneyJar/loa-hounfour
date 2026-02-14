@@ -34,6 +34,7 @@ export const LifecycleTransitionPayloadSchema = Type.Object({
   })),
 }, {
   $id: 'LifecycleTransitionPayload',
+  description: 'Payload for agent lifecycle state transitions',
   additionalProperties: false,
 });
 

@@ -218,6 +218,7 @@ export const ConversationSchema = Type.Object({
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
   $id: 'Conversation',
+  description: 'NFT-owned conversation with sealing policy and access control',
   additionalProperties: false,
 });
 
@@ -247,6 +248,7 @@ export const MessageSchema = Type.Object({
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
   $id: 'Message',
+  description: 'Individual message within an NFT-owned conversation',
   additionalProperties: false,
 });
 
