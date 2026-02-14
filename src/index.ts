@@ -274,6 +274,94 @@ export {
   type RoutingConstraint,
 } from './schemas/routing-constraint.js';
 
+// Schemas — Performance (v4.1.0)
+export {
+  PerformanceRecordSchema,
+  PerformanceOutcomeSchema,
+  type PerformanceRecord,
+  type PerformanceOutcome,
+} from './schemas/performance-record.js';
+
+export {
+  ContributionRecordSchema,
+  type ContributionRecord,
+} from './schemas/contribution-record.js';
+
+// Vocabulary — Sanctions (v4.2.0)
+export {
+  SANCTION_SEVERITY_LEVELS,
+  SANCTION_SEVERITY_ORDER,
+  VIOLATION_TYPES,
+  ESCALATION_RULES,
+  type SanctionSeverity,
+  type ViolationType,
+} from './vocabulary/sanctions.js';
+
+// Schemas — Governance (v4.2.0)
+export {
+  SanctionSchema,
+  type Sanction,
+} from './schemas/sanction.js';
+
+export {
+  DisputeRecordSchema,
+  type DisputeRecord,
+} from './schemas/dispute-record.js';
+
+export {
+  ValidatedOutcomeSchema,
+  type ValidatedOutcome,
+} from './schemas/validated-outcome.js';
+
+// Vocabulary — Reputation (v4.3.0)
+export {
+  REPUTATION_WEIGHTS,
+  REPUTATION_DECAY,
+  MIN_REPUTATION_SAMPLE_SIZE,
+  type ReputationComponent,
+} from './vocabulary/reputation.js';
+
+// Schemas — Reputation (v4.3.0)
+export {
+  ReputationScoreSchema,
+  type ReputationScore,
+} from './schemas/reputation-score.js';
+
+// Vocabulary — Economic Choreography (v4.4.0)
+export {
+  ECONOMIC_CHOREOGRAPHY,
+  type EconomicScenarioChoreography,
+  type EconomicChoreography,
+} from './vocabulary/economic-choreography.js';
+
+// Schemas — Economy (v4.4.0)
+export {
+  EscrowEntrySchema,
+  ESCROW_TRANSITIONS,
+  isValidEscrowTransition,
+  type EscrowEntry,
+} from './schemas/escrow-entry.js';
+
+export {
+  StakePositionSchema,
+  type StakePosition,
+} from './schemas/stake-position.js';
+
+export {
+  CommonsDividendSchema,
+  type CommonsDividend,
+} from './schemas/commons-dividend.js';
+
+export {
+  MutualCreditSchema,
+  type MutualCredit,
+} from './schemas/mutual-credit.js';
+
+// Utilities — Lifecycle sanction guard (v4.2.0)
+export {
+  requiresSanctionEvidence,
+} from './utilities/lifecycle.js';
+
 // Vocabulary — Errors
 export { ERROR_CODES, ERROR_HTTP_STATUS, type ErrorCode } from './vocabulary/errors.js';
 

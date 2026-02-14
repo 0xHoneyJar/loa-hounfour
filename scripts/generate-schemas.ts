@@ -25,6 +25,16 @@ import { HealthStatusSchema } from '../src/schemas/health-status.js';
 import { ThinkingTraceSchema } from '../src/schemas/thinking-trace.js';
 import { ToolCallSchema } from '../src/schemas/tool-call.js';
 import { RoutingConstraintSchema } from '../src/schemas/routing-constraint.js';
+import { PerformanceRecordSchema } from '../src/schemas/performance-record.js';
+import { ContributionRecordSchema } from '../src/schemas/contribution-record.js';
+import { SanctionSchema } from '../src/schemas/sanction.js';
+import { DisputeRecordSchema } from '../src/schemas/dispute-record.js';
+import { ValidatedOutcomeSchema } from '../src/schemas/validated-outcome.js';
+import { ReputationScoreSchema } from '../src/schemas/reputation-score.js';
+import { EscrowEntrySchema } from '../src/schemas/escrow-entry.js';
+import { StakePositionSchema } from '../src/schemas/stake-position.js';
+import { CommonsDividendSchema } from '../src/schemas/commons-dividend.js';
+import { MutualCreditSchema } from '../src/schemas/mutual-credit.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -63,6 +73,20 @@ const schemas = [
   { name: 'tool-call', schema: ToolCallSchema },
   // v4.0.0
   { name: 'routing-constraint', schema: RoutingConstraintSchema },
+  // v4.1.0
+  { name: 'performance-record', schema: PerformanceRecordSchema },
+  { name: 'contribution-record', schema: ContributionRecordSchema },
+  // v4.2.0
+  { name: 'sanction', schema: SanctionSchema },
+  { name: 'dispute-record', schema: DisputeRecordSchema },
+  { name: 'validated-outcome', schema: ValidatedOutcomeSchema },
+  // v4.3.0
+  { name: 'reputation-score', schema: ReputationScoreSchema },
+  // v4.4.0
+  { name: 'escrow-entry', schema: EscrowEntrySchema },
+  { name: 'stake-position', schema: StakePositionSchema },
+  { name: 'commons-dividend', schema: CommonsDividendSchema },
+  { name: 'mutual-credit', schema: MutualCreditSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
