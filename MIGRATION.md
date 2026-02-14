@@ -10,27 +10,27 @@
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 3.0.0 |
-| **Minimum Supported** | 2.4.0 |
+| **Current Version** | 4.4.0 |
+| **Minimum Supported** | 3.0.0 |
 | **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
 | **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
 | **Minor Mismatch** | `X-Contract-Version-Warning` header |
 
 ### Consumer Upgrade Matrix
 
-| Consumer | Producer 2.4.0 | Producer 3.0.0 |
-|----------|----------------|----------------|
-| **2.0.0–2.3.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) |
-| **2.4.0** | Full | Fwd-compat** |
-| **3.0.0** | Full | Full |
+| Consumer | Producer 3.0.0 | Producer 4.0.0–4.4.0 |
+|----------|----------------|----------------------|
+| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) |
+| **3.0.0–3.2.0** | Full | Fwd-compat** |
+| **4.0.0–4.4.0** | Full | Full |
 
 \* Requires validate-then-strip for strict schemas. See below.
 
-\*\* v3.0.0 removes `previous_owner_access` from `ConversationSealingPolicy` and adds optional `access_policy`. A v2.4.0 consumer with strict validation will reject v3.0.0 sealing policies containing `access_policy` (unknown field). Use validate-then-strip pattern. Consumers using `previous_owner_access` must migrate to `access_policy`.
+\*\* v4.0.0 makes MicroUSD signed by default and relaxes DomainEvent/DomainEventBatch envelopes to `additionalProperties: true`. A v3.x consumer with strict unsigned MicroUSD validation will reject signed amounts containing `-`. Consumers using `MicroUSD` must handle the signed pattern or migrate to `MicroUSDUnsigned`.
 
 ### Schema `additionalProperties` Policy
 
-Every schema has an explicit policy for unknown properties. Strict schemas reject unknown fields — a v2.2.0 consumer with strict validation will reject v2.3.0 documents containing new fields.
+Every schema has an explicit policy for unknown properties. Strict schemas reject unknown fields — a v3.0.0 consumer with strict validation will reject v4.0.0 documents containing new fields.
 
 #### Strict Schemas (`additionalProperties: false`)
 
@@ -45,36 +45,40 @@ Every schema has an explicit policy for unknown properties. Strict schemas rejec
 | `Message` | Content record |
 | `TransferSpec` | Ownership transfer initiation |
 | `TransferEventRecord` | Transfer outcome record |
-| `DomainEvent` | Event envelope — strict to prevent payload confusion |
-| `DomainEventBatch` | Batch envelope |
 | `SagaContext` | Saga tracking |
 | `LifecycleTransitionPayload` | Lifecycle event data |
 | `Capability` | Agent capability descriptor |
 | `CapabilityResponse` | Response to capability query |
 | `ProtocolDiscovery` | Discovery document |
+| `AccessPolicy` | Access control configuration |
+| `PerformanceRecord` | Performance tracking (v4.1.0) |
+| `ContributionRecord` | Contribution assessment (v4.1.0) |
+| `Sanction` | Governance sanctions (v4.2.0) |
+| `DisputeRecord` | Dispute tracking (v4.2.0) |
+| `ValidatedOutcome` | Validated outcomes (v4.2.0) |
+| `ReputationScore` | Reputation scoring (v4.3.0) |
+| `EscrowEntry` | Escrow state machine (v4.4.0) |
+| `StakePosition` | Stake positions (v4.4.0, experimental) |
+| `CommonsDividend` | Commons dividends (v4.4.0, experimental) |
+| `MutualCredit` | Mutual credit lines (v4.4.0, experimental) |
 
 #### Extensible Schemas (`additionalProperties: true`)
 
 | Schema `$id` | Rationale |
 |--------------|-----------|
 | `CapabilityQuery` | Query extensibility — future parameters without schema changes |
+| `DomainEvent` | Envelope relaxation (v4.0.0) — allows consumer-defined extensions |
+| `DomainEventBatch` | Envelope relaxation (v4.0.0) — allows consumer-defined extensions |
+| `StreamStart` | Stream event extensibility |
+| `StreamChunk` | Stream event extensibility |
+| `StreamToolCall` | Stream event extensibility |
+| `StreamUsage` | Stream event extensibility |
+| `StreamEnd` | Stream event extensibility |
+| `StreamError` | Stream event extensibility |
 
 #### Union Types (no object properties)
 
 `AgentLifecycleState`, `CostType`, `TransferScenario`, `TransferResult`, `MessageRole`, `ConversationStatus` — string literal unions with no `additionalProperties` concern.
-
-### Forward Compatibility: `DomainEventBatch.saga`
-
-The `saga` field was added to `DomainEventBatch` in v2.2.0. Since `DomainEventBatch` uses `additionalProperties: false`:
-
-- **Go** with `DisallowUnknownFields`: **Rejects** the batch
-- **Python** Pydantic with `extra="forbid"`: **Rejects** the batch
-- **TypeScript** TypeBox `TypeCompiler`: **Rejects** — enforces `additionalProperties: false`
-- **Loose consumer** without strict validation: **Accepts**
-
-### Forward Compatibility: `ProtocolDiscovery.capabilities_url`
-
-Added in v2.3.0. Same impact as above — v2.2.0 strict consumers reject v2.3.0 discovery documents.
 
 ### Consumer Patterns for Forward Compatibility
 
@@ -119,9 +123,9 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 
 ### `MIN_SUPPORTED_VERSION` and Wire Compatibility
 
-- **Forward**: v2.0.0 consumer CAN validate v2.3.0 data IF it strips unknown fields
-- **Backward**: v2.3.0 consumer CAN always validate v2.0.0 data (no fields removed)
-- **Breaking**: v3.0.0 removed `previous_owner_access` and bumped `MIN_SUPPORTED_VERSION` to `2.4.0`
+- **Forward**: v3.0.0 consumer CAN validate v4.x data IF it strips unknown fields and handles signed MicroUSD
+- **Backward**: v4.x consumer CAN always validate v3.0.0 data (no required fields removed)
+- **Breaking**: v4.0.0 changed MicroUSD default to signed and relaxed envelope `additionalProperties`
 
 ### Migration Checklist for New Versions
 
@@ -131,11 +135,224 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 4. **Deprecation**: Mark `deprecated: true` in TypeBox; remove only at major version boundary
 5. **Required field addition**: MAJOR version bump required
 
-### Strict Schema Additions (v3.0.0)
+---
 
-| Schema `$id` | Rationale |
-|--------------|-----------|
-| `AccessPolicy` | Access control configuration — strict to prevent unvetted fields |
+# Migration Guide: v3.2.0 → v4.4.0
+
+## Breaking Changes (v4.0.0)
+
+### 1. Signed MicroUSD (Default)
+- `MicroUSD` now allows negative values (pattern: `^-?[0-9]+$`)
+- Use `MicroUSDUnsigned` for non-negative enforcement
+- `MicroUSDSigned` is now an alias for `MicroUSD`
+
+**Before (v3.2.0):**
+
+```typescript
+import { MicroUSD, MicroUSDSigned } from '@0xhoneyjar/loa-hounfour';
+
+// MicroUSD was unsigned: ^[0-9]+$
+// MicroUSDSigned was separate: ^-?[0-9]+$
+```
+
+**After (v4.0.0):**
+
+```typescript
+import { MicroUSD, MicroUSDUnsigned, MicroUSDSigned } from '@0xhoneyjar/loa-hounfour';
+
+// MicroUSD is now signed: ^-?[0-9]+$
+// MicroUSDUnsigned for non-negative only: ^[0-9]+$
+// MicroUSDSigned is a deprecated alias for MicroUSD
+```
+
+**Migration**: Replace `MicroUSD` with `MicroUSDUnsigned` if your code must reject negative amounts.
+
+### 2. Envelope Relaxation
+- `DomainEventSchema` and `DomainEventBatchSchema` now allow `additionalProperties`
+- All 6 `StreamEvent` sub-schemas allow `additionalProperties`:
+  - `StreamStart`
+  - `StreamChunk`
+  - `StreamToolCall`
+  - `StreamUsage`
+  - `StreamEnd`
+  - `StreamError`
+- Existing strict consumers should strip unknown fields before validation
+
+**Before (v3.2.0):**
+
+```typescript
+// DomainEventSchema had additionalProperties: false
+// Unknown fields were rejected
+```
+
+**After (v4.0.0):**
+
+```typescript
+// DomainEventSchema has additionalProperties: true
+// Unknown fields are preserved — strip before validation if needed
+import { Value } from '@sinclair/typebox/value';
+const cleaned = Value.Clean(DomainEventSchema, structuredClone(event));
+```
+
+### 3. New Aggregate Types
+- 4 new aggregate types: `performance`, `governance`, `reputation`, `economy`
+- Type guards:
+  - `isPerformanceEvent()` — narrows to `PerformanceEvent`
+  - `isGovernanceEvent()` — narrows to `GovernanceEvent`
+  - `isReputationEvent()` — narrows to `ReputationEvent`
+  - `isEconomyEvent()` — narrows to `EconomyEvent`
+
+```typescript
+import {
+  isPerformanceEvent,
+  isGovernanceEvent,
+  isReputationEvent,
+  isEconomyEvent,
+  type DomainEvent,
+} from '@0xhoneyjar/loa-hounfour';
+
+function routeEvent(event: DomainEvent): void {
+  if (isPerformanceEvent(event)) {
+    // event.payload.performance_record_id is available
+  } else if (isGovernanceEvent(event)) {
+    // event.payload.governance_action_id is available
+  } else if (isReputationEvent(event)) {
+    // event.payload.agent_id is available
+  } else if (isEconomyEvent(event)) {
+    // event.payload.transaction_id is available
+  }
+}
+```
+
+### 4. Version Constants
+- `CONTRACT_VERSION`: `'4.4.0'`
+- `MIN_SUPPORTED_VERSION`: `'3.0.0'`
+
+```typescript
+// Before
+expect(CONTRACT_VERSION).toBe('3.2.0');
+
+// After
+expect(CONTRACT_VERSION).toBe('4.4.0');
+```
+
+## Additive Changes (v4.1.0 – v4.4.0)
+
+### v4.1.0: Performance Tracking
+
+| Schema | Import | Description |
+|--------|--------|-------------|
+| `PerformanceRecord` | `PerformanceRecordSchema` | Agent performance metrics record |
+| `ContributionRecord` | `ContributionRecordSchema` | Contribution assessment for peer review |
+
+### v4.2.0: Governance
+
+| Schema | Import | Description |
+|--------|--------|-------------|
+| `Sanction` | `SanctionSchema` | Governance sanction against an agent |
+| `DisputeRecord` | `DisputeRecordSchema` | Dispute filed against agent or outcome |
+| `ValidatedOutcome` | `ValidatedOutcomeSchema` | Validated governance outcome |
+
+New vocabulary:
+- **Sanctions vocabulary** (`vocabulary/sanctions`):
+  - `SANCTION_SEVERITY_LEVELS`: `warning`, `rate_limited`, `pool_restricted`, `suspended`, `terminated`
+  - `VIOLATION_TYPES`: `content_policy`, `rate_abuse`, `billing_fraud`, `identity_spoofing`, `resource_exhaustion`, `community_guideline`, `safety_violation`
+  - `ESCALATION_RULES`: Severity progression per violation type
+- **6 sanction lifecycle reason codes** (`vocabulary/lifecycle-reasons`):
+  - `sanction_warning_issued`
+  - `sanction_rate_limited`
+  - `sanction_pool_restricted`
+  - `sanction_suspended`
+  - `sanction_terminated`
+  - `sanction_appealed_successfully`
+
+### v4.3.0: Reputation
+
+| Schema | Import | Description |
+|--------|--------|-------------|
+| `ReputationScore` | `ReputationScoreSchema` | Agent reputation score with decay |
+
+New vocabulary:
+- **Reputation vocabulary** (`vocabulary/reputation`): reputation scoring constants and decay parameters
+- **`BillingRecipient` role extended**: `agent_performer` and `commons` roles added
+
+### v4.4.0: Economy
+
+| Schema | Import | Description |
+|--------|--------|-------------|
+| `EscrowEntry` | `EscrowEntrySchema` | Escrow with state machine (created, funded, released, refunded, expired) |
+| `StakePosition` | `StakePositionSchema` | Staking positions with vesting (experimental) |
+| `CommonsDividend` | `CommonsDividendSchema` | Commons fund dividend distribution (experimental) |
+| `MutualCredit` | `MutualCreditSchema` | Mutual credit lines between agents (experimental) |
+
+New vocabulary:
+- **Economic choreography vocabulary** (`vocabulary/economic-choreography`): escrow lifecycle, staking, dividend, and credit flow choreographies
+
+## New Error Codes
+
+| Code | HTTP | Version | Description |
+|------|------|---------|-------------|
+| `ROUTING_CONSTRAINT_VIOLATED` | 403 | v4.0.0 | Routing constraint violated |
+| `SANCTION_ACTIVE` | 403 | v4.2.0 | Active sanction blocks operation |
+| `SANCTION_APPEAL_DENIED` | 403 | v4.2.0 | Sanction appeal was denied |
+| `DISPUTE_NOT_FOUND` | 404 | v4.2.0 | Referenced dispute does not exist |
+| `DISPUTE_ALREADY_RESOLVED` | 409 | v4.2.0 | Dispute has already been resolved |
+| `REPUTATION_INSUFFICIENT` | 403 | v4.3.0 | Agent reputation below required threshold |
+| `ESCROW_NOT_FOUND` | 404 | v4.4.0 | Referenced escrow entry does not exist |
+| `ESCROW_INVALID_STATE` | 409 | v4.4.0 | Escrow is in wrong state for operation |
+| `STAKE_INSUFFICIENT` | 403 | v4.4.0 | Insufficient stake for operation |
+| `CREDIT_LIMIT_EXCEEDED` | 402 | v4.4.0 | Mutual credit limit exceeded |
+| `CREDIT_LINE_NOT_FOUND` | 404 | v4.4.0 | Referenced credit line does not exist |
+| `DIVIDEND_NOT_DECLARED` | 400 | v4.4.0 | No dividend declared for distribution |
+
+## New Event Types
+
+### Performance Aggregate (v4.1.0)
+
+| Event Type | Description |
+|------------|-------------|
+| `performance.record.created` | Performance record created |
+| `performance.record.validated` | Performance record validated by peer |
+| `contribution.submitted` | Contribution submitted for assessment |
+| `contribution.assessed` | Contribution assessment completed |
+
+### Governance Aggregate (v4.2.0)
+
+| Event Type | Description |
+|------------|-------------|
+| `sanction.imposed` | Sanction imposed on agent |
+| `sanction.appealed` | Sanction appeal submitted |
+| `sanction.lifted` | Sanction lifted or expired |
+| `dispute.filed` | Dispute filed against agent or outcome |
+| `dispute.resolved` | Dispute resolution completed |
+| `governance.vote.started` | Governance vote initiated |
+| `governance.vote.concluded` | Governance vote concluded |
+
+### Reputation Aggregate (v4.3.0)
+
+| Event Type | Description |
+|------------|-------------|
+| `reputation.score.calculated` | Reputation score recalculated |
+| `reputation.score.decayed` | Reputation score decayed over time |
+| `reputation.threshold.breached` | Reputation dropped below threshold |
+
+### Economy Aggregate (v4.4.0)
+
+| Event Type | Description |
+|------------|-------------|
+| `economy.escrow.created` | Escrow entry created |
+| `economy.escrow.funded` | Escrow entry funded |
+| `economy.escrow.released` | Escrow funds released to payee |
+| `economy.escrow.refunded` | Escrow funds refunded to payer |
+| `economy.escrow.expired` | Escrow expired without release |
+| `economy.stake.created` | Stake position created |
+| `economy.stake.slashed` | Stake position slashed |
+| `economy.stake.vested` | Stake vesting milestone reached |
+| `economy.stake.withdrawn` | Stake position withdrawn |
+| `economy.dividend.declared` | Commons dividend declared |
+| `economy.dividend.distributed` | Commons dividend distributed |
+| `economy.credit.extended` | Mutual credit line extended |
+| `economy.credit.settled` | Mutual credit settled |
 
 ---
 

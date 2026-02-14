@@ -1,0 +1,122 @@
+/**
+ * ProtocolLedger — Test infrastructure for economic conservation testing.
+ *
+ * Tracks billing debits/credits and escrow flows. Verifies the trial balance
+ * invariant: credits must never exceed debits (net >= 0).
+ *
+ * All arithmetic uses BigInt to prevent floating-point precision loss.
+ * Amount values are string-typed MicroUSD (e.g., "1000000") parsed with BigInt().
+ *
+ * @see S6-T2 — L3 Economic layer test infrastructure
+ */
+
+/**
+ * Minimal domain event shape accepted by the ledger.
+ *
+ * Mirrors the DomainEvent envelope but only requires the fields the ledger
+ * needs for classification and amount extraction.
+ */
+export interface LedgerEvent {
+  readonly event_id: string;
+  readonly type: string;
+  readonly aggregate_type: string;
+  readonly payload: Record<string, unknown>;
+}
+
+export interface TrialBalance {
+  readonly total_debits: bigint;
+  readonly total_credits: bigint;
+  readonly net: bigint;
+}
+
+/**
+ * Test-only ledger that accumulates debits and credits from domain events
+ * and asserts the conservation invariant: credits never exceed debits.
+ *
+ * Event classification:
+ * - `billing.entry.created` — debit (payload.amount_micro is positive)
+ * - `billing.entry.voided` — credit (reversal of a prior billing entry)
+ * - `economy.escrow.refunded` — credit (funds returned to payer)
+ * - Escrow hold/release — no net ledger impact (funds already counted via billing)
+ */
+export class ProtocolLedger {
+  private _totalDebits = 0n;
+  private _totalCredits = 0n;
+
+  /**
+   * Record a domain event, updating debit/credit accumulators.
+   *
+   * Unrecognized event types are silently ignored — the ledger only tracks
+   * events with known financial impact.
+   */
+  record(event: LedgerEvent): void {
+    switch (event.type) {
+      case 'billing.entry.created': {
+        const amount = this.extractAmount(event);
+        if (amount > 0n) {
+          this._totalDebits += amount;
+        }
+        break;
+      }
+
+      case 'billing.entry.voided': {
+        const amount = this.extractAmount(event);
+        if (amount > 0n) {
+          this._totalCredits += amount;
+        }
+        break;
+      }
+
+      case 'economy.escrow.refunded': {
+        const amount = this.extractAmount(event);
+        if (amount > 0n) {
+          this._totalCredits += amount;
+        }
+        break;
+      }
+
+      // Escrow hold/release has no net ledger impact — funds already counted via billing.
+      // Silently ignore all other event types.
+      default:
+        break;
+    }
+  }
+
+  /**
+   * Return the current trial balance snapshot.
+   *
+   * - `total_debits`: sum of all billing.entry.created amounts
+   * - `total_credits`: sum of all billing.entry.voided + economy.escrow.refunded amounts
+   * - `net`: total_debits - total_credits
+   */
+  trialBalance(): TrialBalance {
+    return {
+      total_debits: this._totalDebits,
+      total_credits: this._totalCredits,
+      net: this._totalDebits - this._totalCredits,
+    };
+  }
+
+  /**
+   * Conservation invariant: credits must never exceed debits.
+   *
+   * Returns true when net >= 0 (the system has not over-credited).
+   */
+  isConserved(): boolean {
+    return this._totalDebits >= this._totalCredits;
+  }
+
+  /**
+   * Extract the amount_micro from an event payload, parsed as BigInt.
+   *
+   * Amount values in the protocol are string-typed MicroUSD (e.g., "1000000").
+   * Returns 0n if the payload does not contain a valid amount_micro.
+   */
+  private extractAmount(event: LedgerEvent): bigint {
+    const raw = event.payload.amount_micro;
+    if (typeof raw === 'string' && /^[0-9]+$/.test(raw)) {
+      return BigInt(raw);
+    }
+    return 0n;
+  }
+}
