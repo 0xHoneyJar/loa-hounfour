@@ -21,7 +21,7 @@ export const EscrowEntrySchema = Type.Object(
     dispute_id: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'EscrowEntry', additionalProperties: false },
+  { $id: 'EscrowEntry', description: 'Escrow holding for bilateral agent transactions with state machine lifecycle', additionalProperties: false },
 );
 
 export type EscrowEntry = Static<typeof EscrowEntrySchema>;

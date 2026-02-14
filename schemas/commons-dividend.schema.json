@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/commons-dividend",
+  "description": "Commons dividend declaration and distribution to eligible recipients",
   "additionalProperties": false,
   "x-experimental": true,
   "type": "object",
@@ -56,6 +57,7 @@
       "type": "string"
     },
     "distribution": {
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "recipients"

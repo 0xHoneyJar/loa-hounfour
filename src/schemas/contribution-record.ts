@@ -28,6 +28,7 @@ export const ContributionRecordSchema = Type.Object(
   },
   {
     $id: 'ContributionRecord',
+    description: 'Record of an agent contribution to the commons or ecosystem',
     additionalProperties: false,
   },
 );

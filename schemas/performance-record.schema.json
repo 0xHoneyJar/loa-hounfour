@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/performance-record",
+  "description": "Record of agent performance for a billing entry with optional outcome validation",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -29,6 +30,7 @@
       "type": "string"
     },
     "output": {
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "tokens_consumed",
@@ -47,6 +49,7 @@
     },
     "outcome": {
       "$id": "PerformanceOutcome",
+      "description": "Outcome metrics from an agent performance evaluation",
       "additionalProperties": false,
       "type": "object",
       "properties": {

@@ -50,15 +50,15 @@ export const EVENT_TYPES = {
   // Performance aggregate (v4.1.0)
   'performance.record.created': 'Performance record created',
   'performance.record.validated': 'Performance record validated by peer',
-  'contribution.submitted': 'Contribution submitted for assessment',
-  'contribution.assessed': 'Contribution assessment completed',
+  'performance.contribution.submitted': 'Contribution submitted for assessment',
+  'performance.contribution.assessed': 'Contribution assessment completed',
 
   // Governance aggregate (v4.2.0)
-  'sanction.imposed': 'Sanction imposed on agent',
-  'sanction.appealed': 'Sanction appeal submitted',
-  'sanction.lifted': 'Sanction lifted or expired',
-  'dispute.filed': 'Dispute filed against agent or outcome',
-  'dispute.resolved': 'Dispute resolution completed',
+  'governance.sanction.imposed': 'Sanction imposed on agent',
+  'governance.sanction.appealed': 'Sanction appeal submitted',
+  'governance.sanction.lifted': 'Sanction lifted or expired',
+  'governance.dispute.filed': 'Dispute filed against agent or outcome',
+  'governance.dispute.resolved': 'Dispute resolution completed',
   'governance.vote.started': 'Governance vote initiated',
   'governance.vote.concluded': 'Governance vote concluded',
 

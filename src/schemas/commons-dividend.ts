@@ -17,10 +17,10 @@ export const CommonsDividendSchema = Type.Object(
     period_end: Type.String({ format: 'date-time' }),
     distribution: Type.Optional(Type.Object({
       recipients: Type.Array(BillingRecipientSchema, { minItems: 1 }),
-    })),
+    }, { additionalProperties: false })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'CommonsDividend', additionalProperties: false, 'x-experimental': true },
+  { $id: 'CommonsDividend', description: 'Commons dividend declaration and distribution to eligible recipients', additionalProperties: false, 'x-experimental': true },
 );
 
 export type CommonsDividend = Static<typeof CommonsDividendSchema>;

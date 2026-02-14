@@ -20,6 +20,7 @@ export const ValidatedOutcomeSchema = Type.Object(
   },
   {
     $id: 'ValidatedOutcome',
+    description: 'Peer-validated outcome with stake commitment and optional dispute resolution',
     additionalProperties: false,
   },
 );

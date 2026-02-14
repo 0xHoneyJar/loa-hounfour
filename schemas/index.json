@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "4.4.0",
   "min_supported_version": "3.0.0",
-  "generated_at": "2026-02-14T08:55:15.131Z",
+  "generated_at": "2026-02-14T09:15:46.948Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -164,61 +164,61 @@
       "name": "performance-record",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/performance-record",
       "file": "performance-record.schema.json",
-      "description": "PerformanceRecord"
+      "description": "Record of agent performance for a billing entry with optional outcome validation"
     },
     {
       "name": "contribution-record",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/contribution-record",
       "file": "contribution-record.schema.json",
-      "description": "ContributionRecord"
+      "description": "Record of an agent contribution to the commons or ecosystem"
     },
     {
       "name": "sanction",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/sanction",
       "file": "sanction.schema.json",
-      "description": "Sanction"
+      "description": "Sanction imposed on an agent for policy violations"
     },
     {
       "name": "dispute-record",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/dispute-record",
       "file": "dispute-record.schema.json",
-      "description": "DisputeRecord"
+      "description": "Dispute filed against an agent or outcome with evidence and resolution tracking"
     },
     {
       "name": "validated-outcome",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/validated-outcome",
       "file": "validated-outcome.schema.json",
-      "description": "ValidatedOutcome"
+      "description": "Peer-validated outcome with stake commitment and optional dispute resolution"
     },
     {
       "name": "reputation-score",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/reputation-score",
       "file": "reputation-score.schema.json",
-      "description": "ReputationScore"
+      "description": "Composite reputation score for an agent with weighted component sub-scores"
     },
     {
       "name": "escrow-entry",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/escrow-entry",
       "file": "escrow-entry.schema.json",
-      "description": "EscrowEntry"
+      "description": "Escrow holding for bilateral agent transactions with state machine lifecycle"
     },
     {
       "name": "stake-position",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/stake-position",
       "file": "stake-position.schema.json",
-      "description": "StakePosition"
+      "description": "Staked position representing conviction, delegation, or validation commitment"
     },
     {
       "name": "commons-dividend",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/commons-dividend",
       "file": "commons-dividend.schema.json",
-      "description": "CommonsDividend"
+      "description": "Commons dividend declaration and distribution to eligible recipients"
     },
     {
       "name": "mutual-credit",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/mutual-credit",
       "file": "mutual-credit.schema.json",
-      "description": "MutualCredit"
+      "description": "Mutual credit line between agents with settlement tracking"
     }
   ]
 }

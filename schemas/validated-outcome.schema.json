@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/validated-outcome",
+  "description": "Peer-validated outcome with stake commitment and optional dispute resolution",
   "additionalProperties": false,
   "type": "object",
   "required": [

@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/sanction",
+  "description": "Sanction imposed on an agent for policy violations",
   "additionalProperties": false,
   "type": "object",
   "required": [

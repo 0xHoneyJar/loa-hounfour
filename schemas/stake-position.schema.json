@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/stake-position",
+  "description": "Staked position representing conviction, delegation, or validation commitment",
   "additionalProperties": false,
   "x-experimental": true,
   "type": "object",
@@ -49,6 +50,7 @@
       ]
     },
     "vesting": {
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "schedule",

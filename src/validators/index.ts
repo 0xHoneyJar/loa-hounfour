@@ -134,6 +134,143 @@ registerCrossFieldValidator('PerformanceRecord', (data) => {
   return { valid: true, errors: [], warnings };
 });
 
+// --- v4.x cross-field validators (BB-C7-VALIDATOR-001..004, BB-C7-SECURITY-001..002) ---
+
+registerCrossFieldValidator('EscrowEntry', (data) => {
+  const entry = data as { state: string; released_at?: string; held_at: string; dispute_id?: string; payer_id: string; payee_id: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Self-escrow prevention (BB-C7-SECURITY-001)
+  if (entry.payer_id === entry.payee_id) {
+    errors.push('payer_id and payee_id must be different (self-escrow not allowed)');
+  }
+
+  // State co-presence rules
+  if (entry.state === 'released' && !entry.released_at) {
+    errors.push('released_at is required when state is "released"');
+  }
+  if (entry.state === 'held' && entry.released_at) {
+    errors.push('released_at must not be present when state is "held"');
+  }
+  if (entry.state === 'disputed' && !entry.dispute_id) {
+    errors.push('dispute_id is required when state is "disputed"');
+  }
+
+  // Temporal ordering
+  if (entry.released_at && entry.held_at) {
+    if (new Date(entry.released_at) < new Date(entry.held_at)) {
+      errors.push('released_at must be >= held_at');
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('StakePosition', (data) => {
+  const stake = data as { amount_micro: string; vesting: { schedule: string; vested_micro: string; remaining_micro: string } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Vesting conservation: vested + remaining == total
+  try {
+    const total = BigInt(stake.amount_micro);
+    const vested = BigInt(stake.vesting.vested_micro);
+    const remaining = BigInt(stake.vesting.remaining_micro);
+    if (vested + remaining !== total) {
+      errors.push(`vesting conservation violated: vested (${vested}) + remaining (${remaining}) !== amount (${total})`);
+    }
+  } catch {
+    // BigInt parse failures handled by schema validation
+  }
+
+  // Immediate schedule: remaining must be 0
+  if (stake.vesting.schedule === 'immediate' && stake.vesting.remaining_micro !== '0') {
+    errors.push('remaining_micro must be "0" when vesting schedule is "immediate"');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('MutualCredit', (data) => {
+  const credit = data as { settled: boolean; settled_at?: string; settlement?: unknown; issued_at: string; creditor_id: string; debtor_id: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Self-credit prevention
+  if (credit.creditor_id === credit.debtor_id) {
+    errors.push('creditor_id and debtor_id must be different (self-credit not allowed)');
+  }
+
+  // Settled co-presence
+  if (credit.settled && !credit.settled_at) {
+    errors.push('settled_at is required when settled is true');
+  }
+  if (credit.settled && !credit.settlement) {
+    errors.push('settlement is required when settled is true');
+  }
+  if (!credit.settled && credit.settled_at) {
+    errors.push('settled_at must not be present when settled is false');
+  }
+
+  // Temporal ordering
+  if (credit.settled_at && credit.issued_at) {
+    if (new Date(credit.settled_at) < new Date(credit.issued_at)) {
+      errors.push('settled_at must be >= issued_at');
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('CommonsDividend', (data) => {
+  const dividend = data as { period_start: string; period_end: string; distribution?: { recipients: Array<{ share_bps: number }> } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Temporal ordering
+  if (new Date(dividend.period_end) <= new Date(dividend.period_start)) {
+    errors.push('period_end must be after period_start');
+  }
+
+  // Distribution share validation
+  if (dividend.distribution) {
+    const totalBps = dividend.distribution.recipients.reduce((sum, r) => sum + (r.share_bps ?? 0), 0);
+    if (totalBps !== 10000) {
+      warnings.push(`distribution recipients share_bps sum to ${totalBps}, expected 10000`);
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('DisputeRecord', (data) => {
+  const dispute = data as { filed_by: string; filed_against: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (dispute.filed_by === dispute.filed_against) {
+    errors.push('filed_by and filed_against must be different (self-dispute not allowed)');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('Sanction', (data) => {
+  const sanction = data as { severity: string; expires_at?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (sanction.severity === 'terminated' && sanction.expires_at) {
+    errors.push('expires_at must not be present when severity is "terminated" (termination is permanent)');
+  }
+  if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
+    warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Validate data against any TypeBox schema, with optional cross-field validation.
  *

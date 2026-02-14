@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/escrow-entry",
+  "description": "Escrow holding for bilateral agent transactions with state machine lifecycle",
   "additionalProperties": false,
   "type": "object",
   "required": [

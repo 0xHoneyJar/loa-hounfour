@@ -22,11 +22,11 @@ export const StakePositionSchema = Type.Object(
       ]),
       vested_micro: MicroUSDUnsigned,
       remaining_micro: MicroUSDUnsigned,
-    }),
+    }, { additionalProperties: false }),
     staked_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'StakePosition', additionalProperties: false, 'x-experimental': true },
+  { $id: 'StakePosition', description: 'Staked position representing conviction, delegation, or validation commitment', additionalProperties: false, 'x-experimental': true },
 );
 
 export type StakePosition = Static<typeof StakePositionSchema>;

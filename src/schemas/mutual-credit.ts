@@ -1,12 +1,12 @@
 import { Type, type Static } from '@sinclair/typebox';
-import { MicroUSD } from '../vocabulary/currency.js';
+import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 
 export const MutualCreditSchema = Type.Object(
   {
     credit_id: Type.String({ minLength: 1 }),
     creditor_id: Type.String({ minLength: 1 }),
     debtor_id: Type.String({ minLength: 1 }),
-    amount_micro: MicroUSD,
+    amount_micro: MicroUSDUnsigned,
     credit_type: Type.Union([
       Type.Literal('refund'),
       Type.Literal('prepayment'),
@@ -23,10 +23,10 @@ export const MutualCreditSchema = Type.Object(
         Type.Literal('commons_contribution'),
         Type.Literal('forgiven'),
       ]),
-    })),
+    }, { additionalProperties: false })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'MutualCredit', additionalProperties: false, 'x-experimental': true },
+  { $id: 'MutualCredit', description: 'Mutual credit line between agents with settlement tracking', additionalProperties: false, 'x-experimental': true },
 );
 
 export type MutualCredit = Static<typeof MutualCreditSchema>;

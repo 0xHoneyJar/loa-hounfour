@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/dispute-record",
+  "description": "Dispute filed against an agent or outcome with evidence and resolution tracking",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -53,6 +54,7 @@
       "minItems": 1,
       "type": "array",
       "items": {
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "event_id",
@@ -75,6 +77,7 @@
       "type": "string"
     },
     "resolution": {
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "outcome",

@@ -16,7 +16,7 @@ export const DisputeRecordSchema = Type.Object(
       Type.Object({
         event_id: Type.String({ minLength: 1 }),
         description: Type.String({ minLength: 1 }),
-      }),
+      }, { additionalProperties: false }),
       { minItems: 1 },
     ),
     filed_at: Type.String({ format: 'date-time' }),
@@ -30,12 +30,13 @@ export const DisputeRecordSchema = Type.Object(
         resolved_at: Type.String({ format: 'date-time' }),
         sanction_id: Type.Optional(Type.String({ minLength: 1 })),
         credit_note_id: Type.Optional(Type.String({ minLength: 1 })),
-      }),
+      }, { additionalProperties: false }),
     ),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {
     $id: 'DisputeRecord',
+    description: 'Dispute filed against an agent or outcome with evidence and resolution tracking',
     additionalProperties: false,
   },
 );

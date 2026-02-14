@@ -15,7 +15,7 @@ export const ReputationScoreSchema = Type.Object(
     decay_applied: Type.Boolean(),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'ReputationScore', additionalProperties: false },
+  { $id: 'ReputationScore', description: 'Composite reputation score for an agent with weighted component sub-scores', additionalProperties: false },
 );
 
 export type ReputationScore = Static<typeof ReputationScoreSchema>;

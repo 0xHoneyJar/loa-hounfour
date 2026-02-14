@@ -1,5 +1,4 @@
 import { Type, type Static } from '@sinclair/typebox';
-import { MicroUSD } from '../vocabulary/currency.js';
 
 export const PerformanceOutcomeSchema = Type.Object(
   {
@@ -9,7 +8,7 @@ export const PerformanceOutcomeSchema = Type.Object(
     outcome_validated: Type.Optional(Type.Boolean()),
     validated_by: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
   },
-  { $id: 'PerformanceOutcome', additionalProperties: false },
+  { $id: 'PerformanceOutcome', description: 'Outcome metrics from an agent performance evaluation', additionalProperties: false },
 );
 
 export type PerformanceOutcome = Static<typeof PerformanceOutcomeSchema>;
@@ -23,7 +22,7 @@ export const PerformanceRecordSchema = Type.Object(
     output: Type.Object({
       tokens_consumed: Type.Integer({ minimum: 0 }),
       model_used: Type.String({ minLength: 1 }),
-    }),
+    }, { additionalProperties: false }),
     outcome: Type.Optional(PerformanceOutcomeSchema),
     dividend_target: Type.Optional(
       Type.Union([
@@ -39,6 +38,7 @@ export const PerformanceRecordSchema = Type.Object(
   },
   {
     $id: 'PerformanceRecord',
+    description: 'Record of agent performance for a billing entry with optional outcome validation',
     additionalProperties: false,
   },
 );
