@@ -2,6 +2,14 @@ import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 import { UUID_V4_PATTERN } from '../vocabulary/patterns.js';
 
+/**
+ * Escrow entry — a bilateral financial holding with state machine lifecycle.
+ *
+ * Design: Escrow is a separate entity from BillingEntry because escrows can
+ * outlive conversations and a single escrow can produce multiple billing entries.
+ *
+ * @see BB-V4-DEEP-002 — Escrow timeout mechanism (expires_at)
+ */
 export const EscrowEntrySchema = Type.Object(
   {
     escrow_id: Type.String({ pattern: UUID_V4_PATTERN }),

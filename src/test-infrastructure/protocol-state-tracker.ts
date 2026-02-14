@@ -2,13 +2,15 @@
  * ProtocolStateTracker — Test infrastructure for L2 temporal property testing.
  *
  * Tracks agent lifecycle state transitions, governance/sanction events,
- * and event deduplication across random event sequences.
+ * economy aggregate events (escrow, stake, credit), and event deduplication
+ * across random event sequences.
  *
  * This is test-only infrastructure and is NOT exported from the main barrel.
  *
  * @see S6-T1
  */
 import { isValidTransition, type AgentLifecycleState } from '../schemas/agent-lifecycle.js';
+import { ESCROW_TRANSITIONS, isValidEscrowTransition } from '../schemas/escrow-entry.js';
 import type { DomainEvent } from '../schemas/domain-event.js';
 
 /** Canonical reasons why an event application might be rejected. */
@@ -22,6 +24,12 @@ export const VALID_REJECTION_REASONS = [
   'lifecycle_from_state_mismatch',
   'agent_not_found_for_transition',
   'sanction_missing_evidence',
+  'invalid_escrow_transition',
+  'escrow_not_found',
+  'invalid_stake_transition',
+  'stake_not_found',
+  'invalid_credit_transition',
+  'credit_not_found',
 ] as const;
 
 export type RejectionReason = (typeof VALID_REJECTION_REASONS)[number];
@@ -41,6 +49,12 @@ const LIFECYCLE_STATES = new Set<string>([
   'ARCHIVED',
 ]);
 
+/** Valid stake states for lifecycle tracking. */
+type StakeState = 'active' | 'vested' | 'slashed' | 'withdrawn';
+
+/** Valid credit states for lifecycle tracking. */
+type CreditState = 'extended' | 'settled';
+
 /**
  * Tracks protocol state consistency across random event sequences.
  *
@@ -48,6 +62,9 @@ const LIFECYCLE_STATES = new Set<string>([
  * - Agent lifecycle transitions are valid per the state machine
  * - Events are deduplicated by event_id
  * - Sanction events require evidence_event_ids in their payload
+ * - Escrow transitions follow the state machine in ESCROW_TRANSITIONS
+ * - Stake lifecycle transitions follow valid paths
+ * - Credit lifecycle transitions follow valid paths
  */
 export class ProtocolStateTracker {
   /** Map of agent_id -> current lifecycle state. */
@@ -55,6 +72,15 @@ export class ProtocolStateTracker {
 
   /** Set of seen event_ids for deduplication. */
   private readonly seenEventIds = new Set<string>();
+
+  /** Map of escrow_id -> current escrow state. */
+  private readonly escrowStates = new Map<string, string>();
+
+  /** Map of stake_id -> current stake state. */
+  private readonly stakeStates = new Map<string, StakeState>();
+
+  /** Map of credit_id -> current credit state. */
+  private readonly creditStates = new Map<string, CreditState>();
 
   /** Tracks whether any invariant violation has been detected. */
   private invariantViolated = false;
@@ -82,6 +108,11 @@ export class ProtocolStateTracker {
       return this.applyGovernanceEvent(event);
     }
 
+    // --- Economy aggregate events ---
+    if (event.aggregate_type === 'economy') {
+      return this.applyEconomyEvent(event);
+    }
+
     // All other event types are accepted without additional invariant checks
     return { applied: true };
   }
@@ -91,6 +122,20 @@ export class ProtocolStateTracker {
    */
   isConsistent(): boolean {
     return !this.invariantViolated;
+  }
+
+  /**
+   * Returns escrow IDs that are still in 'held' state (no release/refund/expiry).
+   * Advisory — orphaned escrows may be expected during in-progress sequences.
+   */
+  getOrphanedEscrows(): string[] {
+    const orphaned: string[] = [];
+    for (const [escrowId, state] of this.escrowStates) {
+      if (state === 'held') {
+        orphaned.push(escrowId);
+      }
+    }
+    return orphaned;
   }
 
   // --- Private helpers ---
@@ -151,6 +196,112 @@ export class ProtocolStateTracker {
       }
     }
 
+    return { applied: true };
+  }
+
+  private applyEconomyEvent(event: DomainEvent): ApplyResult {
+    const payload = event.payload as Record<string, unknown>;
+
+    // --- Escrow events ---
+    if (event.type === 'economy.escrow.created') {
+      const escrowId = (payload.escrow_id as string) || event.aggregate_id;
+      this.escrowStates.set(escrowId, 'held');
+      return { applied: true };
+    }
+
+    if (event.type === 'economy.escrow.funded') {
+      // Funded is informational — escrow stays 'held'
+      return { applied: true };
+    }
+
+    if (
+      event.type === 'economy.escrow.released' ||
+      event.type === 'economy.escrow.refunded' ||
+      event.type === 'economy.escrow.expired'
+    ) {
+      const escrowId = (payload.escrow_id as string) || event.aggregate_id;
+      const currentState = this.escrowStates.get(escrowId);
+      if (currentState === undefined) {
+        return { applied: false, reason: 'escrow_not_found' };
+      }
+
+      // Extract the target state from the event type (last segment)
+      const targetState = event.type.split('.')[2]; // 'released' | 'refunded' | 'expired'
+      if (!isValidEscrowTransition(currentState, targetState)) {
+        return { applied: false, reason: 'invalid_escrow_transition' };
+      }
+
+      this.escrowStates.set(escrowId, targetState);
+      return { applied: true };
+    }
+
+    // --- Stake events ---
+    if (event.type === 'economy.stake.created') {
+      const stakeId = (payload.stake_id as string) || event.aggregate_id;
+      this.stakeStates.set(stakeId, 'active');
+      return { applied: true };
+    }
+
+    if (event.type === 'economy.stake.vested') {
+      const stakeId = (payload.stake_id as string) || event.aggregate_id;
+      const currentState = this.stakeStates.get(stakeId);
+      if (currentState === undefined) {
+        return { applied: false, reason: 'stake_not_found' };
+      }
+      if (currentState !== 'active') {
+        return { applied: false, reason: 'invalid_stake_transition' };
+      }
+      this.stakeStates.set(stakeId, 'vested');
+      return { applied: true };
+    }
+
+    if (event.type === 'economy.stake.slashed') {
+      const stakeId = (payload.stake_id as string) || event.aggregate_id;
+      const currentState = this.stakeStates.get(stakeId);
+      if (currentState === undefined) {
+        return { applied: false, reason: 'stake_not_found' };
+      }
+      if (currentState !== 'active') {
+        return { applied: false, reason: 'invalid_stake_transition' };
+      }
+      this.stakeStates.set(stakeId, 'slashed');
+      return { applied: true };
+    }
+
+    if (event.type === 'economy.stake.withdrawn') {
+      const stakeId = (payload.stake_id as string) || event.aggregate_id;
+      const currentState = this.stakeStates.get(stakeId);
+      if (currentState === undefined) {
+        return { applied: false, reason: 'stake_not_found' };
+      }
+      if (currentState !== 'active' && currentState !== 'vested') {
+        return { applied: false, reason: 'invalid_stake_transition' };
+      }
+      this.stakeStates.set(stakeId, 'withdrawn');
+      return { applied: true };
+    }
+
+    // --- Credit events ---
+    if (event.type === 'economy.credit.extended') {
+      const creditId = (payload.credit_id as string) || event.aggregate_id;
+      this.creditStates.set(creditId, 'extended');
+      return { applied: true };
+    }
+
+    if (event.type === 'economy.credit.settled') {
+      const creditId = (payload.credit_id as string) || event.aggregate_id;
+      const currentState = this.creditStates.get(creditId);
+      if (currentState === undefined) {
+        return { applied: false, reason: 'credit_not_found' };
+      }
+      if (currentState !== 'extended') {
+        return { applied: false, reason: 'invalid_credit_transition' };
+      }
+      this.creditStates.set(creditId, 'settled');
+      return { applied: true };
+    }
+
+    // Unknown economy events are accepted without state changes
     return { applied: true };
   }
 }

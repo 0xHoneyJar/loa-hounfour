@@ -6,6 +6,17 @@ export interface EconomicScenarioChoreography {
   invariants: readonly { description: string; enforceable: boolean }[];
 }
 
+/**
+ * Economic choreography — forward/compensation pattern for value-economy flows.
+ *
+ * Inspired by transfer-choreography.ts (v2.3.0) and Ostrom's design principles
+ * for commons governance. Each scenario defines a happy path (forward) and
+ * failure recovery (compensation), with enforceable invariants.
+ *
+ * Step names use canonical EVENT_TYPES keys for cross-system consistency.
+ *
+ * @see BB-POST-MERGE-002 — Choreography naming alignment
+ */
 export const ECONOMIC_CHOREOGRAPHY = {
   stake: {
     forward: ['economy.stake.created', 'economy.stake.vested'] as const,

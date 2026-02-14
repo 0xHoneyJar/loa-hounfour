@@ -117,6 +117,16 @@ export function compareMicro(a: string, b: string): -1 | 0 | 1 {
 // ---------------------------------------------------------------------------
 // Signed MicroUSD Arithmetic (v3.2.0, BB-C5-Part5-§3)
 //
+/**
+ * Signed MicroUSD — the v4.0.0 "signed by default" decision.
+ *
+ * Financial systems inevitably need negative amounts (credits, refunds, adjustments).
+ * Stripe added negative_amount_cents years after launch. We made MicroUSD signed from
+ * the start, with MicroUSDUnsigned as the explicit opt-in for non-negative contexts.
+ *
+ * @see BB-C5-Part5-§3, BB-POST-MERGE-004
+ */
+//
 // Financial systems need negative amounts for credits, refunds, and
 // adjustments. Stripe eventually added negative_amount_cents — we
 // anticipate the need here rather than bolting it on later.

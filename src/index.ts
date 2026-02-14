@@ -437,5 +437,8 @@ export {
   type ReqHashOptions,
 } from './integrity/req-hash.js';
 
+// Vocabulary — Economy Integration (v4.5.0)
+export { ECONOMY_FLOW, type EconomyFlowEntry } from './vocabulary/economy-integration.js';
+
 // Integrity — Idempotency
 export { deriveIdempotencyKey } from './integrity/idempotency.js';

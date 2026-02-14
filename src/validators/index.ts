@@ -81,6 +81,15 @@ export type CrossFieldValidator = (data: unknown) => {
  * Registry of cross-field validators keyed by schema $id.
  * When a schema $id matches, the validator runs after schema validation.
  */
+/**
+ * Cross-field validator registry — maps schema $id to validation functions.
+ *
+ * Pattern: Schemas declare `x-cross-field-validated: true` in their TypeBox options.
+ * Validators are registered here and invoked automatically by `validate()`.
+ * Consumers can discover which schemas have validators via `getCrossFieldValidatorSchemas()`.
+ *
+ * @see BB-POST-MERGE-001 — Cross-field validator discoverability
+ */
 const crossFieldRegistry = new Map<string, CrossFieldValidator>();
 
 /**

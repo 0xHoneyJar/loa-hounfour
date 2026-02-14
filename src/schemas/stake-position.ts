@@ -2,6 +2,16 @@ import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 import { UUID_V4_PATTERN } from '../vocabulary/patterns.js';
 
+/**
+ * Stake position — economic commitment with vesting schedule.
+ *
+ * Three stake types map to ECSA commitment taxonomy:
+ * - conviction: belief in agent quality (reputational stake)
+ * - delegation: authority grant (governance stake)
+ * - validation: skin-in-the-game (financial stake)
+ *
+ * @see BB-V4-DEEP-005 — Three economies integration
+ */
 export const StakePositionSchema = Type.Object(
   {
     stake_id: Type.String({ pattern: UUID_V4_PATTERN }),
