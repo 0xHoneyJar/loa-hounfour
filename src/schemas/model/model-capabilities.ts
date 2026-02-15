@@ -1,0 +1,33 @@
+import { Type, type Static } from '@sinclair/typebox';
+import { MicroUSDUnsigned } from '../../vocabulary/currency.js';
+
+export const ModelCapabilitiesSchema = Type.Object(
+  {
+    model_id: Type.String({ minLength: 1 }),
+    provider: Type.String({ minLength: 1 }),
+    capabilities: Type.Object({
+      thinking_traces: Type.Boolean(),
+      vision: Type.Boolean(),
+      tool_calling: Type.Boolean(),
+      streaming: Type.Boolean(),
+      json_mode: Type.Boolean(),
+      native_runtime: Type.Boolean(),
+    }),
+    limits: Type.Object({
+      max_context_tokens: Type.Integer({ minimum: 1 }),
+      max_output_tokens: Type.Integer({ minimum: 1 }),
+      max_thinking_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
+    }),
+    pricing: Type.Optional(
+      Type.Object({
+        input_per_million_micro: MicroUSDUnsigned,
+        output_per_million_micro: MicroUSDUnsigned,
+        thinking_per_million_micro: Type.Optional(MicroUSDUnsigned),
+      }),
+    ),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  { $id: 'ModelCapabilities', additionalProperties: false },
+);
+
+export type ModelCapabilities = Static<typeof ModelCapabilitiesSchema>;

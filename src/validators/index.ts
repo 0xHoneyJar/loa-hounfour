@@ -19,6 +19,11 @@ if (!FormatRegistry.Has('date-time')) {
 if (!FormatRegistry.Has('uri')) {
   FormatRegistry.Set('uri', (v) => /^https?:\/\/.+/.test(v));
 }
+if (!FormatRegistry.Has('uuid')) {
+  FormatRegistry.Set('uuid', (v) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v),
+  );
+}
 import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
@@ -46,6 +51,12 @@ import { StakePositionSchema } from '../schemas/stake-position.js';
 import { CommonsDividendSchema } from '../schemas/commons-dividend.js';
 import { MutualCreditSchema } from '../schemas/mutual-credit.js';
 import { RoutingConstraintSchema } from '../schemas/routing-constraint.js';
+import { CompletionRequestSchema } from '../schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../schemas/model/completion-result.js';
+import { ModelCapabilitiesSchema } from '../schemas/model/model-capabilities.js';
+import { ProviderWireMessageSchema } from '../schemas/model/provider-wire-message.js';
+import { ToolDefinitionSchema } from '../schemas/model/tool-definition.js';
+import { ToolResultSchema } from '../schemas/model/tool-result.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -317,7 +328,7 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number } };
+  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number }; escalation_rule_applied?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -333,6 +344,11 @@ registerCrossFieldValidator('Sanction', (data) => {
   }
   if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
     warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
+  }
+
+  // Escalation linkage (BB-V4-DEEP-004)
+  if (sanction.escalation_rule_applied !== undefined && sanction.escalation_rule_applied !== sanction.trigger.violation_type) {
+    warnings.push(`escalation_rule_applied ("${sanction.escalation_rule_applied}") should match trigger.violation_type ("${sanction.trigger.violation_type}")`);
   }
 
   // Escalation rules wiring (BB-V4-DEEP-004)
@@ -357,7 +373,7 @@ registerCrossFieldValidator('Sanction', (data) => {
 import { MIN_REPUTATION_SAMPLE_SIZE } from '../vocabulary/reputation.js';
 
 registerCrossFieldValidator('ReputationScore', (data) => {
-  const score = data as { score: number; sample_size: number; decay_applied: boolean };
+  const score = data as { score: number; sample_size: number; decay_applied: boolean; min_unique_validators?: number; validation_graph_hash?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -367,6 +383,78 @@ registerCrossFieldValidator('ReputationScore', (data) => {
 
   if (score.score === 1.0 && score.sample_size < 10) {
     warnings.push('perfect score with low sample is suspicious');
+  }
+
+  // Sybil resistance (BB-V4-DEEP-001)
+  if (score.min_unique_validators !== undefined && score.sample_size < score.min_unique_validators) {
+    errors.push(`sample_size (${score.sample_size}) must be >= min_unique_validators (${score.min_unique_validators})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.0.0 — ModelPort cross-field validators ---
+
+registerCrossFieldValidator('CompletionRequest', (data) => {
+  const req = data as { tools?: unknown[]; tool_choice?: unknown; execution_mode?: string; provider?: string; budget_limit_micro?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // tools present → tool_choice required
+  if (req.tools && req.tools.length > 0 && req.tool_choice === undefined) {
+    errors.push('tool_choice is required when tools are provided');
+  }
+
+  // execution_mode=native_runtime → provider required
+  if (req.execution_mode === 'native_runtime' && !req.provider) {
+    errors.push('provider is required when execution_mode is "native_runtime"');
+  }
+
+  // budget_limit_micro must be > 0 when present
+  if (req.budget_limit_micro !== undefined && req.budget_limit_micro === '0') {
+    warnings.push('budget_limit_micro is zero — request will be rejected by budget enforcement');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('CompletionResult', (data) => {
+  const result = data as { finish_reason: string; content?: string; tool_calls?: unknown[]; usage: { prompt_tokens: number; completion_tokens: number; reasoning_tokens?: number; total_tokens: number } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // finish_reason=tool_calls → tool_calls must be non-empty
+  if (result.finish_reason === 'tool_calls' && (!result.tool_calls || result.tool_calls.length === 0)) {
+    errors.push('tool_calls must be non-empty when finish_reason is "tool_calls"');
+  }
+
+  // finish_reason=stop → content should be present
+  if (result.finish_reason === 'stop' && !result.content) {
+    warnings.push('content is expected when finish_reason is "stop"');
+  }
+
+  // usage.total_tokens conservation check
+  const expected = result.usage.prompt_tokens + result.usage.completion_tokens + (result.usage.reasoning_tokens ?? 0);
+  if (result.usage.total_tokens !== expected) {
+    errors.push(`usage.total_tokens (${result.usage.total_tokens}) must equal prompt_tokens (${result.usage.prompt_tokens}) + completion_tokens (${result.usage.completion_tokens}) + reasoning_tokens (${result.usage.reasoning_tokens ?? 0}) = ${expected}`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('ProviderWireMessage', (data) => {
+  const msg = data as { role: string; content?: unknown; tool_calls?: unknown[]; tool_call_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // role=tool → tool_call_id required
+  if (msg.role === 'tool' && !msg.tool_call_id) {
+    errors.push('tool_call_id is required when role is "tool"');
+  }
+
+  // role=assistant → content or tool_calls must be present
+  if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
+    warnings.push('assistant message should have content or tool_calls');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
@@ -490,4 +578,12 @@ export const validators = {
   stakePosition: () => getOrCompile(StakePositionSchema),
   commonsDividend: () => getOrCompile(CommonsDividendSchema),
   mutualCredit: () => getOrCompile(MutualCreditSchema),
+
+  // v5.0.0 — ModelPort
+  completionRequest: () => getOrCompile(CompletionRequestSchema),
+  completionResult: () => getOrCompile(CompletionResultSchema),
+  modelCapabilities: () => getOrCompile(ModelCapabilitiesSchema),
+  providerWireMessage: () => getOrCompile(ProviderWireMessageSchema),
+  toolDefinition: () => getOrCompile(ToolDefinitionSchema),
+  toolResult: () => getOrCompile(ToolResultSchema),
 } as const;

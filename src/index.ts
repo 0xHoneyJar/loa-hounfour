@@ -484,3 +484,34 @@ export { isValidMetadataKey, getNamespaceOwner } from './vocabulary/metadata.js'
 
 // Integrity — Idempotency
 export { deriveIdempotencyKey } from './integrity/idempotency.js';
+
+// Schemas — ModelPort (v5.0.0)
+export {
+  CompletionRequestSchema,
+  type CompletionRequest,
+} from './schemas/model/completion-request.js';
+
+export {
+  CompletionResultSchema,
+  type CompletionResult,
+} from './schemas/model/completion-result.js';
+
+export {
+  ModelCapabilitiesSchema,
+  type ModelCapabilities,
+} from './schemas/model/model-capabilities.js';
+
+export {
+  ProviderWireMessageSchema,
+  type ProviderWireMessage,
+} from './schemas/model/provider-wire-message.js';
+
+export {
+  ToolDefinitionSchema,
+  type ToolDefinition,
+} from './schemas/model/tool-definition.js';
+
+export {
+  ToolResultSchema,
+  type ToolResult,
+} from './schemas/model/tool-result.js';

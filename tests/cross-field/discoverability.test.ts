@@ -10,6 +10,9 @@ import { CommonsDividendSchema } from '../../src/schemas/commons-dividend.js';
 import { DisputeRecordSchema } from '../../src/schemas/dispute-record.js';
 import { SanctionSchema } from '../../src/schemas/sanction.js';
 import { ReputationScoreSchema } from '../../src/schemas/reputation-score.js';
+import { CompletionRequestSchema } from '../../src/schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../../src/schemas/model/completion-result.js';
+import { ProviderWireMessageSchema } from '../../src/schemas/model/provider-wire-message.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -26,6 +29,10 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'DisputeRecord',
     'Sanction',
     'ReputationScore',
+    // v5.0.0 — ModelPort
+    'CompletionRequest',
+    'CompletionResult',
+    'ProviderWireMessage',
   ];
 
   it('returns an array of strings', () => {
@@ -59,6 +66,10 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'DisputeRecord', schema: DisputeRecordSchema },
     { name: 'Sanction', schema: SanctionSchema },
     { name: 'ReputationScore', schema: ReputationScoreSchema },
+    // v5.0.0 — ModelPort
+    { name: 'CompletionRequest', schema: CompletionRequestSchema },
+    { name: 'CompletionResult', schema: CompletionResultSchema },
+    { name: 'ProviderWireMessage', schema: ProviderWireMessageSchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {

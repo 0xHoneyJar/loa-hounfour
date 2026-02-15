@@ -22,6 +22,8 @@ export const ReputationScoreSchema = Type.Object(
         { additionalProperties: false },
       ),
     ),
+    min_unique_validators: Type.Optional(Type.Integer({ minimum: 0 })),
+    validation_graph_hash: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   { $id: 'ReputationScore', description: 'Composite reputation score for an agent with weighted component sub-scores', additionalProperties: false, 'x-cross-field-validated': true },
