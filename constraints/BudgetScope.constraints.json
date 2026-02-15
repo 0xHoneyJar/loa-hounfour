@@ -1,0 +1,15 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "BudgetScope",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "budget-scope-overspend",
+      "expression": "!bigint_gt(spent_micro, limit_micro)",
+      "severity": "warning",
+      "message": "spent_micro exceeds limit_micro",
+      "fields": ["spent_micro", "limit_micro"]
+    }
+  ]
+}

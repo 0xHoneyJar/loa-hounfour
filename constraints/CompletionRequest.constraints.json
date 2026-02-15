@@ -1,0 +1,15 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CompletionRequest",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "completion-request-tools-require-tool_choice",
+      "expression": "tools == null || tool_choice != null",
+      "severity": "error",
+      "message": "When tools are provided, tool_choice is required",
+      "fields": ["tools", "tool_choice"]
+    }
+  ]
+}

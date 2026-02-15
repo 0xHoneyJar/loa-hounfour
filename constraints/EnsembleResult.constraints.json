@@ -1,0 +1,22 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EnsembleResult",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ensemble-result-consensus-score",
+      "expression": "strategy != 'consensus' || consensus_score != null",
+      "severity": "error",
+      "message": "consensus_score is required when strategy is 'consensus'",
+      "fields": ["strategy", "consensus_score"]
+    },
+    {
+      "id": "ensemble-result-cost-conservation",
+      "expression": "selected == null || bigint_gte(total_cost_micro, selected.usage.cost_micro)",
+      "severity": "error",
+      "message": "total_cost_micro must be >= selected usage cost",
+      "fields": ["total_cost_micro", "selected.usage.cost_micro"]
+    }
+  ]
+}

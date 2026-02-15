@@ -24,6 +24,12 @@ import { PerformanceRecordSchema } from '../../src/schemas/performance-record.js
 import { ConversationSealingPolicySchema } from '../../src/schemas/conversation.js';
 import { AccessPolicySchema } from '../../src/schemas/conversation.js';
 import { BillingEntrySchema } from '../../src/schemas/billing-entry.js';
+import { CompletionRequestSchema } from '../../src/schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../../src/schemas/model/completion-result.js';
+import { ProviderWireMessageSchema } from '../../src/schemas/model/provider-wire-message.js';
+import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
+import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 import type { ConstraintFile, Constraint } from '../../src/constraints/types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -733,21 +739,282 @@ describe('BigInt graceful error handling', () => {
   });
 });
 
+// ─── CompletionRequest ────────────────────────────────────────────────────
+
+describe('CompletionRequest round-trip', () => {
+  const file = loadConstraints('CompletionRequest');
+
+  const VALID_MESSAGE = { role: 'user', content: 'Hello' };
+
+  const VALID_COMPLETION_REQ = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    agent_id: 'agent-a',
+    tenant_id: 'tenant-1',
+    model: 'gpt-4',
+    messages: [VALID_MESSAGE],
+    contract_version: '5.0.0',
+  };
+
+  it('tools present without tool_choice: both fail', () => {
+    const bad = {
+      ...VALID_COMPLETION_REQ,
+      tools: [{ type: 'function', function: { name: 'my_tool', description: 'A tool' } }],
+    };
+    const constraintResult = evalById(file, 'completion-request-tools-require-tool_choice', bad);
+    const tsResult = validate(CompletionRequestSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('tools present with tool_choice: both pass', () => {
+    const good = {
+      ...VALID_COMPLETION_REQ,
+      tools: [{ type: 'function', function: { name: 'my_tool', description: 'A tool' } }],
+      tool_choice: 'auto',
+    };
+    const constraintResult = evalById(file, 'completion-request-tools-require-tool_choice', good);
+    const tsResult = validate(CompletionRequestSchema, good);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('no tools: implication vacuously true', () => {
+    const constraintResult = evalById(file, 'completion-request-tools-require-tool_choice', VALID_COMPLETION_REQ);
+    const tsResult = validate(CompletionRequestSchema, VALID_COMPLETION_REQ);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── CompletionResult ─────────────────────────────────────────────────────
+
+describe('CompletionResult round-trip', () => {
+  const file = loadConstraints('CompletionResult');
+
+  const VALID_COMPLETION_RES = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    model: 'gpt-4',
+    provider: 'openai',
+    content: 'Hello world',
+    finish_reason: 'stop',
+    usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30, cost_micro: '500' },
+    latency_ms: 100,
+    contract_version: '5.0.0',
+  };
+
+  it('finish_reason=tool_calls without tool_calls: both fail', () => {
+    const bad = { ...VALID_COMPLETION_RES, finish_reason: 'tool_calls', content: undefined };
+    const constraintResult = evalById(file, 'completion-result-tool_calls-required', bad);
+    const tsResult = validate(CompletionResultSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('finish_reason=tool_calls with tool_calls: both pass', () => {
+    const good = {
+      ...VALID_COMPLETION_RES,
+      finish_reason: 'tool_calls',
+      tool_calls: [{ id: 'tc-1', type: 'function', function: { name: 'my_tool', arguments: '{}' } }],
+    };
+    const constraintResult = evalById(file, 'completion-result-tool_calls-required', good);
+    const tsResult = validate(CompletionResultSchema, good);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('usage conservation violation: both fail', () => {
+    const bad = {
+      ...VALID_COMPLETION_RES,
+      usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 50, cost_micro: '500' },
+    };
+    const constraintResult = evalById(file, 'completion-result-usage-conservation', bad);
+    const tsResult = validate(CompletionResultSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('valid usage: both pass', () => {
+    const constraintResult = evalById(file, 'completion-result-usage-conservation', VALID_COMPLETION_RES);
+    const tsResult = validate(CompletionResultSchema, VALID_COMPLETION_RES);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── EnsembleRequest ──────────────────────────────────────────────────────
+
+describe('EnsembleRequest round-trip', () => {
+  const file = loadConstraints('EnsembleRequest');
+
+  const VALID_MESSAGE = { role: 'user', content: 'Hello' };
+  const VALID_INNER_REQ = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    agent_id: 'agent-a',
+    tenant_id: 'tenant-1',
+    model: 'gpt-4',
+    messages: [VALID_MESSAGE],
+    contract_version: '5.0.0',
+  };
+
+  const VALID_ENSEMBLE_REQ = {
+    ensemble_id: '12345678-1234-4123-8123-123456789abc',
+    strategy: 'consensus',
+    models: ['gpt-4', 'claude-3'],
+    request: VALID_INNER_REQ,
+    consensus_threshold: 0.8,
+    contract_version: '5.0.0',
+  };
+
+  it('strategy=consensus without threshold: both fail', () => {
+    const { consensus_threshold: _, ...bad } = VALID_ENSEMBLE_REQ;
+    const constraintResult = evalById(file, 'ensemble-request-consensus-threshold', bad);
+    const tsResult = validate(EnsembleRequestSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('strategy=consensus with threshold: both pass', () => {
+    const constraintResult = evalById(file, 'ensemble-request-consensus-threshold', VALID_ENSEMBLE_REQ);
+    const tsResult = validate(EnsembleRequestSchema, VALID_ENSEMBLE_REQ);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('strategy=first_complete: implication vacuously true', () => {
+    const good = { ...VALID_ENSEMBLE_REQ, strategy: 'first_complete' };
+    delete (good as Record<string, unknown>).consensus_threshold;
+    const constraintResult = evalById(file, 'ensemble-request-consensus-threshold', good);
+    const tsResult = validate(EnsembleRequestSchema, good);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── EnsembleResult ───────────────────────────────────────────────────────
+
+describe('EnsembleResult round-trip', () => {
+  const file = loadConstraints('EnsembleResult');
+
+  const VALID_COMPLETION_RES = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    model: 'gpt-4',
+    provider: 'openai',
+    content: 'Hello world',
+    finish_reason: 'stop',
+    usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30, cost_micro: '500' },
+    latency_ms: 100,
+    contract_version: '5.0.0',
+  };
+
+  const VALID_ENSEMBLE_RES = {
+    ensemble_id: '12345678-1234-4123-8123-123456789abc',
+    strategy: 'consensus',
+    selected: VALID_COMPLETION_RES,
+    candidates: [VALID_COMPLETION_RES],
+    consensus_score: 0.9,
+    total_cost_micro: '1000',
+    total_latency_ms: 200,
+    contract_version: '5.0.0',
+  };
+
+  it('strategy=consensus without score: both fail', () => {
+    const { consensus_score: _, ...bad } = VALID_ENSEMBLE_RES;
+    const constraintResult = evalById(file, 'ensemble-result-consensus-score', bad);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('total_cost < selected cost: both fail', () => {
+    const bad = { ...VALID_ENSEMBLE_RES, total_cost_micro: '100' };
+    const constraintResult = evalById(file, 'ensemble-result-cost-conservation', bad);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('valid ensemble result: both pass', () => {
+    const constraintResult = evalById(file, 'ensemble-result-consensus-score', VALID_ENSEMBLE_RES);
+    const costResult = evalById(file, 'ensemble-result-cost-conservation', VALID_ENSEMBLE_RES);
+    const tsResult = validate(EnsembleResultSchema, VALID_ENSEMBLE_RES);
+    expect(constraintResult).toBe(true);
+    expect(costResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── BudgetScope ──────────────────────────────────────────────────────────
+
+describe('BudgetScope round-trip', () => {
+  const file = loadConstraints('BudgetScope');
+
+  const VALID_BUDGET = {
+    scope: 'project',
+    scope_id: 'proj-1',
+    limit_micro: '10000000',
+    spent_micro: '5000000',
+    action_on_exceed: 'warn',
+    contract_version: '5.0.0',
+  };
+
+  it('spent exceeds limit: constraint fails (warning), TS returns valid with warning', () => {
+    const bad = { ...VALID_BUDGET, spent_micro: '15000000' };
+    const constraintResult = evalById(file, 'budget-scope-overspend', bad);
+    // Constraint says violation (warning-level)
+    expect(constraintResult).toBe(false);
+    // TS validator returns valid with warning
+    const tsResult = validate(BudgetScopeSchema, bad);
+    expect(tsResult.valid).toBe(true);
+    expect(tsResult.warnings).toBeDefined();
+  });
+
+  it('spent within limit: both pass', () => {
+    const constraintResult = evalById(file, 'budget-scope-overspend', VALID_BUDGET);
+    const tsResult = validate(BudgetScopeSchema, VALID_BUDGET);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
 // ─── Constraint file structure ─────────────────────────────────────────────
 
 describe('Constraint file structure', () => {
-  const schemaIds = [
+  const v4SchemaIds = [
     'EscrowEntry', 'StakePosition', 'MutualCredit', 'CommonsDividend',
     'DisputeRecord', 'Sanction', 'ReputationScore', 'BillingEntry',
     'PerformanceRecord', 'ConversationSealingPolicy', 'AccessPolicy',
   ];
 
-  for (const schemaId of schemaIds) {
+  const v5SchemaIds = [
+    'CompletionRequest', 'CompletionResult', 'ProviderWireMessage',
+    'EnsembleRequest', 'EnsembleResult', 'BudgetScope',
+  ];
+
+  for (const schemaId of v4SchemaIds) {
     it(`${schemaId} constraint file has valid structure`, () => {
       const file = loadConstraints(schemaId);
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
       expect(file.contract_version).toBe('4.6.0');
+      expect(file.expression_version).toBe('1.0');
+      expect(file.constraints.length).toBeGreaterThan(0);
+
+      for (const constraint of file.constraints) {
+        expect(constraint.id).toBeTruthy();
+        expect(constraint.expression).toBeTruthy();
+        expect(['error', 'warning']).toContain(constraint.severity);
+        expect(constraint.message).toBeTruthy();
+        expect(constraint.fields.length).toBeGreaterThan(0);
+      }
+    });
+  }
+
+  for (const schemaId of v5SchemaIds) {
+    it(`${schemaId} constraint file has valid structure`, () => {
+      const file = loadConstraints(schemaId);
+      expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
+      expect(file.schema_id).toBe(schemaId);
+      expect(file.contract_version).toBe('5.0.0');
       expect(file.expression_version).toBe('1.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 

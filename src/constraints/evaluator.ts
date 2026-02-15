@@ -14,6 +14,8 @@
  * - `'literal'` (string literals)
  * - `field.nested` (dot-access)
  * - `bigint_sum(array, field)` or `bigint_sum([expr1, expr2])` (sum)
+ * - `bigint_gte(a, b)` (BigInt greater-than-or-equal)
+ * - `bigint_gt(a, b)` (BigInt greater-than)
  * - `array.length` (length access)
  * - `array.every(expr)` (universal quantification)
  *
@@ -399,6 +401,16 @@ class Parser {
       return this.parseBigintSum();
     }
 
+    // bigint_gte(a, b) — BigInt greater-than-or-equal
+    if (tok.type === 'ident' && tok.value === 'bigint_gte') {
+      return this.parseBigintCmp('>=');
+    }
+
+    // bigint_gt(a, b) — BigInt greater-than
+    if (tok.type === 'ident' && tok.value === 'bigint_gt') {
+      return this.parseBigintCmp('>');
+    }
+
     // Identifier (field path) with possible dot-access, .length, .every()
     if (tok.type === 'ident') {
       return this.parseFieldPath();
@@ -523,6 +535,27 @@ class Parser {
     }
 
     return BigInt(0);
+  }
+
+  /**
+   * Parse bigint_gte(a, b) or bigint_gt(a, b).
+   * Converts both operands to BigInt and performs the comparison.
+   */
+  private parseBigintCmp(op: '>=' | '>'): boolean {
+    this.advance(); // consume 'bigint_gte' or 'bigint_gt'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+
+    try {
+      const l = BigInt(String(left ?? 0));
+      const r = BigInt(String(right ?? 0));
+      return op === '>=' ? l >= r : l > r;
+    } catch {
+      return false;
+    }
   }
 }
 

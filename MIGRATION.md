@@ -10,7 +10,7 @@
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 4.4.0 |
+| **Current Version** | 5.0.0 |
 | **Minimum Supported** | 3.0.0 |
 | **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
 | **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
@@ -18,11 +18,14 @@
 
 ### Consumer Upgrade Matrix
 
-| Consumer | Producer 3.0.0 | Producer 4.0.0–4.4.0 |
-|----------|----------------|----------------------|
-| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) |
-| **3.0.0–3.2.0** | Full | Fwd-compat** |
-| **4.0.0–4.4.0** | Full | Full |
+| Consumer | Producer 3.0.0 | Producer 4.0.0–4.6.0 | Producer 5.0.0 |
+|----------|----------------|----------------------|----------------|
+| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) | **REJECTED** |
+| **3.0.0–3.2.0** | Full | Fwd-compat** | Fwd-compat*** |
+| **4.0.0–4.6.0** | Full | Full | Fwd-compat*** |
+| **5.0.0** | Full | Full | Full |
+
+\*\*\* v5.0.0 introduces barrel decomposition. Consumers using direct schema imports (e.g., `@0xhoneyjar/loa-hounfour/schemas/model/...`) must update import paths. Consumers using the root barrel (`@0xhoneyjar/loa-hounfour`) are unaffected. All new schemas are additive.
 
 \* Requires validate-then-strip for strict schemas. See below.
 
@@ -134,6 +137,162 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 3. **New vocabulary entries**: No impact — `isKnownEventType()` returns false for unknown types by design
 4. **Deprecation**: Mark `deprecated: true` in TypeBox; remove only at major version boundary
 5. **Required field addition**: MAJOR version bump required
+
+---
+
+# Migration Guide: v4.6.0 → v5.0.0
+
+## What's Breaking
+
+### 1. Barrel Decomposition (Sub-Package Imports)
+
+v5.0.0 introduces sub-package barrel exports. The root barrel (`@0xhoneyjar/loa-hounfour`) continues to export everything, but direct schema file imports may have moved.
+
+**Before (v4.6.0) — direct schema imports:**
+
+```typescript
+// These paths still work via the root barrel
+import { BillingEntrySchema } from '@0xhoneyjar/loa-hounfour';
+```
+
+**After (v5.0.0) — sub-package imports available:**
+
+```typescript
+// New sub-package imports (recommended for tree-shaking)
+import { CompletionRequestSchema } from '@0xhoneyjar/loa-hounfour/model';
+import { EscrowEntrySchema } from '@0xhoneyjar/loa-hounfour/economy';
+import { SanctionSchema } from '@0xhoneyjar/loa-hounfour/governance';
+import { AgentDescriptorSchema } from '@0xhoneyjar/loa-hounfour/core';
+import { RoutingConstraintSchema } from '@0xhoneyjar/loa-hounfour/constraints';
+```
+
+### 2. Version Constants
+
+```typescript
+// Before
+expect(CONTRACT_VERSION).toBe('4.6.0');
+
+// After
+expect(CONTRACT_VERSION).toBe('5.0.0');
+```
+
+### 3. New Metadata Namespace
+
+The `billing.*` metadata namespace is now reserved. Consumers using `billing.` prefixed metadata keys in custom metadata should migrate to the `x-billing.` consumer namespace.
+
+## What's Additive
+
+### New Schemas (14 total)
+
+#### ModelPort Schemas (6)
+
+| Schema | Sub-Package Import | Description |
+|--------|-------------------|-------------|
+| `CompletionRequest` | `@0xhoneyjar/loa-hounfour/model` | Model completion request envelope |
+| `CompletionResult` | `@0xhoneyjar/loa-hounfour/model` | Model completion result with usage/cost |
+| `ModelCapabilities` | `@0xhoneyjar/loa-hounfour/model` | Model capability descriptor |
+| `ProviderWireMessage` | `@0xhoneyjar/loa-hounfour/model` | Provider-agnostic message format |
+| `ToolDefinition` | `@0xhoneyjar/loa-hounfour/model` | Tool definition for function calling |
+| `ToolResult` | `@0xhoneyjar/loa-hounfour/model` | Tool execution result |
+
+#### Ensemble Schemas (3)
+
+| Schema | Sub-Package Import | Description |
+|--------|-------------------|-------------|
+| `EnsembleStrategy` | `@0xhoneyjar/loa-hounfour/model` | Strategy vocabulary (`first_complete`, `best_of_n`, `consensus`) |
+| `EnsembleRequest` | `@0xhoneyjar/loa-hounfour/model` | Multi-model ensemble request |
+| `EnsembleResult` | `@0xhoneyjar/loa-hounfour/model` | Multi-model ensemble result with cost aggregation |
+
+#### Routing Schemas (5)
+
+| Schema | Sub-Package Import | Description |
+|--------|-------------------|-------------|
+| `AgentRequirements` | `@0xhoneyjar/loa-hounfour/model` | Agent model requirement declaration |
+| `BudgetScope` | `@0xhoneyjar/loa-hounfour/model` | Budget enforcement scope |
+| `RoutingResolution` | `@0xhoneyjar/loa-hounfour/model` | Routing decision record |
+| `ExecutionMode` | `@0xhoneyjar/loa-hounfour/model` | Execution mode vocabulary |
+| `ProviderType` | `@0xhoneyjar/loa-hounfour/model` | Provider type vocabulary |
+
+### Constraint Grammar
+
+v5.0.0 introduces a constraint grammar for expressing schema invariants as JSON-serializable rules. Import from `@0xhoneyjar/loa-hounfour/constraints`.
+
+### New Cross-Field Validators
+
+| Schema | Validator | Description |
+|--------|-----------|-------------|
+| `CompletionRequest` | tools -> tool_choice | tools present requires tool_choice |
+| `CompletionResult` | usage conservation | total_tokens = prompt + completion + reasoning |
+| `CompletionResult` | finish_reason -> tool_calls | finish_reason=tool_calls requires non-empty tool_calls |
+| `EnsembleRequest` | consensus -> threshold | strategy=consensus requires consensus_threshold |
+| `EnsembleResult` | consensus -> score | strategy=consensus requires consensus_score |
+| `EnsembleResult` | cost floor | total_cost_micro >= selected.usage.cost_micro |
+| `BudgetScope` | overspend warning | warns when spent_micro > limit_micro |
+
+### Billing Metadata Namespace
+
+New `billing.*` metadata keys:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `billing.entry_id` | string | Links event to BillingEntry |
+| `billing.cost_micro` | string | Cost in micro-USD |
+| `billing.reconciled` | boolean | Whether reconciled against ledger |
+| `billing.provider` | string | Cost provider |
+
+## Consumer Migration Paths
+
+### loa-finn
+
+1. Update import paths to use sub-package barrels for tree-shaking
+2. Register new cross-field validators if using custom validation pipeline
+3. Update `contract_version` in produced events to `'5.0.0'`
+
+```typescript
+// Before
+import { BillingEntrySchema, validate } from '@0xhoneyjar/loa-hounfour';
+
+// After (recommended)
+import { validate } from '@0xhoneyjar/loa-hounfour';
+import { CompletionRequestSchema } from '@0xhoneyjar/loa-hounfour/model';
+import { BillingEntrySchema } from '@0xhoneyjar/loa-hounfour/economy';
+```
+
+### arrakis
+
+1. Add ModelPort schema validation to the gateway layer
+2. Wire ensemble routing through EnsembleRequest/EnsembleResult
+3. Use BudgetScope for per-project cost enforcement
+
+```typescript
+import {
+  CompletionRequestSchema,
+  EnsembleRequestSchema,
+  BudgetScopeSchema,
+} from '@0xhoneyjar/loa-hounfour/model';
+```
+
+### mibera-freeside
+
+1. Use RoutingConstraint + RoutingResolution for model selection
+2. Wire reputation scores into ensemble candidate selection
+3. Use billing.* metadata for cost attribution in commons dividends
+
+```typescript
+import { RoutingResolutionSchema } from '@0xhoneyjar/loa-hounfour/model';
+import { ReputationScoreSchema } from '@0xhoneyjar/loa-hounfour/governance';
+import { BILLING_METADATA_KEYS } from '@0xhoneyjar/loa-hounfour/model';
+```
+
+## Sub-Package Import Guide
+
+| Sub-Package | Path | Contains |
+|-------------|------|----------|
+| `core` | `@0xhoneyjar/loa-hounfour/core` | Agent, Conversation, Transfer, JWT, Health, Discovery |
+| `economy` | `@0xhoneyjar/loa-hounfour/economy` | Billing, Escrow, Stake, Credit, Dividend |
+| `model` | `@0xhoneyjar/loa-hounfour/model` | Completion, Ensemble, Routing, ModelCapabilities, Metadata |
+| `governance` | `@0xhoneyjar/loa-hounfour/governance` | Sanction, Dispute, Reputation, Performance |
+| `constraints` | `@0xhoneyjar/loa-hounfour/constraints` | Constraint grammar, rule definitions |
 
 ---
 

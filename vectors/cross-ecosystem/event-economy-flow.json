@@ -1,0 +1,158 @@
+{
+  "description": "Economy event flow vectors — inter-schema relationship verification",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "event-flow-001",
+      "description": "Performance record triggers reputation score update",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-flow-001-a",
+            "aggregate_id": "agent-001",
+            "aggregate_type": "performance",
+            "type": "performance.record.validated",
+            "version": 1,
+            "occurred_at": "2026-02-15T10:00:00Z",
+            "actor": "validator-agent-005",
+            "correlation_id": "corr-flow-001",
+            "payload": {
+              "performance_record_id": "perf-001",
+              "agent_id": "agent-001",
+              "score": 0.92,
+              "task_type": "code_review"
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-flow-001-b",
+            "aggregate_id": "agent-001",
+            "aggregate_type": "reputation",
+            "type": "reputation.score.calculated",
+            "version": 1,
+            "occurred_at": "2026-02-15T10:00:01Z",
+            "actor": "reputation-service",
+            "correlation_id": "corr-flow-001",
+            "causation_id": "evt-flow-001-a",
+            "payload": {
+              "agent_id": "agent-001",
+              "new_score": 0.88,
+              "previous_score": 0.85,
+              "sample_size": 42
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "Performance validation causes reputation recalculation via causation chain"
+    },
+    {
+      "id": "event-flow-002",
+      "description": "Escrow release triggers billing completion event",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-flow-002-a",
+            "aggregate_id": "escrow-001",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.released",
+            "version": 1,
+            "occurred_at": "2026-02-15T11:00:00Z",
+            "actor": "escrow-service",
+            "correlation_id": "corr-flow-002",
+            "payload": {
+              "escrow_id": "escrow-001",
+              "payer_id": "tenant-001",
+              "payee_id": "agent-001",
+              "amount_micro": "50000",
+              "released_at": "2026-02-15T11:00:00Z"
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-flow-002-b",
+            "aggregate_id": "bill-001",
+            "aggregate_type": "billing",
+            "type": "billing.entry.created",
+            "version": 1,
+            "occurred_at": "2026-02-15T11:00:01Z",
+            "actor": "billing-service",
+            "correlation_id": "corr-flow-002",
+            "causation_id": "evt-flow-002-a",
+            "payload": {
+              "billing_entry_id": "bill-001",
+              "cost_type": "escrow_release",
+              "total_cost_micro": "50000",
+              "provider": "agent-001"
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "Escrow release generates a corresponding billing entry event"
+    },
+    {
+      "id": "event-flow-003",
+      "description": "Sanction imposed triggers routing exclusion",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-flow-003-a",
+            "aggregate_id": "agent-bad-001",
+            "aggregate_type": "governance",
+            "type": "sanction.imposed.created",
+            "version": 1,
+            "occurred_at": "2026-02-15T12:00:00Z",
+            "actor": "governance-service",
+            "correlation_id": "corr-flow-003",
+            "payload": {
+              "sanction_id": "sanction-001",
+              "agent_id": "agent-bad-001",
+              "severity": "suspended",
+              "violation_type": "billing_fraud",
+              "imposed_at": "2026-02-15T12:00:00Z"
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-flow-003-b",
+            "aggregate_id": "agent-bad-001",
+            "aggregate_type": "agent",
+            "type": "agent.lifecycle.transitioned",
+            "version": 1,
+            "occurred_at": "2026-02-15T12:00:01Z",
+            "actor": "lifecycle-service",
+            "correlation_id": "corr-flow-003",
+            "causation_id": "evt-flow-003-a",
+            "payload": {
+              "agent_id": "agent-bad-001",
+              "from_state": "active",
+              "to_state": "suspended",
+              "reason": "sanction_suspended"
+            },
+            "contract_version": "5.0.0"
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "Sanction causes agent lifecycle transition to suspended, excluding from routing"
+    }
+  ]
+}

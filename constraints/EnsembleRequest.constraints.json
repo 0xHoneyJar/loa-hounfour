@@ -1,0 +1,15 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EnsembleRequest",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ensemble-request-consensus-threshold",
+      "expression": "strategy != 'consensus' || consensus_threshold != null",
+      "severity": "error",
+      "message": "consensus_threshold is required when strategy is 'consensus'",
+      "fields": ["strategy", "consensus_threshold"]
+    }
+  ]
+}
