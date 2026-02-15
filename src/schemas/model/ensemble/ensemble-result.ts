@@ -32,6 +32,23 @@ export const EnsembleResultSchema = Type.Object(
     rounds_completed: Type.Optional(Type.Integer({ minimum: 0 })),
     /** Number of dialogue rounds originally requested (from dialogue_config.max_rounds). */
     rounds_requested: Type.Optional(Type.Integer({ minimum: 1 })),
+    /** How consensus was determined when termination_reason is 'consensus_reached'. */
+    consensus_method: Type.Optional(Type.Union([
+      Type.Literal('majority_vote'),
+      Type.Literal('unanimous'),
+      Type.Literal('arbiter_decision'),
+      Type.Literal('score_threshold'),
+    ])),
+    /** Audit trail of model position changes during dialogue rounds. */
+    position_changes: Type.Optional(Type.Array(
+      Type.Object({
+        round: Type.Integer({ minimum: 1 }),
+        model: Type.String({ minLength: 1 }),
+        from_position: Type.String({ minLength: 1 }),
+        to_position: Type.String({ minLength: 1 }),
+        reason: Type.Optional(Type.String()),
+      })
+    )),
     total_cost_micro: MicroUSDUnsigned,
     total_latency_ms: Type.Integer({ minimum: 0 }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

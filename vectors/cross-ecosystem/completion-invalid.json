@@ -7,6 +7,12 @@
       "description": "Missing tool_choice when tools are present (cross-field violation)",
       "valid": false,
       "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-tools-require-tool_choice", "expected": "fail" }
+        ]
+      },
       "data": {
         "request_id": "550e8400-e29b-41d4-a716-446655440010",
         "agent_id": "agent-001",
@@ -33,6 +39,12 @@
       "description": "Usage conservation violation: total_tokens != prompt + completion",
       "valid": false,
       "schema": "CompletionResult",
+      "expected_evaluation": {
+        "constraint_file": "CompletionResult",
+        "results": [
+          { "constraint_id": "completion-result-usage-conservation", "expected": "fail" }
+        ]
+      },
       "data": {
         "request_id": "550e8400-e29b-41d4-a716-446655440011",
         "model": "gpt-5.2",
@@ -70,6 +82,12 @@
       "description": "finish_reason=tool_calls but tool_calls is empty (cross-field violation)",
       "valid": false,
       "schema": "CompletionResult",
+      "expected_evaluation": {
+        "constraint_file": "CompletionResult",
+        "results": [
+          { "constraint_id": "completion-result-tool_calls-required", "expected": "pass" }
+        ]
+      },
       "data": {
         "request_id": "550e8400-e29b-41d4-a716-446655440013",
         "model": "claude-opus-4-6",

@@ -1013,6 +1013,24 @@ describe('EnsembleResult round-trip', () => {
     const constraintResult = evalById(file, 'ensemble-result-rounds-completed-within-requested', good);
     expect(constraintResult).toBe(true);
   });
+
+  it('consensus_reached without consensus_method: constraint warns', () => {
+    const data = { termination_reason: 'consensus_reached' };
+    const constraintResult = evalById(file, 'ensemble-result-consensus-method-required', data);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('consensus_reached with consensus_method: passes', () => {
+    const data = { termination_reason: 'consensus_reached', consensus_method: 'majority_vote' };
+    const constraintResult = evalById(file, 'ensemble-result-consensus-method-required', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('fixed_rounds termination: consensus_method vacuously optional', () => {
+    const data = { termination_reason: 'fixed_rounds' };
+    const constraintResult = evalById(file, 'ensemble-result-consensus-method-required', data);
+    expect(constraintResult).toBe(true);
+  });
 });
 
 // ─── BudgetScope ──────────────────────────────────────────────────────────

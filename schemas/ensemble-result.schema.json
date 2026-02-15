@@ -522,6 +522,59 @@
       "minimum": 1,
       "type": "integer"
     },
+    "consensus_method": {
+      "anyOf": [
+        {
+          "const": "majority_vote",
+          "type": "string"
+        },
+        {
+          "const": "unanimous",
+          "type": "string"
+        },
+        {
+          "const": "arbiter_decision",
+          "type": "string"
+        },
+        {
+          "const": "score_threshold",
+          "type": "string"
+        }
+      ]
+    },
+    "position_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "round",
+          "model",
+          "from_position",
+          "to_position"
+        ],
+        "properties": {
+          "round": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "from_position": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "to_position": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "total_cost_micro": {
       "pattern": "^[0-9]+$",
       "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",

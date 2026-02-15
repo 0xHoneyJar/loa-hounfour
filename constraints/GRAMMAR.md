@@ -145,3 +145,55 @@ The v2.0 evaluator runs v1.0 expressions unchanged (backward compatible). Only t
 Current version: `2.0`
 
 All constraint files should include `"expression_version"` to declare which grammar version their expressions target. v1.0 files work with v2.0 evaluators. v2.0 files require a v2.0+ evaluator.
+
+## Version Negotiation
+
+In distributed systems where constraint proposals travel between services, the receiver needs to know before processing whether it can evaluate the expressions. The protocol-discovery document advertises supported expression versions.
+
+### Discovery Endpoint
+
+The `ProtocolDiscovery` schema includes an optional `expression_versions_supported` array:
+
+```json
+{
+  "contract_version": "5.0.0",
+  "min_supported_version": "4.0.0",
+  "schemas": ["https://..."],
+  "expression_versions_supported": ["1.0", "2.0"]
+}
+```
+
+### Version Check Utilities
+
+```typescript
+import { expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from './constraints/types.js';
+
+// Check if a specific version is supported by the current evaluator
+expressionVersionSupported('1.0'); // true
+expressionVersionSupported('2.0'); // true
+expressionVersionSupported('3.0'); // false
+
+// All supported versions (for protocol-discovery advertisement)
+EXPRESSION_VERSIONS_SUPPORTED; // ['1.0', '2.0']
+```
+
+### Consumer Pattern
+
+Before evaluating a constraint file from an external source:
+
+1. Read the file's `expression_version` field
+2. Call `expressionVersionSupported(version)` to check compatibility
+3. If unsupported, reject the file with a clear error
+
+### Constraint Lifecycle (sunset_version)
+
+The `ConstraintProposal` schema includes an optional `sunset_version` field for constraint lifecycle management. When the grammar evolves beyond `sunset_version`, the constraint should be re-evaluated or retired.
+
+```json
+{
+  "expression_version": "1.0",
+  "sunset_version": "3.0"
+}
+```
+
+This means the constraint was authored against grammar v1.0 and is valid up to (but not beyond) v3.0. When a v3.0+ evaluator encounters this constraint, it should flag it for review.

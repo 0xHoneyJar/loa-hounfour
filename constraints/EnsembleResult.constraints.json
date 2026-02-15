@@ -59,6 +59,13 @@
       "severity": "error",
       "message": "rounds_completed must not exceed rounds_requested",
       "fields": ["rounds_completed", "rounds_requested"]
+    },
+    {
+      "id": "ensemble-result-consensus-method-required",
+      "expression": "termination_reason != 'consensus_reached' || consensus_method != null",
+      "severity": "warning",
+      "message": "consensus_method is recommended when termination_reason is 'consensus_reached' for audit trail",
+      "fields": ["termination_reason", "consensus_method"]
     }
   ]
 }

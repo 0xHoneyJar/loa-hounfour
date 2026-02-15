@@ -269,6 +269,56 @@ describe('EnsembleResult cross-field validator', () => {
     const result = validate(EnsembleResultSchema, res);
     expect(result.valid).toBe(true);
   });
+
+  it('warns when termination_reason=consensus_reached without consensus_method', () => {
+    const ROUND = {
+      round: 1,
+      model: 'claude-opus-4-6',
+      response: VALID_RESULT_INNER,
+    };
+    const res = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      selected: VALID_RESULT_INNER,
+      candidates: [VALID_RESULT_INNER],
+      rounds: [ROUND],
+      rounds_completed: 1,
+      termination_reason: 'consensus_reached',
+      consensus_score: 0.9,
+      total_cost_micro: '150',
+      total_latency_ms: 1500,
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleResultSchema, res);
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toBeDefined();
+    expect(result.warnings!.some((w) => w.includes('consensus_method'))).toBe(true);
+  });
+
+  it('no warning when consensus_reached with consensus_method', () => {
+    const ROUND = {
+      round: 1,
+      model: 'claude-opus-4-6',
+      response: VALID_RESULT_INNER,
+    };
+    const res = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      selected: VALID_RESULT_INNER,
+      candidates: [VALID_RESULT_INNER],
+      rounds: [ROUND],
+      rounds_completed: 1,
+      termination_reason: 'consensus_reached',
+      consensus_score: 0.9,
+      consensus_method: 'majority_vote',
+      total_cost_micro: '150',
+      total_latency_ms: 1500,
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleResultSchema, res);
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------

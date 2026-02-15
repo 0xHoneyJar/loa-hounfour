@@ -494,7 +494,7 @@ registerCrossFieldValidator('EnsembleRequest', (data) => {
 });
 
 registerCrossFieldValidator('EnsembleResult', (data) => {
-  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string; rounds_completed?: number; rounds_requested?: number };
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string; rounds_completed?: number; rounds_requested?: number; consensus_method?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -546,6 +546,11 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
   // rounds_completed must not exceed rounds_requested
   if (result.rounds_requested != null && result.rounds_completed != null && result.rounds_completed > result.rounds_requested) {
     errors.push(`rounds_completed (${result.rounds_completed}) must not exceed rounds_requested (${result.rounds_requested})`);
+  }
+
+  // consensus_method recommended when termination_reason is consensus_reached
+  if (result.termination_reason === 'consensus_reached' && result.consensus_method == null) {
+    warnings.push('consensus_method is recommended when termination_reason is "consensus_reached" for audit trail');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

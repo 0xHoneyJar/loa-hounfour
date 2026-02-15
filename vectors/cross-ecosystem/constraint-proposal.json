@@ -7,6 +7,13 @@
       "description": "Accepted proposal with HIGH_CONSENSUS — valid",
       "valid": true,
       "schema": "ConstraintProposal",
+      "expected_evaluation": {
+        "constraint_file": "ConstraintProposal",
+        "results": [
+          { "constraint_id": "constraint-proposal-accepted-consensus", "expected": "pass" },
+          { "constraint_id": "constraint-proposal-sunset-after-expression", "expected": "pass" }
+        ]
+      },
       "data": {
         "proposal_id": "550e8400-e29b-41d4-a716-446655440500",
         "agent_id": "claude-3-opus",
@@ -37,6 +44,13 @@
       "description": "Disputed proposal under review",
       "valid": true,
       "schema": "ConstraintProposal",
+      "expected_evaluation": {
+        "constraint_file": "ConstraintProposal",
+        "results": [
+          { "constraint_id": "constraint-proposal-accepted-consensus", "expected": "pass" },
+          { "constraint_id": "constraint-proposal-sunset-after-expression", "expected": "pass" }
+        ]
+      },
       "data": {
         "proposal_id": "550e8400-e29b-41d4-a716-446655440501",
         "agent_id": "gpt-5.2",
@@ -66,6 +80,13 @@
       "description": "Accepted proposal with wrong consensus — invalid",
       "valid": false,
       "schema": "ConstraintProposal",
+      "expected_evaluation": {
+        "constraint_file": "ConstraintProposal",
+        "results": [
+          { "constraint_id": "constraint-proposal-accepted-consensus", "expected": "fail", "expected_message": "consensus_category must be 'HIGH_CONSENSUS' when review_status is 'accepted'" },
+          { "constraint_id": "constraint-proposal-sunset-after-expression", "expected": "pass" }
+        ]
+      },
       "data": {
         "proposal_id": "550e8400-e29b-41d4-a716-446655440502",
         "agent_id": "claude-3-opus",
