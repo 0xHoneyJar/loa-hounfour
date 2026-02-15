@@ -39,6 +39,10 @@ PROMPTS_DIR="${SCRIPT_DIR}/../prompts/gpt-review/base"
 CONFIG_FILE=".loa.config.yaml"
 MODEL_INVOKE="$SCRIPT_DIR/model-invoke"
 
+# Source centralized JSON normalization and diagnostics libraries
+source "$SCRIPT_DIR/lib/normalize-json.sh"
+source "$SCRIPT_DIR/lib/invoke-diagnostics.sh"
+
 # Require bash 4.0+ (associative arrays)
 # shellcheck source=bash-version-guard.sh
 source "$SCRIPT_DIR/bash-version-guard.sh"
@@ -371,32 +375,22 @@ call_api_via_model_invoke() {
 
   if [[ $exit_code -ne 0 ]]; then
     error "model-invoke failed with exit code $exit_code"
-    exit $exit_code
+    return $exit_code
   fi
 
-  # model-invoke returns the raw content text.
-  # gpt-review-api expects the content to be valid JSON with a verdict field.
+  # model-invoke returns raw content text — may be JSON, fenced JSON, or prose-wrapped.
+  # Normalize and validate via centralized library.
   local content_response
-  content_response=$(echo "$result" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-  # Validate JSON response
-  if ! echo "$content_response" | jq empty 2>/dev/null; then
+  content_response=$(normalize_json_response "$result" 2>/dev/null) || {
     error "Invalid JSON in model-invoke response"
-    log "Response content: $content_response"
+    log "Raw response (first 500 chars): ${result:0:500}"
     exit 5
-  fi
+  }
 
-  # Validate required verdict field
-  local verdict
-  verdict=$(echo "$content_response" | jq -r '.verdict // empty')
-  if [[ -z "$verdict" ]]; then
-    error "Response missing 'verdict' field"
-    log "Response content: $content_response"
-    exit 5
-  fi
-
-  if [[ "$verdict" != "APPROVED" && "$verdict" != "CHANGES_REQUIRED" && "$verdict" != "DECISION_NEEDED" ]]; then
-    error "Invalid verdict: $verdict (expected: APPROVED, CHANGES_REQUIRED, or DECISION_NEEDED)"
+  # Validate gpt-reviewer schema (verdict enum, required fields)
+  if ! validate_agent_response "$content_response" "gpt-reviewer" 2>/dev/null; then
+    error "Schema validation failed for gpt-reviewer response"
+    log "Normalized response: $content_response"
     exit 5
   fi
 
@@ -786,19 +780,28 @@ EOF
     local env_key=""
     local env_source=""
 
-    # Check .env first
+    # Check .env first — tail -1 ensures last value wins (dedup)
     if [[ -f ".env" ]]; then
-      env_key=$(grep -E "^OPENAI_API_KEY=" .env 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true)
+      env_key=$(grep -E "^OPENAI_API_KEY=" .env 2>/dev/null | tail -1 | cut -d'=' -f2- | sed 's/ \+#.*//' | tr -d '"' | tr -d "'" || true)
       [[ -n "$env_key" ]] && env_source=".env"
     fi
 
-    # Check .env.local (overrides .env)
+    # Check .env.local (overrides .env) — tail -1 for dedup
     if [[ -f ".env.local" ]]; then
       local local_key
-      local_key=$(grep -E "^OPENAI_API_KEY=" .env.local 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" || true)
+      local_key=$(grep -E "^OPENAI_API_KEY=" .env.local 2>/dev/null | tail -1 | cut -d'=' -f2- | sed 's/ \+#.*//' | tr -d '"' | tr -d "'" || true)
       if [[ -n "$local_key" ]]; then
         env_key="$local_key"
         env_source=".env.local"
+      fi
+    fi
+
+    # Validate non-empty and non-whitespace
+    if [[ -n "$env_key" ]]; then
+      local trimmed="${env_key// /}"
+      if [[ -z "$trimmed" ]]; then
+        log "WARNING: OPENAI_API_KEY in $env_source is empty/whitespace — ignoring"
+        env_key=""
       fi
     fi
 
@@ -909,9 +912,15 @@ EOF
   user_prompt=$(build_user_prompt "$context_file" "$prepared_content")
 
   # Call API — route through model-invoke or direct curl based on feature flag
+  # FR-2: Runtime fallback — if model-invoke fails, fall back to direct curl
   local response
   if is_flatline_routing_enabled && [[ -x "$MODEL_INVOKE" ]]; then
-    response=$(call_api_via_model_invoke "$model" "$system_prompt" "$user_prompt" "$timeout")
+    local mi_exit=0
+    response=$(call_api_via_model_invoke "$model" "$system_prompt" "$user_prompt" "$timeout") || mi_exit=$?
+    if [[ $mi_exit -ne 0 ]]; then
+      log "WARNING: model-invoke failed (exit $mi_exit), falling back to direct API call"
+      response=$(call_api "$model" "$system_prompt" "$user_prompt" "$timeout")
+    fi
   else
     response=$(call_api "$model" "$system_prompt" "$user_prompt" "$timeout")
   fi
