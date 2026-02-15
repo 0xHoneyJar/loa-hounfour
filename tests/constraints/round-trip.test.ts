@@ -67,7 +67,7 @@ describe('EscrowEntry round-trip', () => {
     state: 'held',
     held_at: '2026-01-01T00:00:00Z',
     expires_at: '2026-02-01T00:00:00Z',
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('self-escrow: both agree on violation', () => {
@@ -161,7 +161,7 @@ describe('StakePosition round-trip', () => {
       remaining_micro: '0',
     },
     staked_at: '2026-01-01T00:00:00Z',
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('immediate schedule with zero remaining: valid', () => {
@@ -214,7 +214,7 @@ describe('MutualCredit round-trip', () => {
     credit_type: 'refund',
     issued_at: '2026-01-01T00:00:00Z',
     settled: false,
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('self-credit: violation', () => {
@@ -303,7 +303,7 @@ describe('DisputeRecord round-trip', () => {
     dispute_type: 'quality',
     evidence: [{ event_id: 'ev-1', description: 'Poor output quality' }],
     filed_at: '2026-01-01T00:00:00Z',
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('self-dispute: violation', () => {
@@ -371,7 +371,7 @@ describe('Sanction round-trip', () => {
     imposed_at: '2026-01-01T00:00:00Z',
     appeal_available: true,
     expires_at: '2026-02-01T00:00:00Z',
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('terminated with expiry: violation', () => {
@@ -437,7 +437,7 @@ describe('ReputationScore round-trip', () => {
     sample_size: 50,
     last_updated: '2026-01-01T00:00:00Z',
     decay_applied: false,
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('sufficient sample size: valid', () => {
@@ -496,7 +496,7 @@ describe('PerformanceRecord round-trip', () => {
     billing_entry_id: 'bill-1',
     occurred_at: '2026-01-01T00:00:00Z',
     output: { tokens_consumed: 1000, model_used: 'gpt-4' },
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('mixed dividend without split_bps: violation', () => {
@@ -561,7 +561,7 @@ describe('CommonsDividend round-trip', () => {
     period_start: '2026-01-01T00:00:00Z',
     period_end: '2026-02-01T00:00:00Z',
     source_performance_ids: ['perf-1'],
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   };
 
   it('temporal: period_end after period_start: valid', () => {
@@ -995,7 +995,7 @@ describe('Constraint file structure', () => {
       const file = loadConstraints(schemaId);
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
-      expect(file.contract_version).toBe('4.6.0');
+      expect(file.contract_version).toBe('5.0.0');
       expect(file.expression_version).toBe('1.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 

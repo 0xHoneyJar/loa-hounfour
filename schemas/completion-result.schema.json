@@ -1,57 +1,56 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/invoke-response",
-  "description": "Response from an AI agent invocation with billing reference",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/completion-result",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
-    "id",
+    "request_id",
     "model",
     "provider",
-    "pool_id",
-    "content",
+    "finish_reason",
     "usage",
-    "billing_entry_id",
-    "billing_method",
     "latency_ms",
     "contract_version"
   ],
   "properties": {
-    "id": {
-      "description": "Request trace ID",
+    "request_id": {
+      "format": "uuid",
       "type": "string"
     },
     "model": {
-      "description": "Model that served the request",
+      "minLength": 1,
       "type": "string"
     },
     "provider": {
-      "description": "Provider that served the request",
-      "type": "string"
-    },
-    "pool_id": {
-      "description": "Pool the request was routed to",
+      "minLength": 1,
       "type": "string"
     },
     "content": {
-      "description": "Model response content",
+      "type": "string"
+    },
+    "thinking": {
       "type": "string"
     },
     "tool_calls": {
       "type": "array",
       "items": {
-        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
+          "type",
           "function"
         ],
         "properties": {
           "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "const": "function",
             "type": "string"
           },
           "function": {
-            "additionalProperties": false,
             "type": "object",
             "required": [
               "name",
@@ -59,6 +58,7 @@
             ],
             "properties": {
               "name": {
+                "minLength": 1,
                 "type": "string"
               },
               "arguments": {
@@ -69,13 +69,33 @@
         }
       }
     },
+    "finish_reason": {
+      "anyOf": [
+        {
+          "const": "stop",
+          "type": "string"
+        },
+        {
+          "const": "tool_calls",
+          "type": "string"
+        },
+        {
+          "const": "length",
+          "type": "string"
+        },
+        {
+          "const": "content_filter",
+          "type": "string"
+        }
+      ]
+    },
     "usage": {
-      "$id": "Usage",
-      "additionalProperties": false,
       "type": "object",
       "required": [
         "prompt_tokens",
-        "completion_tokens"
+        "completion_tokens",
+        "total_tokens",
+        "cost_micro"
       ],
       "properties": {
         "prompt_tokens": {
@@ -89,45 +109,31 @@
         "reasoning_tokens": {
           "minimum": 0,
           "type": "integer"
+        },
+        "total_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
         }
       }
-    },
-    "billing_entry_id": {
-      "minLength": 1,
-      "description": "References BillingEntry.id (ULID)",
-      "type": "string"
-    },
-    "billing_method": {
-      "description": "How cost was determined",
-      "anyOf": [
-        {
-          "const": "provider_reported",
-          "type": "string"
-        },
-        {
-          "const": "observed_chunks_overcount",
-          "type": "string"
-        },
-        {
-          "const": "prompt_only",
-          "type": "string"
-        }
-      ]
     },
     "latency_ms": {
       "minimum": 0,
       "type": "integer"
     },
-    "contract_version": {
-      "description": "Protocol version",
-      "type": "string"
-    },
     "metadata": {
-      "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
       "type": "object",
       "patternProperties": {
         "^(.*)$": {}
       }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
     }
   },
   "$comment": "contract_version=5.0.0, min_supported=4.0.0"

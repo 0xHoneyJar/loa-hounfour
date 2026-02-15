@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/billing-entry",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/billing-entry",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "description": "Multi-party billing entry replacing CostBreakdown",
   "type": "object",
   "required": [
@@ -245,5 +246,5 @@
       }
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
 }

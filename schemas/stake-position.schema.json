@@ -1,9 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/stake-position",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/stake-position",
   "description": "Staked position representing conviction, delegation, or validation commitment",
   "additionalProperties": false,
   "x-experimental": true,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
     "stake_id",
@@ -95,5 +96,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
 }

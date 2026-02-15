@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/routing-resolution",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "resolved_model",
+    "original_request_model",
+    "resolution_type",
+    "reason",
+    "latency_ms",
+    "contract_version"
+  ],
+  "properties": {
+    "resolved_model": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "original_request_model": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "resolution_type": {
+      "anyOf": [
+        {
+          "const": "exact",
+          "type": "string"
+        },
+        {
+          "const": "fallback",
+          "type": "string"
+        },
+        {
+          "const": "budget_downgrade",
+          "type": "string"
+        },
+        {
+          "const": "capability_match",
+          "type": "string"
+        }
+      ]
+    },
+    "reason": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
+}

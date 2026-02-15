@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/transfer-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/transfer-event",
   "description": "Record of a completed NFT ownership transfer",
   "additionalProperties": false,
   "type": "object",
@@ -77,6 +77,7 @@
     "sealing_policy": {
       "$id": "ConversationSealingPolicy",
       "additionalProperties": false,
+      "x-cross-field-validated": true,
       "$comment": "Cross-field invariants: (1) When encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. (2) When access_policy.type is \"time_limited\", duration_hours must be set. (3) When access_policy.type is \"role_based\", roles must be non-empty. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
       "type": "object",
       "required": [
@@ -119,6 +120,7 @@
         "access_policy": {
           "$id": "AccessPolicy",
           "additionalProperties": false,
+          "x-cross-field-validated": true,
           "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. Enforced by validateAccessPolicy() in TypeScript.",
           "type": "object",
           "required": [
@@ -196,5 +198,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
 }
