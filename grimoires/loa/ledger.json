@@ -342,13 +342,13 @@
           "status": "completed"
         }
       ],
-      "status": "active",
+      "status": "archived",
       "created_at": "2026-02-15T02:00:00Z",
-      "archived_at": null,
+      "archived_at": "2026-02-15T07:30:00Z",
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/2"
     }
   ],
-  "active_cycle": "cycle-009",
+  "active_cycle": null,
   "active_bugfix": null,
   "global_sprint_counter": 34,
   "bugfix_cycles": []
