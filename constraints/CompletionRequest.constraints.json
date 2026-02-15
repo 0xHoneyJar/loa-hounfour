@@ -17,6 +17,20 @@
       "severity": "error",
       "message": "session_id is required when execution_mode is 'native_runtime'",
       "fields": ["execution_mode", "session_id"]
+    },
+    {
+      "id": "completion-request-native-runtime-provider",
+      "expression": "execution_mode != 'native_runtime' || provider != null",
+      "severity": "error",
+      "message": "provider is required when execution_mode is 'native_runtime'",
+      "fields": ["execution_mode", "provider"]
+    },
+    {
+      "id": "completion-request-zero-budget-warning",
+      "expression": "budget_limit_micro == null || budget_limit_micro != '0'",
+      "severity": "warning",
+      "message": "budget_limit_micro is zero — request will be rejected by budget enforcement",
+      "fields": ["budget_limit_micro"]
     }
   ]
 }

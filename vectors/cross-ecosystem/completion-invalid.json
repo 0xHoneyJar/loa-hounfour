@@ -143,6 +143,55 @@
         "contract_version": "5.0.0"
       },
       "expected_errors": ["request_id"]
+    },
+    {
+      "id": "completion-invalid-007",
+      "description": "execution_mode=native_runtime without provider (cross-field violation)",
+      "valid": false,
+      "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-native-runtime-provider", "expected": "fail" },
+          { "constraint_id": "completion-request-native-runtime-session", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440014",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Hello" }
+        ],
+        "execution_mode": "native_runtime",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["provider is required", "session_id is required"]
+    },
+    {
+      "id": "completion-invalid-008",
+      "description": "Zero budget_limit_micro (constraint warning)",
+      "valid": true,
+      "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-zero-budget-warning", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440015",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Hello" }
+        ],
+        "budget_limit_micro": "0",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["budget_limit_micro is zero"]
     }
   ]
 }

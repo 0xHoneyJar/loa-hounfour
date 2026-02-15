@@ -107,6 +107,39 @@
         "contract_version": "5.0.0"
       },
       "expected_errors": ["consensus_category must be 'HIGH_CONSENSUS' when review_status is 'accepted'"]
+    },
+    {
+      "id": "constraint-proposal-004",
+      "description": "sunset_version less than expression_version — invalid",
+      "valid": false,
+      "schema": "ConstraintProposal",
+      "expected_evaluation": {
+        "constraint_file": "ConstraintProposal",
+        "results": [
+          { "constraint_id": "constraint-proposal-accepted-consensus", "expected": "pass" },
+          { "constraint_id": "constraint-proposal-sunset-after-expression", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "proposal_id": "550e8400-e29b-41d4-a716-446655440503",
+        "agent_id": "gpt-5.2",
+        "target_schema_id": "CompletionResult",
+        "proposed_constraints": [
+          {
+            "id": "result-latency-ceiling",
+            "expression": "latency_ms <= 60000",
+            "severity": "warning",
+            "message": "Latency exceeds 60-second ceiling",
+            "fields": ["latency_ms"]
+          }
+        ],
+        "rationale": "Individual completions should not exceed 60 seconds.",
+        "expression_version": "2.0",
+        "sunset_version": "1.0",
+        "review_status": "proposed",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["sunset_version must be >= expression_version"]
     }
   ]
 }

@@ -1112,6 +1112,90 @@ describe('CompletionRequest session_id round-trip', () => {
   });
 });
 
+// ─── CompletionRequest native_runtime provider + zero budget (Sprint 12) ────
+
+describe('CompletionRequest provider + budget round-trip', () => {
+  const file = loadConstraints('CompletionRequest');
+  const VALID_REQUEST = {
+    request_id: '550e8400-e29b-41d4-a716-446655440020',
+    agent_id: 'agent-001',
+    tenant_id: 'tenant-001',
+    model: 'claude-opus-4-6',
+    messages: [{ role: 'user', content: 'Hello' }],
+    contract_version: '5.0.0',
+  };
+
+  it('native_runtime without provider: constraint fails', () => {
+    const bad = { ...VALID_REQUEST, execution_mode: 'native_runtime', session_id: 'sess-1' };
+    const result = evalById(file, 'completion-request-native-runtime-provider', bad);
+    expect(result).toBe(false);
+  });
+
+  it('native_runtime with provider: constraint passes', () => {
+    const good = { ...VALID_REQUEST, execution_mode: 'native_runtime', provider: 'anthropic', session_id: 'sess-1' };
+    const result = evalById(file, 'completion-request-native-runtime-provider', good);
+    expect(result).toBe(true);
+  });
+
+  it('no execution_mode: provider constraint vacuously passes', () => {
+    const result = evalById(file, 'completion-request-native-runtime-provider', VALID_REQUEST);
+    expect(result).toBe(true);
+  });
+
+  it('zero budget_limit_micro: warning constraint fails', () => {
+    const bad = { ...VALID_REQUEST, budget_limit_micro: '0' };
+    const result = evalById(file, 'completion-request-zero-budget-warning', bad);
+    expect(result).toBe(false);
+  });
+
+  it('non-zero budget_limit_micro: warning constraint passes', () => {
+    const good = { ...VALID_REQUEST, budget_limit_micro: '1000000' };
+    const result = evalById(file, 'completion-request-zero-budget-warning', good);
+    expect(result).toBe(true);
+  });
+
+  it('no budget_limit_micro: warning constraint vacuously passes', () => {
+    const result = evalById(file, 'completion-request-zero-budget-warning', VALID_REQUEST);
+    expect(result).toBe(true);
+  });
+});
+
+// ─── CompletionResult usage conservation with reasoning_tokens (Sprint 12) ──
+
+describe('CompletionResult reasoning_tokens conservation round-trip', () => {
+  const file = loadConstraints('CompletionResult');
+
+  it('total_tokens = prompt + completion + reasoning: constraint passes', () => {
+    const data = {
+      usage: { prompt_tokens: 10, completion_tokens: 5, reasoning_tokens: 3, total_tokens: 18, cost_micro: '100' },
+      finish_reason: 'stop',
+      content: 'Hello',
+    };
+    const result = evalById(file, 'completion-result-usage-conservation', data);
+    expect(result).toBe(true);
+  });
+
+  it('total_tokens != prompt + completion + reasoning: constraint fails', () => {
+    const data = {
+      usage: { prompt_tokens: 10, completion_tokens: 5, reasoning_tokens: 3, total_tokens: 15, cost_micro: '100' },
+      finish_reason: 'stop',
+      content: 'Hello',
+    };
+    const result = evalById(file, 'completion-result-usage-conservation', data);
+    expect(result).toBe(false);
+  });
+
+  it('total_tokens = prompt + completion (no reasoning_tokens): constraint passes', () => {
+    const data = {
+      usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15, cost_micro: '100' },
+      finish_reason: 'stop',
+      content: 'Hello',
+    };
+    const result = evalById(file, 'completion-result-usage-conservation', data);
+    expect(result).toBe(true);
+  });
+});
+
 // ─── EnsembleResult cost conservation completeness (Sprint 6) ─────────────
 
 describe('EnsembleResult cost sum round-trip', () => {
@@ -1671,6 +1755,7 @@ describe('Constraint file structure', () => {
   const v5SchemaIds = [
     'CompletionRequest', 'CompletionResult', 'ProviderWireMessage',
     'EnsembleRequest', 'EnsembleResult', 'BudgetScope',
+    'ConstraintProposal', 'SagaContext',
   ];
 
   for (const schemaId of v4SchemaIds) {
@@ -1698,7 +1783,8 @@ describe('Constraint file structure', () => {
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
       expect(file.contract_version).toBe('5.0.0');
-      expect(file.expression_version).toBe('1.0');
+      // SagaContext uses expression_version 2.0 (temporal operators)
+      expect(['1.0', '2.0']).toContain(file.expression_version);
       expect(file.constraints.length).toBeGreaterThan(0);
 
       for (const constraint of file.constraints) {

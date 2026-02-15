@@ -414,13 +414,42 @@ describe('ConstraintProposal cross-field validator', () => {
     const result = validate(ConstraintProposalSchema, VALID_PROPOSAL);
     expect(result.valid).toBe(true);
   });
+
+  it('semver comparison: 2.10 >= 2.9 (not string comparison)', () => {
+    const proposal = { ...VALID_PROPOSAL, expression_version: '2.9', sunset_version: '2.10' };
+    const result = validate(ConstraintProposalSchema, proposal);
+    expect(result.valid).toBe(true);
+  });
+
+  it('semver comparison: 2.9 < 2.10 fails', () => {
+    const proposal = { ...VALID_PROPOSAL, expression_version: '2.10', sunset_version: '2.9' };
+    const result = validate(ConstraintProposalSchema, proposal);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('sunset_version'))).toBe(true);
+    }
+  });
+
+  it('enriched error message includes actual consensus_category', () => {
+    const proposal = {
+      ...VALID_PROPOSAL,
+      review_status: 'accepted',
+      consensus_category: 'DISPUTED',
+      review_scores: [{ reviewer_model: 'claude-3-opus', score: 800 }],
+    };
+    const result = validate(ConstraintProposalSchema, proposal);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('"DISPUTED"'))).toBe(true);
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
 // Discoverability
 // ---------------------------------------------------------------------------
 
-describe('Sprint 2 cross-field discoverability', () => {
+describe('Cross-field discoverability (all v5.0.0 validators)', () => {
   const schemas = getCrossFieldValidatorSchemas();
 
   it('EnsembleRequest is discoverable', () => {
@@ -431,5 +460,17 @@ describe('Sprint 2 cross-field discoverability', () => {
   });
   it('BudgetScope is discoverable', () => {
     expect(schemas).toContain('BudgetScope');
+  });
+  it('ConstraintProposal is discoverable', () => {
+    expect(schemas).toContain('ConstraintProposal');
+  });
+  it('CompletionRequest is discoverable', () => {
+    expect(schemas).toContain('CompletionRequest');
+  });
+  it('CompletionResult is discoverable', () => {
+    expect(schemas).toContain('CompletionResult');
+  });
+  it('ProviderWireMessage is discoverable', () => {
+    expect(schemas).toContain('ProviderWireMessage');
   });
 });

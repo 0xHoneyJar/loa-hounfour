@@ -413,12 +413,12 @@ registerCrossFieldValidator('CompletionRequest', (data) => {
 
   // execution_mode=native_runtime → provider required
   if (req.execution_mode === 'native_runtime' && !req.provider) {
-    errors.push('provider is required when execution_mode is "native_runtime"');
+    errors.push(`provider is required when execution_mode is "native_runtime", got provider="${req.provider ?? 'undefined'}"`);
   }
 
   // execution_mode=native_runtime → session_id required
   if (req.execution_mode === 'native_runtime' && !req.session_id) {
-    errors.push('session_id is required when execution_mode is "native_runtime"');
+    errors.push(`session_id is required when execution_mode is "native_runtime", got session_id="${req.session_id ?? 'undefined'}"`);
   }
 
   // budget_limit_micro must be > 0 when present
@@ -577,12 +577,18 @@ registerCrossFieldValidator('ConstraintProposal', (data) => {
 
   // Accepted proposals must have HIGH_CONSENSUS
   if (proposal.review_status === 'accepted' && proposal.consensus_category !== 'HIGH_CONSENSUS') {
-    errors.push('consensus_category must be "HIGH_CONSENSUS" when review_status is "accepted"');
+    errors.push(`consensus_category must be "HIGH_CONSENSUS" when review_status is "accepted", got "${proposal.consensus_category ?? 'undefined'}"`);
   }
 
-  // sunset_version must be >= expression_version
-  if (proposal.sunset_version != null && proposal.sunset_version < proposal.expression_version) {
-    errors.push(`sunset_version ("${proposal.sunset_version}") must be >= expression_version ("${proposal.expression_version}")`);
+  // sunset_version must be >= expression_version (semver comparison, not string)
+  if (proposal.sunset_version != null) {
+    const parseSemver = (v: string) => v.split('.').map(Number);
+    const [sunMaj, sunMin = 0] = parseSemver(proposal.sunset_version);
+    const [exprMaj, exprMin = 0] = parseSemver(proposal.expression_version);
+    const sunsetValid = sunMaj > exprMaj || (sunMaj === exprMaj && sunMin >= exprMin);
+    if (!sunsetValid) {
+      errors.push(`sunset_version ("${proposal.sunset_version}") must be >= expression_version ("${proposal.expression_version}")`);
+    }
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

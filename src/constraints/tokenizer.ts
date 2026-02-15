@@ -102,12 +102,20 @@ export function tokenize(expr: string): Token[] {
       continue;
     }
 
-    // String literal (single-quoted)
+    // String literal (single-quoted, supports \' and \\ escape sequences)
     if (expr[i] === "'") {
       const start = i;
       let str = '';
       i++; // skip opening quote
       while (i < expr.length && expr[i] !== "'") {
+        if (expr[i] === '\\' && i + 1 < expr.length) {
+          const next = expr[i + 1];
+          if (next === "'" || next === '\\') {
+            str += next;
+            i += 2;
+            continue;
+          }
+        }
         str += expr[i];
         i++;
       }

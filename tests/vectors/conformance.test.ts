@@ -15,6 +15,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evaluateConstraint } from '../../src/constraints/evaluator.js';
+import { expressionVersionSupported } from '../../src/constraints/types.js';
 import type { ConstraintFile } from '../../src/constraints/types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -42,7 +43,12 @@ interface VectorEntry {
 
 function loadConstraintFile(schemaId: string): ConstraintFile {
   const filePath = join(constraintsDir, `${schemaId}.constraints.json`);
-  return JSON.parse(readFileSync(filePath, 'utf-8')) as ConstraintFile;
+  const file = JSON.parse(readFileSync(filePath, 'utf-8')) as ConstraintFile;
+  // Validate expression version is supported by current evaluator
+  if (!expressionVersionSupported(file.expression_version)) {
+    throw new Error(`Constraint file ${schemaId} uses unsupported expression_version "${file.expression_version}"`);
+  }
+  return file;
 }
 
 function loadVectorFile(filename: string): { vectors: VectorEntry[] } {

@@ -13,10 +13,10 @@
     },
     {
       "id": "completion-result-usage-conservation",
-      "expression": "usage == null || usage.total_tokens == bigint_sum([usage.prompt_tokens, usage.completion_tokens])",
+      "expression": "usage == null || usage.total_tokens == bigint_sum([usage.prompt_tokens, usage.completion_tokens, usage.reasoning_tokens])",
       "severity": "error",
-      "message": "usage.total_tokens must equal prompt_tokens + completion_tokens",
-      "fields": ["usage.total_tokens", "usage.prompt_tokens", "usage.completion_tokens"]
+      "message": "usage.total_tokens must equal prompt_tokens + completion_tokens + reasoning_tokens",
+      "fields": ["usage.total_tokens", "usage.prompt_tokens", "usage.completion_tokens", "usage.reasoning_tokens"]
     }
   ]
 }

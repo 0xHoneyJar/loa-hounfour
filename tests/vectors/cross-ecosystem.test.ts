@@ -98,20 +98,29 @@ describe('Cross-ecosystem: completion-invalid.json', () => {
   for (const vector of vectors) {
     const id = vector.id as string;
     const schemaName = vector.schema as string;
-    const expectedErrors = vector.expected_errors as string[];
+    const expectedErrors = vector.expected_errors as string[] | undefined;
+    const isValid = vector.valid as boolean;
 
-    it(`${id}: fails validation against ${schemaName}`, () => {
-      const schema = getSchema(schemaName);
-      const result = validate(schema, vector.data);
-      expect(result.valid).toBe(false);
-      if (!result.valid) {
-        // At least one expected error substring should match
-        const allErrors = result.errors.join(' ');
-        for (const expected of expectedErrors) {
-          expect(allErrors).toContain(expected);
+    if (!isValid) {
+      it(`${id}: fails validation against ${schemaName}`, () => {
+        const schema = getSchema(schemaName);
+        const result = validate(schema, vector.data);
+        expect(result.valid).toBe(false);
+        if (!result.valid && expectedErrors) {
+          // At least one expected error substring should match
+          const allErrors = result.errors.join(' ');
+          for (const expected of expectedErrors) {
+            expect(allErrors).toContain(expected);
+          }
         }
-      }
-    });
+      });
+    } else {
+      it(`${id}: passes schema validation against ${schemaName} (warning-level vector)`, () => {
+        const schema = getSchema(schemaName);
+        const result = validate(schema, vector.data);
+        expect(result.valid).toBe(true);
+      });
+    }
   }
 });
 
