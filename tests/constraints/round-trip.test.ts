@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { evaluateConstraint } from '../../src/constraints/evaluator.js';
+import { evaluateConstraint, MAX_EXPRESSION_DEPTH } from '../../src/constraints/evaluator.js';
 import { validate } from '../../src/validators/index.js';
 import { EscrowEntrySchema } from '../../src/schemas/escrow-entry.js';
 import { StakePositionSchema } from '../../src/schemas/stake-position.js';
@@ -684,6 +684,52 @@ describe('AccessPolicy round-trip', () => {
     const data = {};
     const constraintResult = evalById(file, 'access-policy-valid', data);
     expect(constraintResult).toBe(false);
+  });
+});
+
+// ─── Expression depth limit (BB-C9-001) ────────────────────────────────────
+
+describe('Expression depth limit', () => {
+  it('exports MAX_EXPRESSION_DEPTH as 32', () => {
+    expect(MAX_EXPRESSION_DEPTH).toBe(32);
+  });
+
+  it('rejects deeply nested parentheses exceeding MAX_EXPRESSION_DEPTH', () => {
+    // Build an expression with 33+ levels of nesting: ((((... true ))))
+    const depth = MAX_EXPRESSION_DEPTH + 1;
+    const open = '('.repeat(depth);
+    const close = ')'.repeat(depth);
+    const expr = `${open}true${close}`;
+    expect(() => evaluateConstraint({}, expr)).toThrow('Expression nesting exceeds maximum depth');
+  });
+
+  it('accepts nesting within MAX_EXPRESSION_DEPTH', () => {
+    // The top-level evaluateConstraint call uses 1 depth level.
+    // Each parenthesized sub-expression adds 1 more.
+    // MAX_EXPRESSION_DEPTH - 1 levels of parens = MAX_EXPRESSION_DEPTH total calls, all within limit.
+    const depth = MAX_EXPRESSION_DEPTH - 1;
+    const open = '('.repeat(depth);
+    const close = ')'.repeat(depth);
+    const expr = `${open}true${close}`;
+    expect(evaluateConstraint({}, expr)).toBe(true);
+  });
+});
+
+// ─── BigInt graceful error handling (BB-C9-006) ────────────────────────────
+
+describe('BigInt graceful error handling', () => {
+  it('returns false (not an error) when bigint_sum encounters non-numeric string', () => {
+    // bigint_sum([field_a, field_b]) == 100 where field_a is "not-a-number"
+    const data = { field_a: 'not-a-number', field_b: '50' };
+    const result = evaluateConstraint(data, "bigint_sum([field_a, field_b]) == 100");
+    // BigInt("not-a-number") would throw, but we now catch and return 0n
+    // So this should evaluate to false (0n != 100n) rather than throwing
+    expect(result).toBe(false);
+  });
+
+  it('does not throw when bigint_sum array form encounters non-numeric value', () => {
+    const data = { items: [{ amount: 'abc' }, { amount: '50' }] };
+    expect(() => evaluateConstraint(data, "bigint_sum(items, 'amount') == 50")).not.toThrow();
   });
 });
 

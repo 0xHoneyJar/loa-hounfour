@@ -33,8 +33,8 @@ describe('ECONOMY_FLOW verification functions', () => {
   describe('PerformanceRecord -> ReputationScore', () => {
     const flow = findFlow('PerformanceRecord', 'ReputationScore');
 
-    it('valid when agent_id matches', () => {
-      const source = { agent_id: 'agent-1', record_id: 'r1' };
+    it('valid when agent_id matches and outcome is defined', () => {
+      const source = { agent_id: 'agent-1', record_id: 'r1', outcome: 'success' };
       const target = { agent_id: 'agent-1', components: {} };
       const result = verifyEconomyFlow(source, target, flow);
       expect(result.valid).toBe(true);
@@ -42,18 +42,26 @@ describe('ECONOMY_FLOW verification functions', () => {
     });
 
     it('invalid when agent_id differs', () => {
-      const source = { agent_id: 'agent-1', record_id: 'r1' };
+      const source = { agent_id: 'agent-1', record_id: 'r1', outcome: 'success' };
       const target = { agent_id: 'agent-2', components: {} };
       const result = verifyEconomyFlow(source, target, flow);
       expect(result.valid).toBe(false);
       expect(result.reason).toBeDefined();
+    });
+
+    it('invalid when source.outcome is undefined', () => {
+      const source = { agent_id: 'agent-1', record_id: 'r1' };
+      const target = { agent_id: 'agent-1', components: {} };
+      const result = verifyEconomyFlow(source, target, flow);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('outcome');
     });
   });
 
   describe('ReputationScore -> RoutingConstraint', () => {
     const flow = findFlow('ReputationScore', 'RoutingConstraint');
 
-    it('valid when min_reputation and score are defined', () => {
+    it('valid when score meets min_reputation', () => {
       const source = { score: 850 };
       const target = { min_reputation: 700 };
       const result = verifyEconomyFlow(source, target, flow);
@@ -68,12 +76,20 @@ describe('ECONOMY_FLOW verification functions', () => {
       expect(result.valid).toBe(false);
       expect(result.reason).toBeDefined();
     });
+
+    it('invalid when score is below min_reputation', () => {
+      const source = { score: 500 };
+      const target = { min_reputation: 700 };
+      const result = verifyEconomyFlow(source, target, flow);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('below');
+    });
   });
 
   describe('RoutingConstraint -> BillingEntry', () => {
     const flow = findFlow('RoutingConstraint', 'BillingEntry');
 
-    it('valid when pool_id is defined', () => {
+    it('valid when pool_id matches', () => {
       const source = { pool_id: 'pool-a' };
       const target = { pool_id: 'pool-a' };
       const result = verifyEconomyFlow(source, target, flow);
@@ -88,12 +104,20 @@ describe('ECONOMY_FLOW verification functions', () => {
       expect(result.valid).toBe(false);
       expect(result.reason).toBeDefined();
     });
+
+    it('invalid when pool_id mismatches between source and target', () => {
+      const source = { pool_id: 'pool-a' };
+      const target = { pool_id: 'pool-b' };
+      const result = verifyEconomyFlow(source, target, flow);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('match');
+    });
   });
 
   describe('Sanction -> RoutingConstraint', () => {
     const flow = findFlow('Sanction', 'RoutingConstraint');
 
-    it('valid when trust_level is defined', () => {
+    it('valid when trust_level and severity are defined', () => {
       const source = { severity: 'warning' };
       const target = { trust_level: 'restricted' };
       const result = verifyEconomyFlow(source, target, flow);
@@ -107,6 +131,14 @@ describe('ECONOMY_FLOW verification functions', () => {
       const result = verifyEconomyFlow(source, target, flow);
       expect(result.valid).toBe(false);
       expect(result.reason).toBeDefined();
+    });
+
+    it('invalid when source.severity is missing', () => {
+      const source = {};
+      const target = { trust_level: 'restricted' };
+      const result = verifyEconomyFlow(source, target, flow);
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('severity');
     });
   });
 
@@ -137,7 +169,7 @@ describe('ECONOMY_FLOW verification functions', () => {
 
 describe('ECONOMY_FLOW end-to-end pipeline', () => {
   it('Performance -> Reputation -> RoutingConstraint -> BillingEntry', () => {
-    const perfRecord = { agent_id: 'agent-1', record_id: 'perf-1' };
+    const perfRecord = { agent_id: 'agent-1', record_id: 'perf-1', outcome: 'success' };
     const repScore = { agent_id: 'agent-1', score: 900 };
     const routing = { min_reputation: 700, pool_id: 'pool-a', trust_level: 'trusted' };
     const billing = { pool_id: 'pool-a' };

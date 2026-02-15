@@ -469,7 +469,7 @@ export {
 
 // FR-4: Cross-Language Constraints (v4.6.0)
 export { type ConstraintFile, type Constraint } from './constraints/types.js';
-export { evaluateConstraint } from './constraints/evaluator.js';
+export { evaluateConstraint, MAX_EXPRESSION_DEPTH } from './constraints/evaluator.js';
 
 // FR-6: Deprecation (v4.6.0)
 export {

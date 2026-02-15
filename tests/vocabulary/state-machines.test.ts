@@ -183,10 +183,11 @@ describe('STATE_MACHINES.credit specifics', () => {
 describe('getValidTransitions()', () => {
   it('returns valid targets from escrow "held"', () => {
     const targets = getValidTransitions('escrow', 'held');
+    expect(targets).toContain('held');
     expect(targets).toContain('released');
     expect(targets).toContain('disputed');
     expect(targets).toContain('expired');
-    expect(targets).toHaveLength(3);
+    expect(targets).toHaveLength(4);
   });
 
   it('returns empty array for terminal states', () => {
@@ -232,6 +233,7 @@ describe('isTerminalState()', () => {
 
 describe('isValidTransition()', () => {
   it('validates known valid transitions', () => {
+    expect(isValidTransition('escrow', 'held', 'held')).toBe(true);
     expect(isValidTransition('escrow', 'held', 'released')).toBe(true);
     expect(isValidTransition('escrow', 'held', 'disputed')).toBe(true);
     expect(isValidTransition('escrow', 'held', 'expired')).toBe(true);
@@ -262,8 +264,8 @@ describe('isValidTransition()', () => {
 // ---------------------------------------------------------------------------
 
 describe('ESCROW_TRANSITIONS derived from STATE_MACHINES (S1-T2)', () => {
-  it('held has exactly [released, disputed, expired] targets', () => {
-    expect([...ESCROW_TRANSITIONS.held].sort()).toEqual(['disputed', 'expired', 'released']);
+  it('held has exactly [held, released, disputed, expired] targets', () => {
+    expect([...ESCROW_TRANSITIONS.held].sort()).toEqual(['disputed', 'expired', 'held', 'released']);
   });
 
   it('released is terminal (empty array)', () => {
@@ -283,6 +285,7 @@ describe('ESCROW_TRANSITIONS derived from STATE_MACHINES (S1-T2)', () => {
   });
 
   it('isValidEscrowTransition delegates to STATE_MACHINES', () => {
+    expect(isValidEscrowTransition('held', 'held')).toBe(true);
     expect(isValidEscrowTransition('held', 'released')).toBe(true);
     expect(isValidEscrowTransition('held', 'disputed')).toBe(true);
     expect(isValidEscrowTransition('held', 'expired')).toBe(true);

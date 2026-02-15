@@ -20,13 +20,13 @@ export const DEPRECATION_REGISTRY: readonly DeprecationEntry[] = [];
 /**
  * Returns the schema_id of all deprecated schemas.
  */
-export function getDeprecatedSchemas(): string[] {
-  return DEPRECATION_REGISTRY.map(e => e.schema_id);
+export function getDeprecatedSchemas(registry: readonly DeprecationEntry[] = DEPRECATION_REGISTRY): string[] {
+  return registry.map(e => e.schema_id);
 }
 
 /**
  * Check whether a given schema_id is deprecated.
  */
-export function isDeprecated(schemaId: string): boolean {
-  return DEPRECATION_REGISTRY.some(e => e.schema_id === schemaId);
+export function isDeprecated(schemaId: string, registry: readonly DeprecationEntry[] = DEPRECATION_REGISTRY): boolean {
+  return registry.some(e => e.schema_id === schemaId);
 }

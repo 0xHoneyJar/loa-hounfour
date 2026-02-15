@@ -41,8 +41,7 @@ describe('DEPRECATION_REGISTRY (empty)', () => {
 // ---------------------------------------------------------------------------
 
 describe('deprecation utility functions with synthetic entries', () => {
-  // We test the functions' logic by constructing a synthetic registry
-  // and calling the same logic inline (since the exported REGISTRY is frozen).
+  // Test the real exported functions with a custom registry parameter (BB-C9-005).
 
   const syntheticRegistry: readonly DeprecationEntry[] = [
     {
@@ -60,27 +59,19 @@ describe('deprecation utility functions with synthetic entries', () => {
     },
   ];
 
-  function getDeprecatedSchemasFrom(registry: readonly DeprecationEntry[]): string[] {
-    return registry.map(e => e.schema_id);
-  }
-
-  function isDeprecatedIn(schemaId: string, registry: readonly DeprecationEntry[]): boolean {
-    return registry.some(e => e.schema_id === schemaId);
-  }
-
-  it('getDeprecatedSchemas returns all schema_ids', () => {
-    const result = getDeprecatedSchemasFrom(syntheticRegistry);
+  it('getDeprecatedSchemas returns all schema_ids from custom registry', () => {
+    const result = getDeprecatedSchemas(syntheticRegistry);
     expect(result).toEqual(['LegacySchema', 'OldBilling']);
   });
 
-  it('isDeprecated returns true for registered schemas', () => {
-    expect(isDeprecatedIn('LegacySchema', syntheticRegistry)).toBe(true);
-    expect(isDeprecatedIn('OldBilling', syntheticRegistry)).toBe(true);
+  it('isDeprecated returns true for registered schemas in custom registry', () => {
+    expect(isDeprecated('LegacySchema', syntheticRegistry)).toBe(true);
+    expect(isDeprecated('OldBilling', syntheticRegistry)).toBe(true);
   });
 
-  it('isDeprecated returns false for unregistered schemas', () => {
-    expect(isDeprecatedIn('PerformanceRecord', syntheticRegistry)).toBe(false);
-    expect(isDeprecatedIn('nonexistent', syntheticRegistry)).toBe(false);
+  it('isDeprecated returns false for unregistered schemas in custom registry', () => {
+    expect(isDeprecated('PerformanceRecord', syntheticRegistry)).toBe(false);
+    expect(isDeprecated('nonexistent', syntheticRegistry)).toBe(false);
   });
 
   it('DeprecationEntry replacement field is optional', () => {

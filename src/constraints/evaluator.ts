@@ -20,6 +20,8 @@
  * @see FR-4 v4.6.0 — Cross-Language Constraints
  */
 
+export const MAX_EXPRESSION_DEPTH = 32;
+
 type Token = {
   type: 'number' | 'string' | 'ident' | 'op' | 'paren' | 'comma' | 'bracket' | 'dot' | 'arrow';
   value: string;
@@ -158,10 +160,12 @@ class Parser {
   private tokens: Token[];
   private pos = 0;
   private data: Record<string, unknown>;
+  private depth: number;
 
-  constructor(tokens: Token[], data: Record<string, unknown>) {
+  constructor(tokens: Token[], data: Record<string, unknown>, depth = 0) {
     this.tokens = tokens;
     this.data = data;
+    this.depth = depth;
   }
 
   private peek(): Token | undefined {
@@ -185,6 +189,10 @@ class Parser {
    * Grammar: expr := or_expr ('=>' or_expr)?
    */
   parseExpr(): unknown {
+    this.depth++;
+    if (this.depth > MAX_EXPRESSION_DEPTH) {
+      throw new Error('Expression nesting exceeds maximum depth');
+    }
     const left = this.parseOr();
     if (this.peek()?.type === 'arrow') {
       this.advance(); // consume '=>'
@@ -439,7 +447,7 @@ class Parser {
         return arr.every((item) => {
           // Create a scoped data object: the lambda parameter resolves to the item
           const scopedData = { ...this.data, [paramName]: item };
-          const innerParser = new Parser([...innerTokens], scopedData);
+          const innerParser = new Parser([...innerTokens], scopedData, this.depth);
           return !!innerParser.parseExpr();
         });
       }
@@ -494,7 +502,7 @@ class Parser {
         if (item != null && typeof item === 'object') {
           const val = (item as Record<string, unknown>)[fieldName];
           if (val !== undefined && val !== null) {
-            sum += BigInt(String(val));
+            try { sum += BigInt(String(val)); } catch { return 0n; }
           }
         }
       }
@@ -508,7 +516,7 @@ class Parser {
       let sum = BigInt(0);
       for (const val of first) {
         if (val !== undefined && val !== null) {
-          sum += BigInt(String(val));
+          try { sum += BigInt(String(val)); } catch { return 0n; }
         }
       }
       return sum;
