@@ -440,6 +440,9 @@ export {
 // Vocabulary — Economy Integration (v4.5.0)
 export { ECONOMY_FLOW, type EconomyFlowEntry } from './vocabulary/economy-integration.js';
 
+// FR-5: Economy Flow Verification (v4.6.0)
+export { verifyEconomyFlow } from './vocabulary/economy-integration.js';
+
 // Vocabulary — State Machines (v4.6.0)
 export {
   STATE_MACHINES,
@@ -467,6 +470,17 @@ export {
 // FR-4: Cross-Language Constraints (v4.6.0)
 export { type ConstraintFile, type Constraint } from './constraints/types.js';
 export { evaluateConstraint } from './constraints/evaluator.js';
+
+// FR-6: Deprecation (v4.6.0)
+export {
+  DEPRECATION_REGISTRY,
+  type DeprecationEntry,
+  getDeprecatedSchemas,
+  isDeprecated,
+} from './vocabulary/deprecation.js';
+
+// FR-6: Metadata validation (v4.6.0)
+export { isValidMetadataKey, getNamespaceOwner } from './vocabulary/metadata.js';
 
 // Integrity — Idempotency
 export { deriveIdempotencyKey } from './integrity/idempotency.js';

@@ -66,3 +66,25 @@ export const MODEL_METADATA_KEYS = {
 } as const;
 
 export type ModelMetadataKey = typeof MODEL_METADATA_KEYS[keyof typeof MODEL_METADATA_KEYS];
+
+/**
+ * Check whether a metadata key belongs to any known namespace.
+ *
+ * @returns true if the key starts with a recognized namespace prefix
+ */
+export function isValidMetadataKey(key: string): boolean {
+  return Object.values(METADATA_NAMESPACES).some(prefix => key.startsWith(prefix));
+}
+
+/**
+ * Determine the namespace owner for a metadata key.
+ *
+ * @returns the owner string, or undefined if the key does not match any known namespace
+ */
+export function getNamespaceOwner(key: string): string | undefined {
+  if (key.startsWith(METADATA_NAMESPACES.PROTOCOL)) return 'loa-hounfour';
+  if (key.startsWith(METADATA_NAMESPACES.TRACE)) return 'infrastructure';
+  if (key.startsWith(METADATA_NAMESPACES.MODEL)) return 'model';
+  if (key.startsWith(METADATA_NAMESPACES.CONSUMER)) return 'consumer';
+  return undefined;
+}

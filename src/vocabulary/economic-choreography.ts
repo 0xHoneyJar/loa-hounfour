@@ -4,6 +4,10 @@ export interface EconomicScenarioChoreography {
   forward: readonly EventType[];
   compensation: readonly EventType[];
   invariants: readonly { description: string; enforceable: boolean }[];
+  saga?: {
+    compensation_trigger: string;
+    idempotency: string;
+  };
 }
 
 /**
@@ -17,7 +21,7 @@ export interface EconomicScenarioChoreography {
  *
  * @see BB-POST-MERGE-002 — Choreography naming alignment
  */
-export const ECONOMIC_CHOREOGRAPHY = {
+export const ECONOMIC_CHOREOGRAPHY: Record<string, EconomicScenarioChoreography> = {
   stake: {
     forward: ['economy.stake.created', 'economy.stake.vested'] as const,
     compensation: ['economy.stake.withdrawn', 'economy.stake.slashed'] as const,
@@ -25,6 +29,10 @@ export const ECONOMIC_CHOREOGRAPHY = {
       { description: 'stake.amount_micro > 0', enforceable: true },
       { description: 'vested_micro + remaining_micro == amount_micro', enforceable: true },
     ] as const,
+    saga: {
+      compensation_trigger: 'Slashing dispute or vesting invalidation',
+      idempotency: 'Stake state machine prevents double-slash',
+    },
   },
   escrow: {
     forward: ['economy.escrow.created', 'economy.escrow.released'] as const,
@@ -34,6 +42,10 @@ export const ECONOMIC_CHOREOGRAPHY = {
       { description: 'released + refunded <= held (conservation)', enforceable: true },
       { description: 'terminal states have no outbound transitions', enforceable: true },
     ] as const,
+    saga: {
+      compensation_trigger: 'Release fails or bilateral disagreement',
+      idempotency: 'Escrow state is terminal — re-release is no-op',
+    },
   },
   mutual_credit: {
     forward: ['economy.credit.extended', 'economy.credit.settled'] as const,
@@ -42,7 +54,11 @@ export const ECONOMIC_CHOREOGRAPHY = {
       { description: 'credit.amount_micro > 0', enforceable: true },
       { description: 'settled amount <= issued amount', enforceable: true },
     ] as const,
+    saga: {
+      compensation_trigger: 'Settlement failure or credit default',
+      idempotency: 'Settled flag is idempotent boolean transition',
+    },
   },
-} as const satisfies Record<string, EconomicScenarioChoreography>;
+};
 
 export type EconomicChoreography = typeof ECONOMIC_CHOREOGRAPHY;
