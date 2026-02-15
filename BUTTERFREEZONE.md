@@ -1,23 +1,10 @@
 <!-- AGENT-CONTEXT
-name: loa
+name: @0xhoneyjar/loa-hounfour
 type: framework
-purpose: Loa is an agent-driven development framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's official CLI).
-key_files: [CLAUDE.md, .claude/loa/CLAUDE.loa.md, .loa.config.yaml, .claude/scripts/, .claude/skills/]
+purpose: Shared protocol contracts for the loa-finn ↔ arrakis integration layer
+key_files: [CLAUDE.md, .claude/loa/CLAUDE.loa.md, .loa.config.yaml, .claude/scripts/, .claude/skills/, package.json]
 interfaces: [/auditing-security, /autonomous-agent, /bridgebuilder-review, /browsing-constructs, /bug-triaging]
-dependencies: [git, jq, yq]
-ecosystem:
-  - repo: 0xHoneyJar/loa-finn
-    role: runtime
-    interface: hounfour-router
-    protocol: loa-hounfour@4.6.0
-  - repo: 0xHoneyJar/loa-hounfour
-    role: protocol
-    interface: npm-package
-    protocol: loa-hounfour@4.6.0
-  - repo: 0xHoneyJar/arrakis
-    role: distribution
-    interface: jwt-auth
-    protocol: loa-hounfour@4.6.0
+dependencies: [git, jq, yq, node]
 capability_requirements:
   - filesystem: read
   - filesystem: write (scope: state)
@@ -25,14 +12,14 @@ capability_requirements:
   - git: read_write
   - shell: execute
   - github_api: read_write (scope: external)
-version: v1.39.1
-trust_level: L2-verified
+version: v1.33.1
+trust_level: L3-hardened
 -->
 
-# loa
+# @0xhoneyjar/loa-hounfour
 
 <!-- provenance: DERIVED -->
-Loa is an agent-driven development framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's official CLI).
+Shared protocol contracts for the loa-finn ↔ arrakis integration layer
 
 The framework provides 29 specialized skills, built with TypeScript/JavaScript, Python, Shell.
 
@@ -66,22 +53,31 @@ The project exposes 15 key entry points across its public API surface.
 The architecture follows a three-zone model: System (`.claude/`) contains framework-managed scripts and skills, State (`grimoires/`, `.beads/`) holds project-specific artifacts and memory, and App (`src/`, `lib/`) contains developer-owned application code. The framework orchestrates 29 specialized skills through slash commands.
 ```mermaid
 graph TD
+    constraints[constraints]
     docs[docs]
     evals[evals]
     grimoires[grimoires]
-    skills[skills]
-    tests[tests]
+    schemas[schemas]
+    scripts[scripts]
+    specs[specs]
+    src[src]
     Root[Project Root]
+    Root --> constraints
     Root --> docs
     Root --> evals
     Root --> grimoires
-    Root --> skills
-    Root --> tests
+    Root --> schemas
+    Root --> scripts
+    Root --> specs
+    Root --> src
 ```
 Directory structure:
 ```
+./constraints
+./dist
 ./docs
 ./docs/architecture
+./docs/choreography
 ./docs/integration
 ./evals
 ./evals/baselines
@@ -95,16 +91,18 @@ Directory structure:
 ./grimoires
 ./grimoires/loa
 ./grimoires/pub
-./skills
-./skills/legba
-./tests
-./tests/e2e
-./tests/edge-cases
-./tests/fixtures
-./tests/helpers
-./tests/integration
-./tests/performance
-./tests/unit
+./schemas
+./scripts
+./specs
+./src
+./src/constraints
+./src/core
+./src/economy
+./src/governance
+./src/integrity
+./src/model
+./src/schemas
+./src/test-infrastructure
 ```
 
 ## Interfaces
@@ -145,17 +143,23 @@ Directory structure:
 <!-- provenance: DERIVED -->
 | Module | Files | Purpose | Documentation |
 |--------|-------|---------|---------------|
-| `docs/` | 5 | Documentation | \u2014 |
-| `evals/` | 1269 | Benchmarking and regression framework for the Loa agent development system. Ensures framework changes don't degrade agent behavior through | [evals/README.md](evals/README.md) |
-| `grimoires/` | 520 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |
-| `skills/` | 5112 | Specialized agent skills | \u2014 |
-| `tests/` | 142 | Test suites | \u2014 |
+| `constraints/` | 20 | Constraints | \u2014 |
+| `docs/` | 9 | Documentation | \u2014 |
+| `evals/` | 122 | Benchmarking and regression framework for the Loa agent development system. Ensures framework changes don't degrade agent behavior through | [evals/README.md](evals/README.md) |
+| `grimoires/` | 45 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |
+| `schemas/` | 51 | **Contract version:** | [schemas/README.md](schemas/README.md) |
+| `scripts/` | 11 | Utility scripts | \u2014 |
+| `specs/` | 1 | Specs | \u2014 |
+| `src/` | 83 | Source code | \u2014 |
+| `tests/` | 207 | Test suites | \u2014 |
+| `vectors/` | 38 | Vectors | \u2014 |
 
 ## Verification
 <!-- provenance: CODE-FACTUAL -->
-- Trust Level: **L2 — CI Verified**
-- 142 test files across 1 suite
-- CI/CD: GitHub Actions (10 workflows)
+- Trust Level: **L3 — Property-Based**
+- 207 test files across 1 suite
+- CI/CD: GitHub Actions (1 workflows)
+- Type safety: TypeScript
 - Security: SECURITY.md present
 
 ## Agents
@@ -166,52 +170,43 @@ The project defines 1 specialized agent persona.
 |-------|----------|-------|
 | Bridgebuilder | You are the Bridgebuilder — a senior engineering mentor who has spent decades building systems at scale. | Your voice is warm, precise, and rich with analogy. |
 
-## Culture
+## Ecosystem
 <!-- provenance: OPERATIONAL -->
-**Naming**: Vodou terminology (Loa, Grimoire, Hounfour, Simstim) as cognitive hooks for agent framework concepts.
-
-**Principles**: Think Before Coding — plan and analyze before implementing, Simplicity First — minimum complexity for the current task, Surgical Changes — minimal diff, maximum impact, Goal-Driven — every action traces to acceptance criteria.
-
-**Methodology**: Agent-driven development with iterative excellence loops (Simstim, Run Bridge, Flatline Protocol).
-**Creative Methodology**: Creative methodology drawing from cyberpunk fiction, free jazz improvisation, and temporary autonomous zones.
-
-**Influences**: Neuromancer (Gibson) — Simstim as shared consciousness metaphor, Flatline Protocol — adversarial multi-model review as creative tension, TAZ (Hakim Bey) — temporary spaces for autonomous agent exploration.
-
-**Knowledge Production**: Knowledge production through collective inquiry — Flatline as multi-model study group.
+### Dependencies
+- `@noble/hashes`
+- `@sinclair/typebox`
+- `@types/node`
+- `fast-check`
+- `jose`
+- `tsx`
+- `typescript`
+- `vitest`
 
 ## Quick Start
 <!-- provenance: OPERATIONAL -->
 
-**Prerequisites**: [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's CLI for Claude), Git, jq, [yq v4+](https://github.com/mikefarah/yq). See **[INSTALLATION.md](INSTALLATION.md)** for full details.
-
 ```bash
-# Install (one command, any existing repo)
-curl -fsSL https://raw.githubusercontent.com/0xHoneyJar/loa/main/.claude/scripts/mount-loa.sh | bash
+# npm
+npm install @0xhoneyjar/loa-hounfour
 
-# Start Claude Code
-claude
+# pnpm
+pnpm add @0xhoneyjar/loa-hounfour
 
-# These are slash commands typed inside Claude Code, not your terminal.
-# 5 commands. Full development cycle.
-/plan      # Requirements -> Architecture -> Sprints
-/build     # Implement the current sprint
-/review    # Code review + security audit
-/ship      # Deploy and archive
+# git dependency (if not yet published to npm)
+pnpm add github:0xHoneyJar/loa-hounfour
 ```
-
-After install, you should see a `.claude/` directory, `grimoires/loa/`, and `.loa.config.yaml` in your repo. Run `/loa doctor` inside Claude Code to verify everything is healthy.
 <!-- ground-truth-meta
-head_sha: aa1a8136eca92e68ad0c8f7c399f9d8b0631aeb2
-generated_at: 2026-02-15T09:17:42Z
+head_sha: 0dfba4ccc3c8575bae68cf660acd85d504ef366b
+generated_at: 2026-02-15T11:45:35Z
 generator: butterfreezone-gen v1.0.0
 sections:
-  agent_context: f0e46136a9fb44f42e69230a4159e0574f17456c5d83430fe90352f9cce30a92
+  agent_context: 02ecf1e905dd9d5c971a3ecbc6464b90727aa989c9e1e65f9a85a31631a2181e
   capabilities: 7ac5066c6290b2bd238aba0cebe80e6c24d2c32ecc6b066842a065eb8c2300c1
-  architecture: 116f3296a49700fbee5e9cb0492e4f9aee0f9452b5c051a942ee4429278ab8d3
+  architecture: 799508a8fac5b3374b95db0aafcca2ea980d23ef398e70f910f9f077bf857573
   interfaces: c0d2732b6ab7745352bd781f56f44f32b2f8f2cacef7234ceed3e8f09796c0f4
-  module_map: 8bd576bd1f9ce9c4e6877c9f054bf094f3a36de9a07926dfe0b9d079d84862ac
-  verification: 9de40736bfd7817383734eeb1567bc9dbf6687f6b50cf8fc5b8068994053476b
+  module_map: 64ebc5c0e8be1cbf232f0e0cdca50bdba41615deb2abeaeccc302c1ce24bb71f
+  verification: 132d7adab8280adb2de4cac7779874a9bb690b278e378fadf99dc6b23a40494c
   agents: ca263d1e05fd123434a21ef574fc8d76b559d22060719640a1f060527ef6a0b6
-  culture: f73380f93bb4fadf36ccc10d60fc57555914363fc90e4f15b4dc4eb92bd1640f
-  quick_start: 3c38dc53bf2ec73cbbb5c372af747ffa7894538d360b1182566647c2940c58c7
+  ecosystem: d7518fab456bd22dee963318774180c87ac79752d051ca628bf17e8b3acf8cff
+  quick_start: 6194c63aaad7d1d59a51c2f46331d5de41ba8b937c603ca6e526a6a72f73961c
 -->
