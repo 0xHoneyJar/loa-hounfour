@@ -84,6 +84,10 @@
       "pattern": "^\\d+\\.\\d+$",
       "type": "string"
     },
+    "sunset_version": {
+      "pattern": "^\\d+\\.\\d+$",
+      "type": "string"
+    },
     "review_status": {
       "anyOf": [
         {

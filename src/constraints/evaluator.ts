@@ -22,124 +22,9 @@
  * @see FR-4 v4.6.0 — Cross-Language Constraints
  */
 
+import { tokenize, type Token } from './tokenizer.js';
+
 export const MAX_EXPRESSION_DEPTH = 32;
-
-type Token = {
-  type: 'number' | 'string' | 'ident' | 'op' | 'paren' | 'comma' | 'bracket' | 'dot' | 'arrow';
-  value: string;
-};
-
-function tokenize(expr: string): Token[] {
-  const tokens: Token[] = [];
-  let i = 0;
-  while (i < expr.length) {
-    // Skip whitespace
-    if (/\s/.test(expr[i])) { i++; continue; }
-
-    // Arrow (implication)
-    if (expr[i] === '=' && expr[i + 1] === '>') {
-      tokens.push({ type: 'arrow', value: '=>' });
-      i += 2;
-      continue;
-    }
-
-    // Two-char operators
-    if (i + 1 < expr.length) {
-      const two = expr[i] + expr[i + 1];
-      if (two === '==' || two === '!=' || two === '<=' || two === '>=' || two === '&&' || two === '||') {
-        tokens.push({ type: 'op', value: two });
-        i += 2;
-        continue;
-      }
-    }
-
-    // Single-char operators
-    if (expr[i] === '<' || expr[i] === '>' || expr[i] === '!') {
-      tokens.push({ type: 'op', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Parentheses
-    if (expr[i] === '(' || expr[i] === ')') {
-      tokens.push({ type: 'paren', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Brackets
-    if (expr[i] === '[' || expr[i] === ']') {
-      tokens.push({ type: 'bracket', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Comma
-    if (expr[i] === ',') {
-      tokens.push({ type: 'comma', value: ',' });
-      i++;
-      continue;
-    }
-
-    // Dot
-    if (expr[i] === '.' && !(i > 0 && /\d/.test(expr[i - 1]) && i + 1 < expr.length && /\d/.test(expr[i + 1]))) {
-      // Check if this is a decimal point in a number
-      if (i + 1 < expr.length && /\d/.test(expr[i + 1]) && tokens.length > 0 && tokens[tokens.length - 1].type === 'number') {
-        // It's a decimal point — merge with previous number token
-        const prev = tokens.pop()!;
-        let numStr = prev.value + '.';
-        i++;
-        while (i < expr.length && /\d/.test(expr[i])) {
-          numStr += expr[i];
-          i++;
-        }
-        tokens.push({ type: 'number', value: numStr });
-        continue;
-      }
-      tokens.push({ type: 'dot', value: '.' });
-      i++;
-      continue;
-    }
-
-    // String literal (single-quoted)
-    if (expr[i] === "'") {
-      let str = '';
-      i++; // skip opening quote
-      while (i < expr.length && expr[i] !== "'") {
-        str += expr[i];
-        i++;
-      }
-      i++; // skip closing quote
-      tokens.push({ type: 'string', value: str });
-      continue;
-    }
-
-    // Number
-    if (/\d/.test(expr[i])) {
-      let num = '';
-      while (i < expr.length && (/\d/.test(expr[i]) || expr[i] === '.')) {
-        num += expr[i];
-        i++;
-      }
-      tokens.push({ type: 'number', value: num });
-      continue;
-    }
-
-    // Identifier (includes null, true, false, bigint_sum, etc.)
-    if (/[a-zA-Z_]/.test(expr[i])) {
-      let ident = '';
-      while (i < expr.length && /[a-zA-Z0-9_]/.test(expr[i])) {
-        ident += expr[i];
-        i++;
-      }
-      tokens.push({ type: 'ident', value: ident });
-      continue;
-    }
-
-    throw new Error(`Unexpected character: ${expr[i]} at position ${i} in "${expr}"`);
-  }
-  return tokens;
-}
 
 /**
  * Resolve a dotted field path on a data object.
@@ -588,7 +473,17 @@ class Parser {
   }
 
   /**
-   * Parse delta(fieldPath) — returns numeric difference current - previous as BigInt.
+   * Parse delta(fieldPath) — returns numeric difference current - previous.
+   *
+   * Coercion hierarchy:
+   * 1. BigInt: if both values convert to BigInt, returns BigInt difference
+   * 2. Number: if BigInt fails but both values convert to Number (not NaN),
+   *    returns Number difference (handles decimal values like "1.50")
+   * 3. Fallback: returns BigInt(0) when values are unresolvable
+   *
+   * This hierarchy matters for billing protocols where field values may be
+   * decimal strings (e.g., price "1.50" → "2.00") that cannot be represented
+   * as BigInt but have meaningful numeric deltas.
    */
   private parseDelta(): unknown {
     this.advance(); // consume 'delta'
@@ -598,11 +493,22 @@ class Parser {
 
     const prev = this.data._previous as Record<string, unknown> | undefined;
     if (prev == null) return BigInt(0);
+
+    const currentRaw = resolve(this.data, path) ?? 0;
+    const prevRaw = resolve(prev, path) ?? 0;
+
+    // Try BigInt first (preferred for integer financial fields)
     try {
-      const currentVal = BigInt(String(resolve(this.data, path) ?? 0));
-      const prevVal = BigInt(String(resolve(prev, path) ?? 0));
+      const currentVal = BigInt(String(currentRaw));
+      const prevVal = BigInt(String(prevRaw));
       return currentVal - prevVal;
     } catch {
+      // BigInt failed — try Number fallback for decimal values
+      const currentNum = Number(String(currentRaw));
+      const prevNum = Number(String(prevRaw));
+      if (!Number.isNaN(currentNum) && !Number.isNaN(prevNum)) {
+        return currentNum - prevNum;
+      }
       return BigInt(0);
     }
   }

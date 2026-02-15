@@ -45,6 +45,20 @@
       "severity": "error",
       "message": "total_cost_micro must be >= sum of dialogue round costs",
       "fields": ["total_cost_micro", "rounds"]
+    },
+    {
+      "id": "ensemble-result-rounds-completed-consistency",
+      "expression": "rounds == null || rounds_completed == null || rounds_completed == rounds.length",
+      "severity": "error",
+      "message": "rounds_completed must equal rounds.length when both are present",
+      "fields": ["rounds", "rounds_completed"]
+    },
+    {
+      "id": "ensemble-result-rounds-completed-within-requested",
+      "expression": "rounds_requested == null || rounds_completed == null || rounds_completed <= rounds_requested",
+      "severity": "error",
+      "message": "rounds_completed must not exceed rounds_requested",
+      "fields": ["rounds_completed", "rounds_requested"]
     }
   ]
 }

@@ -101,6 +101,8 @@
           }
         ],
         "termination_reason": "fixed_rounds",
+        "rounds_completed": 2,
+        "rounds_requested": 2,
         "total_cost_micro": "195000",
         "total_latency_ms": 5300,
         "contract_version": "5.0.0"
@@ -236,6 +238,8 @@
           }
         ],
         "termination_reason": "consensus_reached",
+        "rounds_completed": 3,
+        "rounds_requested": 5,
         "consensus_score": 0.92,
         "total_cost_micro": "230000",
         "total_latency_ms": 7800,
@@ -304,6 +308,8 @@
           }
         ],
         "termination_reason": "budget_exhausted",
+        "rounds_completed": 1,
+        "rounds_requested": 3,
         "total_cost_micro": "200000",
         "total_latency_ms": 4500,
         "contract_version": "5.0.0"

@@ -17,6 +17,13 @@
       "severity": "error",
       "message": "dialogue_config is required when strategy is 'dialogue'",
       "fields": ["strategy", "dialogue_config"]
+    },
+    {
+      "id": "ensemble-request-dialogue-session-id",
+      "expression": "strategy != 'dialogue' || request.session_id != null",
+      "severity": "warning",
+      "message": "session_id is recommended when strategy is 'dialogue' for round correlation",
+      "fields": ["strategy", "request.session_id"]
     }
   ]
 }

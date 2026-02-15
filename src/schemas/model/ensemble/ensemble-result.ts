@@ -28,6 +28,10 @@ export const EnsembleResultSchema = Type.Object(
       Type.Literal('timeout'),
       Type.Literal('budget_exhausted'),
     ])),
+    /** Number of dialogue rounds completed. When present with rounds array, must equal rounds.length. */
+    rounds_completed: Type.Optional(Type.Integer({ minimum: 0 })),
+    /** Number of dialogue rounds originally requested (from dialogue_config.max_rounds). */
+    rounds_requested: Type.Optional(Type.Integer({ minimum: 1 })),
     total_cost_micro: MicroUSDUnsigned,
     total_latency_ms: Type.Integer({ minimum: 0 }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

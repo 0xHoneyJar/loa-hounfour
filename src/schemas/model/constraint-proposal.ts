@@ -24,6 +24,8 @@ export const ConstraintProposalSchema = Type.Object(
     ),
     rationale: Type.String({ minLength: 1 }),
     expression_version: Type.String({ pattern: '^\\d+\\.\\d+$' }),
+    /** Maximum expression grammar version this constraint is valid for. When the grammar evolves beyond this version, the constraint should be re-evaluated or retired. */
+    sunset_version: Type.Optional(Type.String({ pattern: '^\\d+\\.\\d+$' })),
     review_status: Type.Optional(
       Type.Union([
         Type.Literal('proposed'),

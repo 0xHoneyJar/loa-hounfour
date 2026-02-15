@@ -8,6 +8,7 @@ import { validate, getCrossFieldValidatorSchemas } from '../../src/validators/in
 import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble-request.js';
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
+import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -89,6 +90,43 @@ describe('EnsembleRequest cross-field validator', () => {
     const result = validate(EnsembleRequestSchema, req);
     expect(result.valid).toBe(true);
   });
+
+  it('warns when strategy=dialogue without session_id on request', () => {
+    const req = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      models: ['a', 'b'],
+      request: VALID_REQUEST_INNER,
+      dialogue_config: {
+        max_rounds: 3,
+        pass_thinking_traces: true,
+        termination: 'fixed_rounds',
+      },
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleRequestSchema, req);
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toBeDefined();
+    expect(result.warnings!.some((w) => w.includes('session_id is recommended'))).toBe(true);
+  });
+
+  it('no warning when strategy=dialogue with session_id on request', () => {
+    const req = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      models: ['a', 'b'],
+      request: { ...VALID_REQUEST_INNER, session_id: 'sess-001' },
+      dialogue_config: {
+        max_rounds: 3,
+        pass_thinking_traces: true,
+        termination: 'fixed_rounds',
+      },
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleRequestSchema, req);
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -158,6 +196,79 @@ describe('EnsembleResult cross-field validator', () => {
     const result = validate(EnsembleResultSchema, res);
     expect(result.valid).toBe(true);
   });
+
+  it('errors when rounds_completed mismatches rounds.length', () => {
+    const ROUND = {
+      round: 1,
+      model: 'claude-opus-4-6',
+      response: VALID_RESULT_INNER,
+    };
+    const res = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      selected: VALID_RESULT_INNER,
+      candidates: [VALID_RESULT_INNER],
+      rounds: [ROUND],
+      rounds_completed: 5,
+      rounds_requested: 5,
+      termination_reason: 'fixed_rounds',
+      total_cost_micro: '150',
+      total_latency_ms: 1500,
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleResultSchema, res);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('rounds_completed') && e.includes('rounds.length'))).toBe(true);
+    }
+  });
+
+  it('errors when rounds_completed exceeds rounds_requested', () => {
+    const ROUND = {
+      round: 1,
+      model: 'claude-opus-4-6',
+      response: VALID_RESULT_INNER,
+    };
+    const res = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      selected: VALID_RESULT_INNER,
+      candidates: [VALID_RESULT_INNER],
+      rounds: [ROUND],
+      rounds_completed: 1,
+      rounds_requested: 0,
+      termination_reason: 'fixed_rounds',
+      total_cost_micro: '150',
+      total_latency_ms: 1500,
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleResultSchema, res);
+    // rounds_requested: 0 will fail schema validation (minimum: 1)
+    expect(result.valid).toBe(false);
+  });
+
+  it('passes with consistent rounds_completed and rounds_requested', () => {
+    const ROUND = {
+      round: 1,
+      model: 'claude-opus-4-6',
+      response: VALID_RESULT_INNER,
+    };
+    const res = {
+      ensemble_id: '550e8400-e29b-41d4-a716-446655440001',
+      strategy: 'dialogue',
+      selected: VALID_RESULT_INNER,
+      candidates: [VALID_RESULT_INNER],
+      rounds: [ROUND],
+      rounds_completed: 1,
+      rounds_requested: 3,
+      termination_reason: 'budget_exhausted',
+      total_cost_micro: '150',
+      total_latency_ms: 1500,
+      contract_version: '5.0.0',
+    };
+    const result = validate(EnsembleResultSchema, res);
+    expect(result.valid).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -206,6 +317,52 @@ describe('BudgetScope cross-field validator', () => {
     const result = validate(BudgetScopeSchema, scope);
     expect(result.valid).toBe(true);
     expect(result.warnings).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Discoverability
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// ConstraintProposal cross-field (sunset_version)
+// ---------------------------------------------------------------------------
+
+describe('ConstraintProposal cross-field validator', () => {
+  const VALID_PROPOSAL = {
+    proposal_id: '550e8400-e29b-41d4-a716-446655440500',
+    agent_id: 'claude-3-opus',
+    target_schema_id: 'CompletionRequest',
+    proposed_constraints: [{
+      id: 'test-constraint',
+      expression: 'model != null',
+      severity: 'warning',
+      message: 'model should be set',
+      fields: ['model'],
+    }],
+    rationale: 'Test rationale',
+    expression_version: '1.0',
+    contract_version: '5.0.0',
+  };
+
+  it('passes with valid sunset_version >= expression_version', () => {
+    const proposal = { ...VALID_PROPOSAL, sunset_version: '3.0' };
+    const result = validate(ConstraintProposalSchema, proposal);
+    expect(result.valid).toBe(true);
+  });
+
+  it('errors when sunset_version < expression_version', () => {
+    const proposal = { ...VALID_PROPOSAL, expression_version: '2.0', sunset_version: '1.0' };
+    const result = validate(ConstraintProposalSchema, proposal);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.includes('sunset_version'))).toBe(true);
+    }
+  });
+
+  it('passes without sunset_version (optional)', () => {
+    const result = validate(ConstraintProposalSchema, VALID_PROPOSAL);
+    expect(result.valid).toBe(true);
   });
 });
 

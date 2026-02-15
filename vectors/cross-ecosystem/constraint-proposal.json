@@ -22,6 +22,7 @@
         ],
         "rationale": "When thinking mode is enabled without a budget_tokens limit, token costs can grow unbounded. This constraint ensures cost predictability.",
         "expression_version": "1.0",
+        "sunset_version": "3.0",
         "review_status": "accepted",
         "review_scores": [
           { "reviewer_model": "gpt-5.2", "score": 850, "rationale": "Strong cost-safety constraint" },

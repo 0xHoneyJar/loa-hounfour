@@ -31,7 +31,7 @@ import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 import type { ConstraintFile, Constraint } from '../../src/constraints/types.js';
-import { expressionVersionSupported } from '../../src/constraints/types.js';
+import { expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from '../../src/constraints/types.js';
 import { EXPRESSION_VERSION, validateExpression } from '../../src/constraints/grammar.js';
 import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
 
@@ -891,6 +891,33 @@ describe('EnsembleRequest round-trip', () => {
     expect(constraintResult).toBe(true);
     expect(tsResult.valid).toBe(true);
   });
+
+  it('strategy=dialogue without session_id: constraint warns', () => {
+    const data = {
+      strategy: 'dialogue',
+      request: { session_id: null },
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-session-id', data);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('strategy=dialogue with session_id: constraint passes', () => {
+    const data = {
+      strategy: 'dialogue',
+      request: { session_id: 'sess-123' },
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-session-id', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('strategy=consensus: session_id warning vacuously true', () => {
+    const data = {
+      strategy: 'consensus',
+      request: {},
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-session-id', data);
+    expect(constraintResult).toBe(true);
+  });
 });
 
 // ─── EnsembleResult ───────────────────────────────────────────────────────
@@ -943,6 +970,48 @@ describe('EnsembleResult round-trip', () => {
     expect(constraintResult).toBe(true);
     expect(costResult).toBe(true);
     expect(tsResult.valid).toBe(true);
+  });
+
+  it('rounds_completed matches rounds.length: passes', () => {
+    const good = {
+      rounds: [{ round: 1 }, { round: 2 }],
+      rounds_completed: 2,
+    };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-consistency', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('rounds_completed mismatches rounds.length: fails', () => {
+    const bad = {
+      rounds: [{ round: 1 }, { round: 2 }],
+      rounds_completed: 5,
+    };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-consistency', bad);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('no rounds: rounds_completed consistency vacuously true', () => {
+    const good = { rounds_completed: 3 };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-consistency', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('rounds_completed <= rounds_requested: passes', () => {
+    const good = { rounds_completed: 2, rounds_requested: 5 };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-within-requested', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('rounds_completed > rounds_requested: fails', () => {
+    const bad = { rounds_completed: 6, rounds_requested: 3 };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-within-requested', bad);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('no rounds_requested: constraint vacuously true', () => {
+    const good = { rounds_completed: 10 };
+    const constraintResult = evalById(file, 'ensemble-result-rounds-completed-within-requested', good);
+    expect(constraintResult).toBe(true);
   });
 });
 
@@ -1487,6 +1556,30 @@ describe('ConstraintProposal round-trip', () => {
     const constraintResult = evalById(file, 'constraint-proposal-accepted-consensus', good);
     expect(constraintResult).toBe(true);
   });
+
+  it('sunset_version >= expression_version: passes', () => {
+    const good = { expression_version: '1.0', sunset_version: '3.0' };
+    const constraintResult = evalById(file, 'constraint-proposal-sunset-after-expression', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('sunset_version < expression_version: fails', () => {
+    const bad = { expression_version: '2.0', sunset_version: '1.0' };
+    const constraintResult = evalById(file, 'constraint-proposal-sunset-after-expression', bad);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('sunset_version == expression_version: passes', () => {
+    const good = { expression_version: '2.0', sunset_version: '2.0' };
+    const constraintResult = evalById(file, 'constraint-proposal-sunset-after-expression', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('no sunset_version: passes (null antecedent)', () => {
+    const good = { expression_version: '2.0' };
+    const constraintResult = evalById(file, 'constraint-proposal-sunset-after-expression', good);
+    expect(constraintResult).toBe(true);
+  });
 });
 
 // ─── Expression version compatibility (Sprint 8) ─────────────────────────
@@ -1506,6 +1599,12 @@ describe('Expression version compatibility', () => {
 
   it('version 0.5 is not supported', () => {
     expect(expressionVersionSupported('0.5')).toBe(false);
+  });
+
+  it('EXPRESSION_VERSIONS_SUPPORTED includes 1.0 and 2.0', () => {
+    expect(EXPRESSION_VERSIONS_SUPPORTED).toContain('1.0');
+    expect(EXPRESSION_VERSIONS_SUPPORTED).toContain('2.0');
+    expect(EXPRESSION_VERSIONS_SUPPORTED).toHaveLength(2);
   });
 });
 

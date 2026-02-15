@@ -48,6 +48,12 @@ export interface ConstraintFile {
  * @param version - Expression version string (e.g. '1.0', '2.0')
  * @returns true if the current evaluator supports this version
  */
+/**
+ * All expression grammar versions supported by the current evaluator.
+ * Used by protocol-discovery to advertise compatibility during version negotiation.
+ */
+export const EXPRESSION_VERSIONS_SUPPORTED: readonly string[] = ['1.0', '2.0'];
+
 export function expressionVersionSupported(version: string): boolean {
   const [major] = version.split('.').map(Number);
   // Current evaluator is v2.0 — supports 1.x and 2.x

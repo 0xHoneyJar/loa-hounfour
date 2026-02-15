@@ -36,6 +36,12 @@ export const ProtocolDiscoverySchema = Type.Object({
     format: 'uri',
     description: 'URL for capability negotiation endpoint — connects discovery to capability queries',
   })),
+  expression_versions_supported: Type.Optional(Type.Array(Type.String({
+    pattern: '^\\d+\\.\\d+$',
+    description: 'Constraint expression grammar version (e.g. "1.0", "2.0")',
+  }), {
+    description: 'Supported constraint expression grammar versions for version negotiation',
+  })),
 }, {
   $id: 'ProtocolDiscovery',
   additionalProperties: false,
@@ -50,6 +56,7 @@ export type ProtocolDiscovery = Static<typeof ProtocolDiscoverySchema>;
  * @param schemaIds - List of supported schema $id URLs (must be valid URIs)
  * @param aggregateTypes - Optional list of supported aggregate types
  * @param capabilitiesUrl - Optional URL for capability negotiation endpoint (v2.3.0)
+ * @param expressionVersions - Optional list of supported expression grammar versions (v5.0.0)
  * @throws {Error} If any schemaId is not a valid URI (must start with https://)
  * @throws {Error} If capabilitiesUrl is not a valid https:// URI
  */
@@ -57,6 +64,7 @@ export function buildDiscoveryDocument(
   schemaIds: string[],
   aggregateTypes?: string[],
   capabilitiesUrl?: string,
+  expressionVersions?: string[],
 ): ProtocolDiscovery {
   const invalid = schemaIds.filter(id => {
     try {
@@ -88,5 +96,6 @@ export function buildDiscoveryDocument(
     schemas: schemaIds,
     ...(aggregateTypes ? { supported_aggregates: aggregateTypes } : {}),
     ...(capabilitiesUrl ? { capabilities_url: capabilitiesUrl } : {}),
+    ...(expressionVersions ? { expression_versions_supported: expressionVersions } : {}),
   };
 }

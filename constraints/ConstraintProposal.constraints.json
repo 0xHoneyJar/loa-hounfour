@@ -10,6 +10,13 @@
       "severity": "error",
       "message": "consensus_category must be 'HIGH_CONSENSUS' when review_status is 'accepted'",
       "fields": ["review_status", "consensus_category"]
+    },
+    {
+      "id": "constraint-proposal-sunset-after-expression",
+      "expression": "sunset_version == null || sunset_version >= expression_version",
+      "severity": "error",
+      "message": "sunset_version must be >= expression_version (constraint cannot sunset before the grammar it was authored against)",
+      "fields": ["sunset_version", "expression_version"]
     }
   ]
 }

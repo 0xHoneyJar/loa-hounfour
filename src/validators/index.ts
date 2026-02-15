@@ -473,7 +473,7 @@ registerCrossFieldValidator('ProviderWireMessage', (data) => {
 
 // v5.0.0 — Ensemble cross-field validators
 registerCrossFieldValidator('EnsembleRequest', (data) => {
-  const req = data as { strategy: string; consensus_threshold?: number; dialogue_config?: { max_rounds: number; pass_thinking_traces: boolean; termination: string; seed_prompt?: string } };
+  const req = data as { strategy: string; consensus_threshold?: number; dialogue_config?: { max_rounds: number; pass_thinking_traces: boolean; termination: string; seed_prompt?: string }; request?: { session_id?: string } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -485,11 +485,16 @@ registerCrossFieldValidator('EnsembleRequest', (data) => {
     errors.push('dialogue_config is required when strategy is "dialogue"');
   }
 
+  // Dialogue strategy benefits from session_id for round correlation
+  if (req.strategy === 'dialogue' && req.request && !req.request.session_id) {
+    warnings.push('session_id is recommended when strategy is "dialogue" for round correlation');
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('EnsembleResult', (data) => {
-  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string };
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string; rounds_completed?: number; rounds_requested?: number };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -533,6 +538,16 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
     }
   }
 
+  // rounds_completed consistency: must equal rounds.length when both present
+  if (result.rounds != null && result.rounds_completed != null && result.rounds_completed !== result.rounds.length) {
+    errors.push(`rounds_completed (${result.rounds_completed}) must equal rounds.length (${result.rounds.length})`);
+  }
+
+  // rounds_completed must not exceed rounds_requested
+  if (result.rounds_requested != null && result.rounds_completed != null && result.rounds_completed > result.rounds_requested) {
+    errors.push(`rounds_completed (${result.rounds_completed}) must not exceed rounds_requested (${result.rounds_requested})`);
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
@@ -551,13 +566,18 @@ registerCrossFieldValidator('BudgetScope', (data) => {
 
 // v5.0.0 — ConstraintProposal cross-field validator
 registerCrossFieldValidator('ConstraintProposal', (data) => {
-  const proposal = data as { review_status?: string; consensus_category?: string };
+  const proposal = data as { review_status?: string; consensus_category?: string; expression_version: string; sunset_version?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // Accepted proposals must have HIGH_CONSENSUS
   if (proposal.review_status === 'accepted' && proposal.consensus_category !== 'HIGH_CONSENSUS') {
     errors.push('consensus_category must be "HIGH_CONSENSUS" when review_status is "accepted"');
+  }
+
+  // sunset_version must be >= expression_version
+  if (proposal.sunset_version != null && proposal.sunset_version < proposal.expression_version) {
+    errors.push(`sunset_version ("${proposal.sunset_version}") must be >= expression_version ("${proposal.expression_version}")`);
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
