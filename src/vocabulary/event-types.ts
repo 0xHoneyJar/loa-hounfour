@@ -71,6 +71,7 @@ export const EVENT_TYPES = {
   'economy.escrow.created': 'Escrow entry created',
   'economy.escrow.funded': 'Escrow entry funded',
   'economy.escrow.released': 'Escrow funds released to payee',
+  'economy.escrow.disputed': 'Escrow entry disputed',
   'economy.escrow.refunded': 'Escrow funds refunded to payer',
   'economy.escrow.expired': 'Escrow expired without release',
   'economy.stake.created': 'Stake position created',

@@ -8,9 +8,10 @@
  * This is test-only infrastructure and is NOT exported from the main barrel.
  *
  * @see S6-T1
+ * @see S1-T3 — Refactored to data-driven core via STATE_MACHINES vocabulary
  */
 import { isValidTransition, type AgentLifecycleState } from '../schemas/agent-lifecycle.js';
-import { ESCROW_TRANSITIONS, isValidEscrowTransition } from '../schemas/escrow-entry.js';
+import { STATE_MACHINES, isValidTransition as isValidStateMachineTransition } from '../vocabulary/state-machines.js';
 import type { DomainEvent } from '../schemas/domain-event.js';
 
 /** Canonical reasons why an event application might be rejected. */
@@ -49,12 +50,6 @@ const LIFECYCLE_STATES = new Set<string>([
   'ARCHIVED',
 ]);
 
-/** Valid stake states for lifecycle tracking. */
-type StakeState = 'active' | 'vested' | 'slashed' | 'withdrawn';
-
-/** Valid credit states for lifecycle tracking. */
-type CreditState = 'extended' | 'settled';
-
 /**
  * Tracks protocol state consistency across random event sequences.
  *
@@ -62,9 +57,7 @@ type CreditState = 'extended' | 'settled';
  * - Agent lifecycle transitions are valid per the state machine
  * - Events are deduplicated by event_id
  * - Sanction events require evidence_event_ids in their payload
- * - Escrow transitions follow the state machine in ESCROW_TRANSITIONS
- * - Stake lifecycle transitions follow valid paths
- * - Credit lifecycle transitions follow valid paths
+ * - Economy transitions follow the unified STATE_MACHINES vocabulary
  */
 export class ProtocolStateTracker {
   /** Map of agent_id -> current lifecycle state. */
@@ -77,10 +70,10 @@ export class ProtocolStateTracker {
   private readonly escrowStates = new Map<string, string>();
 
   /** Map of stake_id -> current stake state. */
-  private readonly stakeStates = new Map<string, StakeState>();
+  private readonly stakeStates = new Map<string, string>();
 
   /** Map of credit_id -> current credit state. */
-  private readonly creditStates = new Map<string, CreditState>();
+  private readonly creditStates = new Map<string, string>();
 
   /** Tracks whether any invariant violation has been detected. */
   private invariantViolated = false;
@@ -139,6 +132,30 @@ export class ProtocolStateTracker {
   }
 
   // --- Private helpers ---
+
+  /**
+   * Generic state machine event handler. Validates that the transition from
+   * the entity's current state to the target state is permitted by the
+   * STATE_MACHINES vocabulary, then applies the transition.
+   */
+  private applyStateMachineEvent(
+    machineId: string,
+    stateMap: Map<string, string>,
+    entityId: string,
+    targetState: string,
+    notFoundReason: RejectionReason,
+    invalidTransitionReason: RejectionReason,
+  ): ApplyResult {
+    const currentState = stateMap.get(entityId);
+    if (currentState === undefined) {
+      return { applied: false, reason: notFoundReason };
+    }
+    if (!isValidStateMachineTransition(machineId, currentState, targetState)) {
+      return { applied: false, reason: invalidTransitionReason };
+    }
+    stateMap.set(entityId, targetState);
+    return { applied: true };
+  }
 
   private applyLifecycleTransition(event: DomainEvent): ApplyResult {
     const payload = event.payload as Record<string, unknown>;
@@ -205,7 +222,7 @@ export class ProtocolStateTracker {
     // --- Escrow events ---
     if (event.type === 'economy.escrow.created') {
       const escrowId = (payload.escrow_id as string) || event.aggregate_id;
-      this.escrowStates.set(escrowId, 'held');
+      this.escrowStates.set(escrowId, STATE_MACHINES.escrow.initial);
       return { applied: true };
     }
 
@@ -214,91 +231,44 @@ export class ProtocolStateTracker {
       return { applied: true };
     }
 
-    if (
-      event.type === 'economy.escrow.released' ||
-      event.type === 'economy.escrow.refunded' ||
-      event.type === 'economy.escrow.expired'
-    ) {
+    if (event.type.startsWith('economy.escrow.')) {
       const escrowId = (payload.escrow_id as string) || event.aggregate_id;
-      const currentState = this.escrowStates.get(escrowId);
-      if (currentState === undefined) {
-        return { applied: false, reason: 'escrow_not_found' };
-      }
-
-      // Extract the target state from the event type (last segment)
-      const targetState = event.type.split('.')[2]; // 'released' | 'refunded' | 'expired'
-      if (!isValidEscrowTransition(currentState, targetState)) {
-        return { applied: false, reason: 'invalid_escrow_transition' };
-      }
-
-      this.escrowStates.set(escrowId, targetState);
-      return { applied: true };
+      const targetState = event.type.split('.')[2];
+      return this.applyStateMachineEvent(
+        'escrow', this.escrowStates, escrowId, targetState,
+        'escrow_not_found', 'invalid_escrow_transition',
+      );
     }
 
     // --- Stake events ---
     if (event.type === 'economy.stake.created') {
       const stakeId = (payload.stake_id as string) || event.aggregate_id;
-      this.stakeStates.set(stakeId, 'active');
+      this.stakeStates.set(stakeId, STATE_MACHINES.stake.initial);
       return { applied: true };
     }
 
-    if (event.type === 'economy.stake.vested') {
+    if (event.type.startsWith('economy.stake.')) {
       const stakeId = (payload.stake_id as string) || event.aggregate_id;
-      const currentState = this.stakeStates.get(stakeId);
-      if (currentState === undefined) {
-        return { applied: false, reason: 'stake_not_found' };
-      }
-      if (currentState !== 'active') {
-        return { applied: false, reason: 'invalid_stake_transition' };
-      }
-      this.stakeStates.set(stakeId, 'vested');
-      return { applied: true };
-    }
-
-    if (event.type === 'economy.stake.slashed') {
-      const stakeId = (payload.stake_id as string) || event.aggregate_id;
-      const currentState = this.stakeStates.get(stakeId);
-      if (currentState === undefined) {
-        return { applied: false, reason: 'stake_not_found' };
-      }
-      if (currentState !== 'active') {
-        return { applied: false, reason: 'invalid_stake_transition' };
-      }
-      this.stakeStates.set(stakeId, 'slashed');
-      return { applied: true };
-    }
-
-    if (event.type === 'economy.stake.withdrawn') {
-      const stakeId = (payload.stake_id as string) || event.aggregate_id;
-      const currentState = this.stakeStates.get(stakeId);
-      if (currentState === undefined) {
-        return { applied: false, reason: 'stake_not_found' };
-      }
-      if (currentState !== 'active' && currentState !== 'vested') {
-        return { applied: false, reason: 'invalid_stake_transition' };
-      }
-      this.stakeStates.set(stakeId, 'withdrawn');
-      return { applied: true };
+      const targetState = event.type.split('.')[2];
+      return this.applyStateMachineEvent(
+        'stake', this.stakeStates, stakeId, targetState,
+        'stake_not_found', 'invalid_stake_transition',
+      );
     }
 
     // --- Credit events ---
     if (event.type === 'economy.credit.extended') {
       const creditId = (payload.credit_id as string) || event.aggregate_id;
-      this.creditStates.set(creditId, 'extended');
+      this.creditStates.set(creditId, STATE_MACHINES.credit.initial);
       return { applied: true };
     }
 
     if (event.type === 'economy.credit.settled') {
       const creditId = (payload.credit_id as string) || event.aggregate_id;
-      const currentState = this.creditStates.get(creditId);
-      if (currentState === undefined) {
-        return { applied: false, reason: 'credit_not_found' };
-      }
-      if (currentState !== 'extended') {
-        return { applied: false, reason: 'invalid_credit_transition' };
-      }
-      this.creditStates.set(creditId, 'settled');
-      return { applied: true };
+      return this.applyStateMachineEvent(
+        'credit', this.creditStates, creditId, 'settled',
+        'credit_not_found', 'invalid_credit_transition',
+      );
     }
 
     // Unknown economy events are accepted without state changes

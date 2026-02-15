@@ -440,5 +440,22 @@ export {
 // Vocabulary — Economy Integration (v4.5.0)
 export { ECONOMY_FLOW, type EconomyFlowEntry } from './vocabulary/economy-integration.js';
 
+// Vocabulary — State Machines (v4.6.0)
+export {
+  STATE_MACHINES,
+  getValidTransitions,
+  isTerminalState,
+  isValidTransition as isValidStateMachineTransition,
+  type StateMachineDefinition,
+  type StateMachineTransition,
+} from './vocabulary/state-machines.js';
+
+// Vocabulary — Aggregate Boundaries (v4.6.0)
+export {
+  AGGREGATE_BOUNDARIES,
+  type AggregateBoundary,
+  type ConsistencyModel,
+} from './vocabulary/aggregate-boundaries.js';
+
 // Integrity — Idempotency
 export { deriveIdempotencyKey } from './integrity/idempotency.js';

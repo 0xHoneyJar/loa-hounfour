@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../vocabulary/currency.js';
 import { UUID_V4_PATTERN } from '../vocabulary/patterns.js';
+import { STATE_MACHINES, getValidTransitions, isValidTransition as _isValidTransition } from '../vocabulary/state-machines.js';
 
 /**
  * Escrow entry — a bilateral financial holding with state machine lifecycle.
@@ -34,15 +35,11 @@ export const EscrowEntrySchema = Type.Object(
 
 export type EscrowEntry = Static<typeof EscrowEntrySchema>;
 
-export const ESCROW_TRANSITIONS: Record<string, readonly string[]> = {
-  held: ['released', 'disputed', 'expired'],
-  released: [],  // terminal
-  disputed: ['released', 'refunded'],
-  refunded: [],  // terminal
-  expired: [],   // terminal
-};
+export const ESCROW_TRANSITIONS: Record<string, readonly string[]> =
+  Object.fromEntries(
+    STATE_MACHINES.escrow.states.map(s => [s, getValidTransitions('escrow', s)])
+  );
 
 export function isValidEscrowTransition(from: string, to: string): boolean {
-  const valid = ESCROW_TRANSITIONS[from];
-  return valid != null && valid.includes(to);
+  return _isValidTransition('escrow', from, to);
 }
