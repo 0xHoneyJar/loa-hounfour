@@ -197,3 +197,39 @@ The `ConstraintProposal` schema includes an optional `sunset_version` field for 
 ```
 
 This means the constraint was authored against grammar v1.0 and is valid up to (but not beyond) v3.0. When a v3.0+ evaluator encounters this constraint, it should flag it for review.
+
+---
+
+## Design Decisions
+
+### ADR-001: Temporal Operators via `_previous` Context (v2.0)
+
+**Status:** Accepted
+**Date:** 2026-02-15
+**Deciders:** Sprint 8 implementation, validated by Bridgebuilder review (bridge-20260215-c011)
+
+**Context:** Temporal operators (`changed()`, `previous()`, `delta()`) need access to prior state to detect field transitions in saga workflows. The SagaContext schema tracks multi-step orchestrations where constraints like "step must increase monotonically" require comparing current and previous values.
+
+**Decision:** Thread previous state through a `_previous` key in the evaluation data context rather than making the evaluator stateful.
+
+**Rationale:**
+- **Pure function evaluator**: `f(expression, data) → boolean` — no internal state, no side effects, no initialization sequence. The evaluator is a leaf dependency that composes into any architecture.
+- **Separation of concerns**: Saga orchestrators, workflow engines, and test harnesses each populate `_previous` in their own way. The evaluator doesn't need workflow awareness.
+- **Cross-language portability**: A Go or Rust implementation of the evaluator can use the same stateless signature. Stateful evaluators require language-specific lifecycle management (constructors, destructors, thread safety).
+- **Testability**: Unit tests provide `_previous` directly in fixture data — no mock workflow infrastructure needed. See `tests/constraints/round-trip.test.ts` for examples.
+
+**Alternatives Considered:**
+1. **Stateful evaluator with history buffer** — Rejected. Destroys composability (evaluator must be initialized before use, carries hidden state between calls). Complicates cross-language implementation (each language needs its own lifecycle management). Makes concurrent evaluation unsafe without explicit synchronization.
+2. **Separate temporal evaluator** — Rejected. Duplicates expression parsing infrastructure, creates grammar divergence risk between the two evaluators, and doubles the conformance surface for cross-language implementations.
+3. **Compile-time constraint expansion** — Rejected. Expanding `changed(field)` into `_previous.field != field` at constraint-file load time would work but loses semantic information (tooling can't distinguish temporal constraints from regular comparisons) and prevents future optimization of temporal evaluation.
+
+**Consequences:**
+- Consumers MUST populate `data._previous` when using v2.0 temporal operators. Without it, `changed()` returns `false`, `previous()` returns `undefined`, `delta()` returns `0n` — safe defaults, not errors.
+- The TypeScript cross-field validators in `src/validators/index.ts` use stateless `validate()` and therefore CANNOT enforce temporal constraints. This is intentional — temporal constraints live in `.constraints.json` files and are evaluated by saga-aware consumers that provide the `_previous` context.
+- Grammar version negotiation (see Version Compatibility above) ensures that v1.0 consumers never encounter temporal operators they can't evaluate.
+
+**References:**
+- `src/constraints/evaluator.ts:440-490` — Temporal operator implementation
+- `src/constraints/tokenizer.ts` — Shared tokenizer (temporal keywords: `changed`, `previous`, `delta`)
+- `constraints/SagaContext.constraints.json` — Canonical temporal constraint examples
+- `tests/constraints/round-trip.test.ts` — Temporal operator test coverage

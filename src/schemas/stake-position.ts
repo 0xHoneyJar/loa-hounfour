@@ -35,7 +35,14 @@ export const StakePositionSchema = Type.Object(
     staked_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'StakePosition', description: 'Staked position representing conviction, delegation, or validation commitment', additionalProperties: false, 'x-experimental': true, 'x-cross-field-validated': true },
+  {
+    $id: 'StakePosition',
+    $comment: 'Financial amounts (amount_micro, vested_micro, remaining_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
+    description: 'Staked position representing conviction, delegation, or validation commitment',
+    additionalProperties: false,
+    'x-experimental': true,
+    'x-cross-field-validated': true,
+  },
 );
 
 export type StakePosition = Static<typeof StakePositionSchema>;

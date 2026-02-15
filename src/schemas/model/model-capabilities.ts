@@ -27,7 +27,11 @@ export const ModelCapabilitiesSchema = Type.Object(
     ),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'ModelCapabilities', additionalProperties: false },
+  {
+    $id: 'ModelCapabilities',
+    $comment: 'Pricing fields use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. 1 USD = 1,000,000 micro-USD. See vocabulary/currency.ts for arithmetic utilities.',
+    additionalProperties: false,
+  },
 );
 
 export type ModelCapabilities = Static<typeof ModelCapabilitiesSchema>;

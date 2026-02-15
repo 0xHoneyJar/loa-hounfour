@@ -39,6 +39,7 @@ export const CompletionResultSchema = Type.Object(
   },
   {
     $id: 'CompletionResult',
+    $comment: 'Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. 1 USD = 1,000,000 micro-USD. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
   },

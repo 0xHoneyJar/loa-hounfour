@@ -129,7 +129,9 @@ for (const { name, schema } of schemas) {
     ...schema,
     // Override TypeBox $id with versioned URI (must come after spread)
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
-    $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
+    $comment: (schema as Record<string, unknown>).$comment
+      ? `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}. ${(schema as Record<string, unknown>).$comment}`
+      : `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
 
   // Apply post-generation transforms (cross-field constraints, etc.)

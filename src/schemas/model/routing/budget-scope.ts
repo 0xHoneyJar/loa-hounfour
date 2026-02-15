@@ -27,6 +27,7 @@ export const BudgetScopeSchema = Type.Object(
   },
   {
     $id: 'BudgetScope',
+    $comment: 'Financial amounts (limit_micro, spent_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
   }

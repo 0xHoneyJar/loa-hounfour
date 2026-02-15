@@ -50,6 +50,7 @@ export const CompletionRequestSchema = Type.Object(
   },
   {
     $id: 'CompletionRequest',
+    $comment: 'Financial amounts (budget_limit_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection — see SCHEMA-EVOLUTION.md for version-skew patterns.',
     additionalProperties: false,
     'x-cross-field-validated': true,
   },
