@@ -10,6 +10,13 @@
       "severity": "error",
       "message": "When tools are provided, tool_choice is required",
       "fields": ["tools", "tool_choice"]
+    },
+    {
+      "id": "completion-request-native-runtime-session",
+      "expression": "execution_mode != 'native_runtime' || session_id != null",
+      "severity": "error",
+      "message": "session_id is required when execution_mode is 'native_runtime'",
+      "fields": ["execution_mode", "session_id"]
     }
   ]
 }

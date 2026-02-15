@@ -33,6 +33,10 @@
       "minLength": 1,
       "type": "string"
     },
+    "session_id": {
+      "minLength": 1,
+      "type": "string"
+    },
     "model": {
       "minLength": 1,
       "type": "string"

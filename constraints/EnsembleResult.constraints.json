@@ -17,6 +17,13 @@
       "severity": "error",
       "message": "total_cost_micro must be >= selected usage cost",
       "fields": ["total_cost_micro", "selected.usage.cost_micro"]
+    },
+    {
+      "id": "ensemble-result-total-cost-equals-sum",
+      "expression": "candidates == null || bigint_sum(candidates, 'usage.cost_micro') == total_cost_micro",
+      "severity": "error",
+      "message": "total_cost_micro must equal sum of all candidate usage costs",
+      "fields": ["total_cost_micro", "candidates"]
     }
   ]
 }

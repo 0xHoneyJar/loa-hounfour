@@ -512,7 +512,10 @@ class Parser {
       let sum = BigInt(0);
       for (const item of first) {
         if (item != null && typeof item === 'object') {
-          const val = (item as Record<string, unknown>)[fieldName];
+          // Support dot-path field names (e.g., 'usage.cost_micro')
+          const val = fieldName.includes('.')
+            ? resolve(item as Record<string, unknown>, fieldName)
+            : (item as Record<string, unknown>)[fieldName];
           if (val !== undefined && val !== null) {
             try { sum += BigInt(String(val)); } catch { return 0n; }
           }

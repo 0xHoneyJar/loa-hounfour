@@ -49,7 +49,7 @@ const VALID_ENSEMBLE_RESULT = {
   strategy: 'first_complete',
   selected: VALID_COMPLETION_RESULT,
   candidates: [VALID_COMPLETION_RESULT],
-  total_cost_micro: '300',
+  total_cost_micro: '150',
   total_latency_ms: 1500,
   contract_version: '5.0.0',
 };

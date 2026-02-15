@@ -912,7 +912,7 @@ describe('EnsembleResult round-trip', () => {
     selected: VALID_COMPLETION_RES,
     candidates: [VALID_COMPLETION_RES],
     consensus_score: 0.9,
-    total_cost_micro: '1000',
+    total_cost_micro: '500',
     total_latency_ms: 200,
     contract_version: '5.0.0',
   };
@@ -973,6 +973,119 @@ describe('BudgetScope round-trip', () => {
     const tsResult = validate(BudgetScopeSchema, VALID_BUDGET);
     expect(constraintResult).toBe(true);
     expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── CompletionRequest session_id (Sprint 6) ──────────────────────────────
+
+describe('CompletionRequest session_id round-trip', () => {
+  const file = loadConstraints('CompletionRequest');
+
+  const VALID_REQUEST = {
+    request_id: '550e8400-e29b-41d4-a716-446655440000',
+    agent_id: 'agent-1',
+    tenant_id: 'tenant-1',
+    model: 'claude-opus-4-6',
+    messages: [{ role: 'user', content: 'hello' }],
+    contract_version: '5.0.0',
+  };
+
+  it('native_runtime without session_id: constraint fails, TS fails', () => {
+    const bad = { ...VALID_REQUEST, execution_mode: 'native_runtime', provider: 'claude-code' };
+    const constraintResult = evalById(file, 'completion-request-native-runtime-session', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(CompletionRequestSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('native_runtime with session_id: both pass', () => {
+    const good = { ...VALID_REQUEST, execution_mode: 'native_runtime', provider: 'claude-code', session_id: 'sess-001' };
+    const constraintResult = evalById(file, 'completion-request-native-runtime-session', good);
+    expect(constraintResult).toBe(true);
+    const tsResult = validate(CompletionRequestSchema, good);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('remote_model without session_id: both pass', () => {
+    const good = { ...VALID_REQUEST, execution_mode: 'remote_model' };
+    const constraintResult = evalById(file, 'completion-request-native-runtime-session', good);
+    expect(constraintResult).toBe(true);
+    const tsResult = validate(CompletionRequestSchema, good);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('no execution_mode without session_id: both pass', () => {
+    const constraintResult = evalById(file, 'completion-request-native-runtime-session', VALID_REQUEST);
+    expect(constraintResult).toBe(true);
+    const tsResult = validate(CompletionRequestSchema, VALID_REQUEST);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── EnsembleResult cost conservation completeness (Sprint 6) ─────────────
+
+describe('EnsembleResult cost sum round-trip', () => {
+  const file = loadConstraints('EnsembleResult');
+
+  const VALID_RESULT = {
+    ensemble_id: '550e8400-e29b-41d4-a716-446655440010',
+    strategy: 'best_of_n',
+    selected: {
+      request_id: '550e8400-e29b-41d4-a716-446655440011',
+      model: 'claude-opus-4-6',
+      provider: 'anthropic',
+      content: 'result',
+      finish_reason: 'stop',
+      usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, cost_micro: '3000000' },
+      latency_ms: 500,
+      contract_version: '5.0.0',
+    },
+    candidates: [
+      {
+        request_id: '550e8400-e29b-41d4-a716-446655440011',
+        model: 'claude-opus-4-6',
+        provider: 'anthropic',
+        content: 'result',
+        finish_reason: 'stop',
+        usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, cost_micro: '3000000' },
+        latency_ms: 500,
+        contract_version: '5.0.0',
+      },
+      {
+        request_id: '550e8400-e29b-41d4-a716-446655440012',
+        model: 'gpt-5.2',
+        provider: 'openai',
+        content: 'other result',
+        finish_reason: 'stop',
+        usage: { prompt_tokens: 100, completion_tokens: 60, total_tokens: 160, cost_micro: '2000000' },
+        latency_ms: 600,
+        contract_version: '5.0.0',
+      },
+    ],
+    total_cost_micro: '5000000',
+    total_latency_ms: 600,
+    contract_version: '5.0.0',
+  };
+
+  it('cost sum matches total: constraint passes, TS passes', () => {
+    const constraintResult = evalById(file, 'ensemble-result-total-cost-equals-sum', VALID_RESULT);
+    expect(constraintResult).toBe(true);
+    const tsResult = validate(EnsembleResultSchema, VALID_RESULT);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('cost sum mismatch: constraint fails, TS fails', () => {
+    const bad = { ...VALID_RESULT, total_cost_micro: '9999999' };
+    const constraintResult = evalById(file, 'ensemble-result-total-cost-equals-sum', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('no candidates: constraint passes (null guard)', () => {
+    const noCandidates = { ...VALID_RESULT, candidates: undefined };
+    const constraintResult = evalById(file, 'ensemble-result-total-cost-equals-sum', noCandidates as Record<string, unknown>);
+    expect(constraintResult).toBe(true);
   });
 });
 

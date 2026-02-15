@@ -26,6 +26,8 @@ describe('METADATA_NAMESPACES.BILLING', () => {
     expect(isValidMetadataKey('billing.cost_micro')).toBe(true);
     expect(isValidMetadataKey('billing.reconciled')).toBe(true);
     expect(isValidMetadataKey('billing.provider')).toBe(true);
+    expect(isValidMetadataKey('billing.payment_tx')).toBe(true);
+    expect(isValidMetadataKey('billing.credit_lot_id')).toBe(true);
     expect(isValidMetadataKey('billing.custom_field')).toBe(true);
   });
 });
@@ -49,6 +51,14 @@ describe('BILLING_METADATA_KEYS', () => {
 
   it('contains provider key', () => {
     expect(BILLING_METADATA_KEYS.PROVIDER).toBe('billing.provider');
+  });
+
+  it('contains payment_tx key', () => {
+    expect(BILLING_METADATA_KEYS.PAYMENT_TX).toBe('billing.payment_tx');
+  });
+
+  it('contains credit_lot_id key', () => {
+    expect(BILLING_METADATA_KEYS.CREDIT_LOT_ID).toBe('billing.credit_lot_id');
   });
 
   it('all keys start with the billing namespace prefix', () => {
@@ -81,6 +91,14 @@ describe('getNamespaceOwner for billing namespace', () => {
 
   it('returns "economy" for any billing.* key', () => {
     expect(getNamespaceOwner('billing.anything')).toBe('economy');
+  });
+
+  it('returns "economy" for billing.payment_tx', () => {
+    expect(getNamespaceOwner('billing.payment_tx')).toBe('economy');
+  });
+
+  it('returns "economy" for billing.credit_lot_id', () => {
+    expect(getNamespaceOwner('billing.credit_lot_id')).toBe('economy');
   });
 
   it('does not return "economy" for non-billing keys', () => {

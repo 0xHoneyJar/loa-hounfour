@@ -81,11 +81,12 @@ describe('CompletionRequest cross-field validator', () => {
     }
   });
 
-  it('passes when execution_mode=native_runtime with provider', () => {
+  it('passes when execution_mode=native_runtime with provider and session_id', () => {
     const req = {
       ...VALID_REQUEST,
       execution_mode: 'native_runtime',
       provider: 'anthropic',
+      session_id: 'sess-001',
     };
     const result = validate(CompletionRequestSchema, req);
     expect(result.valid).toBe(true);

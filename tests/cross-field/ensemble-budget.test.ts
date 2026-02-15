@@ -102,7 +102,7 @@ describe('EnsembleResult cross-field validator', () => {
       strategy: 'consensus',
       selected: VALID_RESULT_INNER,
       candidates: [VALID_RESULT_INNER],
-      total_cost_micro: '300',
+      total_cost_micro: '150',
       total_latency_ms: 1500,
       contract_version: '5.0.0',
     };
@@ -120,7 +120,7 @@ describe('EnsembleResult cross-field validator', () => {
       selected: VALID_RESULT_INNER,
       candidates: [VALID_RESULT_INNER],
       consensus_score: 0.9,
-      total_cost_micro: '300',
+      total_cost_micro: '150',
       total_latency_ms: 1500,
       contract_version: '5.0.0',
     };

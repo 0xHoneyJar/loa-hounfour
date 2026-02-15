@@ -76,10 +76,12 @@ export {
 export {
   METADATA_NAMESPACES,
   MODEL_METADATA_KEYS,
+  BILLING_METADATA_KEYS,
   isValidMetadataKey,
   getNamespaceOwner,
   type MetadataNamespace,
   type ModelMetadataKey,
+  type BillingMetadataKey,
 } from '../vocabulary/metadata.js';
 
 // Schemas — Routing Constraint

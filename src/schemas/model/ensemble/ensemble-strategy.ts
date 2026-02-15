@@ -9,7 +9,10 @@ export const EnsembleStrategySchema = Type.Union(
     Type.Literal('best_of_n'),
     Type.Literal('consensus'),
   ],
-  { $id: 'EnsembleStrategy' }
+  {
+    $id: 'EnsembleStrategy',
+    $comment: 'Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31',
+  }
 );
 
 export type EnsembleStrategy = Static<typeof EnsembleStrategySchema>;

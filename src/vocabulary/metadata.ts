@@ -107,6 +107,16 @@ export const BILLING_METADATA_KEYS = {
    * @type string
    */
   PROVIDER: 'billing.provider',
+  /**
+   * On-chain payment transaction hash for provenance tracking.
+   * @type string
+   */
+  PAYMENT_TX: 'billing.payment_tx',
+  /**
+   * Credit lot identifier for prepaid billing reconciliation.
+   * @type string
+   */
+  CREDIT_LOT_ID: 'billing.credit_lot_id',
 } as const;
 
 export type BillingMetadataKey = typeof BILLING_METADATA_KEYS[keyof typeof BILLING_METADATA_KEYS];

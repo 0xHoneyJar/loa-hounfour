@@ -10,6 +10,7 @@ export const CompletionRequestSchema = Type.Object(
     tenant_id: Type.String({ minLength: 1 }),
     nft_id: Type.Optional(Type.String({ minLength: 1 })),
     trace_id: Type.Optional(Type.String({ minLength: 1 })),
+    session_id: Type.Optional(Type.String({ minLength: 1 })),
     model: Type.String({ minLength: 1 }),
     provider: Type.Optional(Type.String({ minLength: 1 })),
     execution_mode: Type.Optional(

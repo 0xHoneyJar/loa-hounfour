@@ -401,7 +401,7 @@ registerCrossFieldValidator('ReputationScore', (data) => {
 // --- v5.0.0 — ModelPort cross-field validators ---
 
 registerCrossFieldValidator('CompletionRequest', (data) => {
-  const req = data as { tools?: unknown[]; tool_choice?: unknown; execution_mode?: string; provider?: string; budget_limit_micro?: string };
+  const req = data as { tools?: unknown[]; tool_choice?: unknown; execution_mode?: string; provider?: string; budget_limit_micro?: string; session_id?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -413,6 +413,11 @@ registerCrossFieldValidator('CompletionRequest', (data) => {
   // execution_mode=native_runtime → provider required
   if (req.execution_mode === 'native_runtime' && !req.provider) {
     errors.push('provider is required when execution_mode is "native_runtime"');
+  }
+
+  // execution_mode=native_runtime → session_id required
+  if (req.execution_mode === 'native_runtime' && !req.session_id) {
+    errors.push('session_id is required when execution_mode is "native_runtime"');
   }
 
   // budget_limit_micro must be > 0 when present
@@ -479,7 +484,7 @@ registerCrossFieldValidator('EnsembleRequest', (data) => {
 });
 
 registerCrossFieldValidator('EnsembleResult', (data) => {
-  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } } };
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }> };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -489,6 +494,17 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
 
   if (BigInt(result.total_cost_micro) < BigInt(result.selected.usage.cost_micro)) {
     errors.push('total_cost_micro must be >= selected.usage.cost_micro');
+  }
+
+  // Cost conservation: total_cost_micro == sum of all candidate costs
+  if (result.candidates) {
+    const candidateSum = result.candidates.reduce(
+      (sum, c) => sum + BigInt(c.usage.cost_micro),
+      BigInt(0),
+    );
+    if (BigInt(result.total_cost_micro) !== candidateSum) {
+      errors.push(`total_cost_micro (${result.total_cost_micro}) must equal sum of candidate costs (${candidateSum})`);
+    }
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

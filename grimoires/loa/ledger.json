@@ -358,34 +358,55 @@
           "global_id": 35,
           "label": "ModelPort Foundation (FR-1 + FR-3)",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 36,
           "label": "Ensemble & Routing (FR-2 + FR-7)",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 37,
           "label": "Architecture — Barrel Decomposition + Grammar Formalization (FR-4 + FR-5)",
           "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 38,
           "label": "Vectors, Namespace & Polish (FR-6 + FR-8)",
           "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-5",
           "global_id": 39,
           "label": "Integration — Constraint Files + v5.0.0 Release",
           "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "status": "completed"
+        },
+        {
+          "local_id": "sprint-6",
+          "global_id": 40,
+          "label": "Quick Fixes + Billing Provenance Chain",
+          "tasks": ["S6-T1", "S6-T2", "S6-T3", "S6-T4"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-7",
+          "global_id": 41,
+          "label": "Multi-Model Dialogue Protocol",
+          "tasks": ["S7-T1", "S7-T2", "S7-T3", "S7-T4", "S7-T5"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-8",
+          "global_id": 42,
+          "label": "Constraint Evolution + Agent-Authored Constraints",
+          "tasks": ["S8-T1", "S8-T2", "S8-T3", "S8-T4", "S8-T5", "S8-T6", "S8-T7"],
           "status": "pending"
         }
       ],
@@ -396,6 +417,6 @@
   ],
   "active_cycle": "cycle-010",
   "active_bugfix": null,
-  "global_sprint_counter": 39,
+  "global_sprint_counter": 42,
   "bugfix_cycles": []
 }

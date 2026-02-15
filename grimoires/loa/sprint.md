@@ -11,15 +11,18 @@
 
 ## Sprint Overview
 
-| Sprint | Theme | FRs | Est. Tests | Global ID |
-|--------|-------|-----|-----------|-----------|
-| 1 | ModelPort Foundation | FR-1, FR-3 | ~55 | 35 |
-| 2 | Ensemble & Routing | FR-2, FR-7 | ~40 | 36 |
-| 3 | Architecture — Barrel + Grammar | FR-4, FR-5 | ~35 | 37 |
-| 4 | Vectors, Namespace & Polish | FR-6, FR-8 | ~35 | 38 |
-| 5 | Integration — Constraints + Release | Constraint files, v5.0.0 | ~25 | 39 |
+| Sprint | Theme | FRs | Est. Tests | Global ID | Status |
+|--------|-------|-----|-----------|-----------|--------|
+| 1 | ModelPort Foundation | FR-1, FR-3 | ~55 | 35 | ✅ |
+| 2 | Ensemble & Routing | FR-2, FR-7 | ~40 | 36 | ✅ |
+| 3 | Architecture — Barrel + Grammar | FR-4, FR-5 | ~35 | 37 | ✅ |
+| 4 | Vectors, Namespace & Polish | FR-6, FR-8 | ~35 | 38 | ✅ |
+| 5 | Integration — Constraints + Release | Constraint files, v5.0.0 | ~25 | 39 | ✅ |
+| 6 | Quick Fixes + Billing Provenance | BB fixes, billing chain | ~30 | 40 | ⏳ |
+| 7 | Multi-Model Dialogue Protocol | Dialogue strategies | ~25 | 41 | ⏳ |
+| 8 | Constraint Evolution + Agent Constraints | Grammar v2.0, proposals | ~35 | 42 | ⏳ |
 
-**Dependency chain:** Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4 → Sprint 5
+**Dependency chain:** Sprint 1 → … → Sprint 5 (✅ complete) → Sprint 6 → Sprint 7 → Sprint 8
 
 ---
 
@@ -459,6 +462,227 @@
 
 **Dependencies:** S5-T5
 **Testing:** Schema validation script
+
+---
+
+## Sprint 6: Quick Fixes + Billing Provenance Chain (Bridgebuilder Enhancement)
+
+**Goal:** Address Bridgebuilder medium/low findings and add billing provenance chain metadata.
+
+### S6-T1: Add `session_id` to CompletionRequest
+
+**Description:** Add `session_id: Type.Optional(Type.String({ minLength: 1 }))` to CompletionRequest schema. Add constraint: `execution_mode == 'native_runtime' => session_id != null`. Update round-trip tests.
+
+**Acceptance Criteria:**
+- `session_id` field added after `trace_id` in `src/schemas/model/completion-request.ts`
+- New constraint in `constraints/CompletionRequest.constraints.json`
+- Round-trip test for session_id constraint
+- JSON Schema regenerated
+
+**Dependencies:** None
+**Testing:** Schema validation, constraint round-trip
+
+### S6-T2: EnsembleResult cost conservation completeness
+
+**Description:** Add `ensemble-result-total-cost-equals-sum` constraint using `bigint_sum(candidates, 'usage.cost_micro') == total_cost_micro`. Extend `bigint_sum` form 2 to resolve dot-paths via existing `resolve()` function.
+
+**Acceptance Criteria:**
+- `bigint_sum` evaluator extended: replace flat key lookup with `resolve()` for nested paths
+- Grammar `parseBigintSumCall` accepts dot-path string args
+- New constraint in `constraints/EnsembleResult.constraints.json`
+- TypeScript cross-field validator updated in `src/validators/index.ts`
+- Round-trip test for cost conservation
+
+**Dependencies:** None
+**Testing:** Evaluator dot-path tests, constraint round-trip, cross-field validator
+
+### S6-T3: Billing provenance chain metadata keys
+
+**Description:** Add `PAYMENT_TX` and `CREDIT_LOT_ID` to `BILLING_METADATA_KEYS`. Export from model barrel. Create billing provenance cross-ecosystem vector.
+
+**Acceptance Criteria:**
+- `PAYMENT_TX: 'billing.payment_tx'` and `CREDIT_LOT_ID: 'billing.credit_lot_id'` added
+- `BILLING_METADATA_KEYS` and `BillingMetadataKey` exported from `src/model/index.ts`
+- New vector: `vectors/cross-ecosystem/billing-provenance.json`
+- Metadata tests for new keys
+
+**Dependencies:** None
+**Testing:** Metadata key validation, vector validation
+
+### S6-T4: Decision trail $comment annotations
+
+**Description:** Add `$comment` linking to RFC #31 on `EnsembleStrategySchema` and `ProviderTypeSchema`. Propagates to JSON Schema output via TypeBox.
+
+**Acceptance Criteria:**
+- `$comment` on `ensemble-strategy.ts` and `provider-type.ts`
+- Comments visible in generated JSON Schema
+- No functional changes
+
+**Dependencies:** None
+**Testing:** JSON Schema output inspection
+
+---
+
+## Sprint 7: Multi-Model Dialogue Protocol (Bridgebuilder Enhancement)
+
+**Goal:** Extend ensemble orchestration with sequential and dialogue strategies for multi-model debate.
+
+### S7-T1: Extend EnsembleStrategy with `sequential` and `dialogue`
+
+**Description:** Add `Type.Literal('sequential')` and `Type.Literal('dialogue')` to the EnsembleStrategy union. Sequential = chain (output→input). Dialogue = chain + thinking traces + multi-round termination.
+
+**Acceptance Criteria:**
+- Two new strategy literals in union
+- Existing strategies unchanged (backward compatible)
+- Unit tests for new strategy values
+
+**Dependencies:** None
+**Testing:** Schema validation for new strategies
+
+### S7-T2: Add dialogue-specific fields to EnsembleRequest
+
+**Description:** Add `dialogue_config` optional object with `max_rounds`, `pass_thinking_traces`, `termination`, `seed_prompt`. Add cross-field constraint: `strategy === 'dialogue' => dialogue_config != null`.
+
+**Acceptance Criteria:**
+- `dialogue_config` field on EnsembleRequest schema
+- Cross-field validator registered
+- Constraint in `constraints/EnsembleRequest.constraints.json`
+- Unit + cross-field tests
+
+**Dependencies:** S7-T1
+**Testing:** Valid/invalid dialogue configs, constraint round-trip
+
+### S7-T3: Add dialogue-specific fields to EnsembleResult
+
+**Description:** Add `rounds` array (round number, model, response, thinking_trace) and `termination_reason` enum. Cross-field: `strategy === 'dialogue' => rounds != null && rounds.length > 0`.
+
+**Acceptance Criteria:**
+- `rounds` and `termination_reason` fields on EnsembleResult schema
+- Cross-field validator registered
+- Constraint for rounds cost conservation
+- Unit + cross-field tests
+
+**Dependencies:** S7-T1
+**Testing:** Valid/invalid round arrays, termination reasons, cost conservation
+
+### S7-T4: Dialogue cross-ecosystem vectors
+
+**Description:** Create `vectors/cross-ecosystem/ensemble-dialogue.json` with 3 test vectors: 2-round dialogue with thinking traces, 3-round consensus termination, budget-exhausted early termination.
+
+**Acceptance Criteria:**
+- 3 vectors covering different dialogue scenarios
+- Each vector validates against schema
+- Cross-field expectations included
+
+**Dependencies:** S7-T2, S7-T3
+**Testing:** Vector validation tests
+
+### S7-T5: Round-trip tests for dialogue constraints
+
+**Description:** Add round-trip tests for EnsembleRequest dialogue_config constraint and EnsembleResult rounds constraint. Existing ensemble tests remain unchanged.
+
+**Acceptance Criteria:**
+- Round-trip tests for dialogue-specific constraints
+- No regressions in existing ensemble tests
+
+**Dependencies:** S7-T2, S7-T3
+**Testing:** Constraint round-trip equivalence
+
+---
+
+## Sprint 8: Constraint Evolution + Agent-Authored Constraints (Bridgebuilder Enhancement)
+
+**Goal:** Evolve the constraint grammar to v2.0 with temporal operators and introduce the agent-authored constraint proposal schema.
+
+### S8-T1: Grammar v2.0 — Temporal operators
+
+**Description:** Bump `EXPRESSION_VERSION` to `'2.0'`. Add `changed()`, `previous()`, `delta()` built-in functions. These read from `_previous` key in data context. Update grammar PEG spec.
+
+**Acceptance Criteria:**
+- `EXPRESSION_VERSION = '2.0'` in grammar.ts
+- `changed(path)`, `previous(path)`, `delta(path)` parseable and evaluatable
+- Evaluator: `changed()` compares current vs `_previous`, `previous()` resolves from `_previous`, `delta()` computes BigInt difference
+- `constraints/GRAMMAR.md` updated with v2.0 PEG spec
+
+**Dependencies:** None
+**Testing:** Grammar parsing, evaluator function tests
+
+### S8-T2: Temporal constraint files
+
+**Description:** Create `constraints/SagaContext.constraints.json` with temporal constraints demonstrating the new grammar: `saga-step-monotonic` and `saga-direction-valid-transition`.
+
+**Acceptance Criteria:**
+- 2 temporal constraints using `changed()`, `previous()`, `delta()`
+- All expressions pass `validateExpression()` at v2.0
+- Connected to existing saga vectors
+
+**Dependencies:** S8-T1
+**Testing:** Constraint expression validation
+
+### S8-T3: Expression version compatibility in constraint loading
+
+**Description:** Add `expressionVersionSupported(version: string): boolean` utility. v1.x works in v2.0 evaluator. v2.x requires v2.0+ evaluator. Add version check to `evaluateConstraintDetailed()`.
+
+**Acceptance Criteria:**
+- Version check utility in `src/constraints/types.ts`
+- `evaluateConstraintDetailed()` validates expression version before evaluation
+- Backward compatible: v1.0 expressions still work
+
+**Dependencies:** S8-T1
+**Testing:** Version compatibility matrix tests
+
+### S8-T4: Agent-authored constraint proposal schema
+
+**Description:** Create `src/schemas/model/constraint-proposal.ts` with `ConstraintProposalSchema`. Register cross-field validator: `review_status === 'accepted' => consensus_category == 'HIGH_CONSENSUS'`. Create constraint file. Add to barrel, validator registry, schema generation.
+
+**Acceptance Criteria:**
+- Full schema with proposal_id, agent_id, target_schema_id, proposed_constraints, rationale, expression_version, review_status, review_scores, consensus_category, contract_version
+- Cross-field validator registered
+- Constraint file: `constraints/ConstraintProposal.constraints.json`
+- Exported from model barrel and validator registry
+- JSON Schema generated
+
+**Dependencies:** S8-T1 (expression_version reference)
+**Testing:** Schema validation, cross-field validator, round-trip
+
+### S8-T5: Temporal operator round-trip tests
+
+**Description:** Add round-trip tests for SagaContext temporal constraints. Test `changed()`, `previous()`, `delta()` with `_previous` data context. Update grammar fuzz tests for v2.0 tokens.
+
+**Acceptance Criteria:**
+- SagaContext constraint round-trip tests with `_previous` data
+- Grammar fuzz tests cover v2.0 temporal function tokens
+- All existing fuzz tests pass (v1.0 backward compatible)
+
+**Dependencies:** S8-T1, S8-T2
+**Testing:** Round-trip + property-based fuzz
+
+### S8-T6: ConstraintProposal tests and vectors
+
+**Description:** Unit tests for ConstraintProposal schema and cross-field validator. Cross-ecosystem vector: `vectors/cross-ecosystem/constraint-proposal.json`. Round-trip test for proposal constraints.
+
+**Acceptance Criteria:**
+- Schema validation tests (valid + invalid proposals)
+- Cross-field validator tests (accepted requires HIGH_CONSENSUS)
+- Cross-ecosystem vector with 2+ test cases
+- Constraint round-trip test
+
+**Dependencies:** S8-T4
+**Testing:** Unit + vector + round-trip
+
+### S8-T7: Regenerate all JSON schemas and update README
+
+**Description:** Run `scripts/generate-schemas.ts` to produce 48+ schemas (new: constraint-proposal). Update `schemas/README.md`.
+
+**Acceptance Criteria:**
+- 48+ schema files in `schemas/`
+- ConstraintProposal schema included
+- `npm run build` succeeds
+- Full test suite passes
+- `npm run check:all` passes
+
+**Dependencies:** S8-T1 through S8-T6
+**Testing:** Build, schema generation, full regression
 
 ---
 

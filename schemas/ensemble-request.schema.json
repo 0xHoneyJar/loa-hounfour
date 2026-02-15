@@ -18,6 +18,7 @@
     },
     "strategy": {
       "$id": "EnsembleStrategy",
+      "$comment": "Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31",
       "anyOf": [
         {
           "const": "first_complete",
@@ -78,6 +79,10 @@
           "type": "string"
         },
         "trace_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "session_id": {
           "minLength": 1,
           "type": "string"
         },
