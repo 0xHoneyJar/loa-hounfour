@@ -1,359 +1,310 @@
-# PRD: loa-hounfour v4.6.0 — The Formalization Release (Level 4 Protocol Maturity)
+# PRD: loa-hounfour v5.0.0 — The Multi-Model Release
 
 **Status:** Draft
-**Author:** Agent (from Bridgebuilder Level 4 Architectural Review)
+**Author:** Agent (from Bridgebuilder Synthesis + Cross-Ecosystem Intelligence)
 **Date:** 2026-02-15
-**Cycle:** cycle-009
 **Sources:**
-- [Bridgebuilder Level 4 Review — PR #2 Comments 11-12](https://github.com/0xHoneyJar/loa-hounfour/pull/2)
-- [Bridgebuilder 4-Part Meditation — PR #2 Comments 4-7](https://github.com/0xHoneyJar/loa-hounfour/pull/2)
-- [Bridgebuilder Persona Field Reports — loa-finn#24](https://github.com/0xHoneyJar/loa-finn/issues/24)
+- All Bridgebuilder findings across PR #1 (cycles 001–006) and PR #2 (cycles 007–009)
+- [Product Mission — Launch Readiness RFC](https://github.com/0xHoneyJar/loa-finn/issues/66)
 - [Hounfour RFC — Multi-Model Provider Abstraction](https://github.com/0xHoneyJar/loa-finn/issues/31)
-- [Permission Scape — loa-finn#31](https://github.com/0xHoneyJar/loa-finn/issues/31)
-- Previous cycle PRD: `context/prd-v4.4.0-archived.md`
-- Previous cycle SDD: `context/sdd-v4.4.0-archived.md`
-- NOTES.md learnings from 8 development cycles
+- [Bridgebuilder Persona](https://github.com/0xHoneyJar/loa-finn/issues/24)
+- [Arrakis Billing RFC — Path to Revenue](https://github.com/0xHoneyJar/arrakis/issues/62)
+- [Arrakis Revenue Rules PR](https://github.com/0xHoneyJar/arrakis/pull/63)
+- Bridgebuilder Horizon Voice Review (PR #2 final comments)
+- Cross-Ecosystem Pattern Analysis (loa-finn, arrakis, loa-hounfour)
 
 ---
 
 ## 1. Executive Summary
 
-loa-hounfour v4.5.0 (The Hardening Release) achieved zero-finding flatline across two bridge review loops, with 799 tests, 36+ schemas, 11 cross-field validators, and a three-economy architecture (Attention, Transaction, Value). The protocol is solid at **Level 3** — behavioral contracts with state machines, choreography, and temporal property testing.
+loa-hounfour is the shared protocol contract package (`@0xhoneyjar/loa-hounfour`) defining canonical type schemas, validators, vocabulary, and integrity primitives consumed by loa-finn (inference engine), arrakis (gateway), and mibera-freeside (smart contracts).
 
-**v4.6.0** pushes the protocol to **Level 4: Civilizational** — executable contracts across language boundaries, formally specified temporal properties, unified state machine declarations, and self-describing evolution. This is the release that transforms loa-hounfour from a TypeScript schema library into a **multi-language coordination protocol** ready for the Hounfour's multi-model routing layer.
+**v4.6.0** (current) provides a formally verified protocol for the agent economy: 36+ schemas, 1097 tests, unified state machines, temporal properties (6 safety + 3 liveness), cross-language constraints (11 files, 31 rules), aggregate boundaries, economy flow verification, and deprecation/metadata governance. The protocol maturity level reached Level 4 (Formalization) across 9 development cycles and 13+ bridge iterations.
 
-### Why Level 4 Now
+**v5.0.0** extends the protocol from an **Economic Grammar** (how agents transact) to a **Multi-Model Lingua Franca** (how agents communicate across model boundaries). This is the release that makes loa-hounfour the canonical adapter port contract for the five-layer provider abstraction defined in Hounfour RFC #31.
 
-The Hounfour RFC ([loa-finn#31](https://github.com/0xHoneyJar/loa-finn/issues/31)) defines a `ModelPort` interface where Claude, Kimi-K2, Qwen3, and GPT-4o produce and consume protocol documents. When Model A produces a `PerformanceRecord` and Model B consumes it for `ReputationScore` computation, the contract must be verifiable at the model boundary — not just in TypeScript, but in Python (`cheval.py`), Go, and any future adapter.
+### Why v5.0.0 (Breaking)
 
-Today, cross-field validation logic is invisible outside TypeScript. State machines are scattered across 3 locations. Temporal properties are implied by tests but never formally specified. These gaps are acceptable for a single-language library. They are unacceptable for a multi-model coordination protocol.
+The ModelPort adapter boundary introduces new schemas (`CompletionRequest`, `CompletionResult`, `ModelCapabilities`) that redefine how completion results flow between loa-finn's cheval adapters and arrakis billing. This is a breaking change in how consumers structure model interactions — the protocol now owns the wire format, not individual implementations.
 
-### Version Rationale
+### Version Journey: v4.6.0 → v5.0.0
 
-v4.6.0 (minor bump): all changes are additive. No breaking changes. New vocabulary files, new constraint format, refactored state machine definitions (existing exports preserved via re-export).
+| Dimension | v4.6.0 (Current) | v5.0.0 (Target) |
+|-----------|------------------|------------------|
+| **Schemas** | 36+ (economy-complete) | ~48+ (multi-model complete) |
+| **Tests** | 1,097 | ~1,400+ |
+| **Vocabulary** | 17 files | ~22+ files |
+| **Constraints** | 11 files, 31 rules | ~16+ files, ~45+ rules |
+| **Cross-Ecosystem** | Types consumed by 2 repos | Shared test vectors consumed by 3 repos |
+| **Barrel** | 486 lines (monolithic) | Sub-packages (core, economy, model, governance) |
+| **Protocol Level** | Level 4 (Formalization) | Level 4+ (Multi-Model Formalization) |
+
+### Three Pillars of v5.0.0
+
+1. **ModelPort Contracts** — The adapter port boundary that makes all models speak the same language
+2. **Open Finding Resolution** — 15+ open Bridgebuilder findings addressed before launch
+3. **Protocol Architecture** — Barrel decomposition, constraint formalization, cross-ecosystem vectors
 
 ---
 
 ## 2. Problem Statement
 
-### The Cross-Model Verification Gap
+### 2.1 The Multi-Model Gap
 
-When the Hounfour routes agent tasks across multiple model providers, each model's output must satisfy loa-hounfour contracts. Today, verification requires:
+loa-finn RFC #31 defines a five-layer provider abstraction (Agent → Routing → Adapter → Infrastructure → Distribution). The adapter layer (`cheval.py`) normalizes heterogeneous model APIs into a common wire format. Today, that wire format is defined ad-hoc in loa-finn. This means:
 
-| Layer | What It Checks | Availability |
-|-------|---------------|-------------|
-| JSON Schema | Structural types | All languages |
-| Cross-field validators | Semantic invariants | TypeScript only |
-| State machine transitions | Behavioral correctness | TypeScript only (ProtocolStateTracker) |
-| Temporal properties | Safety/liveness guarantees | Implied by tests only |
-| Aggregate boundaries | Consistency requirements | Undefined |
+- arrakis cannot validate or construct completion requests against a shared schema
+- Model billing attribution depends on implementation-specific response shapes
+- Ensemble orchestration (first_complete, best_of_n, consensus) has no protocol-level contract
+- Tool calling negotiation varies between providers with no canonical type
 
-The gap between row 1 (available everywhere) and rows 2-5 (TypeScript only or undefined) is the Level 4 gap. `cheval.py` (the Hounfour's Python model adapter) currently has no way to enforce cross-field validation, verify state machine transitions, or check temporal properties without reimplementing 400+ lines of TypeScript logic.
+**Impact:** Every consumer reimplements the model wire format independently. The protocol defines how to bill for model interactions but not how to structure them.
 
-### The State Machine Scatter Problem
+### 2.2 The Open Findings Debt
 
-State machine knowledge lives in three places that can drift:
+Across 9 development cycles and 13+ bridge iterations, the Bridgebuilder identified 15+ open findings that represent forward-looking architectural gaps:
 
-1. **Schema files** — `ESCROW_TRANSITIONS` in `src/schemas/escrow-entry.ts:49-58`
-2. **State tracker** — Hardcoded `if` chains in `src/test-infrastructure/protocol-state-tracker.ts:202-306`
-3. **Choreography** — Event type references in `src/vocabulary/economic-choreography.ts`
+| Priority | Finding | ID |
+|----------|---------|-----|
+| HIGH | ReputationScore lacks Sybil resistance (no minimum unique validators, no validation graph hash) | BB-V4-DEEP-001 |
+| MEDIUM | Escrow timeout gap — liveness property L1 without enforcement mechanism | BB-V4-DEEP-002 / CF-4 |
+| MEDIUM | CommonsDividend disconnected from source PerformanceRecords (no audit trail) | BB-V4-DEEP-003 |
+| MEDIUM | ESCALATION_RULES not referenced by Sanction schema (policy/enforcement gap) | BB-V4-DEEP-004 |
+| MEDIUM | Constraint language needs formal grammar (BNF/PEG) for non-TS consumers | CF-2 |
+| MEDIUM | Aggregate boundaries declared but not enforced at runtime | CF-3 |
+| MEDIUM | No cross-ecosystem shared test vectors consumed by arrakis/loa-finn | CF-6 |
+| MEDIUM | Barrel complexity (486 lines) approaching threshold — needs sub-packages | CF-1 |
 
-Today they agree. Tomorrow, when someone adds a new escrow state, they'll change one and forget the others. (NOTES.md learning: "Cross-field validation is invisible to JSON Schema consumers — Go/Python implementers won't know it exists without reading TypeScript.")
+These are not bugs — they are design questions that will surface as the consumer base grows. Addressing them pre-launch prevents the "Stripe-Connect-style rewrite" pattern.
 
-### The Formalization Gap
+### 2.3 The Cross-Ecosystem Integration Gap
 
-The protocol enforces temporal ordering (`expires_at > held_at`, `resolved_at >= filed_at`) as point checks. But it doesn't specify the temporal *properties* these checks are trying to enforce:
+Three repositories consume loa-hounfour but share no test vectors:
 
-- **Liveness**: "Every held escrow eventually reaches a terminal state"
-- **Safety**: "Total micro-USD is conserved across all escrow transitions"
-- **Bounded decay**: "Reputation never drops below the configured floor"
-
-Without explicit properties, consumers implement ad-hoc checks. With explicit properties, consumers implement *the same* checks — and property-based test generators can verify them automatically.
+| Repository | Consumption Pattern | Gap |
+|-----------|---------------------|-----|
+| loa-finn | TypeScript import, runtime validation | No shared golden vectors |
+| arrakis | TypeScript import, billing/JWT construction | Redis spending pattern duplicates BigInt logic |
+| mibera-freeside | JSON Schema validation (Solidity boundary) | No cross-language constraint evaluation |
 
 ---
 
 ## 3. Goals & Success Metrics
 
-### Primary Goal
+### 3.1 Goals
 
-Advance loa-hounfour from Level 3 (behavioral) to Level 4 (civilizational) protocol maturity, measured by:
+| # | Goal | Measurable Outcome |
+|---|------|-------------------|
+| G1 | Define the ModelPort adapter boundary as protocol-level contracts | `CompletionRequest`, `CompletionResult`, `ModelCapabilities` schemas with full validation |
+| G2 | Resolve all HIGH and MEDIUM Bridgebuilder open findings | 0 open HIGH findings, ≤2 open MEDIUM findings (deferred-with-rationale) |
+| G3 | Decompose the barrel into domain-aligned sub-packages | 4 sub-packages: core, economy, model, governance — each ≤150 lines |
+| G4 | Formalize the constraint language with a grammar specification | BNF/PEG grammar, expression versioning, ≥10 fuzz test cases |
+| G5 | Create cross-ecosystem golden vectors consumed by arrakis and loa-finn | ≥20 shared vectors covering completion, billing, and event schemas |
+| G6 | Add ensemble orchestration contracts for multi-model dispatch | `EnsembleStrategy`, `EnsembleRequest`, `EnsembleResult` schemas |
+| G7 | Introduce budget scope and agent requirements schemas | Budget envelope and per-agent model requirements for routing validation |
 
-| Metric | v4.5.0 Baseline | v4.6.0 Target |
-|--------|----------------|---------------|
-| Cross-field constraints portable to non-TS | 0 of 11 | 11 of 11 |
-| State machine definitions unified | 1 of 3 (escrow only) | 3 of 3 |
-| Temporal properties formally specified | 0 | 5+ safety + 3+ liveness |
-| ECONOMY_FLOW entries with verification | 0 of 5 | 5 of 5 |
-| Aggregate boundaries defined | 0 | 3+ |
-| Tests | 799 | 850+ |
+### 3.2 Success Criteria
 
-### Secondary Goals
-
-- Preserve all existing exports and backward compatibility (zero breaking changes)
-- Enable `cheval.py` to consume constraints without TypeScript dependency
-- Provide foundation for TLA+ formalization (not implementing TLA+ itself, but structuring properties for future translation)
-- Address all residual NOTES.md gaps applicable to the contract layer
-
-### Non-Goals
-
-- Implementing a TLA+ model checker (Level 5 work)
-- Rewriting cross-field validators in a new language (we generate constraints alongside them)
-- Breaking changes to any existing schema
-- Changes to runtime behavior — this is specification and tooling, not new economic primitives
+- All existing 1,097 tests continue passing (zero regression)
+- ≥300 new tests covering multi-model contracts and open finding resolution
+- TypeScript compilation clean with zero errors
+- JSON Schema generation for all new schemas
+- Cross-language constraint files for all new cross-field validations
+- MIGRATION.md updated with v4.6.0 → v5.0.0 consumer upgrade matrix
 
 ---
 
-## 4. User & Stakeholder Context
+## 4. Functional Requirements
 
-### Primary Consumers
+### FR-1: ModelPort Adapter Boundary Contracts
 
-| Consumer | Role | Level 4 Need |
-|----------|------|-------------|
-| **loa-finn** (TypeScript) | Inference engine | Already has full access; benefits from unified state machines |
-| **arrakis** (TypeScript/Rust) | Gateway | Benefits from constraint format for Rust validation |
-| **cheval.py** (Python) | Hounfour model adapter | **Critical**: needs portable constraints for model output validation |
-| **mibera-freeside** (Solidity) | Smart contracts | Benefits from formal temporal properties for on-chain verification |
+Define the canonical wire-format types for model interaction. These are the types that `cheval.py` (loa-finn) normalizes to and that arrakis constructs billing from.
 
-### Secondary Consumers
+| Schema | Description | Priority |
+|--------|-------------|----------|
+| `CompletionRequest` | Messages, tools, options, metadata (agent, tenant, nft, trace) | P0 |
+| `CompletionResult` | Content, thinking, tool_calls, usage, metadata | P0 |
+| `ModelCapabilities` | Capabilities declared by providers (thinking_traces, vision, tool_calling, max_context, max_output) | P0 |
+| `ProviderWireMessage` | Lean wire-format message (role, content, thinking, tool_calls, tool_call_id) — distinct from persisted conversation `Message` | P0 |
+| `ToolDefinition` | Canonical tool definition shape (type, function, description, parameters JSON Schema) | P0 |
+| `ToolResult` | Tool execution response (role: tool, tool_call_id, content) | P0 |
 
-| Consumer | Role | Level 4 Need |
-|----------|------|-------------|
-| **Future Go/Rust adapters** | Model adapters | Constraint format + state machine declarations |
-| **Bridgebuilder** | Review persona | Temporal properties for deeper verification |
-| **Flatline Protocol** | Multi-model review | Aggregate boundaries for cross-model consistency checking |
+**Cross-field validation:** `CompletionRequest` with `tools` array requires `tool_choice` field. When `execution_mode` is `native_runtime`, `provider` must support native execution.
 
----
+**Source:** loa-finn RFC #31 Sections 5.1–5.3
 
-## 5. Functional Requirements
+### FR-2: Ensemble Orchestration Contracts
 
-### FR-1: Unified State Machine Vocabulary
+Define structured contracts for multi-model dispatch and response aggregation.
 
-**Priority**: P0 (Foundation for all other advances)
+| Schema | Description | Priority |
+|--------|-------------|----------|
+| `EnsembleStrategy` | Vocabulary: `'first_complete' \| 'best_of_n' \| 'consensus'` | P0 |
+| `EnsembleRequest` | Models to dispatch, strategy, timeout, task_type | P1 |
+| `EnsembleResult` | Selected result, all candidates, consensus score, duration | P1 |
 
-Create `src/vocabulary/state-machines.ts` with declarative state machine definitions for all three economic primitives:
+**Source:** loa-finn RFC #66 ensemble orchestration, RFC #31 multi-model routing
 
-- **Escrow**: initial=held, terminal=[released, refunded, expired], 5 transitions
-- **Stake**: initial=active, terminal=[withdrawn, slashed], transitions from active/vested
-- **Credit**: initial=extended, terminal=[settled], single transition
+### FR-3: Open Finding Resolution — Financial Safety
 
-Each machine definition includes: initial state, terminal states, valid transitions (from → to[]), and event-to-transition mappings (event type → {from[], to}).
+| Finding | Resolution | Schema Impact |
+|---------|-----------|---------------|
+| BB-V4-DEEP-002 / CF-4: Escrow timeout | Add `expires_at` field to `EscrowEntrySchema` | `EscrowEntry` schema change |
+| BB-V4-DEEP-003: Dividend audit trail | Add `source_performance_ids` to `CommonsDividend` | `CommonsDividend` schema change |
+| BB-V4-DEEP-004: Escalation linkage | Add `escalation_rule_applied` to `Sanction` | `Sanction` schema change |
+| BB-V4-DEEP-001: Sybil resistance | Add `min_unique_validators`, `validation_graph_hash` to `ReputationScore` | `ReputationScore` schema change |
 
-`ESCROW_TRANSITIONS` in `escrow-entry.ts` becomes a derived re-export. `ProtocolStateTracker` consumes the unified vocabulary instead of hardcoded `if` chains. `ECONOMIC_CHOREOGRAPHY` references state machines by name.
+**Constraint:** All changes must be backward-compatible (new fields are `Type.Optional`).
 
-**Acceptance Criteria:**
-- Single `STATE_MACHINES` export consumed by all three locations
-- Existing `ESCROW_TRANSITIONS` and `isValidEscrowTransition` exports preserved (re-export)
-- ProtocolStateTracker refactored to be data-driven from STATE_MACHINES
-- Structural invariant tests: all transitions are reachable, all terminal states are absorbing, no orphan states
-- Tests: state machine declaration tests + ProtocolStateTracker behavioral equivalence tests
+### FR-4: Barrel Decomposition
 
-### FR-2: Aggregate Boundary Definitions
+Factor `src/index.ts` (486 lines) into domain-aligned sub-packages with a root barrel re-exporting for backward compatibility.
 
-**Priority**: P0 (Companion to FR-1)
+| Sub-Package | Contents | Estimated Exports |
+|------------|----------|-------------------|
+| `core` | Agent, Conversation, DomainEvent, Transfer, Discovery, Health, Errors, Version | ~120 exports |
+| `economy` | Billing, Escrow, Stake, Credit, Dividend, Currency, Economy Flow | ~80 exports |
+| `model` | Completion, Ensemble, Thinking Trace, Tool Call, Stream Events, Pools | ~60 exports |
+| `governance` | Reputation, Sanction, Dispute, Routing, Escalation Rules | ~50 exports |
+| `constraints` | Evaluator, Types, Temporal Properties, State Machines, Aggregate Boundaries | ~40 exports |
 
-Create `src/vocabulary/aggregate-boundaries.ts` defining consistency boundaries between schemas:
+**Constraint:** Root `src/index.ts` MUST re-export everything from all sub-packages for backward compatibility. Consumers can use `@0xhoneyjar/loa-hounfour/core` or `@0xhoneyjar/loa-hounfour` interchangeably.
 
-- **escrow_settlement**: root=EscrowEntry, members=[BillingEntry, TransferEvent], causal ordering
-- **dividend_distribution**: root=CommonsDividend, members=[PerformanceRecord], read-your-writes consistency
-- **reputation_computation**: root=ReputationScore, members=[PerformanceRecord, Sanction], eventual consistency
+### FR-5: Constraint Language Formalization
 
-Each boundary specifies: root schema, member schemas, consistency invariant (prose), and ordering requirement (causal | read-your-writes | eventual).
+Upgrade the constraint expression language from an implicit grammar (recursive descent parser in `evaluator.ts`) to a formal specification.
 
-**Acceptance Criteria:**
-- 3+ aggregate boundaries defined with root, members, invariant, ordering
-- Structural tests: all referenced schemas exist, no circular membership
-- Integration with ECONOMY_FLOW: each flow entry's source/target must belong to a defined boundary
+| Deliverable | Description |
+|------------|-------------|
+| `constraints/GRAMMAR.md` | BNF/PEG grammar specification for the expression language |
+| Expression versioning | `expression_version: "1.0"` field in constraint files |
+| Fuzz test suite | ≥10 property-based fuzz tests using fast-check against the grammar |
+| Error reporting | Line/column position in constraint evaluation errors |
 
-### FR-3: Explicit Temporal Properties
+**Source:** CF-2, Bridgebuilder Cycle-009
 
-**Priority**: P1 (Formalization)
+### FR-6: Cross-Ecosystem Shared Vectors
 
-Create `src/vocabulary/temporal-properties.ts` specifying safety and liveness properties:
+Create canonical golden vectors that arrakis and loa-finn import and validate against.
 
-**Safety properties** (things that must always be true):
-- Financial conservation: sum of all escrow amounts is preserved across transitions
-- Reputation bounded: score always within [floor, ceiling] after decay
-- Non-negative amounts: no economic primitive creates negative micro-USD
-- Escalation monotonicity: sanction severity only increases for the same violation type
+| Vector Category | Count | Consumers |
+|----------------|-------|-----------|
+| Completion vectors (valid/invalid `CompletionRequest`/`CompletionResult`) | 8+ | loa-finn, arrakis |
+| Billing vectors (multi-party attribution with ensemble billing) | 6+ | arrakis |
+| Event batch vectors (economy flow events with saga context) | 6+ | loa-finn, arrakis |
 
-**Liveness properties** (things that must eventually happen):
-- Escrow termination: held escrow with expires_at reaches terminal state
-- Dispute resolution: filed dispute eventually reaches resolved or withdrawn
-- Stake maturation: active stake eventually reaches vested or slashed
+**Distribution:** Published as part of `vectors/` directory in the package.
 
-Each property includes: name, type (safety|liveness), scope (which schemas), formal expression (prose + quasi-formal notation), and a `testable: boolean` flag.
+### FR-7: Routing & Budget Contracts
 
-**Acceptance Criteria:**
-- 5+ safety properties and 3+ liveness properties specified
-- Each property has at least one `fast-check` property-based test
-- Properties reference STATE_MACHINES vocabulary for state-related assertions
-- New `tests/properties/` test files generated from property definitions
+| Schema | Description | Priority |
+|--------|-------------|----------|
+| `ExecutionMode` | Vocabulary: `'native_runtime' \| 'remote_model'` | P1 |
+| `ProviderType` | Vocabulary: `'claude-code' \| 'openai' \| 'openai-compatible'` | P1 |
+| `AgentRequirements` | Per-agent model requirements (native_runtime, tool_calling, thinking_traces) | P1 |
+| `BudgetScope` | Budget envelope: project/sprint/phase with limits and actions | P1 |
+| `RoutingResolution` | Result of routing: resolved_model, original, resolution_type, reason | P2 |
 
-### FR-4: Cross-Language Constraint Format
+**Source:** loa-finn RFC #31 Sections 5.4, 6.3, 6.4
 
-**Priority**: P1 (Portability — critical for Hounfour)
+### FR-8: Metadata Namespace Convention
 
-Generate `constraints/*.constraints.json` files alongside each JSON Schema, containing cross-field validation rules in a simple, language-neutral expression format.
+Establish the metadata namespace standard before consumers create shadow schemas.
 
-**Expression language** (minimal, parseable by any language):
-- Comparison: `==`, `!=`, `<`, `>`, `<=`, `>=`
-- Logical: `&&`, `||`, `!`
-- Null check: `== null`, `!= null`
-- Field access: `field_name`, `nested.field`
-- Array: `array.length`, `array.every(...)`, `array.some(...)`
-- Arithmetic: `+`, `-` (for BigInt string comparisons: `bigint_sum(field)`)
+| Namespace | Owner | Purpose |
+|-----------|-------|---------|
+| `loa.*` | Protocol | Reserved for protocol-level metadata |
+| `x-*` | Consumer | Consumer-extension metadata |
+| `trace.*` | Observability | Distributed tracing context |
+| `billing.*` | Economy | Billing attribution metadata |
 
-Each constraint includes: id, expression, severity (error|warning), message, and optional `faang_parallel` for documentation.
+**Validation:** `isValidMetadataKey()` updated to enforce namespace rules. New `METADATA_NAMESPACES` vocabulary.
 
-**Acceptance Criteria:**
-- 11 constraint files generated (one per cross-field-validated schema)
-- All existing cross-field validation rules represented in constraint format
-- Validation script (`scripts/validate-constraints.ts`) verifies constraint files match TypeScript validators
-- Constraint files included in package `"files"` for npm distribution
-- Documentation: how to consume constraints in Python/Go/Rust
-
-### FR-5: Executable ECONOMY_FLOW Verification
-
-**Priority**: P2 (Integration)
-
-Extend `EconomyFlowEntry` interface with optional `verify` function and add runtime verification utilities:
-
-- Each of the 5 flow entries gets a verification function that checks whether a source document could produce the linked target document
-- Utility function `verifyEconomyFlow(source, target, flowEntry)` invokes the verification
-- Integration with ProtocolStateTracker: flow violations are trackable events
-
-**Acceptance Criteria:**
-- 5 verification functions (one per ECONOMY_FLOW entry)
-- Verification utility exported from barrel (`src/index.ts`)
-- Tests: valid flows pass, broken flows (wrong pool_id, missing linking field) fail
-- Integration test: full economy pipeline (Performance → Reputation → Routing → Billing) verified end-to-end
-
-### FR-6: Residual Gap Closure
-
-**Priority**: P2 (Polish)
-
-Address remaining NOTES.md observations applicable to the contract layer:
-
-- **Saga compensation protocol**: Add optional `saga_context` enrichment to `ECONOMIC_CHOREOGRAPHY` with forward/compensation distinction
-- **Schema deprecation workflow**: Create `src/vocabulary/deprecation.ts` with deprecation tracking and migration guidance per schema
-- **Metadata namespace conventions**: Define `src/vocabulary/metadata-namespaces.ts` with `loa.*`, `x-*`, `trace.*` namespace rules
-
-**Acceptance Criteria:**
-- Saga context enrichment on ECONOMIC_CHOREOGRAPHY entries
-- Deprecation vocabulary with lifecycle tracking
-- Metadata namespace vocabulary with validation utility
-- Tests for each new vocabulary module
+**Source:** BB-V3-001
 
 ---
 
-## 6. Technical & Non-Functional Requirements
+## 5. Non-Functional Requirements
 
-### NFR-1: Zero Breaking Changes
+### NFR-1: Backward Compatibility
 
-All FR changes must be additive. Existing exports preserved via re-export where refactoring occurs. `npm pack` output must pass semver check against v4.5.0.
+All new fields on existing schemas MUST be `Type.Optional`. The root barrel MUST re-export all sub-packages. Consumers on v4.6.0 MUST be able to upgrade without code changes.
 
-### NFR-2: Constraint Format Simplicity
+### NFR-2: Cross-Language Portability
 
-The constraint expression language must be parseable by a simple recursive descent parser (no regex, no eval). Target: a Python consumer can validate constraints with <100 lines of parsing code.
+All new cross-field validations MUST have corresponding `constraints/*.json` files for Go/Python/Rust consumers. New schemas MUST generate valid JSON Schema via the existing pipeline.
 
 ### NFR-3: Test Coverage
 
-Maintain >95% line coverage on new vocabulary files. Every temporal property must have at least one property-based test. Every constraint must have a round-trip test (TypeScript validator agrees with constraint evaluation).
+≥300 new tests. Property-based tests for all financial arithmetic. Temporal property tests for new state machine transitions. Fuzz tests for constraint grammar.
 
-### NFR-4: Documentation
+### NFR-4: Performance
 
-Each new vocabulary file must include TSDoc explaining the design rationale, FAANG parallel, and connection to the Hounfour RFC. Generated constraint files must include human-readable comments.
-
-### NFR-5: Package Distribution
-
-New artifacts (constraints/*.json) must be included in npm package via `"files"` field. No new runtime dependencies.
+Barrel decomposition MUST NOT increase cold import time by more than 10%. Constraint evaluation MUST handle ≥100 rules in <10ms.
 
 ---
 
-## 7. Scope & Prioritization
+## 6. Out of Scope
 
-### In Scope (v4.6.0)
-
-| Priority | Requirement | Effort |
-|----------|-------------|--------|
-| P0 | FR-1: Unified STATE_MACHINES | Small (refactoring) |
-| P0 | FR-2: Aggregate boundaries | Small (new vocabulary) |
-| P1 | FR-3: Temporal properties | Medium (specification + tests) |
-| P1 | FR-4: Cross-language constraints | Medium (format design + generation) |
-| P2 | FR-5: Executable ECONOMY_FLOW | Small (add verify functions) |
-| P2 | FR-6: Residual gap closure | Small (3 vocabulary files) |
-
-### Out of Scope
-
-- TLA+ model checking implementation (Level 5 — future cycle)
-- Rewriting validators in Rego or another policy language
-- New economic primitives (v4.4 economy is complete)
-- Breaking changes to any existing schema or export
-- Cross-language vector runners (already exist for JSON Schema; constraint runners are consumer responsibility)
-- Changes to loa-finn, arrakis, or cheval.py (those repos consume the output)
+| Item | Reason | When |
+|------|--------|------|
+| `SoulMemory` / agent memory persistence | Post-launch P3 feature (RFC #66 Phase 3) | v6.0.0+ |
+| On-chain schema anchoring | Requires mibera-freeside integration | v6.0.0+ |
+| Native type generation (Go/Python/Rust) | JSON Schema validation sufficient for launch | v5.2.0 |
+| Resolvable `$id` URLs at schemas.0xhoneyjar.com | Infrastructure dependency | v5.1.0 |
+| Rust vector runner | Python/Go runners sufficient for launch | v5.1.0 |
+| `CapabilityAttestation` / `DelegatedCapability` | Requires multi-agent orchestration | v6.0.0+ |
+| Aggregate boundary runtime enforcement | Requires service-layer integration | v5.1.0 |
+| `PersonalityEvolution` schema | Post-launch Phase 3 | v6.0.0+ |
 
 ---
 
-## 8. Risks & Dependencies
+## 7. Technical Constraints
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Constraint expression language too complex for simple parsers | Medium | High | Start minimal (comparisons + null checks), extend only if needed |
-| ProtocolStateTracker refactoring breaks existing tests | Low | Medium | Behavioral equivalence tests before refactoring |
-| Temporal properties can't be meaningfully tested without model checker | Low | Low | fast-check property tests are sufficient for Level 4; TLA+ is Level 5 |
-| Aggregate boundaries create false sense of transactional guarantees | Medium | Medium | Clear documentation: boundaries are *specification*, not runtime enforcement |
-| Constraint format diverges from TypeScript validators over time | Medium | High | Validation script in CI ensures constraints match validators |
-
-### Dependencies
-
-- **None blocking**: All work is additive to the existing codebase
-- **Informational**: cheval.py team should review constraint format design (FR-4) before implementation
-- **Tooling**: `fast-check` already in devDependencies for property-based testing
+- TypeScript 5.x with `moduleResolution: "NodeNext"` — all imports require `.js` extension
+- TypeBox + TypeCompiler for lazy-compiled validation — extend for all new schemas
+- `@noble/hashes` for Keccak-256 — EIP-55 checksumming in NftId
+- String-encoded micro-USD (`^[0-9]+$`) — continue pattern for all new financial fields
+- BigInt arithmetic for all financial conservation checks
+- `additionalProperties: false` on all schemas (with MIGRATION.md evolution strategy)
+- Injectable `now` parameter pattern for all time-dependent validators
 
 ---
 
-## 9. Delivery Strategy
+## 8. Risks & Mitigations
 
-### Version Plan
-
-Single release: **v4.6.0 — The Formalization Release**
-
-All FRs ship together as a coherent Level 4 package. No intermediate releases — the value is in the complete formalization, not individual pieces.
-
-### Sprint Sequence
-
-Recommended sprint ordering follows the dependency chain:
-
-1. **Foundation**: FR-1 (STATE_MACHINES) + FR-2 (AGGREGATE_BOUNDARIES) — foundation for all other work
-2. **Formalization**: FR-3 (TEMPORAL_PROPERTIES) — builds on state machine definitions
-3. **Portability**: FR-4 (CONSTRAINTS) — the Hounfour integration unlock
-4. **Integration + Polish**: FR-5 (ECONOMY_FLOW verification) + FR-6 (residual gaps) + version bump
-
-### Bridge Review
-
-Post-implementation: Run Bridge with Bridgebuilder review. Target: single-iteration flatline (given the specification-heavy nature of this cycle, findings should be predominantly LOW or PRAISE).
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| ModelPort contracts diverge from loa-finn's actual adapter implementation | Consumers build against wrong shape | Medium | Cross-reference RFC #31 implementation in loa-finn before finalizing schemas |
+| Barrel decomposition breaks existing imports | Consumer build failures | Low | Root barrel re-exports everything; sub-packages are additive |
+| Constraint grammar formalization reveals edge cases in existing evaluator | Constraint evaluation regression | Medium | Property-based fuzz testing with fast-check |
+| Cross-ecosystem vectors create tight coupling between repos | Update friction | Low | Vectors are published as read-only fixtures; consumers validate against them |
+| v5.0.0 version bump signals instability to consumers | Adoption hesitation | Low | Clear MIGRATION.md with zero-breaking-change upgrade path for Optional fields |
 
 ---
 
-## 10. Success Criteria
+## 9. Dependencies
 
-### Ship Gate
+| Dependency | Type | Status |
+|-----------|------|--------|
+| loa-finn RFC #31 (Hounfour Multi-Model) | Design input | Published (37 comments) |
+| loa-finn RFC #66 (Launch Readiness) | Design input | Published (12 comments) |
+| arrakis PR #63 (Revenue Rules) | Validation | Merged |
+| Bridgebuilder findings (PR #1 + PR #2) | Input | Complete (120+ findings cataloged) |
+| TypeBox v0.32+ | Runtime | Installed |
+| fast-check | Test dependency | Installed |
 
-- [ ] All 6 FRs implemented with tests
-- [ ] 850+ tests passing
-- [ ] Zero breaking changes (semver check passes)
-- [ ] Constraint files generated for all 11 cross-field-validated schemas
-- [ ] STATE_MACHINES consumed by ProtocolStateTracker (no hardcoded transitions)
-- [ ] At least 5 safety + 3 liveness temporal properties with fast-check tests
-- [ ] Bridge review achieves flatline
+---
 
-### Level 4 Verification
+## 10. Acceptance Criteria
 
-A protocol is Level 4 when a **non-TypeScript consumer** can:
-1. Validate structural types via JSON Schema ✅ (already possible)
-2. Enforce semantic invariants via constraints.json (FR-4)
-3. Verify state machine transitions via STATE_MACHINES declaration (FR-1)
-4. Understand temporal safety/liveness guarantees via TEMPORAL_PROPERTIES (FR-3)
-5. Know which schemas must be atomically consistent via AGGREGATE_BOUNDARIES (FR-2)
-
-If all five are true, the protocol is self-describing across language boundaries. That's Level 4.
+1. All 1,097 existing tests pass (zero regression)
+2. ≥300 new tests covering all functional requirements
+3. `CompletionRequest` and `CompletionResult` schemas validate against loa-finn RFC #31 examples
+4. Barrel decomposition: sub-packages created, root barrel backward-compatible
+5. Constraint grammar: BNF/PEG spec with ≥10 fuzz tests
+6. Cross-ecosystem vectors: ≥20 vectors published under `vectors/` directory
+7. All open HIGH Bridgebuilder findings resolved
+8. MIGRATION.md updated with v4.6.0 → v5.0.0 consumer upgrade matrix
+9. JSON Schema generation for all new schemas
+10. Cross-language constraint files for all new cross-field validations

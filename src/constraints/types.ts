@@ -34,6 +34,8 @@ export interface ConstraintFile {
   schema_id: string;
   /** Protocol contract version these constraints were authored against. */
   contract_version: string;
+  /** Grammar version for constraint expressions (e.g. '1.0'). */
+  expression_version: string;
   /** Array of cross-field constraints. */
   constraints: Constraint[];
 }

@@ -1,33 +1,32 @@
 {
-  "plan_id": "plan-20260214-c007",
-  "branch": "feature/v4-agent-economy",
-  "state": "JACKED_OUT",
+  "plan_id": "plan-20260215-v5",
+  "branch": "feature/v5.0.0-multi-model",
+  "state": "RUNNING",
   "timestamps": {
-    "started": "2026-02-14T21:20:00Z",
-    "last_activity": "2026-02-14T22:00:00Z"
+    "started": "2026-02-15T16:30:00Z",
+    "last_activity": "2026-02-15T17:30:00Z"
   },
   "sprints": {
-    "total": 6,
-    "completed": 6,
-    "current": null,
+    "total": 5,
+    "completed": 2,
+    "current": "sprint-3",
     "list": [
-      {"id": "sprint-1", "status": "completed", "cycles": 1, "files_changed": 10},
-      {"id": "sprint-2", "status": "completed", "cycles": 1, "files_changed": 4},
-      {"id": "sprint-3", "status": "completed", "cycles": 1, "files_changed": 8},
-      {"id": "sprint-4", "status": "completed", "cycles": 1, "files_changed": 3},
-      {"id": "sprint-5", "status": "completed", "cycles": 1, "files_changed": 11},
-      {"id": "sprint-6", "status": "completed", "cycles": 1, "files_changed": 6}
+      {"id": "sprint-1", "status": "completed", "cycles": 1, "files_changed": 14},
+      {"id": "sprint-2", "status": "completed", "cycles": 1, "files_changed": 13},
+      {"id": "sprint-3", "status": "in_progress", "cycles": 0},
+      {"id": "sprint-4", "status": "pending", "cycles": 0},
+      {"id": "sprint-5", "status": "pending", "cycles": 0}
     ]
   },
   "options": {
     "from": 1,
-    "to": 6,
+    "to": 5,
     "max_cycles": 20,
     "timeout_hours": 8
   },
   "metrics": {
-    "total_cycles": 6,
-    "total_files_changed": 42,
-    "total_findings_fixed": 0
+    "total_cycles": 2,
+    "total_files_changed": 27,
+    "total_findings_fixed": 2
   }
 }

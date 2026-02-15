@@ -748,6 +748,7 @@ describe('Constraint file structure', () => {
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
       expect(file.contract_version).toBe('4.6.0');
+      expect(file.expression_version).toBe('1.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 
       for (const constraint of file.constraints) {

@@ -346,10 +346,56 @@
       "created_at": "2026-02-15T02:00:00Z",
       "archived_at": "2026-02-15T07:30:00Z",
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/2"
+    },
+    {
+      "id": "cycle-010",
+      "label": "The Multi-Model Release — v5.0.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 35,
+          "label": "ModelPort Foundation (FR-1 + FR-3)",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 36,
+          "label": "Ensemble & Routing (FR-2 + FR-7)",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 37,
+          "label": "Architecture — Barrel Decomposition + Grammar Formalization (FR-4 + FR-5)",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-4",
+          "global_id": 38,
+          "label": "Vectors, Namespace & Polish (FR-6 + FR-8)",
+          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-5",
+          "global_id": 39,
+          "label": "Integration — Constraint Files + v5.0.0 Release",
+          "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "status": "pending"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-02-15T14:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-finn/issues/31"
     }
   ],
-  "active_cycle": null,
+  "active_cycle": "cycle-010",
   "active_bugfix": null,
-  "global_sprint_counter": 34,
+  "global_sprint_counter": 39,
   "bugfix_cycles": []
 }
