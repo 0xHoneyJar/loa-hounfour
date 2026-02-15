@@ -556,6 +556,20 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// SagaContext cross-field validator
+registerCrossFieldValidator('SagaContext', (data) => {
+  const ctx = data as { step: number; total_steps?: number; direction: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // step must not exceed total_steps when total_steps is provided
+  if (ctx.total_steps !== undefined && ctx.step > ctx.total_steps) {
+    errors.push(`step (${ctx.step}) must not exceed total_steps (${ctx.total_steps})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 // v5.0.0 — BudgetScope cross-field validator
 registerCrossFieldValidator('BudgetScope', (data) => {
   const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string };

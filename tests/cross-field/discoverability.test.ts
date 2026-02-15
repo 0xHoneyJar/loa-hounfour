@@ -43,6 +43,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'BudgetScope',
     // v5.0.0 — Constraint Evolution
     'ConstraintProposal',
+    // SagaContext
+    'SagaContext',
   ];
 
   it('returns an array of strings', () => {
