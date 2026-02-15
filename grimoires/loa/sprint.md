@@ -1,460 +1,553 @@
-# Sprint Plan: loa-hounfour v4.5.0 — The Hardening Release
+# Sprint Plan: v4.6.0 — The Formalization Release (Level 4)
 
-**Cycle:** cycle-008
+**Cycle:** cycle-009
 **PRD:** [grimoires/loa/prd.md](grimoires/loa/prd.md)
 **SDD:** [grimoires/loa/sdd.md](grimoires/loa/sdd.md)
-**Source:** All suggestions from [PR #2](https://github.com/0xHoneyJar/loa-hounfour/pull/2) — Bridgebuilder Deep Review (Parts 1–4), Bridge Iterations 1–2, PR #1 cross-cutting findings
-**Date:** 2026-02-14
-**Team:** 1 agent developer (AI-driven)
+**Date:** 2026-02-15
+**Baseline:** v4.5.0, 799 tests, 42 test files, 54 source files
+**Target:** v4.6.0, 900+ tests, zero breaking changes
 
 ---
 
-## Overview
+## Sprint Overview
 
-4 sprints addressing every finding from the Bridgebuilder reviews on PR #2. This is a hardening release — no new schemas, but significant improvements to safety, discoverability, traceability, and test coverage. All changes are backward-compatible (minor version bump).
+| Sprint | Theme | FRs | Est. Tests | Global ID |
+|--------|-------|-----|-----------|-----------|
+| 1 | Foundation — State Machines & Aggregate Boundaries | FR-1, FR-2 | ~25 | 31 |
+| 2 | Formalization — Temporal Properties | FR-3 | ~33 | 32 |
+| 3 | Portability — Cross-Language Constraints | FR-4 | ~22 | 33 |
+| 4 | Integration & Polish — Flow Verification, Residual Gaps, v4.6.0 | FR-5, FR-6 | ~20 | 34 |
 
-**Execution strategy:** Themed sprints. Each sprint addresses a cluster of related findings. Sprint 4 bumps `CONTRACT_VERSION` to `4.5.0` and wires everything together. Total estimated effort: ~3 days.
-
-**Branch:** `feature/v4.5-hardening`
-
-### Findings Addressed
-
-| ID | Severity | Source | Sprint |
-|----|----------|--------|--------|
-| BB-V4-DEEP-001 | **HIGH** | Bridgebuilder Part 3 | Sprint 1 |
-| BB-POST-MERGE-001 | **HIGH** | Bridgebuilder PR #1 Part 3 | Sprint 3 |
-| BB-V4-DEEP-002 | **MEDIUM** | Bridgebuilder Part 3 | Sprint 2 |
-| BB-V4-DEEP-003 | **MEDIUM** | Bridgebuilder Part 3 | Sprint 2 |
-| BB-V4-DEEP-004 | **MEDIUM** | Bridgebuilder Part 3 | Sprint 2 |
-| BB-POST-MERGE-002 | **MEDIUM** | Bridgebuilder PR #1 Part 3 | Sprint 3 |
-| BB-POST-MERGE-004 | **MEDIUM** | Bridgebuilder PR #1 Part 3 | Sprint 4 |
-| BB-V4-DEEP-005 | **LOW** | Bridgebuilder Part 3 | Sprint 4 |
-| BB-C7-TEST-003 | **LOW** | Bridge Iter 2 (accepted) | Sprint 4 |
-| BB-C7-TEST-004 | **LOW** | Bridge Iter 2 (accepted) | Sprint 2 |
-| BB-C7-NAMING-001 | **LOW** | Bridge Iter 2 (accepted) | Sprint 3 |
-| BB-C7-NAMING-002 | **LOW** | Bridge Iter 2 (accepted) | Sprint 3 |
-| BB-C7-SCHEMA-005 | **LOW** | Bridge Iter 2 (accepted) | Sprint 3 |
-| BB-POST-MERGE-003 | **LOW** | Bridgebuilder PR #1 Part 3 | Sprint 3 |
+**Dependency chain:** Sprint 1 → Sprint 2 (temporal properties reference STATE_MACHINES) → Sprint 3 (constraints reference validators which reference state machines) → Sprint 4 (integration uses all of the above).
 
 ---
 
-## Sprint 1: Sybil Resistance & Reputation Hardening
+## Sprint 1: Foundation — Unified State Machines & Aggregate Boundaries
 
-**Goal:** Address the highest-severity finding: ReputationScore has no Sybil resistance. Add sample-size guards, identity anchoring, and reliability utility.
-**Estimated Effort:** ~0.5 day
-**Priority:** P0 — Security gap (BB-V4-DEEP-001)
+**Goal:** Unify the three scattered state machine definitions into a single declarative vocabulary. Define aggregate consistency boundaries. Refactor ProtocolStateTracker to be data-driven. This is the foundation all other sprints build on.
 
-### S1-T1: ReputationScore Identity Anchor
+**FRs:** FR-1 (P0), FR-2 (P0)
 
-**Description:** Add optional `identity_anchor` field to `ReputationScoreSchema` — a typed reference to the identity verification source (e.g., NFT ownership, OAuth linkage, on-chain proof). This doesn't implement verification, but provides the schema slot for consumers to link reputation to verified identity, making Sybil attacks detectable.
+### S1-T1: Create unified state machine vocabulary
 
-**Files:** `src/schemas/reputation-score.ts`
+**File:** `src/vocabulary/state-machines.ts`
 
-**Acceptance Criteria:**
-- [ ] `identity_anchor` field added as `Type.Optional(Type.Object({ provider: Type.String({ minLength: 1 }), verified_at: Type.String({ format: 'date-time' }) }, { additionalProperties: false }))`
-- [ ] Schema description updated to mention identity anchoring
-- [ ] Existing tests pass (backward compat — field is optional)
-- [ ] New golden vectors: valid with identity_anchor, valid without (backward compat), invalid with malformed anchor
+**Description:** Create the `STATE_MACHINES` record with `StateMachineDefinition` interface containing declarative definitions for all three economic primitives (escrow, stake, credit). Each definition includes: id, initial state, terminal states, all valid states, transitions array (from/to/event), and derived utility functions (`getValidTransitions`, `isTerminalState`, `isValidTransition`).
 
-**Testing:** L0 golden vectors
-
-### S1-T2: ReputationScore Cross-Field Validator Hardening
-
-**Description:** Enhance the ReputationScore cross-field validator with Sybil resistance guards. Add minimum sample threshold validation, suspicious-perfection detection, and component weight consistency check.
-
-**Files:** `src/validators/index.ts`
+**State machine specifications:**
+- **escrow**: states=[held, released, disputed, refunded, expired], initial=held, terminal=[released, refunded, expired], 5 transitions
+- **stake**: states=[active, vested, slashed, withdrawn], initial=active, terminal=[slashed, withdrawn], 4 transitions (active→vested, active→slashed, active→withdrawn, vested→withdrawn)
+- **credit**: states=[extended, settled], initial=extended, terminal=[settled], 1 transition
 
 **Acceptance Criteria:**
-- [ ] Cross-field validator registered for `ReputationScore`
-- [ ] Warning when `sample_size < MIN_REPUTATION_SAMPLE_SIZE` (5) — "insufficient sample for reliable reputation"
-- [ ] Warning when `score === 1.0 && sample_size < 10` — "perfect score with low sample is suspicious"
-- [ ] Error when any component > 1.0 or < 0.0 (defense in depth beyond schema validation)
-- [ ] Error when `decay_applied === true && score > REPUTATION_DECAY.ceiling` — "decayed score cannot exceed ceiling"
-- [ ] All validators return proper `{ valid, errors, warnings }` structure
-- [ ] Tests for each validation scenario
+- [ ] `STATE_MACHINES` export with 3 machine definitions
+- [ ] `StateMachineDefinition` and `StateMachineTransition` interfaces exported
+- [ ] `getValidTransitions(machineId, fromState)` returns valid target states
+- [ ] `isTerminalState(machineId, state)` returns boolean
+- [ ] `isValidTransition(machineId, from, to)` returns boolean
+- [ ] All transitions include optional `event` field mapping to `EVENT_TYPES` keys
 
-**Testing:** `tests/cross-field/reputation-score.test.ts`
+### S1-T2: Derive ESCROW_TRANSITIONS as re-export
 
-### S1-T3: Reputation Reliability Utility
+**File:** `src/schemas/escrow-entry.ts`
 
-**Description:** Export `isReliableReputation()` utility function that consumers can use to gate routing decisions. Encapsulates sample-size threshold, decay status, and freshness checks.
-
-**Files:** `src/utilities/reputation.ts` (new)
+**Description:** Replace the hardcoded `ESCROW_TRANSITIONS` record and `isValidEscrowTransition` function with re-exports derived from `STATE_MACHINES.escrow`. The existing API signatures must be preserved exactly — consumers must not need to change any imports.
 
 **Acceptance Criteria:**
-- [ ] `isReliableReputation(score: ReputationScore): { reliable: boolean; reasons: string[] }` exported
-- [ ] Returns unreliable when `sample_size < MIN_REPUTATION_SAMPLE_SIZE`
-- [ ] Returns unreliable when `last_updated` is older than `2 * REPUTATION_DECAY.half_life_days`
-- [ ] Returns unreliable when `decay_applied === false && last_updated > half_life_days` (stale without decay)
-- [ ] `reasons` array provides human-readable explanations
-- [ ] Barrel export from `src/index.ts`
-- [ ] Unit tests covering all combinations
+- [ ] `ESCROW_TRANSITIONS` is derived from `STATE_MACHINES.escrow` (not hardcoded)
+- [ ] `isValidEscrowTransition(from, to)` delegates to `isValidTransition('escrow', from, to)`
+- [ ] All existing tests pass unchanged (behavioral equivalence)
+- [ ] Import from `'../vocabulary/state-machines.js'` added
 
-**Testing:** Unit tests in `tests/utilities/reputation.test.ts`
+### S1-T3: Refactor ProtocolStateTracker to data-driven core
 
-### S1-T4: Barrel Exports + Golden Vectors (Sprint 1)
+**File:** `src/test-infrastructure/protocol-state-tracker.ts`
 
-**Description:** Export new utilities, update golden vectors for reputation schema changes.
+**Description:** Refactor `applyEconomyEvent()` to use a generic `applyStateMachineEvent()` core method that consults `STATE_MACHINES` for transition validation instead of hardcoded `if` chains. The economy-specific methods (`getOrphanedEscrows()`) and the full public API remain unchanged.
 
-**Files:** `src/index.ts`, `vectors/reputation-score/`
+**Key changes:**
+- Add private `applyStateMachineEvent(machineId, stateMap, entityId, targetState, notFoundReason, invalidReason)` method
+- Refactor escrow event handling: extract `escrow_id` from payload, determine target state from event type, delegate to `applyStateMachineEvent('escrow', ...)`
+- Refactor stake event handling: same pattern with `'stake'` machine
+- Refactor credit event handling: same pattern with `'credit'` machine
+- Map event types to target states using `STATE_MACHINES` transitions' event field
+- Preserve creation events (`.created`) as initial state entry, not transitions
 
 **Acceptance Criteria:**
-- [ ] `isReliableReputation`, `ReputationScore` type updated in barrel
-- [ ] `vectors/reputation-score/valid.json` includes identity_anchor variant
-- [ ] `vectors/reputation-score/edge.json` includes low-sample and perfect-score edge cases
-- [ ] Full test suite passes
-- [ ] No breaking changes to existing API
+- [ ] `applyStateMachineEvent()` is generic and data-driven from STATE_MACHINES
+- [ ] All 799 existing tests pass unchanged
+- [ ] `getOrphanedEscrows()` still works correctly
+- [ ] No hardcoded state transition `if` chains remain in the economy event section
+- [ ] `VALID_REJECTION_REASONS` unchanged (existing rejection reason strings preserved)
 
-**Testing:** Build + full test suite
+### S1-T4: Create aggregate boundary definitions
+
+**File:** `src/vocabulary/aggregate-boundaries.ts`
+
+**Description:** Define `AGGREGATE_BOUNDARIES` array with 5 aggregate boundaries specifying consistency requirements between schemas. Each boundary has: id, root schema $id, member schema $ids, prose invariant, and ordering requirement (causal | read-your-writes | eventual).
+
+**Boundaries:**
+
+| ID | Root | Members | Ordering |
+|----|------|---------|----------|
+| escrow_settlement | EscrowEntry | BillingEntry, TransferEvent | causal |
+| dividend_distribution | CommonsDividend | PerformanceRecord | read-your-writes |
+| reputation_computation | ReputationScore | PerformanceRecord, Sanction | eventual |
+| dispute_lifecycle | DisputeRecord | EscrowEntry, Sanction | causal |
+| governance_enforcement | Sanction | RoutingConstraint | causal |
+
+**Acceptance Criteria:**
+- [ ] `AGGREGATE_BOUNDARIES` export with 5 entries
+- [ ] `AggregateBoundary` and `ConsistencyModel` types exported
+- [ ] Each boundary has id, root, members, invariant (string), ordering
+- [ ] TSDoc with design rationale and FAANG parallel (DDD aggregates)
+
+### S1-T5: State machine invariant tests + behavioral equivalence tests
+
+**Files:** `tests/vocabulary/state-machines.test.ts`, `tests/test-infrastructure/state-tracker-equivalence.test.ts`
+
+**Description:** Write comprehensive tests for the state machine vocabulary and verify behavioral equivalence of the refactored ProtocolStateTracker.
+
+**Test categories:**
+- **Structural invariants** (~8 tests): all transitions are reachable from initial, all terminal states have no outbound transitions, no orphan states (states not in any transition), each machine has exactly one initial state
+- **Utility function tests** (~5 tests): `getValidTransitions` returns correct arrays, `isTerminalState` identifies terminals, `isValidTransition` accepts valid and rejects invalid
+- **Behavioral equivalence** (~7 tests): Run the exact same event sequences as existing `state-tracker-economy.test.ts` and verify identical results. This proves the refactoring is behavior-preserving.
+
+**Acceptance Criteria:**
+- [ ] All 3 machines pass structural invariant checks
+- [ ] Every transition in each machine is reachable from the initial state
+- [ ] No terminal state has outbound transitions
+- [ ] Behavioral equivalence: refactored tracker produces identical results to previous test expectations
+
+### S1-T6: Aggregate boundary structural tests + barrel exports
+
+**Files:** `tests/vocabulary/aggregate-boundaries.test.ts`, `src/index.ts`
+
+**Description:** Write structural tests for aggregate boundaries (all referenced schemas exist in the registry, no circular membership, ECONOMY_FLOW coverage). Update barrel exports to include all new vocabulary.
+
+**Tests (~5):**
+- All root and member schema $ids reference real schemas (by checking against exported schemas)
+- No circular membership (a root is never its own member)
+- Every ECONOMY_FLOW entry's source/target belongs to at least one boundary
+- At least 3 boundaries defined
+- Ordering field is a valid ConsistencyModel
+
+**Barrel exports to add:**
+```typescript
+// FR-1: State Machines
+export { STATE_MACHINES, type StateMachineDefinition, type StateMachineTransition,
+         getValidTransitions, isTerminalState, isValidTransition } from './vocabulary/state-machines.js';
+
+// FR-2: Aggregate Boundaries
+export { AGGREGATE_BOUNDARIES, type AggregateBoundary, type ConsistencyModel }
+  from './vocabulary/aggregate-boundaries.js';
+```
+
+**Acceptance Criteria:**
+- [ ] All structural invariants pass
+- [ ] Barrel exports updated with FR-1 + FR-2 exports
+- [ ] `npm run build` succeeds with new exports
 
 ---
 
-## Sprint 2: Financial Lifecycle Completeness
+## Sprint 2: Formalization — Temporal Properties
 
-**Goal:** Harden escrow timeout mechanism, connect ESCALATION_RULES to sanctions, link dividends to source performances. Address the three MEDIUM financial findings.
-**Estimated Effort:** ~1 day
-**Priority:** P1 — Financial safety
-**Dependencies:** Sprint 1 complete
+**Goal:** Formally specify safety and liveness properties of the protocol's state machines and economic invariants. Create property-based tests using fast-check that verify these properties hold across random event sequences.
 
-### S2-T1: Escrow Timeout Mechanism
+**FRs:** FR-3 (P1)
 
-**Description:** Add `expires_at` field to `EscrowEntrySchema` for TTL enforcement. Add cross-field validation that `expires_at` is required when state is `held` (escrows must have a deadline), and that `expires_at > held_at`. This addresses BB-V4-DEEP-002: the escrow state machine has an `expired` state but no mechanism to trigger it.
+### S2-T1: Create temporal properties vocabulary
 
-**Files:** `src/schemas/escrow-entry.ts`, `src/validators/index.ts`
+**File:** `src/vocabulary/temporal-properties.ts`
 
-**Acceptance Criteria:**
-- [ ] `expires_at` field added as `Type.Optional(Type.String({ format: 'date-time' }))` to EscrowEntry
-- [ ] Cross-field validator updated: warning when `state === 'held' && !expires_at` — "held escrow should have expires_at for TTL enforcement"
-- [ ] Cross-field validator: error when `expires_at && held_at && new Date(expires_at) <= new Date(held_at)` — "expires_at must be after held_at"
-- [ ] Cross-field validator: error when `state === 'expired' && !expires_at` — "expired state requires expires_at"
-- [ ] Existing escrow tests pass (backward compat — field is optional, warning not error for `held` state)
-- [ ] New golden vectors for escrow with expires_at
-- [ ] New cross-field test scenarios
+**Description:** Define `TEMPORAL_PROPERTIES` array with 6 safety properties and 3 liveness properties. Each property includes: id, name, type (safety|liveness), scope (which machine or schema), description (prose), formal expression (quasi-formal notation suitable for future TLA+ translation), testable flag, and test_strategy.
 
-**Testing:** L0 golden vectors + cross-field tests
+**Safety properties:**
 
-### S2-T2: Sanction Escalation Rules Wiring
+| ID | Name | Scope | Formal |
+|----|------|-------|--------|
+| S1 | Financial conservation | escrow | `always(sum_released + sum_refunded <= sum_held)` |
+| S2 | Reputation bounded | reputation | `always(floor <= score <= ceiling)` |
+| S3 | Non-negative amounts | economy | `always(amount_micro >= 0)` for all economic schemas |
+| S4 | Escalation monotonicity | sanction | `always(severity[n+1] >= severity[n])` for same violation_type |
+| S5 | Terminal state absorbing | escrow, stake, credit | `always(terminal_state → no outbound transitions)` |
+| S6 | Share conservation | commons-dividend | `always(sum(share_bps) == 10000)` |
 
-**Description:** Wire `ESCALATION_RULES` from `vocabulary/sanctions.ts` into the Sanction cross-field validator. Validate that severity level is consistent with violation_type and occurrence_count based on the escalation thresholds. This addresses BB-V4-DEEP-004: ESCALATION_RULES exist as a vocabulary but are disconnected from the Sanction schema validation.
+**Liveness properties:**
 
-**Files:** `src/validators/index.ts`
-
-**Acceptance Criteria:**
-- [ ] Import `ESCALATION_RULES` in validators/index.ts
-- [ ] Sanction cross-field validator: warning when `severity` does not match the expected level from `ESCALATION_RULES[trigger.violation_type]` given `trigger.occurrence_count`
-- [ ] Specifically: look up the violation_type in ESCALATION_RULES, find which threshold bracket the occurrence_count falls into, and warn if severity doesn't match the corresponding severity_progression entry
-- [ ] Uses warning (not error) — operators may override escalation rules for specific cases
-- [ ] Test: billing_fraud with occurrence_count=1 should expect 'terminated'
-- [ ] Test: community_guideline with occurrence_count=2 should expect 'warning' (below threshold 3)
-- [ ] Test: community_guideline with occurrence_count=7 should expect 'suspended'
-- [ ] Test: custom severity accepted with warning (override case)
-
-**Testing:** `tests/cross-field/sanction.test.ts`
-
-### S2-T3: ESCALATION_RULES Structural Invariant Tests
-
-**Description:** Add tests verifying the structural correctness of ESCALATION_RULES. This addresses BB-C7-TEST-004: the static lookup table has no tests ensuring its invariants hold.
-
-**Files:** `tests/vocabulary/escalation-rules.test.ts` (new)
+| ID | Name | Scope | Formal |
+|----|------|-------|--------|
+| L1 | Escrow termination | escrow | `eventually(state ∈ terminal)` when `expires_at` is set |
+| L2 | Dispute resolution | dispute | `eventually(state ∈ {resolved, withdrawn})` |
+| L3 | Stake maturation | stake | `eventually(state ∈ {vested, slashed, withdrawn})` |
 
 **Acceptance Criteria:**
-- [ ] Test: every violation type in VIOLATION_TYPES has an ESCALATION_RULES entry
-- [ ] Test: every ESCALATION_RULES entry has `thresholds.length === severity_progression.length`
-- [ ] Test: thresholds are monotonically increasing within each entry
-- [ ] Test: severity_progression entries are monotonically increasing (per SANCTION_SEVERITY_ORDER)
-- [ ] Test: every severity in severity_progression is a valid SANCTION_SEVERITY_LEVELS member
-- [ ] Test: billing_fraud and identity_spoofing are immediate termination (thresholds: [1])
+- [ ] `TEMPORAL_PROPERTIES` export with 9 entries (6 safety + 3 liveness)
+- [ ] `TemporalProperty` and `PropertyType` interfaces exported
+- [ ] Each property references STATE_MACHINES by id where applicable
+- [ ] All properties have `testable: true` with clear `test_strategy`
+- [ ] TSDoc with FAANG parallel (Amazon TLA+ for safety/liveness)
 
-**Testing:** Unit tests
+### S2-T2: Create fast-check arbitraries for economy events
 
-### S2-T4: CommonsDividend Source Performance Linkage
+**File:** `tests/helpers/economy-arbitraries.ts`
 
-**Description:** Add `source_performance_ids` field to `CommonsDividendSchema` — an array of performance_id strings linking the dividend to the PerformanceRecords that generated it. This addresses BB-V4-DEEP-003: dividends are disconnected from their source performances, creating an audit gap.
+**Description:** Create reusable fast-check arbitraries for generating random economy event sequences. These arbitraries will be shared across all property-based tests.
 
-**Files:** `src/schemas/commons-dividend.ts`, `src/validators/index.ts`
-
-**Acceptance Criteria:**
-- [ ] `source_performance_ids` field added as `Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }))` — optional for backward compat, but recommended
-- [ ] Cross-field validator updated: warning when `source_performance_ids` is missing — "dividend should link to source performance records for audit trail"
-- [ ] Cross-field validator: warning when `distribution` is present but `source_performance_ids` is missing — "distributed dividend without provenance"
-- [ ] Existing tests pass (backward compat)
-- [ ] New golden vectors with source_performance_ids
-
-**Testing:** L0 golden vectors + cross-field tests
-
-### S2-T5: Barrel Exports + Vectors (Sprint 2)
-
-**Description:** Update golden vectors for all modified schemas. Verify test count increase.
-
-**Files:** `vectors/escrow-entry/`, `vectors/sanction/`, `vectors/commons-dividend/`
+**Arbitraries needed:**
+- `escrowLifecycleArbitrary()` — generates a sequence of escrow events (create → held → ... → terminal)
+- `stakeLifecycleArbitrary()` — generates a sequence of stake events
+- `creditLifecycleArbitrary()` — generates a sequence of credit events
+- `mixedEconomyEventSequenceArbitrary()` — generates interleaved events across all three machines
+- `validDomainEventArbitrary()` — generates a single valid DomainEvent for economy aggregate
+- Helper: `amountMicroArbitrary()` — positive BigInt string
 
 **Acceptance Criteria:**
-- [ ] All modified schemas have updated golden vectors
-- [ ] Full test suite passes
-- [ ] Test count increased by 15+ from new scenarios
-- [ ] No breaking changes
+- [ ] All arbitraries produce valid DomainEvent shapes
+- [ ] Lifecycle arbitraries generate paths that traverse the state machine
+- [ ] Mixed sequence arbitrary interleaves events from all three machines
+- [ ] Shared `tests/helpers/` location for reuse across test files
 
-**Testing:** Build + full test suite
+### S2-T3: Implement safety property tests
+
+**File:** `tests/properties/state-machine-safety.test.ts`
+
+**Description:** Implement fast-check property-based tests for all 6 safety properties. Each test generates random event sequences using the arbitraries from S2-T2 and verifies the invariant holds.
+
+**Tests:**
+- S1: Financial conservation — across random escrow sequences, released + refunded amounts never exceed held amounts
+- S2: Reputation bounded — generate reputation scores with random decay, verify always within [0, 1]
+- S3: Non-negative amounts — all generated economic events use non-negative amount_micro
+- S4: Escalation monotonicity — random sanction sequences for same violation type have non-decreasing severity
+- S5: Terminal state absorbing — after reaching a terminal state, no further transitions are accepted by the tracker
+- S6: Share conservation — random dividend distributions always sum to 10000 bps
+
+**Acceptance Criteria:**
+- [ ] 6 fast-check property tests, one per safety property
+- [ ] `numRuns: 200` minimum per property (configurable, 1000 in CI)
+- [ ] Each test uses `ProtocolStateTracker` as the oracle
+- [ ] Tests are deterministic with fixed seeds for CI reproducibility
+
+### S2-T4: Implement liveness property tests
+
+**File:** `tests/properties/state-machine-liveness.test.ts`
+
+**Description:** Implement fast-check property-based tests for all 3 liveness properties. Liveness tests generate random paths and verify that terminal states are eventually reachable.
+
+**Tests:**
+- L1: Escrow termination — for any escrow with `expires_at`, there exists a valid path from current state to a terminal state
+- L2: Dispute resolution — for any dispute, there exists a valid path to resolved or withdrawn
+- L3: Stake maturation — for any active stake, there exists a valid path to vested, slashed, or withdrawn
+
+**Note:** Liveness in a finite state machine is verified by showing reachability — for every non-terminal state, at least one terminal state is reachable via some sequence of valid transitions.
+
+**Acceptance Criteria:**
+- [ ] 3 fast-check property tests, one per liveness property
+- [ ] Tests verify reachability (not temporal logic model checking)
+- [ ] Use STATE_MACHINES vocabulary for state enumeration
+- [ ] All tests pass with `numRuns: 200`
+
+### S2-T5: Temporal property specification tests + barrel exports
+
+**Files:** `tests/vocabulary/temporal-properties.test.ts`, `src/index.ts`
+
+**Description:** Write specification tests for the temporal properties vocabulary (well-formedness checks) and update barrel exports.
+
+**Specification tests (~6):**
+- All properties have unique ids
+- All safety properties have type 'safety', all liveness have type 'liveness'
+- All properties reference valid STATE_MACHINES ids in their scope
+- All properties have non-empty formal expression
+- All 9 properties are testable
+- Count check: at least 6 safety + 3 liveness
+
+**Barrel exports to add:**
+```typescript
+// FR-3: Temporal Properties
+export { TEMPORAL_PROPERTIES, type TemporalProperty, type PropertyType }
+  from './vocabulary/temporal-properties.js';
+```
+
+**Acceptance Criteria:**
+- [ ] All specification tests pass
+- [ ] Barrel exports updated
+- [ ] `npm run build` succeeds
 
 ---
 
-## Sprint 3: Schema Discoverability, Naming & Standards
+## Sprint 3: Portability — Cross-Language Constraints
 
-**Goal:** Make cross-field validators discoverable from schemas, align naming conventions, standardize UUID patterns, define the x-experimental lifecycle contract. Address consistency findings.
-**Estimated Effort:** ~1 day
-**Priority:** P1 — Developer experience
-**Dependencies:** Sprint 2 complete
+**Goal:** Generate portable constraint files for all 11 cross-field-validated schemas, enabling non-TypeScript consumers (cheval.py, Go/Rust adapters) to enforce the same semantic invariants without reimplementing TypeScript logic.
 
-### S3-T1: Shared UUID_V4_PATTERN Constant
+**FRs:** FR-4 (P1)
 
-**Description:** Extract the `UUID_V4_PATTERN` regex to a shared vocabulary file instead of duplicating it in `escrow-entry.ts` and `stake-position.ts`. This addresses BB-C7-NAMING-002.
+### S3-T1: Define constraint format + create constraint generator module
 
-**Files:** `src/vocabulary/patterns.ts` (new), `src/schemas/escrow-entry.ts`, `src/schemas/stake-position.ts`
+**Files:** `src/constraints/generator.ts`, `src/constraints/types.ts`
 
-**Acceptance Criteria:**
-- [ ] `src/vocabulary/patterns.ts` created with `UUID_V4_PATTERN` constant exported
-- [ ] `escrow-entry.ts` and `stake-position.ts` import from `../vocabulary/patterns.js` instead of defining inline
-- [ ] Pattern value unchanged: `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`
-- [ ] Barrel export from `src/index.ts`
-- [ ] All existing tests pass
-- [ ] Any other schemas using UUID patterns updated to import shared constant
+**Description:** Define the constraint file JSON format and create the generator infrastructure. The constraint format uses a minimal expression language parseable by any language's recursive descent parser.
 
-**Testing:** Build + existing tests
+**Constraint file schema:**
+```typescript
+interface ConstraintFile {
+  $schema: string;
+  schema_id: string;
+  contract_version: string;
+  constraints: Constraint[];
+}
 
-### S3-T2: Cross-Field Validator Discoverability
+interface Constraint {
+  id: string;
+  expression: string;
+  severity: 'error' | 'warning';
+  message: string;
+  fields: string[];
+}
+```
 
-**Description:** Add `x-cross-field-validated: true` extension property to all schemas that have registered cross-field validators. Export `getCrossFieldValidatorSchemas()` function that returns the list of schema $ids with registered validators. This addresses BB-POST-MERGE-001: consumers cannot discover which schemas have cross-field validation from the schema alone.
-
-**Files:** `src/validators/index.ts`, `src/schemas/escrow-entry.ts`, `src/schemas/stake-position.ts`, `src/schemas/mutual-credit.ts`, `src/schemas/commons-dividend.ts`, `src/schemas/performance-record.ts`, `src/schemas/conversation.ts`, `src/schemas/billing-entry.ts`, `src/schemas/sanction.ts`, `src/schemas/dispute-record.ts`, `src/schemas/reputation-score.ts`
-
-**Acceptance Criteria:**
-- [ ] All 10+ schemas with cross-field validators have `'x-cross-field-validated': true` in their TypeBox options
-- [ ] `getCrossFieldValidatorSchemas(): string[]` exported from `src/validators/index.ts` — returns array of schema $ids with registered validators
-- [ ] Generated JSON schemas include `x-cross-field-validated: true` property
-- [ ] Test: `getCrossFieldValidatorSchemas()` returns expected set of schema IDs
-- [ ] Test: every schema $id in the registry appears in the return value
-- [ ] All existing tests pass
-
-**Testing:** Unit test + schema generation verification
-
-### S3-T3: Economic Choreography Naming Alignment
-
-**Description:** Align `ECONOMIC_CHOREOGRAPHY` step names with the canonical `EVENT_TYPES` from `event-types.ts`. Currently the choreography uses shorthand names (`stake.offered`) while EVENT_TYPES uses full aggregate-prefixed names (`economy.stake.created`). This addresses BB-POST-MERGE-002.
-
-**Files:** `src/vocabulary/economic-choreography.ts`
+**Expression language operators:** `==`, `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`, `!`, `== null`, `!= null`, `'literal'`, `field.nested`, `bigint_sum(array, field)`, `array.length`, `array.every(expr)`
 
 **Acceptance Criteria:**
-- [ ] Stake forward path uses EVENT_TYPES keys: `['economy.stake.created', 'economy.stake.vested']`
-- [ ] Stake compensation uses: `['economy.stake.withdrawn', 'economy.stake.slashed']`
-- [ ] Escrow forward path uses: `['economy.escrow.created', 'economy.escrow.funded', 'economy.escrow.released']`
-- [ ] Escrow compensation uses: `['economy.escrow.refunded', 'economy.escrow.expired']`
-- [ ] MutualCredit forward uses: `['economy.credit.extended', 'economy.credit.settled']`
-- [ ] MutualCredit compensation uses: `['economy.credit.settled']` (forgiven is a settlement method, not a separate event)
-- [ ] All step names are valid EVENT_TYPES keys (compile-time check via `satisfies` type)
-- [ ] Add type constraint: `forward` and `compensation` arrays contain only `EventType` values
-- [ ] Import `EventType` from event-types.ts for type safety
-- [ ] Existing choreography tests updated
-- [ ] Invariant descriptions unchanged
+- [ ] `ConstraintFile` and `Constraint` type definitions exported
+- [ ] Expression language documented in TSDoc
+- [ ] Minimal constraint evaluator function for round-trip testing
+- [ ] Format is JSON (no custom DSL, no embedded code)
 
-**Testing:** Compile-time type check + existing tests
+### S3-T2: Author constraint files for all 11 schemas
 
-### S3-T4: Dispute Type Rename — 'personality' to 'behavioral'
+**Directory:** `constraints/`
 
-**Description:** Rename the `'personality'` dispute type to `'behavioral'` in `DisputeRecordSchema`. The original name was flagged as a misnomer (BB-C7-SCHEMA-005) — disputes about agent personality changes are more accurately described as behavioral disputes (an agent acting outside its expected behavior profile).
+**Description:** Hand-author constraint JSON files for each of the 11 schemas with registered cross-field validators. Each constraint maps directly to a validation rule in `validators/index.ts`.
 
-**Files:** `src/schemas/dispute-record.ts`, relevant test files, golden vectors
+**Files to create:**
 
-**Acceptance Criteria:**
-- [ ] `Type.Literal('personality')` changed to `Type.Literal('behavioral')` in DisputeRecordSchema
-- [ ] `DisputeRecord` TypeScript type updated automatically via `Static<typeof>`
-- [ ] Golden vectors updated: 'personality' → 'behavioral' in valid vectors
-- [ ] Golden vectors: old 'personality' value in invalid vectors (breaking change, documented)
-- [ ] Schema description unchanged
-- [ ] Test that 'behavioral' is accepted, 'personality' is rejected
-- [ ] Cross-field validator for DisputeRecord unchanged (filed_by !== filed_against)
+| File | Source Validator | Est. Constraints |
+|------|----------------|-----------------|
+| `EscrowEntry.constraints.json` | ~7 rules (self-escrow, state co-presence, temporal, timeout) | 7 |
+| `StakePosition.constraints.json` | ~2 rules (vesting conservation, immediate schedule) | 2 |
+| `MutualCredit.constraints.json` | ~5 rules (self-credit, settled co-presence, temporal) | 5 |
+| `CommonsDividend.constraints.json` | ~4 rules (temporal, linkage, share sum, amount conservation) | 4 |
+| `DisputeRecord.constraints.json` | ~2 rules (self-dispute, temporal) | 2 |
+| `Sanction.constraints.json` | ~4 rules (terminated/expires, temporal, expiry recommendation, escalation) | 4 |
+| `ReputationScore.constraints.json` | ~2 rules (sample size, perfect score warning) | 2 |
+| `BillingEntry.constraints.json` | ~1 rule (billing entry validation) | 1 |
+| `PerformanceRecord.constraints.json` | ~2 rules (dividend split, validated_by) | 2 |
+| `ConversationSealingPolicy.constraints.json` | ~1 rule (sealing policy) | 1 |
+| `AccessPolicy.constraints.json` | ~1 rule (access policy) | 1 |
 
-**Testing:** L0 golden vectors + existing tests updated
-
-### S3-T5: x-experimental Lifecycle Contract
-
-**Description:** Define and document the `x-experimental` lifecycle contract. Create a vocabulary constant describing the lifecycle stages (experimental → stable → deprecated → removed) and the guarantees at each stage. This addresses BB-POST-MERGE-003.
-
-**Files:** `src/vocabulary/schema-stability.ts` (new)
+**Total:** ~31 constraints across 11 files
 
 **Acceptance Criteria:**
-- [ ] `SCHEMA_STABILITY_LEVELS` constant exported: `{ experimental: {...}, stable: {...}, deprecated: {...} }`
-- [ ] Each level has: `label`, `description`, `breaking_change_policy`, `removal_timeline`
-- [ ] `experimental`: "No stability guarantees. Schema may change or be removed in any minor version."
-- [ ] `stable`: "Follows semver. Breaking changes require major version bump."
-- [ ] `deprecated`: "Scheduled for removal. Will be removed in next major version."
-- [ ] `isExperimentalSchema(schema: TSchema): boolean` utility exported
-- [ ] Barrel export from `src/index.ts`
-- [ ] Tests for utility function against known experimental schemas (StakePosition, CommonsDividend, MutualCredit)
+- [ ] 11 constraint files in `constraints/` directory
+- [ ] Each constraint has: id, expression, severity, message, fields
+- [ ] Constraint ids follow naming convention: `{schema}-{rule-name}`
+- [ ] All expressions use only the defined expression language operators
+- [ ] Constraints match 1:1 with TypeScript validator rules
 
-**Testing:** Unit tests
+### S3-T3: Create constraint generation/validation script
 
-### S3-T6: ID Field Format Standardization
+**File:** `scripts/generate-constraints.ts`
 
-**Description:** Document the ID field naming conventions and add TSDoc comments explaining the two patterns used in the codebase. This addresses BB-C7-NAMING-001 (UUID v4 pattern vs opaque minLength:1 strings).
-
-**Files:** `src/vocabulary/patterns.ts` (extend from S3-T1)
+**Description:** Create a script that validates constraint files match the TypeScript validator registry. It reads the cross-field validator registry, reads each constraint file, and verifies: (a) every registered schema has a constraint file, (b) every constraint file references a registered schema, (c) constraint count matches expected rules.
 
 **Acceptance Criteria:**
-- [ ] `UUID_V4_PATTERN` constant has TSDoc explaining when to use UUID format (financial records, escrow, stakes — entities requiring global uniqueness)
-- [ ] `OPAQUE_ID_CONSTRAINTS` constant exported: `{ minLength: 1 }` with TSDoc explaining when to use opaque strings (agent_id, pool_id, community_id — entities where the format is consumer-defined)
-- [ ] Decision documented: UUID for protocol-generated IDs, opaque for consumer-provided IDs
-- [ ] No schema changes needed — just documentation of the existing convention
-- [ ] Barrel export
+- [ ] Script runs via `npx tsx scripts/generate-constraints.ts --validate`
+- [ ] Validates all 11 constraint files exist
+- [ ] Reports any constraint files without matching validators (and vice versa)
+- [ ] Exit code 0 on success, 1 on mismatch
 
-**Testing:** Import validation
+### S3-T4: Round-trip tests (constraint ↔ validator equivalence)
 
-### S3-T7: Barrel Exports + Vectors (Sprint 3)
+**File:** `tests/constraints/round-trip.test.ts`
 
-**Description:** Export all new vocabulary, update golden vectors for modified schemas, bump test count.
+**Description:** For each constraint in each file, generate valid and invalid test documents. Run both the TypeScript cross-field validator and a minimal constraint expression evaluator on each document. Assert they agree (both accept or both reject). This prevents constraint files from drifting.
 
-**Files:** `src/index.ts`, various vector files
+**Test structure:**
+- For each of the 11 schemas:
+  - Parse the constraint file
+  - For each constraint:
+    - Generate a valid document (passes the constraint)
+    - Generate an invalid document (violates the constraint)
+    - Run TypeScript validator → get result
+    - Evaluate constraint expression → get result
+    - Assert agreement
 
 **Acceptance Criteria:**
-- [ ] All new exports registered in barrel: `UUID_V4_PATTERN`, `OPAQUE_ID_CONSTRAINTS`, `SCHEMA_STABILITY_LEVELS`, `isExperimentalSchema`, `getCrossFieldValidatorSchemas`
-- [ ] All modified schemas have updated golden vectors
-- [ ] Full test suite passes
-- [ ] Test count increased by 20+ from new scenarios
+- [ ] Round-trip tests for all 11 schemas
+- [ ] Both valid and invalid cases tested per constraint
+- [ ] Minimal constraint evaluator handles all expression operators
+- [ ] Zero disagreements between TypeScript validators and constraints
 
-**Testing:** Build + full test suite
+### S3-T5: Package distribution + build integration
+
+**Files:** `package.json`, `tsconfig.json` (if needed)
+
+**Description:** Add `constraints/` to the npm package's `"files"` array so constraint files ship with the package. Add validation script to the `check:all` npm script.
+
+**Changes:**
+- `package.json`: add `"constraints"` to `"files"` array
+- `package.json`: add `"check:constraints": "npx tsx scripts/generate-constraints.ts --validate"` to scripts
+- Verify `npm pack` includes constraint files
+
+**Acceptance Criteria:**
+- [ ] `constraints/` directory included in `npm pack` output
+- [ ] `pnpm run check:constraints` passes
+- [ ] No new runtime dependencies added
+- [ ] Constraint files accessible at `node_modules/@0xhoneyjar/loa-hounfour/constraints/`
 
 ---
 
-## Sprint 4: Integration Schema, Test Hardening & Final Release (v4.5.0)
+## Sprint 4: Integration & Polish — Flow Verification, Residual Gaps, v4.6.0
 
-**Goal:** Create the three-economy integration vocabulary, harden test infrastructure for economy events, extract architectural decisions into code, and ship v4.5.0.
-**Estimated Effort:** ~0.5 day
-**Priority:** P1 — Integration + release
-**Dependencies:** Sprint 3 complete
+**Goal:** Make ECONOMY_FLOW executable with verification functions. Close residual NOTES.md gaps (saga compensation, deprecation lifecycle, metadata namespace validation). Bump to v4.6.0.
 
-### S4-T1: Three Economies Integration Vocabulary
+**FRs:** FR-5 (P2), FR-6 (P2)
 
-**Description:** Create a vocabulary file that defines the typed connection between the three economies (Reputation → Routing → Billing). This is the "integration schema" that BB-V4-DEEP-005 identified as missing — a vocabulary that describes how reputation scores flow into routing constraints which flow into billing decisions.
+### S4-T1: Add verification functions to ECONOMY_FLOW
 
-**Files:** `src/vocabulary/economy-integration.ts` (new)
+**File:** `src/vocabulary/economy-integration.ts`
 
-**Acceptance Criteria:**
-- [ ] `ECONOMY_FLOW` constant exported describing the three-economy pipeline:
-  ```
-  reputation (ReputationScore) → routing (RoutingConstraint.min_reputation) → billing (BillingEntry)
-  performance (PerformanceRecord) → reputation (ReputationScore.components) → routing
-  governance (Sanction) → routing (RoutingConstraint.trust_level) → billing
-  ```
-- [ ] Each flow entry has: `source_schema`, `target_schema`, `linking_field`, `description`
-- [ ] `EconomyFlowEntry` interface exported
-- [ ] TSDoc comments explaining each flow with architectural rationale
-- [ ] Not a runtime enforcer — a vocabulary describing the intended data flow for consumers
-- [ ] Barrel export
+**Description:** Extend the `EconomyFlowEntry` interface with an optional `verify` function. Add verification functions to each of the 5 flow entries that check whether a source document could produce the linked target document.
 
-**Testing:** Import validation + type tests
+**Verification logic per flow:**
 
-### S4-T2: ProtocolStateTracker Economy Event Handling
-
-**Description:** Enhance `ProtocolStateTracker` to properly track economy aggregate events instead of pass-through. This addresses BB-C7-TEST-003: economy events currently pass through without state tracking.
-
-**Files:** `src/test-infrastructure/protocol-state-tracker.ts`
+| Flow | Check |
+|------|-------|
+| PerformanceRecord → ReputationScore | `target.agent_id === source.agent_id` |
+| ReputationScore → RoutingConstraint | `target.min_reputation <= source.score` |
+| RoutingConstraint → BillingEntry | `target.pool_id` exists and is a valid pool |
+| Sanction → RoutingConstraint | `target.trust_level` consistent with source severity level |
+| PerformanceRecord → CommonsDividend | `target.source_performance_ids.includes(source.record_id)` |
 
 **Acceptance Criteria:**
-- [ ] StateTracker tracks escrow state per `escrow_id` (held → released/disputed/expired)
-- [ ] StateTracker validates escrow transitions using `ESCROW_TRANSITIONS`
-- [ ] StateTracker tracks stake lifecycle per `stake_id` (created → vested/slashed/withdrawn)
-- [ ] StateTracker tracks credit lifecycle per `credit_id` (extended → settled)
-- [ ] Invalid economy state transitions are rejected with reason
-- [ ] `isConsistent()` checks economy state (no orphaned escrows, no double-settlements)
-- [ ] Existing temporal property tests still pass
-- [ ] NOT exported from main barrel (test-only)
+- [ ] `EconomyFlowEntry` interface extended with optional `verify` function
+- [ ] 5 verification functions (one per flow entry)
+- [ ] `verifyEconomyFlow(source, target, flowEntry)` utility exported
+- [ ] Existing ECONOMY_FLOW export shape unchanged (verify is optional)
 
-**Testing:** Unit tests for StateTracker + property tests exercise new paths
+### S4-T2: Economy flow verification tests
 
-### S4-T3: Architectural Decision Comments
+**File:** `tests/vocabulary/economy-flow-verification.test.ts`
 
-**Description:** Add concise architectural decision comments to key files where PR comment discussions captured important design rationale. This addresses BB-POST-MERGE-004: architectural insights trapped in PR comments. Extract the most critical decisions as TSDoc comments.
+**Description:** Write tests for each verification function: valid flows pass, broken flows (wrong agent_id, missing linking field, incorrect pool_id) fail. Include an end-to-end integration test that verifies the full economy pipeline.
 
-**Files:** `src/schemas/escrow-entry.ts`, `src/schemas/stake-position.ts`, `src/vocabulary/economic-choreography.ts`, `src/validators/index.ts`, `src/vocabulary/currency.ts`
+**Tests:**
+- Per-flow tests (5 flows × 2 cases = 10 tests): valid pair passes, invalid pair fails with reason
+- End-to-end pipeline test: PerformanceRecord → ReputationScore → RoutingConstraint → BillingEntry
+- Null verify function handling: flow entries without verify are skipped gracefully
 
 **Acceptance Criteria:**
-- [ ] `escrow-entry.ts`: TSDoc comment explaining why escrow is a separate entity (not billing lifecycle state) — can outlive conversations, multiple billing entries per escrow
-- [ ] `stake-position.ts`: TSDoc comment explaining three stake types and their ECSA parallels (conviction=belief, delegation=authority, validation=skin-in-the-game)
-- [ ] `economic-choreography.ts`: TSDoc comment explaining forward/compensation pattern from transfer-choreography and Ostrom design principles
-- [ ] `validators/index.ts`: TSDoc comment on cross-field validator registry pattern explaining the `crossFieldRegistry` Map and why schemas reference it by $id
-- [ ] `currency.ts`: TSDoc comment on the v4.0.0 signed-by-default decision and Stripe parallel
-- [ ] Comments are concise (2-4 lines max) and cite the source (BB finding ID or PR # where discussed)
-- [ ] No logic changes — documentation only
+- [ ] 10+ flow verification tests
+- [ ] End-to-end pipeline test
+- [ ] Both valid and invalid cases covered for each flow
 
-**Testing:** Build succeeds
+### S4-T3: Add saga_context to ECONOMIC_CHOREOGRAPHY
 
-### S4-T4: Version Bump + Final Integration (v4.5.0)
+**File:** `src/vocabulary/economic-choreography.ts`
 
-**Description:** Bump CONTRACT_VERSION to 4.5.0, update package.json, verify all barrel exports, run full test suite, verify generated JSON schemas.
+**Description:** Extend `EconomicScenarioChoreography` with an optional `saga` field containing `compensation_trigger` and `idempotency` descriptions. Add saga context to each of the 3 choreography entries.
+
+**Saga context per scenario:**
+
+| Scenario | Compensation Trigger | Idempotency |
+|----------|---------------------|-------------|
+| escrow | Release fails, bilateral disagreement | Escrow state is terminal — re-release is no-op |
+| stake | Slashing dispute, vesting invalidation | Stake state machine prevents double-slash |
+| mutual_credit | Settlement failure, credit default | Settled flag is idempotent boolean transition |
+
+**Acceptance Criteria:**
+- [ ] `EconomicScenarioChoreography` interface extended with optional `saga` field
+- [ ] All 3 choreography entries have saga context
+- [ ] Existing choreography shape unchanged (saga is optional addition)
+- [ ] Tests verify saga context is present and well-formed
+
+### S4-T4: Create deprecation registry
+
+**File:** `src/vocabulary/deprecation.ts`
+
+**Description:** Create `DEPRECATION_REGISTRY` as an empty-by-design registry with the `DeprecationEntry` interface. This is infrastructure for the first deprecation — currently no schemas are deprecated.
+
+**Interface:**
+```typescript
+interface DeprecationEntry {
+  schema_id: string;
+  deprecated_in: string;
+  removal_target: string;
+  migration_guide: string;
+  replacement?: string;
+}
+```
+
+**Acceptance Criteria:**
+- [ ] `DEPRECATION_REGISTRY` exported (currently empty array)
+- [ ] `DeprecationEntry` type exported
+- [ ] `getDeprecatedSchemas()` utility returns list of deprecated schema ids
+- [ ] `isDeprecated(schemaId)` utility returns boolean
+- [ ] Tests verify empty registry works, and a synthetic entry is correctly queryable
+
+### S4-T5: Extend metadata namespace with validation utilities
+
+**File:** `src/vocabulary/metadata.ts` (extend existing)
+
+**Description:** Add `isValidMetadataKey(key)` and `getNamespaceOwner(key)` utility functions to the existing metadata vocabulary module. These functions validate that metadata keys follow namespace conventions and return the owning system.
+
+**Note:** This extends the existing `src/vocabulary/metadata.ts` which already exports `METADATA_NAMESPACES` and `MODEL_METADATA_KEYS`. Do NOT create a new `metadata-namespaces.ts` file — extend the existing module to avoid duplicate exports.
+
+**Acceptance Criteria:**
+- [ ] `isValidMetadataKey(key)` returns true if key starts with any known namespace prefix
+- [ ] `getNamespaceOwner(key)` returns 'loa-hounfour', 'infrastructure', 'model', or 'consumer'
+- [ ] Unknown namespace keys return false / undefined
+- [ ] Tests for each namespace prefix validation
+- [ ] Existing barrel exports of `METADATA_NAMESPACES` and `MODEL_METADATA_KEYS` unchanged
+
+### S4-T6: Version bump to 4.6.0 + final integration
 
 **Files:** `src/version.ts`, `package.json`, `src/index.ts`
 
-**Acceptance Criteria:**
-- [ ] `CONTRACT_VERSION === '4.5.0'`
-- [ ] `package.json` version is `4.5.0`
-- [ ] `pnpm run build` succeeds
-- [ ] `pnpm run test` passes with 700+ tests (up from 670)
-- [ ] `pnpm run schema:generate` produces 36+ JSON schemas
-- [ ] All new exports present in barrel
-- [ ] All `x-cross-field-validated: true` markers present in generated schemas
-- [ ] All `x-experimental: true` markers unchanged on experimental schemas
-- [ ] No TypeScript `any` types
-- [ ] All 14 Bridgebuilder findings addressed
+**Description:** Bump `CONTRACT_VERSION` to `'4.6.0'`, update `package.json` version, ensure all barrel exports are complete, and run the full test suite. Verify all 900+ tests pass and zero existing tests are broken.
 
-**Testing:** Full pipeline validation
+**Barrel exports to add (cumulative from all sprints):**
+```typescript
+// FR-5: Economy Flow Verification
+export { verifyEconomyFlow } from './vocabulary/economy-integration.js';
+
+// FR-6: Deprecation
+export { DEPRECATION_REGISTRY, type DeprecationEntry, getDeprecatedSchemas, isDeprecated }
+  from './vocabulary/deprecation.js';
+
+// FR-6: Metadata validation (added to existing export)
+export { isValidMetadataKey, getNamespaceOwner } from './vocabulary/metadata.js';
+```
+
+**Acceptance Criteria:**
+- [ ] `CONTRACT_VERSION` = `'4.6.0'`
+- [ ] `package.json` version = `'4.6.0'`
+- [ ] All barrel exports present for FR-1 through FR-6
+- [ ] All 900+ tests pass (including all 799 existing tests)
+- [ ] `pnpm run build` succeeds
+- [ ] `pnpm run check:all` passes (including constraint validation)
+- [ ] Zero breaking changes to existing exports
 
 ---
 
-## Summary
+## Risk Mitigation
 
-| Sprint | Theme | Tasks | Findings Addressed | Est. Effort |
-|--------|-------|-------|-------------------|-------------|
-| 1 | Sybil Resistance & Reputation | 4 | BB-V4-DEEP-001 (HIGH) | ~0.5 day |
-| 2 | Financial Lifecycle Completeness | 5 | BB-V4-DEEP-002, 003, 004 (MEDIUM) + BB-C7-TEST-004 (LOW) | ~1 day |
-| 3 | Discoverability, Naming & Standards | 7 | BB-POST-MERGE-001 (HIGH), 002, 003 (MEDIUM/LOW) + BB-C7-NAMING-001, 002, SCHEMA-005 (LOW) | ~1 day |
-| 4 | Integration, Tests & Release | 4 | BB-V4-DEEP-005 (LOW) + BB-C7-TEST-003 (LOW) + BB-POST-MERGE-004 (MEDIUM) | ~0.5 day |
-| **Total** | | **20** | **14 findings** | **~3 days** |
+| Risk | Mitigation | Sprint |
+|------|-----------|--------|
+| ProtocolStateTracker refactoring breaks tests | Behavioral equivalence tests (S1-T5) before and after refactoring | 1 |
+| Constraint expression language too complex | Start with comparisons + null checks + boolean logic only. `bigint_sum` and `array.every` added only for schemas that need them | 3 |
+| fast-check property tests flaky | Deterministic seeds, `numRuns: 200` locally / `1000` in CI | 2 |
+| Constraint files drift from validators | Round-trip tests in CI (S3-T4), validation script in `check:all` (S3-T5) | 3 |
+| Metadata namespace collision with existing module | Extend `metadata.ts` instead of creating new file (S4-T5) | 4 |
 
-## Success Criteria
+## Success Metrics
 
-| Metric | Target | Source |
-|--------|--------|--------|
-| Test count | 700+ (up from 670) | Sprint 4 gate |
-| Bridgebuilder findings addressed | 14/14 | All findings from PR #2 |
-| New golden vectors | 10+ | Escrow, reputation, sanction, dividend |
-| Cross-field validators discoverable | 10+ schemas marked | BB-POST-MERGE-001 |
-| Economy integration documented | 3 flow paths typed | BB-V4-DEEP-005 |
-| Sybil resistance guards | 3 validator checks | BB-V4-DEEP-001 |
-| Escrow timeout coverage | expires_at field + validation | BB-V4-DEEP-002 |
-| Escalation rules wired | Cross-field warnings | BB-V4-DEEP-004 |
-| Breaking changes | 1 (DisputeRecord personality→behavioral) | BB-C7-SCHEMA-005 |
-| Backward compat | All other changes additive | Design constraint |
-
-## Risks
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| DisputeRecord type rename breaks consumers | Low | Medium | Only 1 consumer exists (arrakis), and the type was experimental |
-| Cross-field validator warnings generate noise | Medium | Low | Warnings are advisory, not errors — consumers can filter |
-| Economy StateTracker adds test complexity | Low | Low | Test-only infrastructure, doesn't affect production |
-| x-cross-field-validated changes JSON schema output | Low | Low | Extension properties are ignored by standard validators |
-
-## Dependencies
-
-```
-Sprint 1 (Reputation) ─── Sprint 2 (Financial) ─── Sprint 3 (Naming) ─── Sprint 4 (Integration + v4.5.0)
-     │                        │                        │                        │
-     │                        │                        │                        │
- Sybil resistance         Escrow timeout           UUID shared            3-economy integration
- Identity anchor          Escalation wiring        Choreography names     StateTracker economy
- Reliability utility      Dividend audit trail     Cross-field discovery  Architecture comments
-                          Escalation tests         Dispute type rename    Version bump
-                                                   x-experimental contract
-                                                   ID format docs
-```
-
-Each sprint builds on the previous but the dependency chain is lightweight — Sprint 3 could technically run in parallel with Sprint 2 if needed.
+| Metric | Target |
+|--------|--------|
+| Total tests | 900+ (799 baseline + ~100 new) |
+| Constraint files | 11 of 11 |
+| State machines unified | 3 of 3 |
+| Temporal properties | 6 safety + 3 liveness = 9 |
+| Aggregate boundaries | 5 |
+| ECONOMY_FLOW verifications | 5 of 5 |
+| Breaking changes | 0 |
