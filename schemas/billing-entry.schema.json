@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/billing-entry",
+  "additionalProperties": false,
+  "description": "Multi-party billing entry replacing CostBreakdown",
+  "type": "object",
+  "required": [
+    "id",
+    "trace_id",
+    "tenant_id",
+    "cost_type",
+    "provider",
+    "currency",
+    "precision",
+    "raw_cost_micro",
+    "multiplier_bps",
+    "total_cost_micro",
+    "rounding_policy",
+    "recipients",
+    "idempotency_key",
+    "timestamp",
+    "contract_version"
+  ],
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "description": "ULID — canonical billing entry identifier",
+      "type": "string"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "description": "Distributed tracing correlation ID",
+      "type": "string"
+    },
+    "tenant_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "nft_id": {
+      "$id": "NftId",
+      "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
+      "type": "string"
+    },
+    "cost_type": {
+      "$id": "CostType",
+      "description": "Billing cost category",
+      "anyOf": [
+        {
+          "const": "model_inference",
+          "type": "string"
+        },
+        {
+          "const": "tool_call",
+          "type": "string"
+        },
+        {
+          "const": "platform_fee",
+          "type": "string"
+        },
+        {
+          "const": "byok_subscription",
+          "type": "string"
+        },
+        {
+          "const": "agent_setup",
+          "type": "string"
+        }
+      ]
+    },
+    "provider": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "model": {
+      "description": "Model ID (model_inference only)",
+      "type": "string"
+    },
+    "pool_id": {
+      "description": "Pool ID (model_inference only)",
+      "type": "string"
+    },
+    "tool_id": {
+      "description": "Tool ID (tool_call only)",
+      "type": "string"
+    },
+    "model_id": {
+      "description": "Model that generated this cost (for per-model attribution in budget dashboards)",
+      "type": "string"
+    },
+    "cost_provider": {
+      "description": "Provider name for cost attribution (maps to Hounfour config key)",
+      "type": "string"
+    },
+    "pricing_model": {
+      "description": "Cost structure for this billing entry (per_token, gpu_hourly, flat_rate)",
+      "anyOf": [
+        {
+          "const": "per_token",
+          "type": "string"
+        },
+        {
+          "const": "gpu_hourly",
+          "type": "string"
+        },
+        {
+          "const": "flat_rate",
+          "type": "string"
+        }
+      ]
+    },
+    "currency": {
+      "description": "ISO 4217 currency code",
+      "const": "USD",
+      "type": "string"
+    },
+    "precision": {
+      "description": "Micro-USD = 6 decimal places",
+      "const": 6,
+      "type": "number"
+    },
+    "raw_cost_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "multiplier_bps": {
+      "minimum": 10000,
+      "maximum": 100000,
+      "description": "Total multiplier in basis points (10000 = 1.0x, 30000 = 3.0x)",
+      "type": "integer"
+    },
+    "total_cost_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "rounding_policy": {
+      "description": "Deterministic allocation algorithm",
+      "const": "largest_remainder",
+      "type": "string"
+    },
+    "recipients": {
+      "minItems": 1,
+      "description": "Multi-party cost attribution",
+      "type": "array",
+      "items": {
+        "$id": "BillingRecipient",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "address",
+          "role",
+          "share_bps",
+          "amount_micro"
+        ],
+        "properties": {
+          "address": {
+            "minLength": 1,
+            "description": "Wallet or account address",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "const": "provider",
+                "type": "string"
+              },
+              {
+                "const": "platform",
+                "type": "string"
+              },
+              {
+                "const": "producer",
+                "type": "string"
+              },
+              {
+                "const": "agent_tba",
+                "type": "string"
+              },
+              {
+                "const": "agent_performer",
+                "type": "string"
+              },
+              {
+                "const": "commons",
+                "type": "string"
+              }
+            ]
+          },
+          "share_bps": {
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Basis points share (0-10000)",
+            "type": "integer"
+          },
+          "amount_micro": {
+            "pattern": "^-?[0-9]+$",
+            "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "usage": {
+      "$id": "Usage",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "prompt_tokens",
+        "completion_tokens"
+      ],
+      "properties": {
+        "prompt_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "completion_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reasoning_tokens": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "metadata": {
+      "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

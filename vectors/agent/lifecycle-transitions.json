@@ -1,0 +1,21 @@
+{
+  "valid_transitions": [
+    { "id": "lc-001", "from": "DORMANT", "to": "PROVISIONING", "note": "initial activation" },
+    { "id": "lc-002", "from": "PROVISIONING", "to": "ACTIVE", "note": "provisioning complete" },
+    { "id": "lc-003", "from": "PROVISIONING", "to": "DORMANT", "note": "provisioning failed" },
+    { "id": "lc-004", "from": "ACTIVE", "to": "SUSPENDED", "note": "suspend active agent" },
+    { "id": "lc-005", "from": "ACTIVE", "to": "TRANSFERRED", "note": "ownership transfer" },
+    { "id": "lc-006", "from": "ACTIVE", "to": "ARCHIVED", "note": "archive active agent" },
+    { "id": "lc-007", "from": "SUSPENDED", "to": "ACTIVE", "note": "reactivate" },
+    { "id": "lc-008", "from": "SUSPENDED", "to": "ARCHIVED", "note": "archive suspended" },
+    { "id": "lc-009", "from": "TRANSFERRED", "to": "PROVISIONING", "note": "new owner provisions" },
+    { "id": "lc-010", "from": "TRANSFERRED", "to": "ARCHIVED", "note": "archive during transfer" }
+  ],
+  "invalid_transitions": [
+    { "id": "lc-inv-001", "from": "DORMANT", "to": "ACTIVE", "note": "must go through provisioning" },
+    { "id": "lc-inv-002", "from": "ARCHIVED", "to": "ACTIVE", "note": "archived is terminal" },
+    { "id": "lc-inv-003", "from": "ACTIVE", "to": "DORMANT", "note": "cannot go dormant from active" },
+    { "id": "lc-inv-004", "from": "TRANSFERRED", "to": "ACTIVE", "note": "must re-provision after transfer" },
+    { "id": "lc-inv-005", "from": "DORMANT", "to": "ARCHIVED", "note": "dormant cannot archive directly" }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "valid_scores": [
+    {
+      "id": "rep-001",
+      "data": {
+        "agent_id": "a1",
+        "score": 0.85,
+        "components": {
+          "outcome_quality": 0.9,
+          "performance_consistency": 0.8,
+          "dispute_ratio": 0.85,
+          "community_standing": 0.75
+        },
+        "sample_size": 10,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "contract_version": "4.4.0"
+      },
+      "note": "basic valid reputation score without identity_anchor"
+    },
+    {
+      "id": "rep-002",
+      "data": {
+        "agent_id": "a2",
+        "score": 0.72,
+        "components": {
+          "outcome_quality": 0.8,
+          "performance_consistency": 0.7,
+          "dispute_ratio": 0.65,
+          "community_standing": 0.6
+        },
+        "sample_size": 25,
+        "last_updated": "2026-02-01T00:00:00Z",
+        "decay_applied": true,
+        "identity_anchor": {
+          "provider": "worldcoin",
+          "verified_at": "2025-06-15T10:30:00Z"
+        },
+        "contract_version": "4.4.0"
+      },
+      "note": "valid reputation score with identity_anchor (Sybil resistance)"
+    },
+    {
+      "id": "rep-003",
+      "data": {
+        "agent_id": "a3",
+        "score": 0,
+        "components": {
+          "outcome_quality": 0,
+          "performance_consistency": 0,
+          "dispute_ratio": 0,
+          "community_standing": 0
+        },
+        "sample_size": 0,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "contract_version": "4.4.0"
+      },
+      "note": "boundary: all-zero scores"
+    },
+    {
+      "id": "rep-004",
+      "data": {
+        "agent_id": "a4",
+        "score": 1,
+        "components": {
+          "outcome_quality": 1,
+          "performance_consistency": 1,
+          "dispute_ratio": 1,
+          "community_standing": 1
+        },
+        "sample_size": 100,
+        "last_updated": "2026-02-14T00:00:00Z",
+        "decay_applied": false,
+        "identity_anchor": {
+          "provider": "gitcoin-passport",
+          "verified_at": "2026-01-01T00:00:00Z"
+        },
+        "contract_version": "4.4.0"
+      },
+      "note": "boundary: perfect scores with identity_anchor"
+    }
+  ],
+  "invalid_scores": [
+    {
+      "id": "rep-invalid-001",
+      "data": {
+        "agent_id": "a1",
+        "score": 1.01,
+        "components": {
+          "outcome_quality": 0.9,
+          "performance_consistency": 0.8,
+          "dispute_ratio": 0.85,
+          "community_standing": 0.75
+        },
+        "sample_size": 10,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "contract_version": "4.4.0"
+      },
+      "note": "score above maximum (1.0)"
+    },
+    {
+      "id": "rep-invalid-002",
+      "data": {
+        "agent_id": "a1",
+        "score": 0.85,
+        "components": {
+          "outcome_quality": 0.9,
+          "performance_consistency": 0.8,
+          "dispute_ratio": 0.85,
+          "community_standing": 0.75
+        },
+        "sample_size": 10,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "identity_anchor": {
+          "provider": "",
+          "verified_at": "2026-01-01T00:00:00Z"
+        },
+        "contract_version": "4.4.0"
+      },
+      "note": "identity_anchor with empty provider (minLength: 1)"
+    },
+    {
+      "id": "rep-invalid-003",
+      "data": {
+        "agent_id": "a1",
+        "score": 0.85,
+        "components": {
+          "outcome_quality": 0.9,
+          "performance_consistency": 0.8,
+          "dispute_ratio": 0.85,
+          "community_standing": 0.75
+        },
+        "sample_size": 10,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "identity_anchor": {
+          "provider": "worldcoin",
+          "verified_at": "not-a-date"
+        },
+        "contract_version": "4.4.0"
+      },
+      "note": "identity_anchor with invalid date-time format"
+    },
+    {
+      "id": "rep-invalid-004",
+      "data": {
+        "agent_id": "a1",
+        "score": 0.85,
+        "components": {
+          "outcome_quality": 0.9,
+          "performance_consistency": 0.8,
+          "dispute_ratio": 0.85,
+          "community_standing": 0.75
+        },
+        "sample_size": 10,
+        "last_updated": "2026-01-01T00:00:00Z",
+        "decay_applied": false,
+        "identity_anchor": {
+          "provider": "worldcoin",
+          "verified_at": "2026-01-01T00:00:00Z",
+          "extra_field": true
+        },
+        "contract_version": "4.4.0"
+      },
+      "note": "identity_anchor with additionalProperties rejected"
+    }
+  ]
+}

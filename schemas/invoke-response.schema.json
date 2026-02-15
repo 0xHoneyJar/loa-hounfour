@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/invoke-response",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/invoke-response",
+  "description": "Response from an AI agent invocation with billing reference",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -10,7 +11,7 @@
     "pool_id",
     "content",
     "usage",
-    "cost",
+    "billing_entry_id",
     "billing_method",
     "latency_ms",
     "contract_version"
@@ -39,6 +40,7 @@
     "tool_calls": {
       "type": "array",
       "items": {
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
@@ -49,6 +51,7 @@
             "type": "string"
           },
           "function": {
+            "additionalProperties": false,
             "type": "object",
             "required": [
               "name",
@@ -68,6 +71,7 @@
     },
     "usage": {
       "$id": "Usage",
+      "additionalProperties": false,
       "type": "object",
       "required": [
         "prompt_tokens",
@@ -88,36 +92,10 @@
         }
       }
     },
-    "cost": {
-      "$id": "CostBreakdown",
-      "type": "object",
-      "required": [
-        "input_cost_micro",
-        "output_cost_micro",
-        "total_cost_micro"
-      ],
-      "properties": {
-        "input_cost_micro": {
-          "pattern": "^[0-9]+$",
-          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
-          "type": "string"
-        },
-        "output_cost_micro": {
-          "pattern": "^[0-9]+$",
-          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
-          "type": "string"
-        },
-        "reasoning_cost_micro": {
-          "pattern": "^[0-9]+$",
-          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
-          "type": "string"
-        },
-        "total_cost_micro": {
-          "pattern": "^[0-9]+$",
-          "description": "Micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
-          "type": "string"
-        }
-      }
+    "billing_entry_id": {
+      "minLength": 1,
+      "description": "References BillingEntry.id (ULID)",
+      "type": "string"
     },
     "billing_method": {
       "description": "How cost was determined",
@@ -143,7 +121,14 @@
     "contract_version": {
       "description": "Protocol version",
       "type": "string"
+    },
+    "metadata": {
+      "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
     }
   },
-  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

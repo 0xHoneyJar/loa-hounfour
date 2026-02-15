@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/protocol-discovery",
+  "additionalProperties": false,
+  "description": "Protocol discovery document for /.well-known/loa-hounfour",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "min_supported_version",
+    "schemas"
+  ],
+  "properties": {
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Current contract version",
+      "type": "string"
+    },
+    "min_supported_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Minimum version this endpoint supports",
+      "type": "string"
+    },
+    "schemas": {
+      "description": "List of supported schema $id URLs",
+      "type": "array",
+      "items": {
+        "format": "uri",
+        "description": "Schema $id URL",
+        "type": "string"
+      }
+    },
+    "supported_aggregates": {
+      "description": "Supported aggregate types (e.g. \"agent\", \"billing\")",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "capabilities_url": {
+      "format": "uri",
+      "description": "URL for capability negotiation endpoint — connects discovery to capability queries",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

@@ -10,8 +10,18 @@
  * On minor mismatch: `X-Contract-Version-Warning` header.
  * On major mismatch: 400 with `CONTRACT_VERSION_MISMATCH` error.
  */
-export const CONTRACT_VERSION = '1.1.0' as const;
-export const MIN_SUPPORTED_VERSION = '1.0.0' as const;
+export const CONTRACT_VERSION = '4.6.0' as const;
+export const MIN_SUPPORTED_VERSION = '3.0.0' as const;
+
+/**
+ * Base URL for resolvable JSON Schema $id URIs.
+ *
+ * Full $id format: `{SCHEMA_BASE_URL}/{CONTRACT_VERSION}/{schema-name}`
+ *
+ * @see BB-ADV-008 — Resolvable $id URLs for ecosystem tooling
+ * @since v3.2.0
+ */
+export const SCHEMA_BASE_URL = 'https://schemas.0xhoneyjar.com/loa-hounfour' as const;
 
 /**
  * Parse a semver string into components.

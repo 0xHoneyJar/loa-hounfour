@@ -1,0 +1,109 @@
+{
+  "valid_specs": [
+    {
+      "id": "xfer-001",
+      "data": {
+        "transfer_id": "xfer_sale_001",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "from_owner": "0x1111111111111111111111111111111111111111",
+        "to_owner": "0x2222222222222222222222222222222222222222",
+        "scenario": "sale",
+        "sealing_policy": {
+          "encryption_scheme": "aes-256-gcm",
+          "key_derivation": "hkdf-sha256",
+          "key_reference": "kref-xfer-001",
+          "access_audit": true,
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
+        },
+        "initiated_at": "2026-01-15T10:00:00Z",
+        "initiated_by": "marketplace-contract",
+        "contract_version": "3.0.0"
+      },
+      "note": "sale transfer with encryption and access_policy type=none"
+    },
+    {
+      "id": "xfer-002",
+      "data": {
+        "transfer_id": "xfer_gift_001",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "from_owner": "0x1111111111111111111111111111111111111111",
+        "to_owner": "0x3333333333333333333333333333333333333333",
+        "scenario": "gift",
+        "sealing_policy": {
+          "encryption_scheme": "none",
+          "key_derivation": "none",
+          "access_audit": false,
+          "access_policy": {
+            "type": "read_only",
+            "audit_required": false,
+            "revocable": true
+          }
+        },
+        "initiated_at": "2026-01-15T12:00:00Z",
+        "initiated_by": "owner-wallet",
+        "contract_version": "3.0.0"
+      },
+      "note": "gift with read_only access policy for previous owner"
+    }
+  ],
+  "valid_events": [
+    {
+      "id": "xfer-ev-001",
+      "data": {
+        "transfer_id": "xfer_sale_001",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "from_owner": "0x1111111111111111111111111111111111111111",
+        "to_owner": "0x2222222222222222222222222222222222222222",
+        "scenario": "sale",
+        "result": "completed",
+        "sealing_policy": {
+          "encryption_scheme": "aes-256-gcm",
+          "key_derivation": "hkdf-sha256",
+          "key_reference": "kref-xfer-001",
+          "access_audit": true,
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
+        },
+        "conversations_sealed": 5,
+        "conversations_migrated": 3,
+        "initiated_at": "2026-01-15T10:00:00Z",
+        "completed_at": "2026-01-15T10:05:00Z",
+        "contract_version": "3.0.0"
+      },
+      "note": "completed sale transfer"
+    },
+    {
+      "id": "xfer-ev-002",
+      "data": {
+        "transfer_id": "xfer_fail_001",
+        "nft_id": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+        "from_owner": "0x1111111111111111111111111111111111111111",
+        "to_owner": "0x2222222222222222222222222222222222222222",
+        "scenario": "admin_recovery",
+        "result": "failed",
+        "sealing_policy": {
+          "encryption_scheme": "none",
+          "key_derivation": "none",
+          "access_audit": true,
+          "access_policy": {
+            "type": "none",
+            "audit_required": true,
+            "revocable": false
+          }
+        },
+        "conversations_sealed": 0,
+        "conversations_migrated": 0,
+        "initiated_at": "2026-01-15T10:00:00Z",
+        "contract_version": "3.0.0"
+      },
+      "note": "failed admin recovery — no completed_at"
+    }
+  ]
+}

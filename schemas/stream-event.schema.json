@@ -1,12 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/1.1.0/stream-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/stream-event",
+  "description": "SSE stream event discriminated union for real-time model responses",
   "discriminator": {
     "propertyName": "type"
   },
   "anyOf": [
     {
       "$id": "StreamStart",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -40,11 +42,25 @@
           "minimum": 0,
           "description": "Monotonic SSE sequence number for reconnection via Last-Event-ID",
           "type": "integer"
+        },
+        "execution_mode": {
+          "description": "Distinguishes Claude Code native runtime sessions from remote model API calls. native = running in Claude Code runtime, remote = external model API call.",
+          "anyOf": [
+            {
+              "const": "native",
+              "type": "string"
+            },
+            {
+              "const": "remote",
+              "type": "string"
+            }
+          ]
         }
       }
     },
     {
       "$id": "StreamChunk",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -73,6 +89,7 @@
     },
     {
       "$id": "StreamToolCall",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -117,6 +134,7 @@
     },
     {
       "$id": "StreamUsage",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -149,6 +167,7 @@
     },
     {
       "$id": "StreamEnd",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -210,6 +229,7 @@
     },
     {
       "$id": "StreamError",
+      "additionalProperties": true,
       "type": "object",
       "required": [
         "type",
@@ -240,5 +260,5 @@
       }
     }
   ],
-  "$comment": "contract_version=1.1.0, min_supported=1.0.0"
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
 }

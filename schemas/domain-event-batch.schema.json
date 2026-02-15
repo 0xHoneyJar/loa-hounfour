@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/domain-event-batch",
+  "description": "Atomic multi-event delivery with shared correlation",
+  "additionalProperties": true,
+  "type": "object",
+  "required": [
+    "batch_id",
+    "correlation_id",
+    "events",
+    "source",
+    "produced_at",
+    "contract_version"
+  ],
+  "properties": {
+    "batch_id": {
+      "minLength": 1,
+      "description": "Unique batch identifier",
+      "type": "string"
+    },
+    "correlation_id": {
+      "minLength": 1,
+      "description": "Shared correlation across all events in batch",
+      "type": "string"
+    },
+    "events": {
+      "minItems": 1,
+      "description": "Ordered list of domain events",
+      "type": "array",
+      "items": {
+        "$id": "DomainEvent",
+        "description": "Cross-cutting event envelope for aggregate state changes",
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "event_id",
+          "aggregate_id",
+          "aggregate_type",
+          "type",
+          "version",
+          "occurred_at",
+          "actor",
+          "payload",
+          "contract_version"
+        ],
+        "properties": {
+          "event_id": {
+            "minLength": 1,
+            "description": "Globally unique event ID",
+            "type": "string"
+          },
+          "aggregate_id": {
+            "minLength": 1,
+            "description": "ID of the aggregate this event belongs to",
+            "type": "string"
+          },
+          "aggregate_type": {
+            "anyOf": [
+              {
+                "const": "agent",
+                "type": "string"
+              },
+              {
+                "const": "conversation",
+                "type": "string"
+              },
+              {
+                "const": "billing",
+                "type": "string"
+              },
+              {
+                "const": "tool",
+                "type": "string"
+              },
+              {
+                "const": "transfer",
+                "type": "string"
+              },
+              {
+                "const": "message",
+                "type": "string"
+              },
+              {
+                "const": "performance",
+                "type": "string"
+              },
+              {
+                "const": "governance",
+                "type": "string"
+              },
+              {
+                "const": "reputation",
+                "type": "string"
+              },
+              {
+                "const": "economy",
+                "type": "string"
+              }
+            ]
+          },
+          "type": {
+            "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+            "description": "Dotted event type: {aggregate}.{noun}.{verb}",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "description": "Event schema version",
+            "type": "integer"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actor": {
+            "minLength": 1,
+            "description": "Who/what caused this event",
+            "type": "string"
+          },
+          "correlation_id": {
+            "description": "Request correlation chain",
+            "type": "string"
+          },
+          "causation_id": {
+            "description": "Direct cause event ID",
+            "type": "string"
+          },
+          "payload": {},
+          "contract_version": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "type": "string"
+          },
+          "metadata": {
+            "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "minLength": 1,
+      "description": "System that produced the batch",
+      "type": "string"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "context": {
+      "additionalProperties": true,
+      "description": "Envelope-level routing context (avoids payload inspection)",
+      "type": "object",
+      "properties": {
+        "transfer_id": {
+          "description": "Associated transfer ID",
+          "type": "string"
+        },
+        "aggregate_id": {
+          "description": "Primary aggregate this batch concerns",
+          "type": "string"
+        },
+        "aggregate_type": {
+          "anyOf": [
+            {
+              "const": "agent",
+              "type": "string"
+            },
+            {
+              "const": "conversation",
+              "type": "string"
+            },
+            {
+              "const": "billing",
+              "type": "string"
+            },
+            {
+              "const": "tool",
+              "type": "string"
+            },
+            {
+              "const": "transfer",
+              "type": "string"
+            },
+            {
+              "const": "message",
+              "type": "string"
+            },
+            {
+              "const": "performance",
+              "type": "string"
+            },
+            {
+              "const": "governance",
+              "type": "string"
+            },
+            {
+              "const": "reputation",
+              "type": "string"
+            },
+            {
+              "const": "economy",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "saga": {
+      "$id": "SagaContext",
+      "additionalProperties": false,
+      "description": "Saga execution context for multi-step distributed operations",
+      "type": "object",
+      "required": [
+        "saga_id",
+        "step",
+        "direction"
+      ],
+      "properties": {
+        "saga_id": {
+          "minLength": 1,
+          "description": "Saga/workflow execution ID",
+          "type": "string"
+        },
+        "step": {
+          "minimum": 1,
+          "description": "Step number within the saga",
+          "type": "integer"
+        },
+        "total_steps": {
+          "minimum": 1,
+          "description": "Total expected steps (if known)",
+          "type": "integer"
+        },
+        "direction": {
+          "description": "Whether this batch progresses or compensates the saga",
+          "anyOf": [
+            {
+              "const": "forward",
+              "type": "string"
+            },
+            {
+              "const": "compensation",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

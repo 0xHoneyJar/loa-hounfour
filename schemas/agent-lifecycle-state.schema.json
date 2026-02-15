@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/agent-lifecycle-state",
+  "description": "Agent lifecycle state",
+  "anyOf": [
+    {
+      "const": "DORMANT",
+      "type": "string"
+    },
+    {
+      "const": "PROVISIONING",
+      "type": "string"
+    },
+    {
+      "const": "ACTIVE",
+      "type": "string"
+    },
+    {
+      "const": "SUSPENDED",
+      "type": "string"
+    },
+    {
+      "const": "TRANSFERRED",
+      "type": "string"
+    },
+    {
+      "const": "ARCHIVED",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

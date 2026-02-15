@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/tool-call",
+  "additionalProperties": false,
+  "description": "Canonical tool/function call made by a model",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "arguments"
+  ],
+  "properties": {
+    "id": {
+      "description": "Unique tool call identifier",
+      "type": "string"
+    },
+    "name": {
+      "description": "Function/tool name",
+      "type": "string"
+    },
+    "arguments": {
+      "description": "JSON-encoded arguments string",
+      "type": "string"
+    },
+    "model_source": {
+      "description": "Model that generated this tool call (for multi-model debugging)",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

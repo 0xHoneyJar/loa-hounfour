@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/credit-note",
+  "additionalProperties": false,
+  "description": "Billing reversal/refund referencing an original BillingEntry",
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0",
+  "type": "object",
+  "required": [
+    "id",
+    "references_billing_entry",
+    "reason",
+    "amount_micro",
+    "recipients",
+    "issued_at",
+    "contract_version"
+  ],
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "description": "ULID",
+      "type": "string"
+    },
+    "references_billing_entry": {
+      "minLength": 1,
+      "description": "BillingEntry.id this note references (must exist in billing store)",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "const": "refund",
+          "type": "string"
+        },
+        {
+          "const": "dispute",
+          "type": "string"
+        },
+        {
+          "const": "partial_failure",
+          "type": "string"
+        },
+        {
+          "const": "adjustment",
+          "type": "string"
+        }
+      ]
+    },
+    "amount_micro": {
+      "allOf": [
+        {
+          "pattern": "^-?[0-9]+$",
+          "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+          "type": "string"
+        },
+        {
+          "description": "Credit amount in micro-USD (must not exceed referenced entry total)",
+          "type": "string"
+        }
+      ]
+    },
+    "recipients": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$id": "BillingRecipient",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "address",
+          "role",
+          "share_bps",
+          "amount_micro"
+        ],
+        "properties": {
+          "address": {
+            "minLength": 1,
+            "description": "Wallet or account address",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "const": "provider",
+                "type": "string"
+              },
+              {
+                "const": "platform",
+                "type": "string"
+              },
+              {
+                "const": "producer",
+                "type": "string"
+              },
+              {
+                "const": "agent_tba",
+                "type": "string"
+              },
+              {
+                "const": "agent_performer",
+                "type": "string"
+              },
+              {
+                "const": "commons",
+                "type": "string"
+              }
+            ]
+          },
+          "share_bps": {
+            "minimum": 0,
+            "maximum": 10000,
+            "description": "Basis points share (0-10000)",
+            "type": "integer"
+          },
+          "amount_micro": {
+            "pattern": "^-?[0-9]+$",
+            "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "issued_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  }
+}

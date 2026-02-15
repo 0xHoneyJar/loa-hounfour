@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/routing-constraint",
+  "additionalProperties": false,
+  "description": "Agent routing constraint for task dispatch — all present fields AND-combined",
+  "type": "object",
+  "required": [
+    "contract_version"
+  ],
+  "properties": {
+    "required_capabilities": {
+      "description": "Capabilities the handler must advertise (AND logic)",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "max_cost_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "min_health": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum health score (0=unhealthy, 1=fully healthy)",
+      "type": "number"
+    },
+    "allowed_providers": {
+      "description": "Provider allowlist (empty array = any provider)",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "trust_level": {
+      "description": "Minimum trust level: public < authenticated < verified < trusted",
+      "anyOf": [
+        {
+          "const": "public",
+          "type": "string"
+        },
+        {
+          "const": "authenticated",
+          "type": "string"
+        },
+        {
+          "const": "verified",
+          "type": "string"
+        },
+        {
+          "const": "trusted",
+          "type": "string"
+        }
+      ]
+    },
+    "min_reputation": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum reputation score (0=unknown, 1=highest)",
+      "type": "number"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver contract version governing constraint semantics",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

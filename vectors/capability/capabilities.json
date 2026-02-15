@@ -1,0 +1,92 @@
+{
+  "valid_capabilities": [
+    {
+      "id": "cap-001",
+      "data": {
+        "skill_id": "text-generation",
+        "description": "Generate natural language text",
+        "input_modes": ["text"],
+        "output_modes": ["text"],
+        "models": ["claude-opus-4-6", "gpt-5.2"],
+        "max_latency_ms": 5000
+      },
+      "note": "fully-specified capability"
+    },
+    {
+      "id": "cap-002",
+      "data": {
+        "skill_id": "code-review"
+      },
+      "note": "minimal capability (only required field)"
+    }
+  ],
+  "valid_queries": [
+    {
+      "id": "query-001",
+      "data": {
+        "required_skills": ["text-generation", "code-review"],
+        "preferred_models": ["claude-opus-4-6"],
+        "max_latency_ms": 3000,
+        "min_context_tokens": 128000
+      },
+      "note": "fully-specified capability query"
+    },
+    {
+      "id": "query-002",
+      "data": {
+        "required_skills": ["text-generation"],
+        "custom_field": "allowed by additionalProperties: true"
+      },
+      "note": "query with consumer extension field"
+    }
+  ],
+  "valid_responses": [
+    {
+      "id": "resp-001",
+      "data": {
+        "agent_id": "agent_abc",
+        "capabilities": [
+          {
+            "skill_id": "text-generation",
+            "input_modes": ["text"],
+            "output_modes": ["text", "code"]
+          }
+        ],
+        "available": true,
+        "contract_version": "2.2.0"
+      },
+      "note": "available agent with one capability"
+    },
+    {
+      "id": "resp-002",
+      "data": {
+        "agent_id": "agent_busy",
+        "capabilities": [],
+        "available": false,
+        "contract_version": "2.2.0"
+      },
+      "note": "unavailable agent with no capabilities"
+    }
+  ],
+  "invalid_responses": [
+    {
+      "id": "resp-inv-001",
+      "data": {
+        "capabilities": [],
+        "available": true,
+        "contract_version": "2.2.0"
+      },
+      "note": "missing required agent_id"
+    },
+    {
+      "id": "resp-inv-002",
+      "data": {
+        "agent_id": "x",
+        "capabilities": [],
+        "available": true,
+        "contract_version": "bad"
+      },
+      "note": "invalid contract_version format"
+    }
+  ]
+}

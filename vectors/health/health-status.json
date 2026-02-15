@@ -1,0 +1,116 @@
+{
+  "valid_statuses": [
+    {
+      "id": "health-001",
+      "data": {
+        "healthy": true,
+        "latency_ms": 42,
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-6",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "closed"
+      },
+      "note": "healthy provider with low latency"
+    },
+    {
+      "id": "health-002",
+      "data": {
+        "healthy": false,
+        "latency_ms": 5000,
+        "provider": "openai",
+        "model_id": "gpt-5.2",
+        "checked_at": "2026-02-14T12:01:00Z",
+        "error": "Connection timeout after 5000ms",
+        "circuit_state": "open"
+      },
+      "note": "unhealthy provider with error and open circuit"
+    },
+    {
+      "id": "health-003",
+      "data": {
+        "healthy": true,
+        "latency_ms": 150,
+        "provider": "kimi",
+        "model_id": "kimi-k2",
+        "checked_at": "2026-02-14T12:02:00Z",
+        "circuit_state": "half_open"
+      },
+      "note": "half_open circuit breaker testing recovery"
+    },
+    {
+      "id": "health-004",
+      "data": {
+        "healthy": true,
+        "latency_ms": 0,
+        "provider": "local",
+        "model_id": "native-runtime",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "closed"
+      },
+      "note": "local/native runtime with zero latency"
+    }
+  ],
+  "invalid_statuses": [
+    {
+      "id": "health-invalid-001",
+      "data": {
+        "healthy": true,
+        "latency_ms": 42,
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-6",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "unknown_state"
+      },
+      "note": "invalid circuit_state value"
+    },
+    {
+      "id": "health-invalid-002",
+      "data": {
+        "healthy": true,
+        "latency_ms": -1,
+        "provider": "openai",
+        "model_id": "gpt-5.2",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "closed"
+      },
+      "note": "negative latency_ms"
+    },
+    {
+      "id": "health-invalid-003",
+      "data": {
+        "healthy": true,
+        "latency_ms": 42,
+        "provider": "",
+        "model_id": "claude-opus-4-6",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "closed"
+      },
+      "note": "empty provider string"
+    },
+    {
+      "id": "health-invalid-004",
+      "data": {
+        "healthy": true,
+        "latency_ms": 42,
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-6",
+        "checked_at": "not-a-date",
+        "circuit_state": "closed"
+      },
+      "note": "invalid date-time format"
+    },
+    {
+      "id": "health-invalid-005",
+      "data": {
+        "healthy": true,
+        "latency_ms": 42,
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-6",
+        "checked_at": "2026-02-14T12:00:00Z",
+        "circuit_state": "closed",
+        "extra_field": true
+      },
+      "note": "additionalProperties rejected"
+    }
+  ]
+}

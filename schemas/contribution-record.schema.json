@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/contribution-record",
+  "description": "Record of an agent contribution to the commons or ecosystem",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "contribution_id",
+    "agent_id",
+    "contribution_type",
+    "value_micro",
+    "assessed_by",
+    "assessed_at",
+    "contract_version"
+  ],
+  "properties": {
+    "contribution_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "contribution_type": {
+      "anyOf": [
+        {
+          "const": "curation",
+          "type": "string"
+        },
+        {
+          "const": "training",
+          "type": "string"
+        },
+        {
+          "const": "validation",
+          "type": "string"
+        },
+        {
+          "const": "moderation",
+          "type": "string"
+        },
+        {
+          "const": "infrastructure",
+          "type": "string"
+        },
+        {
+          "const": "capital",
+          "type": "string"
+        }
+      ]
+    },
+    "value_micro": {
+      "pattern": "^-?[0-9]+$",
+      "description": "Micro-USD amount as string, signed (1 USD = 1,000,000 micro-USD). Negative values represent credits/refunds.",
+      "type": "string"
+    },
+    "assessed_by": {
+      "anyOf": [
+        {
+          "const": "self",
+          "type": "string"
+        },
+        {
+          "const": "peer",
+          "type": "string"
+        },
+        {
+          "const": "algorithmic",
+          "type": "string"
+        },
+        {
+          "const": "governance_vote",
+          "type": "string"
+        }
+      ]
+    },
+    "assessed_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "evidence_event_ids": {
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

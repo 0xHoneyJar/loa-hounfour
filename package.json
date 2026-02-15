@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "1.1.0",
+  "version": "4.6.0",
   "type": "module",
   "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
   "license": "MIT",
@@ -16,7 +16,8 @@
   "files": [
     "dist",
     "schemas",
-    "vectors"
+    "vectors",
+    "constraints"
   ],
   "scripts": {
     "build": "tsc",
@@ -24,16 +25,25 @@
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "schema:check": "tsx scripts/check-schemas.ts",
     "semver:check": "tsx scripts/semver-check.ts",
+    "vectors:check": "tsx scripts/check-vectors.ts",
+    "spec:generate": "tsx scripts/generate-asyncapi.ts",
+    "docs:choreography": "tsx scripts/generate-choreography-diagrams.ts",
+    "check:migration": "tsx scripts/check-migration.ts",
+    "schemas:validate": "tsx scripts/validate-schemas.ts",
+    "check:constraints": "tsx scripts/generate-constraints.ts --validate",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@noble/hashes": "^2.0.1",
     "@sinclair/typebox": "^0.34.48",
     "jose": "^6.1.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "fast-check": "^4.5.3",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"

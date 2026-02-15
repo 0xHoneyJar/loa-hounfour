@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/capability",
+  "additionalProperties": false,
+  "description": "A single capability an agent can provide",
+  "type": "object",
+  "required": [
+    "skill_id"
+  ],
+  "properties": {
+    "skill_id": {
+      "minLength": 1,
+      "description": "Skill or capability identifier",
+      "type": "string"
+    },
+    "description": {
+      "description": "Human-readable capability description",
+      "type": "string"
+    },
+    "input_modes": {
+      "description": "Accepted input types (e.g. \"text\", \"image\", \"audio\")",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_modes": {
+      "description": "Produced output types (e.g. \"text\", \"code\", \"image\")",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "models": {
+      "description": "Model IDs that can execute this capability",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "max_latency_ms": {
+      "minimum": 0,
+      "description": "Maximum acceptable latency in milliseconds",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/transfer-event",
+  "description": "Record of a completed NFT ownership transfer",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "transfer_id",
+    "nft_id",
+    "from_owner",
+    "to_owner",
+    "scenario",
+    "result",
+    "sealing_policy",
+    "conversations_sealed",
+    "conversations_migrated",
+    "initiated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "transfer_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "nft_id": {
+      "$id": "NftId",
+      "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
+      "type": "string"
+    },
+    "from_owner": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "type": "string"
+    },
+    "to_owner": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "type": "string"
+    },
+    "scenario": {
+      "$id": "TransferScenario",
+      "anyOf": [
+        {
+          "const": "sale",
+          "type": "string"
+        },
+        {
+          "const": "gift",
+          "type": "string"
+        },
+        {
+          "const": "admin_recovery",
+          "type": "string"
+        },
+        {
+          "const": "custody_change",
+          "type": "string"
+        }
+      ]
+    },
+    "result": {
+      "$id": "TransferResult",
+      "anyOf": [
+        {
+          "const": "completed",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        },
+        {
+          "const": "rolled_back",
+          "type": "string"
+        }
+      ]
+    },
+    "sealing_policy": {
+      "$id": "ConversationSealingPolicy",
+      "additionalProperties": false,
+      "$comment": "Cross-field invariants: (1) When encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. (2) When access_policy.type is \"time_limited\", duration_hours must be set. (3) When access_policy.type is \"role_based\", roles must be non-empty. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
+      "type": "object",
+      "required": [
+        "encryption_scheme",
+        "key_derivation",
+        "access_audit"
+      ],
+      "properties": {
+        "encryption_scheme": {
+          "anyOf": [
+            {
+              "const": "aes-256-gcm",
+              "type": "string"
+            },
+            {
+              "const": "none",
+              "type": "string"
+            }
+          ]
+        },
+        "key_derivation": {
+          "anyOf": [
+            {
+              "const": "hkdf-sha256",
+              "type": "string"
+            },
+            {
+              "const": "none",
+              "type": "string"
+            }
+          ]
+        },
+        "key_reference": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "access_audit": {
+          "type": "boolean"
+        },
+        "access_policy": {
+          "$id": "AccessPolicy",
+          "additionalProperties": false,
+          "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. Enforced by validateAccessPolicy() in TypeScript.",
+          "type": "object",
+          "required": [
+            "type",
+            "audit_required",
+            "revocable"
+          ],
+          "properties": {
+            "type": {
+              "description": "Access type governing previous owner data visibility",
+              "anyOf": [
+                {
+                  "const": "none",
+                  "type": "string"
+                },
+                {
+                  "const": "read_only",
+                  "type": "string"
+                },
+                {
+                  "const": "time_limited",
+                  "type": "string"
+                },
+                {
+                  "const": "role_based",
+                  "type": "string"
+                }
+              ]
+            },
+            "duration_hours": {
+              "minimum": 1,
+              "maximum": 8760,
+              "description": "Access duration in hours (required for time_limited)",
+              "type": "integer"
+            },
+            "roles": {
+              "minItems": 1,
+              "description": "Roles granted access (required for role_based). Role names are intentionally unconstrained at the protocol level — domain-specific validation (e.g., valid role enums) is the consumer's responsibility.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "audit_required": {
+              "description": "Whether access events must be logged to the audit trail",
+              "type": "boolean"
+            },
+            "revocable": {
+              "description": "Whether the new owner can revoke this access policy",
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "conversations_sealed": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "conversations_migrated": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "initiated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

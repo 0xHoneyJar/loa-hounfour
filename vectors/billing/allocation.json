@@ -1,0 +1,97 @@
+{
+  "allocation_vectors": [
+    {
+      "id": "alloc-001",
+      "totalCostMicro": "10000",
+      "recipients": [
+        { "address": "0xProvider", "role": "provider", "share_bps": 4000 },
+        { "address": "0xPlatform", "role": "platform", "share_bps": 6000 }
+      ],
+      "expected": [
+        { "address": "0xProvider", "role": "provider", "share_bps": 4000, "amount_micro": "4000" },
+        { "address": "0xPlatform", "role": "platform", "share_bps": 6000, "amount_micro": "6000" }
+      ],
+      "note": "clean 2-party split"
+    },
+    {
+      "id": "alloc-002",
+      "totalCostMicro": "10000",
+      "recipients": [
+        { "address": "0xA", "role": "provider", "share_bps": 3333 },
+        { "address": "0xB", "role": "platform", "share_bps": 3334 },
+        { "address": "0xC", "role": "producer", "share_bps": 3333 }
+      ],
+      "expected": [
+        { "address": "0xA", "role": "provider", "share_bps": 3333, "amount_micro": "3333" },
+        { "address": "0xB", "role": "platform", "share_bps": 3334, "amount_micro": "3334" },
+        { "address": "0xC", "role": "producer", "share_bps": 3333, "amount_micro": "3333" }
+      ],
+      "note": "3-party split — exact division"
+    },
+    {
+      "id": "alloc-003",
+      "totalCostMicro": "100",
+      "recipients": [
+        { "address": "0xA", "role": "provider", "share_bps": 3333 },
+        { "address": "0xB", "role": "platform", "share_bps": 3333 },
+        { "address": "0xC", "role": "producer", "share_bps": 3334 }
+      ],
+      "expected": [
+        { "address": "0xA", "role": "provider", "share_bps": 3333, "amount_micro": "33" },
+        { "address": "0xB", "role": "platform", "share_bps": 3333, "amount_micro": "33" },
+        { "address": "0xC", "role": "producer", "share_bps": 3334, "amount_micro": "34" }
+      ],
+      "note": "remainder goes to highest-remainder recipient (0xC has 3400 vs 3300)"
+    },
+    {
+      "id": "alloc-004",
+      "totalCostMicro": "1",
+      "recipients": [
+        { "address": "0xA", "role": "provider", "share_bps": 5000 },
+        { "address": "0xB", "role": "platform", "share_bps": 5000 }
+      ],
+      "expected": [
+        { "address": "0xA", "role": "provider", "share_bps": 5000, "amount_micro": "1" },
+        { "address": "0xB", "role": "platform", "share_bps": 5000, "amount_micro": "0" }
+      ],
+      "note": "1 micro-USD split — first recipient wins remainder"
+    },
+    {
+      "id": "alloc-005",
+      "totalCostMicro": "0",
+      "recipients": [
+        { "address": "0xA", "role": "provider", "share_bps": 5000 },
+        { "address": "0xB", "role": "platform", "share_bps": 5000 }
+      ],
+      "expected": [
+        { "address": "0xA", "role": "provider", "share_bps": 5000, "amount_micro": "0" },
+        { "address": "0xB", "role": "platform", "share_bps": 5000, "amount_micro": "0" }
+      ],
+      "note": "zero total — all recipients get zero"
+    },
+    {
+      "id": "alloc-006",
+      "totalCostMicro": "10000",
+      "recipients": [
+        { "address": "0xOnly", "role": "provider", "share_bps": 10000 }
+      ],
+      "expected": [
+        { "address": "0xOnly", "role": "provider", "share_bps": 10000, "amount_micro": "10000" }
+      ],
+      "note": "single recipient gets everything"
+    },
+    {
+      "id": "alloc-007",
+      "totalCostMicro": "999999999999",
+      "recipients": [
+        { "address": "0xA", "role": "provider", "share_bps": 7000 },
+        { "address": "0xB", "role": "platform", "share_bps": 3000 }
+      ],
+      "expected": [
+        { "address": "0xA", "role": "provider", "share_bps": 7000, "amount_micro": "699999999999" },
+        { "address": "0xB", "role": "platform", "share_bps": 3000, "amount_micro": "300000000000" }
+      ],
+      "note": "large amount with remainder"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "valid_traces": [
+    {
+      "id": "trace-001",
+      "data": {
+        "content": "Let me analyze the code structure and identify the key patterns...",
+        "model_id": "claude-opus-4-6",
+        "provider": "anthropic",
+        "tokens": 1250,
+        "redacted": false,
+        "trace_id": "tr-abc123"
+      },
+      "note": "Claude thinking trace with all fields"
+    },
+    {
+      "id": "trace-002",
+      "data": {
+        "content": "Analyzing the user request step by step...",
+        "model_id": "kimi-k2",
+        "provider": "kimi",
+        "tokens": 800,
+        "redacted": false
+      },
+      "note": "Kimi reasoning_content normalized to trace"
+    },
+    {
+      "id": "trace-003",
+      "data": {
+        "content": "[REDACTED]",
+        "model_id": "gpt-5.2",
+        "provider": "openai",
+        "redacted": true
+      },
+      "note": "redacted trace from model with hidden reasoning"
+    },
+    {
+      "id": "trace-004",
+      "data": {
+        "content": "",
+        "model_id": "gpt-4o",
+        "provider": "openai",
+        "redacted": false
+      },
+      "note": "empty content from model without thinking traces"
+    },
+    {
+      "id": "trace-005",
+      "data": {
+        "content": "I need to consider the edge cases here...",
+        "model_id": "claude-sonnet-4-5",
+        "provider": "anthropic",
+        "tokens": 0,
+        "redacted": false,
+        "trace_id": "tr-def456"
+      },
+      "note": "trace with zero tokens (provider didn't report count)"
+    }
+  ],
+  "invalid_traces": [
+    {
+      "id": "trace-invalid-001",
+      "data": {
+        "content": "Some thinking...",
+        "model_id": "",
+        "provider": "anthropic",
+        "redacted": false
+      },
+      "note": "empty model_id"
+    },
+    {
+      "id": "trace-invalid-002",
+      "data": {
+        "content": "Some thinking...",
+        "model_id": "claude-opus-4-6",
+        "provider": "anthropic",
+        "tokens": -1,
+        "redacted": false
+      },
+      "note": "negative tokens"
+    },
+    {
+      "id": "trace-invalid-003",
+      "data": {
+        "content": "Some thinking...",
+        "model_id": "claude-opus-4-6",
+        "provider": "anthropic",
+        "redacted": false,
+        "extra": true
+      },
+      "note": "additionalProperties rejected"
+    },
+    {
+      "id": "trace-invalid-004",
+      "data": {
+        "model_id": "claude-opus-4-6",
+        "provider": "anthropic",
+        "redacted": false
+      },
+      "note": "missing required content field"
+    }
+  ]
+}

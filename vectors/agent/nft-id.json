@@ -1,0 +1,38 @@
+{
+  "valid": [
+    { "id": "nftid-001", "input": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42", "note": "mainnet with EIP-55 checksum" },
+    { "id": "nftid-002", "input": "eip155:137/0x5af0d9827e0c53e4799bb226655a1de152a425a5/999", "note": "polygon lowercase address" },
+    { "id": "nftid-003", "input": "eip155:8453/0x0000000000000000000000000000000000000000/0", "note": "base chain zero address token 0" }
+  ],
+  "roundtrip": [
+    {
+      "id": "nftid-rt-001",
+      "chainId": 1,
+      "collection": "0x5Af0D9827E0c53E4799BB226655A1de152A425a5",
+      "tokenId": "42",
+      "expected": "eip155:1/0x5Af0D9827E0c53E4799BB226655A1de152A425a5/42",
+      "note": "format then parse roundtrip"
+    }
+  ],
+  "checksum": [
+    {
+      "id": "nftid-cs-001",
+      "input": "0x5af0d9827e0c53e4799bb226655a1de152a425a5",
+      "expected": "0x5Af0D9827E0c53E4799BB226655A1de152A425a5",
+      "note": "EIP-55 checksum from lowercase"
+    },
+    {
+      "id": "nftid-cs-002",
+      "input": "0x0000000000000000000000000000000000000000",
+      "expected": "0x0000000000000000000000000000000000000000",
+      "note": "zero address stays lowercase"
+    }
+  ],
+  "invalid": [
+    { "id": "nftid-inv-001", "input": "eip155:1/0xZZZZ/42", "note": "invalid hex in address" },
+    { "id": "nftid-inv-002", "input": "eip155:0/0x5af0d9827e0c53e4799bb226655a1de152a425a5/42", "note": "chainId 0 is invalid" },
+    { "id": "nftid-inv-003", "input": "not-a-nft-id", "note": "garbage input" },
+    { "id": "nftid-inv-004", "input": "eip155:1/0x5af0d9827e0c53e4799bb226655a1de152a425a5/", "note": "missing tokenId" },
+    { "id": "nftid-inv-005", "input": "0x5af0d9827e0c53e4799bb226655a1de152a425a5", "note": "bare address without prefix" }
+  ]
+}

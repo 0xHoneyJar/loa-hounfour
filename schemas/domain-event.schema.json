@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/domain-event",
+  "description": "Cross-cutting event envelope for aggregate state changes",
+  "additionalProperties": true,
+  "type": "object",
+  "required": [
+    "event_id",
+    "aggregate_id",
+    "aggregate_type",
+    "type",
+    "version",
+    "occurred_at",
+    "actor",
+    "payload",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "minLength": 1,
+      "description": "Globally unique event ID",
+      "type": "string"
+    },
+    "aggregate_id": {
+      "minLength": 1,
+      "description": "ID of the aggregate this event belongs to",
+      "type": "string"
+    },
+    "aggregate_type": {
+      "anyOf": [
+        {
+          "const": "agent",
+          "type": "string"
+        },
+        {
+          "const": "conversation",
+          "type": "string"
+        },
+        {
+          "const": "billing",
+          "type": "string"
+        },
+        {
+          "const": "tool",
+          "type": "string"
+        },
+        {
+          "const": "transfer",
+          "type": "string"
+        },
+        {
+          "const": "message",
+          "type": "string"
+        },
+        {
+          "const": "performance",
+          "type": "string"
+        },
+        {
+          "const": "governance",
+          "type": "string"
+        },
+        {
+          "const": "reputation",
+          "type": "string"
+        },
+        {
+          "const": "economy",
+          "type": "string"
+        }
+      ]
+    },
+    "type": {
+      "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+      "description": "Dotted event type: {aggregate}.{noun}.{verb}",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "description": "Event schema version",
+      "type": "integer"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "actor": {
+      "minLength": 1,
+      "description": "Who/what caused this event",
+      "type": "string"
+    },
+    "correlation_id": {
+      "description": "Request correlation chain",
+      "type": "string"
+    },
+    "causation_id": {
+      "description": "Direct cause event ID",
+      "type": "string"
+    },
+    "payload": {},
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "metadata": {
+      "description": "Consumer-extensible metadata. Namespace conventions: loa.* reserved for protocol-level metadata, trace.* for OpenTelemetry-compatible observability, x-* for consumer-defined extensions. Not validated by protocol contract.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

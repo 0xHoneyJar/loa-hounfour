@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/lifecycle-transition-payload",
+  "description": "Payload for agent lifecycle state transitions",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "agent_id",
+    "previous_state",
+    "new_state",
+    "reason"
+  ],
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "description": "Agent this transition belongs to",
+      "type": "string"
+    },
+    "previous_state": {
+      "$id": "AgentLifecycleState",
+      "description": "Agent lifecycle state",
+      "anyOf": [
+        {
+          "const": "DORMANT",
+          "type": "string"
+        },
+        {
+          "const": "PROVISIONING",
+          "type": "string"
+        },
+        {
+          "const": "ACTIVE",
+          "type": "string"
+        },
+        {
+          "const": "SUSPENDED",
+          "type": "string"
+        },
+        {
+          "const": "TRANSFERRED",
+          "type": "string"
+        },
+        {
+          "const": "ARCHIVED",
+          "type": "string"
+        }
+      ]
+    },
+    "new_state": {
+      "$id": "AgentLifecycleState",
+      "description": "Agent lifecycle state",
+      "anyOf": [
+        {
+          "const": "DORMANT",
+          "type": "string"
+        },
+        {
+          "const": "PROVISIONING",
+          "type": "string"
+        },
+        {
+          "const": "ACTIVE",
+          "type": "string"
+        },
+        {
+          "const": "SUSPENDED",
+          "type": "string"
+        },
+        {
+          "const": "TRANSFERRED",
+          "type": "string"
+        },
+        {
+          "const": "ARCHIVED",
+          "type": "string"
+        }
+      ]
+    },
+    "reason": {
+      "minLength": 1,
+      "description": "Human-readable reason for transition",
+      "type": "string"
+    },
+    "reason_code": {
+      "description": "Machine-readable reason code for filtering and monitoring",
+      "anyOf": [
+        {
+          "const": "owner_requested",
+          "type": "string"
+        },
+        {
+          "const": "budget_exhausted",
+          "type": "string"
+        },
+        {
+          "const": "inactivity_timeout",
+          "type": "string"
+        },
+        {
+          "const": "transfer_initiated",
+          "type": "string"
+        },
+        {
+          "const": "transfer_completed",
+          "type": "string"
+        },
+        {
+          "const": "admin_action",
+          "type": "string"
+        },
+        {
+          "const": "provisioning_complete",
+          "type": "string"
+        },
+        {
+          "const": "provisioning_failed",
+          "type": "string"
+        },
+        {
+          "const": "policy_violation",
+          "type": "string"
+        },
+        {
+          "const": "system_maintenance",
+          "type": "string"
+        },
+        {
+          "const": "sanction_warning_issued",
+          "type": "string"
+        },
+        {
+          "const": "sanction_rate_limited",
+          "type": "string"
+        },
+        {
+          "const": "sanction_pool_restricted",
+          "type": "string"
+        },
+        {
+          "const": "sanction_suspended",
+          "type": "string"
+        },
+        {
+          "const": "sanction_terminated",
+          "type": "string"
+        },
+        {
+          "const": "sanction_appealed_successfully",
+          "type": "string"
+        }
+      ]
+    },
+    "triggered_by": {
+      "description": "Actor or event that triggered the transition",
+      "type": "string"
+    },
+    "transfer_id": {
+      "description": "Associated transfer ID (for TRANSFERRED state)",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}

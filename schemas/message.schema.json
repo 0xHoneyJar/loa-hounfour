@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/message",
+  "description": "Individual message within an NFT-owned conversation",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "id",
+    "conversation_id",
+    "role",
+    "content",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "id": {
+      "minLength": 1,
+      "description": "Message ID",
+      "type": "string"
+    },
+    "conversation_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "role": {
+      "$id": "MessageRole",
+      "anyOf": [
+        {
+          "const": "user",
+          "type": "string"
+        },
+        {
+          "const": "assistant",
+          "type": "string"
+        },
+        {
+          "const": "system",
+          "type": "string"
+        },
+        {
+          "const": "tool",
+          "type": "string"
+        }
+      ]
+    },
+    "content": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "pool_id": {
+      "type": "string"
+    },
+    "billing_entry_id": {
+      "type": "string"
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "$id": "ToolCall",
+        "additionalProperties": false,
+        "description": "Canonical tool/function call made by a model",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "arguments"
+        ],
+        "properties": {
+          "id": {
+            "description": "Unique tool call identifier",
+            "type": "string"
+          },
+          "name": {
+            "description": "Function/tool name",
+            "type": "string"
+          },
+          "arguments": {
+            "description": "JSON-encoded arguments string",
+            "type": "string"
+          },
+          "model_source": {
+            "description": "Model that generated this tool call (for multi-model debugging)",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+}
