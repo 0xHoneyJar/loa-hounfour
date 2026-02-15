@@ -10,6 +10,13 @@
       "severity": "error",
       "message": "consensus_threshold is required when strategy is 'consensus'",
       "fields": ["strategy", "consensus_threshold"]
+    },
+    {
+      "id": "ensemble-request-dialogue-config",
+      "expression": "strategy != 'dialogue' || dialogue_config != null",
+      "severity": "error",
+      "message": "dialogue_config is required when strategy is 'dialogue'",
+      "fields": ["strategy", "dialogue_config"]
     }
   ]
 }

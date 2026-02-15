@@ -13,6 +13,21 @@ export const EnsembleResultSchema = Type.Object(
     selected: CompletionResultSchema,
     candidates: Type.Array(CompletionResultSchema),
     consensus_score: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    rounds: Type.Optional(Type.Array(
+      Type.Object({
+        round: Type.Integer({ minimum: 1 }),
+        model: Type.String({ minLength: 1 }),
+        response: CompletionResultSchema,
+        thinking_trace: Type.Optional(Type.String()),
+      })
+    )),
+    termination_reason: Type.Optional(Type.Union([
+      Type.Literal('fixed_rounds'),
+      Type.Literal('consensus_reached'),
+      Type.Literal('no_new_insights'),
+      Type.Literal('timeout'),
+      Type.Literal('budget_exhausted'),
+    ])),
     total_cost_micro: MicroUSDUnsigned,
     total_latency_ms: Type.Integer({ minimum: 0 }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

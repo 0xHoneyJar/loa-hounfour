@@ -31,6 +31,14 @@
         {
           "const": "consensus",
           "type": "string"
+        },
+        {
+          "const": "sequential",
+          "type": "string"
+        },
+        {
+          "const": "dialogue",
+          "type": "string"
         }
       ]
     },
@@ -344,6 +352,43 @@
       "minimum": 0,
       "maximum": 1,
       "type": "number"
+    },
+    "dialogue_config": {
+      "type": "object",
+      "required": [
+        "max_rounds",
+        "pass_thinking_traces",
+        "termination"
+      ],
+      "properties": {
+        "max_rounds": {
+          "minimum": 1,
+          "maximum": 10,
+          "type": "integer"
+        },
+        "pass_thinking_traces": {
+          "type": "boolean"
+        },
+        "termination": {
+          "anyOf": [
+            {
+              "const": "fixed_rounds",
+              "type": "string"
+            },
+            {
+              "const": "consensus_reached",
+              "type": "string"
+            },
+            {
+              "const": "no_new_insights",
+              "type": "string"
+            }
+          ]
+        },
+        "seed_prompt": {
+          "type": "string"
+        }
+      }
     },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",

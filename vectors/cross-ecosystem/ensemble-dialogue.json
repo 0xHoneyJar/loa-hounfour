@@ -1,0 +1,313 @@
+{
+  "description": "Ensemble dialogue protocol vectors — multi-round model dialogues with thinking traces and termination strategies",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "dialogue-001",
+      "description": "2-round Claude→GPT dialogue with thinking traces, fixed_rounds termination",
+      "valid": true,
+      "schema": "EnsembleResult",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440400",
+        "strategy": "dialogue",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440401",
+          "model": "gpt-4o",
+          "provider": "openai",
+          "content": "After considering Claude's analysis, I agree that the optimal approach involves...",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 1200,
+            "completion_tokens": 300,
+            "total_tokens": 1500,
+            "cost_micro": "75000"
+          },
+          "latency_ms": 2100,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440402",
+            "model": "claude-3-opus",
+            "provider": "anthropic",
+            "content": "The key insight here is that we should consider...",
+            "thinking": "Let me break this down step by step...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 800,
+              "completion_tokens": 400,
+              "total_tokens": 1200,
+              "cost_micro": "120000"
+            },
+            "latency_ms": 3200,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440401",
+            "model": "gpt-4o",
+            "provider": "openai",
+            "content": "After considering Claude's analysis, I agree that the optimal approach involves...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 1200,
+              "completion_tokens": 300,
+              "total_tokens": 1500,
+              "cost_micro": "75000"
+            },
+            "latency_ms": 2100,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "rounds": [
+          {
+            "round": 1,
+            "model": "claude-3-opus",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440402",
+              "model": "claude-3-opus",
+              "provider": "anthropic",
+              "content": "The key insight here is that we should consider...",
+              "thinking": "Let me break this down step by step...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 800,
+                "completion_tokens": 400,
+                "total_tokens": 1200,
+                "cost_micro": "120000"
+              },
+              "latency_ms": 3200,
+              "contract_version": "5.0.0"
+            },
+            "thinking_trace": "Let me break this down step by step..."
+          },
+          {
+            "round": 2,
+            "model": "gpt-4o",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440401",
+              "model": "gpt-4o",
+              "provider": "openai",
+              "content": "After considering Claude's analysis, I agree that the optimal approach involves...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 1200,
+                "completion_tokens": 300,
+                "total_tokens": 1500,
+                "cost_micro": "75000"
+              },
+              "latency_ms": 2100,
+              "contract_version": "5.0.0"
+            }
+          }
+        ],
+        "termination_reason": "fixed_rounds",
+        "total_cost_micro": "195000",
+        "total_latency_ms": 5300,
+        "contract_version": "5.0.0"
+      }
+    },
+    {
+      "id": "dialogue-002",
+      "description": "3-round consensus-termination dialogue with convergent responses",
+      "valid": true,
+      "schema": "EnsembleResult",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440410",
+        "strategy": "dialogue",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440413",
+          "model": "claude-3-opus",
+          "provider": "anthropic",
+          "content": "Building on our shared analysis, the consensus is...",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 2000,
+            "completion_tokens": 250,
+            "total_tokens": 2250,
+            "cost_micro": "90000"
+          },
+          "latency_ms": 2800,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440411",
+            "model": "claude-3-opus",
+            "provider": "anthropic",
+            "content": "Initial analysis suggests...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 800,
+              "completion_tokens": 350,
+              "total_tokens": 1150,
+              "cost_micro": "80000"
+            },
+            "latency_ms": 3000,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440412",
+            "model": "gpt-4o",
+            "provider": "openai",
+            "content": "I would approach this differently...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 1200,
+              "completion_tokens": 300,
+              "total_tokens": 1500,
+              "cost_micro": "60000"
+            },
+            "latency_ms": 2000,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440413",
+            "model": "claude-3-opus",
+            "provider": "anthropic",
+            "content": "Building on our shared analysis, the consensus is...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 2000,
+              "completion_tokens": 250,
+              "total_tokens": 2250,
+              "cost_micro": "90000"
+            },
+            "latency_ms": 2800,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "rounds": [
+          {
+            "round": 1,
+            "model": "claude-3-opus",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440411",
+              "model": "claude-3-opus",
+              "provider": "anthropic",
+              "content": "Initial analysis suggests...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 800,
+                "completion_tokens": 350,
+                "total_tokens": 1150,
+                "cost_micro": "80000"
+              },
+              "latency_ms": 3000,
+              "contract_version": "5.0.0"
+            }
+          },
+          {
+            "round": 2,
+            "model": "gpt-4o",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440412",
+              "model": "gpt-4o",
+              "provider": "openai",
+              "content": "I would approach this differently...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 1200,
+                "completion_tokens": 300,
+                "total_tokens": 1500,
+                "cost_micro": "60000"
+              },
+              "latency_ms": 2000,
+              "contract_version": "5.0.0"
+            }
+          },
+          {
+            "round": 3,
+            "model": "claude-3-opus",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440413",
+              "model": "claude-3-opus",
+              "provider": "anthropic",
+              "content": "Building on our shared analysis, the consensus is...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 2000,
+                "completion_tokens": 250,
+                "total_tokens": 2250,
+                "cost_micro": "90000"
+              },
+              "latency_ms": 2800,
+              "contract_version": "5.0.0"
+            }
+          }
+        ],
+        "termination_reason": "consensus_reached",
+        "consensus_score": 0.92,
+        "total_cost_micro": "230000",
+        "total_latency_ms": 7800,
+        "contract_version": "5.0.0"
+      }
+    },
+    {
+      "id": "dialogue-003",
+      "description": "Budget-exhausted early termination after 1 round",
+      "valid": true,
+      "schema": "EnsembleResult",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440420",
+        "strategy": "dialogue",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440421",
+          "model": "claude-3-opus",
+          "provider": "anthropic",
+          "content": "Given the budget constraint, here is my best single-pass analysis...",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 800,
+            "completion_tokens": 500,
+            "total_tokens": 1300,
+            "cost_micro": "200000"
+          },
+          "latency_ms": 4500,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440421",
+            "model": "claude-3-opus",
+            "provider": "anthropic",
+            "content": "Given the budget constraint, here is my best single-pass analysis...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 800,
+              "completion_tokens": 500,
+              "total_tokens": 1300,
+              "cost_micro": "200000"
+            },
+            "latency_ms": 4500,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "rounds": [
+          {
+            "round": 1,
+            "model": "claude-3-opus",
+            "response": {
+              "request_id": "550e8400-e29b-41d4-a716-446655440421",
+              "model": "claude-3-opus",
+              "provider": "anthropic",
+              "content": "Given the budget constraint, here is my best single-pass analysis...",
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 800,
+                "completion_tokens": 500,
+                "total_tokens": 1300,
+                "cost_micro": "200000"
+              },
+              "latency_ms": 4500,
+              "contract_version": "5.0.0"
+            }
+          }
+        ],
+        "termination_reason": "budget_exhausted",
+        "total_cost_micro": "200000",
+        "total_latency_ms": 4500,
+        "contract_version": "5.0.0"
+      }
+    }
+  ]
+}

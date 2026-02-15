@@ -472,7 +472,7 @@ registerCrossFieldValidator('ProviderWireMessage', (data) => {
 
 // v5.0.0 — Ensemble cross-field validators
 registerCrossFieldValidator('EnsembleRequest', (data) => {
-  const req = data as { strategy: string; consensus_threshold?: number };
+  const req = data as { strategy: string; consensus_threshold?: number; dialogue_config?: { max_rounds: number; pass_thinking_traces: boolean; termination: string; seed_prompt?: string } };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -480,11 +480,15 @@ registerCrossFieldValidator('EnsembleRequest', (data) => {
     errors.push('consensus_threshold is required when strategy is "consensus"');
   }
 
+  if (req.strategy === 'dialogue' && req.dialogue_config === undefined) {
+    errors.push('dialogue_config is required when strategy is "dialogue"');
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('EnsembleResult', (data) => {
-  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }> };
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -505,6 +509,16 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
     if (BigInt(result.total_cost_micro) !== candidateSum) {
       errors.push(`total_cost_micro (${result.total_cost_micro}) must equal sum of candidate costs (${candidateSum})`);
     }
+  }
+
+  // Dialogue strategy requires rounds
+  if (result.strategy === 'dialogue' && (!result.rounds || result.rounds.length === 0)) {
+    errors.push('rounds must be non-empty when strategy is "dialogue"');
+  }
+
+  // Dialogue strategy requires termination_reason
+  if (result.strategy === 'dialogue' && result.termination_reason === undefined) {
+    errors.push('termination_reason is required when strategy is "dialogue"');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

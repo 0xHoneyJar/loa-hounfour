@@ -14,6 +14,16 @@ export const EnsembleRequestSchema = Type.Object(
     task_type: Type.Optional(Type.String()),
     request: CompletionRequestSchema,
     consensus_threshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+    dialogue_config: Type.Optional(Type.Object({
+      max_rounds: Type.Integer({ minimum: 1, maximum: 10 }),
+      pass_thinking_traces: Type.Boolean(),
+      termination: Type.Union([
+        Type.Literal('fixed_rounds'),
+        Type.Literal('consensus_reached'),
+        Type.Literal('no_new_insights'),
+      ]),
+      seed_prompt: Type.Optional(Type.String()),
+    })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {

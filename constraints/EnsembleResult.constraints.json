@@ -24,6 +24,20 @@
       "severity": "error",
       "message": "total_cost_micro must equal sum of all candidate usage costs",
       "fields": ["total_cost_micro", "candidates"]
+    },
+    {
+      "id": "ensemble-result-dialogue-rounds",
+      "expression": "strategy != 'dialogue' || (rounds != null && rounds.length > 0)",
+      "severity": "error",
+      "message": "rounds must be non-empty when strategy is 'dialogue'",
+      "fields": ["strategy", "rounds"]
+    },
+    {
+      "id": "ensemble-result-dialogue-termination",
+      "expression": "strategy != 'dialogue' || termination_reason != null",
+      "severity": "error",
+      "message": "termination_reason is required when strategy is 'dialogue'",
+      "fields": ["strategy", "termination_reason"]
     }
   ]
 }

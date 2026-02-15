@@ -1089,6 +1089,175 @@ describe('EnsembleResult cost sum round-trip', () => {
   });
 });
 
+// ─── EnsembleRequest dialogue config (Sprint 7) ───────────────────────────
+
+describe('EnsembleRequest dialogue config round-trip', () => {
+  const file = loadConstraints('EnsembleRequest');
+
+  const VALID_MESSAGE = { role: 'user', content: 'Hello' };
+  const VALID_INNER_REQ = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    agent_id: 'agent-a',
+    tenant_id: 'tenant-1',
+    model: 'gpt-4',
+    messages: [VALID_MESSAGE],
+    contract_version: '5.0.0',
+  };
+
+  it('strategy=dialogue without dialogue_config: both fail', () => {
+    const bad = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      models: ['gpt-4', 'claude-3'],
+      request: VALID_INNER_REQ,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-config', bad);
+    const tsResult = validate(EnsembleRequestSchema, bad);
+    expect(constraintResult).toBe(false);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('strategy=dialogue with dialogue_config: both pass', () => {
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      models: ['gpt-4', 'claude-3'],
+      request: VALID_INNER_REQ,
+      dialogue_config: {
+        max_rounds: 3,
+        pass_thinking_traces: true,
+        termination: 'fixed_rounds',
+      },
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-config', good);
+    const tsResult = validate(EnsembleRequestSchema, good);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('strategy=sequential without dialogue_config: both pass', () => {
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'sequential',
+      models: ['gpt-4', 'claude-3'],
+      request: VALID_INNER_REQ,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-request-dialogue-config', good);
+    const tsResult = validate(EnsembleRequestSchema, good);
+    expect(constraintResult).toBe(true);
+    expect(tsResult.valid).toBe(true);
+  });
+});
+
+// ─── EnsembleResult dialogue rounds (Sprint 7) ────────────────────────────
+
+describe('EnsembleResult dialogue rounds round-trip', () => {
+  const file = loadConstraints('EnsembleResult');
+
+  const VALID_COMPLETION_RES = {
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    model: 'claude-3-opus',
+    provider: 'anthropic',
+    content: 'Response content',
+    finish_reason: 'stop',
+    usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, cost_micro: '5000' },
+    latency_ms: 500,
+    contract_version: '5.0.0',
+  };
+
+  it('strategy=dialogue without rounds: constraint fails, TS fails', () => {
+    const bad = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: VALID_COMPLETION_RES,
+      candidates: [VALID_COMPLETION_RES],
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-rounds', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('strategy=dialogue without termination_reason: constraint fails, TS fails', () => {
+    const bad = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: VALID_COMPLETION_RES,
+      candidates: [VALID_COMPLETION_RES],
+      rounds: [{ round: 1, model: 'claude-3-opus', response: VALID_COMPLETION_RES }],
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-termination', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('strategy=dialogue with rounds and termination_reason: both pass', () => {
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: VALID_COMPLETION_RES,
+      candidates: [VALID_COMPLETION_RES],
+      rounds: [{ round: 1, model: 'claude-3-opus', response: VALID_COMPLETION_RES }],
+      termination_reason: 'fixed_rounds',
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const roundsResult = evalById(file, 'ensemble-result-dialogue-rounds', good);
+    const terminationResult = evalById(file, 'ensemble-result-dialogue-termination', good);
+    expect(roundsResult).toBe(true);
+    expect(terminationResult).toBe(true);
+    const tsResult = validate(EnsembleResultSchema, good);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('strategy=best_of_n without rounds: both pass (non-dialogue strategy)', () => {
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'best_of_n',
+      selected: VALID_COMPLETION_RES,
+      candidates: [VALID_COMPLETION_RES],
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-rounds', good);
+    const terminationResult = evalById(file, 'ensemble-result-dialogue-termination', good);
+    expect(constraintResult).toBe(true);
+    expect(terminationResult).toBe(true);
+    const tsResult = validate(EnsembleResultSchema, good);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('strategy=dialogue with empty rounds: constraint fails', () => {
+    const bad = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: VALID_COMPLETION_RES,
+      candidates: [VALID_COMPLETION_RES],
+      rounds: [],
+      termination_reason: 'timeout',
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-rounds', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+});
+
 // ─── Constraint file structure ─────────────────────────────────────────────
 
 describe('Constraint file structure', () => {

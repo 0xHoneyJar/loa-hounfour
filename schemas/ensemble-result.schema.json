@@ -33,6 +33,14 @@
         {
           "const": "consensus",
           "type": "string"
+        },
+        {
+          "const": "sequential",
+          "type": "string"
+        },
+        {
+          "const": "dialogue",
+          "type": "string"
         }
       ]
     },
@@ -319,6 +327,192 @@
       "minimum": 0,
       "maximum": 1,
       "type": "number"
+    },
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "round",
+          "model",
+          "response"
+        ],
+        "properties": {
+          "round": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "response": {
+            "$id": "CompletionResult",
+            "additionalProperties": false,
+            "x-cross-field-validated": true,
+            "type": "object",
+            "required": [
+              "request_id",
+              "model",
+              "provider",
+              "finish_reason",
+              "usage",
+              "latency_ms",
+              "contract_version"
+            ],
+            "properties": {
+              "request_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "model": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "provider": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "thinking": {
+                "type": "string"
+              },
+              "tool_calls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "type",
+                    "function"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": {
+                      "const": "function",
+                      "type": "string"
+                    },
+                    "function": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "arguments"
+                      ],
+                      "properties": {
+                        "name": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "arguments": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "finish_reason": {
+                "anyOf": [
+                  {
+                    "const": "stop",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tool_calls",
+                    "type": "string"
+                  },
+                  {
+                    "const": "length",
+                    "type": "string"
+                  },
+                  {
+                    "const": "content_filter",
+                    "type": "string"
+                  }
+                ]
+              },
+              "usage": {
+                "type": "object",
+                "required": [
+                  "prompt_tokens",
+                  "completion_tokens",
+                  "total_tokens",
+                  "cost_micro"
+                ],
+                "properties": {
+                  "prompt_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "completion_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "reasoning_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "total_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "cost_micro": {
+                    "pattern": "^[0-9]+$",
+                    "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                    "type": "string"
+                  }
+                }
+              },
+              "latency_ms": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "metadata": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              },
+              "contract_version": {
+                "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                "type": "string"
+              }
+            }
+          },
+          "thinking_trace": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "termination_reason": {
+      "anyOf": [
+        {
+          "const": "fixed_rounds",
+          "type": "string"
+        },
+        {
+          "const": "consensus_reached",
+          "type": "string"
+        },
+        {
+          "const": "no_new_insights",
+          "type": "string"
+        },
+        {
+          "const": "timeout",
+          "type": "string"
+        },
+        {
+          "const": "budget_exhausted",
+          "type": "string"
+        }
+      ]
     },
     "total_cost_micro": {
       "pattern": "^[0-9]+$",
