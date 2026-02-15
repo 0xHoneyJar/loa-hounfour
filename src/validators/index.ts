@@ -57,6 +57,11 @@ import { ModelCapabilitiesSchema } from '../schemas/model/model-capabilities.js'
 import { ProviderWireMessageSchema } from '../schemas/model/provider-wire-message.js';
 import { ToolDefinitionSchema } from '../schemas/model/tool-definition.js';
 import { ToolResultSchema } from '../schemas/model/tool-result.js';
+import { EnsembleRequestSchema } from '../schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../schemas/model/ensemble/ensemble-result.js';
+import { AgentRequirementsSchema } from '../schemas/model/routing/agent-requirements.js';
+import { BudgetScopeSchema } from '../schemas/model/routing/budget-scope.js';
+import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolution.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -460,6 +465,48 @@ registerCrossFieldValidator('ProviderWireMessage', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// v5.0.0 — Ensemble cross-field validators
+registerCrossFieldValidator('EnsembleRequest', (data) => {
+  const req = data as { strategy: string; consensus_threshold?: number };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (req.strategy === 'consensus' && req.consensus_threshold === undefined) {
+    errors.push('consensus_threshold is required when strategy is "consensus"');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('EnsembleResult', (data) => {
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (result.strategy === 'consensus' && result.consensus_score === undefined) {
+    errors.push('consensus_score is required when strategy is "consensus"');
+  }
+
+  if (BigInt(result.total_cost_micro) < BigInt(result.selected.usage.cost_micro)) {
+    errors.push('total_cost_micro must be >= selected.usage.cost_micro');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// v5.0.0 — BudgetScope cross-field validator
+registerCrossFieldValidator('BudgetScope', (data) => {
+  const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
+    warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -586,4 +633,11 @@ export const validators = {
   providerWireMessage: () => getOrCompile(ProviderWireMessageSchema),
   toolDefinition: () => getOrCompile(ToolDefinitionSchema),
   toolResult: () => getOrCompile(ToolResultSchema),
+
+  // v5.0.0 — Ensemble & Routing
+  ensembleRequest: () => getOrCompile(EnsembleRequestSchema),
+  ensembleResult: () => getOrCompile(EnsembleResultSchema),
+  agentRequirements: () => getOrCompile(AgentRequirementsSchema),
+  budgetScope: () => getOrCompile(BudgetScopeSchema),
+  routingResolution: () => getOrCompile(RoutingResolutionSchema),
 } as const;

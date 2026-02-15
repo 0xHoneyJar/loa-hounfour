@@ -515,3 +515,39 @@ export {
   ToolResultSchema,
   type ToolResult,
 } from './schemas/model/tool-result.js';
+
+// Schemas — Ensemble (v5.0.0)
+export {
+  EnsembleStrategySchema,
+  type EnsembleStrategy,
+} from './schemas/model/ensemble/ensemble-strategy.js';
+
+export {
+  EnsembleRequestSchema,
+  type EnsembleRequest,
+} from './schemas/model/ensemble/ensemble-request.js';
+
+export {
+  EnsembleResultSchema,
+  type EnsembleResult,
+} from './schemas/model/ensemble/ensemble-result.js';
+
+// Schemas — Routing (v5.0.0)
+export { ExecutionModeSchema } from './schemas/model/routing/execution-mode.js';
+
+export { ProviderTypeSchema } from './schemas/model/routing/provider-type.js';
+
+export {
+  AgentRequirementsSchema,
+  type AgentRequirements,
+} from './schemas/model/routing/agent-requirements.js';
+
+export {
+  BudgetScopeSchema,
+  type BudgetScope,
+} from './schemas/model/routing/budget-scope.js';
+
+export {
+  RoutingResolutionSchema,
+  type RoutingResolution,
+} from './schemas/model/routing/routing-resolution.js';

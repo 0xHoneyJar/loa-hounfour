@@ -13,6 +13,9 @@ import { ReputationScoreSchema } from '../../src/schemas/reputation-score.js';
 import { CompletionRequestSchema } from '../../src/schemas/model/completion-request.js';
 import { CompletionResultSchema } from '../../src/schemas/model/completion-result.js';
 import { ProviderWireMessageSchema } from '../../src/schemas/model/provider-wire-message.js';
+import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
+import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -33,6 +36,10 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'CompletionRequest',
     'CompletionResult',
     'ProviderWireMessage',
+    // v5.0.0 — Ensemble & Routing
+    'EnsembleRequest',
+    'EnsembleResult',
+    'BudgetScope',
   ];
 
   it('returns an array of strings', () => {
@@ -70,6 +77,10 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'CompletionRequest', schema: CompletionRequestSchema },
     { name: 'CompletionResult', schema: CompletionResultSchema },
     { name: 'ProviderWireMessage', schema: ProviderWireMessageSchema },
+    // v5.0.0 — Ensemble & Routing
+    { name: 'EnsembleRequest', schema: EnsembleRequestSchema },
+    { name: 'EnsembleResult', schema: EnsembleResultSchema },
+    { name: 'BudgetScope', schema: BudgetScopeSchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {
