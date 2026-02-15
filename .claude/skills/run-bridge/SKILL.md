@@ -80,13 +80,16 @@ interprets and acts on:
 | `VISION_CAPTURE` | Run `bridge-vision-capture.sh` |
 | `GITHUB_TRAIL` | Run `bridge-github-trail.sh` |
 | `FLATLINE_CHECK` | Evaluate flatline condition |
+| `LORE_DISCOVERY` | Run `lore-discover.sh` to extract patterns from bridge reviews (v1.39.0) |
 
 ### Phase 3.1: Enriched Bridgebuilder Review
 
 When the `BRIDGEBUILDER_REVIEW` signal fires, execute this 10-step workflow:
 
-1. **Persona Integrity Check**: Compare `sha256sum .claude/data/bridgebuilder-persona.md`
-   against the base-branch version (`git show origin/main:.claude/data/bridgebuilder-persona.md | sha256sum`).
+1. **Persona Integrity Check**: Read persona path from config
+   (`yq '.run_bridge.bridgebuilder.persona_path' .loa.config.yaml`, default: `.claude/data/bridgebuilder-persona.md`).
+   Compare `sha256sum <persona_path>` against the base-branch version
+   (`git show origin/main:<persona_path> | sha256sum`).
    If hashes differ, log WARNING and fall back to the base-branch version.
    If base-branch version doesn't exist (first deployment), proceed with local copy.
 
