@@ -54,6 +54,35 @@ const simpleBooleanArb = fc
   .tuple(simpleComparisonArb, boolOpArb, simpleComparisonArb)
   .map(([left, op, right]) => `${left} ${op} ${right}`);
 
+/** Temporal function: changed(field), previous(field), delta(field). */
+const temporalFnArb = fc.constantFrom('changed', 'previous', 'delta');
+
+/** Temporal call expression: fn(field) or fn(field.nested). */
+const temporalCallArb = fc
+  .tuple(
+    temporalFnArb,
+    identArb,
+    fc.option(identArb, { nil: undefined }),
+  )
+  .map(([fn, field, nested]) =>
+    nested ? `${fn}(${field}.${nested})` : `${fn}(${field})`,
+  );
+
+/** Temporal comparison: changed(field) or delta(field) > 0. */
+const temporalComparisonArb = fc.oneof(
+  temporalCallArb.filter((expr) => expr.startsWith('changed')),
+  fc.tuple(
+    temporalCallArb.filter((expr) => expr.startsWith('delta')),
+    compOpArb,
+    numberLitArb,
+  ).map(([call, op, val]) => `${call} ${op} ${val}`),
+  fc.tuple(
+    temporalCallArb.filter((expr) => expr.startsWith('previous')),
+    compOpArb,
+    fc.oneof(numberLitArb, stringLitArb, fc.constant('null')),
+  ).map(([call, op, val]) => `${call} ${op} ${val}`),
+);
+
 // ---------------------------------------------------------------------------
 // Properties
 // ---------------------------------------------------------------------------
@@ -314,6 +343,59 @@ describe('S3-T7: Constraint Grammar Fuzz Tests', () => {
         const negated = `!(${expr})`;
         const result = validateExpression(negated);
         expect(result.valid).toBe(true);
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  // ── Temporal operator properties (v2.0) ──────────────────────────────────
+
+  it('P15: temporal calls always validate syntactically', () => {
+    fc.assert(
+      fc.property(temporalComparisonArb, (expr) => {
+        const result = validateExpression(expr);
+        expect(result.valid).toBe(true);
+      }),
+      { numRuns: 100 },
+    );
+  });
+
+  it('P16: temporal + boolean compositions validate', () => {
+    fc.assert(
+      fc.property(
+        temporalComparisonArb,
+        boolOpArb,
+        simpleComparisonArb,
+        (temporal, op, comparison) => {
+          const expr = `${temporal} ${op} ${comparison}`;
+          const result = validateExpression(expr);
+          expect(result.valid).toBe(true);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('P17: implication with temporal antecedent validates', () => {
+    fc.assert(
+      fc.property(
+        temporalComparisonArb,
+        simpleComparisonArb,
+        (antecedent, consequent) => {
+          const expr = `${antecedent} => ${consequent}`;
+          const result = validateExpression(expr);
+          expect(result.valid).toBe(true);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it('P18: temporal operators with evaluateConstraint never throw', () => {
+    fc.assert(
+      fc.property(temporalComparisonArb, (expr) => {
+        const data: Record<string, unknown> = { _previous: {} };
+        expect(() => evaluateConstraint(data, expr)).not.toThrow();
       }),
       { numRuns: 100 },
     );

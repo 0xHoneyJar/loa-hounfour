@@ -38,6 +38,13 @@
       "severity": "error",
       "message": "termination_reason is required when strategy is 'dialogue'",
       "fields": ["strategy", "termination_reason"]
+    },
+    {
+      "id": "ensemble-result-dialogue-cost-conservation",
+      "expression": "strategy != 'dialogue' || rounds == null || bigint_gte(total_cost_micro, bigint_sum(rounds, 'response.usage.cost_micro'))",
+      "severity": "error",
+      "message": "total_cost_micro must be >= sum of dialogue round costs",
+      "fields": ["total_cost_micro", "rounds"]
     }
   ]
 }

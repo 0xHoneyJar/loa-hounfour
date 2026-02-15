@@ -18,11 +18,12 @@
 | 3 | Architecture — Barrel + Grammar | FR-4, FR-5 | ~35 | 37 | ✅ |
 | 4 | Vectors, Namespace & Polish | FR-6, FR-8 | ~35 | 38 | ✅ |
 | 5 | Integration — Constraints + Release | Constraint files, v5.0.0 | ~25 | 39 | ✅ |
-| 6 | Quick Fixes + Billing Provenance | BB fixes, billing chain | ~30 | 40 | ⏳ |
-| 7 | Multi-Model Dialogue Protocol | Dialogue strategies | ~25 | 41 | ⏳ |
-| 8 | Constraint Evolution + Agent Constraints | Grammar v2.0, proposals | ~35 | 42 | ⏳ |
+| 6 | Quick Fixes + Billing Provenance | BB fixes, billing chain | ~30 | 40 | ✅ |
+| 7 | Multi-Model Dialogue Protocol | Dialogue strategies | ~25 | 41 | ✅ |
+| 8 | Constraint Evolution + Agent Constraints | Grammar v2.0, proposals | ~35 | 42 | ✅ |
+| 9 | Bridge Iteration 2 — Cost + Fuzz + Docs | BB fixes | ~15 | 43 | ⏳ |
 
-**Dependency chain:** Sprint 1 → … → Sprint 5 (✅ complete) → Sprint 6 → Sprint 7 → Sprint 8
+**Dependency chain:** Sprint 1 → … → Sprint 5 (✅ complete) → Sprint 6 → Sprint 7 → Sprint 8 → Sprint 9
 
 ---
 
@@ -683,6 +684,75 @@
 
 **Dependencies:** S8-T1 through S8-T6
 **Testing:** Build, schema generation, full regression
+
+---
+
+## Sprint 9: Bridgebuilder Iteration 2 — Cost Conservation + Fuzz Expansion (Bridge Fix)
+
+**Goal:** Address 3 MEDIUM and 3 LOW findings from Bridgebuilder iteration 1 review. Tighten cost conservation for dialogue rounds, expand fuzz test coverage to v2.0 grammar, and close documentation gaps.
+
+### S9-T1: Dialogue cost conservation in EnsembleResult
+
+**Description:** Add dialogue-specific cost conservation to both the TypeScript validator and constraint file. When strategy is 'dialogue' and rounds is populated, verify `total_cost_micro >= sum(rounds[].response.usage.cost_micro)`.
+
+**Acceptance Criteria:**
+- TypeScript validator in `src/validators/index.ts` adds dialogue rounds cost check
+- New constraint in `constraints/EnsembleResult.constraints.json`: `strategy != 'dialogue' || rounds == null || bigint_gte(total_cost_micro, bigint_sum(rounds, 'response.usage.cost_micro'))`
+- Round-trip test for dialogue cost conservation
+- Existing candidate cost conservation unchanged
+
+**Dependencies:** None
+**Testing:** Round-trip + cross-field validator tests
+
+### S9-T2: Grammar fuzz tests for temporal operators
+
+**Description:** Add `temporalCallArb` arbitrary to property-based fuzz tests that generates `changed(field)`, `previous(field)`, `delta(field)` expressions. Compose into existing arbitraries. Add temporal-specific property: `changed(x) => delta(x) != 0` is always syntactically valid.
+
+**Acceptance Criteria:**
+- `temporalCallArb` generates valid temporal expressions
+- Property test: temporal calls always validate syntactically
+- Property test: temporal + boolean compositions validate
+- Property test: implication with temporal antecedent validates
+- numRuns >= 100 for each property
+
+**Dependencies:** None
+**Testing:** Property-based fuzz
+
+### S9-T3: Discoverability test — add ConstraintProposal to annotatedSchemas
+
+**Description:** Add `ConstraintProposal` to the `annotatedSchemas` array in `tests/cross-field/discoverability.test.ts` to verify the `x-cross-field-validated: true` annotation is present.
+
+**Acceptance Criteria:**
+- Import `ConstraintProposalSchema` added to test
+- `{ name: 'ConstraintProposal', schema: ConstraintProposalSchema }` added to `annotatedSchemas`
+- Test passes
+
+**Dependencies:** None
+**Testing:** Annotation verification
+
+### S9-T4: Documentation — changed() identity note + $comment on ConstraintProposal
+
+**Description:** Add JSDoc note on `parseChanged()` documenting strict identity comparison semantics. Add `$comment` referencing RFC #31 to `ConstraintProposalSchema`.
+
+**Acceptance Criteria:**
+- JSDoc comment on `parseChanged()` in evaluator.ts
+- `$comment` on ConstraintProposalSchema options
+- Regenerate JSON Schema to verify $comment propagates
+
+**Dependencies:** None
+**Testing:** JSON Schema output inspection
+
+### S9-T5: Regenerate schemas + final verification
+
+**Description:** Regenerate all JSON schemas after changes. Run full test suite. Verify schema count stable at 48.
+
+**Acceptance Criteria:**
+- 48 schemas generated
+- All tests pass (1,371+ tests)
+- No regressions
+
+**Dependencies:** S9-T1 through S9-T4
+**Testing:** Full regression
 
 ---
 

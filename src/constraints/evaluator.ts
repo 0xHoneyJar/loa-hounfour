@@ -326,10 +326,10 @@ class Parser {
       try { return [BigInt(left), right]; } catch { return [left, right]; }
     }
     if (typeof left === 'bigint' && typeof right === 'number') {
-      return [left, BigInt(right)];
+      try { return [left, BigInt(right)]; } catch { return [left, right]; }
     }
     if (typeof left === 'number' && typeof right === 'bigint') {
-      return [BigInt(left), right];
+      try { return [BigInt(left), right]; } catch { return [left, right]; }
     }
     return [left, right];
   }
@@ -554,6 +554,11 @@ class Parser {
   /**
    * Parse changed(fieldPath) — returns true if field value differs between
    * _previous context and current context.
+   *
+   * Note: uses strict identity comparison (`!==`). For nested object fields,
+   * structurally equivalent objects with different references will be
+   * considered changed. Temporal operators are designed for primitive field
+   * transitions (strings, numbers, booleans) in saga workflows.
    */
   private parseChanged(): boolean {
     this.advance(); // consume 'changed'

@@ -1261,6 +1261,84 @@ describe('EnsembleResult dialogue rounds round-trip', () => {
   });
 });
 
+// ─── EnsembleResult dialogue cost conservation (Sprint 9 / Bridge Iteration 2) ───
+
+describe('EnsembleResult dialogue cost conservation round-trip', () => {
+  const file = loadConstraints('EnsembleResult');
+
+  const makeCompletionResult = (costMicro: string) => ({
+    request_id: '12345678-1234-4123-8123-123456789abc',
+    model: 'claude-3-opus',
+    provider: 'anthropic',
+    content: 'Response content',
+    finish_reason: 'stop',
+    usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150, cost_micro: costMicro },
+    latency_ms: 500,
+    contract_version: '5.0.0',
+  });
+
+  it('dialogue total_cost_micro >= sum of round costs: both pass', () => {
+    const round1 = makeCompletionResult('3000');
+    const round2 = makeCompletionResult('4000');
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: round2,
+      candidates: [round1, round2],
+      rounds: [
+        { round: 1, model: 'claude-3-opus', response: round1 },
+        { round: 2, model: 'gpt-5.2', response: round2 },
+      ],
+      termination_reason: 'fixed_rounds',
+      total_cost_micro: '7000',
+      total_latency_ms: 1000,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-cost-conservation', good);
+    expect(constraintResult).toBe(true);
+    const tsResult = validate(EnsembleResultSchema, good);
+    expect(tsResult.valid).toBe(true);
+  });
+
+  it('dialogue total_cost_micro < sum of round costs: constraint fails, TS fails', () => {
+    const round1 = makeCompletionResult('3000');
+    const round2 = makeCompletionResult('4000');
+    const bad = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'dialogue',
+      selected: round2,
+      candidates: [round1, round2],
+      rounds: [
+        { round: 1, model: 'claude-3-opus', response: round1 },
+        { round: 2, model: 'gpt-5.2', response: round2 },
+      ],
+      termination_reason: 'fixed_rounds',
+      total_cost_micro: '5000', // Less than 3000 + 4000 = 7000
+      total_latency_ms: 1000,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-cost-conservation', bad);
+    expect(constraintResult).toBe(false);
+    const tsResult = validate(EnsembleResultSchema, bad);
+    expect(tsResult.valid).toBe(false);
+  });
+
+  it('non-dialogue strategy: constraint passes (skipped)', () => {
+    const result = makeCompletionResult('5000');
+    const good = {
+      ensemble_id: '12345678-1234-4123-8123-123456789abc',
+      strategy: 'best_of_n',
+      selected: result,
+      candidates: [result],
+      total_cost_micro: '5000',
+      total_latency_ms: 500,
+      contract_version: '5.0.0',
+    };
+    const constraintResult = evalById(file, 'ensemble-result-dialogue-cost-conservation', good);
+    expect(constraintResult).toBe(true);
+  });
+});
+
 // ─── SagaContext temporal constraints (Sprint 8) ──────────────────────────
 
 describe('SagaContext temporal round-trip', () => {

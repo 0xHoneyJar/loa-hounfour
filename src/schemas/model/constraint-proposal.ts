@@ -53,6 +53,7 @@ export const ConstraintProposalSchema = Type.Object(
   },
   {
     $id: 'ConstraintProposal',
+    $comment: 'Agent-authored constraint proposals for Flatline Protocol review. See RFC #31: https://github.com/0xHoneyJar/loa-finn/issues/31',
     additionalProperties: false,
     'x-cross-field-validated': true,
   }

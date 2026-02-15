@@ -522,6 +522,17 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
     errors.push('termination_reason is required when strategy is "dialogue"');
   }
 
+  // Dialogue rounds cost conservation: total_cost_micro >= sum of round costs
+  if (result.strategy === 'dialogue' && result.rounds && result.rounds.length > 0) {
+    const roundCostSum = result.rounds.reduce(
+      (sum, r) => sum + BigInt(r.response.usage.cost_micro),
+      BigInt(0),
+    );
+    if (BigInt(result.total_cost_micro) < roundCostSum) {
+      errors.push(`total_cost_micro (${result.total_cost_micro}) must be >= sum of round costs (${roundCostSum})`);
+    }
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 

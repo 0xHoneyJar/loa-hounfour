@@ -84,6 +84,8 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'EnsembleRequest', schema: EnsembleRequestSchema },
     { name: 'EnsembleResult', schema: EnsembleResultSchema },
     { name: 'BudgetScope', schema: BudgetScopeSchema },
+    // v5.0.0 — Constraint Evolution
+    { name: 'ConstraintProposal', schema: ConstraintProposalSchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {
