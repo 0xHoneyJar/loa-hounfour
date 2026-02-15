@@ -457,5 +457,16 @@ export {
   type ConsistencyModel,
 } from './vocabulary/aggregate-boundaries.js';
 
+// FR-3: Temporal Properties (v4.6.0)
+export {
+  TEMPORAL_PROPERTIES,
+  type TemporalProperty,
+  type PropertyType,
+} from './vocabulary/temporal-properties.js';
+
+// FR-4: Cross-Language Constraints (v4.6.0)
+export { type ConstraintFile, type Constraint } from './constraints/types.js';
+export { evaluateConstraint } from './constraints/evaluator.js';
+
 // Integrity — Idempotency
 export { deriveIdempotencyKey } from './integrity/idempotency.js';

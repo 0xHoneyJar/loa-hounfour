@@ -1,0 +1,35 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "Sanction",
+  "contract_version": "4.6.0",
+  "constraints": [
+    {
+      "id": "sanction-terminated-no-expiry",
+      "expression": "severity == 'terminated' => expires_at == null",
+      "severity": "error",
+      "message": "expires_at must not be present when severity is \"terminated\" (termination is permanent)",
+      "fields": ["severity", "expires_at"]
+    },
+    {
+      "id": "sanction-expiry-after-imposed",
+      "expression": "expires_at != null => expires_at > imposed_at",
+      "severity": "error",
+      "message": "expires_at must be after imposed_at",
+      "fields": ["expires_at", "imposed_at"]
+    },
+    {
+      "id": "sanction-expiry-recommended",
+      "expression": "severity == 'warning' || severity == 'rate_limited' => expires_at != null",
+      "severity": "warning",
+      "message": "expires_at recommended for warning/rate_limited severity",
+      "fields": ["severity", "expires_at"]
+    },
+    {
+      "id": "sanction-escalation-check",
+      "expression": "trigger.violation_type != null",
+      "severity": "warning",
+      "message": "trigger must include violation_type for escalation rule evaluation",
+      "fields": ["trigger.violation_type"]
+    }
+  ]
+}

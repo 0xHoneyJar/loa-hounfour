@@ -1,0 +1,56 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EscrowEntry",
+  "contract_version": "4.6.0",
+  "constraints": [
+    {
+      "id": "escrow-no-self-escrow",
+      "expression": "payer_id != payee_id",
+      "severity": "error",
+      "message": "payer_id and payee_id must be different (self-escrow not allowed)",
+      "fields": ["payer_id", "payee_id"]
+    },
+    {
+      "id": "escrow-released-requires-released_at",
+      "expression": "state == 'released' => released_at != null",
+      "severity": "error",
+      "message": "released_at is required when state is \"released\"",
+      "fields": ["state", "released_at"]
+    },
+    {
+      "id": "escrow-held-no-released_at",
+      "expression": "state == 'held' => released_at == null",
+      "severity": "error",
+      "message": "released_at must not be present when state is \"held\"",
+      "fields": ["state", "released_at"]
+    },
+    {
+      "id": "escrow-disputed-requires-dispute_id",
+      "expression": "state == 'disputed' => dispute_id != null",
+      "severity": "error",
+      "message": "dispute_id is required when state is \"disputed\"",
+      "fields": ["state", "dispute_id"]
+    },
+    {
+      "id": "escrow-held-ttl",
+      "expression": "state == 'held' => expires_at != null",
+      "severity": "warning",
+      "message": "held escrow should have expires_at for TTL enforcement",
+      "fields": ["state", "expires_at"]
+    },
+    {
+      "id": "escrow-expires-after-held",
+      "expression": "expires_at != null && held_at != null => expires_at > held_at",
+      "severity": "error",
+      "message": "expires_at must be after held_at",
+      "fields": ["expires_at", "held_at"]
+    },
+    {
+      "id": "escrow-released-after-held",
+      "expression": "released_at != null && held_at != null => released_at >= held_at",
+      "severity": "error",
+      "message": "released_at must be >= held_at",
+      "fields": ["released_at", "held_at"]
+    }
+  ]
+}

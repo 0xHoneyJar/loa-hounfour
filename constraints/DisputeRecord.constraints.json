@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "DisputeRecord",
+  "contract_version": "4.6.0",
+  "constraints": [
+    {
+      "id": "dispute-no-self-dispute",
+      "expression": "filed_by != filed_against",
+      "severity": "error",
+      "message": "filed_by and filed_against must be different (self-dispute not allowed)",
+      "fields": ["filed_by", "filed_against"]
+    },
+    {
+      "id": "dispute-resolution-temporal",
+      "expression": "resolution != null => resolution.resolved_at >= filed_at",
+      "severity": "error",
+      "message": "resolution.resolved_at must be >= filed_at",
+      "fields": ["resolution.resolved_at", "filed_at"]
+    }
+  ]
+}
