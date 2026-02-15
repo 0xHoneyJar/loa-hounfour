@@ -34,7 +34,14 @@ export const MutualCreditSchema = Type.Object(
     }, { additionalProperties: false })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'MutualCredit', description: 'Mutual credit line between agents with settlement tracking', additionalProperties: false, 'x-experimental': true, 'x-cross-field-validated': true },
+  {
+    $id: 'MutualCredit',
+    $comment: 'Financial amounts (amount_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
+    description: 'Mutual credit line between agents with settlement tracking',
+    additionalProperties: false,
+    'x-experimental': true,
+    'x-cross-field-validated': true,
+  },
 );
 
 export type MutualCredit = Static<typeof MutualCreditSchema>;

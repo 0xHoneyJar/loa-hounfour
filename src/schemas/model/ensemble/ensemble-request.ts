@@ -28,6 +28,7 @@ export const EnsembleRequestSchema = Type.Object(
   },
   {
     $id: 'EnsembleRequest',
+    $comment: 'Contains embedded CompletionRequest with MicroUSD financial fields (budget_limit_micro). See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
   }

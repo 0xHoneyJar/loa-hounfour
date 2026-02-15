@@ -29,7 +29,7 @@ export const ModelCapabilitiesSchema = Type.Object(
   },
   {
     $id: 'ModelCapabilities',
-    $comment: 'Pricing fields use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. 1 USD = 1,000,000 micro-USD. See vocabulary/currency.ts for arithmetic utilities.',
+    $comment: 'Financial amounts (input_per_million_micro, output_per_million_micro, thinking_per_million_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
   },
 );

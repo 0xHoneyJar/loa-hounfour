@@ -229,7 +229,7 @@ This means the constraint was authored against grammar v1.0 and is valid up to (
 - Grammar version negotiation (see Version Compatibility above) ensures that v1.0 consumers never encounter temporal operators they can't evaluate.
 
 **References:**
-- `src/constraints/evaluator.ts:440-490` — Temporal operator implementation
+- `src/constraints/evaluator.ts:448-514` — Temporal operator implementation (parseChanged, parsePrevious, parseDelta)
 - `src/constraints/tokenizer.ts` — Shared tokenizer (temporal keywords: `changed`, `previous`, `delta`)
 - `constraints/SagaContext.constraints.json` — Canonical temporal constraint examples
 - `tests/constraints/round-trip.test.ts` — Temporal operator test coverage

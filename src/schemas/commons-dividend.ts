@@ -29,7 +29,14 @@ export const CommonsDividendSchema = Type.Object(
     }, { additionalProperties: false })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'CommonsDividend', description: 'Commons dividend declaration and distribution to eligible recipients', additionalProperties: false, 'x-experimental': true, 'x-cross-field-validated': true },
+  {
+    $id: 'CommonsDividend',
+    $comment: 'Financial amounts (total_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
+    description: 'Commons dividend declaration and distribution to eligible recipients',
+    additionalProperties: false,
+    'x-experimental': true,
+    'x-cross-field-validated': true,
+  },
 );
 
 export type CommonsDividend = Static<typeof CommonsDividendSchema>;
