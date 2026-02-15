@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/protocol-discovery",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/protocol-discovery",
   "additionalProperties": false,
   "description": "Protocol discovery document for /.well-known/loa-hounfour",
   "type": "object",
@@ -40,7 +40,16 @@
       "format": "uri",
       "description": "URL for capability negotiation endpoint — connects discovery to capability queries",
       "type": "string"
+    },
+    "expression_versions_supported": {
+      "description": "Supported constraint expression grammar versions for version negotiation",
+      "type": "array",
+      "items": {
+        "pattern": "^\\d+\\.\\d+$",
+        "description": "Constraint expression grammar version (e.g. \"1.0\", \"2.0\")",
+        "type": "string"
+      }
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
 }

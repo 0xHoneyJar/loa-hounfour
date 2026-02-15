@@ -102,6 +102,7 @@ export const BillingEntrySchema = Type.Object(
   },
   {
     $id: 'BillingEntry',
+    $comment: 'Financial amounts (raw_cost_micro, total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection in financial documents — see SCHEMA-EVOLUTION.md for version-skew patterns.',
     additionalProperties: false,
     'x-cross-field-validated': true,
     description: 'Multi-party billing entry replacing CostBreakdown',

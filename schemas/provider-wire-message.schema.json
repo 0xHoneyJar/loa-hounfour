@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/provider-wire-message",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "role"
+  ],
+  "properties": {
+    "role": {
+      "anyOf": [
+        {
+          "const": "system",
+          "type": "string"
+        },
+        {
+          "const": "user",
+          "type": "string"
+        },
+        {
+          "const": "assistant",
+          "type": "string"
+        },
+        {
+          "const": "tool",
+          "type": "string"
+        }
+      ]
+    },
+    "content": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "source": {}
+            }
+          }
+        }
+      ]
+    },
+    "thinking": {
+      "type": "string"
+    },
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "function"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "const": "function",
+            "type": "string"
+          },
+          "function": {
+            "type": "object",
+            "required": [
+              "name",
+              "arguments"
+            ],
+            "properties": {
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "arguments": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "tool_call_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
+}

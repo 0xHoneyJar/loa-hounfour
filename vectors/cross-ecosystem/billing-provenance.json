@@ -1,0 +1,98 @@
+{
+  "description": "Billing provenance chain vectors — tracing payment_tx → credit_lot_id → cost_micro through DomainEvent metadata",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "billing-provenance-001",
+      "description": "Complete provenance chain: payment_tx → credit_lot_id → cost_micro in DomainEvent metadata",
+      "valid": true,
+      "schema": "DomainEvent",
+      "data": {
+        "event_id": "550e8400-e29b-41d4-a716-446655440300",
+        "event_type": "billing.payment_received",
+        "aggregate_type": "billing",
+        "aggregate_id": "billing-001",
+        "timestamp": "2026-02-15T10:00:00Z",
+        "version": 1,
+        "payload": { "amount_micro": "5000000" },
+        "metadata": {
+          "billing.payment_tx": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+          "billing.credit_lot_id": "lot-2026-02-15-001",
+          "billing.cost_micro": "5000000",
+          "billing.provider": "anthropic",
+          "billing.entry_id": "01JKXYZ123456789ABCDEFGH"
+        },
+        "contract_version": "5.0.0"
+      },
+      "expected_metadata_keys": [
+        "billing.payment_tx",
+        "billing.credit_lot_id",
+        "billing.cost_micro",
+        "billing.provider",
+        "billing.entry_id"
+      ]
+    },
+    {
+      "id": "billing-provenance-002",
+      "description": "Partial provenance: credit_lot_id without payment_tx (prepaid credit consumption)",
+      "valid": true,
+      "schema": "DomainEvent",
+      "data": {
+        "event_id": "550e8400-e29b-41d4-a716-446655440301",
+        "event_type": "billing.credit_consumed",
+        "aggregate_type": "billing",
+        "aggregate_id": "billing-002",
+        "timestamp": "2026-02-15T10:05:00Z",
+        "version": 1,
+        "payload": { "amount_micro": "1500000" },
+        "metadata": {
+          "billing.credit_lot_id": "lot-2026-02-15-001",
+          "billing.cost_micro": "1500000",
+          "billing.provider": "openai",
+          "billing.reconciled": true
+        },
+        "contract_version": "5.0.0"
+      },
+      "expected_metadata_keys": [
+        "billing.credit_lot_id",
+        "billing.cost_micro",
+        "billing.provider",
+        "billing.reconciled"
+      ]
+    },
+    {
+      "id": "billing-provenance-003",
+      "description": "Multi-model ensemble billing with payment_tx attribution",
+      "valid": true,
+      "schema": "DomainEvent",
+      "data": {
+        "event_id": "550e8400-e29b-41d4-a716-446655440302",
+        "event_type": "billing.ensemble_completed",
+        "aggregate_type": "billing",
+        "aggregate_id": "billing-003",
+        "timestamp": "2026-02-15T10:10:00Z",
+        "version": 1,
+        "payload": {
+          "ensemble_id": "ens-001",
+          "total_cost_micro": "8500000",
+          "candidate_count": 3
+        },
+        "metadata": {
+          "billing.payment_tx": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "billing.cost_micro": "8500000",
+          "billing.entry_id": "01JKXYZ987654321ABCDEFGH",
+          "model.id": "claude-opus-4-6",
+          "model.provider": "anthropic"
+        },
+        "contract_version": "5.0.0"
+      },
+      "expected_metadata_keys": [
+        "billing.payment_tx",
+        "billing.cost_micro",
+        "billing.entry_id",
+        "model.id",
+        "model.provider"
+      ]
+    }
+  ]
+}

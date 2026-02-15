@@ -1,0 +1,71 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EnsembleResult",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ensemble-result-consensus-score",
+      "expression": "strategy != 'consensus' || consensus_score != null",
+      "severity": "error",
+      "message": "consensus_score is required when strategy is 'consensus'",
+      "fields": ["strategy", "consensus_score"]
+    },
+    {
+      "id": "ensemble-result-cost-conservation",
+      "expression": "selected == null || bigint_gte(total_cost_micro, selected.usage.cost_micro)",
+      "severity": "error",
+      "message": "total_cost_micro must be >= selected usage cost",
+      "fields": ["total_cost_micro", "selected.usage.cost_micro"]
+    },
+    {
+      "id": "ensemble-result-total-cost-equals-sum",
+      "expression": "candidates == null || bigint_sum(candidates, 'usage.cost_micro') == total_cost_micro",
+      "severity": "error",
+      "message": "total_cost_micro must equal sum of all candidate usage costs",
+      "fields": ["total_cost_micro", "candidates"]
+    },
+    {
+      "id": "ensemble-result-dialogue-rounds",
+      "expression": "strategy != 'dialogue' || (rounds != null && rounds.length > 0)",
+      "severity": "error",
+      "message": "rounds must be non-empty when strategy is 'dialogue'",
+      "fields": ["strategy", "rounds"]
+    },
+    {
+      "id": "ensemble-result-dialogue-termination",
+      "expression": "strategy != 'dialogue' || termination_reason != null",
+      "severity": "error",
+      "message": "termination_reason is required when strategy is 'dialogue'",
+      "fields": ["strategy", "termination_reason"]
+    },
+    {
+      "id": "ensemble-result-dialogue-cost-conservation",
+      "expression": "strategy != 'dialogue' || rounds == null || bigint_gte(total_cost_micro, bigint_sum(rounds, 'response.usage.cost_micro'))",
+      "severity": "error",
+      "message": "total_cost_micro must be >= sum of dialogue round costs",
+      "fields": ["total_cost_micro", "rounds"]
+    },
+    {
+      "id": "ensemble-result-rounds-completed-consistency",
+      "expression": "rounds == null || rounds_completed == null || rounds_completed == rounds.length",
+      "severity": "error",
+      "message": "rounds_completed must equal rounds.length when both are present",
+      "fields": ["rounds", "rounds_completed"]
+    },
+    {
+      "id": "ensemble-result-rounds-completed-within-requested",
+      "expression": "rounds_requested == null || rounds_completed == null || rounds_completed <= rounds_requested",
+      "severity": "error",
+      "message": "rounds_completed must not exceed rounds_requested",
+      "fields": ["rounds_completed", "rounds_requested"]
+    },
+    {
+      "id": "ensemble-result-consensus-method-required",
+      "expression": "termination_reason != 'consensus_reached' || consensus_method != null",
+      "severity": "warning",
+      "message": "consensus_method is recommended when termination_reason is 'consensus_reached' for audit trail",
+      "fields": ["termination_reason", "consensus_method"]
+    }
+  ]
+}

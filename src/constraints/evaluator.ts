@@ -14,130 +14,17 @@
  * - `'literal'` (string literals)
  * - `field.nested` (dot-access)
  * - `bigint_sum(array, field)` or `bigint_sum([expr1, expr2])` (sum)
+ * - `bigint_gte(a, b)` (BigInt greater-than-or-equal)
+ * - `bigint_gt(a, b)` (BigInt greater-than)
  * - `array.length` (length access)
  * - `array.every(expr)` (universal quantification)
  *
  * @see FR-4 v4.6.0 — Cross-Language Constraints
  */
 
+import { tokenize, type Token } from './tokenizer.js';
+
 export const MAX_EXPRESSION_DEPTH = 32;
-
-type Token = {
-  type: 'number' | 'string' | 'ident' | 'op' | 'paren' | 'comma' | 'bracket' | 'dot' | 'arrow';
-  value: string;
-};
-
-function tokenize(expr: string): Token[] {
-  const tokens: Token[] = [];
-  let i = 0;
-  while (i < expr.length) {
-    // Skip whitespace
-    if (/\s/.test(expr[i])) { i++; continue; }
-
-    // Arrow (implication)
-    if (expr[i] === '=' && expr[i + 1] === '>') {
-      tokens.push({ type: 'arrow', value: '=>' });
-      i += 2;
-      continue;
-    }
-
-    // Two-char operators
-    if (i + 1 < expr.length) {
-      const two = expr[i] + expr[i + 1];
-      if (two === '==' || two === '!=' || two === '<=' || two === '>=' || two === '&&' || two === '||') {
-        tokens.push({ type: 'op', value: two });
-        i += 2;
-        continue;
-      }
-    }
-
-    // Single-char operators
-    if (expr[i] === '<' || expr[i] === '>' || expr[i] === '!') {
-      tokens.push({ type: 'op', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Parentheses
-    if (expr[i] === '(' || expr[i] === ')') {
-      tokens.push({ type: 'paren', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Brackets
-    if (expr[i] === '[' || expr[i] === ']') {
-      tokens.push({ type: 'bracket', value: expr[i] });
-      i++;
-      continue;
-    }
-
-    // Comma
-    if (expr[i] === ',') {
-      tokens.push({ type: 'comma', value: ',' });
-      i++;
-      continue;
-    }
-
-    // Dot
-    if (expr[i] === '.' && !(i > 0 && /\d/.test(expr[i - 1]) && i + 1 < expr.length && /\d/.test(expr[i + 1]))) {
-      // Check if this is a decimal point in a number
-      if (i + 1 < expr.length && /\d/.test(expr[i + 1]) && tokens.length > 0 && tokens[tokens.length - 1].type === 'number') {
-        // It's a decimal point — merge with previous number token
-        const prev = tokens.pop()!;
-        let numStr = prev.value + '.';
-        i++;
-        while (i < expr.length && /\d/.test(expr[i])) {
-          numStr += expr[i];
-          i++;
-        }
-        tokens.push({ type: 'number', value: numStr });
-        continue;
-      }
-      tokens.push({ type: 'dot', value: '.' });
-      i++;
-      continue;
-    }
-
-    // String literal (single-quoted)
-    if (expr[i] === "'") {
-      let str = '';
-      i++; // skip opening quote
-      while (i < expr.length && expr[i] !== "'") {
-        str += expr[i];
-        i++;
-      }
-      i++; // skip closing quote
-      tokens.push({ type: 'string', value: str });
-      continue;
-    }
-
-    // Number
-    if (/\d/.test(expr[i])) {
-      let num = '';
-      while (i < expr.length && (/\d/.test(expr[i]) || expr[i] === '.')) {
-        num += expr[i];
-        i++;
-      }
-      tokens.push({ type: 'number', value: num });
-      continue;
-    }
-
-    // Identifier (includes null, true, false, bigint_sum, etc.)
-    if (/[a-zA-Z_]/.test(expr[i])) {
-      let ident = '';
-      while (i < expr.length && /[a-zA-Z0-9_]/.test(expr[i])) {
-        ident += expr[i];
-        i++;
-      }
-      tokens.push({ type: 'ident', value: ident });
-      continue;
-    }
-
-    throw new Error(`Unexpected character: ${expr[i]} at position ${i} in "${expr}"`);
-  }
-  return tokens;
-}
 
 /**
  * Resolve a dotted field path on a data object.
@@ -324,10 +211,10 @@ class Parser {
       try { return [BigInt(left), right]; } catch { return [left, right]; }
     }
     if (typeof left === 'bigint' && typeof right === 'number') {
-      return [left, BigInt(right)];
+      try { return [left, BigInt(right)]; } catch { return [left, right]; }
     }
     if (typeof left === 'number' && typeof right === 'bigint') {
-      return [BigInt(left), right];
+      try { return [BigInt(left), right]; } catch { return [left, right]; }
     }
     return [left, right];
   }
@@ -397,6 +284,27 @@ class Parser {
     // bigint_sum function
     if (tok.type === 'ident' && tok.value === 'bigint_sum') {
       return this.parseBigintSum();
+    }
+
+    // bigint_gte(a, b) — BigInt greater-than-or-equal
+    if (tok.type === 'ident' && tok.value === 'bigint_gte') {
+      return this.parseBigintCmp('>=');
+    }
+
+    // bigint_gt(a, b) — BigInt greater-than
+    if (tok.type === 'ident' && tok.value === 'bigint_gt') {
+      return this.parseBigintCmp('>');
+    }
+
+    // Temporal operators (v2.0): changed(), previous(), delta()
+    if (tok.type === 'ident' && tok.value === 'changed') {
+      return this.parseChanged();
+    }
+    if (tok.type === 'ident' && tok.value === 'previous') {
+      return this.parsePrevious();
+    }
+    if (tok.type === 'ident' && tok.value === 'delta') {
+      return this.parseDelta();
     }
 
     // Identifier (field path) with possible dot-access, .length, .every()
@@ -500,7 +408,10 @@ class Parser {
       let sum = BigInt(0);
       for (const item of first) {
         if (item != null && typeof item === 'object') {
-          const val = (item as Record<string, unknown>)[fieldName];
+          // Support dot-path field names (e.g., 'usage.cost_micro')
+          const val = fieldName.includes('.')
+            ? resolve(item as Record<string, unknown>, fieldName)
+            : (item as Record<string, unknown>)[fieldName];
           if (val !== undefined && val !== null) {
             try { sum += BigInt(String(val)); } catch { return 0n; }
           }
@@ -523,6 +434,122 @@ class Parser {
     }
 
     return BigInt(0);
+  }
+
+  /**
+   * Parse changed(fieldPath) — returns true if field value differs between
+   * _previous context and current context.
+   *
+   * Note: uses strict identity comparison (`!==`). For nested object fields,
+   * structurally equivalent objects with different references will be
+   * considered changed. Temporal operators are designed for primitive field
+   * transitions (strings, numbers, booleans) in saga workflows.
+   */
+  private parseChanged(): boolean {
+    this.advance(); // consume 'changed'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return false;
+    const currentVal = resolve(this.data, path);
+    const prevVal = resolve(prev, path);
+    return currentVal !== prevVal;
+  }
+
+  /**
+   * Parse previous(fieldPath) — returns the value of field from _previous context.
+   */
+  private parsePrevious(): unknown {
+    this.advance(); // consume 'previous'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return undefined;
+    return resolve(prev, path);
+  }
+
+  /**
+   * Parse delta(fieldPath) — returns numeric difference current - previous.
+   *
+   * Coercion hierarchy:
+   * 1. BigInt: if both values convert to BigInt, returns BigInt difference
+   * 2. Number: if BigInt fails but both values convert to Number (not NaN),
+   *    returns Number difference (handles decimal values like "1.50")
+   * 3. Fallback: returns BigInt(0) when values are unresolvable
+   *
+   * This hierarchy matters for billing protocols where field values may be
+   * decimal strings (e.g., price "1.50" → "2.00") that cannot be represented
+   * as BigInt but have meaningful numeric deltas.
+   */
+  private parseDelta(): unknown {
+    this.advance(); // consume 'delta'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return BigInt(0);
+
+    const currentRaw = resolve(this.data, path) ?? 0;
+    const prevRaw = resolve(prev, path) ?? 0;
+
+    // Try BigInt first (preferred for integer financial fields)
+    try {
+      const currentVal = BigInt(String(currentRaw));
+      const prevVal = BigInt(String(prevRaw));
+      return currentVal - prevVal;
+    } catch {
+      // BigInt failed — try Number fallback for decimal values
+      const currentNum = Number(String(currentRaw));
+      const prevNum = Number(String(prevRaw));
+      if (!Number.isNaN(currentNum) && !Number.isNaN(prevNum)) {
+        return currentNum - prevNum;
+      }
+      return BigInt(0);
+    }
+  }
+
+  /**
+   * Parse a field path and return it as a string (not resolved against data).
+   * Used by temporal operators to pass the path to resolve() on both current and _previous.
+   */
+  private parseFieldPathString(): string {
+    const tok = this.advance();
+    if (tok.type !== 'ident') throw new Error(`Expected identifier, got ${tok.type} "${tok.value}"`);
+    let path = tok.value;
+    while (this.peek()?.type === 'dot') {
+      this.advance(); // consume '.'
+      const next = this.peek();
+      if (!next || next.type !== 'ident') throw new Error('Expected identifier after dot');
+      this.advance();
+      path += '.' + next.value;
+    }
+    return path;
+  }
+
+  /**
+   * Parse bigint_gte(a, b) or bigint_gt(a, b).
+   * Converts both operands to BigInt and performs the comparison.
+   */
+  private parseBigintCmp(op: '>=' | '>'): boolean {
+    this.advance(); // consume 'bigint_gte' or 'bigint_gt'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+
+    try {
+      const l = BigInt(String(left ?? 0));
+      const r = BigInt(String(right ?? 0));
+      return op === '>=' ? l >= r : l > r;
+    } catch {
+      return false;
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "4.6.0",
+  "version": "5.0.0",
   "type": "module",
   "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
   "license": "MIT",
@@ -10,6 +10,26 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./economy": {
+      "types": "./dist/economy/index.d.ts",
+      "import": "./dist/economy/index.js"
+    },
+    "./model": {
+      "types": "./dist/model/index.d.ts",
+      "import": "./dist/model/index.js"
+    },
+    "./governance": {
+      "types": "./dist/governance/index.d.ts",
+      "import": "./dist/governance/index.js"
+    },
+    "./constraints": {
+      "types": "./dist/constraints/index.d.ts",
+      "import": "./dist/constraints/index.js"
     },
     "./schemas/*": "./schemas/*"
   },

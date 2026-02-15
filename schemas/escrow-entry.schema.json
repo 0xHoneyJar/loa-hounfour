@@ -1,8 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/escrow-entry",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/escrow-entry",
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0. Financial amounts (amount_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "description": "Escrow holding for bilateral agent transactions with state machine lifecycle",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
     "escrow_id",
@@ -63,6 +65,10 @@
       "format": "date-time",
       "type": "string"
     },
+    "expires_at": {
+      "format": "date-time",
+      "type": "string"
+    },
     "dispute_id": {
       "minLength": 1,
       "type": "string"
@@ -71,6 +77,5 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
     }
-  },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  }
 }

@@ -35,6 +35,22 @@ import { EscrowEntrySchema } from '../src/schemas/escrow-entry.js';
 import { StakePositionSchema } from '../src/schemas/stake-position.js';
 import { CommonsDividendSchema } from '../src/schemas/commons-dividend.js';
 import { MutualCreditSchema } from '../src/schemas/mutual-credit.js';
+// v5.0.0 — ModelPort
+import { CompletionRequestSchema } from '../src/schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../src/schemas/model/completion-result.js';
+import { ModelCapabilitiesSchema } from '../src/schemas/model/model-capabilities.js';
+import { ProviderWireMessageSchema } from '../src/schemas/model/provider-wire-message.js';
+import { ToolDefinitionSchema } from '../src/schemas/model/tool-definition.js';
+import { ToolResultSchema } from '../src/schemas/model/tool-result.js';
+// v5.0.0 — Ensemble
+import { EnsembleRequestSchema } from '../src/schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../src/schemas/model/ensemble/ensemble-result.js';
+// v5.0.0 — Routing
+import { AgentRequirementsSchema } from '../src/schemas/model/routing/agent-requirements.js';
+import { BudgetScopeSchema } from '../src/schemas/model/routing/budget-scope.js';
+import { RoutingResolutionSchema } from '../src/schemas/model/routing/routing-resolution.js';
+// v5.0.0 — Constraint Evolution
+import { ConstraintProposalSchema } from '../src/schemas/model/constraint-proposal.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -87,6 +103,22 @@ const schemas = [
   { name: 'stake-position', schema: StakePositionSchema },
   { name: 'commons-dividend', schema: CommonsDividendSchema },
   { name: 'mutual-credit', schema: MutualCreditSchema },
+  // v5.0.0 — ModelPort
+  { name: 'completion-request', schema: CompletionRequestSchema },
+  { name: 'completion-result', schema: CompletionResultSchema },
+  { name: 'model-capabilities', schema: ModelCapabilitiesSchema },
+  { name: 'provider-wire-message', schema: ProviderWireMessageSchema },
+  { name: 'tool-definition', schema: ToolDefinitionSchema },
+  { name: 'tool-result', schema: ToolResultSchema },
+  // v5.0.0 — Ensemble
+  { name: 'ensemble-request', schema: EnsembleRequestSchema },
+  { name: 'ensemble-result', schema: EnsembleResultSchema },
+  // v5.0.0 — Routing
+  { name: 'agent-requirements', schema: AgentRequirementsSchema },
+  { name: 'budget-scope', schema: BudgetScopeSchema },
+  { name: 'routing-resolution', schema: RoutingResolutionSchema },
+  // v5.0.0 — Constraint Evolution
+  { name: 'constraint-proposal', schema: ConstraintProposalSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
@@ -97,7 +129,9 @@ for (const { name, schema } of schemas) {
     ...schema,
     // Override TypeBox $id with versioned URI (must come after spread)
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
-    $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
+    $comment: (schema as Record<string, unknown>).$comment
+      ? `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}. ${(schema as Record<string, unknown>).$comment}`
+      : `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
 
   // Apply post-generation transforms (cross-field constraints, etc.)

@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/ensemble-request",
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0. Contains embedded CompletionRequest with MicroUSD financial fields (budget_limit_micro). See vocabulary/currency.ts for arithmetic utilities.",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "ensemble_id",
+    "strategy",
+    "models",
+    "request",
+    "contract_version"
+  ],
+  "properties": {
+    "ensemble_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "strategy": {
+      "$id": "EnsembleStrategy",
+      "$comment": "Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31",
+      "anyOf": [
+        {
+          "const": "first_complete",
+          "type": "string"
+        },
+        {
+          "const": "best_of_n",
+          "type": "string"
+        },
+        {
+          "const": "consensus",
+          "type": "string"
+        },
+        {
+          "const": "sequential",
+          "type": "string"
+        },
+        {
+          "const": "dialogue",
+          "type": "string"
+        }
+      ]
+    },
+    "models": {
+      "minItems": 2,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "timeout_ms": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "task_type": {
+      "type": "string"
+    },
+    "request": {
+      "$id": "CompletionRequest",
+      "$comment": "Financial amounts (budget_limit_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection — see SCHEMA-EVOLUTION.md for version-skew patterns.",
+      "additionalProperties": false,
+      "x-cross-field-validated": true,
+      "type": "object",
+      "required": [
+        "request_id",
+        "agent_id",
+        "tenant_id",
+        "model",
+        "messages",
+        "contract_version"
+      ],
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "agent_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "tenant_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "nft_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "trace_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "session_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "execution_mode": {
+          "anyOf": [
+            {
+              "const": "native_runtime",
+              "type": "string"
+            },
+            {
+              "const": "remote_model",
+              "type": "string"
+            }
+          ]
+        },
+        "messages": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$id": "ProviderWireMessage",
+            "additionalProperties": false,
+            "x-cross-field-validated": true,
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "anyOf": [
+                  {
+                    "const": "system",
+                    "type": "string"
+                  },
+                  {
+                    "const": "user",
+                    "type": "string"
+                  },
+                  {
+                    "const": "assistant",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tool",
+                    "type": "string"
+                  }
+                ]
+              },
+              "content": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "source": {}
+                      }
+                    }
+                  }
+                ]
+              },
+              "thinking": {
+                "type": "string"
+              },
+              "tool_calls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "type",
+                    "function"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": {
+                      "const": "function",
+                      "type": "string"
+                    },
+                    "function": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "arguments"
+                      ],
+                      "properties": {
+                        "name": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "arguments": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "tool_call_id": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$id": "ToolDefinition",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "function"
+            ],
+            "properties": {
+              "type": {
+                "const": "function",
+                "type": "string"
+              },
+              "function": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "description"
+                ],
+                "properties": {
+                  "name": {
+                    "minLength": 1,
+                    "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "parameters": {}
+                }
+              }
+            }
+          }
+        },
+        "tool_choice": {
+          "anyOf": [
+            {
+              "const": "auto",
+              "type": "string"
+            },
+            {
+              "const": "none",
+              "type": "string"
+            },
+            {
+              "const": "required",
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "required": [
+                "type",
+                "function"
+              ],
+              "properties": {
+                "type": {
+                  "const": "function",
+                  "type": "string"
+                },
+                "function": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "temperature": {
+          "minimum": 0,
+          "maximum": 2,
+          "type": "number"
+        },
+        "max_tokens": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "top_p": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "stop_sequences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thinking": {
+          "type": "object",
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "budget_tokens": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        },
+        "budget_limit_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {}
+          }
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      }
+    },
+    "consensus_threshold": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "dialogue_config": {
+      "type": "object",
+      "required": [
+        "max_rounds",
+        "pass_thinking_traces",
+        "termination"
+      ],
+      "properties": {
+        "max_rounds": {
+          "minimum": 1,
+          "maximum": 10,
+          "type": "integer"
+        },
+        "pass_thinking_traces": {
+          "type": "boolean"
+        },
+        "termination": {
+          "anyOf": [
+            {
+              "const": "fixed_rounds",
+              "type": "string"
+            },
+            {
+              "const": "consensus_reached",
+              "type": "string"
+            },
+            {
+              "const": "no_new_insights",
+              "type": "string"
+            }
+          ]
+        },
+        "seed_prompt": {
+          "type": "string"
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  }
+}

@@ -57,6 +57,7 @@ export const RoutingConstraintSchema = Type.Object({
   }),
 }, {
   $id: 'RoutingConstraint',
+  $comment: 'Financial amounts (max_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
   additionalProperties: false,
   description: 'Agent routing constraint for task dispatch — all present fields AND-combined',
 });

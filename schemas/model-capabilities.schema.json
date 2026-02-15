@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/model-capabilities",
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0. Financial amounts (input_per_million_micro, output_per_million_micro, thinking_per_million_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "model_id",
+    "provider",
+    "capabilities",
+    "limits",
+    "contract_version"
+  ],
+  "properties": {
+    "model_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provider": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "thinking_traces",
+        "vision",
+        "tool_calling",
+        "streaming",
+        "json_mode",
+        "native_runtime"
+      ],
+      "properties": {
+        "thinking_traces": {
+          "type": "boolean"
+        },
+        "vision": {
+          "type": "boolean"
+        },
+        "tool_calling": {
+          "type": "boolean"
+        },
+        "streaming": {
+          "type": "boolean"
+        },
+        "json_mode": {
+          "type": "boolean"
+        },
+        "native_runtime": {
+          "type": "boolean"
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": [
+        "max_context_tokens",
+        "max_output_tokens"
+      ],
+      "properties": {
+        "max_context_tokens": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_output_tokens": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_thinking_tokens": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "required": [
+        "input_per_million_micro",
+        "output_per_million_micro"
+      ],
+      "properties": {
+        "input_per_million_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "output_per_million_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "thinking_per_million_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  }
+}

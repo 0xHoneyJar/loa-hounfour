@@ -1,0 +1,269 @@
+{
+  "description": "Saga execution vectors — multi-step sequences with compensation",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "saga-001",
+      "description": "Complete saga — all steps succeed (escrow fund + work + release)",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-saga-001-a",
+            "aggregate_id": "escrow-saga-001",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.created",
+            "version": 1,
+            "occurred_at": "2026-02-15T09:00:00Z",
+            "actor": "orchestrator",
+            "correlation_id": "saga-001",
+            "payload": {
+              "escrow_id": "escrow-saga-001",
+              "amount_micro": "100000",
+              "payer_id": "tenant-001",
+              "payee_id": "agent-001"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-001",
+              "step": 1,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-001-b",
+            "aggregate_id": "escrow-saga-001",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.funded",
+            "version": 1,
+            "occurred_at": "2026-02-15T09:00:05Z",
+            "actor": "payment-service",
+            "correlation_id": "saga-001",
+            "causation_id": "evt-saga-001-a",
+            "payload": {
+              "escrow_id": "escrow-saga-001",
+              "funded_at": "2026-02-15T09:00:05Z"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-001",
+              "step": 2,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-001-c",
+            "aggregate_id": "escrow-saga-001",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.released",
+            "version": 1,
+            "occurred_at": "2026-02-15T09:30:00Z",
+            "actor": "orchestrator",
+            "correlation_id": "saga-001",
+            "causation_id": "evt-saga-001-b",
+            "payload": {
+              "escrow_id": "escrow-saga-001",
+              "released_at": "2026-02-15T09:30:00Z",
+              "amount_micro": "100000"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-001",
+              "step": 3,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "All three saga steps complete in forward direction — escrow created, funded, and released"
+    },
+    {
+      "id": "saga-002",
+      "description": "Compensated saga — partial failure triggers rollback (escrow fund fails, compensation issued)",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-saga-002-a",
+            "aggregate_id": "escrow-saga-002",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.created",
+            "version": 1,
+            "occurred_at": "2026-02-15T10:00:00Z",
+            "actor": "orchestrator",
+            "correlation_id": "saga-002",
+            "payload": {
+              "escrow_id": "escrow-saga-002",
+              "amount_micro": "200000",
+              "payer_id": "tenant-002",
+              "payee_id": "agent-002"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-002",
+              "step": 1,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-002-b",
+            "aggregate_id": "escrow-saga-002",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.funded",
+            "version": 1,
+            "occurred_at": "2026-02-15T10:00:05Z",
+            "actor": "payment-service",
+            "correlation_id": "saga-002",
+            "causation_id": "evt-saga-002-a",
+            "payload": {
+              "escrow_id": "escrow-saga-002",
+              "funded_at": "2026-02-15T10:00:05Z"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-002",
+              "step": 2,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-002-c",
+            "aggregate_id": "escrow-saga-002",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.refunded",
+            "version": 1,
+            "occurred_at": "2026-02-15T10:05:00Z",
+            "actor": "orchestrator",
+            "correlation_id": "saga-002",
+            "causation_id": "evt-saga-002-b",
+            "payload": {
+              "escrow_id": "escrow-saga-002",
+              "refunded_at": "2026-02-15T10:05:00Z",
+              "amount_micro": "200000",
+              "reason": "work_delivery_failed"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-002",
+              "step": 1,
+              "total_steps": 2,
+              "direction": "compensation"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "Forward steps 1-2 succeed, step 3 fails, compensation triggers escrow refund"
+    },
+    {
+      "id": "saga-003",
+      "description": "Timeout saga — escrow expires without release after timeout period",
+      "steps": [
+        {
+          "event": {
+            "event_id": "evt-saga-003-a",
+            "aggregate_id": "escrow-saga-003",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.created",
+            "version": 1,
+            "occurred_at": "2026-02-15T08:00:00Z",
+            "actor": "orchestrator",
+            "correlation_id": "saga-003",
+            "payload": {
+              "escrow_id": "escrow-saga-003",
+              "amount_micro": "75000",
+              "payer_id": "tenant-003",
+              "payee_id": "agent-003",
+              "expires_at": "2026-02-15T09:00:00Z"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-003",
+              "step": 1,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-003-b",
+            "aggregate_id": "escrow-saga-003",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.funded",
+            "version": 1,
+            "occurred_at": "2026-02-15T08:00:10Z",
+            "actor": "payment-service",
+            "correlation_id": "saga-003",
+            "causation_id": "evt-saga-003-a",
+            "payload": {
+              "escrow_id": "escrow-saga-003",
+              "funded_at": "2026-02-15T08:00:10Z"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-003",
+              "step": 2,
+              "total_steps": 3,
+              "direction": "forward"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        },
+        {
+          "event": {
+            "event_id": "evt-saga-003-c",
+            "aggregate_id": "escrow-saga-003",
+            "aggregate_type": "economy",
+            "type": "economy.escrow.expired",
+            "version": 1,
+            "occurred_at": "2026-02-15T09:00:01Z",
+            "actor": "timeout-service",
+            "correlation_id": "saga-003",
+            "causation_id": "evt-saga-003-b",
+            "payload": {
+              "escrow_id": "escrow-saga-003",
+              "expired_at": "2026-02-15T09:00:01Z",
+              "reason": "timeout_exceeded"
+            },
+            "contract_version": "5.0.0",
+            "saga_context": {
+              "saga_id": "saga-003",
+              "step": 1,
+              "total_steps": 1,
+              "direction": "compensation"
+            }
+          },
+          "schema": "DomainEvent",
+          "valid": true
+        }
+      ],
+      "expected_outcome": "Escrow created and funded but times out, triggering expiry compensation"
+    }
+  ]
+}

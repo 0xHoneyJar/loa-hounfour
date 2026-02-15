@@ -24,6 +24,7 @@ export const SanctionSchema = Type.Object(
     imposed_at: Type.String({ format: 'date-time' }),
     appeal_available: Type.Boolean(),
     expires_at: Type.Optional(Type.String({ format: 'date-time' })),
+    escalation_rule_applied: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {

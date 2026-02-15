@@ -28,6 +28,7 @@ export const ContributionRecordSchema = Type.Object(
   },
   {
     $id: 'ContributionRecord',
+    $comment: 'Financial amounts (value_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     description: 'Record of an agent contribution to the commons or ecosystem',
     additionalProperties: false,
   },
