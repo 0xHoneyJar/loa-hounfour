@@ -242,7 +242,7 @@ describe('S3-T7: Constraint Grammar Fuzz Tests', () => {
   it('P10: grammar version exported correctly', () => {
     fc.assert(
       fc.property(fc.constant(null), () => {
-        expect(EXPRESSION_VERSION).toBe('1.0');
+        expect(EXPRESSION_VERSION).toBe('2.0');
         expect(typeof EXPRESSION_VERSION).toBe('string');
         // Version must match semver-ish format (major.minor)
         expect(EXPRESSION_VERSION).toMatch(/^\d+\.\d+$/);

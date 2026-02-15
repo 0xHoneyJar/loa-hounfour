@@ -10,6 +10,7 @@
 
 import { evaluateConstraint } from './evaluator.js';
 import { validateExpression } from './grammar.js';
+import { expressionVersionSupported } from './types.js';
 
 /**
  * Structured evaluation result with success value or error details.
@@ -34,7 +35,16 @@ export type EvaluationResult =
 export function evaluateConstraintDetailed(
   expression: string,
   context: Record<string, unknown>,
+  options?: { expressionVersion?: string },
 ): EvaluationResult {
+  // Phase 0: version compatibility check
+  if (options?.expressionVersion && !expressionVersionSupported(options.expressionVersion)) {
+    return {
+      valid: false,
+      error: `Unsupported expression version: ${options.expressionVersion} (evaluator supports 1.x and 2.x)`,
+    };
+  }
+
   // Phase 1: syntax validation (gives us position info on parse errors)
   const syntaxResult = validateExpression(expression);
   if (!syntaxResult.valid) {

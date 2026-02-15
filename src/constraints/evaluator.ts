@@ -411,6 +411,17 @@ class Parser {
       return this.parseBigintCmp('>');
     }
 
+    // Temporal operators (v2.0): changed(), previous(), delta()
+    if (tok.type === 'ident' && tok.value === 'changed') {
+      return this.parseChanged();
+    }
+    if (tok.type === 'ident' && tok.value === 'previous') {
+      return this.parsePrevious();
+    }
+    if (tok.type === 'ident' && tok.value === 'delta') {
+      return this.parseDelta();
+    }
+
     // Identifier (field path) with possible dot-access, .length, .every()
     if (tok.type === 'ident') {
       return this.parseFieldPath();
@@ -538,6 +549,75 @@ class Parser {
     }
 
     return BigInt(0);
+  }
+
+  /**
+   * Parse changed(fieldPath) — returns true if field value differs between
+   * _previous context and current context.
+   */
+  private parseChanged(): boolean {
+    this.advance(); // consume 'changed'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return false;
+    const currentVal = resolve(this.data, path);
+    const prevVal = resolve(prev, path);
+    return currentVal !== prevVal;
+  }
+
+  /**
+   * Parse previous(fieldPath) — returns the value of field from _previous context.
+   */
+  private parsePrevious(): unknown {
+    this.advance(); // consume 'previous'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return undefined;
+    return resolve(prev, path);
+  }
+
+  /**
+   * Parse delta(fieldPath) — returns numeric difference current - previous as BigInt.
+   */
+  private parseDelta(): unknown {
+    this.advance(); // consume 'delta'
+    this.expect('paren', '(');
+    const path = this.parseFieldPathString();
+    this.expect('paren', ')');
+
+    const prev = this.data._previous as Record<string, unknown> | undefined;
+    if (prev == null) return BigInt(0);
+    try {
+      const currentVal = BigInt(String(resolve(this.data, path) ?? 0));
+      const prevVal = BigInt(String(resolve(prev, path) ?? 0));
+      return currentVal - prevVal;
+    } catch {
+      return BigInt(0);
+    }
+  }
+
+  /**
+   * Parse a field path and return it as a string (not resolved against data).
+   * Used by temporal operators to pass the path to resolve() on both current and _previous.
+   */
+  private parseFieldPathString(): string {
+    const tok = this.advance();
+    if (tok.type !== 'ident') throw new Error(`Expected identifier, got ${tok.type} "${tok.value}"`);
+    let path = tok.value;
+    while (this.peek()?.type === 'dot') {
+      this.advance(); // consume '.'
+      const next = this.peek();
+      if (!next || next.type !== 'ident') throw new Error('Expected identifier after dot');
+      this.advance();
+      path += '.' + next.value;
+    }
+    return path;
   }
 
   /**

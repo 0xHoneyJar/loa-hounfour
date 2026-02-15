@@ -49,6 +49,8 @@ import { EnsembleResultSchema } from '../src/schemas/model/ensemble/ensemble-res
 import { AgentRequirementsSchema } from '../src/schemas/model/routing/agent-requirements.js';
 import { BudgetScopeSchema } from '../src/schemas/model/routing/budget-scope.js';
 import { RoutingResolutionSchema } from '../src/schemas/model/routing/routing-resolution.js';
+// v5.0.0 — Constraint Evolution
+import { ConstraintProposalSchema } from '../src/schemas/model/constraint-proposal.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -115,6 +117,8 @@ const schemas = [
   { name: 'agent-requirements', schema: AgentRequirementsSchema },
   { name: 'budget-scope', schema: BudgetScopeSchema },
   { name: 'routing-resolution', schema: RoutingResolutionSchema },
+  // v5.0.0 — Constraint Evolution
+  { name: 'constraint-proposal', schema: ConstraintProposalSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

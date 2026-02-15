@@ -72,6 +72,12 @@ export {
   type RoutingResolution,
 } from '../schemas/model/routing/routing-resolution.js';
 
+// Schemas — Constraint Evolution (v5.0.0)
+export {
+  ConstraintProposalSchema,
+  type ConstraintProposal,
+} from '../schemas/model/constraint-proposal.js';
+
 // Vocabulary — Metadata Namespaces
 export {
   METADATA_NAMESPACES,

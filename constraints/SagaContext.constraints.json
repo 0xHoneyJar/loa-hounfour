@@ -1,0 +1,22 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SagaContext",
+  "contract_version": "5.0.0",
+  "expression_version": "2.0",
+  "constraints": [
+    {
+      "id": "saga-step-monotonic",
+      "expression": "_previous == null || !changed(step) || delta(step) > 0 || direction == 'compensation'",
+      "severity": "error",
+      "message": "step must increase monotonically (unless direction is 'compensation')",
+      "fields": ["step", "direction", "_previous"]
+    },
+    {
+      "id": "saga-direction-valid-transition",
+      "expression": "_previous == null || !changed(direction) || (previous(direction) == 'forward' && direction == 'compensation')",
+      "severity": "error",
+      "message": "direction can only transition from 'forward' to 'compensation'",
+      "fields": ["direction", "_previous"]
+    }
+  ]
+}

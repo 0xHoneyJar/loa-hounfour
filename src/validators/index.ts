@@ -62,6 +62,7 @@ import { EnsembleResultSchema } from '../schemas/model/ensemble/ensemble-result.
 import { AgentRequirementsSchema } from '../schemas/model/routing/agent-requirements.js';
 import { BudgetScopeSchema } from '../schemas/model/routing/budget-scope.js';
 import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolution.js';
+import { ConstraintProposalSchema } from '../schemas/model/constraint-proposal.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -537,6 +538,20 @@ registerCrossFieldValidator('BudgetScope', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// v5.0.0 — ConstraintProposal cross-field validator
+registerCrossFieldValidator('ConstraintProposal', (data) => {
+  const proposal = data as { review_status?: string; consensus_category?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Accepted proposals must have HIGH_CONSENSUS
+  if (proposal.review_status === 'accepted' && proposal.consensus_category !== 'HIGH_CONSENSUS') {
+    errors.push('consensus_category must be "HIGH_CONSENSUS" when review_status is "accepted"');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -670,4 +685,7 @@ export const validators = {
   agentRequirements: () => getOrCompile(AgentRequirementsSchema),
   budgetScope: () => getOrCompile(BudgetScopeSchema),
   routingResolution: () => getOrCompile(RoutingResolutionSchema),
+
+  // v5.0.0 — Constraint Evolution
+  constraintProposal: () => getOrCompile(ConstraintProposalSchema),
 } as const;

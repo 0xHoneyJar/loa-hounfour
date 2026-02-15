@@ -2,7 +2,7 @@
 
 **Contract version:** 5.0.0
 **Min supported:** 4.0.0
-**Schemas:** 47
+**Schemas:** 48
 
 ## Schemas
 
@@ -55,6 +55,7 @@
 | agent-requirements | `https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/agent-requirements` | [agent-requirements.schema.json](agent-requirements.schema.json) |
 | budget-scope | `https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/budget-scope` | [budget-scope.schema.json](budget-scope.schema.json) |
 | routing-resolution | `https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/routing-resolution` | [routing-resolution.schema.json](routing-resolution.schema.json) |
+| constraint-proposal | `https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/constraint-proposal` | [constraint-proposal.schema.json](constraint-proposal.schema.json) |
 
 ## Usage
 

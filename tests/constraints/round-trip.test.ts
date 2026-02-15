@@ -31,6 +31,9 @@ import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 import type { ConstraintFile, Constraint } from '../../src/constraints/types.js';
+import { expressionVersionSupported } from '../../src/constraints/types.js';
+import { EXPRESSION_VERSION, validateExpression } from '../../src/constraints/grammar.js';
+import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const constraintsDir = join(__dirname, '..', '..', 'constraints');
@@ -1255,6 +1258,209 @@ describe('EnsembleResult dialogue rounds round-trip', () => {
     expect(constraintResult).toBe(false);
     const tsResult = validate(EnsembleResultSchema, bad);
     expect(tsResult.valid).toBe(false);
+  });
+});
+
+// ─── SagaContext temporal constraints (Sprint 8) ──────────────────────────
+
+describe('SagaContext temporal round-trip', () => {
+  const file = loadConstraints('SagaContext');
+
+  it('no _previous: step-monotonic passes (vacuously true)', () => {
+    const data = { step: 3, direction: 'forward' };
+    const result = evalById(file, 'saga-step-monotonic', data);
+    expect(result).toBe(true);
+  });
+
+  it('step increases with _previous: passes', () => {
+    const data = { step: 3, direction: 'forward', _previous: { step: 2, direction: 'forward' } };
+    const result = evalById(file, 'saga-step-monotonic', data);
+    expect(result).toBe(true);
+  });
+
+  it('step decreases with forward direction: fails', () => {
+    const data = { step: 1, direction: 'forward', _previous: { step: 3, direction: 'forward' } };
+    const result = evalById(file, 'saga-step-monotonic', data);
+    expect(result).toBe(false);
+  });
+
+  it('step decreases with compensation direction: passes', () => {
+    const data = { step: 1, direction: 'compensation', _previous: { step: 3, direction: 'forward' } };
+    const result = evalById(file, 'saga-step-monotonic', data);
+    expect(result).toBe(true);
+  });
+
+  it('step unchanged: passes (no change detected)', () => {
+    const data = { step: 3, direction: 'forward', _previous: { step: 3, direction: 'forward' } };
+    const result = evalById(file, 'saga-step-monotonic', data);
+    expect(result).toBe(true);
+  });
+
+  it('direction forward→compensation: valid transition', () => {
+    const data = { direction: 'compensation', _previous: { direction: 'forward' } };
+    const result = evalById(file, 'saga-direction-valid-transition', data);
+    expect(result).toBe(true);
+  });
+
+  it('direction compensation→forward: invalid transition', () => {
+    const data = { direction: 'forward', _previous: { direction: 'compensation' } };
+    const result = evalById(file, 'saga-direction-valid-transition', data);
+    expect(result).toBe(false);
+  });
+
+  it('direction unchanged: passes', () => {
+    const data = { direction: 'forward', _previous: { direction: 'forward' } };
+    const result = evalById(file, 'saga-direction-valid-transition', data);
+    expect(result).toBe(true);
+  });
+});
+
+// ─── Temporal operator unit tests (Sprint 8) ──────────────────────────────
+
+describe('Temporal operator evaluation', () => {
+  it('changed() returns false when _previous is null', () => {
+    const result = evaluateConstraint({ value: 10 }, 'changed(value)');
+    expect(result).toBe(false);
+  });
+
+  it('changed() returns true when field differs', () => {
+    const result = evaluateConstraint(
+      { value: 10, _previous: { value: 5 } },
+      'changed(value)',
+    );
+    expect(result).toBe(true);
+  });
+
+  it('changed() returns false when field is same', () => {
+    const result = evaluateConstraint(
+      { value: 10, _previous: { value: 10 } },
+      'changed(value)',
+    );
+    expect(result).toBe(false);
+  });
+
+  it('previous() returns value from _previous', () => {
+    const result = evaluateConstraint(
+      { value: 'new', _previous: { value: 'old' } },
+      "previous(value) == 'old'",
+    );
+    expect(result).toBe(true);
+  });
+
+  it('delta() returns numeric difference', () => {
+    const result = evaluateConstraint(
+      { step: 5, _previous: { step: 3 } },
+      'delta(step) > 0',
+    );
+    expect(result).toBe(true);
+  });
+
+  it('delta() returns 0 when _previous is null', () => {
+    const result = evaluateConstraint(
+      { step: 5 },
+      'delta(step) == 0',
+    );
+    expect(result).toBe(true);
+  });
+
+  it('changed() works with dot-path fields', () => {
+    const result = evaluateConstraint(
+      { usage: { cost: 100 }, _previous: { usage: { cost: 50 } } },
+      'changed(usage.cost)',
+    );
+    expect(result).toBe(true);
+  });
+});
+
+// ─── ConstraintProposal round-trip (Sprint 8) ────────────────────────────
+
+describe('ConstraintProposal round-trip', () => {
+  const file = loadConstraints('ConstraintProposal');
+
+  it('accepted with HIGH_CONSENSUS: both pass', () => {
+    const good = {
+      review_status: 'accepted',
+      consensus_category: 'HIGH_CONSENSUS',
+    };
+    const constraintResult = evalById(file, 'constraint-proposal-accepted-consensus', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('accepted with DISPUTED: both fail', () => {
+    const bad = {
+      review_status: 'accepted',
+      consensus_category: 'DISPUTED',
+    };
+    const constraintResult = evalById(file, 'constraint-proposal-accepted-consensus', bad);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('under_review with any category: passes (not accepted)', () => {
+    const good = {
+      review_status: 'under_review',
+      consensus_category: 'DISPUTED',
+    };
+    const constraintResult = evalById(file, 'constraint-proposal-accepted-consensus', good);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('no review_status: passes', () => {
+    const good = {};
+    const constraintResult = evalById(file, 'constraint-proposal-accepted-consensus', good);
+    expect(constraintResult).toBe(true);
+  });
+});
+
+// ─── Expression version compatibility (Sprint 8) ─────────────────────────
+
+describe('Expression version compatibility', () => {
+  it('version 1.0 is supported', () => {
+    expect(expressionVersionSupported('1.0')).toBe(true);
+  });
+
+  it('version 2.0 is supported', () => {
+    expect(expressionVersionSupported('2.0')).toBe(true);
+  });
+
+  it('version 3.0 is not supported', () => {
+    expect(expressionVersionSupported('3.0')).toBe(false);
+  });
+
+  it('version 0.5 is not supported', () => {
+    expect(expressionVersionSupported('0.5')).toBe(false);
+  });
+});
+
+// ─── Grammar v2.0 validates temporal expressions (Sprint 8) ──────────────
+
+describe('Grammar v2.0 temporal syntax validation', () => {
+  it('EXPRESSION_VERSION is 2.0', () => {
+    expect(EXPRESSION_VERSION).toBe('2.0');
+  });
+
+  it('validates changed(field)', () => {
+    const result = validateExpression('changed(step)');
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates previous(field)', () => {
+    const result = validateExpression("previous(direction) == 'forward'");
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates delta(field) in comparison', () => {
+    const result = validateExpression('delta(step) > 0');
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates temporal expression with dot-path', () => {
+    const result = validateExpression('changed(usage.cost)');
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates full SagaContext constraint expression', () => {
+    const result = validateExpression("_previous == null || !changed(step) || delta(step) > 0 || direction == 'compensation'");
+    expect(result.valid).toBe(true);
   });
 });
 

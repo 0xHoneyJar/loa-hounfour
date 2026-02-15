@@ -39,3 +39,17 @@ export interface ConstraintFile {
   /** Array of cross-field constraints. */
   constraints: Constraint[];
 }
+
+/**
+ * Check whether a constraint file's expression_version is supported by the
+ * current evaluator. v1.x expressions are backward-compatible with v2.0+.
+ * v2.x expressions require a v2.0+ evaluator.
+ *
+ * @param version - Expression version string (e.g. '1.0', '2.0')
+ * @returns true if the current evaluator supports this version
+ */
+export function expressionVersionSupported(version: string): boolean {
+  const [major] = version.split('.').map(Number);
+  // Current evaluator is v2.0 — supports 1.x and 2.x
+  return major >= 1 && major <= 2;
+}

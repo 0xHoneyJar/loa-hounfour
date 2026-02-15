@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/constraint-proposal",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "agent_id",
+    "target_schema_id",
+    "proposed_constraints",
+    "rationale",
+    "expression_version",
+    "contract_version"
+  ],
+  "properties": {
+    "proposal_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_schema_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "proposed_constraints": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "expression",
+          "severity",
+          "message",
+          "fields"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "type": "string"
+          },
+          "expression": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "const": "error",
+                "type": "string"
+              },
+              {
+                "const": "warning",
+                "type": "string"
+              }
+            ]
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fields": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "rationale": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expression_version": {
+      "pattern": "^\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "review_status": {
+      "anyOf": [
+        {
+          "const": "proposed",
+          "type": "string"
+        },
+        {
+          "const": "under_review",
+          "type": "string"
+        },
+        {
+          "const": "accepted",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        }
+      ]
+    },
+    "review_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "reviewer_model",
+          "score"
+        ],
+        "properties": {
+          "reviewer_model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "score": {
+            "minimum": 0,
+            "maximum": 1000,
+            "type": "integer"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "consensus_category": {
+      "anyOf": [
+        {
+          "const": "HIGH_CONSENSUS",
+          "type": "string"
+        },
+        {
+          "const": "DISPUTED",
+          "type": "string"
+        },
+        {
+          "const": "LOW_VALUE",
+          "type": "string"
+        },
+        {
+          "const": "BLOCKER",
+          "type": "string"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
+}

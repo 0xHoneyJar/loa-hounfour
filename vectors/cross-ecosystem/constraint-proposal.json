@@ -1,0 +1,90 @@
+{
+  "description": "Agent-authored constraint proposal vectors — structured proposals for Flatline Protocol review",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "constraint-proposal-001",
+      "description": "Accepted proposal with HIGH_CONSENSUS — valid",
+      "valid": true,
+      "schema": "ConstraintProposal",
+      "data": {
+        "proposal_id": "550e8400-e29b-41d4-a716-446655440500",
+        "agent_id": "claude-3-opus",
+        "target_schema_id": "CompletionRequest",
+        "proposed_constraints": [
+          {
+            "id": "completion-thinking-budget",
+            "expression": "thinking == null || thinking.enabled != true || thinking.budget_tokens != null",
+            "severity": "warning",
+            "message": "budget_tokens should be set when thinking is enabled to control costs",
+            "fields": ["thinking"]
+          }
+        ],
+        "rationale": "When thinking mode is enabled without a budget_tokens limit, token costs can grow unbounded. This constraint ensures cost predictability.",
+        "expression_version": "1.0",
+        "review_status": "accepted",
+        "review_scores": [
+          { "reviewer_model": "gpt-5.2", "score": 850, "rationale": "Strong cost-safety constraint" },
+          { "reviewer_model": "claude-3-opus", "score": 780, "rationale": "Valid concern, warning severity appropriate" }
+        ],
+        "consensus_category": "HIGH_CONSENSUS",
+        "contract_version": "5.0.0"
+      }
+    },
+    {
+      "id": "constraint-proposal-002",
+      "description": "Disputed proposal under review",
+      "valid": true,
+      "schema": "ConstraintProposal",
+      "data": {
+        "proposal_id": "550e8400-e29b-41d4-a716-446655440501",
+        "agent_id": "gpt-5.2",
+        "target_schema_id": "EnsembleResult",
+        "proposed_constraints": [
+          {
+            "id": "ensemble-latency-budget",
+            "expression": "total_latency_ms <= 30000",
+            "severity": "warning",
+            "message": "Total ensemble latency exceeds 30-second budget",
+            "fields": ["total_latency_ms"]
+          }
+        ],
+        "rationale": "Ensemble operations should complete within 30 seconds to maintain user experience. Extended latency indicates potential infrastructure issues.",
+        "expression_version": "1.0",
+        "review_status": "under_review",
+        "review_scores": [
+          { "reviewer_model": "gpt-5.2", "score": 750 },
+          { "reviewer_model": "claude-3-opus", "score": 350, "rationale": "30s is arbitrary; dialogue strategy legitimately takes longer" }
+        ],
+        "consensus_category": "DISPUTED",
+        "contract_version": "5.0.0"
+      }
+    },
+    {
+      "id": "constraint-proposal-003",
+      "description": "Accepted proposal with wrong consensus — invalid",
+      "valid": false,
+      "schema": "ConstraintProposal",
+      "data": {
+        "proposal_id": "550e8400-e29b-41d4-a716-446655440502",
+        "agent_id": "claude-3-opus",
+        "target_schema_id": "BudgetScope",
+        "proposed_constraints": [
+          {
+            "id": "budget-minimum-limit",
+            "expression": "bigint_gt(limit_micro, '0')",
+            "severity": "error",
+            "message": "Budget limit must be greater than zero",
+            "fields": ["limit_micro"]
+          }
+        ],
+        "rationale": "A zero budget limit is effectively a denial-of-service.",
+        "expression_version": "1.0",
+        "review_status": "accepted",
+        "consensus_category": "DISPUTED",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["consensus_category must be 'HIGH_CONSENSUS' when review_status is 'accepted'"]
+    }
+  ]
+}

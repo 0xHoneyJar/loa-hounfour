@@ -10,7 +10,7 @@
  */
 
 /** Current expression grammar version. */
-export const EXPRESSION_VERSION = '1.0';
+export const EXPRESSION_VERSION = '2.0';
 
 /** Maximum nesting depth (mirrors evaluator.ts). */
 const MAX_DEPTH = 32;
@@ -307,6 +307,18 @@ class SyntaxValidator {
       return;
     }
 
+    // bigint_gte / bigint_gt function calls
+    if (tok.type === 'ident' && (tok.value === 'bigint_gte' || tok.value === 'bigint_gt')) {
+      this.parseTwoArgCall();
+      return;
+    }
+
+    // Temporal function calls (v2.0): changed(), previous(), delta()
+    if (tok.type === 'ident' && (tok.value === 'changed' || tok.value === 'previous' || tok.value === 'delta')) {
+      this.parseOneArgCall();
+      return;
+    }
+
     // Identifier (field path)
     if (tok.type === 'ident') {
       this.parseFieldPath();
@@ -378,6 +390,24 @@ class SyntaxValidator {
       this.advance();
       this.parsePrimary(); // second arg
     }
+    this.expect('paren', ')');
+  }
+
+  /** Parse a two-argument function call: func(expr, expr) */
+  private parseTwoArgCall(): void {
+    this.advance(); // consume function name
+    this.expect('paren', '(');
+    this.parseExpr(); // first arg
+    this.expect('comma');
+    this.parseExpr(); // second arg
+    this.expect('paren', ')');
+  }
+
+  /** Parse a single-argument function call: func(fieldPath) */
+  private parseOneArgCall(): void {
+    this.advance(); // consume function name
+    this.expect('paren', '(');
+    this.parseFieldPath(); // argument (field path)
     this.expect('paren', ')');
   }
 

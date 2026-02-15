@@ -16,6 +16,7 @@ import { ProviderWireMessageSchema } from '../../src/schemas/model/provider-wire
 import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble-request.js';
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
+import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -40,6 +41,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'EnsembleRequest',
     'EnsembleResult',
     'BudgetScope',
+    // v5.0.0 — Constraint Evolution
+    'ConstraintProposal',
   ];
 
   it('returns an array of strings', () => {
