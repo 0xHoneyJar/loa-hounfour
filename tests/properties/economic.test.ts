@@ -306,9 +306,14 @@ describe('L3 Economic Properties: Conservation Invariants (S6-T4)', () => {
       }
     });
 
-    it('transitions to self are never valid', () => {
+    it('transitions to self are never valid (except held via funded event)', () => {
       for (const state of ESCROW_STATES) {
-        expect(isValidEscrowTransition(state, state)).toBe(false);
+        if (state === 'held') {
+          // BB-C9-003: held->held is a valid self-transition (economy.escrow.funded)
+          expect(isValidEscrowTransition(state, state)).toBe(true);
+        } else {
+          expect(isValidEscrowTransition(state, state)).toBe(false);
+        }
       }
     });
 
@@ -448,6 +453,92 @@ describe('L3 Economic Properties: Conservation Invariants (S6-T4)', () => {
             }
           }
         }),
+        { numRuns: 200 },
+      );
+    });
+  });
+
+  describe('numeric amount handling (BB-C9-011)', () => {
+    it('accepts integer number amounts', () => {
+      const ledger = new ProtocolLedger();
+      ledger.record({
+        event_id: 'num-1',
+        type: 'billing.entry.created',
+        aggregate_type: 'billing',
+        payload: { billing_entry_id: 'be-num', amount_micro: 5000000 },
+      });
+      expect(ledger.trialBalance().total_debits).toBe(5000000n);
+    });
+
+    it('accepts bigint amounts', () => {
+      const ledger = new ProtocolLedger();
+      ledger.record({
+        event_id: 'big-1',
+        type: 'billing.entry.created',
+        aggregate_type: 'billing',
+        payload: { billing_entry_id: 'be-big', amount_micro: 9007199254740993n },
+      });
+      expect(ledger.trialBalance().total_debits).toBe(9007199254740993n);
+    });
+
+    it('rejects negative number amounts', () => {
+      const ledger = new ProtocolLedger();
+      ledger.record({
+        event_id: 'neg-1',
+        type: 'billing.entry.created',
+        aggregate_type: 'billing',
+        payload: { billing_entry_id: 'be-neg', amount_micro: -100 },
+      });
+      expect(ledger.trialBalance().total_debits).toBe(0n);
+    });
+
+    it('rejects negative bigint amounts', () => {
+      const ledger = new ProtocolLedger();
+      ledger.record({
+        event_id: 'neg-big-1',
+        type: 'billing.entry.created',
+        aggregate_type: 'billing',
+        payload: { billing_entry_id: 'be-neg-big', amount_micro: -100n },
+      });
+      expect(ledger.trialBalance().total_debits).toBe(0n);
+    });
+
+    it('rejects non-integer number amounts', () => {
+      const ledger = new ProtocolLedger();
+      ledger.record({
+        event_id: 'float-1',
+        type: 'billing.entry.created',
+        aggregate_type: 'billing',
+        payload: { billing_entry_id: 'be-float', amount_micro: 1.5 },
+      });
+      expect(ledger.trialBalance().total_debits).toBe(0n);
+    });
+
+    it('numeric amounts produce correct conservation checks', () => {
+      fc.assert(
+        fc.property(
+          fc.integer({ min: 1, max: Number.MAX_SAFE_INTEGER }),
+          fc.integer({ min: 0, max: Number.MAX_SAFE_INTEGER }),
+          (debitAmount, creditAmount) => {
+            const ledger = new ProtocolLedger();
+            ledger.record({
+              event_id: 'debit-num',
+              type: 'billing.entry.created',
+              aggregate_type: 'billing',
+              payload: { billing_entry_id: 'be-1', amount_micro: debitAmount },
+            });
+
+            const cappedCredit = Math.min(creditAmount, debitAmount);
+            ledger.record({
+              event_id: 'credit-num',
+              type: 'economy.escrow.refunded',
+              aggregate_type: 'economy',
+              payload: { transaction_id: 'tx-1', amount_micro: cappedCredit },
+            });
+
+            expect(ledger.isConserved()).toBe(true);
+          },
+        ),
         { numRuns: 200 },
       );
     });

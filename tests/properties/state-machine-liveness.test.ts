@@ -17,48 +17,13 @@ import {
 } from '../../src/vocabulary/state-machines.js';
 import { ProtocolStateTracker } from '../../src/test-infrastructure/protocol-state-tracker.js';
 import type { DomainEvent } from '../../src/schemas/domain-event.js';
+import { reachableStates, canReachTerminal } from '../helpers/state-machine-bfs.js';
 
 const NUM_RUNS = 200;
 
 // ---------------------------------------------------------------------------
-// BFS reachability helper
+// BFS reachability helper (core BFS in shared module)
 // ---------------------------------------------------------------------------
-
-/**
- * Returns the set of all states reachable from `startState` in the given
- * state machine via valid transitions (BFS traversal).
- */
-function reachableStates(machineId: string, startState: string): Set<string> {
-  const visited = new Set<string>();
-  const queue: string[] = [startState];
-
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (visited.has(current)) continue;
-    visited.add(current);
-
-    const targets = getValidTransitions(machineId, current);
-    for (const target of targets) {
-      if (!visited.has(target)) {
-        queue.push(target);
-      }
-    }
-  }
-
-  return visited;
-}
-
-/**
- * Returns true if at least one terminal state is reachable from
- * `startState` in the given state machine.
- */
-function canReachTerminal(machineId: string, startState: string): boolean {
-  const machine = STATE_MACHINES[machineId];
-  if (!machine) return false;
-
-  const reachable = reachableStates(machineId, startState);
-  return machine.terminal.some((t) => reachable.has(t));
-}
 
 /**
  * Returns the set of terminal states reachable from `startState`.
@@ -235,7 +200,7 @@ describe('L2: Dispute resolution — eventually(state ∈ {resolved, withdrawn})
 // L3: Stake maturation
 // ---------------------------------------------------------------------------
 
-describe('L3: Stake maturation — eventually(state ∈ {vested, slashed, withdrawn})', () => {
+describe('L3: Stake maturation — eventually(state ∈ {slashed, withdrawn})', () => {
   it('every non-terminal stake state can reach at least one terminal state', () => {
     const machine = STATE_MACHINES.stake;
     const nonTerminal = machine.states.filter(

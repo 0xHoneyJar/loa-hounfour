@@ -90,6 +90,10 @@ export const AGENT_LIFECYCLE_TRANSITIONS: Record<
 
 /**
  * Check whether a lifecycle transition is valid.
+ *
+ * @deprecated Planned rename to `isValidAgentLifecycleTransition` in next major version
+ * for consistency with `isValidStateMachineTransition` and `isValidEscrowTransition`.
+ * @see BB-C9-008
  */
 export function isValidTransition(
   from: AgentLifecycleState,

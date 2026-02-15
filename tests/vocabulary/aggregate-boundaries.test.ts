@@ -22,39 +22,42 @@ import { ReputationScoreSchema } from '../../src/schemas/reputation-score.js';
 import { SanctionSchema } from '../../src/schemas/sanction.js';
 import { DisputeRecordSchema } from '../../src/schemas/dispute-record.js';
 import { RoutingConstraintSchema } from '../../src/schemas/routing-constraint.js';
-
-// Collect known schema $ids
-const KNOWN_SCHEMA_IDS = new Set([
-  EscrowEntrySchema.$id,
-  BillingEntrySchema.$id,
-  CommonsDividendSchema.$id,
-  PerformanceRecordSchema.$id,
-  ReputationScoreSchema.$id,
-  SanctionSchema.$id,
-  DisputeRecordSchema.$id,
-  RoutingConstraintSchema.$id,
-]);
-
-// Also check for TransferEvent which may or may not have an $id
-// (TransferEventSchema uses 'TransferEventRecord' as $id based on its export name)
 import { TransferEventSchema } from '../../src/schemas/transfer-spec.js';
-if (TransferEventSchema.$id) {
-  KNOWN_SCHEMA_IDS.add(TransferEventSchema.$id);
-}
 
-// Add plain string references for members that use short names
-const KNOWN_SCHEMA_NAMES = new Set([
-  ...KNOWN_SCHEMA_IDS,
-  'EscrowEntry',
-  'BillingEntry',
-  'TransferEvent',
-  'CommonsDividend',
-  'PerformanceRecord',
-  'ReputationScore',
-  'Sanction',
-  'DisputeRecord',
-  'RoutingConstraint',
-]);
+/**
+ * All schemas that may be referenced by AGGREGATE_BOUNDARIES, with optional
+ * alias overrides for schemas whose $id doesn't match the short name used
+ * in boundary definitions.
+ *
+ * Adding or renaming a schema here ensures the boundary validation
+ * stays in sync automatically (BB-C9-004).
+ */
+const ALL_BOUNDARY_SCHEMAS: Array<{ schema: { $id?: string }; alias?: string }> = [
+  { schema: EscrowEntrySchema },
+  { schema: BillingEntrySchema },
+  { schema: CommonsDividendSchema },
+  { schema: PerformanceRecordSchema },
+  { schema: ReputationScoreSchema },
+  { schema: SanctionSchema },
+  { schema: DisputeRecordSchema },
+  { schema: RoutingConstraintSchema },
+  // TransferEventSchema.$id is 'TransferEventRecord', but boundaries reference 'TransferEvent'
+  { schema: TransferEventSchema, alias: 'TransferEvent' },
+];
+
+// Derive KNOWN_SCHEMA_NAMES programmatically from schema $id fields.
+// This ensures that if a schema is renamed, the test catches the mismatch
+// automatically instead of silently passing with a stale manual list.
+const KNOWN_SCHEMA_NAMES = new Set<string>();
+for (const entry of ALL_BOUNDARY_SCHEMAS) {
+  const id = entry.schema.$id;
+  if (id) {
+    KNOWN_SCHEMA_NAMES.add(id);
+  }
+  if (entry.alias) {
+    KNOWN_SCHEMA_NAMES.add(entry.alias);
+  }
+}
 
 const VALID_CONSISTENCY_MODELS: ConsistencyModel[] = ['causal', 'read-your-writes', 'eventual'];
 

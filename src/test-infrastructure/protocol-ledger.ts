@@ -109,11 +109,20 @@ export class ProtocolLedger {
   /**
    * Extract the amount_micro from an event payload, parsed as BigInt.
    *
-   * Amount values in the protocol are string-typed MicroUSD (e.g., "1000000").
+   * Amount values in the protocol are string-typed MicroUSD (e.g., "1000000"),
+   * but numeric and bigint types are also accepted for convenience in tests
+   * and interop scenarios.
+   *
    * Returns 0n if the payload does not contain a valid amount_micro.
    */
   private extractAmount(event: LedgerEvent): bigint {
     const raw = event.payload.amount_micro;
+    if (typeof raw === 'number' && Number.isInteger(raw) && raw >= 0) {
+      return BigInt(raw);
+    }
+    if (typeof raw === 'bigint' && raw >= 0n) {
+      return raw;
+    }
     if (typeof raw === 'string' && /^[0-9]+$/.test(raw)) {
       return BigInt(raw);
     }

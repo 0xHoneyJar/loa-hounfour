@@ -22,6 +22,7 @@ import {
   validDomainEventArbitrary,
   mixedEconomyEventSequenceArbitrary,
 } from '../helpers/economy-arbitraries.js';
+import { findPath } from '../helpers/state-machine-bfs.js';
 
 const NUM_RUNS = 200;
 
@@ -383,38 +384,3 @@ describe('S6: Share conservation — always(sum(share_bps) == 10000)', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// BFS helper for state machine path finding
-// ---------------------------------------------------------------------------
-
-function findPath(
-  machineId: string,
-  from: string,
-  to: string,
-): Array<{ from: string; to: string }> | null {
-  const machine = STATE_MACHINES[machineId];
-  if (!machine) return null;
-  if (from === to) return [];
-
-  const queue: Array<{ state: string; path: Array<{ from: string; to: string }> }> = [
-    { state: from, path: [] },
-  ];
-  const visited = new Set<string>([from]);
-
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    const outbound = machine.transitions.filter((t) => t.from === current.state);
-
-    for (const transition of outbound) {
-      if (visited.has(transition.to)) continue;
-      visited.add(transition.to);
-
-      const newPath = [...current.path, { from: transition.from, to: transition.to }];
-      if (transition.to === to) return newPath;
-
-      queue.push({ state: transition.to, path: newPath });
-    }
-  }
-
-  return null;
-}
