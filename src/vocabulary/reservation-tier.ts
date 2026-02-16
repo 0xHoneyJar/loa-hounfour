@@ -35,3 +35,24 @@ export const RESERVATION_TIER_MAP: Readonly<Record<ConformanceLevel, Reservation
   community_verified: 500,
   protocol_certified: 1000,
 } as const;
+
+/**
+ * Protocol rounding bias policy.
+ *
+ * When arithmetic rounding creates ambiguity (e.g., ceil vs floor division),
+ * the protocol biases toward the rights-holder (the agent). This ensures:
+ * - computeReservedMicro uses ceiling division: (limit * bps + 9999) / 10000
+ * - shouldAllowRequest uses SKP-003: available <= reserved (not <)
+ *
+ * Combined effect: the agent always gets the benefit of sub-micro fractions.
+ * This is a deliberate policy choice, not an implementation detail.
+ *
+ * Basel III parallel: regulatory capital ratios round toward the safety margin.
+ *
+ * @see computeReservedMicro — ceiling division
+ * @see shouldAllowRequest — SKP-003 floor enforcement
+ * @see constraints/ReservationArithmetic.constraints.json
+ */
+export const ROUNDING_BIAS = 'rights_holder' as const;
+
+export type RoundingBias = typeof ROUNDING_BIAS;

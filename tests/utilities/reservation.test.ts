@@ -166,10 +166,20 @@ describe('shouldAllowRequest', () => {
       expect(result.floor_breached).toBe(false);
     });
 
-    it('allows when available equals cost exactly', () => {
+    it('blocks when available equals cost but post-tx breaches floor (HIGH-V52-001)', () => {
+      // v5.3.0 fix: available=500, cost=500, reserved=300
+      // Post-transaction = 0 < 300 = reserved → BLOCK (strict)
       const result = shouldAllowRequest('500', '500', '300', 'strict');
+      expect(result.allowed).toBe(false);
+      expect(result.floor_breached).toBe(true);
+      expect(result.post_transaction_available).toBe('0');
+    });
+
+    it('allows when available equals cost and no reservation', () => {
+      const result = shouldAllowRequest('500', '500', '0', 'strict');
       expect(result.allowed).toBe(true);
       expect(result.floor_breached).toBe(false);
+      expect(result.post_transaction_available).toBe('0');
     });
   });
 

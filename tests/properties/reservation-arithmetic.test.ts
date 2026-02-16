@@ -120,7 +120,7 @@ describe('computeReservedMicro properties', () => {
 // ---------------------------------------------------------------------------
 
 describe('shouldAllowRequest properties', () => {
-  it('always allows when available >= cost', () => {
+  it('allows when available >= cost AND post-tx >= reserved (v5.3.0)', () => {
     fc.assert(
       fc.property(
         positiveMicroArb,
@@ -128,7 +128,10 @@ describe('shouldAllowRequest properties', () => {
         positiveMicroArb,
         fc.constantFrom('strict' as const, 'advisory' as const, 'unsupported' as const),
         (available, cost, reserved, enforcement) => {
-          if (BigInt(available) >= BigInt(cost)) {
+          const avail = BigInt(available);
+          const c = BigInt(cost);
+          const res = BigInt(reserved);
+          if (avail >= c && avail - c >= res) {
             const result = shouldAllowRequest(available, cost, reserved, enforcement);
             expect(result.allowed).toBe(true);
           }
