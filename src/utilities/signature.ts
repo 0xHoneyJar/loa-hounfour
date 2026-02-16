@@ -24,9 +24,12 @@ const CLOCK_SKEW_SECONDS = 300;
 /**
  * Discriminated union for signature verification results.
  *
- * - `verified: true` — signature valid, includes algorithm and key_id.
- * - `verified: false` — signature invalid or verification failed.
- * - `verified: 'unverifiable'` — cannot verify (missing signature, no key resolver, etc).
+ * Instance of the Epistemic Tristate pattern (docs/patterns/epistemic-tristate.md):
+ * - `verified: true` — known good (signature valid, includes algorithm and key_id)
+ * - `verified: false` — known bad (signature invalid or verification failed)
+ * - `verified: 'unverifiable'` — unknown (cannot verify: missing signature, no key resolver)
+ *
+ * @see docs/patterns/epistemic-tristate.md — Pattern documentation
  */
 export type SignatureVerificationResult =
   | { verified: true; algorithm: string; key_id?: string }

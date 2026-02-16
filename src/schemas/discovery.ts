@@ -93,6 +93,32 @@ export interface BuildDiscoveryOptions {
 /**
  * Build a discovery document from the current package state.
  *
+ * @example Options object (recommended):
+ * ```typescript
+ * const doc = buildDiscoveryDocument(
+ *   ['https://loa-hounfour.dev/schemas/BillingEntry', 'https://loa-hounfour.dev/schemas/CompletionResult'],
+ *   {
+ *     aggregateTypes: ['billing', 'completion'],
+ *     capabilitiesUrl: 'https://api.example.com/capabilities',
+ *     expressionVersions: ['1.0', '2.0'],
+ *     providers: [
+ *       { provider: 'openai', model_count: 4, supports_reservations: true },
+ *     ],
+ *   },
+ * );
+ * ```
+ *
+ * @example Legacy positional arguments (deprecated):
+ * ```typescript
+ * // @deprecated -- Use options object overload instead.
+ * const doc = buildDiscoveryDocument(
+ *   ['https://loa-hounfour.dev/schemas/BillingEntry'],
+ *   ['billing'],
+ *   'https://api.example.com/capabilities',
+ *   ['1.0'],
+ * );
+ * ```
+ *
  * @throws {Error} If any schemaId is not a valid URI (must start with https://)
  * @throws {Error} If capabilitiesUrl is not a valid https:// URI
  */

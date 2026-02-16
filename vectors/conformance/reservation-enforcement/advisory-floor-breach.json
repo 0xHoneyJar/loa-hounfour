@@ -1,0 +1,31 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0005",
+  "category": "reservation-enforcement",
+  "description": "Advisory enforcement allows request that would breach floor, with warning",
+  "contract_version": "5.3.0",
+  "input": {
+    "agent_id": "agent-advisory-breach",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 500,
+    "budget_limit_micro": "10000",
+    "budget_spent_micro": "0",
+    "request_cost_micro": "9600",
+    "enforcement": "advisory"
+  },
+  "expected_output": {
+    "reserved_micro": "500",
+    "allowed": true,
+    "floor_breached": false,
+    "warning_pattern": "would breach reservation floor",
+    "post_transaction_available": "400"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["allowed", "floor_breached"]
+  },
+  "metadata": {
+    "finding": "MEDIUM-V52-002",
+    "enforcement_mode": "advisory",
+    "sdd_section": "§3.3.3"
+  }
+}
