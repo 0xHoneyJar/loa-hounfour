@@ -76,6 +76,46 @@ describe('EnsembleCapabilityProfileSchema', () => {
     expect(Value.Check(EnsembleCapabilityProfileSchema, invalid)).toBe(false);
   });
 
+  it('accepts namespaced model identifiers', () => {
+    const namespaced = {
+      ...validProfile,
+      models: ['openai/gpt-5', 'anthropic/claude-opus-4'],
+      individual_capabilities: {
+        'openai/gpt-5': ['reasoning'],
+        'anthropic/claude-opus-4': ['code-generation'],
+      },
+    };
+    expect(Value.Check(EnsembleCapabilityProfileSchema, namespaced)).toBe(true);
+  });
+
+  it('rejects model identifiers with uppercase', () => {
+    const invalid = {
+      ...validProfile,
+      models: ['Claude-Opus-4', 'gpt-5'],
+    };
+    expect(Value.Check(EnsembleCapabilityProfileSchema, invalid)).toBe(false);
+  });
+
+  it('rejects model identifiers with spaces', () => {
+    const invalid = {
+      ...validProfile,
+      models: ['claude opus 4', 'gpt-5'],
+    };
+    expect(Value.Check(EnsembleCapabilityProfileSchema, invalid)).toBe(false);
+  });
+
+  it('accepts model identifiers with dots and underscores', () => {
+    const dotted = {
+      ...validProfile,
+      models: ['model.v2.1', 'model_alpha'],
+      individual_capabilities: {
+        'model.v2.1': ['reasoning'],
+        'model_alpha': ['code-generation'],
+      },
+    };
+    expect(Value.Check(EnsembleCapabilityProfileSchema, dotted)).toBe(true);
+  });
+
   it('has $id EnsembleCapabilityProfile', () => {
     expect(EnsembleCapabilityProfileSchema.$id).toBe('EnsembleCapabilityProfile');
   });

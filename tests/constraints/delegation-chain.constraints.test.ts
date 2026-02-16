@@ -1,7 +1,7 @@
 /**
  * Tests for DelegationChain constraint file (S1-T2).
  *
- * Validates all 6 constraints against valid and invalid inputs.
+ * Validates all 7 constraints against valid and invalid inputs.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -56,8 +56,8 @@ describe('DelegationChain constraint file', () => {
     expect(constraintFile.contract_version).toBe('5.4.0');
   });
 
-  it('has 6 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(6);
+  it('has 7 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(7);
   });
 
   describe('depth-limit', () => {
@@ -170,6 +170,29 @@ describe('DelegationChain constraint file', () => {
           { ...validChain.links[1], delegator: 'agent-unknown' },
         ],
       };
+      expect(evaluateConstraint(invalid, c.expression)).toBe(false);
+    });
+  });
+
+  describe('revocation-requires-policy', () => {
+    const c = findConstraint('delegation-chain-revocation-requires-policy');
+
+    it('passes for non-revoked chain without policy', () => {
+      expect(evaluateConstraint(validChain, c.expression)).toBe(true);
+    });
+
+    it('passes for revoked chain with cascade policy', () => {
+      const revoked = { ...validChain, status: 'revoked', revocation_policy: 'cascade' };
+      expect(evaluateConstraint(revoked, c.expression)).toBe(true);
+    });
+
+    it('passes for revoked chain with non_cascade policy', () => {
+      const revoked = { ...validChain, status: 'revoked', revocation_policy: 'non_cascade' };
+      expect(evaluateConstraint(revoked, c.expression)).toBe(true);
+    });
+
+    it('fails for revoked chain without revocation_policy', () => {
+      const invalid = { ...validChain, status: 'revoked' };
       expect(evaluateConstraint(invalid, c.expression)).toBe(false);
     });
   });

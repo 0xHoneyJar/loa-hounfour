@@ -45,6 +45,13 @@
       "severity": "error",
       "message": "Each link's delegator must be the previous link's delegatee",
       "fields": ["links"]
+    },
+    {
+      "id": "delegation-chain-revocation-requires-policy",
+      "expression": "status != 'revoked' || revocation_policy != null",
+      "severity": "error",
+      "message": "Revoked chain must declare a revocation_policy",
+      "fields": ["status", "revocation_policy"]
     }
   ]
 }

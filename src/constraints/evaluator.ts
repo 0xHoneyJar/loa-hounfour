@@ -43,16 +43,62 @@ function resolve(data: Record<string, unknown>, path: string): unknown {
 /**
  * Recursive descent parser and evaluator.
  */
+/**
+ * Handler signature for registered evaluator functions.
+ * Each handler is a thunk that parses its own arguments from the token stream.
+ */
+type FunctionHandler = () => unknown;
+
 class Parser {
   private tokens: Token[];
   private pos = 0;
   private data: Record<string, unknown>;
   private depth: number;
+  private readonly functions: ReadonlyMap<string, FunctionHandler>;
 
   constructor(tokens: Token[], data: Record<string, unknown>, depth = 0) {
     this.tokens = tokens;
     this.data = data;
     this.depth = depth;
+
+    // Function registry — maps function names to parse handlers.
+    // Each handler consumes the function name token and its arguments
+    // from the token stream. Add new builtins here instead of extending
+    // the if-chain in parsePrimary.
+    this.functions = new Map<string, FunctionHandler>([
+      // BigInt aggregation
+      ['bigint_sum', () => this.parseBigintSum()],
+
+      // BigInt comparisons
+      ['bigint_gte', () => this.parseBigintCmp('>=')],
+      ['bigint_gt', () => this.parseBigintCmp('>')],
+      ['bigint_eq', () => this.parseBigintCmp('==')],
+
+      // BigInt arithmetic
+      ['bigint_sub', () => this.parseBigintArith('-')],
+      ['bigint_add', () => this.parseBigintArith('+')],
+
+      // Delegation chain functions
+      ['all_links_subset_authority', () => this.parseLinksSubsetAuthority()],
+      ['delegation_budget_conserved', () => this.parseDelegationBudgetConserved()],
+      ['links_temporally_ordered', () => this.parseLinksTemporallyOrdered()],
+      ['links_form_chain', () => this.parseLinksFormChain()],
+
+      // Ensemble capability functions
+      ['no_emergent_in_individual', () => this.parseNoEmergentInIndividual()],
+      ['all_emergent_have_evidence', () => this.parseAllEmergentHaveEvidence()],
+
+      // General comparison
+      ['eq', () => this.parseEq()],
+
+      // Object inspection
+      ['object_keys_subset', () => this.parseObjectKeysSubset()],
+
+      // Temporal operators (v2.0)
+      ['changed', () => this.parseChanged()],
+      ['previous', () => this.parsePrevious()],
+      ['delta', () => this.parseDelta()],
+    ]);
   }
 
   private peek(): Token | undefined {
@@ -281,84 +327,13 @@ class Parser {
       return false;
     }
 
-    // bigint_sum function
-    if (tok.type === 'ident' && tok.value === 'bigint_sum') {
-      return this.parseBigintSum();
-    }
-
-    // bigint_gte(a, b) — BigInt greater-than-or-equal
-    if (tok.type === 'ident' && tok.value === 'bigint_gte') {
-      return this.parseBigintCmp('>=');
-    }
-
-    // bigint_gt(a, b) — BigInt greater-than
-    if (tok.type === 'ident' && tok.value === 'bigint_gt') {
-      return this.parseBigintCmp('>');
-    }
-
-    // bigint_eq(a, b) — BigInt equality
-    if (tok.type === 'ident' && tok.value === 'bigint_eq') {
-      return this.parseBigintCmp('==');
-    }
-
-    // bigint_sub(a, b) — BigInt subtraction
-    if (tok.type === 'ident' && tok.value === 'bigint_sub') {
-      return this.parseBigintArith('-');
-    }
-
-    // bigint_add(a, b) — BigInt addition
-    if (tok.type === 'ident' && tok.value === 'bigint_add') {
-      return this.parseBigintArith('+');
-    }
-
-    // all_links_subset_authority(links) — delegation chain authority conservation
-    if (tok.type === 'ident' && tok.value === 'all_links_subset_authority') {
-      return this.parseLinksSubsetAuthority();
-    }
-
-    // delegation_budget_conserved(links) — delegation chain budget conservation
-    if (tok.type === 'ident' && tok.value === 'delegation_budget_conserved') {
-      return this.parseDelegationBudgetConserved();
-    }
-
-    // links_temporally_ordered(links) — delegation chain temporal ordering
-    if (tok.type === 'ident' && tok.value === 'links_temporally_ordered') {
-      return this.parseLinksTemporallyOrdered();
-    }
-
-    // links_form_chain(links) — delegation chain link continuity
-    if (tok.type === 'ident' && tok.value === 'links_form_chain') {
-      return this.parseLinksFormChain();
-    }
-
-    // no_emergent_in_individual(emergent, individual) — ensemble emergent capability check
-    if (tok.type === 'ident' && tok.value === 'no_emergent_in_individual') {
-      return this.parseNoEmergentInIndividual();
-    }
-
-    // all_emergent_have_evidence(emergent, evidence) — ensemble evidence check
-    if (tok.type === 'ident' && tok.value === 'all_emergent_have_evidence') {
-      return this.parseAllEmergentHaveEvidence();
-    }
-
-    // object_keys_subset(record, array) — check all keys of record are in array
-    if (tok.type === 'ident' && tok.value === 'object_keys_subset') {
-      return this.parseObjectKeysSubset();
-    }
-
-    // Temporal operators (v2.0): changed(), previous(), delta()
-    if (tok.type === 'ident' && tok.value === 'changed') {
-      return this.parseChanged();
-    }
-    if (tok.type === 'ident' && tok.value === 'previous') {
-      return this.parsePrevious();
-    }
-    if (tok.type === 'ident' && tok.value === 'delta') {
-      return this.parseDelta();
-    }
-
-    // Identifier (field path) with possible dot-access, .length, .every()
+    // Registered function call — lookup in the function registry
     if (tok.type === 'ident') {
+      const handler = this.functions.get(tok.value);
+      if (handler) {
+        return handler();
+      }
+      // Not a registered function — treat as field path with possible dot-access, .length, .every()
       return this.parseFieldPath();
     }
 
@@ -637,6 +612,20 @@ class Parser {
   }
 
   /**
+   * Parse eq(a, b) — strict equality comparison.
+   * Used by AuditTrailEntry constraints for distinct-ID checks.
+   */
+  private parseEq(): boolean {
+    this.advance(); // consume 'eq'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+    return left === right;
+  }
+
+  /**
    * Parse bigint_sub(a, b) or bigint_add(a, b).
    * Converts both operands to BigInt and performs the arithmetic.
    * Returns the result as a string (for further bigint_eq comparison).
@@ -834,6 +823,42 @@ class Parser {
     return true;
   }
 }
+
+/**
+ * Canonical list of registered evaluator builtin functions.
+ *
+ * This is derived from the Parser constructor's function registry.
+ * Useful for introspection, documentation, and conformance testing.
+ */
+export const EVALUATOR_BUILTINS = [
+  // BigInt aggregation
+  'bigint_sum',
+  // BigInt comparisons
+  'bigint_gte',
+  'bigint_gt',
+  'bigint_eq',
+  // BigInt arithmetic
+  'bigint_sub',
+  'bigint_add',
+  // General comparison
+  'eq',
+  // Delegation chain
+  'all_links_subset_authority',
+  'delegation_budget_conserved',
+  'links_temporally_ordered',
+  'links_form_chain',
+  // Ensemble capability
+  'no_emergent_in_individual',
+  'all_emergent_have_evidence',
+  // Object inspection
+  'object_keys_subset',
+  // Temporal operators
+  'changed',
+  'previous',
+  'delta',
+] as const;
+
+export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
 
 /**
  * Evaluate a constraint expression against a data object.

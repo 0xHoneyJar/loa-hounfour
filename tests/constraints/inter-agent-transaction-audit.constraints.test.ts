@@ -1,7 +1,7 @@
 /**
  * Tests for InterAgentTransactionAudit constraint file (S1-T6).
  *
- * Validates all 5 constraints against valid and invalid inputs.
+ * Validates all 7 constraints against valid and invalid inputs.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -47,8 +47,8 @@ describe('InterAgentTransactionAudit constraint file', () => {
     expect(constraintFile.contract_version).toBe('5.4.0');
   });
 
-  it('has 5 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(5);
+  it('has 7 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(7);
   });
 
   describe('sender-conservation', () => {
@@ -144,6 +144,70 @@ describe('InterAgentTransactionAudit constraint file', () => {
         sender: { ...validTransaction.sender, post_balance_micro: '1000000' },
       };
       expect(evaluateConstraint(unverifiable, c.expression)).toBe(true);
+    });
+  });
+
+  describe('violated-means-violated', () => {
+    const c = findConstraint('transaction-audit-violated-means-violated');
+
+    it('passes for violated transaction with genuinely non-conserving balances', () => {
+      const violated = {
+        ...validTransaction,
+        conservation_check: 'violated',
+        sender: { ...validTransaction.sender, post_balance_micro: '1000000' },
+      };
+      expect(evaluateConstraint(violated, c.expression)).toBe(true);
+    });
+
+    it('fails for violated flag when balances actually conserve', () => {
+      const falseViolation = {
+        ...validTransaction,
+        conservation_check: 'violated',
+      };
+      expect(evaluateConstraint(falseViolation, c.expression)).toBe(false);
+    });
+
+    it('passes for conserved transaction (constraint is vacuously true)', () => {
+      expect(evaluateConstraint(validTransaction, c.expression)).toBe(true);
+    });
+
+    it('passes for unverifiable transaction (constraint is vacuously true)', () => {
+      const unverifiable = { ...validTransaction, conservation_check: 'unverifiable' };
+      expect(evaluateConstraint(unverifiable, c.expression)).toBe(true);
+    });
+  });
+
+  describe('unverifiable-advisory', () => {
+    const c = findConstraint('transaction-audit-unverifiable-advisory');
+
+    it('passes for unverifiable transaction with non-conserving balances', () => {
+      const unverifiable = {
+        ...validTransaction,
+        conservation_check: 'unverifiable',
+        sender: { ...validTransaction.sender, post_balance_micro: '1000000' },
+      };
+      expect(evaluateConstraint(unverifiable, c.expression)).toBe(true);
+    });
+
+    it('warns (returns false) for unverifiable when balances actually conserve', () => {
+      const advisory = {
+        ...validTransaction,
+        conservation_check: 'unverifiable',
+      };
+      expect(evaluateConstraint(advisory, c.expression)).toBe(false);
+    });
+
+    it('passes for conserved transaction (constraint is vacuously true)', () => {
+      expect(evaluateConstraint(validTransaction, c.expression)).toBe(true);
+    });
+
+    it('passes for violated transaction (constraint is vacuously true)', () => {
+      const violated = {
+        ...validTransaction,
+        conservation_check: 'violated',
+        sender: { ...validTransaction.sender, post_balance_micro: '1000000' },
+      };
+      expect(evaluateConstraint(violated, c.expression)).toBe(true);
     });
   });
 });

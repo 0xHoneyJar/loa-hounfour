@@ -6,6 +6,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
+import '../../src/validators/index.js'; // Register format validators (needed for uri format)
 import {
   GovernanceConfigSchema,
   DEFAULT_GOVERNANCE_CONFIG,
@@ -58,12 +59,58 @@ describe('GovernanceConfig sandbox extension (v5.4.0)', () => {
     expect(Value.Check(GovernanceConfigSchema, config)).toBe(true);
   });
 
-  it('accepts config with mission_alignment', () => {
+  it('accepts config with mission_alignment (structured)', () => {
     const config = {
       ...DEFAULT_GOVERNANCE_CONFIG,
-      mission_alignment: 'Accelerate safe agent collaboration research.',
+      mission_alignment: {
+        statement: 'Accelerate safe agent collaboration research.',
+        category: 'research',
+      },
     };
     expect(Value.Check(GovernanceConfigSchema, config)).toBe(true);
+  });
+
+  it('accepts mission_alignment with statement only', () => {
+    const config = {
+      ...DEFAULT_GOVERNANCE_CONFIG,
+      mission_alignment: {
+        statement: 'Open infrastructure for agent economies.',
+      },
+    };
+    expect(Value.Check(GovernanceConfigSchema, config)).toBe(true);
+  });
+
+  it('accepts mission_alignment with all fields', () => {
+    const config = {
+      ...DEFAULT_GOVERNANCE_CONFIG,
+      mission_alignment: {
+        statement: 'Public good AI infrastructure.',
+        category: 'public_good',
+        url: 'https://example.com/mission',
+      },
+    };
+    expect(Value.Check(GovernanceConfigSchema, config)).toBe(true);
+  });
+
+  it('rejects mission_alignment with empty statement', () => {
+    const config = {
+      ...DEFAULT_GOVERNANCE_CONFIG,
+      mission_alignment: {
+        statement: '',
+      },
+    };
+    expect(Value.Check(GovernanceConfigSchema, config)).toBe(false);
+  });
+
+  it('rejects mission_alignment with invalid category', () => {
+    const config = {
+      ...DEFAULT_GOVERNANCE_CONFIG,
+      mission_alignment: {
+        statement: 'Some mission.',
+        category: 'profit',
+      },
+    };
+    expect(Value.Check(GovernanceConfigSchema, config)).toBe(false);
   });
 
   it('accepts config with all three new fields', () => {
@@ -71,7 +118,10 @@ describe('GovernanceConfig sandbox extension (v5.4.0)', () => {
       ...DEFAULT_GOVERNANCE_CONFIG,
       sandbox_permeability: 'impermeable',
       sandbox_permeability_rationale: 'Sealed economy for safety testing.',
-      mission_alignment: 'Distributional AGI safety research.',
+      mission_alignment: {
+        statement: 'Distributional AGI safety research.',
+        category: 'research',
+      },
     };
     expect(Value.Check(GovernanceConfigSchema, config)).toBe(true);
   });

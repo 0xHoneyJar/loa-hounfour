@@ -38,6 +38,20 @@
       "severity": "error",
       "message": "conservation_check is 'conserved' but balances don't conserve",
       "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+    },
+    {
+      "id": "transaction-audit-violated-means-violated",
+      "expression": "conservation_check != 'violated' || !(bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
+      "severity": "error",
+      "message": "conservation_check is 'violated' but balances actually conserve — use 'conserved' instead",
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+    },
+    {
+      "id": "transaction-audit-unverifiable-advisory",
+      "expression": "conservation_check != 'unverifiable' || !(bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
+      "severity": "warning",
+      "message": "Transaction passes conservation checks but is marked unverifiable — consider upgrading to 'conserved'",
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
     }
   ]
 }

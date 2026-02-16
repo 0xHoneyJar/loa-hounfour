@@ -74,8 +74,10 @@ export { isReliableReputation } from '../utilities/reputation.js';
 // Schemas — Governance Config (v5.3.0)
 export {
   GovernanceConfigSchema,
+  MissionAlignmentSchema,
   DEFAULT_GOVERNANCE_CONFIG,
   type GovernanceConfig,
+  type MissionAlignment,
 } from '../schemas/governance-config.js';
 
 // Utilities — Governance Resolution (v5.3.0)

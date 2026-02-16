@@ -49,7 +49,11 @@ export const EnsembleCapabilityProfileSchema = Type.Object(
   {
     profile_id: Type.String({ format: 'uuid' }),
     ensemble_strategy: EnsembleStrategySchema,
-    models: Type.Array(Type.String({ minLength: 1 }), {
+    models: Type.Array(Type.String({
+      minLength: 1,
+      pattern: '^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)?$',
+      description: 'Model identifier (lowercase alphanumeric with hyphens/dots, optional namespace)',
+    }), {
       minItems: 2,
       description: 'Model identifiers in the ensemble',
     }),
