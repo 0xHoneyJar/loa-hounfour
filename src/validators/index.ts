@@ -63,6 +63,8 @@ import { AgentRequirementsSchema } from '../schemas/model/routing/agent-requirem
 import { BudgetScopeSchema } from '../schemas/model/routing/budget-scope.js';
 import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolution.js';
 import { ConstraintProposalSchema } from '../schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema, type ModelProviderSpec } from '../schemas/model/model-provider-spec.js';
+import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -608,6 +610,68 @@ registerCrossFieldValidator('ConstraintProposal', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// --- v5.1.0 — Protocol Constitution cross-field validators ---
+
+registerCrossFieldValidator('ModelProviderSpec', (data) => {
+  const d = data as ModelProviderSpec;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // certified-requires-vectors: protocol_certified requires all vector results passing
+  if (d.conformance_level === 'protocol_certified') {
+    if (!d.conformance_vector_results?.length) {
+      errors.push('protocol_certified requires conformance_vector_results');
+    } else if (d.conformance_vector_results.some((r) => !r.passed)) {
+      errors.push('protocol_certified requires all vectors to pass');
+    }
+  }
+
+  // community_verified should have vector results (warning)
+  if (d.conformance_level === 'community_verified' && !d.conformance_vector_results?.length) {
+    warnings.push('community_verified should include conformance_vector_results');
+  }
+
+  // active-model-required: at least one active model
+  if (!d.models.some((m) => m.status === 'active')) {
+    errors.push('models must include at least one active entry');
+  }
+
+  // metadata-size: 10KB limit
+  if (d.metadata) {
+    const size = JSON.stringify(d.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
+  }
+
+  // metadata-namespace: x-* prefix enforcement (warning)
+  if (d.metadata) {
+    for (const key of Object.keys(d.metadata)) {
+      if (!key.startsWith('x-')) {
+        warnings.push(`metadata key '${key}' should use x-* namespace`);
+      }
+    }
+  }
+
+  // expires-after-published: temporal ordering
+  if (d.expires_at && d.published_at) {
+    if (new Date(d.expires_at) <= new Date(d.published_at)) {
+      errors.push('expires_at must be after published_at');
+    }
+  }
+
+  // HTTPS endpoints: all endpoint URLs must use https://
+  if (d.endpoints) {
+    for (const [key, url] of Object.entries(d.endpoints)) {
+      if (url && !url.startsWith('https://')) {
+        errors.push(`endpoints.${key} must use https:// scheme`);
+      }
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -744,4 +808,8 @@ export const validators = {
 
   // v5.0.0 — Constraint Evolution
   constraintProposal: () => getOrCompile(ConstraintProposalSchema),
+
+  // v5.1.0 — Protocol Constitution
+  modelProviderSpec: () => getOrCompile(ModelProviderSpecSchema),
+  conformanceLevel: () => getOrCompile(ConformanceLevelSchema),
 } as const;

@@ -45,6 +45,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'ConstraintProposal',
     // SagaContext
     'SagaContext',
+    // v5.1.0 — Protocol Constitution
+    'ModelProviderSpec',
   ];
 
   it('returns an array of strings', () => {

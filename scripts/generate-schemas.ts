@@ -51,6 +51,9 @@ import { BudgetScopeSchema } from '../src/schemas/model/routing/budget-scope.js'
 import { RoutingResolutionSchema } from '../src/schemas/model/routing/routing-resolution.js';
 // v5.0.0 — Constraint Evolution
 import { ConstraintProposalSchema } from '../src/schemas/model/constraint-proposal.js';
+// v5.1.0 — Protocol Constitution
+import { ModelProviderSpecSchema } from '../src/schemas/model/model-provider-spec.js';
+import { ConformanceLevelSchema } from '../src/schemas/model/conformance-level.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -119,6 +122,9 @@ const schemas = [
   { name: 'routing-resolution', schema: RoutingResolutionSchema },
   // v5.0.0 — Constraint Evolution
   { name: 'constraint-proposal', schema: ConstraintProposalSchema },
+  // v5.1.0 — Protocol Constitution
+  { name: 'model-provider-spec', schema: ModelProviderSpecSchema },
+  { name: 'conformance-level', schema: ConformanceLevelSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -55,7 +55,12 @@ export {
 // Schemas — Routing (v5.0.0)
 export { ExecutionModeSchema } from '../schemas/model/routing/execution-mode.js';
 
-export { ProviderTypeSchema } from '../schemas/model/routing/provider-type.js';
+export {
+  ProviderTypeSchema,
+  type ProviderType,
+  KNOWN_PROVIDER_TYPES,
+  isKnownProviderType,
+} from '../schemas/model/routing/provider-type.js';
 
 export {
   AgentRequirementsSchema,
@@ -77,6 +82,36 @@ export {
   ConstraintProposalSchema,
   type ConstraintProposal,
 } from '../schemas/model/constraint-proposal.js';
+
+// v5.1.0 — Protocol Constitution
+export {
+  ModelProviderSpecSchema,
+  ModelPricingSchema,
+  ModelEntrySchema,
+  ModelStatusSchema,
+  ProviderEndpointsSchema,
+  ProviderSLASchema,
+  ConformanceVectorResultSchema,
+  type ModelProviderSpec,
+  type ModelPricing,
+  type ModelEntry,
+  type ModelStatus,
+  type ProviderEndpoints,
+  type ProviderSLA,
+  type ConformanceVectorResult,
+} from '../schemas/model/model-provider-spec.js';
+
+export {
+  ConformanceLevelSchema,
+  CONFORMANCE_LEVEL_ORDER,
+  type ConformanceLevel,
+} from '../schemas/model/conformance-level.js';
+
+// Vocabulary — Provider Display Names (v5.1.0)
+export {
+  PROVIDER_DISPLAY_NAMES,
+  getProviderDisplayName,
+} from '../vocabulary/provider-display-names.js';
 
 // Vocabulary — Metadata Namespaces
 export {
