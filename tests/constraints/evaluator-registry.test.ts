@@ -77,6 +77,32 @@ describe('Evaluator function registry', () => {
     }
   });
 
+  it('EVALUATOR_BUILTINS matches the Map entries in the Parser constructor (drift guard)', () => {
+    // Read the evaluator source and extract function names from the Map constructor.
+    // This guards against someone adding a function to the Map but forgetting to
+    // update EVALUATOR_BUILTINS (or vice versa).
+    const evaluatorSrc = readFileSync(
+      join(__dirname, '..', '..', 'src', 'constraints', 'evaluator.ts'),
+      'utf-8',
+    );
+    // Extract: ['name', ...] entries from the new Map<string, FunctionHandler>([...])
+    const mapEntries = [...evaluatorSrc.matchAll(/\['([a-z_][a-z0-9_]*)',\s*\(\)/g)]
+      .map(m => m[1]);
+    const builtinsSet = new Set<string>(EVALUATOR_BUILTINS);
+    const mapSet = new Set(mapEntries);
+
+    // Every Map entry should be in EVALUATOR_BUILTINS
+    for (const fn of mapSet) {
+      expect(builtinsSet.has(fn), `Map has "${fn}" but EVALUATOR_BUILTINS does not`).toBe(true);
+    }
+    // Every EVALUATOR_BUILTINS entry should be in the Map
+    for (const fn of builtinsSet) {
+      expect(mapSet.has(fn), `EVALUATOR_BUILTINS has "${fn}" but the Map does not`).toBe(true);
+    }
+    // Same count
+    expect(mapSet.size).toBe(builtinsSet.size);
+  });
+
   it('EVALUATOR_BUILTINS has no duplicates', () => {
     const seen = new Set<string>();
     for (const fn of EVALUATOR_BUILTINS) {
