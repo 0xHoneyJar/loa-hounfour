@@ -221,14 +221,14 @@ describe('shouldAllowRequest', () => {
       expect(result.floor_breached).toBe(false);
     });
 
-    it('strict enforcement blocks on shortfall', () => {
-      const result = shouldAllowRequest('400', '500', '300', 'strict');
-      expect(result.enforcement_action).toBe('block');
-    });
+    it('no enforcement_action on shortfall above floor (low-v53-004)', () => {
+      // Case 3: above floor but insufficient — floor is not breached,
+      // so enforcement_action should not be present
+      const strict = shouldAllowRequest('400', '500', '300', 'strict');
+      expect(strict.enforcement_action).toBeUndefined();
 
-    it('advisory enforcement warns on shortfall', () => {
-      const result = shouldAllowRequest('400', '500', '300', 'advisory');
-      expect(result.enforcement_action).toBe('warn');
+      const advisory = shouldAllowRequest('400', '500', '300', 'advisory');
+      expect(advisory.enforcement_action).toBeUndefined();
     });
   });
 

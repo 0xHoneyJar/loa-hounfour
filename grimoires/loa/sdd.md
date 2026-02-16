@@ -1,1290 +1,1127 @@
-# SDD: loa-hounfour v5.0.0 — The Multi-Model Release
+# SDD: loa-hounfour v5.3.0 — The Epistemic Protocol
 
 **Status:** Draft
 **Author:** Agent (Simstim Phase 3: Architecture)
-**Date:** 2026-02-15
+**Date:** 2026-02-17
 **PRD:** [grimoires/loa/prd.md](grimoires/loa/prd.md)
-**Cycle:** cycle-010
+**Cycle:** cycle-012
 **Sources:**
-- PRD v5.0.0 — The Multi-Model Release
-- Existing codebase: 60+ TypeScript source files, ~12,000 lines, 1,097 tests
-- Previous SDD: v4.6.0 (cycle-009)
-- loa-finn RFC #31 (Hounfour Multi-Model Provider Abstraction)
-- loa-finn RFC #66 (Launch Readiness)
-- arrakis PR #63 (Revenue Rules)
-- Bridgebuilder findings across 9 cycles, 13+ iterations
+- PRD v5.3.0 — The Epistemic Protocol (with Flatline integrations: FL-PRD-001–008)
+- Existing codebase: 100 source files, 59 schemas, 23 constraint files, 63 vectors, 2,159 tests
+- Previous SDD: v5.2.0 (cycle-011)
+- PR #10 Bridgebuilder Reviews I-III (4 unresolved + 2 actionable PRAISE + 3 SPECULATION)
+- Issue #9 — Enshrined Agent-Owned Inference Capacity
 
 ---
 
 ## 1. Executive Summary
 
-This SDD defines the architecture for extending `@0xhoneyjar/loa-hounfour` from v4.6.0 (Level 4: Formalization) to v5.0.0 (Level 4+: Multi-Model Formalization). The package remains a zero-runtime-dependency TypeScript library (runtime: `@sinclair/typebox`, `@noble/hashes`, `jose`).
+This SDD defines the architecture for extending `@0xhoneyjar/loa-hounfour` from v5.2.0 (The Rights of the Governed) to v5.3.0 (The Epistemic Protocol). The package remains a zero-runtime-dependency TypeScript library (runtime: `@sinclair/typebox`, `@noble/hashes`, `jose`, `canonicalize`).
 
-**Architecture philosophy:** Extend, decompose, formalize. The monolithic barrel (`src/index.ts`, 486 lines) is factored into domain-aligned sub-packages. New ModelPort schemas define the adapter boundary contract. The constraint language gains a formal grammar. Cross-ecosystem vectors are published for consumer validation.
+**Architecture philosophy:** Name what is implicit. Fix what is broken. Govern what was decreed.
+
+The v5.2.0 review cycle revealed that the codebase had independently discovered three-valued logic across multiple subsystems without naming the pattern. v5.3.0 makes this explicit, fixes a correctness gap in reservation enforcement, and introduces the first governance-configurable parameters.
 
 **Key architectural decisions:**
 
-1. **Barrel decomposition via sub-package index files** — `src/core/index.ts`, `src/economy/index.ts`, `src/model/index.ts`, `src/governance/index.ts`, `src/constraints/index.ts` — with root barrel re-exporting everything for backward compatibility
-2. **ModelPort schemas as a new `model` domain** — completion, ensemble, routing, and budget contracts live in `src/schemas/model/`
-3. **Constraint grammar formalized as PEG** — `constraints/GRAMMAR.md` specifies the expression language, expression versioning via `expression_version` field, fuzz tests via fast-check
-4. **Cross-ecosystem vectors in `vectors/cross-ecosystem/`** — JSON fixtures with schema-version-tagged validity, consumed by loa-finn, arrakis, mibera-freeside
-5. **Metadata namespace enforcement** — `billing.*` namespace added, `isValidMetadataKey()` extended, vocabulary becomes exhaustive
+1. **Post-transaction floor check** — `shouldAllowRequest` Case 1 now checks `available - cost >= reserved` before allowing. Correctness fix for HIGH-V52-001.
+2. **Advisory = allow-with-warning** — Advisory enforcement mode semantically distinct from strict: advisory ALLOWS through floor breaches with warnings, strict BLOCKS. Decision: FL-PRD-001.
+3. **Epistemic Tristate as pattern-doc, not generic type** — Instances (ConservationStatus, SignatureVerificationResult) differ too much in shape for a useful generic. Value is in naming and cataloguing. Decision: FL-PRD-006.
+4. **GovernanceConfig as optional overlay** — New schema that can override `RESERVATION_TIER_MAP` defaults. Both `resolveReservationTier()` and `validateReservationTier()` accept optional config.
+5. **Marketplace dimensions deferred** — FR-9 from PRD moved to Out of Scope (v5.4.0). No consumer exists yet (loa-finn #31 still RFC). Decision: FL-PRD-007.
+6. **`ROUNDING_BIAS = 'rights_holder'`** — Documentation-as-code constant encoding the protocol's ceiling-division policy.
 
 ---
 
 ## 2. Module Architecture
 
-### 2.1 Current Structure (v4.6.0)
+### 2.1 Current Structure (v5.2.0)
 
 ```
 src/
-├── schemas/             # 29 TypeBox schema files
-├── validators/          # Cross-field registry + validate() + compatibility
-├── vocabulary/          # 18 domain vocabulary modules
-├── utilities/           # 4 helper modules (nft-id, lifecycle, billing, reputation)
-├── integrity/           # 2 modules (req-hash, idempotency)
-├── constraints/         # 2 modules (evaluator.ts, types.ts)
-├── test-infrastructure/ # ProtocolStateTracker
-├── version.ts           # CONTRACT_VERSION = '4.6.0'
-└── index.ts             # 486-line monolithic barrel
+├── schemas/           # 46 schema files (model/, routing/, ensemble/)
+├── utilities/         # 8 files: billing, conformance-matcher, lifecycle, nft-id, pricing, reputation, reservation, signature
+├── vocabulary/        # 28 modules: currency, conformance-category, conservation-status, reservation-*, ...
+├── validators/        # 3 files: index.ts (registry), billing.ts, compatibility.ts
+├── constraints/       # index.ts, types.ts, evaluator.ts, detailed-evaluator.ts, grammar.ts, tokenizer.ts
+├── integrity/         # req-hash, idempotency
+├── core/              # Barrel: 209 exports
+├── economy/           # Barrel: 186 exports
+├── governance/        # Barrel: 73 exports
+├── model/             # Barrel: 206 exports
+├── version.ts         # CONTRACT_VERSION = '5.2.0'
+└── index.ts           # Root barrel: 25 exports
 ```
 
-### 2.2 Target Structure (v5.0.0)
+### 2.2 v5.3.0 Changes (Additions + Modifications)
 
-```
-src/
-├── core/
-│   └── index.ts              # Sub-package barrel: agent, conversation, event, transfer, health
-├── economy/
-│   └── index.ts              # Sub-package barrel: billing, escrow, stake, credit, dividend, currency
-├── model/
-│   └── index.ts              # Sub-package barrel: completion, ensemble, routing, budget, stream
-├── governance/
-│   └── index.ts              # Sub-package barrel: reputation, sanction, dispute, escalation
-├── constraints/
-│   ├── index.ts              # Sub-package barrel: evaluator, types, grammar utils
-│   ├── evaluator.ts          # Extended with error positions, expression versioning
-│   ├── types.ts              # Extended with expression_version field
-│   └── grammar.ts            # NEW: PEG grammar definition + validation
-├── schemas/
-│   ├── model/                # NEW: ModelPort adapter boundary schemas
-│   │   ├── completion-request.ts
-│   │   ├── completion-result.ts
-│   │   ├── model-capabilities.ts
-│   │   ├── provider-wire-message.ts
-│   │   ├── tool-definition.ts
-│   │   └── tool-result.ts
-│   ├── model/ensemble/       # NEW: Ensemble orchestration schemas
-│   │   ├── ensemble-strategy.ts
-│   │   ├── ensemble-request.ts
-│   │   └── ensemble-result.ts
-│   ├── model/routing/        # NEW: Routing & budget schemas
-│   │   ├── execution-mode.ts
-│   │   ├── provider-type.ts
-│   │   ├── agent-requirements.ts
-│   │   ├── budget-scope.ts
-│   │   └── routing-resolution.ts
-│   └── [existing schemas unchanged]
-├── validators/
-│   └── index.ts              # Extended with new schema validators
-├── vocabulary/
-│   ├── metadata.ts           # Extended with billing.* namespace enforcement
-│   └── [existing vocabulary unchanged]
-├── utilities/                # Unchanged
-├── integrity/                # Unchanged
-├── test-infrastructure/      # Unchanged
-├── version.ts                # CONTRACT_VERSION = '5.0.0'
-└── index.ts                  # Root barrel: re-exports all sub-packages
+```diff
+ src/
+ ├── schemas/
++│   ├── governance-config.ts                     # NEW: FR-6 — GovernanceConfig schema
+ │   └── discovery.ts                             # MODIFIED: FR-8 — @example JSDoc blocks
+ ├── utilities/
+ │   ├── reservation.ts                           # MODIFIED: FR-1/FR-2 — post-tx floor check + advisory warnings
++│   ├── governance.ts                            # NEW: FR-6 — resolveReservationTier()
+ │   └── pricing.ts                               # (unchanged — JSDoc additions only)
+ ├── vocabulary/
+ │   ├── conservation-status.ts                   # MODIFIED: FR-4 — JSDoc pattern reference
+ │   └── reservation-tier.ts                      # MODIFIED: FR-5 — ROUNDING_BIAS constant
++├── docs/patterns/
++│   └── epistemic-tristate.md                    # NEW: FR-4 — Pattern documentation
++├── constraints/
++│   ├── EpistemicTristate.constraints.json        # NEW: FR-4 — Tristate invariant
++│   ├── ReservationArithmetic.constraints.json    # NEW: FR-5 — Rounding bias invariant
++│   └── GovernanceConfig.constraints.json         # NEW: FR-6 — Governance bounds
+ ├── version.ts                                   # MODIFIED: CONTRACT_VERSION = '5.3.0'
+ └── index.ts                                     # MODIFIED: new exports
 ```
 
-### 2.3 New Files Summary
+### 2.3 New File Summary
 
-| Category | Files | Purpose |
-|----------|-------|---------|
-| ModelPort schemas | 6 | `completion-request.ts`, `completion-result.ts`, `model-capabilities.ts`, `provider-wire-message.ts`, `tool-definition.ts`, `tool-result.ts` |
-| Ensemble schemas | 3 | `ensemble-strategy.ts`, `ensemble-request.ts`, `ensemble-result.ts` |
-| Routing schemas | 5 | `execution-mode.ts`, `provider-type.ts`, `agent-requirements.ts`, `budget-scope.ts`, `routing-resolution.ts` |
-| Sub-package barrels | 5 | `core/index.ts`, `economy/index.ts`, `model/index.ts`, `governance/index.ts`, `constraints/index.ts` |
-| Grammar | 2 | `constraints/grammar.ts`, `constraints/GRAMMAR.md` |
-| Cross-ecosystem vectors | 3+ | `vectors/cross-ecosystem/*.json` |
-| Constraint files | 5+ | New constraint files for ModelPort schemas |
+| File | FR | Lines (est.) | Purpose |
+|------|-----|-------------|---------|
+| `schemas/governance-config.ts` | FR-6 | ~70 | GovernanceConfig schema |
+| `utilities/governance.ts` | FR-6 | ~60 | resolveReservationTier, resolveAdvisoryThreshold |
+| `docs/patterns/epistemic-tristate.md` | FR-4 | ~120 | Pattern documentation with parallels |
+| `constraints/EpistemicTristate.constraints.json` | FR-4 | ~25 | Tristate distinguishability invariant |
+| `constraints/ReservationArithmetic.constraints.json` | FR-5 | ~20 | Rounding bias invariant |
+| `constraints/GovernanceConfig.constraints.json` | FR-6 | ~30 | Governance parameter bounds |
+
+### 2.4 Modified File Summary
+
+| File | FR | Changes |
+|------|-----|---------|
+| `utilities/reservation.ts` | FR-1, FR-2 | Post-tx floor check, advisory warnings, new fields on ReservationDecision |
+| `vocabulary/conservation-status.ts` | FR-4 | JSDoc referencing Epistemic Tristate pattern |
+| `utilities/signature.ts` | FR-4 | JSDoc referencing Epistemic Tristate pattern |
+| `vocabulary/reservation-tier.ts` | FR-5, FR-6 | ROUNDING_BIAS constant, JSDoc on ceil-division policy |
+| `schemas/discovery.ts` | FR-8 | @example JSDoc blocks on buildDiscoveryDocument |
+| `constraints/index.ts` | FR-7 | JSDoc header referencing Ostrom principles |
+| `version.ts` | FR-9 | CONTRACT_VERSION = '5.3.0' |
 
 ---
 
 ## 3. Component Design
 
-### 3.1 FR-1: ModelPort Adapter Boundary Contracts
+### 3.1 FR-1: Post-Transaction Floor Enforcement (HIGH-V52-001)
 
-These schemas define the canonical wire format for the five-layer provider abstraction (Agent → Routing → Adapter → Infrastructure → Distribution). They are the contracts that `cheval.py` (loa-finn) normalizes to and that arrakis constructs billing from.
+**File:** `src/utilities/reservation.ts`
+**Impact:** Modify `shouldAllowRequest()` algorithm — Case 1 gains a post-transaction floor check.
 
-#### 3.1.1 CompletionRequest
-
-**File:** `src/schemas/model/completion-request.ts`
-
-```typescript
-import { Type, type Static } from '@sinclair/typebox';
-import { ProviderWireMessageSchema } from './provider-wire-message.js';
-import { ToolDefinitionSchema } from './tool-definition.js';
-import { MicroUSDUnsigned } from '../../vocabulary/currency.js';
-
-export const CompletionRequestSchema = Type.Object(
-  {
-    // Identity & routing
-    request_id: Type.String({ format: 'uuid' }),
-    agent_id: Type.String({ minLength: 1 }),
-    tenant_id: Type.String({ minLength: 1 }),
-    nft_id: Type.Optional(Type.String({ minLength: 1 })),
-    trace_id: Type.Optional(Type.String({ minLength: 1 })),
-
-    // Model selection
-    model: Type.String({ minLength: 1 }),
-    provider: Type.Optional(Type.String({ minLength: 1 })),
-    execution_mode: Type.Optional(Type.Union([
-      Type.Literal('native_runtime'),
-      Type.Literal('remote_model'),
-    ])),
-
-    // Messages (wire format, not persisted)
-    messages: Type.Array(ProviderWireMessageSchema, { minItems: 1 }),
-
-    // Tool calling
-    tools: Type.Optional(Type.Array(ToolDefinitionSchema)),
-    tool_choice: Type.Optional(Type.Union([
-      Type.Literal('auto'),
-      Type.Literal('none'),
-      Type.Literal('required'),
-      Type.Object({
-        type: Type.Literal('function'),
-        function: Type.Object({ name: Type.String({ minLength: 1 }) }),
-      }),
-    ])),
-
-    // Model options
-    temperature: Type.Optional(Type.Number({ minimum: 0, maximum: 2 })),
-    max_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
-    top_p: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-    stop_sequences: Type.Optional(Type.Array(Type.String())),
-
-    // Thinking/reasoning
-    thinking: Type.Optional(Type.Object({
-      enabled: Type.Boolean(),
-      budget_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
-    })),
-
-    // Budget enforcement
-    budget_limit_micro: Type.Optional(MicroUSDUnsigned),
-
-    // Metadata
-    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'CompletionRequest',
-    description: 'Canonical wire-format request for model completion — the adapter port contract',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-
-export type CompletionRequest = Static<typeof CompletionRequestSchema>;
-```
-
-**Cross-field validations:**
-- `tools` present → `tool_choice` required
-- `execution_mode === 'native_runtime'` → `provider` must be set
-- `thinking.enabled === true` → model must support thinking (validated at runtime by consumer, documented as constraint)
-- `budget_limit_micro` present → must be > 0
-
-#### 3.1.2 CompletionResult
-
-**File:** `src/schemas/model/completion-result.ts`
+#### 3.1.1 Current Algorithm (v5.2.0 — Buggy)
 
 ```typescript
-export const CompletionResultSchema = Type.Object(
-  {
-    request_id: Type.String({ format: 'uuid' }),
-    model: Type.String({ minLength: 1 }),
-    provider: Type.String({ minLength: 1 }),
-
-    // Content
-    content: Type.Optional(Type.String()),
-    thinking: Type.Optional(Type.String()),
-    tool_calls: Type.Optional(Type.Array(Type.Object({
-      id: Type.String({ minLength: 1 }),
-      type: Type.Literal('function'),
-      function: Type.Object({
-        name: Type.String({ minLength: 1 }),
-        arguments: Type.String(),
-      }),
-    }))),
-
-    // Termination
-    finish_reason: Type.Union([
-      Type.Literal('stop'),
-      Type.Literal('tool_calls'),
-      Type.Literal('length'),
-      Type.Literal('content_filter'),
-    ]),
-
-    // Usage (for billing)
-    usage: Type.Object({
-      prompt_tokens: Type.Integer({ minimum: 0 }),
-      completion_tokens: Type.Integer({ minimum: 0 }),
-      reasoning_tokens: Type.Optional(Type.Integer({ minimum: 0 })),
-      total_tokens: Type.Integer({ minimum: 0 }),
-      cost_micro: MicroUSDUnsigned,
-    }),
-
-    // Timing
-    latency_ms: Type.Integer({ minimum: 0 }),
-
-    // Metadata
-    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'CompletionResult',
-    description: 'Canonical wire-format result from model completion — the adapter response contract',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-
-export type CompletionResult = Static<typeof CompletionResultSchema>;
-```
-
-**Cross-field validations:**
-- `finish_reason === 'tool_calls'` → `tool_calls` must be non-empty
-- `finish_reason === 'stop'` → `content` should be present (warning)
-- `usage.total_tokens === usage.prompt_tokens + usage.completion_tokens + (usage.reasoning_tokens ?? 0)`
-- `usage.cost_micro` must be >= 0 (guaranteed by MicroUSDUnsigned)
-
-#### 3.1.3 ModelCapabilities
-
-**File:** `src/schemas/model/model-capabilities.ts`
-
-```typescript
-export const ModelCapabilitiesSchema = Type.Object(
-  {
-    model_id: Type.String({ minLength: 1 }),
-    provider: Type.String({ minLength: 1 }),
-    capabilities: Type.Object({
-      thinking_traces: Type.Boolean(),
-      vision: Type.Boolean(),
-      tool_calling: Type.Boolean(),
-      streaming: Type.Boolean(),
-      json_mode: Type.Boolean(),
-      native_runtime: Type.Boolean(),
-    }),
-    limits: Type.Object({
-      max_context_tokens: Type.Integer({ minimum: 1 }),
-      max_output_tokens: Type.Integer({ minimum: 1 }),
-      max_thinking_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
-    }),
-    pricing: Type.Optional(Type.Object({
-      input_per_million_micro: MicroUSDUnsigned,
-      output_per_million_micro: MicroUSDUnsigned,
-      thinking_per_million_micro: Type.Optional(MicroUSDUnsigned),
-    })),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'ModelCapabilities',
-    description: 'Declared capabilities and limits for a model provider',
-    additionalProperties: false,
-  },
-);
-
-export type ModelCapabilities = Static<typeof ModelCapabilitiesSchema>;
-```
-
-#### 3.1.4 ProviderWireMessage
-
-**File:** `src/schemas/model/provider-wire-message.ts`
-
-Distinct from the persisted `Message` schema (conversation context). This is the lean wire format sent to model APIs.
-
-```typescript
-export const ProviderWireMessageSchema = Type.Object(
-  {
-    role: Type.Union([
-      Type.Literal('system'),
-      Type.Literal('user'),
-      Type.Literal('assistant'),
-      Type.Literal('tool'),
-    ]),
-    content: Type.Optional(Type.Union([
-      Type.String(),
-      Type.Array(Type.Object({
-        type: Type.String({ minLength: 1 }),
-        text: Type.Optional(Type.String()),
-        source: Type.Optional(Type.Unknown()),
-      })),
-    ])),
-    thinking: Type.Optional(Type.String()),
-    tool_calls: Type.Optional(Type.Array(Type.Object({
-      id: Type.String({ minLength: 1 }),
-      type: Type.Literal('function'),
-      function: Type.Object({
-        name: Type.String({ minLength: 1 }),
-        arguments: Type.String(),
-      }),
-    }))),
-    tool_call_id: Type.Optional(Type.String({ minLength: 1 })),
-  },
-  {
-    $id: 'ProviderWireMessage',
-    description: 'Lean wire-format message for model API calls — distinct from persisted Message',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-
-export type ProviderWireMessage = Static<typeof ProviderWireMessageSchema>;
-```
-
-**Cross-field validations:**
-- `role === 'tool'` → `tool_call_id` required
-- `role === 'assistant'` with `tool_calls` → `content` or `tool_calls` present (not both empty)
-
-#### 3.1.5 ToolDefinition + ToolResult
-
-**File:** `src/schemas/model/tool-definition.ts`
-
-```typescript
-export const ToolDefinitionSchema = Type.Object(
-  {
-    type: Type.Literal('function'),
-    function: Type.Object({
-      name: Type.String({ minLength: 1, pattern: '^[a-zA-Z_][a-zA-Z0-9_]*$' }),
-      description: Type.String(),
-      parameters: Type.Optional(Type.Unknown()), // JSON Schema object
-    }),
-  },
-  {
-    $id: 'ToolDefinition',
-    description: 'Canonical tool definition shape for model function calling',
-    additionalProperties: false,
-  },
-);
-```
-
-**File:** `src/schemas/model/tool-result.ts`
-
-```typescript
-export const ToolResultSchema = Type.Object(
-  {
-    role: Type.Literal('tool'),
-    tool_call_id: Type.String({ minLength: 1 }),
-    content: Type.String(),
-  },
-  {
-    $id: 'ToolResult',
-    description: 'Tool execution response for function calling',
-    additionalProperties: false,
-  },
-);
-```
-
-### 3.2 FR-2: Ensemble Orchestration Contracts
-
-#### 3.2.1 EnsembleStrategy
-
-**File:** `src/schemas/model/ensemble/ensemble-strategy.ts`
-
-```typescript
-export const ENSEMBLE_STRATEGIES = ['first_complete', 'best_of_n', 'consensus'] as const;
-
-export const EnsembleStrategySchema = Type.Union(
-  ENSEMBLE_STRATEGIES.map(s => Type.Literal(s)),
-  { $id: 'EnsembleStrategy', description: 'Multi-model dispatch strategy' },
-);
-
-export type EnsembleStrategy = Static<typeof EnsembleStrategySchema>;
-```
-
-#### 3.2.2 EnsembleRequest
-
-**File:** `src/schemas/model/ensemble/ensemble-request.ts`
-
-```typescript
-export const EnsembleRequestSchema = Type.Object(
-  {
-    ensemble_id: Type.String({ format: 'uuid' }),
-    strategy: EnsembleStrategySchema,
-    models: Type.Array(Type.String({ minLength: 1 }), { minItems: 2 }),
-    timeout_ms: Type.Integer({ minimum: 1000 }),
-    task_type: Type.Optional(Type.String({ minLength: 1 })),
-    request: CompletionRequestSchema,
-    consensus_threshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'EnsembleRequest',
-    description: 'Multi-model dispatch request with strategy and timeout',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-```
-
-**Cross-field validations:**
-- `strategy === 'consensus'` → `consensus_threshold` required
-- `strategy === 'best_of_n'` → `models.length >= 2` (enforced by minItems)
-- `timeout_ms` >= 1000 (enforced by minimum)
-
-#### 3.2.3 EnsembleResult
-
-**File:** `src/schemas/model/ensemble/ensemble-result.ts`
-
-```typescript
-export const EnsembleResultSchema = Type.Object(
-  {
-    ensemble_id: Type.String({ format: 'uuid' }),
-    strategy: EnsembleStrategySchema,
-    selected: CompletionResultSchema,
-    candidates: Type.Array(Type.Object({
-      model: Type.String({ minLength: 1 }),
-      result: Type.Optional(CompletionResultSchema),
-      error: Type.Optional(Type.String()),
-      latency_ms: Type.Integer({ minimum: 0 }),
-    })),
-    consensus_score: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-    total_cost_micro: MicroUSDUnsigned,
-    total_latency_ms: Type.Integer({ minimum: 0 }),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'EnsembleResult',
-    description: 'Result of multi-model ensemble dispatch with candidate details',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-```
-
-**Cross-field validations:**
-- `strategy === 'consensus'` → `consensus_score` required
-- `total_cost_micro >= selected.usage.cost_micro`
-- `candidates.length >= 1`
-
-### 3.3 FR-3: Open Finding Resolution — Financial Safety
-
-All changes are `Type.Optional` for backward compatibility.
-
-#### 3.3.1 BB-V4-DEEP-001: Sybil Resistance
-
-**File:** `src/schemas/reputation-score.ts` (modified)
-
-Add two optional fields:
-
-```typescript
-// Add to ReputationScoreSchema:
-min_unique_validators: Type.Optional(Type.Integer({ minimum: 0 })),
-validation_graph_hash: Type.Optional(Type.String({ minLength: 1 })),
-```
-
-**Cross-field validator update:** When `min_unique_validators` is present, `sample_size` must be >= `min_unique_validators`. When `validation_graph_hash` is present, it indicates a cryptographic commitment to the validation graph (opaque to the protocol, meaningful to consumers).
-
-**Constraint file update:** `constraints/ReputationScore.constraints.json` gains:
-```json
-{
-  "id": "reputation-sybil-validator-count",
-  "expression": "min_unique_validators == null || sample_size >= min_unique_validators",
-  "severity": "error",
-  "message": "sample_size must be >= min_unique_validators when min_unique_validators is set",
-  "fields": ["sample_size", "min_unique_validators"]
+// reservation.ts:144-151 — CURRENT (v5.2.0)
+// Case 1: Sufficient budget — always allow
+if (available >= cost) {
+  return {
+    allowed: true,
+    reason: 'Sufficient budget available',
+    floor_breached: false,
+  };
 }
 ```
 
-#### 3.3.2 BB-V4-DEEP-002 / CF-4: Escrow Timeout
+**Bug:** `available=1000, cost=900, reserved=500` → Case 1 fires (`1000 >= 900`) → `allowed: true`. But post-transaction balance is `100 < 500 = reserved`. The floor is breached silently.
 
-Already resolved in v4.6.0 — `expires_at` field exists on `EscrowEntrySchema`. Cross-field validators enforce temporal ordering. **No additional schema changes needed.** Status: CLOSED.
-
-#### 3.3.3 BB-V4-DEEP-003: Dividend Audit Trail
-
-Already resolved in v4.6.0 — `source_performance_ids` field exists on `CommonsDividendSchema`. Cross-field validator warns when missing. **No additional schema changes needed.** Status: CLOSED.
-
-#### 3.3.4 BB-V4-DEEP-004: Escalation Linkage
-
-**File:** `src/schemas/sanction.ts` (modified)
-
-Add optional field linking to the applied escalation rule:
+#### 3.1.2 Corrected Algorithm (v5.3.0)
 
 ```typescript
-// Add to SanctionSchema:
-escalation_rule_applied: Type.Optional(Type.String({ minLength: 1 })),
-```
+export interface ReservationDecision {
+  allowed: boolean;
+  reason: string;
+  floor_breached: boolean;
+  enforcement_action?: 'block' | 'warn' | 'downgrade';
+  /** Advisory warning when approaching or breaching floor. */
+  warning?: string;
+  /** Post-transaction available balance (string-encoded BigInt). */
+  post_transaction_available?: string;
+}
 
-**Cross-field validator update:** When `escalation_rule_applied` is present, it must match a key in `ESCALATION_RULES`. This closes the policy/enforcement gap.
+export function shouldAllowRequest(
+  availableMicro: string,
+  costMicro: string,
+  reservedMicro: string,
+  enforcement: ReservationEnforcement,
+): ReservationDecision {
+  const available = parseMicroUSD(availableMicro);
+  const cost = parseMicroUSD(costMicro);
+  const reserved = parseMicroUSD(reservedMicro);
+  const postTransaction = available - cost;
 
-**Constraint file update:** `constraints/Sanction.constraints.json` gains:
-```json
-{
-  "id": "sanction-escalation-rule-linkage",
-  "expression": "escalation_rule_applied == null || escalation_rule_applied == trigger.violation_type",
-  "severity": "warning",
-  "message": "escalation_rule_applied should match trigger.violation_type",
-  "fields": ["escalation_rule_applied", "trigger.violation_type"]
+  // Case 1: Sufficient budget — but check post-transaction floor
+  if (available >= cost) {
+    // NEW: Post-transaction floor check (HIGH-V52-001 fix)
+    if (postTransaction < reserved) {
+      // Request would breach reservation floor
+      return handleFloorBreach(enforcement, postTransaction, reserved);
+    }
+
+    // Check advisory near-floor warning (FR-2)
+    if (enforcement === 'advisory') {
+      const warningResult = checkAdvisoryWarning(postTransaction, reserved);
+      if (warningResult) {
+        return {
+          allowed: true,
+          reason: 'Sufficient budget available',
+          floor_breached: false,
+          warning: warningResult,
+          post_transaction_available: postTransaction.toString(),
+        };
+      }
+    }
+
+    return {
+      allowed: true,
+      reason: 'Sufficient budget available',
+      floor_breached: false,
+      post_transaction_available: postTransaction.toString(),
+    };
+  }
+
+  // Case 2: Floor breach — available is at or below the reserved floor (SKP-003)
+  if (available <= reserved) {
+    return handleAtFloor(enforcement, available, reserved);
+  }
+
+  // Case 3: Above floor but insufficient — normal budget shortfall
+  return {
+    allowed: false,
+    reason: 'Insufficient budget (above reservation floor)',
+    floor_breached: false,
+    enforcement_action: enforcement === 'strict' ? 'block'
+      : enforcement === 'advisory' ? 'warn' : 'block',
+  };
 }
 ```
 
-### 3.4 FR-4: Barrel Decomposition
+#### 3.1.3 Floor Breach Handler
 
-#### Design Approach
-
-Factor the monolithic `src/index.ts` (486 lines) into 5 domain-aligned sub-package barrels. The root barrel becomes a thin re-export layer.
-
-**Sub-package barrel design:**
-
-Each sub-package barrel (`src/{domain}/index.ts`) contains:
-1. All `export` statements for that domain
-2. No logic — pure re-exports
-3. Target ≤150 lines each
-
-**Root barrel design:**
-
-`src/index.ts` becomes:
 ```typescript
-// Root barrel — backward-compatible re-export of all sub-packages
-export * from './core/index.js';
-export * from './economy/index.js';
-export * from './model/index.js';
-export * from './governance/index.js';
-export * from './constraints/index.js';
+/**
+ * Handle the case where a request would breach the reservation floor.
+ *
+ * Enforcement semantics:
+ * - strict: BLOCK — the floor is inviolable
+ * - advisory: ALLOW with warning — soft enforcement, caller decides
+ * - unsupported: BLOCK — no enforcement mechanism, conservative default
+ */
+function handleFloorBreach(
+  enforcement: ReservationEnforcement,
+  postTransaction: bigint,
+  reserved: bigint,
+): ReservationDecision {
+  const postTxStr = postTransaction.toString();
 
-// Integrity (cross-cutting, stays in root)
-export { computeReqHash, verifyReqHash, /* ... */ } from './integrity/req-hash.js';
-export { deriveIdempotencyKey } from './integrity/idempotency.js';
+  if (enforcement === 'advisory') {
+    // Advisory ALLOWS but warns (FL-PRD-001 decision)
+    return {
+      allowed: true,
+      reason: 'Sufficient budget available (advisory: floor would be breached)',
+      floor_breached: false, // Not yet breached — would be breached after spending
+      warning: `Post-transaction balance (${postTxStr}) would breach reservation floor (${reserved.toString()})`,
+      post_transaction_available: postTxStr,
+    };
+  }
 
-// Version (cross-cutting, stays in root)
-export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
-
-// Validators (cross-cutting, stays in root)
-export { validate, validators, /* ... */ } from './validators/index.js';
-export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
-export { validateBillingEntryFull } from './validators/billing.js';
+  // strict and unsupported: BLOCK
+  return {
+    allowed: false,
+    reason: `Request would breach reservation floor (post-transaction balance: ${postTxStr}, floor: ${reserved.toString()})`,
+    floor_breached: true,
+    enforcement_action: 'block',
+    post_transaction_available: postTxStr,
+  };
+}
 ```
 
-#### Sub-Package Mapping
+#### 3.1.4 At-Floor Handler (Case 2 — Preserves SKP-003)
 
-**`src/core/index.ts` (~120 exports):**
-- Agent: `AgentDescriptorSchema`, `AgentLifecycleStateSchema`, lifecycle constants
-- Conversation: `ConversationSchema`, `MessageSchema`, sealing/access policy
-- Transfer: `TransferSpecSchema`, `TransferEventSchema`
-- Domain Event: `DomainEventSchema`, `DomainEventBatchSchema`, all event types/guards
-- Saga: `SagaContextSchema`
-- Lifecycle: `LifecycleTransitionPayloadSchema`, reason codes
-- Discovery: `ProtocolDiscoverySchema`, `CapabilitySchema`
-- Health: `HealthStatusSchema`
-- NFT: `NftIdSchema`, utilities
-- Lifecycle utilities: `createTransitionValidator`, guards
-- Errors: `ERROR_CODES`
-- Patterns: `UUID_V4_PATTERN`
-- Schema stability: `SCHEMA_STABILITY_LEVELS`
-- Deprecation: `DEPRECATION_REGISTRY`
+```typescript
+function handleAtFloor(
+  enforcement: ReservationEnforcement,
+  available: bigint,
+  reserved: bigint,
+): ReservationDecision {
+  if (enforcement === 'unsupported') {
+    return {
+      allowed: false,
+      reason: 'Insufficient budget (reservation enforcement unsupported)',
+      floor_breached: true,
+      enforcement_action: 'block',
+    };
+  }
 
-**`src/economy/index.ts` (~80 exports):**
-- JWT: `JwtClaimsSchema`, `S2SJwtClaimsSchema`, `ByokClaimsSchema`
-- Invoke: `InvokeResponseSchema`, `UsageReportSchema`
-- Billing: `BillingEntrySchema`, `CreditNoteSchema`, billing utilities
-- Escrow: `EscrowEntrySchema`, transitions
-- Stake: `StakePositionSchema`
-- Credit: `MutualCreditSchema`
-- Dividend: `CommonsDividendSchema`
-- Currency: `MicroUSD`, all arithmetic functions
-- Economy flow: `ECONOMY_FLOW`, `verifyEconomyFlow`
-- Transfer choreography: `TRANSFER_CHOREOGRAPHY`, `TRANSFER_INVARIANTS`
-- Economic choreography: `ECONOMIC_CHOREOGRAPHY`
+  if (enforcement === 'advisory') {
+    return {
+      allowed: false,
+      reason: 'Budget at or below reservation floor (advisory)',
+      floor_breached: true,
+      enforcement_action: 'warn',
+    };
+  }
 
-**`src/model/index.ts` (~60 exports):**
-- Completion: `CompletionRequestSchema`, `CompletionResultSchema`
-- Capabilities: `ModelCapabilitiesSchema`
-- Wire message: `ProviderWireMessageSchema`
-- Tool: `ToolDefinitionSchema`, `ToolResultSchema`
-- Ensemble: `EnsembleStrategySchema`, `EnsembleRequestSchema`, `EnsembleResultSchema`
-- Routing: `ExecutionModeSchema`, `ProviderTypeSchema`, `AgentRequirementsSchema`, `BudgetScopeSchema`, `RoutingResolutionSchema`
-- Stream events: `StreamEventSchema` and all sub-types
-- Pools: `POOL_IDS`, `PoolIdSchema`
-- Thinking: `ThinkingTraceSchema`
-- Tool call: `ToolCallSchema`
-- Routing policy: `RoutingPolicySchema`
-- Routing constraint: `RoutingConstraintSchema`
-- Metadata: `METADATA_NAMESPACES`, `MODEL_METADATA_KEYS`
+  // strict
+  return {
+    allowed: false,
+    reason: 'Budget at or below reservation floor (strict enforcement)',
+    floor_breached: true,
+    enforcement_action: 'block',
+  };
+}
+```
 
-**`src/governance/index.ts` (~50 exports):**
-- Reputation: `ReputationScoreSchema`, `REPUTATION_WEIGHTS`, `REPUTATION_DECAY`
-- Sanctions: `SanctionSchema`, `SANCTION_SEVERITY_LEVELS`, `ESCALATION_RULES`
-- Disputes: `DisputeRecordSchema`
-- Validated outcomes: `ValidatedOutcomeSchema`
-- Performance: `PerformanceRecordSchema`, `ContributionRecordSchema`
-- Reputation utility: `isReliableReputation`
-- Sanction guard: `requiresSanctionEvidence`
+**GovernanceConfig integration (FL-SDD-003):** In Sprint 3 (FR-6), `shouldAllowRequest` gains an optional 5th parameter `config?: GovernanceConfig` that flows through to `checkAdvisoryWarning` for configurable threshold. Sprint 1 uses the hardcoded `ADVISORY_WARNING_THRESHOLD_PERCENT` constant; Sprint 3 makes it configurable. The function signature changes are backward-compatible (new optional param).
 
-**`src/constraints/index.ts` (~40 exports):**
-- Evaluator: `evaluateConstraint`, `MAX_EXPRESSION_DEPTH`
-- Types: `ConstraintFile`, `Constraint`
-- Grammar: `validateExpression`, `EXPRESSION_VERSION`
-- State machines: `STATE_MACHINES`, `getValidTransitions`, `isTerminalState`, `isValidStateMachineTransition`
-- Aggregate boundaries: `AGGREGATE_BOUNDARIES`
-- Temporal properties: `TEMPORAL_PROPERTIES`
+**Backward compatibility:** The only behavior change is in Case 1 when `available >= cost` AND `available - cost < reserved`. Previously returned `allowed: true`; now returns `allowed: false` under strict/unsupported. This is a correctness fix documented in CHANGELOG.
 
-#### package.json Exports
+**Test strategy:** Existing tests for `shouldAllowRequest` cover Cases 2 and 3 — these continue passing. New tests target the Case 1 post-transaction check edge cases. Property-based tests via fast-check for arbitrary `available/cost/reserved` triples.
+
+---
+
+### 3.2 FR-2: Advisory Graduated Warnings (MEDIUM-V52-001)
+
+**File:** `src/utilities/reservation.ts`
+**Impact:** New helper function + constant for advisory near-floor warnings.
+
+#### 3.2.1 Warning Threshold Constant
+
+```typescript
+/**
+ * Advisory warning threshold: warn when post-transaction balance is
+ * within this percentage of the reservation floor.
+ *
+ * 20% means: if floor is 500, warn when post-transaction < 600.
+ * Calculation: post_transaction < reserved * (100 + threshold) / 100
+ *
+ * Configurable via GovernanceConfig (FR-6).
+ */
+export const ADVISORY_WARNING_THRESHOLD_PERCENT = 20;
+```
+
+#### 3.2.2 Warning Check Function
+
+```typescript
+/**
+ * Check if post-transaction balance is within the advisory warning zone.
+ *
+ * Warning zone: post_transaction_available < reserved * (100 + threshold) / 100
+ * Uses BigInt ceiling multiplication to match protocol rounding bias.
+ *
+ * @returns Warning message if in warning zone, null otherwise.
+ */
+function checkAdvisoryWarning(
+  postTransaction: bigint,
+  reserved: bigint,
+  thresholdPercent: number = ADVISORY_WARNING_THRESHOLD_PERCENT,
+): string | null {
+  if (reserved <= 0n) return null;
+
+  // Warning threshold: reserved * (100 + threshold) / 100
+  // E.g., reserved=500, threshold=20 → threshold_value = 500 * 120 / 100 = 600
+  const warningThreshold = (reserved * BigInt(100 + thresholdPercent)) / 100n;
+
+  if (postTransaction < warningThreshold) {
+    return `Post-transaction balance (${postTransaction.toString()}) is within ${thresholdPercent}% of reservation floor (${reserved.toString()})`;
+  }
+
+  return null;
+}
+```
+
+#### 3.2.3 Enforcement Semantics Summary
+
+| Scenario | strict | advisory | unsupported |
+|----------|--------|----------|-------------|
+| Sufficient budget, post-tx above floor + above warning zone | allow | allow | allow |
+| Sufficient budget, post-tx above floor + in warning zone | allow (no warning) | allow + warning | allow (no warning) |
+| Sufficient budget, post-tx would breach floor | **block** | **allow + warning** | **block** |
+| Already at/below floor | block | block (warn) | block |
+| Above floor, insufficient budget | block | warn | block |
+
+**Key design point:** Advisory mode is the ONLY mode that allows through a floor breach (with warning). This makes advisory semantically meaningful — it's not just "strict with different labels." The FAANG parallel is AWS Budgets: you can set a budget to `alert` (advisory) or `enforce` (strict).
+
+---
+
+### 3.3 FR-3: Conformance Vectors — Full Enforcement Coverage (MEDIUM-V52-002)
+
+**Directory:** `vectors/conformance/reservation-enforcement/`
+**Impact:** 4+ new vectors alongside the existing 4 strict-only vectors.
+
+#### 3.3.1 New Vectors
+
+| Vector ID | Enforcement | Scenario | expected_valid |
+|-----------|-------------|----------|----------------|
+| `conformance-reservation-enforcement-0005` | advisory | Post-tx would breach floor → allowed with warning | true |
+| `conformance-reservation-enforcement-0006` | advisory | Post-tx in warning zone (within 20%) → allowed with warning | true |
+| `conformance-reservation-enforcement-0007` | unsupported | Sufficient budget, above floor → allowed, no enforcement | true |
+| `conformance-reservation-enforcement-0008` | unsupported | At floor → blocked with enforcement_action 'block' | true |
+
+#### 3.3.2 Vector Schema Extension
+
+The `ReservationVector` interface in the test harness gains:
+
+```typescript
+interface ReservationVector {
+  // ... existing fields ...
+  expected_output: {
+    reserved_micro: string;
+    tier_valid?: boolean;
+    enforcement?: string;
+    allowed?: boolean;
+    floor_breached?: boolean;
+    reason?: string;
+    /** NEW: Expected warning message pattern (advisory mode). */
+    warning_pattern?: string;
+    /** NEW: Expected post-transaction available. */
+    post_transaction_available?: string;
+  };
+}
+```
+
+#### 3.3.3 Vector 0005: Advisory Floor Breach (Allow with Warning)
 
 ```json
 {
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./core": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js"
-    },
-    "./economy": {
-      "types": "./dist/economy/index.d.ts",
-      "import": "./dist/economy/index.js"
-    },
-    "./model": {
-      "types": "./dist/model/index.d.ts",
-      "import": "./dist/model/index.js"
-    },
-    "./governance": {
-      "types": "./dist/governance/index.d.ts",
-      "import": "./dist/governance/index.js"
-    },
-    "./constraints": {
-      "types": "./dist/constraints/index.d.ts",
-      "import": "./dist/constraints/index.js"
-    },
-    "./schemas/*": "./schemas/*"
+  "vector_id": "conformance-reservation-enforcement-0005",
+  "category": "reservation-enforcement",
+  "description": "Advisory enforcement allows request that would breach floor, with warning",
+  "contract_version": "5.3.0",
+  "input": {
+    "agent_id": "agent-advisory-breach",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 500,
+    "budget_limit_micro": "10000",
+    "budget_spent_micro": "0",
+    "request_cost_micro": "9600",
+    "enforcement": "advisory"
+  },
+  "expected_output": {
+    "reserved_micro": "500",
+    "allowed": true,
+    "floor_breached": false,
+    "warning_pattern": "would breach reservation floor",
+    "post_transaction_available": "400"
+  },
+  "expected_valid": true,
+  "matching_rules": { "select_fields": ["allowed", "floor_breached"] },
+  "metadata": { "finding": "MEDIUM-V52-002", "enforcement_mode": "advisory" }
+}
+```
+
+#### 3.3.4 Test Harness Update
+
+**File:** `tests/vectors/reservation-enforcement-vectors.test.ts`
+
+Add test blocks for vectors 0005-0008 exercising advisory and unsupported modes. The harness calls `shouldAllowRequest()` with the corrected (v5.3.0) algorithm and validates `warning` field presence for advisory vectors.
+
+---
+
+### 3.4 FR-4: Epistemic Tristate Pattern Formalization (PRAISE-V52-001)
+
+**Impact:** Documentation + JSDoc + constraint file. No new TypeBox schema.
+
+#### 3.4.1 Pattern Document
+
+**File:** `docs/patterns/epistemic-tristate.md`
+
+```markdown
+# Epistemic Tristate Pattern
+
+## Definition
+
+A three-valued logic pattern for trust-sensitive assertions where the system
+must distinguish between "known to be true," "known to be false," and "unknown."
+
+## When to Use
+
+Use the Epistemic Tristate when your subsystem:
+- Makes trust assertions that could be unverifiable at runtime
+- Deals with verification that depends on external state (keys, snapshots, context)
+- Must communicate uncertainty honestly rather than defaulting to pass/fail
+
+Decision rubric: If "false" and "I don't know" would require different consumer
+actions, you need three states, not two.
+
+## Instances in loa-hounfour
+
+| Subsystem | Type | States | File |
+|-----------|------|--------|------|
+| Conservation | `ConservationStatus` | `conserved \| violated \| unverifiable` | `vocabulary/conservation-status.ts` |
+| Signature | `SignatureVerificationResult` | `verified: true \| false \| 'unverifiable'` | `utilities/signature.ts` |
+| Conformance | Implicit | match \| mismatch \| missing dimension | `utilities/conformance-matcher.ts` |
+
+## Why Not a Generic Type?
+
+The instances differ in shape:
+- `ConservationStatus` is a string literal union (TypeBox schema)
+- `SignatureVerificationResult` is a discriminated union with mixed types
+- Conformance matching is implicit (missing dimension = unknown)
+
+Forcing a generic type would sacrifice type safety for uniformity.
+The pattern's value is in **naming**, not **abstracting**.
+
+## Parallels
+
+| System | Tristate | Problem Solved |
+|--------|----------|----------------|
+| Kubernetes conditions | `True \| False \| Unknown` | Controllers can't distinguish "unhealthy" from "haven't checked" |
+| Protobuf field presence | set \| default \| absent | `has_field()` distinguishes explicit default from absent |
+| Certificate Transparency | good \| revoked \| unknown | OCSP responders may not have revocation data yet |
+| SQL NULL | true \| false \| NULL | Ternary logic for missing/unknown data |
+| Łukasiewicz (1920) | 1 \| 0 \| ½ | Formalized three-valued propositional logic |
+
+## Invariant
+
+All three states MUST be distinguishable — no two states may collapse to
+the same consumer behavior. If consumers treat "false" and "unknown" identically,
+the tristate has degenerated to a boolean and should be simplified.
+
+See: `constraints/EpistemicTristate.constraints.json`
+```
+
+#### 3.4.2 Constraint File
+
+**File:** `constraints/EpistemicTristate.constraints.json`
+
+```json
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EpistemicTristate",
+  "contract_version": "5.3.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "tristate-distinguishability",
+      "expression": "true",
+      "severity": "error",
+      "message": "All three epistemic states must produce distinguishable consumer behavior. If two states collapse, simplify to boolean.",
+      "fields": [],
+      "institutional_context": "Architectural pattern invariant — applies to all Epistemic Tristate instances. Enforcement is via code review and pattern documentation, not runtime expression evaluation."
+    }
+  ],
+  "metadata": {
+    "pattern": "epistemic-tristate",
+    "instances": ["ConservationStatus", "SignatureVerificationResult", "conformance-matching"],
+    "references": ["Łukasiewicz 1920", "Kubernetes conditions", "Protobuf field presence"]
   }
 }
 ```
 
-**Backward compatibility:** `import { CompletionRequestSchema } from '@0xhoneyjar/loa-hounfour'` continues to work. New consumers can use `import { CompletionRequestSchema } from '@0xhoneyjar/loa-hounfour/model'` for tree-shaking.
+#### 3.4.3 JSDoc Updates
 
-### 3.5 FR-5: Constraint Language Formalization
-
-#### 3.5.1 PEG Grammar Specification
-
-**File:** `constraints/GRAMMAR.md`
-
-```peg
-# Constraint Expression Language — PEG Grammar v1.0
-#
-# Used by cross-language constraint files (constraints/*.constraints.json).
-# This grammar defines the expression language that constraint evaluators
-# must implement to validate cross-field invariants.
-
-Expression     ← Implication
-Implication    ← OrExpr (ARROW OrExpr)?
-OrExpr         ← AndExpr (OR AndExpr)*
-AndExpr        ← Comparison (AND Comparison)*
-Comparison     ← Unary ((EQ / NEQ / LTE / GTE / LT / GT) Unary)?
-Unary          ← NOT Unary / Primary
-
-Primary        ← LPAREN Expression RPAREN
-               / BracketArray
-               / NumberLiteral
-               / StringLiteral
-               / NullLiteral
-               / BoolLiteral
-               / BigintSum
-               / FieldPath
-
-FieldPath      ← IDENT (DOT IDENT)* (DOT LengthAccess / DOT EveryCall)?
-LengthAccess   ← 'length'
-EveryCall      ← 'every' LPAREN IDENT ARROW Expression RPAREN
-
-BracketArray   ← LBRACKET (FieldPath (COMMA FieldPath)*)? RBRACKET
-BigintSum      ← 'bigint_sum' LPAREN Primary (COMMA Primary)? RPAREN
-
-# Terminals
-NumberLiteral  ← [0-9]+ ('.' [0-9]+)?
-StringLiteral  ← "'" [^']* "'"
-NullLiteral    ← 'null'
-BoolLiteral    ← 'true' / 'false'
-IDENT          ← [a-zA-Z_] [a-zA-Z0-9_]*
-
-# Operators
-ARROW          ← '=>'
-OR             ← '||'
-AND            ← '&&'
-NOT            ← '!'
-EQ             ← '=='
-NEQ            ← '!='
-LTE            ← '<='
-GTE            ← '>='
-LT             ← '<'
-GT             ← '>'
-
-# Delimiters
-LPAREN         ← '('
-RPAREN         ← ')'
-LBRACKET       ← '['
-RBRACKET       ← ']'
-COMMA          ← ','
-DOT            ← '.'
-
-# Whitespace (ignored between tokens)
-_              ← [ \t\n\r]*
-```
-
-#### 3.5.2 Expression Versioning
-
-**File:** `src/constraints/types.ts` (extended)
+**File:** `src/vocabulary/conservation-status.ts` — Add to existing JSDoc:
 
 ```typescript
-export interface ConstraintFile {
-  $schema: string;
-  schema_id: string;
-  contract_version: string;
-  expression_version: string;  // NEW: "1.0" — grammar version
-  constraints: Constraint[];
-}
-```
-
-All existing constraint files are updated to include `"expression_version": "1.0"`. New expressions added in v5.0.0 are also version `"1.0"` (the grammar is backward-compatible).
-
-#### 3.5.3 Grammar Validation
-
-**File:** `src/constraints/grammar.ts`
-
-```typescript
-export const EXPRESSION_VERSION = '1.0' as const;
-
 /**
- * Validate that an expression string conforms to the PEG grammar.
- * Does NOT evaluate the expression — only checks syntactic validity.
+ * Conservation verification status — tristate result of pricing conservation check.
  *
- * @returns { valid: true } or { valid: false, error: string, position: number }
+ * Instance of the Epistemic Tristate pattern (docs/patterns/epistemic-tristate.md).
+ * ...existing docs...
  */
-export function validateExpression(expression: string): {
-  valid: boolean;
-  error?: string;
-  position?: number;
-};
 ```
 
-The `validateExpression` function is a lightweight parser that checks syntax without evaluation. It reports the exact character position of errors.
-
-#### 3.5.4 Evaluator Error Reporting
-
-**File:** `src/constraints/evaluator.ts` (extended)
-
-The evaluator gains position tracking:
+**File:** `src/utilities/signature.ts` — Add to `SignatureVerificationResult` JSDoc:
 
 ```typescript
 /**
- * Extended evaluation result with position information.
+ * Discriminated union for signature verification results.
+ *
+ * Instance of the Epistemic Tristate pattern (docs/patterns/epistemic-tristate.md):
+ * - `verified: true` — known good (signature valid)
+ * - `verified: false` — known bad (signature invalid or verification failed)
+ * - `verified: 'unverifiable'` — unknown (cannot verify: missing signature, no key resolver)
  */
-export interface EvaluationResult {
-  value: boolean;
-  error?: {
-    message: string;
-    position: number;    // Character offset in expression
-    token?: string;      // The problematic token
-  };
-}
-
-export function evaluateConstraintDetailed(
-  data: Record<string, unknown>,
-  expression: string,
-): EvaluationResult;
 ```
 
-The existing `evaluateConstraint()` API is preserved unchanged.
+---
 
-#### 3.5.5 Fuzz Testing
+### 3.5 FR-5: Ceil-Division Bias Documentation (PRAISE-V52-002)
 
-**File:** `tests/properties/constraint-grammar-fuzz.test.ts`
+**File:** `src/vocabulary/reservation-tier.ts`
+**Impact:** New constant + JSDoc. No logic change.
+
+#### 3.5.1 ROUNDING_BIAS Constant
 
 ```typescript
-// Property: any expression accepted by validateExpression() can be evaluated
-fc.assert(
-  fc.property(
-    validExpressionArbitrary(),
-    (expr) => {
-      const validation = validateExpression(expr);
-      if (validation.valid) {
-        // Must not throw
-        evaluateConstraint({}, expr);
-        return true;
-      }
-      return true; // Invalid expressions are fine to reject
-    },
-  ),
-  { numRuns: 1000 },
-);
+/**
+ * Protocol rounding bias policy.
+ *
+ * When arithmetic rounding creates ambiguity (e.g., ceil vs floor division),
+ * the protocol biases toward the rights-holder (the agent). This ensures:
+ * - computeReservedMicro uses ceiling division: (limit * bps + 9999) / 10000
+ * - shouldAllowRequest uses SKP-003: available <= reserved (not <)
+ *
+ * Combined effect: the agent always gets the benefit of sub-micro fractions.
+ * This is a deliberate policy choice, not an implementation detail.
+ *
+ * Basel III parallel: regulatory capital ratios round toward the safety margin.
+ *
+ * @see computeReservedMicro — ceiling division
+ * @see shouldAllowRequest — SKP-003 floor enforcement
+ * @see constraints/ReservationArithmetic.constraints.json
+ */
+export const ROUNDING_BIAS = 'rights_holder' as const;
 
-// Property: every expression in shipped constraint files is valid
-fc.assert(
-  fc.property(
-    fc.constantFrom(...allConstraintExpressions),
-    (expr) => {
-      return validateExpression(expr).valid;
-    },
-  ),
-);
+export type RoundingBias = typeof ROUNDING_BIAS;
 ```
 
-Target: ≥10 property-based fuzz tests covering:
-1. Valid expression acceptance
-2. Invalid expression rejection with position
-3. Grammar version validation
-4. Expression depth limits
-5. BigInt overflow handling
-6. Null coercion correctness
-7. Boolean short-circuit evaluation
-8. Implication truth table
-9. Every-quantifier with empty arrays
-10. Bracket array evaluation
+#### 3.5.2 JSDoc Enhancements
 
-### 3.6 FR-6: Cross-Ecosystem Shared Vectors
+**File:** `src/utilities/reservation.ts:computeReservedMicro` — Enhance existing JSDoc:
 
-#### Vector Structure
-
-**Directory:** `vectors/cross-ecosystem/`
-
-```
-vectors/cross-ecosystem/
-├── completion-valid.json      # Valid CompletionRequest/Result pairs
-├── completion-invalid.json    # Invalid pairs with expected errors
-├── billing-ensemble.json      # Multi-party billing with ensemble
-├── billing-attribution.json   # Cost attribution across providers
-├── event-economy-flow.json    # Economy flow event batches
-├── event-saga.json            # Saga context event sequences
-└── README.md                  # Consumer integration guide
+```typescript
+/**
+ * Compute the reserved micro-USD amount for a given budget limit and basis points.
+ *
+ * Uses ceil division: `(limit * bps + 9999) / 10000` to ensure the reserved
+ * amount is never understated. This implements the protocol's ROUNDING_BIAS
+ * toward the rights-holder: when rounding creates ambiguity, the agent gets
+ * the benefit.
+ *
+ * @see ROUNDING_BIAS — 'rights_holder' policy documentation
+ * ...existing params/returns...
+ */
 ```
 
-#### Vector Format
+**File:** `src/utilities/reservation.ts:shouldAllowRequest` — Enhance existing JSDoc:
 
-Each vector file follows the existing pattern:
+```typescript
+/**
+ * ...existing docs...
+ *
+ * **SKP-003 + ROUNDING_BIAS:** The floor breach condition is `available <= reserved`
+ * (not `<`). Combined with ceiling division in computeReservedMicro, this ensures
+ * the protocol systematically favors the rights-holder at boundaries.
+ *
+ * @see ROUNDING_BIAS — 'rights_holder' policy documentation
+ */
+```
+
+#### 3.5.3 Constraint File
+
+**File:** `constraints/ReservationArithmetic.constraints.json`
 
 ```json
 {
-  "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/vector-suite",
-  "schema_id": "CompletionRequest",
-  "contract_version": "5.0.0",
-  "vectors": [
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ReservationArithmetic",
+  "contract_version": "5.3.0",
+  "expression_version": "1.0",
+  "constraints": [
     {
-      "id": "completion-basic-text",
-      "description": "Simple text completion request",
-      "valid": true,
-      "data": { /* full CompletionRequest object */ },
-      "expected_cross_field": { "valid": true }
+      "id": "ceil-division-bias",
+      "expression": "true",
+      "severity": "error",
+      "message": "computeReservedMicro MUST use ceiling division: (limit * bps + 9999) / 10000. Floor division would reduce reserved capacity below the intended percentage, violating the rights-holder bias.",
+      "fields": [],
+      "institutional_context": "Protocol arithmetic invariant. Rounding ALWAYS favors the agent (rights-holder). Changing to floor division is a constitutional amendment, not an optimization."
     },
     {
-      "id": "completion-tools-no-choice",
-      "description": "Tools present without tool_choice — cross-field error",
-      "valid": true,
-      "data": { /* object passes schema but fails cross-field */ },
-      "expected_cross_field": {
-        "valid": false,
-        "errors": ["tool_choice is required when tools are provided"]
-      }
+      "id": "floor-check-inclusive",
+      "expression": "true",
+      "severity": "error",
+      "message": "shouldAllowRequest floor check MUST use <= (not <). At the exact boundary, spending the request would breach the floor.",
+      "fields": [],
+      "institutional_context": "SKP-003 fix. The off-by-one in < allows one request to silently consume the last unit of reserved capacity."
     }
   ]
 }
 ```
 
-#### Vector Categories
+---
 
-| Category | Vector Count | Key Scenarios |
-|----------|-------------|---------------|
-| Completion (valid) | 4+ | Basic text, with tools, with thinking, with budget |
-| Completion (invalid) | 4+ | Missing tool_choice, self-referencing, exceeded budget |
-| Billing (ensemble) | 3+ | Multi-model cost split, consensus billing, failed candidate billing |
-| Billing (attribution) | 3+ | Provider-reported, observed-chunks, prompt-only |
-| Event (economy flow) | 3+ | Performance→Reputation, Escrow→Billing, Sanction→Routing |
-| Event (saga) | 3+ | Complete saga, compensated saga, timeout saga |
+### 3.6 FR-6: GovernanceConfig Schema (SPEC-V52-001)
 
-**Total target:** ≥20 vectors.
+**File:** `src/schemas/governance-config.ts`
+**Impact:** New schema + new utility file + constraint file.
 
-#### Consumer Integration
-
-Vectors ship as part of the npm package (`"files"` includes `"vectors"`). Consumers validate:
+#### 3.6.1 Schema Definition
 
 ```typescript
-// loa-finn consumer test
-import vectors from '@0xhoneyjar/loa-hounfour/vectors/cross-ecosystem/completion-valid.json';
-import { validate, CompletionRequestSchema } from '@0xhoneyjar/loa-hounfour';
+import { Type, type Static } from '@sinclair/typebox';
+import { ConformanceLevelSchema } from './model/conformance-level.js';
+import { ReservationTierSchema } from '../vocabulary/reservation-tier.js';
 
-for (const vector of vectors.vectors) {
-  const result = validate(CompletionRequestSchema, vector.data);
-  assert(result.valid === vector.valid);
+/**
+ * Protocol governance configuration — the beginning of governance-configurable parameters.
+ *
+ * GovernanceConfig allows protocol parameters to be overridden from their
+ * hardcoded defaults. In v5.3.0, this covers reservation tier minimums and
+ * advisory warning thresholds. Future versions will add more parameters.
+ *
+ * This is NOT a runtime configuration file. It is a protocol-level schema
+ * that defines the structure of governance parameters. How these parameters
+ * are proposed, debated, and adopted is out of scope for v5.3.0.
+ *
+ * @see SPEC-V52-001 — Bridgebuilder Review III finding
+ * @see RESERVATION_TIER_MAP — default values
+ * @see ADVISORY_WARNING_THRESHOLD_PERCENT — default advisory threshold
+ */
+export const GovernanceConfigSchema = Type.Object(
+  {
+    governance_version: Type.String({
+      pattern: '^\\d+\\.\\d+\\.\\d+$',
+      description: 'Semver version tracking governance parameter changes independently of protocol version.',
+    }),
+    reservation_tiers: Type.Object(
+      {
+        self_declared: ReservationTierSchema,
+        community_verified: ReservationTierSchema,
+        protocol_certified: ReservationTierSchema,
+      },
+      {
+        additionalProperties: false,
+        description: 'Minimum reservation capacity (bps) per conformance level.',
+      },
+    ),
+    advisory_warning_threshold_percent: Type.Integer({
+      minimum: 0,
+      maximum: 100,
+      description: 'Percentage threshold for advisory near-floor warnings. Default: 20.',
+    }),
+    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  },
+  {
+    $id: 'GovernanceConfig',
+    additionalProperties: false,
+    description: 'Protocol governance parameters. Overrides hardcoded defaults when provided.',
+  },
+);
+
+export type GovernanceConfig = Static<typeof GovernanceConfigSchema>;
+
+/**
+ * Default GovernanceConfig matching current hardcoded values.
+ * Used as fallback when no explicit config is provided.
+ */
+export const DEFAULT_GOVERNANCE_CONFIG: GovernanceConfig = {
+  governance_version: '1.0.0',
+  reservation_tiers: {
+    self_declared: 300,
+    community_verified: 500,
+    protocol_certified: 1000,
+  },
+  advisory_warning_threshold_percent: 20,
+};
+```
+
+#### 3.6.2 Governance Utility Functions
+
+**File:** `src/utilities/governance.ts`
+
+```typescript
+import { RESERVATION_TIER_MAP, type ReservationTier } from '../vocabulary/reservation-tier.js';
+import { ADVISORY_WARNING_THRESHOLD_PERCENT } from './reservation.js';
+import type { GovernanceConfig } from '../schemas/governance-config.js';
+import type { ConformanceLevel } from '../schemas/model/conformance-level.js';
+
+/**
+ * Resolve the minimum reservation tier for a conformance level.
+ *
+ * Uses GovernanceConfig when provided, falls back to RESERVATION_TIER_MAP.
+ */
+export function resolveReservationTier(
+  conformanceLevel: ConformanceLevel,
+  config?: GovernanceConfig,
+): ReservationTier {
+  if (config) {
+    return config.reservation_tiers[conformanceLevel];
+  }
+  return RESERVATION_TIER_MAP[conformanceLevel];
+}
+
+/**
+ * Resolve the advisory warning threshold percentage.
+ *
+ * Uses GovernanceConfig when provided, falls back to ADVISORY_WARNING_THRESHOLD_PERCENT.
+ */
+export function resolveAdvisoryThreshold(
+  config?: GovernanceConfig,
+): number {
+  if (config) {
+    return config.advisory_warning_threshold_percent;
+  }
+  return ADVISORY_WARNING_THRESHOLD_PERCENT;
 }
 ```
 
-### 3.7 FR-7: Routing & Budget Contracts
+#### 3.6.3 validateReservationTier Update
 
-#### 3.7.1 ExecutionMode Vocabulary
-
-**File:** `src/schemas/model/routing/execution-mode.ts`
+**File:** `src/utilities/reservation.ts`
 
 ```typescript
-export const EXECUTION_MODES = ['native_runtime', 'remote_model'] as const;
+import type { GovernanceConfig } from '../schemas/governance-config.js';
+import { resolveReservationTier } from './governance.js';
 
-export const ExecutionModeSchema = Type.Union(
-  EXECUTION_MODES.map(m => Type.Literal(m)),
-  { $id: 'ExecutionMode', description: 'Whether the model runs in native runtime or as a remote API call' },
-);
+/**
+ * Validate that a reservation's basis points meet the minimum for the
+ * agent's conformance level.
+ *
+ * Accepts optional GovernanceConfig to override default tier minimums.
+ *
+ * @param conformanceLevel - Agent's earned conformance level
+ * @param actualBps - The actual reserved_capacity_bps
+ * @param config - Optional governance config overriding default tiers
+ * @returns Validation result with minimum requirement
+ */
+export function validateReservationTier(
+  conformanceLevel: ConformanceLevel,
+  actualBps: number,
+  config?: GovernanceConfig,
+): TierValidation {
+  const minimumBps = resolveReservationTier(conformanceLevel, config);
 
-export type ExecutionMode = Static<typeof ExecutionModeSchema>;
+  if (actualBps >= minimumBps) {
+    return { valid: true, minimum_bps: minimumBps, actual_bps: actualBps };
+  }
+
+  return {
+    valid: false,
+    minimum_bps: minimumBps,
+    actual_bps: actualBps,
+    reason: `Reservation ${actualBps} bps is below minimum ${minimumBps} bps for ${conformanceLevel}`,
+  };
+}
 ```
 
-#### 3.7.2 ProviderType Vocabulary
+**Backward compatibility:** The `config` parameter is optional. Existing callers with 2 arguments continue working unchanged.
 
-**File:** `src/schemas/model/routing/provider-type.ts`
+#### 3.6.4 Constraint File
 
-```typescript
-export const PROVIDER_TYPES = ['claude-code', 'openai', 'openai-compatible'] as const;
-
-export const ProviderTypeSchema = Type.Union(
-  PROVIDER_TYPES.map(p => Type.Literal(p)),
-  { $id: 'ProviderType', description: 'Model provider classification for routing' },
-);
-
-export type ProviderType = Static<typeof ProviderTypeSchema>;
-```
-
-#### 3.7.3 AgentRequirements
-
-**File:** `src/schemas/model/routing/agent-requirements.ts`
-
-```typescript
-export const AgentRequirementsSchema = Type.Object(
-  {
-    agent_id: Type.String({ minLength: 1 }),
-    requires_native_runtime: Type.Optional(Type.Boolean()),
-    requires_tool_calling: Type.Optional(Type.Boolean()),
-    requires_thinking_traces: Type.Optional(Type.Boolean()),
-    requires_vision: Type.Optional(Type.Boolean()),
-    preferred_models: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
-    min_context_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'AgentRequirements',
-    description: 'Per-agent model requirements for routing validation',
-    additionalProperties: false,
-  },
-);
-
-export type AgentRequirements = Static<typeof AgentRequirementsSchema>;
-```
-
-#### 3.7.4 BudgetScope
-
-**File:** `src/schemas/model/routing/budget-scope.ts`
-
-```typescript
-export const BudgetScopeSchema = Type.Object(
-  {
-    scope: Type.Union([
-      Type.Literal('project'),
-      Type.Literal('sprint'),
-      Type.Literal('phase'),
-      Type.Literal('conversation'),
-    ]),
-    scope_id: Type.String({ minLength: 1 }),
-    limit_micro: MicroUSDUnsigned,
-    spent_micro: MicroUSDUnsigned,
-    action_on_exceed: Type.Union([
-      Type.Literal('block'),
-      Type.Literal('warn'),
-      Type.Literal('downgrade'),
-    ]),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'BudgetScope',
-    description: 'Budget envelope with spending limits and exceed actions',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-
-export type BudgetScope = Static<typeof BudgetScopeSchema>;
-```
-
-**Cross-field validations:**
-- `spent_micro <= limit_micro` when `action_on_exceed === 'block'` (warning when close to limit)
-
-#### 3.7.5 RoutingResolution
-
-**File:** `src/schemas/model/routing/routing-resolution.ts`
-
-```typescript
-export const RoutingResolutionSchema = Type.Object(
-  {
-    resolved_model: Type.String({ minLength: 1 }),
-    original_request_model: Type.String({ minLength: 1 }),
-    resolution_type: Type.Union([
-      Type.Literal('exact'),
-      Type.Literal('fallback'),
-      Type.Literal('budget_downgrade'),
-      Type.Literal('capability_match'),
-    ]),
-    reason: Type.String({ minLength: 1 }),
-    latency_ms: Type.Optional(Type.Integer({ minimum: 0 })),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'RoutingResolution',
-    description: 'Result of model routing decision',
-    additionalProperties: false,
-  },
-);
-
-export type RoutingResolution = Static<typeof RoutingResolutionSchema>;
-```
-
-### 3.8 FR-8: Metadata Namespace Convention
-
-#### Extended Namespace Registry
-
-**File:** `src/vocabulary/metadata.ts` (modified)
-
-```typescript
-export const METADATA_NAMESPACES = {
-  PROTOCOL: 'loa.',
-  TRACE: 'trace.',
-  MODEL: 'model.',
-  BILLING: 'billing.',    // NEW
-  CONSUMER: 'x-',
-} as const;
-```
-
-**New namespace: `billing.*`**
-
-| Key | Type | Description |
-|-----|------|-------------|
-| `billing.cost_micro` | string | Total cost in micro-USD |
-| `billing.provider` | string | Provider that produced the charge |
-| `billing.ensemble_id` | string | Ensemble request that produced this charge |
-| `billing.attribution` | string | How cost was attributed (provider_reported, observed_chunks, prompt_only) |
-
-**Updated `isValidMetadataKey()`:** Now checks against 5 namespaces including `billing.*`.
-
-**Updated `getNamespaceOwner()`:** Returns `'economy'` for `billing.*` keys.
-
----
-
-## 4. Data Architecture
-
-### 4.1 Schema Summary (v5.0.0)
-
-| Domain | Existing Schemas | New Schemas | Total |
-|--------|-----------------|-------------|-------|
-| Core | 18 | 0 | 18 |
-| Economy | 11 | 0 | 11 |
-| Model | 7 | 14 | 21 |
-| Governance | 6 | 0 | 6 |
-| **Total** | **42** | **14** | **56** |
-
-### 4.2 Cross-Field Validator Registry
-
-New validators to register:
-
-| Schema $id | Validation Rules |
-|-----------|-----------------|
-| `CompletionRequest` | tools→tool_choice, execution_mode→provider, budget_limit>0 |
-| `CompletionResult` | finish_reason→tool_calls co-presence, usage.total_tokens conservation |
-| `ProviderWireMessage` | role=tool→tool_call_id, role=assistant→content/tool_calls |
-| `EnsembleRequest` | strategy=consensus→threshold, models.length≥2 |
-| `EnsembleResult` | strategy=consensus→score, total_cost≥selected.cost |
-| `BudgetScope` | spent_micro vs limit_micro warning |
-| `ReputationScore` | min_unique_validators≤sample_size (extended) |
-| `Sanction` | escalation_rule_applied matches violation_type (extended) |
-
-### 4.3 Constraint Files (New)
-
-| File | Constraint Count | Schemas Covered |
-|------|-----------------|-----------------|
-| `CompletionRequest.constraints.json` | 3+ | tools→tool_choice, execution_mode→provider |
-| `CompletionResult.constraints.json` | 3+ | finish_reason→tool_calls, usage conservation |
-| `ProviderWireMessage.constraints.json` | 2+ | role→tool_call_id, content presence |
-| `EnsembleRequest.constraints.json` | 2+ | strategy→threshold |
-| `EnsembleResult.constraints.json` | 2+ | strategy→score, cost conservation |
-| `BudgetScope.constraints.json` | 1+ | spent vs limit |
-| `ReputationScore.constraints.json` | (updated) | +1 sybil constraint |
-| `Sanction.constraints.json` | (updated) | +1 escalation linkage |
-
-### 4.4 npm Package Contents
+**File:** `constraints/GovernanceConfig.constraints.json`
 
 ```json
 {
-  "files": ["dist", "schemas", "vectors", "constraints"]
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernanceConfig",
+  "contract_version": "5.3.0",
+  "expression_version": "2.0",
+  "constraints": [
+    {
+      "id": "governance-tier-ordering",
+      "expression": "reservation_tiers.self_declared <= reservation_tiers.community_verified && reservation_tiers.community_verified <= reservation_tiers.protocol_certified",
+      "severity": "error",
+      "message": "Tier minimums must be non-decreasing: self_declared <= community_verified <= protocol_certified",
+      "fields": ["reservation_tiers"]
+    },
+    {
+      "id": "governance-tier-bounds",
+      "expression": "reservation_tiers.self_declared >= 0 && reservation_tiers.protocol_certified <= 10000",
+      "severity": "error",
+      "message": "Tier values must be in [0, 10000] basis points",
+      "fields": ["reservation_tiers"]
+    },
+    {
+      "id": "governance-advisory-bounds",
+      "expression": "advisory_warning_threshold_percent >= 0 && advisory_warning_threshold_percent <= 100",
+      "severity": "error",
+      "message": "Advisory threshold must be in [0, 100] percent",
+      "fields": ["advisory_warning_threshold_percent"]
+    }
+  ],
+  "metadata": {
+    "institutional_context": "GovernanceConfig defines the mutable parameters of the protocol's economic constitution. Changes to these values are governance acts, not implementation details."
+  }
 }
 ```
 
-Updated `schemas/index.json` includes all 14 new schemas.
-
 ---
 
-## 5. Version & Compatibility
+### 3.7 FR-7: Constraint Files as Institutional Rules — Ostrom Framing
 
-### 5.1 Breaking Change Analysis
+**Impact:** JSDoc and metadata additions. No logic change.
 
-**Why v5.0.0 (major bump):**
+#### 3.7.1 Constraint Evaluator JSDoc
 
-The ModelPort schemas (`CompletionRequest`, `CompletionResult`) define the canonical wire format for model interactions. Consumers that previously used ad-hoc types must migrate to these contracts. The barrel decomposition adds new package exports (`./core`, `./model`, etc.) which is additive but represents a structural shift.
-
-**What is NOT breaking:**
-- All existing 42 schemas retain their exact shapes
-- All existing exports remain in the root barrel
-- New fields on existing schemas are `Type.Optional`
-- The root import path continues to work identically
-
-**What is breaking (conceptually):**
-- Consumers should adopt `CompletionRequest`/`CompletionResult` as the canonical model wire format
-- New constraint files use `expression_version: "1.0"` (backward-compatible for evaluators that ignore the field)
-
-### 5.2 Version Constants
+**File:** `src/constraints/index.ts` — Add to module-level JSDoc:
 
 ```typescript
-export const CONTRACT_VERSION = '5.0.0' as const;
-export const MIN_SUPPORTED_VERSION = '4.0.0' as const;
+/**
+ * Constraint expression evaluation system.
+ *
+ * Constraint files serve as the protocol's institutional rules — in the sense
+ * of Elinor Ostrom's Institutional Analysis and Development (IAD) framework.
+ * Each constraint defines a rule that governs how protocol participants may
+ * interact with a schema. The `expression_version` field enables rule evolution
+ * without breaking existing participants — Ostrom's "minimal recognition of
+ * rights to organize" principle.
+ *
+ * @see Ostrom, E. (1990). Governing the Commons.
+ * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules
+ */
 ```
 
-### 5.3 Migration Guide
+#### 3.7.2 Institutional Context Metadata
 
-**MIGRATION.md** will include:
+New constraint files (FR-4, FR-5, FR-6) include an `institutional_context` field. Additionally, update one existing constraint file as exemplar:
 
-| Consumer | v4.6.0 → v5.0.0 Action | Breaking? |
-|----------|----------------------|-----------|
-| loa-finn | Adopt `CompletionRequest`/`CompletionResult` in cheval adapters | No (can adopt incrementally) |
-| arrakis | Use `CompletionResult.usage` for billing attribution | No (new field path, old still works) |
-| mibera-freeside | Validate new constraint files with `expression_version` | No (field is additive) |
-| All | Import from sub-packages for tree-shaking (optional) | No |
+**File:** `constraints/AgentCapacityReservation.constraints.json` — Add to the `reservation-tier-minimum` constraint:
+
+```json
+{
+  "id": "reservation-tier-minimum",
+  "expression": "conformance_level == 'self_declared' => reserved_capacity_bps >= 300",
+  "severity": "error",
+  "message": "self_declared conformance requires minimum 300 bps (3%)",
+  "fields": ["conformance_level", "reserved_capacity_bps"],
+  "institutional_context": "Ostrom boundary rule: agents who self-declare conformance receive minimum guaranteed capacity. The 300 bps threshold is a governance parameter (see GovernanceConfig)."
+}
+```
 
 ---
 
-## 6. Testing Strategy
+### 3.8 FR-8: JSDoc Examples for Discovery API
 
-### 6.1 Test Categories
+**File:** `src/schemas/discovery.ts:buildDiscoveryDocument`
 
-| Category | Count | Purpose |
-|----------|-------|---------|
-| ModelPort schema unit tests | ~40 | Valid/invalid CompletionRequest, CompletionResult, ProviderWireMessage |
-| ModelPort cross-field tests | ~25 | tools→tool_choice, usage conservation, role→field co-presence |
-| Ensemble schema tests | ~20 | Strategy-specific validation, cost conservation |
-| Routing/budget tests | ~15 | AgentRequirements, BudgetScope, RoutingResolution |
-| Finding resolution tests | ~10 | Sybil resistance, escalation linkage |
-| Barrel decomposition tests | ~15 | Sub-package imports work, root barrel backward-compatible |
-| Grammar fuzz tests | ~10 | Property-based constraint grammar testing |
-| Cross-ecosystem vector tests | ~20 | All vectors validate correctly |
-| Constraint round-trip tests | ~15 | New constraint files agree with TypeScript validators |
-| JSON Schema generation tests | ~14 | All new schemas produce valid JSON Schema |
-| Metadata namespace tests | ~5 | billing.* namespace, enforcement |
-| Regression tests | 1,097 | Existing tests pass unchanged |
-
-**Target:** 1,097 + ~189 = ~1,286 new tests (actual count depends on implementation detail)
-
-### 6.2 Property-Based Testing Extensions
-
-New fast-check arbitraries:
+#### 3.8.1 Options-Object Example (Recommended)
 
 ```typescript
-// CompletionRequest arbitrary
-const completionRequestArbitrary = fc.record({
-  request_id: fc.uuid(),
-  agent_id: fc.string({ minLength: 1, maxLength: 50 }),
-  tenant_id: fc.string({ minLength: 1, maxLength: 50 }),
-  model: fc.string({ minLength: 1, maxLength: 50 }),
-  messages: fc.array(providerWireMessageArbitrary(), { minLength: 1, maxLength: 10 }),
-  contract_version: fc.constant('5.0.0'),
+/**
+ * Build a protocol discovery document.
+ *
+ * @example Options object (recommended):
+ * ```typescript
+ * const doc = buildDiscoveryDocument(
+ *   ['BillingEntry', 'CompletionResult', 'AgentCapacityReservation'],
+ *   {
+ *     aggregateTypes: ['billing', 'completion'],
+ *     capabilitiesUrl: 'https://api.example.com/capabilities',
+ *     expressionVersions: ['1.0', '2.0'],
+ *     providers: [
+ *       { provider: 'openai', model_count: 4, supports_reservations: true },
+ *     ],
+ *   },
+ * );
+ * ```
+ *
+ * @example Legacy positional arguments (deprecated):
+ * ```typescript
+ * // @deprecated — Use options object overload instead.
+ * const doc = buildDiscoveryDocument(
+ *   ['BillingEntry', 'CompletionResult'],
+ *   ['billing'],
+ *   'https://api.example.com/capabilities',
+ *   ['1.0'],
+ * );
+ * ```
+ */
+```
+
+---
+
+### 3.9 FR-9: Version Bump to v5.3.0
+
+**File:** `src/version.ts`
+
+```typescript
+export const CONTRACT_VERSION = '5.3.0' as const;
+export const MIN_SUPPORTED_VERSION = '5.0.0' as const;  // unchanged — N-1 support continues
+```
+
+**package.json:**
+
+```json
+{
+  "version": "5.3.0"
+}
+```
+
+**vectors/VERSION:** Update to `5.3.0`.
+
+**schemas/index.json:** Regenerate with:
+- GovernanceConfig schema added
+- All `$id` URLs updated to v5.3.0 base
+- ReservationDecision type updated (optional warning, post_transaction_available fields)
+
+---
+
+## 4. Test Architecture
+
+### 4.1 New Test Files
+
+| File | Tests (est.) | FR | Coverage |
+|------|-------------|-----|----------|
+| `tests/utilities/reservation-v53.test.ts` | ~35 | FR-1, FR-2 | Post-tx floor check, advisory warnings, edge cases |
+| `tests/vectors/reservation-enforcement-v53.test.ts` | ~20 | FR-3 | Advisory + unsupported enforcement vectors |
+| `tests/schemas/governance-config.test.ts` | ~20 | FR-6 | Schema validation, defaults, constraint evaluation |
+| `tests/utilities/governance.test.ts` | ~15 | FR-6 | resolveReservationTier, resolveAdvisoryThreshold |
+| `tests/properties/reservation-floor.test.ts` | ~15 | FR-1, FR-2 | Property-based: arbitrary available/cost/reserved triples |
+| `tests/constraints/epistemic-tristate.test.ts` | ~8 | FR-4 | Constraint file validation |
+| `tests/constraints/governance-config.test.ts` | ~10 | FR-6 | Tier ordering, bounds |
+
+### 4.2 Modified Test Files
+
+| File | Changes | FR |
+|------|---------|-----|
+| `tests/vectors/reservation-enforcement-vectors.test.ts` | Extend for new vectors 0005-0008 | FR-3 |
+| `tests/utilities/reservation.test.ts` | Update for changed behavior + new fields | FR-1 |
+| `tests/vectors/compatibility.test.ts` | Add v5.3.0 compatibility checks | FR-9 |
+| `tests/vectors/version-bump.test.ts` | Update CONTRACT_VERSION to '5.3.0' | FR-9 |
+| `tests/constraints/round-trip.test.ts` | Add new constraint files | FR-4, FR-5, FR-6 |
+| `tests/schemas/schema-index.test.ts` | Verify GovernanceConfig in index.json | FR-6 |
+
+**Estimated new tests:** ~123 (target: ≥120)
+
+### 4.3 Property-Based Testing Strategy
+
+```typescript
+// tests/properties/reservation-floor.test.ts
+import { fc } from 'fast-check';
+
+describe('Post-transaction floor invariant', () => {
+  it('strict mode NEVER allows post-transaction balance below floor', () => {
+    fc.assert(
+      fc.property(
+        fc.bigInt(1n, 10n ** 18n),  // available
+        fc.bigInt(1n, 10n ** 18n),  // cost
+        fc.bigInt(0n, 10n ** 18n),  // reserved
+        (available, cost, reserved) => {
+          const result = shouldAllowRequest(
+            available.toString(), cost.toString(), reserved.toString(), 'strict',
+          );
+          if (result.allowed) {
+            // Post-transaction must be >= reserved
+            expect(available - cost).toBeGreaterThanOrEqual(reserved);
+          }
+        },
+      ),
+    );
+  });
+
+  it('advisory mode always returns warning when post-tx < reserved', () => {
+    fc.assert(
+      fc.property(
+        fc.bigInt(1n, 10n ** 18n),
+        fc.bigInt(1n, 10n ** 18n),
+        fc.bigInt(1n, 10n ** 18n),
+        (available, cost, reserved) => {
+          fc.pre(available >= cost);  // sufficient budget
+          fc.pre(available - cost < reserved);  // would breach floor
+          const result = shouldAllowRequest(
+            available.toString(), cost.toString(), reserved.toString(), 'advisory',
+          );
+          expect(result.allowed).toBe(true);
+          expect(result.warning).toBeDefined();
+        },
+      ),
+    );
+  });
 });
-
-// Usage conservation property
-fc.assert(
-  fc.property(
-    completionResultArbitrary(),
-    (result) => {
-      const { prompt_tokens, completion_tokens, reasoning_tokens, total_tokens } = result.usage;
-      return total_tokens === prompt_tokens + completion_tokens + (reasoning_tokens ?? 0);
-    },
-  ),
-);
-```
-
-### 6.3 Vector Validation Tests
-
-```typescript
-// Test each cross-ecosystem vector
-describe('cross-ecosystem vectors', () => {
-  for (const file of vectorFiles) {
-    for (const vector of file.vectors) {
-      it(`${file.schema_id}/${vector.id}`, () => {
-        const schema = getSchemaById(file.schema_id);
-        const result = validate(schema, vector.data);
-        expect(result.valid).toBe(vector.valid);
-        if (vector.expected_cross_field) {
-          const crossResult = validate(schema, vector.data, { crossField: true });
-          expect(crossResult.valid).toBe(vector.expected_cross_field.valid);
-        }
-      });
-    }
-  }
-});
 ```
 
 ---
 
-## 7. Sprint Sequence Recommendation
+## 5. Barrel Export Updates
 
-| Sprint | Theme | FRs | New Files | Est. Tests |
-|--------|-------|-----|-----------|-----------|
-| 1 | ModelPort Foundation | FR-1 (6 schemas) + FR-3 (finding resolution) | 6 schema files + 2 modified schemas | ~55 |
-| 2 | Ensemble & Routing | FR-2 (3 schemas) + FR-7 (5 schemas) | 8 schema files | ~40 |
-| 3 | Architecture — Barrel + Grammar | FR-4 (barrel decomposition) + FR-5 (grammar formalization) | 5 barrel files + 2 grammar files | ~35 |
-| 4 | Vectors, Namespace & Polish | FR-6 (vectors) + FR-8 (metadata) + JSON Schema generation + MIGRATION.md | ~8 vector files + version bump | ~35 |
-| 5 | Integration — Constraint Files + Final Release | New constraint files + round-trip tests + v5.0.0 release | ~8 constraint files | ~25 |
+### 5.1 economy/index.ts
 
-**Dependency chain:** Sprint 1 → Sprint 2 (ensemble references completion) → Sprint 3 (barrel organizes all schemas) → Sprint 4 (vectors test all schemas) → Sprint 5 (constraints reference all validators).
+Add exports:
+- `GovernanceConfig`, `GovernanceConfigSchema`, `DEFAULT_GOVERNANCE_CONFIG` from `schemas/governance-config.ts`
+- `resolveReservationTier`, `resolveAdvisoryThreshold` from `utilities/governance.ts`
+- `ROUNDING_BIAS`, `RoundingBias` from `vocabulary/reservation-tier.ts`
+- `ADVISORY_WARNING_THRESHOLD_PERCENT` from `utilities/reservation.ts`
 
-**Critical path:** Sprint 1 defines the ModelPort schemas that everything else depends on. Sprint 3 is the riskiest (barrel refactoring touches every import path).
+### 5.2 Root index.ts
 
----
-
-## 8. Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Barrel decomposition breaks TypeScript resolution | Consumer build failures | Test with `moduleResolution: "NodeNext"` in CI. Root barrel re-exports everything. |
-| CompletionRequest shape diverges from loa-finn's actual needs | Wasted protocol work | Cross-reference with loa-finn RFC #31 implementation. Schema fields are Optional where unsure. |
-| Constraint grammar PEG spec reveals evaluator bugs | Regression in constraint evaluation | Fuzz tests run before and after. Existing constraint files are the ground truth. |
-| Sub-package imports increase bundle size for consumers | Performance regression | Each sub-package is independently importable. Root barrel adds no new runtime code. |
-| Vector format changes between v5.0.0 and consumer adoption | Consumer test breakage | Vectors are read-only fixtures. Consumers pin to specific vector file versions. |
+Add cross-cutting exports:
+- `GovernanceConfig`, `GovernanceConfigSchema`
 
 ---
 
-## 9. Architecture Decision Records
+## 6. JSON Schema Generation
 
-**ADR-004: Sub-package barrels instead of TypeScript path aliases**
-- Decision: Physical `src/{domain}/index.ts` files with `package.json` `exports` map
-- Rationale: Path aliases require consumer tsconfig changes. Physical files work with any TypeScript configuration and any bundler.
-- Alternative rejected: `exports` map to deep paths (e.g., `"./model": "./dist/schemas/model/index.js"`) — too fragile, breaks on directory restructuring.
+New schema registered in `schemas/index.json`:
 
-**ADR-005: ProviderWireMessage as a separate schema from Message**
-- Decision: `ProviderWireMessage` is a lean wire-format type, distinct from the persisted `Message` schema
-- Rationale: Persisted messages carry conversation context (id, timestamp, metadata). Wire messages are the minimal payload sent to model APIs. Conflating them forces either over-sending fields or losing context.
-- Alternative rejected: Extending `MessageSchema` with optional wire-format fields — violates single responsibility, makes validation ambiguous.
+| Schema $id | Source File |
+|-----------|------------|
+| `GovernanceConfig` | `src/schemas/governance-config.ts` |
 
-**ADR-006: ModelCapabilities as a static declaration, not runtime negotiation**
-- Decision: `ModelCapabilities` is a static document describing what a provider supports, not a negotiation protocol
-- Rationale: Runtime capability negotiation (like IETF content negotiation) requires round-trips. Static declaration is sufficient for the five-layer provider abstraction where capabilities are known at configuration time.
-- Alternative rejected: Capability negotiation protocol (CapabilityAttestation) — deferred to v6.0.0 per PRD out-of-scope.
+Existing schemas with modified types:
+- `ReservationDecision` implicit type (no schema, but TypeScript interface has new optional fields)
 
-**ADR-007: PEG grammar over BNF for constraint language**
-- Decision: PEG (Parsing Expression Grammar) specification
-- Rationale: PEG has no ambiguity by construction (ordered choice). BNF can be ambiguous and requires disambiguation rules. PEG maps directly to recursive descent parsers, which is what our evaluator already is.
-- Alternative rejected: BNF with disambiguation rules — more familiar but adds complexity for non-TS implementers.
+New constraint files:
+| File | Schema |
+|------|--------|
+| `constraints/EpistemicTristate.constraints.json` | EpistemicTristate (pattern) |
+| `constraints/ReservationArithmetic.constraints.json` | ReservationArithmetic (invariant) |
+| `constraints/GovernanceConfig.constraints.json` | GovernanceConfig |
 
-**ADR-008: Cross-ecosystem vectors as JSON fixtures, not executable tests**
-- Decision: JSON data files with expected outcomes, not language-specific test files
-- Rationale: Vectors must be consumable by TypeScript (loa-finn, arrakis), Python (mibera-freeside runners), and Go (future). JSON is the universal interchange format. Consumers write their own test harnesses.
-- Alternative rejected: Shared test harness package — tight coupling between repos, language-specific.
+---
+
+## 7. Security Considerations
+
+### 7.1 Post-Transaction Floor Check (FR-1)
+
+The correctness fix in FR-1 is a security improvement: the v5.2.0 behavior allowed a single large request to silently consume reserved capacity. This is analogous to a time-of-check-to-time-of-use (TOCTOU) vulnerability — the check (Case 1: `available >= cost`) doesn't account for the effect of the operation.
+
+The fix ensures **post-transaction capital adequacy** — the same principle Basel III uses for bank capital requirements.
+
+### 7.2 GovernanceConfig (FR-6)
+
+GovernanceConfig introduces configurable parameters. Security constraints:
+- Tier values are bounded by TypeBox schema (`minimum: 0`, `maximum: 10000`)
+- Tier ordering is enforced by constraint (`self_declared <= community_verified <= protocol_certified`)
+- Advisory threshold is bounded (`0 <= threshold <= 100`)
+- The `DEFAULT_GOVERNANCE_CONFIG` constant provides a safe fallback
+- GovernanceConfig MUST be validated against its constraint file before use
+
+**Attack vector:** A malicious GovernanceConfig could set all tier minimums to 0, effectively disabling reservations. Mitigation: the constraint file enforces `reservation_tiers.self_declared >= 0` but does NOT enforce a nonzero minimum (by design — 0 bps is a valid governance choice meaning "no minimum reservation"). Implementations SHOULD validate that tier values are reasonable for their deployment context.
+
+### 7.3 Advisory Mode (FR-2)
+
+Advisory mode allows requests through floor breaches. This is by design — but it means advisory mode provides weaker guarantees than strict. Implementations MUST NOT use advisory mode for budget-critical operations where floor breaches would cause cascading failures.
+
+---
+
+## 8. Migration Notes
+
+### 8.1 For v5.2.0 Consumers
+
+- **shouldAllowRequest behavior change:** The only visible change: when `available >= cost` AND `available - cost < reserved`, strict/unsupported enforcement now returns `allowed: false`. This is a correctness fix — the v5.2.0 behavior violated the protocol's reservation guarantee. See PRD §11.2 for migration details.
+- **New optional fields on ReservationDecision:** `warning?: string` and `post_transaction_available?: string`. Ignored by existing destructuring.
+- **GovernanceConfig:** New optional schema. Existing code unaffected unless it chooses to use governance overrides.
+- **validateReservationTier:** Gains optional 3rd parameter `config?: GovernanceConfig`. Existing 2-argument calls unaffected.
+
+### 8.2 Breaking Changes
+
+None. All changes are additive and backward compatible. The `shouldAllowRequest` behavior change is a correctness fix, not a contract break.
+
+---
+
+## 9. Sprint Alignment
+
+| Sprint | SDD Sections | Key Deliverables |
+|--------|-------------|-----------------|
+| Sprint 1 | §3.1, §3.2, §3.5 | Post-tx floor fix (FR-1), advisory warnings (FR-2), rounding bias docs (FR-5) |
+| Sprint 2 | §3.3, §3.4, §3.7, §3.8 | Conformance vectors (FR-3), Epistemic Tristate pattern (FR-4), Ostrom framing (FR-7), JSDoc examples (FR-8) |
+| Sprint 3 | §3.6, §3.9 | GovernanceConfig schema + utilities (FR-6), version bump (FR-9) |
+
+**Sprint 1** focuses on the P0 correctness fix and the enforcement semantics that depend on it.
+**Sprint 2** focuses on conformance completeness and documentation/formalization.
+**Sprint 3** focuses on governance evolution and release finalization.
+
+---
+
+## 10. Risks and Mitigations
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| shouldAllowRequest fix breaks existing consumers | Low | Medium | Document as correctness fix; edge case only triggers when `available > cost` but `available - cost < reserved` |
+| GovernanceConfig becomes dead code | Medium | Low | Start minimal (3 params); defer full governance until external implementors exist |
+| Advisory allow-through-floor creates false safety | Low | High | Document clearly that advisory mode provides weaker guarantees; implementations SHOULD validate enforcement mode choice |
+| Constraint expression evaluator doesn't support nested object paths | Medium | Medium | GovernanceConfig constraint uses dotted paths (`reservation_tiers.self_declared`); verify evaluator supports this or flatten |
+
+---
+
+## 11. Open Questions
+
+| Question | Status | Resolution |
+|----------|--------|------------|
+| Should `checkAdvisoryWarning` accept configurable threshold? | Resolved | Yes, via GovernanceConfig (FR-6) |
+| Should advisory mode at the floor (Case 2) allow or block? | Resolved | Block — advisory's "allow-through" only applies to would-breach (Case 1), not already-breached (Case 2) |
+| Should EpistemicTristate be a generic type? | Resolved (FL-PRD-006) | No — documentation pattern only. Instances differ too much in shape. |
+| Should marketplace dimensions be in v5.3.0? | Resolved (FL-PRD-007) | Deferred to v5.4.0. No consumer exists. |
+| Does constraint evaluator support dotted paths? | Resolved (FL-SDD-002) | YES — `evaluator.ts:33-40` `resolve()` splits on `.` and traverses nested objects |

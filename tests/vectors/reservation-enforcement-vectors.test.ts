@@ -38,6 +38,8 @@ interface ReservationVector {
     warning_pattern?: string;
     /** Expected post-transaction available (v5.3.0). */
     post_transaction_available?: string;
+    /** Whether floor would be breached (advisory allow-through, v5.3.0). */
+    would_breach_floor?: boolean;
     /** Expected enforcement action. */
     enforcement_action?: string;
   };
@@ -219,6 +221,8 @@ describe('Vector 0005: advisory enforcement allows with warning on floor breach'
     expect(decision.warning).toBeDefined();
     expect(decision.warning).toMatch(new RegExp(v.expected_output.warning_pattern!));
     expect(decision.post_transaction_available).toBe(v.expected_output.post_transaction_available);
+    // would_breach_floor: consistent signal for cross-language consumers (medium-v53-001)
+    expect(decision.would_breach_floor).toBe(v.expected_output.would_breach_floor);
   });
 });
 

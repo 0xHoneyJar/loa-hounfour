@@ -63,12 +63,13 @@ describe('Post-transaction floor check (HIGH-V52-001)', () => {
   });
 
   describe('advisory enforcement', () => {
-    it('allows through floor breach with warning', () => {
+    it('allows through floor breach with warning and would_breach_floor', () => {
       // available=1000, cost=900, reserved=500
       // Post-tx = 100 < 500 → ALLOW (advisory) with warning
       const result = shouldAllowRequest('1000', '900', '500', 'advisory');
       expect(result.allowed).toBe(true);
       expect(result.floor_breached).toBe(false); // Not yet breached
+      expect(result.would_breach_floor).toBe(true); // But WOULD be breached (medium-v53-001)
       expect(result.warning).toBeDefined();
       expect(result.warning).toContain('would breach');
       expect(result.post_transaction_available).toBe('100');
@@ -82,6 +83,7 @@ describe('Post-transaction floor check (HIGH-V52-001)', () => {
     it('allows through floor breach even when post-tx is zero', () => {
       const result = shouldAllowRequest('1000', '1000', '500', 'advisory');
       expect(result.allowed).toBe(true);
+      expect(result.would_breach_floor).toBe(true);
       expect(result.warning).toBeDefined();
       expect(result.post_transaction_available).toBe('0');
     });
@@ -107,6 +109,8 @@ describe('Post-transaction floor check (HIGH-V52-001)', () => {
       const result = shouldAllowRequest('400', '500', '300', 'strict');
       expect(result.allowed).toBe(false);
       expect(result.floor_breached).toBe(false);
+      // Case 3: no enforcement_action since floor is not breached (low-v53-004)
+      expect(result.enforcement_action).toBeUndefined();
     });
 
     it('still blocks at floor (Case 2)', () => {
@@ -145,6 +149,7 @@ describe('Advisory graduated warnings (FR-2)', () => {
       const result = shouldAllowRequest('1000', '300', '500', 'advisory');
       expect(result.allowed).toBe(true);
       expect(result.warning).toBeUndefined();
+      expect(result.would_breach_floor).toBeUndefined(); // No breach, no would-breach
     });
 
     it('warns at warning zone boundary', () => {

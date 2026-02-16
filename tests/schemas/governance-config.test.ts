@@ -155,6 +155,13 @@ describe('GovernanceConfig constraint file', () => {
     expect(result).toBe(true);
   });
 
+  it('tier bounds constraint checks community_verified independently (medium-v53-002)', () => {
+    const c = constraintFile.constraints.find((c: { id: string }) => c.id === 'governance-tier-bounds');
+    // Expression should include community_verified bounds
+    expect(c.expression).toContain('reservation_tiers.community_verified >= 0');
+    expect(c.expression).toContain('reservation_tiers.community_verified <= 10000');
+  });
+
   it('advisory bounds constraint passes for default config', () => {
     const c = constraintFile.constraints.find((c: { id: string }) => c.id === 'governance-advisory-bounds');
     const result = evaluateConstraint(DEFAULT_GOVERNANCE_CONFIG, c.expression);

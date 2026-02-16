@@ -108,7 +108,7 @@ describe('Advisory floor breach warning invariant', () => {
           fc.pre(avail >= c);                   // sufficient budget
           const postTx = avail - c;
           fc.pre(postTx >= res);                // above floor
-          const threshold = (res * BigInt(100 + ADVISORY_WARNING_THRESHOLD_PERCENT)) / 100n;
+          const threshold = (res * BigInt(100 + ADVISORY_WARNING_THRESHOLD_PERCENT) + 99n) / 100n;
           fc.pre(postTx < threshold);           // in warning zone
           const result = shouldAllowRequest(available, cost, reserved, 'advisory');
           expect(result.allowed).toBe(true);
@@ -138,11 +138,41 @@ describe('Advisory no-warning invariant', () => {
           const res = BigInt(reserved);
           fc.pre(avail >= c);
           const postTx = avail - c;
-          const threshold = (res * BigInt(100 + ADVISORY_WARNING_THRESHOLD_PERCENT)) / 100n;
+          const threshold = (res * BigInt(100 + ADVISORY_WARNING_THRESHOLD_PERCENT) + 99n) / 100n;
           fc.pre(postTx >= threshold);  // above warning zone
           const result = shouldAllowRequest(available, cost, reserved, 'advisory');
           expect(result.allowed).toBe(true);
           expect(result.warning).toBeUndefined();
+        },
+      ),
+      { numRuns: 500 },
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Property: Advisory would_breach_floor is consistent with floor state
+// ---------------------------------------------------------------------------
+
+describe('Advisory would_breach_floor invariant', () => {
+  it('advisory sets would_breach_floor only when post-tx < reserved', () => {
+    fc.assert(
+      fc.property(
+        positiveBigArb,
+        positiveBigArb,
+        positiveBigArb,
+        (available, cost, reserved) => {
+          fc.pre(BigInt(available) >= BigInt(cost)); // sufficient budget
+          const result = shouldAllowRequest(available, cost, reserved, 'advisory');
+          const postTx = BigInt(available) - BigInt(cost);
+          const res = BigInt(reserved);
+          if (postTx < res) {
+            // Would breach → must have would_breach_floor: true
+            expect(result.would_breach_floor).toBe(true);
+          } else {
+            // No breach → must NOT have would_breach_floor
+            expect(result.would_breach_floor).toBeUndefined();
+          }
         },
       ),
       { numRuns: 500 },

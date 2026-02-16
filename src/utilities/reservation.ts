@@ -34,6 +34,8 @@ export interface ReservationDecision {
   reason: string;
   /** Whether the reservation floor was breached. */
   floor_breached: boolean;
+  /** Whether the floor WOULD be breached by this transaction (advisory allow-through). */
+  would_breach_floor?: boolean;
   /** The enforcement action taken (only present when floor is breached). */
   enforcement_action?: 'block' | 'warn' | 'downgrade';
   /** Advisory warning when approaching or breaching floor. */
@@ -41,10 +43,6 @@ export interface ReservationDecision {
   /** Post-transaction available balance (string-encoded BigInt). */
   post_transaction_available?: string;
 }
-
-// ---------------------------------------------------------------------------
-// computeReservedMicro — Ceil-division reservation computation
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // Advisory Warning Threshold
@@ -165,9 +163,10 @@ function checkAdvisoryWarning(
 ): string | null {
   if (reserved <= 0n) return null;
 
-  // Warning threshold: reserved * (100 + threshold) / 100
-  // E.g., reserved=500, threshold=20 → threshold_value = 500 * 120 / 100 = 600
-  const warningThreshold = (reserved * BigInt(100 + thresholdPercent)) / 100n;
+  // Warning threshold: ceil(reserved * (100 + threshold) / 100)
+  // Uses ceiling division consistent with ROUNDING_BIAS = 'rights_holder'
+  // E.g., reserved=500, threshold=20 → threshold_value = ceil(500 * 120 / 100) = 600
+  const warningThreshold = (reserved * BigInt(100 + thresholdPercent) + 99n) / 100n;
 
   if (postTransaction < warningThreshold) {
     return `Post-transaction balance (${postTransaction.toString()}) is within ${thresholdPercent}% of reservation floor (${reserved.toString()})`;
@@ -201,6 +200,7 @@ function handleFloorBreach(
       allowed: true,
       reason: 'Sufficient budget available (advisory: floor would be breached)',
       floor_breached: false, // Not yet breached — would be breached after spending
+      would_breach_floor: true, // Consistent signal for metric collectors (medium-v53-001)
       warning: `Post-transaction balance (${postTxStr}) would breach reservation floor (${reserved.toString()})`,
       post_transaction_available: postTxStr,
     };
@@ -341,10 +341,10 @@ export function shouldAllowRequest(
   }
 
   // Case 3: Above floor but insufficient — normal budget shortfall
+  // No enforcement_action: floor is not breached, this is a simple budget shortfall (low-v53-004)
   return {
     allowed: false,
     reason: 'Insufficient budget (above reservation floor)',
     floor_breached: false,
-    enforcement_action: enforcement === 'strict' ? 'block' : enforcement === 'advisory' ? 'warn' : 'block',
   };
 }

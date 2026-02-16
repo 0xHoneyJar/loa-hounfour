@@ -16,6 +16,7 @@
     "reserved_micro": "500",
     "allowed": true,
     "floor_breached": false,
+    "would_breach_floor": true,
     "warning_pattern": "would breach reservation floor",
     "post_transaction_available": "400"
   },
