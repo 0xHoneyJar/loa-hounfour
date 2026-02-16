@@ -1,0 +1,32 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernanceConfig",
+  "contract_version": "5.3.0",
+  "expression_version": "2.0",
+  "constraints": [
+    {
+      "id": "governance-tier-ordering",
+      "expression": "reservation_tiers.self_declared <= reservation_tiers.community_verified && reservation_tiers.community_verified <= reservation_tiers.protocol_certified",
+      "severity": "error",
+      "message": "Tier minimums must be non-decreasing: self_declared <= community_verified <= protocol_certified",
+      "fields": ["reservation_tiers"]
+    },
+    {
+      "id": "governance-tier-bounds",
+      "expression": "reservation_tiers.self_declared >= 0 && reservation_tiers.protocol_certified <= 10000",
+      "severity": "error",
+      "message": "Tier values must be in [0, 10000] basis points",
+      "fields": ["reservation_tiers"]
+    },
+    {
+      "id": "governance-advisory-bounds",
+      "expression": "advisory_warning_threshold_percent >= 0 && advisory_warning_threshold_percent <= 100",
+      "severity": "error",
+      "message": "Advisory threshold must be in [0, 100] percent",
+      "fields": ["advisory_warning_threshold_percent"]
+    }
+  ],
+  "metadata": {
+    "institutional_context": "GovernanceConfig defines the mutable parameters of the protocol's economic constitution. Changes to these values are governance acts, not implementation details."
+  }
+}

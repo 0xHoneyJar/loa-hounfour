@@ -70,3 +70,16 @@ export {
 
 // Utilities — Reputation
 export { isReliableReputation } from '../utilities/reputation.js';
+
+// Schemas — Governance Config (v5.3.0)
+export {
+  GovernanceConfigSchema,
+  DEFAULT_GOVERNANCE_CONFIG,
+  type GovernanceConfig,
+} from '../schemas/governance-config.js';
+
+// Utilities — Governance Resolution (v5.3.0)
+export {
+  resolveReservationTier,
+  resolveAdvisoryThreshold,
+} from '../utilities/governance.js';

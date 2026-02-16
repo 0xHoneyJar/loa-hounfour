@@ -12,7 +12,7 @@
  * rights to organize" principle.
  *
  * @see Ostrom, E. (1990). Governing the Commons.
- * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules
+ * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules (v5.3.0)
  */
 
 // Constraint types and evaluator

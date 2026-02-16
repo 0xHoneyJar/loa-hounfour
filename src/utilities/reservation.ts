@@ -20,6 +20,8 @@ import { parseMicroUSD } from './pricing.js';
 import { RESERVATION_TIER_MAP, type ReservationTier } from '../vocabulary/reservation-tier.js';
 import type { ReservationEnforcement } from '../vocabulary/reservation-enforcement.js';
 import type { ConformanceLevel } from '../schemas/model/conformance-level.js';
+import type { GovernanceConfig } from '../schemas/governance-config.js';
+import { resolveReservationTier as resolveReservationTierFromConfig, resolveAdvisoryThreshold } from './governance.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -116,15 +118,21 @@ export interface TierValidation {
  * Validate that a reservation's basis points meet the minimum for the
  * agent's conformance level.
  *
+ * Accepts optional GovernanceConfig to override default tier minimums.
+ *
  * @param conformanceLevel - Agent's earned conformance level
  * @param actualBps - The actual reserved_capacity_bps
+ * @param config - Optional governance config overriding default tiers
  * @returns Validation result with minimum requirement
  */
 export function validateReservationTier(
   conformanceLevel: ConformanceLevel,
   actualBps: number,
+  config?: GovernanceConfig,
 ): TierValidation {
-  const minimumBps = RESERVATION_TIER_MAP[conformanceLevel];
+  const minimumBps = config
+    ? resolveReservationTierFromConfig(conformanceLevel, config)
+    : RESERVATION_TIER_MAP[conformanceLevel];
 
   if (actualBps >= minimumBps) {
     return { valid: true, minimum_bps: minimumBps, actual_bps: actualBps };
@@ -277,6 +285,7 @@ function handleAtFloor(
  * @param costMicro - Request cost in micro-USD (string-encoded BigInt)
  * @param reservedMicro - Reserved floor in micro-USD (string-encoded BigInt)
  * @param enforcement - How to enforce the reservation ('strict' | 'advisory' | 'unsupported')
+ * @param config - Optional GovernanceConfig to override advisory threshold (v5.3.0)
  * @returns Decision with allowed flag, reason, floor_breached, and optional warning
  * @see ROUNDING_BIAS — 'rights_holder' policy documentation
  */
@@ -285,11 +294,17 @@ export function shouldAllowRequest(
   costMicro: string,
   reservedMicro: string,
   enforcement: ReservationEnforcement,
+  config?: GovernanceConfig,
 ): ReservationDecision {
   const available = parseMicroUSD(availableMicro);
   const cost = parseMicroUSD(costMicro);
   const reserved = parseMicroUSD(reservedMicro);
   const postTransaction = available - cost;
+
+  // Resolve advisory threshold from config or default
+  const advisoryThreshold = config
+    ? resolveAdvisoryThreshold(config)
+    : ADVISORY_WARNING_THRESHOLD_PERCENT;
 
   // Case 1: Sufficient budget — but check post-transaction floor
   if (available >= cost) {
@@ -300,7 +315,7 @@ export function shouldAllowRequest(
 
     // Check advisory near-floor warning (FR-2)
     if (enforcement === 'advisory') {
-      const warningResult = checkAdvisoryWarning(postTransaction, reserved);
+      const warningResult = checkAdvisoryWarning(postTransaction, reserved, advisoryThreshold);
       if (warningResult) {
         return {
           allowed: true,
