@@ -1,29 +1,88 @@
 {
-  "bridge_id": "bridge-20260216-c020s4",
-  "pr_number": 341,
-  "pr_url": "https://github.com/0xHoneyJar/loa/pull/341",
-  "state": "ITERATING",
-  "branch": "feat/cycle-020-teamcreate-compat",
-  "base_branch": "main",
-  "depth": 5,
-  "current_iteration": 0,
-  "previous_bridge": "bridge-20260216-c020s3",
-  "iterations": [],
+  "schema_version": 1,
+  "bridge_id": "bridge-20260217-v53",
+  "state": "JACKED_OUT",
+  "config": {
+    "depth": 5,
+    "mode": "full",
+    "flatline_threshold": 0.05,
+    "per_sprint": false,
+    "branch": "feature/v5.0.0-multi-model",
+    "pr_number": 10
+  },
   "timestamps": {
-    "started": "2026-02-16T23:30:00Z",
-    "last_activity": "2026-02-16T23:30:00Z"
+    "started": "2026-02-17T05:47:00Z",
+    "last_activity": "2026-02-17T06:50:00Z"
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "review_file": ".run/bridge-reviews/bridge-20260217-v53-iter1-full.md",
+      "findings": {
+        "total": 12,
+        "medium": 2,
+        "low": 4,
+        "speculation": 2,
+        "praise": 4,
+        "addressed": 6
+      },
+      "sprint": {
+        "files_changed": 9,
+        "tests_before": 2283,
+        "tests_after": 2284
+      },
+      "commit": "d3cb699",
+      "pr_comment_url": "https://github.com/0xHoneyJar/loa-hounfour/pull/10#issuecomment-3908101399"
+    },
+    {
+      "iteration": 2,
+      "review_file": ".run/bridge-reviews/bridge-20260217-v53-iter2-full.md",
+      "findings": {
+        "total": 3,
+        "medium": 0,
+        "low": 1,
+        "speculation": 1,
+        "praise": 1,
+        "addressed": 1
+      },
+      "sprint": {
+        "files_changed": 1,
+        "tests_before": 2284,
+        "tests_after": 2284
+      },
+      "commit": "206774c",
+      "pr_comment_url": "https://github.com/0xHoneyJar/loa-hounfour/pull/10#issuecomment-3908144402"
+    },
+    {
+      "iteration": 3,
+      "review_file": ".run/bridge-reviews/bridge-20260217-v53-iter3-full.md",
+      "findings": {
+        "total": 0,
+        "medium": 0,
+        "low": 0,
+        "speculation": 0,
+        "praise": 0,
+        "addressed": 0
+      },
+      "sprint": null,
+      "commit": null,
+      "pr_comment_url": "https://github.com/0xHoneyJar/loa-hounfour/pull/10#issuecomment-3908231944"
+    }
+  ],
+  "flatline": {
+    "initial_score": 6,
+    "last_score": 0,
+    "consecutive_below_threshold": 2
   },
   "metrics": {
-    "total_iterations": 0,
-    "total_sprints": 0,
-    "total_files_changed": 0,
-    "total_findings_addressed": 0,
+    "total_sprints_executed": 2,
+    "total_files_changed": 10,
+    "total_findings_addressed": 7,
     "total_visions_captured": 0
   },
-  "flatline": {
-    "threshold": 0.05,
-    "consecutive_required": 2,
-    "consecutive_count": 0,
-    "detected": false
+  "finalization": {
+    "ground_truth_updated": true,
+    "rtfm_passed": true,
+    "pr_url": "https://github.com/0xHoneyJar/loa-hounfour/pull/10"
   }
 }
