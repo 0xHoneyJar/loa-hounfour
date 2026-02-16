@@ -38,6 +38,20 @@ export const GovernanceConfigSchema = Type.Object(
       maximum: 100,
       description: 'Percentage threshold for advisory near-floor warnings. Default: 20.',
     }),
+    /** v5.4.0 — Sandbox economy permeability axis (Virtual Agent Economies, arXiv:2509.10147). */
+    sandbox_permeability: Type.Optional(Type.Union([
+      Type.Literal('impermeable'),
+      Type.Literal('semi_permeable'),
+      Type.Literal('permeable'),
+    ], {
+      description: 'How tightly the agent economy is sealed from external systems.',
+    })),
+    sandbox_permeability_rationale: Type.Optional(Type.String({
+      description: 'Human-readable rationale for permeability setting.',
+    })),
+    mission_alignment: Type.Optional(Type.String({
+      description: 'Shared objective the community economy serves.',
+    })),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
   },
   {

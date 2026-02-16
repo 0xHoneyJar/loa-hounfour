@@ -331,6 +331,21 @@ class Parser {
       return this.parseLinksFormChain();
     }
 
+    // no_emergent_in_individual(emergent, individual) — ensemble emergent capability check
+    if (tok.type === 'ident' && tok.value === 'no_emergent_in_individual') {
+      return this.parseNoEmergentInIndividual();
+    }
+
+    // all_emergent_have_evidence(emergent, evidence) — ensemble evidence check
+    if (tok.type === 'ident' && tok.value === 'all_emergent_have_evidence') {
+      return this.parseAllEmergentHaveEvidence();
+    }
+
+    // object_keys_subset(record, array) — check all keys of record are in array
+    if (tok.type === 'ident' && tok.value === 'object_keys_subset') {
+      return this.parseObjectKeysSubset();
+    }
+
     // Temporal operators (v2.0): changed(), previous(), delta()
     if (tok.type === 'ident' && tok.value === 'changed') {
       return this.parseChanged();
@@ -732,6 +747,89 @@ class Parser {
     const links = val as Array<Record<string, unknown>>;
     for (let i = 0; i < links.length - 1; i++) {
       if (links[i]?.delegatee !== links[i + 1]?.delegator) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Parse no_emergent_in_individual(emergent, individual).
+   * For each capability in emergent: not present in any array value of individual.
+   */
+  private parseNoEmergentInIndividual(): boolean {
+    this.advance(); // consume 'no_emergent_in_individual'
+    this.expect('paren', '(');
+    const emergent = this.parseExpr();
+    this.expect('comma');
+    const individual = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(emergent)) return true;
+    if (individual == null || typeof individual !== 'object') return true;
+
+    const record = individual as Record<string, unknown>;
+    const allIndividual = new Set<string>();
+    for (const caps of Object.values(record)) {
+      if (Array.isArray(caps)) {
+        for (const c of caps) {
+          if (typeof c === 'string') allIndividual.add(c);
+        }
+      }
+    }
+
+    for (const cap of emergent) {
+      if (typeof cap === 'string' && allIndividual.has(cap)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Parse all_emergent_have_evidence(emergent, evidence).
+   * For each capability in emergent: at least one entry in evidence where
+   * evidence[i].capability == capability.
+   */
+  private parseAllEmergentHaveEvidence(): boolean {
+    this.advance(); // consume 'all_emergent_have_evidence'
+    this.expect('paren', '(');
+    const emergent = this.parseExpr();
+    this.expect('comma');
+    const evidence = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(emergent) || emergent.length === 0) return true;
+    if (!Array.isArray(evidence)) return false;
+
+    const evidencedCaps = new Set<string>();
+    for (const e of evidence) {
+      if (e != null && typeof e === 'object') {
+        const cap = (e as Record<string, unknown>).capability;
+        if (typeof cap === 'string') evidencedCaps.add(cap);
+      }
+    }
+
+    for (const cap of emergent) {
+      if (typeof cap === 'string' && !evidencedCaps.has(cap)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Parse object_keys_subset(record, array).
+   * All keys of record are present in array.
+   */
+  private parseObjectKeysSubset(): boolean {
+    this.advance(); // consume 'object_keys_subset'
+    this.expect('paren', '(');
+    const record = this.parseExpr();
+    this.expect('comma');
+    const array = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (record == null || typeof record !== 'object' || Array.isArray(record)) return true;
+    if (!Array.isArray(array)) return false;
+
+    const allowed = new Set(array.map(String));
+    for (const key of Object.keys(record as Record<string, unknown>)) {
+      if (!allowed.has(key)) return false;
     }
     return true;
   }

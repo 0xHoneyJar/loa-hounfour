@@ -176,6 +176,22 @@ export {
   type DelegationLink,
 } from '../schemas/model/routing/delegation-chain.js';
 
+// v5.4.0 — BudgetScope Preference Signal (FR-4)
+export {
+  PreferenceSignalSchema,
+  type PreferenceSignal,
+} from '../schemas/model/routing/budget-scope.js';
+
+// v5.4.0 — Ensemble Capability Profile (FR-5)
+export {
+  EnsembleCapabilityProfileSchema,
+  CapabilityEvidenceSchema,
+  SafetyProfileSchema,
+  type EnsembleCapabilityProfile,
+  type CapabilityEvidence,
+  type SafetyProfile,
+} from '../schemas/model/ensemble/ensemble-capability-profile.js';
+
 // v5.2.0 — Reservation Policy (on ModelProviderSpec)
 export {
   ReservationPolicySchema,
