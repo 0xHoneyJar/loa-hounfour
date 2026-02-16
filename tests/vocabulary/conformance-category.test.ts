@@ -13,6 +13,7 @@ describe('ConformanceCategorySchema', () => {
     'thinking-trace',
     'tool-call-roundtrip',
     'ensemble-position',
+    'reservation-enforcement',
   ];
 
   for (const category of validCategories) {
@@ -39,8 +40,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 5 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(5);
+  it('contains exactly 6 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(6);
   });
 
   it('includes all valid categories', () => {
@@ -49,6 +50,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
     expect(CONFORMANCE_CATEGORIES).toContain('thinking-trace');
     expect(CONFORMANCE_CATEGORIES).toContain('tool-call-roundtrip');
     expect(CONFORMANCE_CATEGORIES).toContain('ensemble-position');
+    expect(CONFORMANCE_CATEGORIES).toContain('reservation-enforcement');
   });
 
   it('is typed as readonly', () => {
@@ -60,6 +62,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'thinking-trace',
       'tool-call-roundtrip',
       'ensemble-position',
+      'reservation-enforcement',
     ]);
   });
 });

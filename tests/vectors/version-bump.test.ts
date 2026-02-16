@@ -47,15 +47,16 @@ describe('v5.1.0 version bump (S4-T6)', () => {
     expect(names).toContain('reconciliation-mode');
   });
 
-  it('schemas/index.json schema $ids use 5.1.0 version', () => {
+  it('schemas/index.json schema $ids use valid version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toContain('/5.1.0/');
+      // v5.1.0 base schemas + v5.2.0 reservation schemas (pre-version-bump)
+      expect(schema.$id).toMatch(/\/5\.[12]\.0\//);
     }
   });
 
-  it('schemas/index.json has 53 schemas', () => {
+  it('schemas/index.json has 57 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(53);
+    expect(index.schemas).toHaveLength(57);
   });
 });

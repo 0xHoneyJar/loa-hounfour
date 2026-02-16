@@ -2,6 +2,7 @@ import { Type, type Static } from '@sinclair/typebox';
 import { ProviderTypeSchema } from './routing/provider-type.js';
 import { MicroUSDUnsigned } from '../../vocabulary/currency.js';
 import { ConformanceLevelSchema } from './conformance-level.js';
+import { ReservationEnforcementSchema } from '../../vocabulary/reservation-enforcement.js';
 
 // --- Reusable Sub-Types ---
 
@@ -100,6 +101,19 @@ export const ConformanceVectorResultSchema = Type.Object(
 
 export type ConformanceVectorResult = Static<typeof ConformanceVectorResultSchema>;
 
+/** Reservation policy describing provider's capacity reservation support. */
+export const ReservationPolicySchema = Type.Object(
+  {
+    supports_reservations: Type.Boolean(),
+    min_reservation_bps: Type.Optional(Type.Integer({ minimum: 0, maximum: 10000 })),
+    max_reservation_bps: Type.Optional(Type.Integer({ minimum: 0, maximum: 10000 })),
+    reservation_enforcement: Type.Optional(ReservationEnforcementSchema),
+  },
+  { additionalProperties: false },
+);
+
+export type ReservationPolicy = Static<typeof ReservationPolicySchema>;
+
 // --- Main Schema ---
 
 /**
@@ -123,6 +137,7 @@ export const ModelProviderSpecSchema = Type.Object(
     conformance_vector_results: Type.Optional(
       Type.Array(ConformanceVectorResultSchema),
     ),
+    reservation_policy: Type.Optional(ReservationPolicySchema),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
     signature: Type.Optional(Type.String({
       pattern: '^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$',

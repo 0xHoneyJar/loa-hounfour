@@ -161,3 +161,45 @@ export {
   type SignatureVerificationResult,
   type KeyResolver,
 } from '../utilities/signature.js';
+
+// v5.2.0 — Agent Capacity Reservation
+export {
+  AgentCapacityReservationSchema,
+  type AgentCapacityReservation,
+} from '../schemas/model/routing/agent-capacity-reservation.js';
+
+// v5.2.0 — Reservation Policy (on ModelProviderSpec)
+export {
+  ReservationPolicySchema,
+  type ReservationPolicy,
+} from '../schemas/model/model-provider-spec.js';
+
+// v5.2.0 — Reservation Vocabulary
+export {
+  ReservationTierSchema,
+  RESERVATION_TIER_MAP,
+  type ReservationTier,
+} from '../vocabulary/reservation-tier.js';
+
+export {
+  ReservationEnforcementSchema,
+  RESERVATION_ENFORCEMENT_MODES,
+  type ReservationEnforcement,
+} from '../vocabulary/reservation-enforcement.js';
+
+export {
+  ReservationStateSchema,
+  RESERVATION_STATES,
+  RESERVATION_STATE_TRANSITIONS,
+  isValidReservationTransition,
+  type ReservationState,
+} from '../vocabulary/reservation-state.js';
+
+// v5.2.0 — Reservation Utilities
+export {
+  computeReservedMicro,
+  validateReservationTier,
+  shouldAllowRequest,
+  type ReservationDecision,
+  type TierValidation,
+} from '../utilities/reservation.js';

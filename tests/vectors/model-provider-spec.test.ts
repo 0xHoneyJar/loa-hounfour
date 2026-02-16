@@ -527,6 +527,102 @@ describe('ModelProviderSpec signature field (v5.2.0)', () => {
   });
 });
 
+// --- ReservationPolicy Tests (v5.2.0) ---
+
+describe('ReservationPolicySchema', () => {
+  it('validates spec without reservation_policy (absent)', () => {
+    const result = validate(ModelProviderSpecSchema, VALID_ANTHROPIC_SPEC);
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates spec with full reservation_policy', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        min_reservation_bps: 100,
+        max_reservation_bps: 5000,
+        reservation_enforcement: 'strict',
+      },
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates minimal reservation_policy (supports_reservations only)', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: { supports_reservations: false },
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates reservation_policy with advisory enforcement', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        reservation_enforcement: 'advisory',
+      },
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates reservation_policy with unsupported enforcement', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: false,
+        reservation_enforcement: 'unsupported',
+      },
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects reservation_policy with invalid enforcement mode', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        reservation_enforcement: 'permissive',
+      },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects reservation_policy with bps above 10000', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        max_reservation_bps: 10001,
+      },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects reservation_policy with negative bps', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        min_reservation_bps: -1,
+      },
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects reservation_policy with additional properties', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      reservation_policy: {
+        supports_reservations: true,
+        extra: 'field',
+      },
+    });
+    expect(result.valid).toBe(false);
+  });
+});
+
 // --- Validator Registry Tests ---
 
 describe('ModelProviderSpec validator registry', () => {
@@ -541,5 +637,9 @@ describe('ModelProviderSpec validator registry', () => {
     const compiled = validators.conformanceLevel();
     expect(compiled.Check('self_declared')).toBe(true);
     expect(compiled.Check('invalid')).toBe(false);
+  });
+
+  it('exposes agentCapacityReservation validator', () => {
+    expect(validators.agentCapacityReservation).toBeDefined();
   });
 });

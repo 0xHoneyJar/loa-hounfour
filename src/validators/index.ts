@@ -65,6 +65,8 @@ import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolu
 import { ConstraintProposalSchema } from '../schemas/model/constraint-proposal.js';
 import { ModelProviderSpecSchema, type ModelProviderSpec } from '../schemas/model/model-provider-spec.js';
 import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
+import { AgentCapacityReservationSchema, type AgentCapacityReservation } from '../schemas/model/routing/agent-capacity-reservation.js';
+import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -419,6 +421,14 @@ registerCrossFieldValidator('Sanction', (data) => {
     errors.push('appeal_dispute_id present but appeal_available is false');
   }
 
+  // v5.2.0 — Reservation floor preservation (S7-T5)
+  // Low-severity sanctions (warning, rate_limited) should preserve the agent's
+  // reservation floor. Higher severities (pool_restricted, suspended, terminated)
+  // CAN breach the floor as they represent serious violations.
+  if (sanction.severity === 'warning' || sanction.severity === 'rate_limited') {
+    warnings.push(`severity "${sanction.severity}" should preserve agent reservation floor — enforcement must not reduce capacity below reserved minimum`);
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
@@ -716,6 +726,62 @@ registerCrossFieldValidator('ModelProviderSpec', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// --- v5.2.0 — AgentCapacityReservation cross-field validator ---
+
+registerCrossFieldValidator('AgentCapacityReservation', (data) => {
+  const r = data as AgentCapacityReservation;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Temporal ordering: effective_until must be after effective_from
+  if (r.effective_until && r.effective_from) {
+    if (new Date(r.effective_until) <= new Date(r.effective_from)) {
+      errors.push('effective_until must be after effective_from');
+    }
+  }
+
+  // Tier minimum: reserved_capacity_bps should meet the minimum for the conformance level
+  const tierMin = RESERVATION_TIER_MAP[r.conformance_level];
+  if (tierMin !== undefined && r.reserved_capacity_bps < tierMin) {
+    warnings.push(
+      `reserved_capacity_bps (${r.reserved_capacity_bps}) is below minimum for ${r.conformance_level} (${tierMin} bps)`,
+    );
+  }
+
+  // Active reservations should have reasonable capacity
+  if (r.state === 'active' && r.reserved_capacity_bps === 0) {
+    warnings.push('active reservation with 0 bps provides no capacity guarantee');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — BudgetScope reservation cross-field enhancement ---
+
+// Enhance the existing BudgetScope validator to check reservation constraints.
+// The validator was already registered above — we augment it by re-registering.
+// The crossFieldRegistry.set() overwrites the old entry.
+registerCrossFieldValidator('BudgetScope', (data) => {
+  const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string; reserved_capacity_bps?: number; reservation_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
+    warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+  }
+
+  // v5.2.0 — Reservation fields cross-check
+  if (scope.reserved_capacity_bps !== undefined && scope.reserved_capacity_bps > 0 && !scope.reservation_id) {
+    warnings.push('reserved_capacity_bps is set but reservation_id is absent');
+  }
+
+  if (scope.reservation_id && (scope.reserved_capacity_bps === undefined || scope.reserved_capacity_bps === 0)) {
+    warnings.push('reservation_id is present but reserved_capacity_bps is 0 or absent');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -856,4 +922,7 @@ export const validators = {
   // v5.1.0 — Protocol Constitution
   modelProviderSpec: () => getOrCompile(ModelProviderSpecSchema),
   conformanceLevel: () => getOrCompile(ConformanceLevelSchema),
+
+  // v5.2.0 — Agent Capacity Reservation
+  agentCapacityReservation: () => getOrCompile(AgentCapacityReservationSchema),
 } as const;

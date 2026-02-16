@@ -321,6 +321,30 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/reconciliation-mode",
       "file": "reconciliation-mode.schema.json",
       "description": "Billing reconciliation mode — determines cost source of truth."
+    },
+    {
+      "name": "agent-capacity-reservation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.2.0/agent-capacity-reservation",
+      "file": "agent-capacity-reservation.schema.json",
+      "description": "Capacity reservation that guarantees an agent a minimum fraction of budget."
+    },
+    {
+      "name": "reservation-tier",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.2.0/reservation-tier",
+      "file": "reservation-tier.schema.json",
+      "description": "Reserved capacity in basis points (0-10000). Maps conformance level to capacity guarantee."
+    },
+    {
+      "name": "reservation-enforcement",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.2.0/reservation-enforcement",
+      "file": "reservation-enforcement.schema.json",
+      "description": "How reservation guarantees are enforced by the provider."
+    },
+    {
+      "name": "reservation-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.2.0/reservation-state",
+      "file": "reservation-state.schema.json",
+      "description": "Lifecycle state of a capacity reservation (active, expired, revoked)."
     }
   ]
 }

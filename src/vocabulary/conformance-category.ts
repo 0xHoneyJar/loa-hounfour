@@ -13,6 +13,7 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('thinking-trace'),
     Type.Literal('tool-call-roundtrip'),
     Type.Literal('ensemble-position'),
+    Type.Literal('reservation-enforcement'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -29,4 +30,5 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'thinking-trace',
   'tool-call-roundtrip',
   'ensemble-position',
+  'reservation-enforcement',
 ] as const;
