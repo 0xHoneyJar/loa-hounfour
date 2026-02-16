@@ -50,6 +50,16 @@ export {
   type ViolationType,
 } from '../vocabulary/sanctions.js';
 
+// Vocabulary — Sanction Severity (v5.1.0)
+export {
+  SanctionSeveritySchema,
+  SANCTION_SEVERITY_LADDER,
+  getSeverityEntry,
+  compareSeverity,
+  type SanctionSeverityLevel,
+  type SeverityLadderEntry,
+} from '../vocabulary/sanction-severity.js';
+
 // Vocabulary — Reputation
 export {
   REPUTATION_WEIGHTS,
@@ -60,3 +70,16 @@ export {
 
 // Utilities — Reputation
 export { isReliableReputation } from '../utilities/reputation.js';
+
+// Schemas — Governance Config (v5.3.0)
+export {
+  GovernanceConfigSchema,
+  DEFAULT_GOVERNANCE_CONFIG,
+  type GovernanceConfig,
+} from '../schemas/governance-config.js';
+
+// Utilities — Governance Resolution (v5.3.0)
+export {
+  resolveReservationTier,
+  resolveAdvisoryThreshold,
+} from '../utilities/governance.js';

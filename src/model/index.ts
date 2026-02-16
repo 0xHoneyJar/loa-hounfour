@@ -55,7 +55,12 @@ export {
 // Schemas — Routing (v5.0.0)
 export { ExecutionModeSchema } from '../schemas/model/routing/execution-mode.js';
 
-export { ProviderTypeSchema } from '../schemas/model/routing/provider-type.js';
+export {
+  ProviderTypeSchema,
+  type ProviderType,
+  KNOWN_PROVIDER_TYPES,
+  isKnownProviderType,
+} from '../schemas/model/routing/provider-type.js';
 
 export {
   AgentRequirementsSchema,
@@ -78,6 +83,59 @@ export {
   type ConstraintProposal,
 } from '../schemas/model/constraint-proposal.js';
 
+// v5.1.0 — Protocol Constitution
+export {
+  ModelProviderSpecSchema,
+  ModelPricingSchema,
+  ModelEntrySchema,
+  ModelStatusSchema,
+  ProviderEndpointsSchema,
+  ProviderSLASchema,
+  ConformanceVectorResultSchema,
+  type ModelProviderSpec,
+  type ModelPricing,
+  type ModelEntry,
+  type ModelStatus,
+  type ProviderEndpoints,
+  type ProviderSLA,
+  type ConformanceVectorResult,
+} from '../schemas/model/model-provider-spec.js';
+
+export {
+  ConformanceLevelSchema,
+  CONFORMANCE_LEVEL_ORDER,
+  type ConformanceLevel,
+} from '../schemas/model/conformance-level.js';
+
+// v5.1.0 — Conformance Vectors
+export {
+  ConformanceVectorSchema,
+  MatchingRulesSchema,
+  CrossFieldExpectationSchema,
+  type ConformanceVector,
+  type MatchingRules,
+  type CrossFieldExpectation,
+} from '../schemas/model/conformance-vector.js';
+
+// Vocabulary — Conformance Categories (v5.1.0)
+export {
+  ConformanceCategorySchema,
+  CONFORMANCE_CATEGORIES,
+  type ConformanceCategory,
+} from '../vocabulary/conformance-category.js';
+
+// Utilities — Conformance Matching (v5.1.0)
+export {
+  matchConformanceOutput,
+  type MatchResult,
+} from '../utilities/conformance-matcher.js';
+
+// Vocabulary — Provider Display Names (v5.1.0)
+export {
+  PROVIDER_DISPLAY_NAMES,
+  getProviderDisplayName,
+} from '../vocabulary/provider-display-names.js';
+
 // Vocabulary — Metadata Namespaces
 export {
   METADATA_NAMESPACES,
@@ -95,3 +153,53 @@ export {
   RoutingConstraintSchema,
   type RoutingConstraint,
 } from '../schemas/routing-constraint.js';
+
+// v5.2.0 — JWS Signature Utilities
+export {
+  canonicalizeProviderSpec,
+  verifyProviderSignature,
+  type SignatureVerificationResult,
+  type KeyResolver,
+} from '../utilities/signature.js';
+
+// v5.2.0 — Agent Capacity Reservation
+export {
+  AgentCapacityReservationSchema,
+  type AgentCapacityReservation,
+} from '../schemas/model/routing/agent-capacity-reservation.js';
+
+// v5.2.0 — Reservation Policy (on ModelProviderSpec)
+export {
+  ReservationPolicySchema,
+  type ReservationPolicy,
+} from '../schemas/model/model-provider-spec.js';
+
+// v5.2.0 — Reservation Vocabulary
+export {
+  ReservationTierSchema,
+  RESERVATION_TIER_MAP,
+  type ReservationTier,
+} from '../vocabulary/reservation-tier.js';
+
+export {
+  ReservationEnforcementSchema,
+  RESERVATION_ENFORCEMENT_MODES,
+  type ReservationEnforcement,
+} from '../vocabulary/reservation-enforcement.js';
+
+export {
+  ReservationStateSchema,
+  RESERVATION_STATES,
+  RESERVATION_STATE_TRANSITIONS,
+  isValidReservationTransition,
+  type ReservationState,
+} from '../vocabulary/reservation-state.js';
+
+// v5.2.0 — Reservation Utilities
+export {
+  computeReservedMicro,
+  validateReservationTier,
+  shouldAllowRequest,
+  type ReservationDecision,
+  type TierValidation,
+} from '../utilities/reservation.js';

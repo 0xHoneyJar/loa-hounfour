@@ -144,13 +144,13 @@ describe('ExecutionMode vocabulary', () => {
 });
 
 describe('ProviderType vocabulary', () => {
-  it.each(['claude-code', 'openai', 'openai-compatible'])('accepts "%s"', (provider) => {
+  it.each(['claude-code', 'openai', 'openai-compatible', 'anthropic', 'google', 'custom'])('accepts "%s"', (provider) => {
     const result = validate(ProviderTypeSchema, provider);
     expect(result.valid).toBe(true);
   });
 
   it('rejects invalid provider', () => {
-    const result = validate(ProviderTypeSchema, 'google');
+    const result = validate(ProviderTypeSchema, 'aws');
     expect(result.valid).toBe(false);
   });
 });

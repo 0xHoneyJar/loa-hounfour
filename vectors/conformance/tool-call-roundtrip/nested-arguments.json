@@ -1,0 +1,36 @@
+{
+  "vector_id": "conformance-toolcall-003",
+  "category": "tool-call-roundtrip",
+  "description": "Nested arguments — tool call with deeply nested object arguments",
+  "contract_version": "5.1.0",
+  "input": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "create_document",
+      "arguments": {
+        "title": "Report",
+        "sections": [
+          { "heading": "Introduction", "content": "Overview text" },
+          { "heading": "Data", "content": "Analysis results", "metadata": { "priority": 1 } }
+        ],
+        "options": { "format": "pdf", "include_toc": true }
+      }
+    }]
+  },
+  "expected_output": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "create_document",
+      "arguments": {
+        "title": "Report",
+        "sections": [
+          { "heading": "Introduction", "content": "Overview text" },
+          { "heading": "Data", "content": "Analysis results", "metadata": { "priority": 1 } }
+        ],
+        "options": { "format": "pdf", "include_toc": true }
+      }
+    }],
+    "tool_call_count": 1
+  },
+  "expected_valid": true
+}

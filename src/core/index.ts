@@ -139,8 +139,11 @@ export {
 // Schemas — Protocol Discovery
 export {
   ProtocolDiscoverySchema,
+  ProviderSummarySchema,
   buildDiscoveryDocument,
   type ProtocolDiscovery,
+  type ProviderSummary,
+  type BuildDiscoveryOptions,
 } from '../schemas/discovery.js';
 
 // Schemas — Stream Events

@@ -17,6 +17,9 @@ import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema } from '../../src/schemas/model/model-provider-spec.js';
+import { AgentCapacityReservationSchema } from '../../src/schemas/model/routing/agent-capacity-reservation.js';
+import { AuditTrailEntrySchema } from '../../src/schemas/audit-trail-entry.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -45,6 +48,12 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'ConstraintProposal',
     // SagaContext
     'SagaContext',
+    // v5.1.0 — Protocol Constitution
+    'ModelProviderSpec',
+    // v5.2.0 — Agent Capacity Reservation
+    'AgentCapacityReservation',
+    // v5.2.0 — Audit Trail
+    'AuditTrailEntry',
   ];
 
   it('returns an array of strings', () => {
@@ -88,6 +97,12 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'BudgetScope', schema: BudgetScopeSchema },
     // v5.0.0 — Constraint Evolution
     { name: 'ConstraintProposal', schema: ConstraintProposalSchema },
+    // v5.1.0 — Protocol Constitution
+    { name: 'ModelProviderSpec', schema: ModelProviderSpecSchema },
+    // v5.2.0 — Agent Capacity Reservation
+    { name: 'AgentCapacityReservation', schema: AgentCapacityReservationSchema },
+    // v5.2.0 — Audit Trail
+    { name: 'AuditTrailEntry', schema: AuditTrailEntrySchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {

@@ -1,35 +1,32 @@
 {
-  "plan_id": "plan-20260215-v5-bridge",
+  "plan_id": "plan-20260216-v51-protocol-constitution",
   "branch": "feature/v5.0.0-multi-model",
   "state": "RUNNING",
   "timestamps": {
-    "started": "2026-02-15T04:45:00Z",
-    "last_activity": "2026-02-15T04:45:00Z"
+    "started": "2026-02-16T15:00:00Z",
+    "last_activity": "2026-02-16T15:00:00Z"
   },
   "sprints": {
-    "total": 8,
-    "completed": 5,
-    "current": "sprint-6",
+    "total": 4,
+    "completed": 0,
+    "current": "sprint-1",
     "list": [
-      {"id": "sprint-1", "status": "completed", "cycles": 1, "files_changed": 14},
-      {"id": "sprint-2", "status": "completed", "cycles": 1, "files_changed": 13},
-      {"id": "sprint-3", "status": "completed", "cycles": 1, "files_changed": 34},
-      {"id": "sprint-4", "status": "completed", "cycles": 1, "files_changed": 21},
-      {"id": "sprint-5", "status": "completed", "cycles": 1, "files_changed": 69},
-      {"id": "sprint-6", "status": "pending", "cycles": 0, "files_changed": 0},
-      {"id": "sprint-7", "status": "pending", "cycles": 0, "files_changed": 0},
-      {"id": "sprint-8", "status": "pending", "cycles": 0, "files_changed": 0}
+      {"id": "sprint-1", "status": "pending", "cycles": 0, "files_changed": 0},
+      {"id": "sprint-2", "status": "pending", "cycles": 0, "files_changed": 0},
+      {"id": "sprint-3", "status": "pending", "cycles": 0, "files_changed": 0},
+      {"id": "sprint-4", "status": "pending", "cycles": 0, "files_changed": 0}
     ]
   },
   "options": {
-    "from": 6,
-    "to": 8,
+    "from": 1,
+    "to": 4,
     "max_cycles": 20,
     "timeout_hours": 8
   },
   "metrics": {
-    "total_cycles": 5,
-    "total_files_changed": 151,
-    "total_findings_fixed": 2
-  }
+    "total_cycles": 0,
+    "total_files_changed": 0,
+    "total_findings_fixed": 0
+  },
+  "cycle": "cycle-011"
 }

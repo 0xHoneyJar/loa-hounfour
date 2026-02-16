@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-ensemble-006",
+  "category": "ensemble-position",
+  "description": "Timeout — ensemble halts when time limit is exceeded",
+  "contract_version": "5.1.0",
+  "input": {
+    "strategy": "dialogue",
+    "timeout_ms": 30000,
+    "rounds": [
+      {
+        "round": 1,
+        "candidates": [
+          { "model_id": "gpt-4-turbo", "position": "Position A", "cost_micro": "20000", "latency_ms": 15000 },
+          { "model_id": "claude-3-opus", "position": "Position B", "cost_micro": "25000", "latency_ms": 18000 }
+        ]
+      }
+    ]
+  },
+  "expected_output": {
+    "consensus_reached": false,
+    "halt_reason": "timeout",
+    "total_rounds_completed": 1,
+    "total_cost_micro": "45000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["consensus_reached", "halt_reason", "total_rounds_completed", "total_cost_micro"]
+  }
+}

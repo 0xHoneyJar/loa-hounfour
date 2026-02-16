@@ -1,0 +1,30 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0007",
+  "category": "reservation-enforcement",
+  "description": "Unsupported enforcement allows request when budget sufficient and above floor",
+  "contract_version": "5.3.0",
+  "input": {
+    "agent_id": "agent-unsupported-ok",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 500,
+    "budget_limit_micro": "10000",
+    "budget_spent_micro": "0",
+    "request_cost_micro": "5000",
+    "enforcement": "unsupported"
+  },
+  "expected_output": {
+    "reserved_micro": "500",
+    "allowed": true,
+    "floor_breached": false,
+    "post_transaction_available": "5000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["allowed", "floor_breached"]
+  },
+  "metadata": {
+    "finding": "MEDIUM-V52-002",
+    "enforcement_mode": "unsupported",
+    "sdd_section": "§3.3"
+  }
+}

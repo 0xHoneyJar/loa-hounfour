@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-normalization-002",
+  "category": "provider-normalization",
+  "description": "Anthropic response with thinking trace — extended_thinking content blocks",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "anthropic",
+    "model": "claude-3-opus-20240229",
+    "content": [
+      { "type": "thinking", "thinking": "Let me analyze this step by step..." },
+      { "type": "text", "text": "The answer is 42." }
+    ],
+    "stop_reason": "end_turn",
+    "usage": { "input_tokens": 50, "output_tokens": 120 }
+  },
+  "expected_output": {
+    "model_id": "claude-3-opus-20240229",
+    "content": "The answer is 42.",
+    "thinking_trace": "Let me analyze this step by step...",
+    "finish_reason": "stop",
+    "usage": { "prompt_tokens": 50, "completion_tokens": 120 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["request_id", "created_at"]
+  }
+}

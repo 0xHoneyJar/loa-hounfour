@@ -3,6 +3,16 @@
  *
  * Re-exports cross-language constraint types, evaluator,
  * and DDD vocabulary (state machines, aggregate boundaries, temporal properties).
+ *
+ * Constraint files serve as the protocol's institutional rules — in the sense
+ * of Elinor Ostrom's Institutional Analysis and Development (IAD) framework.
+ * Each constraint defines a rule that governs how protocol participants may
+ * interact with a schema. The `expression_version` field enables rule evolution
+ * without breaking existing participants — Ostrom's "minimal recognition of
+ * rights to organize" principle.
+ *
+ * @see Ostrom, E. (1990). Governing the Commons.
+ * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules (v5.3.0)
  */
 
 // Constraint types and evaluator

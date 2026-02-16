@@ -116,6 +116,31 @@ export {
   type PoolCapabilities,
 } from '../vocabulary/pools.js';
 
+// Utilities — Pricing (v5.1.0)
+export {
+  computeCostMicro,
+  computeCostMicroSafe,
+  verifyPricingConservation,
+  parseMicroUSD,
+  type PricingInput,
+  type UsageInput,
+  type ConservationResult,
+} from '../utilities/pricing.js';
+
+// Vocabulary — Conservation Status (v5.2.0)
+export {
+  ConservationStatusSchema,
+  CONSERVATION_STATUSES,
+  type ConservationStatus,
+} from '../vocabulary/conservation-status.js';
+
+// Vocabulary — Reconciliation Mode (v5.1.0)
+export {
+  ReconciliationModeSchema,
+  RECONCILIATION_MODES,
+  type ReconciliationMode,
+} from '../vocabulary/reconciliation-mode.js';
+
 // Utilities — Billing
 export {
   validateBillingEntry,
@@ -135,6 +160,12 @@ export {
   type NftId,
   type ParsedNftId,
 } from '../utilities/nft-id.js';
+
+// Schemas — Audit Trail (v5.2.0)
+export {
+  AuditTrailEntrySchema,
+  type AuditTrailEntry,
+} from '../schemas/audit-trail-entry.js';
 
 // Utilities — Lifecycle (transition guards)
 export {

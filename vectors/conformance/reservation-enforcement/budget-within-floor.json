@@ -1,0 +1,28 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0003",
+  "category": "reservation-enforcement",
+  "description": "Budget spending within reservation floor — sufficient budget, request should be allowed",
+  "contract_version": "5.2.0",
+  "input": {
+    "agent_id": "agent-003",
+    "conformance_level": "protocol_certified",
+    "reserved_capacity_bps": 1000,
+    "budget_limit_micro": "10000000",
+    "budget_spent_micro": "5000000",
+    "request_cost_micro": "500000"
+  },
+  "expected_output": {
+    "reserved_micro": "1000000",
+    "allowed": true,
+    "floor_breached": false,
+    "reason": "Sufficient budget available"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["allowed", "floor_breached"]
+  },
+  "metadata": {
+    "sdd_section": "§3.8",
+    "scenario": "Normal request within budget — 5M available of 10M, requesting 500K, floor at 1M"
+  }
+}

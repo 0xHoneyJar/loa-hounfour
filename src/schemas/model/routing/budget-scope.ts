@@ -24,6 +24,10 @@ export const BudgetScopeSchema = Type.Object(
       Type.Literal('downgrade'),
     ]),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+    /** Reserved capacity in basis points (0-10000). Optional — absent means no reservation. */
+    reserved_capacity_bps: Type.Optional(Type.Integer({ minimum: 0, maximum: 10000 })),
+    /** Linked reservation ID. Present when budget scope has an active reservation. */
+    reservation_id: Type.Optional(Type.String({ format: 'uuid' })),
   },
   {
     $id: 'BudgetScope',

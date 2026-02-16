@@ -1,5 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { MicroUSDUnsigned } from '../../vocabulary/currency.js';
+import { ModelPricingSchema } from './model-provider-spec.js';
 
 export const CompletionResultSchema = Type.Object(
   {
@@ -34,6 +35,8 @@ export const CompletionResultSchema = Type.Object(
       cost_micro: MicroUSDUnsigned,
     }),
     latency_ms: Type.Integer({ minimum: 0 }),
+    // v5.1.0 — Pricing provenance (FR-3)
+    pricing_applied: Type.Optional(ModelPricingSchema),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },

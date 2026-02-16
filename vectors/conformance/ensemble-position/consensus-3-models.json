@@ -1,0 +1,38 @@
+{
+  "vector_id": "conformance-ensemble-002",
+  "category": "ensemble-position",
+  "description": "Consensus with 3 models — majority agreement (2/3 agree)",
+  "contract_version": "5.1.0",
+  "input": {
+    "strategy": "consensus",
+    "candidates": [
+      {
+        "model_id": "gpt-4-turbo",
+        "position": "Paris is the capital.",
+        "confidence": 0.98,
+        "cost_micro": "20000"
+      },
+      {
+        "model_id": "claude-3-opus-20240229",
+        "position": "Paris is the capital.",
+        "confidence": 0.97,
+        "cost_micro": "35000"
+      },
+      {
+        "model_id": "gemini-1.5-pro",
+        "position": "The capital is Paris, France.",
+        "confidence": 0.90,
+        "cost_micro": "15000"
+      }
+    ]
+  },
+  "expected_output": {
+    "consensus_reached": true,
+    "total_cost_micro": "70000",
+    "candidate_count": 3
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["consensus_reached", "total_cost_micro", "candidate_count"]
+  }
+}

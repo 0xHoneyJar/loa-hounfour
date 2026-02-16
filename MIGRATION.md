@@ -10,22 +10,25 @@
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 5.0.0 |
-| **Minimum Supported** | 3.0.0 |
+| **Current Version** | 5.1.0 |
+| **Minimum Supported** | 5.0.0 |
 | **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
 | **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
 | **Minor Mismatch** | `X-Contract-Version-Warning` header |
 
 ### Consumer Upgrade Matrix
 
-| Consumer | Producer 3.0.0 | Producer 4.0.0–4.6.0 | Producer 5.0.0 |
-|----------|----------------|----------------------|----------------|
-| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** (below MIN_SUPPORTED_VERSION) | **REJECTED** |
-| **3.0.0–3.2.0** | Full | Fwd-compat** | Fwd-compat*** |
-| **4.0.0–4.6.0** | Full | Full | Fwd-compat*** |
-| **5.0.0** | Full | Full | Full |
+| Consumer | Producer 3.0.0 | Producer 4.0.0–4.6.0 | Producer 5.0.0 | Producer 5.1.0 |
+|----------|----------------|----------------------|----------------|----------------|
+| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** | **REJECTED** | **REJECTED** |
+| **3.0.0–3.2.0** | Full | Fwd-compat** | Fwd-compat*** | **REJECTED** |
+| **4.0.0–4.6.0** | Full | Full | Fwd-compat*** | **REJECTED** |
+| **5.0.0** | Full | Full | Full | Fwd-compat**** |
+| **5.1.0** | Full | Full | Full | Full |
 
 \*\*\* v5.0.0 introduces barrel decomposition. Consumers using direct schema imports (e.g., `@0xhoneyjar/loa-hounfour/schemas/model/...`) must update import paths. Consumers using the root barrel (`@0xhoneyjar/loa-hounfour`) are unaffected. All new schemas are additive.
+
+\*\*\*\* v5.1.0 is fully backward-compatible with v5.0.0. All new fields are optional. v5.0.0 consumers will ignore unknown fields on strict schemas (strip before validation). MIN_SUPPORTED_VERSION bumped to 5.0.0.
 
 \* Requires validate-then-strip for strict schemas. See below.
 
@@ -137,6 +140,90 @@ function validateForward<T extends TSchema>(schema: T, data: unknown): Static<T>
 3. **New vocabulary entries**: No impact — `isKnownEventType()` returns false for unknown types by design
 4. **Deprecation**: Mark `deprecated: true` in TypeBox; remove only at major version boundary
 5. **Required field addition**: MAJOR version bump required
+
+---
+
+# Migration Guide: v5.0.0 → v5.1.0
+
+**Contract version:** 5.1.0
+**Min supported:** 5.0.0
+**Breaking changes:** None — all changes are additive.
+
+## Zero-Breaking Guarantee
+
+v5.1.0 is a **minor** version bump. All existing v5.0.0 payloads validate
+against v5.1.0 schemas without modification. No required fields were added;
+all new fields are `Type.Optional`.
+
+## New Schemas (6)
+
+| Schema | Sub-Package | Description |
+|--------|-------------|-------------|
+| `ModelProviderSpec` | `model` | Provider registry with capabilities, pricing, conformance |
+| `ConformanceLevel` | `model` | Trust vocabulary: `self_declared`, `community_verified`, `protocol_certified` |
+| `ConformanceVector` | `model` | Golden test vectors for provider conformance |
+| `SanctionSeverity` | `governance` | Graduated severity vocabulary with ladder |
+| `ReconciliationMode` | `economy` | Pricing reconciliation mode: `protocol_authoritative`, `provider_invoice_authoritative` |
+| `ProviderSummary` | `core` | Provider summary for discovery documents (embedded) |
+
+## New Optional Fields
+
+### BillingEntry
+- `source_completion_id` — UUID linking to CompletionResult
+- `pricing_snapshot` — Pricing rates used for computation
+- `reconciliation_mode` — How pricing disputes are resolved
+- `reconciliation_delta_micro` — Delta between computed and invoiced cost
+
+### CompletionResult
+- `pricing_applied` — Pricing rates actually applied
+
+### Sanction
+- `severity_level` — Graduated severity (excludes `terminated`)
+- `duration_seconds` — Duration (0 = indefinite)
+- `appeal_dispute_id` — UUID linking to DisputeRecord
+- `escalated_from` — Predecessor sanction_id
+
+### ProtocolDiscovery
+- `providers` — Array of ProviderSummary
+- `conformance_suite_version` — Conformance suite version
+
+## New Utilities
+
+| Function | Import | Description |
+|----------|--------|-------------|
+| `computeCostMicro(pricing, usage)` | `economy` | BigInt-safe pricing computation |
+| `computeCostMicroSafe(pricing, usage)` | `economy` | Never-throw variant |
+| `verifyPricingConservation(billing, usage)` | `economy` | Conservation audit |
+| `matchConformanceOutput(expected, actual, rules)` | `model` | Conformance matching engine |
+| `getSeverityEntry(severity)` | `governance` | Severity ladder lookup |
+| `compareSeverity(a, b)` | `governance` | Severity comparison |
+
+## ProviderType Exhaustive Switch (IMP-006)
+
+v5.1.0 adds `'google'` to ProviderType. Update switch statements:
+
+```typescript
+switch (provider) {
+  case 'openai': ...
+  case 'anthropic': ...
+  case 'google': ...    // NEW
+  default: { const _: never = provider; throw new Error(`Unknown: ${_}`); }
+}
+```
+
+## Pricing Convergence Adoption
+
+```typescript
+import { computeCostMicro, verifyPricingConservation } from '@0xhoneyjar/loa-hounfour/economy';
+
+const cost = computeCostMicro(pricing, usage);
+const check = verifyPricingConservation({ cost_micro: cost, pricing_snapshot: pricing }, usage);
+// check.conserved === true, check.delta === '0'
+```
+
+## Safe-Fetch Policy (SKP-006)
+
+Provider URLs in ModelProviderSpec must use HTTPS. Validate before fetching.
 
 ---
 

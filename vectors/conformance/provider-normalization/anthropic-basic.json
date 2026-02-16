@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-normalization-001",
+  "category": "provider-normalization",
+  "description": "Basic Anthropic provider normalization — maps Claude response to unified format",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "anthropic",
+    "model": "claude-3-opus-20240229",
+    "content": [{ "type": "text", "text": "Hello, world!" }],
+    "stop_reason": "end_turn",
+    "usage": { "input_tokens": 10, "output_tokens": 25 }
+  },
+  "expected_output": {
+    "model_id": "claude-3-opus-20240229",
+    "content": "Hello, world!",
+    "finish_reason": "stop",
+    "usage": { "prompt_tokens": 10, "completion_tokens": 25 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["request_id", "created_at"],
+    "canonicalize_strings": false
+  }
+}

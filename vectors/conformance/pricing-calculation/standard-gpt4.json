@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-pricing-001",
+  "category": "pricing-calculation",
+  "description": "Standard GPT-4 pricing — 30 USD / 1M input, 60 USD / 1M output",
+  "contract_version": "5.1.0",
+  "input": {
+    "model_id": "gpt-4-turbo",
+    "prompt_tokens": 1000,
+    "completion_tokens": 500,
+    "pricing": {
+      "input_cost_per_million": "30000000",
+      "output_cost_per_million": "60000000"
+    }
+  },
+  "expected_output": {
+    "input_cost_micro": "30000",
+    "output_cost_micro": "30000",
+    "total_cost_micro": "60000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["input_cost_micro", "output_cost_micro", "total_cost_micro"]
+  },
+  "metadata": {
+    "formula": "input: 1000 * 30000000 / 1000000 = 30000; output: 500 * 60000000 / 1000000 = 30000; total = 60000"
+  }
+}

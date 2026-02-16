@@ -63,6 +63,11 @@ import { AgentRequirementsSchema } from '../schemas/model/routing/agent-requirem
 import { BudgetScopeSchema } from '../schemas/model/routing/budget-scope.js';
 import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolution.js';
 import { ConstraintProposalSchema } from '../schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema, type ModelProviderSpec } from '../schemas/model/model-provider-spec.js';
+import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
+import { AgentCapacityReservationSchema, type AgentCapacityReservation } from '../schemas/model/routing/agent-capacity-reservation.js';
+import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
+import { AuditTrailEntrySchema, type AuditTrailEntry } from '../schemas/audit-trail-entry.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -133,7 +138,27 @@ registerCrossFieldValidator('BillingEntry', (data) => {
   if (!result.valid) {
     return { valid: false, errors: [result.reason], warnings: [] };
   }
-  return { valid: true, errors: [], warnings: [] };
+
+  // v5.1.0 — Pricing provenance rules (warning severity)
+  const d = data as Record<string, unknown>;
+  const warnings: string[] = [];
+
+  // Provenance: cost > 0 requires source_completion_id
+  if (d.total_cost_micro !== '0' && d.source_completion_id === undefined) {
+    warnings.push('non-zero cost should include source_completion_id for provenance');
+  }
+
+  // Provenance: if completion ref present, pricing snapshot should be too
+  if (d.source_completion_id && !d.pricing_snapshot) {
+    warnings.push('source_completion_id present without pricing_snapshot');
+  }
+
+  // Reconciliation: delta only with provider_invoice_authoritative
+  if (d.reconciliation_delta_micro && d.reconciliation_mode !== 'provider_invoice_authoritative') {
+    warnings.push('reconciliation_delta_micro only applies with provider_invoice_authoritative mode');
+  }
+
+  return { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('PerformanceRecord', (data) => {
@@ -333,8 +358,10 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
+import type { Sanction } from '../schemas/sanction.js';
+
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number }; escalation_rule_applied?: string };
+  const sanction = data as Sanction;
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -371,6 +398,36 @@ registerCrossFieldValidator('Sanction', (data) => {
     if (expectedSeverity && sanction.severity !== expectedSeverity) {
       warnings.push(`severity "${sanction.severity}" does not match escalation rule for ${sanction.trigger.violation_type} at occurrence ${sanction.trigger.occurrence_count} (expected "${expectedSeverity}")`);
     }
+  }
+
+  // v5.1.0 — Graduated sanction rules
+
+  // revocation-requires-reason: terminated severity must have evidence
+  if (sanction.severity === 'terminated' && sanction.trigger.evidence_event_ids?.length === 0) {
+    errors.push('terminated severity requires at least one evidence event');
+  }
+
+  // timed-sanctions-require-duration: if severity_level is present and not suspended, duration should be set
+  if (sanction.severity_level && sanction.severity_level !== 'suspended' && sanction.duration_seconds === undefined) {
+    warnings.push('severity_level present without duration_seconds — timed sanctions should specify duration');
+  }
+
+  // severity-field-precedence: if both severity and severity_level present, they should be consistent
+  if (sanction.severity_level && sanction.severity !== sanction.severity_level) {
+    warnings.push(`severity ("${sanction.severity}") differs from severity_level ("${sanction.severity_level}") — severity_level takes precedence for enforcement`);
+  }
+
+  // appeal_dispute_id requires appeal_available to be true
+  if (sanction.appeal_dispute_id && !sanction.appeal_available) {
+    errors.push('appeal_dispute_id present but appeal_available is false');
+  }
+
+  // v5.2.0 — Reservation floor preservation (S7-T5)
+  // Low-severity sanctions (warning, rate_limited) should preserve the agent's
+  // reservation floor. Higher severities (pool_restricted, suspended, terminated)
+  // CAN breach the floor as they represent serious violations.
+  if (sanction.severity === 'warning' || sanction.severity === 'rate_limited') {
+    warnings.push(`severity "${sanction.severity}" should preserve agent reservation floor — enforcement must not reduce capacity below reserved minimum`);
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
@@ -608,6 +665,155 @@ registerCrossFieldValidator('ConstraintProposal', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// --- v5.1.0 — Protocol Constitution cross-field validators ---
+
+registerCrossFieldValidator('ModelProviderSpec', (data) => {
+  const d = data as ModelProviderSpec;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // certified-requires-vectors: protocol_certified requires all vector results passing
+  if (d.conformance_level === 'protocol_certified') {
+    if (!d.conformance_vector_results?.length) {
+      errors.push('protocol_certified requires conformance_vector_results');
+    } else if (d.conformance_vector_results.some((r) => !r.passed)) {
+      errors.push('protocol_certified requires all vectors to pass');
+    }
+  }
+
+  // community_verified should have vector results (warning)
+  if (d.conformance_level === 'community_verified' && !d.conformance_vector_results?.length) {
+    warnings.push('community_verified should include conformance_vector_results');
+  }
+
+  // active-model-required: at least one active model
+  if (!d.models.some((m) => m.status === 'active')) {
+    errors.push('models must include at least one active entry');
+  }
+
+  // metadata-size: 10KB limit
+  if (d.metadata) {
+    const size = JSON.stringify(d.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
+  }
+
+  // metadata-namespace: x-* prefix enforcement (warning)
+  if (d.metadata) {
+    for (const key of Object.keys(d.metadata)) {
+      if (!key.startsWith('x-')) {
+        warnings.push(`metadata key '${key}' should use x-* namespace`);
+      }
+    }
+  }
+
+  // expires-after-published: temporal ordering
+  if (d.expires_at && d.published_at) {
+    if (new Date(d.expires_at) <= new Date(d.published_at)) {
+      errors.push('expires_at must be after published_at');
+    }
+  }
+
+  // HTTPS endpoints: all endpoint URLs must use https://
+  if (d.endpoints) {
+    for (const [key, url] of Object.entries(d.endpoints)) {
+      if (url && !url.startsWith('https://')) {
+        errors.push(`endpoints.${key} must use https:// scheme`);
+      }
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — AgentCapacityReservation cross-field validator ---
+
+registerCrossFieldValidator('AgentCapacityReservation', (data) => {
+  const r = data as AgentCapacityReservation;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Temporal ordering: effective_until must be after effective_from
+  if (r.effective_until && r.effective_from) {
+    if (new Date(r.effective_until) <= new Date(r.effective_from)) {
+      errors.push('effective_until must be after effective_from');
+    }
+  }
+
+  // Tier minimum: reserved_capacity_bps should meet the minimum for the conformance level
+  const tierMin = RESERVATION_TIER_MAP[r.conformance_level];
+  if (tierMin !== undefined && r.reserved_capacity_bps < tierMin) {
+    warnings.push(
+      `reserved_capacity_bps (${r.reserved_capacity_bps}) is below minimum for ${r.conformance_level} (${tierMin} bps)`,
+    );
+  }
+
+  // Active reservations should have reasonable capacity
+  if (r.state === 'active' && r.reserved_capacity_bps === 0) {
+    warnings.push('active reservation with 0 bps provides no capacity guarantee');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — BudgetScope reservation cross-field enhancement ---
+
+// Enhance the existing BudgetScope validator to check reservation constraints.
+// The validator was already registered above — we augment it by re-registering.
+// The crossFieldRegistry.set() overwrites the old entry.
+registerCrossFieldValidator('BudgetScope', (data) => {
+  const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string; reserved_capacity_bps?: number; reservation_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
+    warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+  }
+
+  // v5.2.0 — Reservation fields cross-check
+  if (scope.reserved_capacity_bps !== undefined && scope.reserved_capacity_bps > 0 && !scope.reservation_id) {
+    warnings.push('reserved_capacity_bps is set but reservation_id is absent');
+  }
+
+  if (scope.reservation_id && (scope.reserved_capacity_bps === undefined || scope.reserved_capacity_bps === 0)) {
+    warnings.push('reservation_id is present but reserved_capacity_bps is 0 or absent');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — AuditTrailEntry cross-field validator ---
+
+registerCrossFieldValidator('AuditTrailEntry', (data) => {
+  const entry = data as AuditTrailEntry;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Distinct IDs: completion_id != billing_entry_id
+  if (entry.completion_id === entry.billing_entry_id) {
+    errors.push('completion_id and billing_entry_id must be different');
+  }
+
+  // entry_id must differ from both
+  if (entry.entry_id === entry.completion_id) {
+    errors.push('entry_id must differ from completion_id');
+  }
+  if (entry.entry_id === entry.billing_entry_id) {
+    errors.push('entry_id must differ from billing_entry_id');
+  }
+
+  // Metadata size limit (10KB)
+  if (entry.metadata) {
+    const size = JSON.stringify(entry.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -744,4 +950,14 @@ export const validators = {
 
   // v5.0.0 — Constraint Evolution
   constraintProposal: () => getOrCompile(ConstraintProposalSchema),
+
+  // v5.1.0 — Protocol Constitution
+  modelProviderSpec: () => getOrCompile(ModelProviderSpecSchema),
+  conformanceLevel: () => getOrCompile(ConformanceLevelSchema),
+
+  // v5.2.0 — Agent Capacity Reservation
+  agentCapacityReservation: () => getOrCompile(AgentCapacityReservationSchema),
+
+  // v5.2.0 — Audit Trail
+  auditTrailEntry: () => getOrCompile(AuditTrailEntrySchema),
 } as const;

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EpistemicTristate",
+  "contract_version": "5.3.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "tristate-distinguishability",
+      "expression": "true",
+      "severity": "error",
+      "message": "All three epistemic states must produce distinguishable consumer behavior. If two states collapse, simplify to boolean.",
+      "fields": [],
+      "institutional_context": "Architectural pattern invariant — applies to all Epistemic Tristate instances. Enforcement is via code review and pattern documentation, not runtime expression evaluation."
+    }
+  ],
+  "metadata": {
+    "pattern": "epistemic-tristate",
+    "instances": ["ConservationStatus", "SignatureVerificationResult", "conformance-matching"],
+    "references": ["Lukasiewicz 1920", "Kubernetes conditions", "Protobuf field presence"]
+  }
+}

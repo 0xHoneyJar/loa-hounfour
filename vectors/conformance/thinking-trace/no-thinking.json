@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-thinking-003",
+  "category": "thinking-trace",
+  "description": "No thinking trace — standard response without chain-of-thought",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "choices": [{
+      "message": { "role": "assistant", "content": "The capital of France is Paris." },
+      "finish_reason": "stop",
+      "index": 0
+    }],
+    "usage": { "prompt_tokens": 10, "completion_tokens": 8, "total_tokens": 18 }
+  },
+  "expected_output": {
+    "thinking_trace": null,
+    "content": "The capital of France is Paris.",
+    "has_thinking": false
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["content", "has_thinking"],
+    "null_handling": "equivalent"
+  }
+}

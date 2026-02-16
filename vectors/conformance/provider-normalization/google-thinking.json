@@ -1,0 +1,33 @@
+{
+  "vector_id": "conformance-normalization-006",
+  "category": "provider-normalization",
+  "description": "Google Gemini response with thinking — thought content parts normalization",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "google",
+    "model": "gemini-2.0-flash-thinking-exp",
+    "candidates": [{
+      "content": {
+        "parts": [
+          { "thought": true, "text": "I need to consider the problem carefully..." },
+          { "text": "The solution involves three steps." }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "safetyRatings": []
+    }],
+    "usageMetadata": { "promptTokenCount": 30, "candidatesTokenCount": 85, "totalTokenCount": 115 }
+  },
+  "expected_output": {
+    "model_id": "gemini-2.0-flash-thinking-exp",
+    "content": "The solution involves three steps.",
+    "thinking_trace": "I need to consider the problem carefully...",
+    "finish_reason": "stop",
+    "usage": { "prompt_tokens": 30, "completion_tokens": 85 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["modelVersion"]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-toolcall-001",
+  "category": "tool-call-roundtrip",
+  "description": "Single tool call — basic function invocation roundtrip",
+  "contract_version": "5.1.0",
+  "input": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "get_weather",
+      "arguments": { "location": "San Francisco", "unit": "celsius" }
+    }]
+  },
+  "expected_output": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "get_weather",
+      "arguments": { "location": "San Francisco", "unit": "celsius" }
+    }],
+    "tool_call_count": 1
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["tool_calls", "tool_call_count"]
+  }
+}

@@ -2,6 +2,8 @@ import { Type, type Static } from '@sinclair/typebox';
 import { UsageSchema } from './invoke-response.js';
 import { MicroUSD } from '../vocabulary/currency.js';
 import { NftIdSchema } from '../utilities/nft-id.js';
+import { ModelPricingSchema } from './model/model-provider-spec.js';
+import { ReconciliationModeSchema } from '../vocabulary/reconciliation-mode.js';
 
 export const CostTypeSchema = Type.Union(
   [
@@ -92,6 +94,18 @@ export const BillingEntrySchema = Type.Object(
     timestamp: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     usage: Type.Optional(UsageSchema),
+
+    // FR-3: Pricing provenance (v5.1.0)
+    source_completion_id: Type.Optional(Type.String({
+      format: 'uuid',
+      description: 'CompletionResult.request_id that generated this billing entry',
+    })),
+    pricing_snapshot: Type.Optional(ModelPricingSchema),
+
+    // SKP-003: Reconciliation (v5.1.0)
+    reconciliation_mode: Type.Optional(ReconciliationModeSchema),
+    reconciliation_delta_micro: Type.Optional(MicroUSD),
+
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
       description: 'Consumer-extensible metadata. Namespace conventions: '
         + 'loa.* reserved for protocol-level metadata, '
