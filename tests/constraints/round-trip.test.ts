@@ -1782,7 +1782,7 @@ describe('Constraint file structure', () => {
       const file = loadConstraints(schemaId);
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
-      expect(file.contract_version).toBe('5.0.0');
+      expect(file.contract_version).toMatch(/^5\.\d+\.\d+$/);
       // SagaContext uses expression_version 2.0 (temporal operators)
       expect(['1.0', '2.0']).toContain(file.expression_version);
       expect(file.constraints.length).toBeGreaterThan(0);

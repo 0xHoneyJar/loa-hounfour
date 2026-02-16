@@ -1,0 +1,57 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "DelegationChain",
+  "contract_version": "5.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "delegation-chain-depth-limit",
+      "expression": "links.length <= max_depth",
+      "severity": "error",
+      "message": "Delegation chain exceeds max_depth",
+      "fields": ["links", "max_depth"]
+    },
+    {
+      "id": "delegation-chain-authority-conservation",
+      "expression": "!authority_conservation || all_links_subset_authority(links)",
+      "severity": "error",
+      "message": "Link authority_scope contains items not in delegator's received scope",
+      "fields": ["authority_conservation", "links"]
+    },
+    {
+      "id": "delegation-chain-budget-conservation",
+      "expression": "!authority_conservation || delegation_budget_conserved(links)",
+      "severity": "error",
+      "message": "Sub-delegated budgets exceed delegator's allocated budget",
+      "fields": ["links"]
+    },
+    {
+      "id": "delegation-chain-temporal-ordering",
+      "expression": "links_temporally_ordered(links)",
+      "severity": "error",
+      "message": "Each link's timestamp must be >= previous link's timestamp",
+      "fields": ["links"]
+    },
+    {
+      "id": "delegation-chain-root-matches-first",
+      "expression": "links.length == 0 || links[0].delegator == root_delegator",
+      "severity": "error",
+      "message": "First link's delegator must match root_delegator",
+      "fields": ["root_delegator", "links"]
+    },
+    {
+      "id": "delegation-chain-link-continuity",
+      "expression": "links_form_chain(links)",
+      "severity": "error",
+      "message": "Each link's delegator must be the previous link's delegatee",
+      "fields": ["links"]
+    },
+    {
+      "id": "delegation-chain-revocation-requires-policy",
+      "expression": "status != 'revoked' || revocation_policy != null",
+      "severity": "error",
+      "message": "Revoked chain must declare a revocation_policy",
+      "fields": ["status", "revocation_policy"]
+    }
+  ]
+}

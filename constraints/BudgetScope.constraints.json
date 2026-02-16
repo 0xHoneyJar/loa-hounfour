@@ -1,7 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "BudgetScope",
-  "contract_version": "5.0.0",
+  "contract_version": "5.4.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -10,6 +10,20 @@
       "severity": "warning",
       "message": "spent_micro exceeds limit_micro",
       "fields": ["spent_micro", "limit_micro"]
+    },
+    {
+      "id": "budget-preference-no-empty-pools",
+      "expression": "preference_signal == null || preference_signal.preferred_pools == null || preference_signal.preferred_pools.length > 0",
+      "severity": "error",
+      "message": "preferred_pools, if present, must be non-empty",
+      "fields": ["preference_signal.preferred_pools"]
+    },
+    {
+      "id": "budget-preference-cost-alignment",
+      "expression": "preference_signal == null || !(preference_signal.cost_sensitivity == 'high' && preference_signal.bid_priority == 'critical')",
+      "severity": "warning",
+      "message": "High cost sensitivity with critical priority is contradictory",
+      "fields": ["preference_signal.cost_sensitivity", "preference_signal.bid_priority"]
     }
   ]
 }

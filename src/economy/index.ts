@@ -167,6 +167,12 @@ export {
   type AuditTrailEntry,
 } from '../schemas/audit-trail-entry.js';
 
+// Schemas — Inter-Agent Transaction Audit (v5.4.0, FR-2)
+export {
+  InterAgentTransactionAuditSchema,
+  type InterAgentTransactionAudit,
+} from '../schemas/inter-agent-transaction-audit.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

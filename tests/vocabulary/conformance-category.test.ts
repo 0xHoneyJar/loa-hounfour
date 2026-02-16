@@ -14,6 +14,8 @@ describe('ConformanceCategorySchema', () => {
     'tool-call-roundtrip',
     'ensemble-position',
     'reservation-enforcement',
+    'delegation-chain',
+    'inter-agent-transaction',
   ];
 
   for (const category of validCategories) {
@@ -40,8 +42,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 6 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(6);
+  it('contains exactly 8 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(8);
   });
 
   it('includes all valid categories', () => {
@@ -51,6 +53,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
     expect(CONFORMANCE_CATEGORIES).toContain('tool-call-roundtrip');
     expect(CONFORMANCE_CATEGORIES).toContain('ensemble-position');
     expect(CONFORMANCE_CATEGORIES).toContain('reservation-enforcement');
+    expect(CONFORMANCE_CATEGORIES).toContain('delegation-chain');
+    expect(CONFORMANCE_CATEGORIES).toContain('inter-agent-transaction');
   });
 
   it('is typed as readonly', () => {
@@ -63,6 +67,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'tool-call-roundtrip',
       'ensemble-position',
       'reservation-enforcement',
+      'delegation-chain',
+      'inter-agent-transaction',
     ]);
   });
 });

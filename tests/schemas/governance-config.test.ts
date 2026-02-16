@@ -121,16 +121,16 @@ describe('GovernanceConfig constraint file', () => {
     expect(constraintFile.schema_id).toBe('GovernanceConfig');
   });
 
-  it('has contract_version 5.3.0', () => {
-    expect(constraintFile.contract_version).toBe('5.3.0');
+  it('has contract_version 5.4.0', () => {
+    expect(constraintFile.contract_version).toBe('5.4.0');
   });
 
   it('has expression_version 2.0', () => {
     expect(constraintFile.expression_version).toBe('2.0');
   });
 
-  it('has 3 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(3);
+  it('has 4 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(4);
   });
 
   it('tier ordering constraint passes for default config', () => {
