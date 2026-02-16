@@ -1,368 +1,386 @@
 {
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "min_supported_version": "5.0.0",
   "generated_at": "2026-02-16T07:26:15.749Z",
   "schemas": [
     {
       "name": "jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/jwt-claims",
       "file": "jwt-claims.schema.json",
       "description": "Canonical JWT claims for loa-finn ↔ arrakis protocol"
     },
     {
       "name": "s2s-jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/s2s-jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/s2s-jwt-claims",
       "file": "s2s-jwt-claims.schema.json",
       "description": "Service-to-service JWT claims"
     },
     {
       "name": "invoke-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/invoke-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/invoke-response",
       "file": "invoke-response.schema.json",
       "description": "Response from an AI agent invocation with billing reference"
     },
     {
       "name": "usage-report",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/usage-report",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/usage-report",
       "file": "usage-report.schema.json",
       "description": "Token usage report for billing and rate limiting"
     },
     {
       "name": "stream-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/stream-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/stream-event",
       "file": "stream-event.schema.json",
       "description": "SSE stream event discriminated union for real-time model responses"
     },
     {
       "name": "routing-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/routing-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/routing-policy",
       "file": "routing-policy.schema.json",
       "description": "Policy for routing requests to agent pools"
     },
     {
       "name": "agent-descriptor",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/agent-descriptor",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/agent-descriptor",
       "file": "agent-descriptor.schema.json",
       "description": "Canonical agent representation for content negotiation"
     },
     {
       "name": "agent-lifecycle-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/agent-lifecycle-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/agent-lifecycle-state",
       "file": "agent-lifecycle-state.schema.json",
       "description": "Agent lifecycle state"
     },
     {
       "name": "billing-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/billing-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/billing-entry",
       "file": "billing-entry.schema.json",
       "description": "Multi-party billing entry replacing CostBreakdown"
     },
     {
       "name": "credit-note",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/credit-note",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/credit-note",
       "file": "credit-note.schema.json",
       "description": "Billing reversal/refund referencing an original BillingEntry"
     },
     {
       "name": "conversation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/conversation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/conversation",
       "file": "conversation.schema.json",
       "description": "NFT-owned conversation with sealing policy and access control"
     },
     {
       "name": "message",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/message",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/message",
       "file": "message.schema.json",
       "description": "Individual message within an NFT-owned conversation"
     },
     {
       "name": "transfer-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/transfer-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/transfer-spec",
       "file": "transfer-spec.schema.json",
       "description": "Specification for NFT ownership transfers between parties"
     },
     {
       "name": "transfer-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/transfer-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/transfer-event",
       "file": "transfer-event.schema.json",
       "description": "Record of a completed NFT ownership transfer"
     },
     {
       "name": "domain-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/domain-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/domain-event",
       "file": "domain-event.schema.json",
       "description": "Cross-cutting event envelope for aggregate state changes"
     },
     {
       "name": "domain-event-batch",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/domain-event-batch",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/domain-event-batch",
       "file": "domain-event-batch.schema.json",
       "description": "Atomic multi-event delivery with shared correlation"
     },
     {
       "name": "lifecycle-transition-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/lifecycle-transition-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/lifecycle-transition-payload",
       "file": "lifecycle-transition-payload.schema.json",
       "description": "Payload for agent lifecycle state transitions"
     },
     {
       "name": "capability",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/capability",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/capability",
       "file": "capability.schema.json",
       "description": "A single capability an agent can provide"
     },
     {
       "name": "capability-query",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/capability-query",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/capability-query",
       "file": "capability-query.schema.json",
       "description": "Query to discover agents with specific capabilities"
     },
     {
       "name": "capability-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/capability-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/capability-response",
       "file": "capability-response.schema.json",
       "description": "Response to a capability query"
     },
     {
       "name": "protocol-discovery",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/protocol-discovery",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/protocol-discovery",
       "file": "protocol-discovery.schema.json",
       "description": "Protocol discovery document for /.well-known/loa-hounfour"
     },
     {
       "name": "saga-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/saga-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/saga-context",
       "file": "saga-context.schema.json",
       "description": "Saga execution context for multi-step distributed operations"
     },
     {
       "name": "health-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/health-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/health-status",
       "file": "health-status.schema.json",
       "description": "Health status report for a model provider endpoint"
     },
     {
       "name": "thinking-trace",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/thinking-trace",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/thinking-trace",
       "file": "thinking-trace.schema.json",
       "description": "Normalized thinking/reasoning trace from a model provider"
     },
     {
       "name": "tool-call",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/tool-call",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/tool-call",
       "file": "tool-call.schema.json",
       "description": "Canonical tool/function call made by a model"
     },
     {
       "name": "routing-constraint",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/routing-constraint",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/routing-constraint",
       "file": "routing-constraint.schema.json",
       "description": "Agent routing constraint for task dispatch — all present fields AND-combined"
     },
     {
       "name": "performance-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/performance-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/performance-record",
       "file": "performance-record.schema.json",
       "description": "Record of agent performance for a billing entry with optional outcome validation"
     },
     {
       "name": "contribution-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/contribution-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/contribution-record",
       "file": "contribution-record.schema.json",
       "description": "Record of an agent contribution to the commons or ecosystem"
     },
     {
       "name": "sanction",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/sanction",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/sanction",
       "file": "sanction.schema.json",
       "description": "Sanction imposed on an agent for policy violations"
     },
     {
       "name": "dispute-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/dispute-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/dispute-record",
       "file": "dispute-record.schema.json",
       "description": "Dispute filed against an agent or outcome with evidence and resolution tracking"
     },
     {
       "name": "validated-outcome",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/validated-outcome",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/validated-outcome",
       "file": "validated-outcome.schema.json",
       "description": "Peer-validated outcome with stake commitment and optional dispute resolution"
     },
     {
       "name": "reputation-score",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/reputation-score",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/reputation-score",
       "file": "reputation-score.schema.json",
       "description": "Composite reputation score for an agent with weighted component sub-scores"
     },
     {
       "name": "escrow-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/escrow-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/escrow-entry",
       "file": "escrow-entry.schema.json",
       "description": "Escrow holding for bilateral agent transactions with state machine lifecycle"
     },
     {
       "name": "stake-position",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/stake-position",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/stake-position",
       "file": "stake-position.schema.json",
       "description": "Staked position representing conviction, delegation, or validation commitment"
     },
     {
       "name": "commons-dividend",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/commons-dividend",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/commons-dividend",
       "file": "commons-dividend.schema.json",
       "description": "Commons dividend declaration and distribution to eligible recipients"
     },
     {
       "name": "mutual-credit",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/mutual-credit",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/mutual-credit",
       "file": "mutual-credit.schema.json",
       "description": "Mutual credit line between agents with settlement tracking"
     },
     {
       "name": "completion-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/completion-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/completion-request",
       "file": "completion-request.schema.json",
       "description": "CompletionRequest"
     },
     {
       "name": "completion-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/completion-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/completion-result",
       "file": "completion-result.schema.json",
       "description": "CompletionResult"
     },
     {
       "name": "model-capabilities",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/model-capabilities",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/model-capabilities",
       "file": "model-capabilities.schema.json",
       "description": "ModelCapabilities"
     },
     {
       "name": "provider-wire-message",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/provider-wire-message",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/provider-wire-message",
       "file": "provider-wire-message.schema.json",
       "description": "ProviderWireMessage"
     },
     {
       "name": "tool-definition",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/tool-definition",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/tool-definition",
       "file": "tool-definition.schema.json",
       "description": "ToolDefinition"
     },
     {
       "name": "tool-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/tool-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/tool-result",
       "file": "tool-result.schema.json",
       "description": "ToolResult"
     },
     {
       "name": "ensemble-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/ensemble-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/ensemble-request",
       "file": "ensemble-request.schema.json",
       "description": "EnsembleRequest"
     },
     {
       "name": "ensemble-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/ensemble-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/ensemble-result",
       "file": "ensemble-result.schema.json",
       "description": "EnsembleResult"
     },
     {
       "name": "agent-requirements",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/agent-requirements",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/agent-requirements",
       "file": "agent-requirements.schema.json",
       "description": "AgentRequirements"
     },
     {
       "name": "budget-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/budget-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/budget-scope",
       "file": "budget-scope.schema.json",
       "description": "BudgetScope"
     },
     {
       "name": "routing-resolution",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/routing-resolution",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/routing-resolution",
       "file": "routing-resolution.schema.json",
       "description": "RoutingResolution"
     },
     {
       "name": "constraint-proposal",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/constraint-proposal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/constraint-proposal",
       "file": "constraint-proposal.schema.json",
       "description": "ConstraintProposal"
     },
     {
       "name": "model-provider-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/model-provider-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/model-provider-spec",
       "file": "model-provider-spec.schema.json",
       "description": "ModelProviderSpec"
     },
     {
       "name": "conformance-level",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/conformance-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/conformance-level",
       "file": "conformance-level.schema.json",
       "description": "Trust level assigned to a provider based on conformance verification depth."
     },
     {
       "name": "conformance-vector",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/conformance-vector",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/conformance-vector",
       "file": "conformance-vector.schema.json",
       "description": "Cross-language conformance test vector for adapter verification."
     },
     {
       "name": "sanction-severity",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/sanction-severity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/sanction-severity",
       "file": "sanction-severity.schema.json",
       "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity."
     },
     {
       "name": "reconciliation-mode",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/reconciliation-mode",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/reconciliation-mode",
       "file": "reconciliation-mode.schema.json",
       "description": "Billing reconciliation mode — determines cost source of truth."
     },
     {
       "name": "agent-capacity-reservation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/agent-capacity-reservation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/agent-capacity-reservation",
       "file": "agent-capacity-reservation.schema.json",
       "description": "Capacity reservation that guarantees an agent a minimum fraction of budget."
     },
     {
       "name": "reservation-tier",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/reservation-tier",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/reservation-tier",
       "file": "reservation-tier.schema.json",
       "description": "Reserved capacity in basis points (0-10000). Maps conformance level to capacity guarantee."
     },
     {
       "name": "reservation-enforcement",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/reservation-enforcement",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/reservation-enforcement",
       "file": "reservation-enforcement.schema.json",
       "description": "How reservation guarantees are enforced by the provider."
     },
     {
       "name": "reservation-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/reservation-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/reservation-state",
       "file": "reservation-state.schema.json",
       "description": "Lifecycle state of a capacity reservation (active, expired, revoked)."
     },
     {
       "name": "conservation-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/conservation-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/conservation-status",
       "file": "conservation-status.schema.json",
       "description": "Tristate result of pricing conservation verification."
     },
     {
       "name": "audit-trail-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/audit-trail-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/audit-trail-entry",
       "file": "audit-trail-entry.schema.json",
       "description": "Bidirectional provenance entry linking completion to billing with conservation status."
     },
     {
       "name": "governance-config",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.3.0/governance-config",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/governance-config",
       "file": "governance-config.schema.json",
       "description": "Protocol governance parameters for configurable reservation tiers and advisory thresholds."
+    },
+    {
+      "name": "delegation-chain",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/delegation-chain",
+      "file": "delegation-chain.schema.json",
+      "description": "Multi-hop delegation chain with authority conservation, depth limits, and temporal ordering."
+    },
+    {
+      "name": "inter-agent-transaction-audit",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/inter-agent-transaction-audit",
+      "file": "inter-agent-transaction-audit.schema.json",
+      "description": "Inter-agent transaction audit with BigInt conservation verification and idempotency."
+    },
+    {
+      "name": "ensemble-capability-profile",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.4.0/ensemble-capability-profile",
+      "file": "ensemble-capability-profile.schema.json",
+      "description": "Collective capability declaration for model ensembles (patchwork AGI hypothesis)."
     }
   ]
 }
