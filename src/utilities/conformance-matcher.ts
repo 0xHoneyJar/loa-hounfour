@@ -103,15 +103,8 @@ function deepEqual(
   }
 
   // Number comparison with optional tolerance
+  // NaN/Infinity already rejected by early guard at lines 84-85
   if (typeof a === 'number' && typeof b === 'number') {
-    if (Number.isNaN(a) || Number.isNaN(b)) {
-      // NaN is unsupported — return false per IMP-004
-      return false;
-    }
-    if (!Number.isFinite(a) || !Number.isFinite(b)) {
-      // Infinity is unsupported — return false per IMP-004
-      return false;
-    }
     if (rules?.numeric_tolerance !== undefined) {
       return Math.abs(a - b) <= rules.numeric_tolerance;
     }

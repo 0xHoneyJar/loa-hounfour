@@ -355,8 +355,10 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
+import type { Sanction } from '../schemas/sanction.js';
+
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; severity_level?: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number }; escalation_rule_applied?: string; duration_seconds?: number; appeal_dispute_id?: string; appeal_available: boolean };
+  const sanction = data as Sanction;
   const errors: string[] = [];
   const warnings: string[] = [];
 

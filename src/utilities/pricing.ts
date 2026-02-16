@@ -28,9 +28,14 @@ export interface UsageInput {
 }
 
 export interface ConservationResult {
+  /** Backward-compatible boolean: true when delta === 0 and snapshot present. */
   conserved: boolean;
+  /** Tristate status: 'conserved' | 'violated' | 'unverifiable'. */
+  status: import('../vocabulary/conservation-status.js').ConservationStatus;
   delta: string;
   computed: string;
+  /** Human-readable reason when status is 'violated' or 'unverifiable'. */
+  reason?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,8 +118,10 @@ export function verifyPricingConservation(
   if (!billing.pricing_snapshot) {
     return {
       conserved: false,
+      status: 'unverifiable',
       delta: '0',
       computed: '0',
+      reason: 'Missing pricing_snapshot — conservation cannot be determined',
     };
   }
 
@@ -123,10 +130,21 @@ export function verifyPricingConservation(
   const computedBig = BigInt(computed);
   const delta = billedBig - computedBig;
 
+  if (delta === 0n) {
+    return {
+      conserved: true,
+      status: 'conserved',
+      delta: '0',
+      computed,
+    };
+  }
+
   return {
-    conserved: delta === 0n,
+    conserved: false,
+    status: 'violated',
     delta: delta.toString(),
     computed,
+    reason: `Billing delta: ${delta.toString()} micro-USD (billed=${billing.cost_micro}, computed=${computed})`,
   };
 }
 
@@ -154,7 +172,7 @@ function validateTokenCount(value: number, label: string): bigint {
   return BigInt(value);
 }
 
-function parseMicroUSD(value: string): bigint {
+export function parseMicroUSD(value: string): bigint {
   if (!SIGNED_PATTERN.test(value)) {
     throw new TypeError(`Invalid MicroUSD string: must match ^-?[0-9]+$`);
   }

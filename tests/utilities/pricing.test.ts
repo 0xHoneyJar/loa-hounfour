@@ -10,6 +10,7 @@ import {
   computeCostMicro,
   computeCostMicroSafe,
   verifyPricingConservation,
+  parseMicroUSD,
   type PricingInput,
   type UsageInput,
 } from '../../src/utilities/pricing.js';
@@ -322,6 +323,8 @@ describe('verifyPricingConservation', () => {
       { prompt_tokens: 1000, completion_tokens: 500 },
     );
     expect(result.conserved).toBe(false);
+    expect(result.status).toBe('unverifiable');
+    expect(result.reason).toContain('Missing pricing_snapshot');
   });
 
   it('handles negative delta (billing less than computed)', () => {
@@ -354,5 +357,143 @@ describe('verifyPricingConservation', () => {
     );
     expect(result.conserved).toBe(true);
     expect(result.delta).toBe('0');
+    expect(result.status).toBe('conserved');
+  });
+
+  // v5.2.0 — Tristate ConservationResult tests
+  describe('tristate status (v5.2.0)', () => {
+    it('returns status: "conserved" when delta is zero', () => {
+      const computed = computeCostMicro(GPT4_PRICING, { prompt_tokens: 1000, completion_tokens: 500 });
+      const result = verifyPricingConservation(
+        { cost_micro: computed, pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.status).toBe('conserved');
+      expect(result.conserved).toBe(true);
+      expect(result.reason).toBeUndefined();
+    });
+
+    it('returns status: "violated" when delta is non-zero', () => {
+      const result = verifyPricingConservation(
+        { cost_micro: '99999', pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.status).toBe('violated');
+      expect(result.conserved).toBe(false);
+      expect(result.reason).toContain('Billing delta');
+    });
+
+    it('returns status: "unverifiable" when pricing_snapshot missing', () => {
+      const result = verifyPricingConservation(
+        { cost_micro: '60000' },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.status).toBe('unverifiable');
+      expect(result.conserved).toBe(false);
+      expect(result.reason).toContain('Missing pricing_snapshot');
+    });
+
+    it('violated reason includes billing and computed amounts', () => {
+      const result = verifyPricingConservation(
+        { cost_micro: '60100', pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.reason).toContain('billed=60100');
+      expect(result.reason).toContain('computed=60000');
+    });
+
+    it('conserved result has no reason field', () => {
+      const computed = computeCostMicro(CLAUDE_PRICING, { prompt_tokens: 2000, completion_tokens: 800 });
+      const result = verifyPricingConservation(
+        { cost_micro: computed, pricing_snapshot: CLAUDE_PRICING },
+        { prompt_tokens: 2000, completion_tokens: 800 },
+      );
+      expect(result.status).toBe('conserved');
+      expect(result.reason).toBeUndefined();
+    });
+
+    it('violated with negative delta includes reason', () => {
+      const result = verifyPricingConservation(
+        { cost_micro: '50000', pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.status).toBe('violated');
+      expect(result.reason).toBeDefined();
+    });
+
+    it('backward compat: conserved boolean matches status', () => {
+      const computed = computeCostMicro(GPT4_PRICING, { prompt_tokens: 100, completion_tokens: 50 });
+      const conservedResult = verifyPricingConservation(
+        { cost_micro: computed, pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 100, completion_tokens: 50 },
+      );
+      expect(conservedResult.conserved).toBe(true);
+      expect(conservedResult.status).toBe('conserved');
+
+      const violatedResult = verifyPricingConservation(
+        { cost_micro: '999', pricing_snapshot: GPT4_PRICING },
+        { prompt_tokens: 100, completion_tokens: 50 },
+      );
+      expect(violatedResult.conserved).toBe(false);
+      expect(violatedResult.status).toBe('violated');
+    });
+
+    it('zero delta with thinking tokens returns conserved', () => {
+      const usage: UsageInput = {
+        prompt_tokens: 500,
+        completion_tokens: 200,
+        reasoning_tokens: 100,
+      };
+      const computed = computeCostMicro(THINKING_PRICING, usage);
+      const result = verifyPricingConservation(
+        { cost_micro: computed, pricing_snapshot: THINKING_PRICING },
+        usage,
+      );
+      expect(result.status).toBe('conserved');
+    });
+
+    it('unverifiable result has zero delta and computed', () => {
+      const result = verifyPricingConservation(
+        { cost_micro: '100000' },
+        { prompt_tokens: 1000, completion_tokens: 500 },
+      );
+      expect(result.status).toBe('unverifiable');
+      expect(result.delta).toBe('0');
+      expect(result.computed).toBe('0');
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseMicroUSD (exported for reservation utilities, v5.2.0)
+// ---------------------------------------------------------------------------
+
+describe('parseMicroUSD', () => {
+  it('parses positive integer string', () => {
+    expect(parseMicroUSD('1000000')).toBe(1000000n);
+  });
+
+  it('parses negative integer string', () => {
+    expect(parseMicroUSD('-500')).toBe(-500n);
+  });
+
+  it('parses zero', () => {
+    expect(parseMicroUSD('0')).toBe(0n);
+  });
+
+  it('throws TypeError for non-numeric string', () => {
+    expect(() => parseMicroUSD('abc')).toThrow(TypeError);
+  });
+
+  it('throws TypeError for empty string', () => {
+    expect(() => parseMicroUSD('')).toThrow(TypeError);
+  });
+
+  it('throws TypeError for decimal string', () => {
+    expect(() => parseMicroUSD('1.5')).toThrow(TypeError);
+  });
+
+  it('throws TypeError for string with spaces', () => {
+    expect(() => parseMicroUSD(' 100 ')).toThrow(TypeError);
   });
 });

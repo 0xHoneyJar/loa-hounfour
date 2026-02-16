@@ -121,10 +121,18 @@ export {
   computeCostMicro,
   computeCostMicroSafe,
   verifyPricingConservation,
+  parseMicroUSD,
   type PricingInput,
   type UsageInput,
   type ConservationResult,
 } from '../utilities/pricing.js';
+
+// Vocabulary — Conservation Status (v5.2.0)
+export {
+  ConservationStatusSchema,
+  CONSERVATION_STATUSES,
+  type ConservationStatus,
+} from '../vocabulary/conservation-status.js';
 
 // Vocabulary — Reconciliation Mode (v5.1.0)
 export {
