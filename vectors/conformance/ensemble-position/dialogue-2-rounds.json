@@ -1,0 +1,35 @@
+{
+  "vector_id": "conformance-ensemble-003",
+  "category": "ensemble-position",
+  "description": "Dialogue with 2 rounds — models refine positions through conversation",
+  "contract_version": "5.1.0",
+  "input": {
+    "strategy": "dialogue",
+    "rounds": [
+      {
+        "round": 1,
+        "candidates": [
+          { "model_id": "gpt-4-turbo", "position": "Approach A is better.", "cost_micro": "25000" },
+          { "model_id": "claude-3-opus", "position": "Approach B is better.", "cost_micro": "30000" }
+        ]
+      },
+      {
+        "round": 2,
+        "candidates": [
+          { "model_id": "gpt-4-turbo", "position": "After considering, Approach B is better.", "cost_micro": "20000" },
+          { "model_id": "claude-3-opus", "position": "Approach B is confirmed.", "cost_micro": "25000" }
+        ]
+      }
+    ]
+  },
+  "expected_output": {
+    "total_rounds": 2,
+    "total_cost_micro": "100000",
+    "position_changes": 1,
+    "consensus_reached": true
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["total_rounds", "total_cost_micro", "position_changes", "consensus_reached"]
+  }
+}

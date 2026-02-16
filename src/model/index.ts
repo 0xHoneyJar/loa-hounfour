@@ -107,6 +107,29 @@ export {
   type ConformanceLevel,
 } from '../schemas/model/conformance-level.js';
 
+// v5.1.0 — Conformance Vectors
+export {
+  ConformanceVectorSchema,
+  MatchingRulesSchema,
+  CrossFieldExpectationSchema,
+  type ConformanceVector,
+  type MatchingRules,
+  type CrossFieldExpectation,
+} from '../schemas/model/conformance-vector.js';
+
+// Vocabulary — Conformance Categories (v5.1.0)
+export {
+  ConformanceCategorySchema,
+  CONFORMANCE_CATEGORIES,
+  type ConformanceCategory,
+} from '../vocabulary/conformance-category.js';
+
+// Utilities — Conformance Matching (v5.1.0)
+export {
+  matchConformanceOutput,
+  type MatchResult,
+} from '../utilities/conformance-matcher.js';
+
 // Vocabulary — Provider Display Names (v5.1.0)
 export {
   PROVIDER_DISPLAY_NAMES,

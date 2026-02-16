@@ -1,0 +1,42 @@
+{
+  "vector_id": "conformance-ensemble-004",
+  "category": "ensemble-position",
+  "description": "Position change audit trail — tracks when a model changes its position",
+  "contract_version": "5.1.0",
+  "input": {
+    "strategy": "dialogue",
+    "rounds": [
+      {
+        "round": 1,
+        "candidates": [
+          { "model_id": "gpt-4-turbo", "position": "Option A", "cost_micro": "20000" },
+          { "model_id": "claude-3-opus", "position": "Option B", "cost_micro": "25000" }
+        ]
+      },
+      {
+        "round": 2,
+        "candidates": [
+          { "model_id": "gpt-4-turbo", "position": "Option B", "cost_micro": "18000" },
+          { "model_id": "claude-3-opus", "position": "Option B", "cost_micro": "22000" }
+        ]
+      }
+    ]
+  },
+  "expected_output": {
+    "position_changes": 1,
+    "audit_trail": [
+      {
+        "model_id": "gpt-4-turbo",
+        "from_round": 1,
+        "to_round": 2,
+        "previous_position": "Option A",
+        "new_position": "Option B"
+      }
+    ],
+    "total_cost_micro": "85000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["position_changes", "total_cost_micro"]
+  }
+}

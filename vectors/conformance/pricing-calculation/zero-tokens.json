@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-pricing-003",
+  "category": "pricing-calculation",
+  "description": "Zero tokens — edge case where both input and output are zero",
+  "contract_version": "5.1.0",
+  "input": {
+    "model_id": "gpt-4-turbo",
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "pricing": {
+      "input_cost_per_million": "30000000",
+      "output_cost_per_million": "60000000"
+    }
+  },
+  "expected_output": {
+    "input_cost_micro": "0",
+    "output_cost_micro": "0",
+    "total_cost_micro": "0"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["input_cost_micro", "output_cost_micro", "total_cost_micro"]
+  }
+}

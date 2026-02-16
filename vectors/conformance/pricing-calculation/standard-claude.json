@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-pricing-002",
+  "category": "pricing-calculation",
+  "description": "Standard Claude 3 Opus pricing — 15 USD / 1M input, 75 USD / 1M output",
+  "contract_version": "5.1.0",
+  "input": {
+    "model_id": "claude-3-opus-20240229",
+    "prompt_tokens": 2000,
+    "completion_tokens": 800,
+    "pricing": {
+      "input_cost_per_million": "15000000",
+      "output_cost_per_million": "75000000"
+    }
+  },
+  "expected_output": {
+    "input_cost_micro": "30000",
+    "output_cost_micro": "60000",
+    "total_cost_micro": "90000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["input_cost_micro", "output_cost_micro", "total_cost_micro"]
+  },
+  "metadata": {
+    "formula": "input: 2000 * 15000000 / 1000000 = 30000; output: 800 * 75000000 / 1000000 = 60000; total = 90000"
+  }
+}

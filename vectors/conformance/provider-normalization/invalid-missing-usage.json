@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-normalization-007",
+  "category": "provider-normalization",
+  "description": "Invalid: missing usage data — adapters must always include token counts",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "choices": [{
+      "message": { "role": "assistant", "content": "Hello" },
+      "finish_reason": "stop",
+      "index": 0
+    }]
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "metadata": {
+    "expected_error": "missing_usage_data",
+    "note": "Response without usage metadata should fail normalization"
+  }
+}

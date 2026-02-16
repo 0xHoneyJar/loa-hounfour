@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-thinking-004",
+  "category": "thinking-trace",
+  "description": "Truncated thinking trace — adapter receives partial thinking due to context limit",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "anthropic",
+    "model": "claude-3-opus-20240229",
+    "content": [
+      { "type": "thinking", "thinking": "This is a truncated thought that was cut off mid-sen" },
+      { "type": "text", "text": "I apologize, but I was unable to complete my analysis." }
+    ],
+    "stop_reason": "max_tokens",
+    "usage": { "input_tokens": 50, "output_tokens": 4096 }
+  },
+  "expected_output": {
+    "thinking_trace": "This is a truncated thought that was cut off mid-sen",
+    "content": "I apologize, but I was unable to complete my analysis.",
+    "has_thinking": true,
+    "truncated": true
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["thinking_trace", "content", "has_thinking"]
+  }
+}

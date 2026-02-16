@@ -54,6 +54,7 @@ import { ConstraintProposalSchema } from '../src/schemas/model/constraint-propos
 // v5.1.0 — Protocol Constitution
 import { ModelProviderSpecSchema } from '../src/schemas/model/model-provider-spec.js';
 import { ConformanceLevelSchema } from '../src/schemas/model/conformance-level.js';
+import { ConformanceVectorSchema } from '../src/schemas/model/conformance-vector.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -125,6 +126,7 @@ const schemas = [
   // v5.1.0 — Protocol Constitution
   { name: 'model-provider-spec', schema: ModelProviderSpecSchema },
   { name: 'conformance-level', schema: ConformanceLevelSchema },
+  { name: 'conformance-vector', schema: ConformanceVectorSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -17,6 +17,7 @@ import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble
 import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
 import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
 import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema } from '../../src/schemas/model/model-provider-spec.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -90,6 +91,8 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'BudgetScope', schema: BudgetScopeSchema },
     // v5.0.0 — Constraint Evolution
     { name: 'ConstraintProposal', schema: ConstraintProposalSchema },
+    // v5.1.0 — Protocol Constitution
+    { name: 'ModelProviderSpec', schema: ModelProviderSpecSchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {

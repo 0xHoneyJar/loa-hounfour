@@ -1,0 +1,40 @@
+{
+  "vector_id": "conformance-normalization-004",
+  "category": "provider-normalization",
+  "description": "OpenAI response with tool calls — function calling normalization",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "choices": [{
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [{
+          "id": "call_abc123",
+          "type": "function",
+          "function": { "name": "get_weather", "arguments": "{\"location\":\"San Francisco\"}" }
+        }]
+      },
+      "finish_reason": "tool_calls",
+      "index": 0
+    }],
+    "usage": { "prompt_tokens": 20, "completion_tokens": 15, "total_tokens": 35 }
+  },
+  "expected_output": {
+    "model_id": "gpt-4-turbo",
+    "content": null,
+    "tool_calls": [{
+      "id": "call_abc123",
+      "name": "get_weather",
+      "arguments": { "location": "San Francisco" }
+    }],
+    "finish_reason": "tool_calls",
+    "usage": { "prompt_tokens": 20, "completion_tokens": 15 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["id", "created", "system_fingerprint"],
+    "null_handling": "equivalent"
+  }
+}
