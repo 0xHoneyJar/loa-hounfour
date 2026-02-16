@@ -135,7 +135,27 @@ registerCrossFieldValidator('BillingEntry', (data) => {
   if (!result.valid) {
     return { valid: false, errors: [result.reason], warnings: [] };
   }
-  return { valid: true, errors: [], warnings: [] };
+
+  // v5.1.0 — Pricing provenance rules (warning severity)
+  const d = data as Record<string, unknown>;
+  const warnings: string[] = [];
+
+  // Provenance: cost > 0 requires source_completion_id
+  if (d.total_cost_micro !== '0' && d.source_completion_id === undefined) {
+    warnings.push('non-zero cost should include source_completion_id for provenance');
+  }
+
+  // Provenance: if completion ref present, pricing snapshot should be too
+  if (d.source_completion_id && !d.pricing_snapshot) {
+    warnings.push('source_completion_id present without pricing_snapshot');
+  }
+
+  // Reconciliation: delta only with provider_invoice_authoritative
+  if (d.reconciliation_delta_micro && d.reconciliation_mode !== 'provider_invoice_authoritative') {
+    warnings.push('reconciliation_delta_micro only applies with provider_invoice_authoritative mode');
+  }
+
+  return { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('PerformanceRecord', (data) => {

@@ -116,6 +116,23 @@ export {
   type PoolCapabilities,
 } from '../vocabulary/pools.js';
 
+// Utilities — Pricing (v5.1.0)
+export {
+  computeCostMicro,
+  computeCostMicroSafe,
+  verifyPricingConservation,
+  type PricingInput,
+  type UsageInput,
+  type ConservationResult,
+} from '../utilities/pricing.js';
+
+// Vocabulary — Reconciliation Mode (v5.1.0)
+export {
+  ReconciliationModeSchema,
+  RECONCILIATION_MODES,
+  type ReconciliationMode,
+} from '../vocabulary/reconciliation-mode.js';
+
 // Utilities — Billing
 export {
   validateBillingEntry,
