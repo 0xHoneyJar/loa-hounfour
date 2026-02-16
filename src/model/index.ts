@@ -168,6 +168,14 @@ export {
   type AgentCapacityReservation,
 } from '../schemas/model/routing/agent-capacity-reservation.js';
 
+// v5.4.0 — Delegation Chain (FR-1)
+export {
+  DelegationChainSchema,
+  DelegationLinkSchema,
+  type DelegationChain,
+  type DelegationLink,
+} from '../schemas/model/routing/delegation-chain.js';
+
 // v5.2.0 — Reservation Policy (on ModelProviderSpec)
 export {
   ReservationPolicySchema,

@@ -296,6 +296,41 @@ class Parser {
       return this.parseBigintCmp('>');
     }
 
+    // bigint_eq(a, b) — BigInt equality
+    if (tok.type === 'ident' && tok.value === 'bigint_eq') {
+      return this.parseBigintCmp('==');
+    }
+
+    // bigint_sub(a, b) — BigInt subtraction
+    if (tok.type === 'ident' && tok.value === 'bigint_sub') {
+      return this.parseBigintArith('-');
+    }
+
+    // bigint_add(a, b) — BigInt addition
+    if (tok.type === 'ident' && tok.value === 'bigint_add') {
+      return this.parseBigintArith('+');
+    }
+
+    // all_links_subset_authority(links) — delegation chain authority conservation
+    if (tok.type === 'ident' && tok.value === 'all_links_subset_authority') {
+      return this.parseLinksSubsetAuthority();
+    }
+
+    // delegation_budget_conserved(links) — delegation chain budget conservation
+    if (tok.type === 'ident' && tok.value === 'delegation_budget_conserved') {
+      return this.parseDelegationBudgetConserved();
+    }
+
+    // links_temporally_ordered(links) — delegation chain temporal ordering
+    if (tok.type === 'ident' && tok.value === 'links_temporally_ordered') {
+      return this.parseLinksTemporallyOrdered();
+    }
+
+    // links_form_chain(links) — delegation chain link continuity
+    if (tok.type === 'ident' && tok.value === 'links_form_chain') {
+      return this.parseLinksFormChain();
+    }
+
     // Temporal operators (v2.0): changed(), previous(), delta()
     if (tok.type === 'ident' && tok.value === 'changed') {
       return this.parseChanged();
@@ -317,6 +352,40 @@ class Parser {
 
   private parseFieldPath(): unknown {
     let path = this.advance().value; // first ident
+
+    // Array indexing: field[N] — resolve field then index into it
+    while (this.peek()?.type === 'bracket' && this.peek()?.value === '[') {
+      const val = resolve(this.data, path);
+      this.advance(); // consume '['
+      const indexTok = this.advance();
+      if (indexTok?.type !== 'number') throw new Error('Expected numeric index in array access');
+      this.expect('bracket', ']');
+      const index = parseInt(indexTok.value, 10);
+      if (!Array.isArray(val)) return undefined;
+      const element = val[index];
+      // If followed by dot-access, resolve remaining path against element
+      if (this.peek()?.type === 'dot') {
+        this.advance(); // consume '.'
+        const restTok = this.peek();
+        if (restTok?.type === 'ident') {
+          let restPath = this.advance().value;
+          while (this.peek()?.type === 'dot') {
+            this.advance();
+            const nextPart = this.peek();
+            if (nextPart?.type === 'ident') {
+              restPath += '.' + this.advance().value;
+            } else {
+              break;
+            }
+          }
+          if (element != null && typeof element === 'object') {
+            return resolve(element as Record<string, unknown>, restPath);
+          }
+          return undefined;
+        }
+      }
+      return element;
+    }
 
     // Collect dot-separated path parts
     while (this.peek()?.type === 'dot') {
@@ -532,10 +601,10 @@ class Parser {
   }
 
   /**
-   * Parse bigint_gte(a, b) or bigint_gt(a, b).
+   * Parse bigint_gte(a, b), bigint_gt(a, b), or bigint_eq(a, b).
    * Converts both operands to BigInt and performs the comparison.
    */
-  private parseBigintCmp(op: '>=' | '>'): boolean {
+  private parseBigintCmp(op: '>=' | '>' | '=='): boolean {
     this.advance(); // consume 'bigint_gte' or 'bigint_gt'
     this.expect('paren', '(');
     const left = this.parseExpr();
@@ -546,10 +615,125 @@ class Parser {
     try {
       const l = BigInt(String(left ?? 0));
       const r = BigInt(String(right ?? 0));
-      return op === '>=' ? l >= r : l > r;
+      return op === '>=' ? l >= r : op === '==' ? l === r : l > r;
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Parse bigint_sub(a, b) or bigint_add(a, b).
+   * Converts both operands to BigInt and performs the arithmetic.
+   * Returns the result as a string (for further bigint_eq comparison).
+   */
+  private parseBigintArith(op: '+' | '-'): unknown {
+    this.advance(); // consume 'bigint_sub' or 'bigint_add'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+
+    try {
+      const l = BigInt(String(left ?? 0));
+      const r = BigInt(String(right ?? 0));
+      return String(op === '+' ? l + r : l - r);
+    } catch {
+      return '0';
+    }
+  }
+
+  /**
+   * Parse all_links_subset_authority(links).
+   * For links[i] where i > 0: links[i].authority_scope is a subset of links[i-1].authority_scope.
+   * FL-SDD-005: Empty arrays return true; null/missing fields return true (vacuously).
+   */
+  private parseLinksSubsetAuthority(): boolean {
+    this.advance(); // consume 'all_links_subset_authority'
+    this.expect('paren', '(');
+    const val = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(val) || val.length <= 1) return true;
+    const links = val as Array<Record<string, unknown>>;
+    for (let i = 1; i < links.length; i++) {
+      const parentScope = links[i - 1]?.authority_scope;
+      const childScope = links[i]?.authority_scope;
+      if (!Array.isArray(parentScope) || !Array.isArray(childScope)) return false;
+      const parentSet = new Set(parentScope as string[]);
+      for (const perm of childScope as string[]) {
+        if (!parentSet.has(perm)) return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Parse delegation_budget_conserved(links).
+   * For each link with sub-delegations: sum of child budget_allocated_micro <= parent budget_allocated_micro.
+   * FL-SDD-005: Null/missing budget fields return true (vacuously — no budget to conserve).
+   */
+  private parseDelegationBudgetConserved(): boolean {
+    this.advance(); // consume 'delegation_budget_conserved'
+    this.expect('paren', '(');
+    const val = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(val) || val.length <= 1) return true;
+    const links = val as Array<Record<string, unknown>>;
+    for (let i = 0; i < links.length - 1; i++) {
+      const parentBudget = links[i]?.budget_allocated_micro;
+      const childBudget = links[i + 1]?.budget_allocated_micro;
+      // If either is missing, skip (no budget to conserve)
+      if (parentBudget == null || childBudget == null) continue;
+      try {
+        if (BigInt(String(childBudget)) > BigInt(String(parentBudget))) return false;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Parse links_temporally_ordered(links).
+   * links[i].timestamp <= links[i+1].timestamp for all adjacent pairs.
+   * FL-SDD-005: Empty arrays return true; null timestamps return false (timestamps are required).
+   */
+  private parseLinksTemporallyOrdered(): boolean {
+    this.advance(); // consume 'links_temporally_ordered'
+    this.expect('paren', '(');
+    const val = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(val) || val.length <= 1) return true;
+    const links = val as Array<Record<string, unknown>>;
+    for (let i = 0; i < links.length - 1; i++) {
+      const ts1 = links[i]?.timestamp;
+      const ts2 = links[i + 1]?.timestamp;
+      if (typeof ts1 !== 'string' || typeof ts2 !== 'string') return false;
+      if (ts1 > ts2) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Parse links_form_chain(links).
+   * links[i].delegatee == links[i+1].delegator for all adjacent pairs.
+   * FL-SDD-005: Empty arrays return true.
+   */
+  private parseLinksFormChain(): boolean {
+    this.advance(); // consume 'links_form_chain'
+    this.expect('paren', '(');
+    const val = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(val) || val.length <= 1) return true;
+    const links = val as Array<Record<string, unknown>>;
+    for (let i = 0; i < links.length - 1; i++) {
+      if (links[i]?.delegatee !== links[i + 1]?.delegator) return false;
+    }
+    return true;
   }
 }
 

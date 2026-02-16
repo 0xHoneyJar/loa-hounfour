@@ -1,0 +1,43 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "InterAgentTransactionAudit",
+  "contract_version": "5.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "transaction-audit-sender-conservation",
+      "expression": "bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro)",
+      "severity": "error",
+      "message": "sender.pre_balance - amount must equal sender.post_balance",
+      "fields": ["sender.pre_balance_micro", "sender.post_balance_micro", "amount_micro"]
+    },
+    {
+      "id": "transaction-audit-receiver-conservation",
+      "expression": "bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro)",
+      "severity": "error",
+      "message": "receiver.pre_balance + amount must equal receiver.post_balance",
+      "fields": ["receiver.pre_balance_micro", "receiver.post_balance_micro", "amount_micro"]
+    },
+    {
+      "id": "transaction-audit-no-self-transfer",
+      "expression": "sender.agent_id != receiver.agent_id",
+      "severity": "error",
+      "message": "Sender and receiver cannot be the same agent",
+      "fields": ["sender.agent_id", "receiver.agent_id"]
+    },
+    {
+      "id": "transaction-audit-positive-amount",
+      "expression": "bigint_gt(amount_micro, '0')",
+      "severity": "error",
+      "message": "Transaction amount must be positive",
+      "fields": ["amount_micro"]
+    },
+    {
+      "id": "transaction-audit-conservation-consistency",
+      "expression": "conservation_check != 'conserved' || (bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
+      "severity": "error",
+      "message": "conservation_check is 'conserved' but balances don't conserve",
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+    }
+  ]
+}
