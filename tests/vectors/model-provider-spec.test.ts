@@ -464,6 +464,69 @@ describe('ModelProviderSpec cross-field validator', () => {
   });
 });
 
+// --- Signature Field Tests (v5.2.0) ---
+
+describe('ModelProviderSpec signature field (v5.2.0)', () => {
+  it('validates spec without signature (absent)', () => {
+    const result = validate(ModelProviderSpecSchema, VALID_ANTHROPIC_SPEC);
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates valid JWS compact format', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'eyJhbGciOiJFUzI1NiJ9.eyJ0ZXN0IjoxfQ.abc123',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('rejects signature with no dots', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'not-a-jws-token',
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects signature with too many dots', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'a.b.c.d',
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects signature with empty segment', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'a..c',
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects signature with spaces', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'a b.c d.e f',
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('accepts signature with base64url characters', () => {
+    const result = validate(ModelProviderSpecSchema, {
+      ...VALID_ANTHROPIC_SPEC,
+      signature: 'eyJhbGciOiJFUzI1NiJ9.eyJ0ZXN0IjoiMSJ9.R_0-4vb3Xz',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('validates spec with empty optional signature removed', () => {
+    const spec = { ...VALID_ANTHROPIC_SPEC };
+    const result = validate(ModelProviderSpecSchema, spec);
+    expect(result.valid).toBe(true);
+  });
+});
+
 // --- Validator Registry Tests ---
 
 describe('ModelProviderSpec validator registry', () => {

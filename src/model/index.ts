@@ -153,3 +153,11 @@ export {
   RoutingConstraintSchema,
   type RoutingConstraint,
 } from '../schemas/routing-constraint.js';
+
+// v5.2.0 — JWS Signature Utilities
+export {
+  canonicalizeProviderSpec,
+  verifyProviderSignature,
+  type SignatureVerificationResult,
+  type KeyResolver,
+} from '../utilities/signature.js';

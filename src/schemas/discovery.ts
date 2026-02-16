@@ -88,13 +88,16 @@ export interface BuildDiscoveryOptions {
 /**
  * Build a discovery document from the current package state.
  *
- * @param schemaIds - List of supported schema $id URLs (must be valid URIs)
- * @param optionsOrAggregateTypes - Options object (v5.1.0) or legacy aggregate types array
- * @param capabilitiesUrl - Optional URL for capability negotiation endpoint (v2.3.0) — legacy overload
- * @param expressionVersions - Optional list of supported expression grammar versions (v5.0.0) — legacy overload
  * @throws {Error} If any schemaId is not a valid URI (must start with https://)
  * @throws {Error} If capabilitiesUrl is not a valid https:// URI
  */
+export function buildDiscoveryDocument(schemaIds: string[], options: BuildDiscoveryOptions): ProtocolDiscovery;
+/**
+ * Build a discovery document from the current package state.
+ *
+ * @deprecated Use the options object overload instead.
+ */
+export function buildDiscoveryDocument(schemaIds: string[], aggregateTypes?: string[], capabilitiesUrl?: string, expressionVersions?: string[]): ProtocolDiscovery;
 export function buildDiscoveryDocument(
   schemaIds: string[],
   optionsOrAggregateTypes?: BuildDiscoveryOptions | string[],

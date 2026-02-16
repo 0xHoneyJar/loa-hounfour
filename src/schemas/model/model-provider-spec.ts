@@ -124,7 +124,10 @@ export const ModelProviderSpecSchema = Type.Object(
       Type.Array(ConformanceVectorResultSchema),
     ),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    signature: Type.Optional(Type.String()), // Reserved for v5.2.0 JWS
+    signature: Type.Optional(Type.String({
+      pattern: '^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$',
+      description: 'JWS Compact Serialization (header.payload.signature). Payload is JCS-canonicalized spec (sans signature field). Algorithms restricted to ES256 and EdDSA.',
+    })),
     published_at: Type.String({ format: 'date-time' }),
     expires_at: Type.Optional(Type.String({ format: 'date-time' })),
   },

@@ -186,6 +186,49 @@ describe('ConformanceVectorSchema', () => {
         vector_id: 'conformance-pricing-abc',
       }))).toBe(false);
     });
+
+    // v5.2.0 — Dual-pattern: 4-digit IDs and hyphenated categories
+    it('accepts 4-digit vector ID (v5.2.0)', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-reservation-enforcement-0001',
+      }))).toBe(true);
+    });
+
+    it('accepts hyphenated category in ID', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-tool-call-roundtrip-001',
+      }))).toBe(true);
+    });
+
+    it('accepts alphanumeric category with digits', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-v2-pricing-0001',
+      }))).toBe(true);
+    });
+
+    it('rejects leading digit in category', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-2fast-001',
+      }))).toBe(false);
+    });
+
+    it('rejects 2-digit suffix', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-pricing-01',
+      }))).toBe(false);
+    });
+
+    it('rejects 5-digit suffix', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-pricing-00001',
+      }))).toBe(false);
+    });
+
+    it('preserves backward compatibility with 3-digit IDs', () => {
+      expect(Value.Check(ConformanceVectorSchema, makeVector({
+        vector_id: 'conformance-pricing-999',
+      }))).toBe(true);
+    });
   });
 
   // category validation

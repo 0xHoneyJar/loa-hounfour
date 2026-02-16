@@ -52,8 +52,8 @@ export type CrossFieldExpectation = Static<typeof CrossFieldExpectationSchema>;
 export const ConformanceVectorSchema = Type.Object(
   {
     vector_id: Type.String({
-      pattern: '^conformance-[a-z]+-\\d{3}$',
-      description: 'Unique vector identifier, e.g. conformance-normalization-001',
+      pattern: '^conformance-[a-z][a-z0-9-]+-\\d{3,4}$',
+      description: 'Unique vector identifier, e.g. conformance-normalization-001 or conformance-reservation-enforcement-0001',
     }),
     category: ConformanceCategorySchema,
     description: Type.String({ minLength: 1 }),
