@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { SANCTION_SEVERITY_LEVELS } from '../vocabulary/sanctions.js';
 import { VIOLATION_TYPES } from '../vocabulary/sanctions.js';
+import { SanctionSeveritySchema } from '../vocabulary/sanction-severity.js';
 
 export const SanctionSchema = Type.Object(
   {
@@ -26,6 +27,11 @@ export const SanctionSchema = Type.Object(
     expires_at: Type.Optional(Type.String({ format: 'date-time' })),
     escalation_rule_applied: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+    // v5.1.0 — Graduated sanction fields
+    severity_level: Type.Optional(SanctionSeveritySchema),
+    duration_seconds: Type.Optional(Type.Integer({ minimum: 0, description: 'Duration in seconds (0 = indefinite until review)' })),
+    appeal_dispute_id: Type.Optional(Type.String({ format: 'uuid', description: 'UUID of the linked dispute record if appeal was filed' })),
+    escalated_from: Type.Optional(Type.String({ minLength: 1, description: 'sanction_id of the predecessor sanction this was escalated from' })),
   },
   {
     $id: 'Sanction',

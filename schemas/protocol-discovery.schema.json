@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/protocol-discovery",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/protocol-discovery",
   "additionalProperties": false,
   "description": "Protocol discovery document for /.well-known/loa-hounfour",
   "type": "object",
@@ -49,7 +49,41 @@
         "description": "Constraint expression grammar version (e.g. \"1.0\", \"2.0\")",
         "type": "string"
       }
+    },
+    "providers": {
+      "description": "Summary of registered model providers",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "Summary of a registered model provider",
+        "type": "object",
+        "required": [
+          "provider",
+          "model_count"
+        ],
+        "properties": {
+          "provider": {
+            "minLength": 1,
+            "description": "Provider identifier (e.g. \"openai\", \"anthropic\")",
+            "type": "string"
+          },
+          "model_count": {
+            "minimum": 0,
+            "description": "Number of active models from this provider",
+            "type": "integer"
+          },
+          "conformance_level": {
+            "description": "Highest conformance level achieved by any model from this provider",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "conformance_suite_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of the conformance test suite used (e.g. \"5.1.0\")",
+      "type": "string"
     }
   },
-  "$comment": "contract_version=5.0.0, min_supported=4.0.0"
+  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
 }

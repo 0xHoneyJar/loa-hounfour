@@ -1,8 +1,8 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "Sanction",
-  "contract_version": "5.0.0",
-  "expression_version": "1.0",
+  "contract_version": "5.1.0",
+  "expression_version": "2.0",
   "constraints": [
     {
       "id": "sanction-terminated-no-expiry",
@@ -31,6 +31,34 @@
       "severity": "warning",
       "message": "trigger must include violation_type for escalation rule evaluation",
       "fields": ["trigger.violation_type"]
+    },
+    {
+      "id": "sanction-revocation-requires-reason",
+      "expression": "severity == 'terminated' => len(trigger.evidence_event_ids) > 0",
+      "severity": "error",
+      "message": "terminated severity requires at least one evidence event",
+      "fields": ["severity", "trigger.evidence_event_ids"]
+    },
+    {
+      "id": "sanction-timed-require-duration",
+      "expression": "severity_level != null && severity_level != 'suspended' => duration_seconds != null",
+      "severity": "warning",
+      "message": "severity_level present without duration_seconds — timed sanctions should specify duration",
+      "fields": ["severity_level", "duration_seconds"]
+    },
+    {
+      "id": "sanction-severity-field-precedence",
+      "expression": "severity_level != null => severity == severity_level",
+      "severity": "warning",
+      "message": "severity differs from severity_level — severity_level takes precedence for enforcement",
+      "fields": ["severity", "severity_level"]
+    },
+    {
+      "id": "sanction-appeal-dispute-consistency",
+      "expression": "appeal_dispute_id != null => appeal_available == true",
+      "severity": "error",
+      "message": "appeal_dispute_id present but appeal_available is false",
+      "fields": ["appeal_dispute_id", "appeal_available"]
     }
   ]
 }

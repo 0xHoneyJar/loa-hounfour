@@ -10,8 +10,8 @@
  * On minor mismatch: `X-Contract-Version-Warning` header.
  * On major mismatch: 400 with `CONTRACT_VERSION_MISMATCH` error.
  */
-export const CONTRACT_VERSION = '5.0.0' as const;
-export const MIN_SUPPORTED_VERSION = '4.0.0' as const;
+export const CONTRACT_VERSION = '5.1.0' as const;
+export const MIN_SUPPORTED_VERSION = '5.0.0' as const;
 
 /**
  * Base URL for resolvable JSON Schema $id URIs.

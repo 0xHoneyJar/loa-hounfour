@@ -55,6 +55,10 @@ import { ConstraintProposalSchema } from '../src/schemas/model/constraint-propos
 import { ModelProviderSpecSchema } from '../src/schemas/model/model-provider-spec.js';
 import { ConformanceLevelSchema } from '../src/schemas/model/conformance-level.js';
 import { ConformanceVectorSchema } from '../src/schemas/model/conformance-vector.js';
+// v5.1.0 — Governance
+import { SanctionSeveritySchema } from '../src/vocabulary/sanction-severity.js';
+// v5.1.0 — Reconciliation
+import { ReconciliationModeSchema } from '../src/vocabulary/reconciliation-mode.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -127,6 +131,10 @@ const schemas = [
   { name: 'model-provider-spec', schema: ModelProviderSpecSchema },
   { name: 'conformance-level', schema: ConformanceLevelSchema },
   { name: 'conformance-vector', schema: ConformanceVectorSchema },
+  // v5.1.0 — Governance
+  { name: 'sanction-severity', schema: SanctionSeveritySchema },
+  // v5.1.0 — Reconciliation
+  { name: 'reconciliation-mode', schema: ReconciliationModeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -50,6 +50,16 @@ export {
   type ViolationType,
 } from '../vocabulary/sanctions.js';
 
+// Vocabulary — Sanction Severity (v5.1.0)
+export {
+  SanctionSeveritySchema,
+  SANCTION_SEVERITY_LADDER,
+  getSeverityEntry,
+  compareSeverity,
+  type SanctionSeverityLevel,
+  type SeverityLadderEntry,
+} from '../vocabulary/sanction-severity.js';
+
 // Vocabulary — Reputation
 export {
   REPUTATION_WEIGHTS,

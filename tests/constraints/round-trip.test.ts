@@ -1748,7 +1748,7 @@ describe('Grammar v2.0 temporal syntax validation', () => {
 describe('Constraint file structure', () => {
   const v4SchemaIds = [
     'EscrowEntry', 'StakePosition', 'MutualCredit', 'CommonsDividend',
-    'DisputeRecord', 'Sanction', 'ReputationScore', 'BillingEntry',
+    'DisputeRecord', 'ReputationScore', 'BillingEntry',
     'PerformanceRecord', 'ConversationSealingPolicy', 'AccessPolicy',
   ];
 
@@ -1785,6 +1785,28 @@ describe('Constraint file structure', () => {
       expect(file.contract_version).toBe('5.0.0');
       // SagaContext uses expression_version 2.0 (temporal operators)
       expect(['1.0', '2.0']).toContain(file.expression_version);
+      expect(file.constraints.length).toBeGreaterThan(0);
+
+      for (const constraint of file.constraints) {
+        expect(constraint.id).toBeTruthy();
+        expect(constraint.expression).toBeTruthy();
+        expect(['error', 'warning']).toContain(constraint.severity);
+        expect(constraint.message).toBeTruthy();
+        expect(constraint.fields.length).toBeGreaterThan(0);
+      }
+    });
+  }
+
+  // v5.1.0 constraint files — upgraded with graduated sanction fields
+  const v51SchemaIds = ['Sanction'];
+
+  for (const schemaId of v51SchemaIds) {
+    it(`${schemaId} constraint file has valid v5.1.0 structure`, () => {
+      const file = loadConstraints(schemaId);
+      expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
+      expect(file.schema_id).toBe(schemaId);
+      expect(file.contract_version).toBe('5.1.0');
+      expect(file.expression_version).toBe('2.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 
       for (const constraint of file.constraints) {

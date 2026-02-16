@@ -356,7 +356,7 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number }; escalation_rule_applied?: string };
+  const sanction = data as { severity: string; severity_level?: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number }; escalation_rule_applied?: string; duration_seconds?: number; appeal_dispute_id?: string; appeal_available: boolean };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -393,6 +393,28 @@ registerCrossFieldValidator('Sanction', (data) => {
     if (expectedSeverity && sanction.severity !== expectedSeverity) {
       warnings.push(`severity "${sanction.severity}" does not match escalation rule for ${sanction.trigger.violation_type} at occurrence ${sanction.trigger.occurrence_count} (expected "${expectedSeverity}")`);
     }
+  }
+
+  // v5.1.0 — Graduated sanction rules
+
+  // revocation-requires-reason: terminated severity must have evidence
+  if (sanction.severity === 'terminated' && sanction.trigger.evidence_event_ids?.length === 0) {
+    errors.push('terminated severity requires at least one evidence event');
+  }
+
+  // timed-sanctions-require-duration: if severity_level is present and not suspended, duration should be set
+  if (sanction.severity_level && sanction.severity_level !== 'suspended' && sanction.duration_seconds === undefined) {
+    warnings.push('severity_level present without duration_seconds — timed sanctions should specify duration');
+  }
+
+  // severity-field-precedence: if both severity and severity_level present, they should be consistent
+  if (sanction.severity_level && sanction.severity !== sanction.severity_level) {
+    warnings.push(`severity ("${sanction.severity}") differs from severity_level ("${sanction.severity_level}") — severity_level takes precedence for enforcement`);
+  }
+
+  // appeal_dispute_id requires appeal_available to be true
+  if (sanction.appeal_dispute_id && !sanction.appeal_available) {
+    errors.push('appeal_dispute_id present but appeal_available is false');
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };

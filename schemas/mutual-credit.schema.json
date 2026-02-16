@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/mutual-credit",
-  "$comment": "contract_version=5.0.0, min_supported=4.0.0. Financial amounts (amount_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/mutual-credit",
+  "$comment": "contract_version=5.1.0, min_supported=5.0.0. Financial amounts (amount_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "description": "Mutual credit line between agents with settlement tracking",
   "additionalProperties": false,
   "x-experimental": true,

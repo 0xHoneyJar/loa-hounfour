@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/model-provider-spec",
+  "$comment": "contract_version=5.1.0, min_supported=5.0.0. Provider registration/identity document. Financial amounts use string-encoded BigInt (MicroUSD). See vocabulary/currency.ts.",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "spec_id",
+    "provider",
+    "display_name",
+    "version",
+    "contract_version",
+    "models",
+    "conformance_level",
+    "published_at"
+  ],
+  "properties": {
+    "spec_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "provider": {
+      "$id": "ProviderType",
+      "$comment": "Provider type vocabulary for model routing. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31",
+      "anyOf": [
+        {
+          "const": "claude-code",
+          "type": "string"
+        },
+        {
+          "const": "openai",
+          "type": "string"
+        },
+        {
+          "const": "openai-compatible",
+          "type": "string"
+        },
+        {
+          "const": "anthropic",
+          "type": "string"
+        },
+        {
+          "const": "google",
+          "type": "string"
+        },
+        {
+          "const": "custom",
+          "type": "string"
+        }
+      ]
+    },
+    "display_name": {
+      "minLength": 1,
+      "maxLength": 100,
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "models": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_id",
+          "capabilities",
+          "limits",
+          "status"
+        ],
+        "properties": {
+          "model_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "capabilities": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "thinking_traces",
+              "vision",
+              "tool_calling",
+              "streaming",
+              "json_mode",
+              "native_runtime"
+            ],
+            "properties": {
+              "thinking_traces": {
+                "type": "boolean"
+              },
+              "vision": {
+                "type": "boolean"
+              },
+              "tool_calling": {
+                "type": "boolean"
+              },
+              "streaming": {
+                "type": "boolean"
+              },
+              "json_mode": {
+                "type": "boolean"
+              },
+              "native_runtime": {
+                "type": "boolean"
+              }
+            }
+          },
+          "limits": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "max_context_tokens",
+              "max_output_tokens"
+            ],
+            "properties": {
+              "max_context_tokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "max_output_tokens": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "max_thinking_tokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            }
+          },
+          "pricing": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "input_per_million_micro",
+              "output_per_million_micro"
+            ],
+            "properties": {
+              "input_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              },
+              "output_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              },
+              "thinking_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              }
+            }
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "const": "deprecated",
+                "type": "string"
+              },
+              {
+                "const": "preview",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "endpoints": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "completion"
+      ],
+      "properties": {
+        "completion": {
+          "format": "uri",
+          "type": "string"
+        },
+        "streaming": {
+          "format": "uri",
+          "type": "string"
+        },
+        "health": {
+          "format": "uri",
+          "type": "string"
+        },
+        "models": {
+          "format": "uri",
+          "type": "string"
+        }
+      }
+    },
+    "sla": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "uptime_target"
+      ],
+      "properties": {
+        "uptime_target": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "p50_latency_ms": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "p99_latency_ms": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rate_limit_rpm": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "conformance_level": {
+      "$id": "ConformanceLevel",
+      "description": "Trust level assigned to a provider based on conformance verification depth.",
+      "anyOf": [
+        {
+          "const": "self_declared",
+          "type": "string"
+        },
+        {
+          "const": "community_verified",
+          "type": "string"
+        },
+        {
+          "const": "protocol_certified",
+          "type": "string"
+        }
+      ]
+    },
+    "conformance_vector_results": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vector_id",
+          "category",
+          "passed",
+          "run_at"
+        ],
+        "properties": {
+          "vector_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "category": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "error_message": {
+            "type": "string"
+          },
+          "run_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "signature": {
+      "type": "string"
+    },
+    "published_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "type": "string"
+    }
+  }
+}

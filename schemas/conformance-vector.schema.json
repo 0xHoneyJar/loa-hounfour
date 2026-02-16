@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/conformance-vector",
+  "description": "Cross-language conformance test vector for adapter verification.",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "vector_id",
+    "category",
+    "description",
+    "contract_version",
+    "input",
+    "expected_output",
+    "expected_valid"
+  ],
+  "properties": {
+    "vector_id": {
+      "pattern": "^conformance-[a-z]+-\\d{3}$",
+      "description": "Unique vector identifier, e.g. conformance-normalization-001",
+      "type": "string"
+    },
+    "category": {
+      "$id": "ConformanceCategory",
+      "description": "Category of conformance vector for provider verification.",
+      "anyOf": [
+        {
+          "const": "provider-normalization",
+          "type": "string"
+        },
+        {
+          "const": "pricing-calculation",
+          "type": "string"
+        },
+        {
+          "const": "thinking-trace",
+          "type": "string"
+        },
+        {
+          "const": "tool-call-roundtrip",
+          "type": "string"
+        },
+        {
+          "const": "ensemble-position",
+          "type": "string"
+        }
+      ]
+    },
+    "description": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "input": {
+      "description": "Provider-specific input (request payload)",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "expected_output": {
+      "description": "Expected normalized output",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "expected_valid": {
+      "description": "Whether the input is expected to pass schema validation",
+      "type": "boolean"
+    },
+    "matching_rules": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "select_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "volatile_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "numeric_tolerance": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "canonicalize_strings": {
+          "type": "boolean"
+        },
+        "null_handling": {
+          "anyOf": [
+            {
+              "const": "strict",
+              "type": "string"
+            },
+            {
+              "const": "equivalent",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "cross_field_validations": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_id",
+          "expected_severity"
+        ],
+        "properties": {
+          "rule_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expected_severity": {
+            "anyOf": [
+              {
+                "const": "error",
+                "type": "string"
+              },
+              {
+                "const": "warning",
+                "type": "string"
+              }
+            ]
+          },
+          "expected_message_pattern": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+}
