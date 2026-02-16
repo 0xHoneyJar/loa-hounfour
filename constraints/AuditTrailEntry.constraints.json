@@ -1,0 +1,22 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "AuditTrailEntry",
+  "contract_version": "5.2.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "audit-trail-distinct-ids",
+      "expression": "!eq(completion_id, billing_entry_id)",
+      "severity": "error",
+      "message": "completion_id and billing_entry_id must be different",
+      "fields": ["completion_id", "billing_entry_id"]
+    },
+    {
+      "id": "audit-trail-entry-id-distinct",
+      "expression": "!eq(entry_id, completion_id) && !eq(entry_id, billing_entry_id)",
+      "severity": "error",
+      "message": "entry_id must differ from both completion_id and billing_entry_id",
+      "fields": ["entry_id", "completion_id", "billing_entry_id"]
+    }
+  ]
+}

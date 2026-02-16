@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "type": "module",
   "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
   "license": "MIT",

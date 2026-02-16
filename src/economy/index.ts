@@ -161,6 +161,12 @@ export {
   type ParsedNftId,
 } from '../utilities/nft-id.js';
 
+// Schemas — Audit Trail (v5.2.0)
+export {
+  AuditTrailEntrySchema,
+  type AuditTrailEntry,
+} from '../schemas/audit-trail-entry.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

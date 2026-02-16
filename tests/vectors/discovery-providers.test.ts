@@ -57,6 +57,60 @@ describe('ProviderSummarySchema', () => {
       extra: true,
     })).toBe(false);
   });
+
+  // v5.2.0 — Marketplace discovery dimensions
+  it('accepts provider with supports_reservations', () => {
+    expect(Value.Check(ProviderSummarySchema, {
+      provider: 'anthropic',
+      model_count: 3,
+      supports_reservations: true,
+    })).toBe(true);
+  });
+
+  it('accepts provider with reservation_enforcement', () => {
+    expect(Value.Check(ProviderSummarySchema, {
+      provider: 'openai',
+      model_count: 5,
+      supports_reservations: true,
+      reservation_enforcement: 'strict',
+    })).toBe(true);
+  });
+
+  it('rejects invalid reservation_enforcement', () => {
+    expect(Value.Check(ProviderSummarySchema, {
+      provider: 'openai',
+      model_count: 1,
+      reservation_enforcement: 'invalid',
+    })).toBe(false);
+  });
+
+  it('accepts provider with total_capacity_tokens_per_minute', () => {
+    expect(Value.Check(ProviderSummarySchema, {
+      provider: 'anthropic',
+      model_count: 2,
+      total_capacity_tokens_per_minute: 1000000,
+    })).toBe(true);
+  });
+
+  it('rejects negative total_capacity_tokens_per_minute', () => {
+    expect(Value.Check(ProviderSummarySchema, {
+      provider: 'openai',
+      model_count: 1,
+      total_capacity_tokens_per_minute: -1,
+    })).toBe(false);
+  });
+
+  it('accepts provider with all marketplace dimensions', () => {
+    const summary: ProviderSummary = {
+      provider: 'deepseek',
+      model_count: 4,
+      conformance_level: 'community_verified',
+      supports_reservations: true,
+      reservation_enforcement: 'advisory',
+      total_capacity_tokens_per_minute: 500000,
+    };
+    expect(Value.Check(ProviderSummarySchema, summary)).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------

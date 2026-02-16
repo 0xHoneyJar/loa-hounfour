@@ -67,6 +67,7 @@ import { ModelProviderSpecSchema, type ModelProviderSpec } from '../schemas/mode
 import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
 import { AgentCapacityReservationSchema, type AgentCapacityReservation } from '../schemas/model/routing/agent-capacity-reservation.js';
 import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
+import { AuditTrailEntrySchema, type AuditTrailEntry } from '../schemas/audit-trail-entry.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -782,6 +783,37 @@ registerCrossFieldValidator('BudgetScope', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// --- v5.2.0 — AuditTrailEntry cross-field validator ---
+
+registerCrossFieldValidator('AuditTrailEntry', (data) => {
+  const entry = data as AuditTrailEntry;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Distinct IDs: completion_id != billing_entry_id
+  if (entry.completion_id === entry.billing_entry_id) {
+    errors.push('completion_id and billing_entry_id must be different');
+  }
+
+  // entry_id must differ from both
+  if (entry.entry_id === entry.completion_id) {
+    errors.push('entry_id must differ from completion_id');
+  }
+  if (entry.entry_id === entry.billing_entry_id) {
+    errors.push('entry_id must differ from billing_entry_id');
+  }
+
+  // Metadata size limit (10KB)
+  if (entry.metadata) {
+    const size = JSON.stringify(entry.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -925,4 +957,7 @@ export const validators = {
 
   // v5.2.0 — Agent Capacity Reservation
   agentCapacityReservation: () => getOrCompile(AgentCapacityReservationSchema),
+
+  // v5.2.0 — Audit Trail
+  auditTrailEntry: () => getOrCompile(AuditTrailEntrySchema),
 } as const;

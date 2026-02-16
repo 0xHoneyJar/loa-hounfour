@@ -10,6 +10,7 @@
  */
 import { Type, type Static } from '@sinclair/typebox';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../version.js';
+import { ReservationEnforcementSchema } from '../vocabulary/reservation-enforcement.js';
 
 /**
  * Summary of a registered model provider (v5.1.0).
@@ -18,6 +19,10 @@ export const ProviderSummarySchema = Type.Object({
   provider: Type.String({ minLength: 1, description: 'Provider identifier (e.g. "openai", "anthropic")' }),
   model_count: Type.Integer({ minimum: 0, description: 'Number of active models from this provider' }),
   conformance_level: Type.Optional(Type.String({ description: 'Highest conformance level achieved by any model from this provider' })),
+  // v5.2.0 — Marketplace discovery dimensions
+  supports_reservations: Type.Optional(Type.Boolean({ description: 'Whether this provider supports capacity reservations' })),
+  reservation_enforcement: Type.Optional(ReservationEnforcementSchema),
+  total_capacity_tokens_per_minute: Type.Optional(Type.Integer({ minimum: 0, description: 'Total capacity in tokens per minute across all models from this provider' })),
 }, {
   additionalProperties: false,
   description: 'Summary of a registered model provider',

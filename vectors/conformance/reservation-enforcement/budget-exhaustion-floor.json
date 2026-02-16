@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0004",
+  "category": "reservation-enforcement",
+  "description": "Budget exhaustion with floor enforcement — spending would breach reservation floor, request blocked",
+  "contract_version": "5.2.0",
+  "input": {
+    "agent_id": "agent-004",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 300,
+    "budget_limit_micro": "1000000",
+    "budget_spent_micro": "970000",
+    "request_cost_micro": "50000",
+    "enforcement": "strict"
+  },
+  "expected_output": {
+    "reserved_micro": "30000",
+    "allowed": false,
+    "floor_breached": true,
+    "reason": "Request would breach reservation floor"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["allowed", "floor_breached"]
+  },
+  "metadata": {
+    "sdd_section": "§3.8",
+    "scenario": "Only 30K available (= reserved floor), 50K request — SKP-003 floor breach"
+  }
+}
