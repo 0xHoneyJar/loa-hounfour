@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 11 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(11);
+  it('contains exactly 13 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(13);
   });
 
   it('includes all valid categories', () => {
@@ -77,6 +77,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'conservation-properties',
       'jwt-boundary',
       'agent-identity',
+      'capability-scoped-trust',
+      'liveness-properties',
     ]);
   });
 });

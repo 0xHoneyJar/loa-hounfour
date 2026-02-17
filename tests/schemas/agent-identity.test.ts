@@ -1,8 +1,8 @@
 /**
- * Tests for AgentIdentity schema (S3-T3, S3-T6).
+ * Tests for AgentIdentity schema (v6.0.0 — BREAKING: trust_scopes replaces trust_level).
  *
- * Validates schema validation, trust levels, agent types,
- * and cross-field constraint evaluation.
+ * Validates schema validation, trust scopes, agent types,
+ * dual-read adapter, and cross-field constraint evaluation.
  */
 import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
@@ -13,7 +13,8 @@ import {
   TRUST_LEVELS,
   DELEGATION_TRUST_THRESHOLD,
   trustLevelIndex,
-  meetsThreshold,
+  flatTrustToScoped,
+  parseAgentIdentity,
   type AgentIdentity,
   type TrustLevel,
 } from '../../src/schemas/agent-identity.js';
@@ -24,11 +25,21 @@ const validAgent: AgentIdentity = {
   display_name: 'Alice',
   agent_type: 'human',
   capabilities: ['governance', 'delegation'],
-  trust_level: 'trusted',
+  trust_scopes: {
+    scopes: {
+      billing: 'trusted',
+      governance: 'trusted',
+      inference: 'trusted',
+      delegation: 'trusted',
+      audit: 'trusted',
+      composition: 'trusted',
+    },
+    default_level: 'trusted',
+  },
   delegation_authority: ['invoke'],
   max_delegation_depth: 2,
   governance_weight: 0.5,
-  contract_version: '5.5.0',
+  contract_version: '6.0.0',
 };
 
 describe('AgentIdentitySchema', () => {
@@ -79,6 +90,12 @@ describe('AgentIdentitySchema', () => {
 
   it('rejects max_delegation_depth > 10', () => {
     expect(Value.Check(AgentIdentitySchema, { ...validAgent, max_delegation_depth: 11 })).toBe(false);
+  });
+
+  it('requires trust_scopes (not trust_level)', () => {
+    const { trust_scopes: _, ...noTrustScopes } = validAgent;
+    const withOldTrustLevel = { ...noTrustScopes, trust_level: 'trusted' };
+    expect(Value.Check(AgentIdentitySchema, withOldTrustLevel)).toBe(false);
   });
 });
 
@@ -155,24 +172,44 @@ describe('trustLevelIndex', () => {
   });
 });
 
-describe('meetsThreshold', () => {
-  it('sovereign meets any threshold', () => {
-    for (const t of TRUST_LEVELS) {
-      expect(meetsThreshold('sovereign', t)).toBe(true);
-    }
+describe('parseAgentIdentity (dual-read adapter)', () => {
+  it('parses v6.0.0 format (trust_scopes) directly', () => {
+    const result = parseAgentIdentity(validAgent);
+    expect(result.trust_scopes).toEqual(validAgent.trust_scopes);
   });
 
-  it('untrusted meets only untrusted', () => {
-    expect(meetsThreshold('untrusted', 'untrusted')).toBe(true);
-    expect(meetsThreshold('untrusted', 'basic')).toBe(false);
-    expect(meetsThreshold('untrusted', 'verified')).toBe(false);
+  it('parses v5.5.0 format (trust_level) and converts', () => {
+    const v550Data = {
+      agent_id: 'agent-bob',
+      display_name: 'Bob',
+      agent_type: 'model',
+      capabilities: ['inference'],
+      trust_level: 'verified',
+      delegation_authority: [],
+      max_delegation_depth: 0,
+      governance_weight: 0,
+      contract_version: '5.5.0',
+    };
+    const result = parseAgentIdentity(v550Data);
+    expect(result.trust_scopes).toEqual(flatTrustToScoped('verified'));
+    expect((result as Record<string, unknown>).trust_level).toBeUndefined();
   });
 
-  it('verified meets DELEGATION_TRUST_THRESHOLD', () => {
-    expect(meetsThreshold('verified', DELEGATION_TRUST_THRESHOLD)).toBe(true);
+  it('throws on null input', () => {
+    expect(() => parseAgentIdentity(null)).toThrow('non-null object');
   });
 
-  it('basic does not meet DELEGATION_TRUST_THRESHOLD', () => {
-    expect(meetsThreshold('basic', DELEGATION_TRUST_THRESHOLD)).toBe(false);
+  it('throws on input with neither trust_level nor trust_scopes', () => {
+    const incomplete = {
+      agent_id: 'agent-missing',
+      display_name: 'Missing',
+      agent_type: 'service',
+      capabilities: ['test'],
+      delegation_authority: [],
+      max_delegation_depth: 0,
+      governance_weight: 0,
+      contract_version: '6.0.0',
+    };
+    expect(() => parseAgentIdentity(incomplete)).toThrow('neither trust_scopes');
   });
 });

@@ -48,6 +48,8 @@ const validRegistry: ConservationPropertyRegistry = {
     },
   ],
   coverage: { single_lot: 2 },
+  liveness_properties: [],
+  liveness_count: 0,
   contract_version: '5.5.0',
 };
 

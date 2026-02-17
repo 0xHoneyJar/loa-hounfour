@@ -207,16 +207,25 @@ export {
   isDeprecated,
 } from '../vocabulary/deprecation.js';
 
-// Schemas — Agent Identity (v5.5.0, FR-6)
+// Schemas — Agent Identity (v6.0.0, FR-2 — BREAKING: trust_level → trust_scopes)
 export {
   AgentIdentitySchema,
   TrustLevelSchema,
   AgentTypeSchema,
+  CapabilityScopeSchema,
+  CapabilityScopedTrustSchema,
   TRUST_LEVELS,
+  CAPABILITY_SCOPES,
   DELEGATION_TRUST_THRESHOLD,
   trustLevelIndex,
-  meetsThreshold,
+  trustLevelForScope,
+  meetsThresholdForScope,
+  effectiveTrustLevel,
+  flatTrustToScoped,
+  parseAgentIdentity,
   type AgentIdentity,
   type TrustLevel,
   type AgentType,
+  type CapabilityScope,
+  type CapabilityScopedTrust,
 } from '../schemas/agent-identity.js';

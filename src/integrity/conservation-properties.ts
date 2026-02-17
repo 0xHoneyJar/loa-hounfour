@@ -12,6 +12,7 @@
  * @see arXiv:2512.16856 — Distributional AGI Safety
  */
 import { Type, type Static } from '@sinclair/typebox';
+import { LivenessPropertySchema } from './liveness-properties.js';
 
 /**
  * Enforcement mechanism for a conservation invariant.
@@ -110,13 +111,20 @@ export const ConservationPropertyRegistrySchema = Type.Object(
     coverage: Type.Record(Type.String(), Type.Integer({ minimum: 0 }), {
       description: 'Count of properties per universe (single_lot, account, platform, bilateral).',
     }),
+    liveness_properties: Type.Array(LivenessPropertySchema, {
+      description: 'Liveness properties proving forward progress (v6.0.0, FR-1).',
+    }),
+    liveness_count: Type.Integer({
+      minimum: 0,
+      description: 'Must equal liveness_properties.length — drift guard (v6.0.0).',
+    }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {
     $id: 'ConservationPropertyRegistry',
     additionalProperties: false,
     'x-cross-field-validated': true,
-    description: 'Registry of conservation invariants with LTL specifications and enforcement classification.',
+    description: 'Registry of conservation invariants with LTL specifications, enforcement classification, and liveness properties (v6.0.0).',
   },
 );
 

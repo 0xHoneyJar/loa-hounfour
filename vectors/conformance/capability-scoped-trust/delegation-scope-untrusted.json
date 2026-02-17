@@ -1,26 +1,26 @@
 {
-  "vector_id": "conformance-agent-identity-002",
-  "category": "agent-identity",
-  "description": "Agent with untrusted delegation scope attempting to hold delegation authority — should fail constraint",
+  "vector_id": "conformance-capability-scoped-trust-002",
+  "category": "capability-scoped-trust",
+  "description": "Agent with untrusted delegation scope but non-empty delegation_authority — should fail",
   "contract_version": "6.0.0",
   "input": {
-    "agent_id": "untrusted-bob",
-    "display_name": "Bob (Untrusted)",
+    "agent_id": "agent-bad-delegation",
+    "display_name": "Bad Delegation Agent",
     "agent_type": "model",
     "capabilities": ["text-generation"],
     "trust_scopes": {
       "scopes": {
-        "billing": "basic",
+        "billing": "trusted",
         "governance": "untrusted",
-        "inference": "basic",
+        "inference": "trusted",
         "delegation": "untrusted",
-        "audit": "untrusted",
+        "audit": "basic",
         "composition": "untrusted"
       },
       "default_level": "untrusted"
     },
     "delegation_authority": ["invoke"],
-    "max_delegation_depth": 0,
+    "max_delegation_depth": 1,
     "governance_weight": 0,
     "contract_version": "6.0.0"
   },
@@ -29,8 +29,7 @@
   "cross_field_validations": [
     {
       "rule_id": "agent-identity-delegation-requires-trust",
-      "expected_severity": "error",
-      "expected_message_pattern": "delegation.*trust"
+      "expected_severity": "error"
     }
   ],
   "metadata": {

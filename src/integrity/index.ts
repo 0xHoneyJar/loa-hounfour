@@ -18,6 +18,16 @@ export {
   type InvariantUniverse,
 } from './conservation-properties.js';
 
+// Liveness Properties (v6.0.0, FR-1)
+export {
+  LivenessPropertySchema,
+  TimeoutBehaviorSchema,
+  CANONICAL_LIVENESS_PROPERTIES,
+  TIMEOUT_BEHAVIORS,
+  type LivenessProperty,
+  type TimeoutBehavior,
+} from './liveness-properties.js';
+
 // Request Hashing
 export {
   computeReqHash,

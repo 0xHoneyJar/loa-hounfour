@@ -19,6 +19,8 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('conservation-properties'),
     Type.Literal('jwt-boundary'),
     Type.Literal('agent-identity'),
+    Type.Literal('capability-scoped-trust'),
+    Type.Literal('liveness-properties'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -41,4 +43,6 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'conservation-properties',
   'jwt-boundary',
   'agent-identity',
+  'capability-scoped-trust',
+  'liveness-properties',
 ] as const;

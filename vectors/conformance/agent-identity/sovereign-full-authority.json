@@ -1,22 +1,32 @@
 {
   "vector_id": "conformance-agent-identity-001",
   "category": "agent-identity",
-  "description": "Sovereign agent with full delegation authority — valid",
-  "contract_version": "5.5.0",
+  "description": "Sovereign agent with full delegation authority — valid (v6.0.0 scoped trust)",
+  "contract_version": "6.0.0",
   "input": {
     "agent_id": "sovereign-alice",
     "display_name": "Alice (Sovereign)",
     "agent_type": "human",
     "capabilities": ["governance", "delegation", "budget-management"],
-    "trust_level": "sovereign",
+    "trust_scopes": {
+      "scopes": {
+        "billing": "sovereign",
+        "governance": "sovereign",
+        "inference": "sovereign",
+        "delegation": "sovereign",
+        "audit": "sovereign",
+        "composition": "sovereign"
+      },
+      "default_level": "sovereign"
+    },
     "delegation_authority": ["invoke", "budget-read", "governance-vote"],
     "max_delegation_depth": 3,
     "governance_weight": 1.0,
-    "contract_version": "5.5.0"
+    "contract_version": "6.0.0"
   },
   "expected_output": {},
   "expected_valid": true,
   "metadata": {
-    "sdd_section": "§2.6"
+    "sdd_section": "§2.2"
   }
 }
