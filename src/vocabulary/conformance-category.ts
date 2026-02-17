@@ -21,6 +21,8 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('agent-identity'),
     Type.Literal('capability-scoped-trust'),
     Type.Literal('liveness-properties'),
+    Type.Literal('registry-bridge'),
+    Type.Literal('delegation-tree'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -45,4 +47,6 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'agent-identity',
   'capability-scoped-trust',
   'liveness-properties',
+  'registry-bridge',
+  'delegation-tree',
 ] as const;

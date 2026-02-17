@@ -1,0 +1,18 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "MintingPolicy",
+  "contract_version": "6.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "minting-policy-max-positive",
+      "description": "Maximum mint per epoch must be positive",
+      "expression": "bigint_gt(max_mint_per_epoch, '0')",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": {
+        "max_mint_per_epoch": "bigint_coercible"
+      }
+    }
+  ]
+}

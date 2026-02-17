@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 20 evaluator builtins. Each spec includes
+ * Canonical specifications for all 23 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (20 builtins — type_of, is_bigint_coercible)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins — type_of, is_bigint_coercible, unique_values, tree_budget_conserved, tree_authority_narrowing)
  */
 import { type EvaluatorBuiltin, EVALUATOR_BUILTINS } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 20 evaluator builtin specifications.
+ * Canonical registry of all 23 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -606,5 +606,84 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Floats return false (not integer)', 'null returns false', 'BigInt values return true'],
+  }],
+
+  ['unique_values', {
+    name: 'unique_values',
+    signature: 'unique_values(array, field) → boolean',
+    description: 'Returns true if all values of the named field within the array are unique.',
+    arguments: [
+      { name: 'array', type: 'object[]', description: 'Array of objects to inspect' },
+      { name: 'field', type: 'string', description: 'Field name to extract from each element' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Unique field values',
+        context: { items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] },
+        expression: "unique_values(items, 'id')",
+        expected: true,
+      },
+      {
+        description: 'Duplicate field values',
+        context: { items: [{ id: 'a' }, { id: 'b' }, { id: 'a' }] },
+        expression: "unique_values(items, 'id')",
+        expected: false,
+      },
+    ],
+    edge_cases: ['Non-array input returns true (vacuously)', 'Missing field on item is skipped', 'Empty array returns true'],
+  }],
+
+  ['tree_budget_conserved', {
+    name: 'tree_budget_conserved',
+    signature: 'tree_budget_conserved(root) → boolean | string',
+    description: 'Iteratively validates sum(children.budget) <= parent.budget at every node. Returns true if conserved, false if violated, or error string for limit breaches.',
+    arguments: [
+      { name: 'root', type: 'DelegationTreeNode', description: 'Root node of the delegation tree' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Valid tree with conserved budgets',
+        context: { root: { node_id: '1', budget_allocated_micro: '1000', children: [{ node_id: '2', budget_allocated_micro: '500', children: [] }, { node_id: '3', budget_allocated_micro: '500', children: [] }] } },
+        expression: 'tree_budget_conserved(root)',
+        expected: true,
+      },
+      {
+        description: 'Invalid tree with overflowing budgets',
+        context: { root: { node_id: '1', budget_allocated_micro: '1000', children: [{ node_id: '2', budget_allocated_micro: '600', children: [] }, { node_id: '3', budget_allocated_micro: '600', children: [] }] } },
+        expression: 'tree_budget_conserved(root)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Leaf nodes (no children) always valid', 'Returns TREE_DEPTH_EXCEEDED or TREE_SIZE_EXCEEDED for limit breaches'],
+  }],
+
+  ['tree_authority_narrowing', {
+    name: 'tree_authority_narrowing',
+    signature: 'tree_authority_narrowing(root) → boolean | string',
+    description: 'Iteratively validates child.authority_scope is strict subset of parent.authority_scope. Normalized lowercase, set semantics.',
+    arguments: [
+      { name: 'root', type: 'DelegationTreeNode', description: 'Root node of the delegation tree' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Valid tree with narrowing authority',
+        context: { root: { node_id: '1', authority_scope: ['billing', 'inference'], children: [{ node_id: '2', authority_scope: ['billing'], children: [] }] } },
+        expression: 'tree_authority_narrowing(root)',
+        expected: true,
+      },
+      {
+        description: 'Invalid tree with widening authority',
+        context: { root: { node_id: '1', authority_scope: ['billing'], children: [{ node_id: '2', authority_scope: ['billing', 'inference'], children: [] }] } },
+        expression: 'tree_authority_narrowing(root)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Empty scope at leaf is valid', 'Duplicate elements deduplicated before comparison'],
   }],
 ]);

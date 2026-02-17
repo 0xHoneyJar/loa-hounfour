@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 13 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(13);
+  it('contains exactly 15 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(15);
   });
 
   it('includes all valid categories', () => {
@@ -79,6 +79,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'agent-identity',
       'capability-scoped-trust',
       'liveness-properties',
+      'registry-bridge',
+      'delegation-tree',
     ]);
   });
 });

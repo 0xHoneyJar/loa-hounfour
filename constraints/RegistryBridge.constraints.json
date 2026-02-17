@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RegistryBridge",
+  "contract_version": "6.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "registry-bridge-distinct-registries",
+      "description": "Source and target registry must be different",
+      "expression": "source_registry_id != target_registry_id",
+      "severity": "error",
+      "category": "integrity",
+      "type_signature": {
+        "source_registry_id": "string",
+        "target_registry_id": "string"
+      }
+    },
+    {
+      "id": "registry-bridge-invariant-unique-ids",
+      "description": "Bridge invariant IDs must be unique within a bridge",
+      "expression": "unique_values(bridge_invariants, 'invariant_id')",
+      "severity": "error",
+      "category": "integrity",
+      "type_signature": {
+        "bridge_invariants": "array"
+      }
+    }
+  ]
+}

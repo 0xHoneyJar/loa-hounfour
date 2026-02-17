@@ -79,6 +79,7 @@ Directory structure:
 ./docs/architecture
 ./docs/choreography
 ./docs/integration
+./docs/patterns
 ./evals
 ./evals/baselines
 ./evals/fixtures
@@ -102,7 +103,6 @@ Directory structure:
 ./src/integrity
 ./src/model
 ./src/schemas
-./src/test-infrastructure
 ```
 
 ## Interfaces
@@ -143,21 +143,21 @@ Directory structure:
 <!-- provenance: DERIVED -->
 | Module | Files | Purpose | Documentation |
 |--------|-------|---------|---------------|
-| `constraints/` | 32 | Cross-language constraint expressions (GovernanceConfig, DelegationChain, InterAgentTransactionAudit, EnsembleCapabilityProfile, ConservationPropertyRegistry, JwtBoundarySpec, AgentIdentity) | \u2014 |
-| `docs/` | 9 | Documentation | \u2014 |
+| `constraints/` | 36 | Constraints | \u2014 |
+| `docs/` | 10 | Documentation | \u2014 |
 | `evals/` | 122 | Benchmarking and regression framework for the Loa agent development system. Ensures framework changes don't degrade agent behavior through | [evals/README.md](evals/README.md) |
-| `grimoires/` | 45 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |
-| `schemas/` | 68 | **Contract version: 5.5.0** — The Conservation-Aware Protocol | [schemas/README.md](schemas/README.md) |
+| `grimoires/` | 64 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |
+| `schemas/` | 56 | **Contract version:** | [schemas/README.md](schemas/README.md) |
 | `scripts/` | 11 | Utility scripts | \u2014 |
 | `specs/` | 1 | Specs | \u2014 |
-| `src/` | 83 | Source code | \u2014 |
-| `tests/` | 207 | Test suites | \u2014 |
-| `vectors/` | 50 | Conformance vectors (8 reservation-enforcement + 4 delegation-chain + 4 inter-agent-transaction + cross-domain) | \u2014 |
+| `src/` | 118 | Source code | \u2014 |
+| `tests/` | 289 | Test suites | \u2014 |
+| `vectors/` | 106 | Vectors | \u2014 |
 
 ## Verification
 <!-- provenance: CODE-FACTUAL -->
 - Trust Level: **L3 — Property-Based**
-- 207 test files across 1 suite
+- 289 test files across 1 suite
 - CI/CD: GitHub Actions (1 workflows)
 - Type safety: TypeScript
 - Security: SECURITY.md present
@@ -176,6 +176,7 @@ The project defines 1 specialized agent persona.
 - `@noble/hashes`
 - `@sinclair/typebox`
 - `@types/node`
+- `canonicalize`
 - `fast-check`
 - `jose`
 - `tsx`
@@ -196,17 +197,17 @@ pnpm add @0xhoneyjar/loa-hounfour
 pnpm add github:0xHoneyJar/loa-hounfour
 ```
 <!-- ground-truth-meta
-head_sha: 2829a07590f50588b5b6c8beea53ad450edefdaf
-generated_at: 2026-02-15T09:34:47Z
+head_sha: 88af8c34b62965ca078ca348459af9eec4b4186a
+generated_at: 2026-02-17T05:21:56Z
 generator: butterfreezone-gen v1.0.0
 sections:
   agent_context: 2aa03817cd18caf2bf450c13f4d1ddae6e8f6afd83ad277e324aa796d2c0cebb
   capabilities: 7ac5066c6290b2bd238aba0cebe80e6c24d2c32ecc6b066842a065eb8c2300c1
-  architecture: 799508a8fac5b3374b95db0aafcca2ea980d23ef398e70f910f9f077bf857573
+  architecture: 30ff35f36f396b262a9d7f842704b4347cae4f78bb8f51ca0f799b1545c2b878
   interfaces: c0d2732b6ab7745352bd781f56f44f32b2f8f2cacef7234ceed3e8f09796c0f4
-  module_map: 64ebc5c0e8be1cbf232f0e0cdca50bdba41615deb2abeaeccc302c1ce24bb71f
-  verification: 132d7adab8280adb2de4cac7779874a9bb690b278e378fadf99dc6b23a40494c
+  module_map: e83693f783e447b201d0e3622466c4737eda0a90e757a518b38f0d1441aa8866
+  verification: f646b3d5e4015d10c932a9e0b31ea99802ed090cfb9aef7c180858b057654a1b
   agents: ca263d1e05fd123434a21ef574fc8d76b559d22060719640a1f060527ef6a0b6
-  ecosystem: d7518fab456bd22dee963318774180c87ac79752d051ca628bf17e8b3acf8cff
+  ecosystem: 106a752a5faab1fbf6d5a71394f39fc1a568723df26c5c93a9a9d4c9e4aaf5aa
   quick_start: 6194c63aaad7d1d59a51c2f46331d5de41ba8b937c603ca6e526a6a72f73961c
 -->

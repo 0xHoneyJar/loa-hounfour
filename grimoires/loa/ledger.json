@@ -10,36 +10,63 @@
         {
           "local_id": "sprint-1",
           "global_id": 1,
-          "label": "Foundation — Agent Identity & Lifecycle",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "label": "Foundation \u2014 Agent Identity & Lifecycle",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 2,
-          "label": "Billing — Multi-Party Cost Attribution",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3"],
+          "label": "Billing \u2014 Multi-Party Cost Attribution",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 3,
           "label": "Conversations, Transfers & Events",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 4,
-          "label": "Integration — Wiring Everything Together",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
+          "label": "Integration \u2014 Wiring Everything Together",
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4",
+            "S4-T5",
+            "S4-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-5",
           "global_id": 5,
-          "label": "Quality — Golden Test Vectors & Migration",
-          "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "label": "Quality \u2014 Golden Test Vectors & Migration",
+          "tasks": [
+            "S5-T1",
+            "S5-T2",
+            "S5-T3",
+            "S5-T4",
+            "S5-T5",
+            "S5-T6"
+          ],
           "status": "completed"
         }
       ],
@@ -57,22 +84,38 @@
         {
           "local_id": "sprint-1",
           "global_id": 6,
-          "label": "Schema Enrichment — Extending the Protocol",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "label": "Schema Enrichment \u2014 Extending the Protocol",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 7,
-          "label": "Decision Trails — Documentation as Architecture",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4"],
+          "label": "Decision Trails \u2014 Documentation as Architecture",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 8,
           "label": "Interoperability & Distribution",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5"
+          ],
           "status": "completed"
         }
       ],
@@ -90,22 +133,40 @@
         {
           "local_id": "sprint-1",
           "global_id": 9,
-          "label": "Protocol Safety — Trust Boundaries & Correctness",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5"],
+          "label": "Protocol Safety \u2014 Trust Boundaries & Correctness",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 10,
-          "label": "Schema Evolution — Vocabulary & Structured Events",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "label": "Schema Evolution \u2014 Vocabulary & Structured Events",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 11,
           "label": "Interoperability, Vectors & Distribution",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5"
+          ],
           "status": "completed"
         }
       ],
@@ -123,15 +184,26 @@
         {
           "local_id": "sprint-1",
           "global_id": 12,
-          "label": "Protocol Resilience — Schema Evolution & Cross-Version Strategy",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "label": "Protocol Resilience \u2014 Schema Evolution & Cross-Version Strategy",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 13,
-          "label": "Protocol Completeness — Saga Choreography & Discovery Composition",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "label": "Protocol Completeness \u2014 Saga Choreography & Discovery Composition",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5"
+          ],
           "status": "completed"
         }
       ],
@@ -142,7 +214,7 @@
     },
     {
       "id": "cycle-005",
-      "label": "Protocol Maturity & v3.0.0 — The Sovereignty Release",
+      "label": "Protocol Maturity & v3.0.0 \u2014 The Sovereignty Release",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
       "sprints": [
@@ -150,21 +222,42 @@
           "local_id": "sprint-1",
           "global_id": 14,
           "label": "Guard Architecture & Financial Safety (v2.4.0-prep)",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 15,
           "label": "Multi-Model Topology & Saga Resilience (v2.4.0)",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5",
+            "S2-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 16,
-          "label": "v3.0.0 Breaking Release — The Sovereignty Release",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6"],
+          "label": "v3.0.0 Breaking Release \u2014 The Sovereignty Release",
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6"
+          ],
           "status": "completed"
         }
       ],
@@ -183,28 +276,55 @@
           "local_id": "sprint-1",
           "global_id": 17,
           "label": "Hounfour Protocol Types (v3.1.0-rc)",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 18,
           "label": "Validation Pipeline Hardening (v3.1.0)",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5",
+            "S2-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 19,
           "label": "Ecosystem & Financial Maturity (v3.2.0)",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 20,
           "label": "Protocol Maturity & v4.0.0 Preparation",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5"],
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4",
+            "S4-T5"
+          ],
           "status": "completed"
         }
       ],
@@ -215,7 +335,7 @@
     },
     {
       "id": "cycle-007",
-      "label": "The Agent Economy — v4.4.0",
+      "label": "The Agent Economy \u2014 v4.4.0",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
       "sprints": [
@@ -223,42 +343,81 @@
           "local_id": "sprint-1",
           "global_id": 21,
           "label": "The Breaking Foundation (v4.0.0)",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6",
+            "S1-T7"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 22,
           "label": "The Performance Layer (v4.1.0)",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4"],
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 23,
           "label": "The Governance Layer (v4.2.0)",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 24,
           "label": "The Reputation Layer (v4.3.0)",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4"],
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-5",
           "global_id": 25,
           "label": "The Agent Economy (v4.4.0)",
-          "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "tasks": [
+            "S5-T1",
+            "S5-T2",
+            "S5-T3",
+            "S5-T4",
+            "S5-T5",
+            "S5-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-6",
           "global_id": 26,
           "label": "Level 4 Test Epistemology + Final Integration (v4.4.0)",
-          "tasks": ["S6-T1", "S6-T2", "S6-T3", "S6-T4", "S6-T5", "S6-T6"],
+          "tasks": [
+            "S6-T1",
+            "S6-T2",
+            "S6-T3",
+            "S6-T4",
+            "S6-T5",
+            "S6-T6"
+          ],
           "status": "completed"
         }
       ],
@@ -269,7 +428,7 @@
     },
     {
       "id": "cycle-008",
-      "label": "The Hardening Release — v4.5.0",
+      "label": "The Hardening Release \u2014 v4.5.0",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
       "sprints": [
@@ -277,28 +436,52 @@
           "local_id": "sprint-1",
           "global_id": 27,
           "label": "Sybil Resistance & Reputation Hardening",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4"],
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 28,
           "label": "Financial Lifecycle Completeness",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 29,
           "label": "Schema Discoverability, Naming & Standards",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7"],
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6",
+            "S3-T7"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 30,
           "label": "Integration Schema, Test Hardening & Final Release (v4.5.0)",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4"],
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4"
+          ],
           "status": "completed"
         }
       ],
@@ -309,36 +492,62 @@
     },
     {
       "id": "cycle-009",
-      "label": "The Formalization Release — v4.6.0 (Level 4)",
+      "label": "The Formalization Release \u2014 v4.6.0 (Level 4)",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
       "sprints": [
         {
           "local_id": "sprint-1",
           "global_id": 31,
-          "label": "Foundation — Unified State Machines & Aggregate Boundaries",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
+          "label": "Foundation \u2014 Unified State Machines & Aggregate Boundaries",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 32,
-          "label": "Formalization — Temporal Properties",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "label": "Formalization \u2014 Temporal Properties",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 33,
-          "label": "Portability — Cross-Language Constraints",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5"],
+          "label": "Portability \u2014 Cross-Language Constraints",
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 34,
-          "label": "Integration & Polish — Flow Verification, Residual Gaps, v4.6.0",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
+          "label": "Integration & Polish \u2014 Flow Verification, Residual Gaps, v4.6.0",
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4",
+            "S4-T5",
+            "S4-T6"
+          ],
           "status": "completed"
         }
       ],
@@ -349,7 +558,7 @@
     },
     {
       "id": "cycle-010",
-      "label": "The Multi-Model Release — v5.0.0",
+      "label": "The Multi-Model Release \u2014 v5.0.0",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
       "sprints": [
@@ -357,66 +566,413 @@
           "local_id": "sprint-1",
           "global_id": 35,
           "label": "ModelPort Foundation (FR-1 + FR-3)",
-          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6",
+            "S1-T7"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 36,
           "label": "Ensemble & Routing (FR-2 + FR-7)",
-          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 37,
-          "label": "Architecture — Barrel Decomposition + Grammar Formalization (FR-4 + FR-5)",
-          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7"],
+          "label": "Architecture \u2014 Barrel Decomposition + Grammar Formalization (FR-4 + FR-5)",
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6",
+            "S3-T7"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 38,
           "label": "Vectors, Namespace & Polish (FR-6 + FR-8)",
-          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4",
+            "S4-T5",
+            "S4-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-5",
           "global_id": 39,
-          "label": "Integration — Constraint Files + v5.0.0 Release",
-          "tasks": ["S5-T1", "S5-T2", "S5-T3", "S5-T4", "S5-T5", "S5-T6"],
+          "label": "Integration \u2014 Constraint Files + v5.0.0 Release",
+          "tasks": [
+            "S5-T1",
+            "S5-T2",
+            "S5-T3",
+            "S5-T4",
+            "S5-T5",
+            "S5-T6"
+          ],
           "status": "completed"
         },
         {
           "local_id": "sprint-6",
           "global_id": 40,
           "label": "Quick Fixes + Billing Provenance Chain",
-          "tasks": ["S6-T1", "S6-T2", "S6-T3", "S6-T4"],
+          "tasks": [
+            "S6-T1",
+            "S6-T2",
+            "S6-T3",
+            "S6-T4"
+          ],
           "status": "pending"
         },
         {
           "local_id": "sprint-7",
           "global_id": 41,
           "label": "Multi-Model Dialogue Protocol",
-          "tasks": ["S7-T1", "S7-T2", "S7-T3", "S7-T4", "S7-T5"],
+          "tasks": [
+            "S7-T1",
+            "S7-T2",
+            "S7-T3",
+            "S7-T4",
+            "S7-T5"
+          ],
           "status": "pending"
         },
         {
           "local_id": "sprint-8",
           "global_id": 42,
           "label": "Constraint Evolution + Agent-Authored Constraints",
-          "tasks": ["S8-T1", "S8-T2", "S8-T3", "S8-T4", "S8-T5", "S8-T6", "S8-T7"],
+          "tasks": [
+            "S8-T1",
+            "S8-T2",
+            "S8-T3",
+            "S8-T4",
+            "S8-T5",
+            "S8-T6",
+            "S8-T7"
+          ],
+          "status": "pending"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-15T14:00:00Z",
+      "archived_at": "2026-02-16T12:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-finn/issues/31",
+      "archive_note": "5 of 8 sprints completed. Pending sprints (6-8) deferred to cycle-011 scope where relevant. v5.0.0 released with 1,491 tests, 42+ schemas, 20 constraint files."
+    },
+    {
+      "id": "cycle-011",
+      "label": "The Protocol Constitution + The Rights of the Governed \u2014 v5.1.0 \u2192 v5.2.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 43,
+          "label": "Provider Identity (FR-1 + FR-6)",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4",
+            "S1-T5",
+            "S1-T6",
+            "S1-T7",
+            "S1-T8"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 44,
+          "label": "Trust Verification (FR-2)",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4",
+            "S2-T5",
+            "S2-T6",
+            "S2-T7",
+            "S2-T8"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 45,
+          "label": "Economic Completeness (FR-3 + billing provenance)",
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3",
+            "S3-T4",
+            "S3-T5",
+            "S3-T6",
+            "S3-T7",
+            "S3-T8",
+            "S3-T9"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-4",
+          "global_id": 46,
+          "label": "Governance & Discovery + v5.1.0 Release (FR-4 + FR-5)",
+          "tasks": [
+            "S4-T1",
+            "S4-T2",
+            "S4-T3",
+            "S4-T4",
+            "S4-T5",
+            "S4-T6",
+            "S4-T7",
+            "S4-T8",
+            "S4-T9"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-5",
+          "global_id": 47,
+          "label": "Constitutional Refinement (FR-1 + FR-2 + FR-6)",
+          "tasks": [
+            "S5-T1",
+            "S5-T2",
+            "S5-T3",
+            "S5-T4",
+            "S5-T5"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-6",
+          "global_id": 48,
+          "label": "API Clarity & Forward Compat (FR-3 + FR-4 + FR-5)",
+          "tasks": [
+            "S6-T1",
+            "S6-T2",
+            "S6-T3",
+            "S6-T4",
+            "S6-T5"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-7",
+          "global_id": 49,
+          "label": "Agent Rights (FR-8 + FR-9 + FR-10 + FR-11)",
+          "tasks": [
+            "S7-T1",
+            "S7-T2",
+            "S7-T3",
+            "S7-T4",
+            "S7-T5",
+            "S7-T6",
+            "S7-T7",
+            "S7-T8"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-8",
+          "global_id": 50,
+          "label": "Audit & Discovery + v5.2.0 Release (FR-7 + FR-12 + FR-13)",
+          "tasks": [
+            "S8-T1",
+            "S8-T2",
+            "S8-T3",
+            "S8-T4",
+            "S8-T5"
+          ],
+          "status": "pending"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-16T12:00:00Z",
+      "archived_at": "2026-02-17T01:30:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa/issues/349",
+      "archive_note": "8 sprints completed. v5.1.0 \u2192 v5.2.0 delivered: conservation tristate, JWS signatures, agent capacity reservations, audit trail, 288 new tests (1871\u21922159). 7/7 Bridgebuilder findings resolved. 4 new findings from Review III deferred to cycle-012."
+    },
+    {
+      "id": "cycle-012",
+      "label": "The Epistemic Protocol \u2014 v5.3.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 51,
+          "label": "Correctness & Enforcement Semantics",
+          "tasks": [
+            "S1-T1",
+            "S1-T2",
+            "S1-T3",
+            "S1-T4"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 52,
+          "label": "Conformance & Epistemic Formalization",
+          "tasks": [
+            "S2-T1",
+            "S2-T2",
+            "S2-T3",
+            "S2-T4"
+          ],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 53,
+          "label": "Governance & Release",
+          "tasks": [
+            "S3-T1",
+            "S3-T2",
+            "S3-T3"
+          ],
+          "status": "pending"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-17T01:30:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/10",
+      "archived_at": "2026-02-17T08:00:00Z"
+    },
+    {
+      "id": "cycle-013",
+      "label": "The Agent Economy \u2014 v5.4.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 54,
+          "label": "Core Relational Schemas — DelegationChain + InterAgentTransactionAudit",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8"],
+          "status": "completed"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 55,
+          "label": "Schema Extensions + EnsembleCapabilityProfile",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6", "S2-T7"],
+          "status": "completed"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 56,
+          "label": "Documentation + Version Bump + Release",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-17T08:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/11",
+      "archived_at": "2026-02-17T09:30:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-17-agent-economy-v5.4.0",
+      "archive_note": "3 sprints + 2 bridge iterations completed. v5.4.0 delivered: DelegationChain, InterAgentTransactionAudit, GovernanceConfig sandbox, BudgetScope preference, EnsembleCapabilityProfile, evaluator registry refactor. +224 new tests (2,284→2,508). PR #12 ready to merge. Bridgebuilder Field Report #38 posted (6 parts)."
+    },
+    {
+      "id": "cycle-014",
+      "label": "The Conservation-Aware Protocol — v5.5.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 57,
+          "label": "Conservation Foundation (FR-1 + FR-2)",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8", "S1-T9"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 58,
+          "label": "Types & References (FR-3 + FR-4)",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 59,
+          "label": "Specification & Identity + Release (FR-5 + FR-6 + FR-7)",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7", "S3-T8", "S3-T9"],
+          "status": "pending"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-17T10:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/13",
+      "archived_at": "2026-02-17T14:00:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-17-conservation-aware-v5.5.0",
+      "archive_note": "3 sprints completed via /run sprint-plan + /run-bridge (2 iterations, FLATLINE at iter 2). v5.5.0 delivered: 14 conservation invariants with LTL formalization, JWT boundary verification spec, branded arithmetic types, cross-schema reference graph, evaluator builtin specifications, AgentIdentity with trust levels. +316 new tests (2,508→2,824). PR #14 converged. Bridgebuilder Reviews III & IV posted with 6 critical findings driving v6.0.0."
+    },
+    {
+      "id": "cycle-015",
+      "label": "The Composition-Aware Protocol — v6.0.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 60,
+          "label": "Foundation — Liveness + Scoped Trust",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8", "S1-T9"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 61,
+          "label": "Verification — Type System + Graph Operations",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6", "S2-T7", "S2-T8"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 62,
+          "label": "Composition — Registry Bridge + DelegationTree",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7", "S3-T8", "S3-T9"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-4",
+          "global_id": 63,
+          "label": "Release — Version Bump + Migration + Integration",
+          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6"],
           "status": "pending"
         }
       ],
       "status": "active",
-      "created_at": "2026-02-15T14:00:00Z",
-      "source_issue": "https://github.com/0xHoneyJar/loa-finn/issues/31"
+      "created_at": "2026-02-17T14:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/14"
     }
   ],
-  "active_cycle": "cycle-010",
+  "active_cycle": "cycle-015",
   "active_bugfix": null,
-  "global_sprint_counter": 42,
+  "global_sprint_counter": 63,
   "bugfix_cycles": []
 }

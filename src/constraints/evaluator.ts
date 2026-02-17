@@ -105,6 +105,13 @@ class Parser {
       // Type introspection (v6.0.0, FR-3)
       ['type_of', () => this.parseTypeOf()],
       ['is_bigint_coercible', () => this.parseIsBigintCoercible()],
+
+      // Array uniqueness (v6.0.0, FR-5)
+      ['unique_values', () => this.parseUniqueValues()],
+
+      // Delegation tree builtins (v6.0.0, FR-6)
+      ['tree_budget_conserved', () => this.parseTreeBudgetConserved()],
+      ['tree_authority_narrowing', () => this.parseTreeAuthorityNarrowing()],
     ]);
   }
 
@@ -881,6 +888,143 @@ class Parser {
     }
     return false;
   }
+
+  /**
+   * unique_values(array, field) — returns true if all values of field
+   * within the array are unique.
+   * @see SDD §2.5.4 — Registry composition constraints (FR-5)
+   */
+  private parseUniqueValues(): boolean {
+    this.advance(); // consume 'unique_values'
+    this.expect('paren', '(');
+    const arr = this.parseExpr();
+    this.expect('comma');
+    const field = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (!Array.isArray(arr) || typeof field !== 'string') return true;
+    const seen = new Set<unknown>();
+    for (const item of arr) {
+      if (item != null && typeof item === 'object') {
+        const val = (item as Record<string, unknown>)[field];
+        if (val !== undefined) {
+          if (seen.has(val)) return false;
+          seen.add(val);
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * tree_budget_conserved(root) — iteratively validates that
+   * sum(children.budget) <= parent.budget at every node.
+   * Uses explicit stack (not recursion) per SDD FL-SDD-002.
+   * Enforces max_depth and max_total_nodes limits. Cycle detection via visited set.
+   */
+  private parseTreeBudgetConserved(): boolean | string {
+    this.advance(); // consume 'tree_budget_conserved'
+    this.expect('paren', '(');
+    const root = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (root == null || typeof root !== 'object') return true;
+
+    const maxDepth = 10;
+    const maxNodes = 100;
+    const visited = new Set<string>();
+    const stack: Array<{ node: any; depth: number }> = [{ node: root, depth: 0 }];
+    let nodeCount = 0;
+
+    while (stack.length > 0) {
+      const { node, depth } = stack.pop()!;
+      if (node == null || typeof node !== 'object') continue;
+
+      nodeCount++;
+      if (depth > maxDepth) return 'TREE_DEPTH_EXCEEDED';
+      if (nodeCount > maxNodes) return 'TREE_SIZE_EXCEEDED';
+
+      const nodeId = node.node_id ?? String(nodeCount);
+      if (visited.has(nodeId)) continue; // cycle protection
+      visited.add(nodeId);
+
+      const children = Array.isArray(node.children) ? node.children : [];
+      if (children.length === 0) continue;
+
+      const parentBudget = BigInt(node.budget_allocated_micro ?? '0');
+      let childSum = 0n;
+      for (const child of children) {
+        childSum += BigInt(child?.budget_allocated_micro ?? '0');
+      }
+
+      if (childSum > parentBudget) return false;
+
+      for (const child of children) {
+        stack.push({ node: child, depth: depth + 1 });
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * tree_authority_narrowing(root) — iteratively validates that
+   * child.authority_scope is a strict subset of parent.authority_scope.
+   * Authority scopes are normalized lowercase strings with set semantics.
+   */
+  private parseTreeAuthorityNarrowing(): boolean | string {
+    this.advance(); // consume 'tree_authority_narrowing'
+    this.expect('paren', '(');
+    const root = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (root == null || typeof root !== 'object') return true;
+
+    const maxDepth = 10;
+    const maxNodes = 100;
+    const visited = new Set<string>();
+    const stack: Array<{ node: any; parentScope: Set<string>; depth: number }> = [{
+      node: root,
+      parentScope: new Set((Array.isArray(root.authority_scope) ? root.authority_scope : []).map((s: string) => String(s).toLowerCase())),
+      depth: 0,
+    }];
+    let nodeCount = 0;
+
+    while (stack.length > 0) {
+      const { node, parentScope, depth } = stack.pop()!;
+      if (node == null || typeof node !== 'object') continue;
+
+      nodeCount++;
+      if (depth > maxDepth) return 'TREE_DEPTH_EXCEEDED';
+      if (nodeCount > maxNodes) return 'TREE_SIZE_EXCEEDED';
+
+      const nodeId = node.node_id ?? String(nodeCount);
+      if (visited.has(nodeId)) continue;
+      visited.add(nodeId);
+
+      const children = Array.isArray(node.children) ? node.children : [];
+      for (const child of children) {
+        const childScopeArr: string[] = (Array.isArray(child?.authority_scope) ? child.authority_scope : [])
+          .map((s: unknown) => String(s).toLowerCase());
+        const childScopes = new Set<string>(childScopeArr);
+
+        // Empty scope at leaf is valid (fully delegated)
+        if (childScopes.size === 0) {
+          stack.push({ node: child, parentScope: childScopes, depth: depth + 1 });
+          continue;
+        }
+
+        // Check strict subset: every child scope must be in parent scope
+        for (const scope of childScopes) {
+          if (!parentScope.has(scope)) return false;
+        }
+
+        stack.push({ node: child, parentScope: childScopes, depth: depth + 1 });
+      }
+    }
+
+    return true;
+  }
 }
 
 /**
@@ -920,6 +1064,11 @@ export const EVALUATOR_BUILTINS = [
   // Type introspection (v6.0.0)
   'type_of',
   'is_bigint_coercible',
+  // Array uniqueness (v6.0.0)
+  'unique_values',
+  // Delegation tree (v6.0.0)
+  'tree_budget_conserved',
+  'tree_authority_narrowing',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

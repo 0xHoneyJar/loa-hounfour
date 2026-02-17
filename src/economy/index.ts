@@ -204,6 +204,29 @@ export {
   type InboundClaims,
 } from './jwt-boundary.js';
 
+// Schemas — Registry Composition (v6.0.0, FR-5)
+export {
+  BridgeEnforcementSchema,
+  BridgeInvariantSchema,
+  SettlementPolicySchema,
+  ExchangeRateTypeSchema,
+  ExchangeRateSpecSchema,
+  RegistryBridgeSchema,
+  CANONICAL_BRIDGE_INVARIANTS,
+  type BridgeEnforcement,
+  type BridgeInvariant,
+  type SettlementPolicy,
+  type ExchangeRateType,
+  type ExchangeRateSpec,
+  type RegistryBridge,
+} from './registry-composition.js';
+
+// Schemas — Minting Policy (v6.0.0, FR-5)
+export {
+  MintingPolicySchema,
+  type MintingPolicy,
+} from './minting-policy.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

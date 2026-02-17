@@ -85,3 +85,21 @@ export {
   resolveReservationTier,
   resolveAdvisoryThreshold,
 } from '../utilities/governance.js';
+
+// Schemas — Delegation Tree (v6.0.0, FR-6)
+export {
+  ForkTypeSchema,
+  TreeNodeStatusSchema,
+  TreeStrategySchema,
+  BudgetAllocationSchema,
+  DelegationTreeNodeSchema,
+  DelegationTreeSchema,
+  chainToTree,
+  treeToChain,
+  type ForkType,
+  type TreeNodeStatus,
+  type TreeStrategy,
+  type BudgetAllocation,
+  type DelegationTreeNode,
+  type DelegationTree,
+} from './delegation-tree.js';
