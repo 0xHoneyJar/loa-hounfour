@@ -17,7 +17,10 @@ export const PerformanceRecordSchema = Type.Object(
   {
     record_id: Type.String({ minLength: 1 }),
     agent_id: Type.String({ minLength: 1 }),
-    billing_entry_id: Type.String({ minLength: 1 }),
+    billing_entry_id: Type.String({
+      minLength: 1,
+      'x-references': [{ target_schema: 'BillingEntry', target_field: 'entry_id', relationship: 'references' }],
+    } as Record<string, unknown>),
     occurred_at: Type.String({ format: 'date-time' }),
     output: Type.Object({
       tokens_consumed: Type.Integer({ minimum: 0 }),

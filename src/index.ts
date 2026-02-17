@@ -23,3 +23,6 @@ export { validateCompatibility, type CompatibilityResult } from './validators/co
 export { validateBillingEntryFull } from './validators/billing.js';
 // Note: computeReqHash, verifyReqHash, decompressBody, deriveIdempotencyKey now
 // re-exported via ./integrity/index.js (v5.5.0 — integrity barrel creation).
+
+// Schema Graph (v5.5.0, FR-4)
+export { extractReferences, buildSchemaGraph, type SchemaReference, type SchemaGraphNode } from './utilities/schema-graph.js';

@@ -173,6 +173,24 @@ export {
   type InterAgentTransactionAudit,
 } from '../schemas/inter-agent-transaction-audit.js';
 
+// Branded Arithmetic Types (v5.5.0, FR-3)
+export {
+  microUSD,
+  basisPoints,
+  accountId,
+  addMicroUSD,
+  subtractMicroUSD,
+  multiplyBPS,
+  bpsShare,
+  serializeMicroUSD,
+  deserializeMicroUSD,
+  serializeBasisPoints,
+  deserializeBasisPoints,
+  type MicroUSD as BrandedMicroUSD,
+  type BasisPoints,
+  type AccountId,
+} from './branded-types.js';
+
 // Schemas — JWT Boundary Verification (v5.5.0, FR-2)
 export {
   JwtVerificationStepSchema,

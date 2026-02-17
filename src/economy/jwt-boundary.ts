@@ -51,7 +51,8 @@ export const JwtBoundarySpecSchema = Type.Object(
     claims_schema_ref: Type.String({
       minLength: 1,
       description: 'Registry schema name resolvable via schemas/index.json. FL-PRD-002.',
-    }),
+      'x-references': [{ target_schema: 'schemas/index.json', target_field: 'name', relationship: 'references' }],
+    } as Record<string, unknown>),
     replay_window_seconds: Type.Integer({
       minimum: 1,
       maximum: 3600,
