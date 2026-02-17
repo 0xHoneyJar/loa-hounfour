@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/performance-record",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/performance-record",
   "description": "Record of agent performance for a billing entry with optional outcome validation",
   "additionalProperties": false,
   "x-cross-field-validated": true,
@@ -24,6 +24,13 @@
     },
     "billing_entry_id": {
       "minLength": 1,
+      "x-references": [
+        {
+          "target_schema": "BillingEntry",
+          "target_field": "entry_id",
+          "relationship": "references"
+        }
+      ],
       "type": "string"
     },
     "occurred_at": {
@@ -104,5 +111,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

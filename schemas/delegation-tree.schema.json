@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/delegation-tree",
+  "additionalProperties": false,
+  "description": "A tree-structured delegation enabling concurrent multi-model orchestration.",
+  "type": "object",
+  "required": [
+    "tree_id",
+    "root",
+    "strategy",
+    "total_budget_micro",
+    "budget_allocation",
+    "max_depth",
+    "max_total_nodes",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "tree_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "root": {
+      "$id": "DelegationTreeNode",
+      "additionalProperties": false,
+      "description": "A node in the delegation tree representing a single agent delegation.",
+      "type": "object",
+      "required": [
+        "node_id",
+        "agent_id",
+        "authority_scope",
+        "budget_allocated_micro",
+        "children",
+        "fork_type",
+        "status",
+        "version",
+        "timestamp"
+      ],
+      "properties": {
+        "node_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "agent_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "authority_scope": {
+          "description": "Capability scopes this node is authorized for.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "budget_allocated_micro": {
+          "pattern": "^\\d+$",
+          "description": "Budget allocated to this node (string-encoded BigInt).",
+          "type": "string"
+        },
+        "children": {
+          "default": [],
+          "description": "Child delegation nodes.",
+          "type": "array",
+          "items": {
+            "$ref": "DelegationTreeNode"
+          }
+        },
+        "fork_type": {
+          "$id": "ForkType",
+          "description": "How child delegations are executed: in parallel, sequentially, or conditionally.",
+          "anyOf": [
+            {
+              "const": "parallel",
+              "type": "string"
+            },
+            {
+              "const": "sequential",
+              "type": "string"
+            },
+            {
+              "const": "conditional",
+              "type": "string"
+            }
+          ]
+        },
+        "join_condition": {
+          "description": "Condition for joining results from children (optional).",
+          "type": "string"
+        },
+        "status": {
+          "$id": "TreeNodeStatus",
+          "description": "Status of a delegation tree node.",
+          "anyOf": [
+            {
+              "const": "pending",
+              "type": "string"
+            },
+            {
+              "const": "active",
+              "type": "string"
+            },
+            {
+              "const": "completed",
+              "type": "string"
+            },
+            {
+              "const": "failed",
+              "type": "string"
+            },
+            {
+              "const": "cancelled",
+              "type": "string"
+            }
+          ]
+        },
+        "version": {
+          "minimum": 0,
+          "default": 0,
+          "description": "Optimistic concurrency control version.",
+          "type": "integer"
+        },
+        "last_outcome": {
+          "additionalProperties": false,
+          "description": "Summary of the last delegation outcome for this node (v7.0.0).",
+          "type": "object",
+          "required": [
+            "outcome_id",
+            "outcome_type",
+            "consensus_achieved",
+            "resolved_at"
+          ],
+          "properties": {
+            "outcome_id": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "outcome_type": {
+              "anyOf": [
+                {
+                  "const": "unanimous",
+                  "type": "string"
+                },
+                {
+                  "const": "majority",
+                  "type": "string"
+                },
+                {
+                  "const": "deadlock",
+                  "type": "string"
+                },
+                {
+                  "const": "escalation",
+                  "type": "string"
+                }
+              ]
+            },
+            "consensus_achieved": {
+              "type": "boolean"
+            },
+            "resolved_at": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "strategy": {
+      "$id": "TreeStrategy",
+      "description": "Strategy for combining results from child delegations.",
+      "anyOf": [
+        {
+          "const": "first_complete",
+          "type": "string"
+        },
+        {
+          "const": "best_of_n",
+          "type": "string"
+        },
+        {
+          "const": "consensus",
+          "type": "string"
+        },
+        {
+          "const": "pipeline",
+          "type": "string"
+        }
+      ]
+    },
+    "total_budget_micro": {
+      "pattern": "^\\d+$",
+      "description": "Total budget for the entire tree (string-encoded BigInt).",
+      "type": "string"
+    },
+    "budget_allocation": {
+      "$id": "BudgetAllocation",
+      "description": "How budget is distributed among child delegations.",
+      "anyOf": [
+        {
+          "const": "equal_split",
+          "type": "string"
+        },
+        {
+          "const": "weighted",
+          "type": "string"
+        },
+        {
+          "const": "on_demand",
+          "type": "string"
+        }
+      ]
+    },
+    "max_depth": {
+      "minimum": 1,
+      "maximum": 10,
+      "default": 10,
+      "description": "Maximum depth of the delegation tree.",
+      "type": "integer"
+    },
+    "max_total_nodes": {
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 100,
+      "description": "Maximum total nodes in the delegation tree.",
+      "type": "integer"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

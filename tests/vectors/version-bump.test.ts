@@ -1,5 +1,5 @@
 /**
- * Tests for v6.0.0 version bump (S4-T1).
+ * Tests for v7.0.0 version bump (S4-T1).
  *
  * Validates CONTRACT_VERSION, MIN_SUPPORTED_VERSION, package.json,
  * schemas/index.json, and vectors/VERSION are all in sync.
@@ -13,9 +13,9 @@ import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
 
-describe('v6.0.0 version bump (S4-T1)', () => {
-  it('CONTRACT_VERSION is 6.0.0', () => {
-    expect(CONTRACT_VERSION).toBe('6.0.0');
+describe('v7.0.0 version bump (S4-T1)', () => {
+  it('CONTRACT_VERSION is 7.0.0', () => {
+    expect(CONTRACT_VERSION).toBe('7.0.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('v6.0.0 version bump (S4-T1)', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('6.0.0');
+    expect(pkg.version).toBe('7.0.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('6.0.0');
+    expect(index.version).toBe('7.0.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('6.0.0');
+    expect(version).toBe('7.0.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -109,15 +109,25 @@ describe('v6.0.0 version bump (S4-T1)', () => {
     expect(names).toContain('delegation-tree');
   });
 
-  it('schemas/index.json schema $ids all use 6.0.0', () => {
+  it('schemas/index.json includes v7.0.0 schemas', () => {
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    const names = index.schemas.map((s: { name: string }) => s.name);
+    expect(names).toContain('bridge-transfer-saga');
+    expect(names).toContain('monetary-policy');
+    expect(names).toContain('delegation-outcome');
+    expect(names).toContain('permission-boundary');
+    expect(names).toContain('governance-proposal');
+  });
+
+  it('schemas/index.json schema $ids all use 7.0.0', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/6\.0\.0\//);
+      expect(schema.$id).toMatch(/\/7\.0\.0\//);
     }
   });
 
-  it('schemas/index.json has 87 schemas', () => {
+  it('schemas/index.json has 92 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(87);
+    expect(index.schemas).toHaveLength(92);
   });
 });

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/conformance-vector",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/conformance-vector",
   "description": "Cross-language conformance test vector for adapter verification.",
   "additionalProperties": false,
   "type": "object",
@@ -15,8 +15,8 @@
   ],
   "properties": {
     "vector_id": {
-      "pattern": "^conformance-[a-z]+-\\d{3}$",
-      "description": "Unique vector identifier, e.g. conformance-normalization-001",
+      "pattern": "^conformance-[a-z][a-z0-9-]+-\\d{3,4}$",
+      "description": "Unique vector identifier, e.g. conformance-normalization-001 or conformance-reservation-enforcement-0001",
       "type": "string"
     },
     "category": {
@@ -41,6 +41,66 @@
         },
         {
           "const": "ensemble-position",
+          "type": "string"
+        },
+        {
+          "const": "reservation-enforcement",
+          "type": "string"
+        },
+        {
+          "const": "delegation-chain",
+          "type": "string"
+        },
+        {
+          "const": "inter-agent-transaction",
+          "type": "string"
+        },
+        {
+          "const": "conservation-properties",
+          "type": "string"
+        },
+        {
+          "const": "jwt-boundary",
+          "type": "string"
+        },
+        {
+          "const": "agent-identity",
+          "type": "string"
+        },
+        {
+          "const": "capability-scoped-trust",
+          "type": "string"
+        },
+        {
+          "const": "liveness-properties",
+          "type": "string"
+        },
+        {
+          "const": "registry-bridge",
+          "type": "string"
+        },
+        {
+          "const": "delegation-tree",
+          "type": "string"
+        },
+        {
+          "const": "bridge-transfer-saga",
+          "type": "string"
+        },
+        {
+          "const": "delegation-outcome",
+          "type": "string"
+        },
+        {
+          "const": "monetary-policy",
+          "type": "string"
+        },
+        {
+          "const": "permission-boundary",
+          "type": "string"
+        },
+        {
+          "const": "governance-proposal",
           "type": "string"
         }
       ]
@@ -149,5 +209,5 @@
       }
     }
   },
-  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

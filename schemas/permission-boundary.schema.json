@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/permission-boundary",
+  "additionalProperties": false,
+  "description": "A permission boundary defining MAY semantics for capability-scoped authorization.",
+  "type": "object",
+  "required": [
+    "boundary_id",
+    "scope",
+    "permitted_if",
+    "reporting",
+    "revocation",
+    "severity",
+    "contract_version"
+  ],
+  "properties": {
+    "boundary_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "scope": {
+      "minLength": 1,
+      "description": "Capability scope this boundary applies to.",
+      "type": "string"
+    },
+    "permitted_if": {
+      "minLength": 1,
+      "description": "Constraint expression that must hold for permission to be granted.",
+      "type": "string"
+    },
+    "reporting": {
+      "$id": "ReportingRequirement",
+      "additionalProperties": false,
+      "description": "Reporting requirements for actions under a permission boundary.",
+      "type": "object",
+      "required": [
+        "required",
+        "report_to",
+        "frequency",
+        "format"
+      ],
+      "properties": {
+        "required": {
+          "description": "Whether reporting is mandatory.",
+          "type": "boolean"
+        },
+        "report_to": {
+          "minLength": 1,
+          "description": "Agent or endpoint receiving reports.",
+          "type": "string"
+        },
+        "frequency": {
+          "description": "How often reports must be filed.",
+          "anyOf": [
+            {
+              "const": "per_action",
+              "type": "string"
+            },
+            {
+              "const": "per_epoch",
+              "type": "string"
+            },
+            {
+              "const": "on_violation",
+              "type": "string"
+            }
+          ]
+        },
+        "format": {
+          "description": "Required report format.",
+          "anyOf": [
+            {
+              "const": "audit_trail",
+              "type": "string"
+            },
+            {
+              "const": "summary",
+              "type": "string"
+            },
+            {
+              "const": "detailed",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "revocation": {
+      "$id": "RevocationPolicy",
+      "additionalProperties": false,
+      "description": "Policy defining when a permission boundary is revoked.",
+      "type": "object",
+      "required": [
+        "trigger"
+      ],
+      "properties": {
+        "trigger": {
+          "description": "What triggers permission revocation.",
+          "anyOf": [
+            {
+              "const": "violation_count",
+              "type": "string"
+            },
+            {
+              "const": "governance_vote",
+              "type": "string"
+            },
+            {
+              "const": "manual",
+              "type": "string"
+            },
+            {
+              "const": "timeout",
+              "type": "string"
+            }
+          ]
+        },
+        "violation_threshold": {
+          "minimum": 1,
+          "description": "Number of violations before revocation (for violation_count trigger).",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "minimum": 1,
+          "description": "Seconds before timeout-based revocation.",
+          "type": "integer"
+        }
+      }
+    },
+    "severity": {
+      "description": "How strictly this boundary is enforced.",
+      "anyOf": [
+        {
+          "const": "advisory",
+          "type": "string"
+        },
+        {
+          "const": "monitored",
+          "type": "string"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/outbound-claims",
+  "additionalProperties": false,
+  "description": "JWT claims for outbound economic requests.",
+  "type": "object",
+  "required": [
+    "sub",
+    "iss",
+    "aud",
+    "jti",
+    "iat",
+    "exp",
+    "reservation_id",
+    "budget_remaining_micro",
+    "authority_scope"
+  ],
+  "properties": {
+    "sub": {
+      "minLength": 1,
+      "description": "Subject (agent ID).",
+      "type": "string"
+    },
+    "iss": {
+      "minLength": 1,
+      "description": "Issuer (service ID).",
+      "type": "string"
+    },
+    "aud": {
+      "minLength": 1,
+      "description": "Audience (target service).",
+      "type": "string"
+    },
+    "jti": {
+      "format": "uuid",
+      "description": "JWT ID for replay detection.",
+      "type": "string"
+    },
+    "iat": {
+      "minimum": 0,
+      "description": "Issued at (Unix timestamp).",
+      "type": "integer"
+    },
+    "exp": {
+      "minimum": 0,
+      "description": "Expiration (Unix timestamp).",
+      "type": "integer"
+    },
+    "reservation_id": {
+      "format": "uuid",
+      "description": "Linked capacity reservation.",
+      "type": "string"
+    },
+    "budget_remaining_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "authority_scope": {
+      "minItems": 1,
+      "description": "Delegated permissions for this boundary crossing.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}
