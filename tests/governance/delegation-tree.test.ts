@@ -174,4 +174,20 @@ describe('treeToChain (S3-T7)', () => {
     expect(chain!.root_delegator).toBe('root');
     expect(chain!.links.map(l => l.delegatee)).toEqual(['a', 'b']);
   });
+
+  it('roundtrip preserves budget_allocated_micro (F-009)', () => {
+    const original = {
+      root_delegator: 'root',
+      links: [
+        { delegator: 'root', delegatee: 'a', authority_scope: ['billing'], budget_allocated_micro: '500000' },
+        { delegator: 'a', delegatee: 'b', authority_scope: ['billing'], budget_allocated_micro: '250000' },
+      ],
+    };
+    const tree = chainToTree(original);
+    const chain = treeToChain(tree);
+    expect(chain).not.toBeNull();
+    // Budget values must survive the roundtrip
+    expect(chain!.links[0].budget_allocated_micro).toBe('500000');
+    expect(chain!.links[1].budget_allocated_micro).toBe('250000');
+  });
 });

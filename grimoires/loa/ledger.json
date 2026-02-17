@@ -984,27 +984,41 @@
           "global_id": 64,
           "label": "Stability — Deferred Findings + AST Typing",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-2",
           "global_id": 65,
           "label": "Coordination — Saga + Conflict Resolution",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6", "S2-T7", "S2-T8", "S2-T9", "S2-T10"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-3",
           "global_id": 66,
           "label": "Governance — Monetary Policy + Permissions + Proposals",
           "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7", "S3-T8", "S3-T9"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-4",
           "global_id": 67,
           "label": "Release — Version Bump + Integration + Conformance",
           "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6", "S4-T7", "S4-T8"],
+          "status": "completed"
+        },
+        {
+          "local_id": "sprint-5",
+          "global_id": 68,
+          "label": "Stabilization — Build Hygiene & Type Safety",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-6",
+          "global_id": 69,
+          "label": "Stabilization — Consumer Documentation & Release Readiness",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
           "status": "pending"
         }
       ],
@@ -1015,6 +1029,6 @@
   ],
   "active_cycle": "cycle-016",
   "active_bugfix": null,
-  "global_sprint_counter": 67,
+  "global_sprint_counter": 69,
   "bugfix_cycles": []
 }

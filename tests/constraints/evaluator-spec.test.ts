@@ -20,7 +20,7 @@ describe('EvaluatorBuiltinSpec registry', () => {
     expect(specKeys).toEqual(builtinKeys);
   });
 
-  it('has 26 entries', () => {
+  it('has 31 entries', () => {
     expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
   });
 

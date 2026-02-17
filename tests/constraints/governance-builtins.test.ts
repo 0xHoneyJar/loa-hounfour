@@ -271,8 +271,8 @@ describe('proposal_weights_normalized', () => {
 // Registry and specs
 // ---------------------------------------------------------------------------
 
-describe('Sprint 3 builtins in registry', () => {
-  it('EVALUATOR_BUILTINS contains 29 functions', () => {
+describe('All 31 builtins in registry (v7.0.0)', () => {
+  it('EVALUATOR_BUILTINS contains 31 functions', () => {
     expect(EVALUATOR_BUILTINS).toHaveLength(31);
   });
 
@@ -288,7 +288,7 @@ describe('Sprint 3 builtins in registry', () => {
     expect(EVALUATOR_BUILTINS).toContain('proposal_quorum_met');
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 29 entries', () => {
+  it('EVALUATOR_BUILTIN_SPECS has 31 entries', () => {
     expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
   });
 

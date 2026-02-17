@@ -124,12 +124,12 @@ describe('Evaluator correctness after F-020 typing', () => {
 // Builtin count integrity
 // ---------------------------------------------------------------------------
 
-describe('EVALUATOR_BUILTINS count (updated Sprint 2 — 3 coordination builtins)', () => {
-  it('EVALUATOR_BUILTINS contains 26 functions', () => {
+describe('EVALUATOR_BUILTINS count (31 builtins — v7.0.0)', () => {
+  it('EVALUATOR_BUILTINS contains 31 functions', () => {
     expect(EVALUATOR_BUILTINS).toHaveLength(31);
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 26 entries', () => {
+  it('EVALUATOR_BUILTIN_SPECS has 31 entries', () => {
     expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
   });
 });
