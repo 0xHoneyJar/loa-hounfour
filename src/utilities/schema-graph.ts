@@ -2,9 +2,11 @@
  * Schema Graph — extract cross-schema references and build adjacency graph.
  *
  * Walks TypeBox schemas looking for `x-references` metadata annotations
- * and builds a directed graph of schema relationships.
+ * and builds a directed graph of schema relationships. Provides graph
+ * operations: reachability, cycle detection, impact analysis, topological sort.
  *
- * @see SDD §2.4.3 — Schema Graph Utility (FR-4)
+ * @see SDD §2.4.1-2.4.5 — Schema Graph Operations (FR-4)
+ * @since v5.5.0 (extract, build), v6.0.0 (reachability, cycles, impact, topo sort)
  */
 import type { TObject, TProperties } from '@sinclair/typebox';
 
@@ -120,4 +122,274 @@ export function buildSchemaGraph(schemas: Map<string, TObject>): SchemaGraphNode
   }
 
   return [...nodeMap.values()];
+}
+
+// ---------------------------------------------------------------------------
+// Graph Operations (v6.0.0, FR-4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build adjacency list from graph nodes (outgoing edges).
+ */
+function toAdjacencyList(graph: SchemaGraphNode[]): Map<string, Set<string>> {
+  const adj = new Map<string, Set<string>>();
+  for (const node of graph) {
+    if (!adj.has(node.schema_id)) adj.set(node.schema_id, new Set());
+    for (const ref of node.outgoing_references) {
+      adj.get(node.schema_id)!.add(ref.target_schema);
+      if (!adj.has(ref.target_schema)) adj.set(ref.target_schema, new Set());
+    }
+  }
+  return adj;
+}
+
+/**
+ * Build reverse adjacency list (incoming edges — who references this schema?).
+ */
+function toReverseAdjacencyList(graph: SchemaGraphNode[]): Map<string, Set<string>> {
+  const rev = new Map<string, Set<string>>();
+  for (const node of graph) {
+    if (!rev.has(node.schema_id)) rev.set(node.schema_id, new Set());
+    for (const ref of node.incoming_references) {
+      if (!rev.has(ref.source_schema)) rev.set(ref.source_schema, new Set());
+      rev.get(node.schema_id)!.add(ref.source_schema);
+    }
+  }
+  return rev;
+}
+
+/**
+ * Check if `to` is reachable from `from` in the schema graph.
+ * Uses BFS on outgoing edges.
+ *
+ * @see SDD §2.4.1 — Schema Graph Reachability
+ */
+export function isReachable(graph: SchemaGraphNode[], from: string, to: string): boolean {
+  if (from === to) return true;
+  const adj = toAdjacencyList(graph);
+  const visited = new Set<string>();
+  const queue = [from];
+  visited.add(from);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const neighbors = adj.get(current);
+    if (!neighbors) continue;
+    for (const neighbor of neighbors) {
+      if (neighbor === to) return true;
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Compute the transitive closure: all schemas reachable from `source`.
+ *
+ * @see SDD §2.4.1 — Schema Graph Reachability
+ */
+export function reachableFrom(graph: SchemaGraphNode[], source: string): Set<string> {
+  const adj = toAdjacencyList(graph);
+  const visited = new Set<string>();
+  const queue = [source];
+  visited.add(source);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const neighbors = adj.get(current);
+    if (!neighbors) continue;
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  // Remove source from the result (reachable means "can reach", not self)
+  visited.delete(source);
+  return visited;
+}
+
+/**
+ * Cycle detection result.
+ */
+export interface CycleDetectionResult {
+  has_cycles: boolean;
+  cycles: string[][];
+}
+
+/**
+ * Detect cycles in the schema graph using DFS with 3-coloring.
+ * White=unvisited, Gray=in-progress, Black=completed.
+ *
+ * @see SDD §2.4.2 — Cycle Detection
+ */
+export function detectCycles(graph: SchemaGraphNode[]): CycleDetectionResult {
+  const adj = toAdjacencyList(graph);
+  const WHITE = 0, GRAY = 1, BLACK = 2;
+  const color = new Map<string, number>();
+  const parent = new Map<string, string | null>();
+  const cycles: string[][] = [];
+
+  for (const id of adj.keys()) {
+    color.set(id, WHITE);
+  }
+
+  function dfs(u: string): void {
+    color.set(u, GRAY);
+    const neighbors = adj.get(u);
+    if (neighbors) {
+      for (const v of neighbors) {
+        if (color.get(v) === GRAY) {
+          // Back edge → cycle found. Reconstruct cycle.
+          const cycle: string[] = [v];
+          let curr = u;
+          while (curr !== v) {
+            cycle.push(curr);
+            curr = parent.get(curr) ?? v;
+          }
+          cycle.push(v);
+          cycle.reverse();
+          cycles.push(cycle);
+        } else if (color.get(v) === WHITE) {
+          parent.set(v, u);
+          dfs(v);
+        }
+      }
+    }
+    color.set(u, BLACK);
+  }
+
+  for (const id of adj.keys()) {
+    if (color.get(id) === WHITE) {
+      parent.set(id, null);
+      dfs(id);
+    }
+  }
+
+  return { has_cycles: cycles.length > 0, cycles };
+}
+
+/**
+ * Impact analysis report for a schema change.
+ */
+export interface ImpactReport {
+  schema_id: string;
+  directly_affected: string[];
+  transitively_affected: string[];
+  affected_constraints: string[];
+  total_impact_radius: number;
+}
+
+/**
+ * Analyze the impact of changing a schema.
+ * Follows incoming edges (who references this schema?) transitively.
+ *
+ * @param graph - Schema graph nodes
+ * @param schemaId - The schema being changed
+ * @param constraintFiles - Optional map of schema_id → constraint file IDs
+ * @see SDD §2.4.3 — Impact Analysis
+ */
+export function analyzeImpact(
+  graph: SchemaGraphNode[],
+  schemaId: string,
+  constraintFiles?: Map<string, string[]>,
+): ImpactReport {
+  const rev = toReverseAdjacencyList(graph);
+
+  // Direct: schemas that directly reference this schema
+  const directSet = rev.get(schemaId) ?? new Set<string>();
+  const directly_affected = [...directSet];
+
+  // Transitive: BFS on reverse adjacency from direct dependents
+  const transitiveSet = new Set<string>();
+  const queue = [...directSet];
+  const visited = new Set<string>([schemaId, ...directSet]);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const parents = rev.get(current);
+    if (!parents) continue;
+    for (const p of parents) {
+      if (!visited.has(p)) {
+        visited.add(p);
+        transitiveSet.add(p);
+        queue.push(p);
+      }
+    }
+  }
+  const transitively_affected = [...transitiveSet];
+
+  // Affected constraints: constraints that reference this schema or any affected schema
+  const allAffected = new Set([schemaId, ...directly_affected, ...transitively_affected]);
+  const affected_constraints: string[] = [];
+  if (constraintFiles) {
+    for (const affectedId of allAffected) {
+      const constraints = constraintFiles.get(affectedId);
+      if (constraints) {
+        affected_constraints.push(...constraints);
+      }
+    }
+  }
+
+  return {
+    schema_id: schemaId,
+    directly_affected,
+    transitively_affected,
+    affected_constraints,
+    total_impact_radius: directly_affected.length + transitively_affected.length,
+  };
+}
+
+/**
+ * Topological sort using Kahn's algorithm.
+ * Returns sorted array (dependency-first) or null if cycles exist.
+ *
+ * @see SDD §2.4.4 — Topological Sort
+ */
+export function topologicalSort(graph: SchemaGraphNode[]): string[] | null {
+  const adj = toAdjacencyList(graph);
+  const inDegree = new Map<string, number>();
+
+  // Initialize in-degree
+  for (const id of adj.keys()) {
+    if (!inDegree.has(id)) inDegree.set(id, 0);
+  }
+  for (const [, neighbors] of adj) {
+    for (const neighbor of neighbors) {
+      inDegree.set(neighbor, (inDegree.get(neighbor) ?? 0) + 1);
+    }
+  }
+
+  // Start with nodes that have no incoming edges
+  const queue: string[] = [];
+  for (const [id, degree] of inDegree) {
+    if (degree === 0) queue.push(id);
+  }
+  queue.sort(); // Deterministic ordering for same-degree nodes
+
+  const result: string[] = [];
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    result.push(node);
+    const neighbors = adj.get(node);
+    if (neighbors) {
+      for (const neighbor of neighbors) {
+        const newDegree = (inDegree.get(neighbor) ?? 1) - 1;
+        inDegree.set(neighbor, newDegree);
+        if (newDegree === 0) {
+          queue.push(neighbor);
+          queue.sort(); // Maintain deterministic ordering
+        }
+      }
+    }
+  }
+
+  // If we didn't visit all nodes, there's a cycle
+  if (result.length !== adj.size) return null;
+  return result;
 }

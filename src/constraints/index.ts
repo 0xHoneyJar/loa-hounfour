@@ -30,6 +30,24 @@ export {
   type EvaluatorExample,
 } from './evaluator-spec.js';
 
+// Constraint Type System (v6.0.0, FR-3)
+export {
+  ConstraintTypeSchema,
+  ConstraintTypeSignatureSchema,
+  CONSTRAINT_TYPES,
+  type ConstraintType,
+  type ConstraintTypeSignature,
+} from './constraint-types.js';
+
+// Static Type Checker (v6.0.0, FR-3)
+export {
+  typeCheckConstraintFile,
+  type TypeCheckError,
+  type TypeCheckWarning,
+  type TypeCheckResult,
+  type SchemaRegistryEntry,
+} from './type-checker.js';
+
 // Vocabulary — State Machines
 export {
   STATE_MACHINES,

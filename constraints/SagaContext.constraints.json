@@ -9,14 +9,23 @@
       "expression": "_previous == null || !changed(step) || delta(step) > 0 || direction == 'compensation'",
       "severity": "error",
       "message": "step must increase monotonically (unless direction is 'compensation')",
-      "fields": ["step", "direction", "_previous"]
+      "fields": ["step", "direction", "_previous"],
+      "type_signature": {
+        "step": "number",
+        "direction": "string",
+        "_previous": "object"
+      }
     },
     {
       "id": "saga-direction-valid-transition",
       "expression": "_previous == null || !changed(direction) || (previous(direction) == 'forward' && direction == 'compensation')",
       "severity": "error",
       "message": "direction can only transition from 'forward' to 'compensation'",
-      "fields": ["direction", "_previous"]
+      "fields": ["direction", "_previous"],
+      "type_signature": {
+        "direction": "string",
+        "_previous": "object"
+      }
     }
   ]
 }

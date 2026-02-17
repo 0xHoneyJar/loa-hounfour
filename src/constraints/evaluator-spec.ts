@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 18 evaluator builtins. Each spec includes
+ * Canonical specifications for all 20 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0
+ * @since v5.5.0 (18 builtins), v6.0.0 (20 builtins — type_of, is_bigint_coercible)
  */
 import { type EvaluatorBuiltin, EVALUATOR_BUILTINS } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 18 evaluator builtin specifications.
+ * Canonical registry of all 20 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -542,5 +542,69 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Null/undefined returns 0', 'Numbers return 0'],
+  }],
+
+  ['type_of', {
+    name: 'type_of',
+    signature: 'type_of(value) → string',
+    description: 'Returns runtime type as string. Distinguishes null, array, bigint from typeof.',
+    arguments: [
+      { name: 'value', type: 'unknown', description: 'Value to inspect' },
+    ],
+    return_type: 'string',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'String type',
+        context: { name: 'hello' },
+        expression: 'type_of(name) == \'string\'',
+        expected: true,
+      },
+      {
+        description: 'Array type (not object)',
+        context: { items: [1, 2, 3] },
+        expression: 'type_of(items) == \'array\'',
+        expected: true,
+      },
+      {
+        description: 'Null type (not object)',
+        context: { val: null },
+        expression: 'type_of(val) == \'null\'',
+        expected: true,
+      },
+    ],
+    edge_cases: ['null returns "null" (not "object")', 'Arrays return "array" (not "object")', 'BigInt returns "bigint"'],
+  }],
+
+  ['is_bigint_coercible', {
+    name: 'is_bigint_coercible',
+    signature: 'is_bigint_coercible(value) → boolean',
+    description: 'Returns true if value can be converted to BigInt without error.',
+    arguments: [
+      { name: 'value', type: 'unknown', description: 'Value to test for BigInt coercion' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Numeric string is coercible',
+        context: { amount: '1000000' },
+        expression: 'is_bigint_coercible(amount)',
+        expected: true,
+      },
+      {
+        description: 'Non-numeric string is not coercible',
+        context: { name: 'hello' },
+        expression: 'is_bigint_coercible(name)',
+        expected: false,
+      },
+      {
+        description: 'Integer is coercible',
+        context: { count: 42 },
+        expression: 'is_bigint_coercible(count)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Floats return false (not integer)', 'null returns false', 'BigInt values return true'],
   }],
 ]);

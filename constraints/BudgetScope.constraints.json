@@ -9,21 +9,31 @@
       "expression": "!bigint_gt(spent_micro, limit_micro)",
       "severity": "warning",
       "message": "spent_micro exceeds limit_micro",
-      "fields": ["spent_micro", "limit_micro"]
+      "fields": ["spent_micro", "limit_micro"],
+      "type_signature": {
+        "spent_micro": "bigint_coercible",
+        "limit_micro": "bigint_coercible"
+      }
     },
     {
       "id": "budget-preference-no-empty-pools",
       "expression": "preference_signal == null || preference_signal.preferred_pools == null || preference_signal.preferred_pools.length > 0",
       "severity": "error",
       "message": "preferred_pools, if present, must be non-empty",
-      "fields": ["preference_signal.preferred_pools"]
+      "fields": ["preference_signal.preferred_pools"],
+      "type_signature": {
+        "preference_signal": "object"
+      }
     },
     {
       "id": "budget-preference-cost-alignment",
       "expression": "preference_signal == null || !(preference_signal.cost_sensitivity == 'high' && preference_signal.bid_priority == 'critical')",
       "severity": "warning",
       "message": "High cost sensitivity with critical priority is contradictory",
-      "fields": ["preference_signal.cost_sensitivity", "preference_signal.bid_priority"]
+      "fields": ["preference_signal.cost_sensitivity", "preference_signal.bid_priority"],
+      "type_signature": {
+        "preference_signal": "object"
+      }
     }
   ]
 }

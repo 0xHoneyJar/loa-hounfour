@@ -101,6 +101,10 @@ class Parser {
 
       // Length (v5.5.0, FR-1)
       ['len', () => this.parseLen()],
+
+      // Type introspection (v6.0.0, FR-3)
+      ['type_of', () => this.parseTypeOf()],
+      ['is_bigint_coercible', () => this.parseIsBigintCoercible()],
     ]);
   }
 
@@ -841,6 +845,42 @@ class Parser {
     if (value != null && typeof value === 'object') return Object.keys(value).length;
     return 0;
   }
+
+  /**
+   * type_of(value) — returns runtime type as string.
+   * @see SDD §2.3.4 — Type introspection builtins (FR-3)
+   */
+  private parseTypeOf(): string {
+    this.advance(); // consume 'type_of'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (value === null) return 'null';
+    if (Array.isArray(value)) return 'array';
+    if (typeof value === 'bigint') return 'bigint';
+    return typeof value; // 'boolean', 'string', 'number', 'object', 'undefined'
+  }
+
+  /**
+   * is_bigint_coercible(value) — returns true if value can be converted to BigInt.
+   * @see SDD §2.3.4 — Type introspection builtins (FR-3)
+   */
+  private parseIsBigintCoercible(): boolean {
+    this.advance(); // consume 'is_bigint_coercible'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof value === 'bigint') return true;
+    if (typeof value === 'number') {
+      return Number.isInteger(value);
+    }
+    if (typeof value === 'string') {
+      try { BigInt(value); return true; } catch { return false; }
+    }
+    return false;
+  }
 }
 
 /**
@@ -877,6 +917,9 @@ export const EVALUATOR_BUILTINS = [
   'delta',
   // Length (v5.5.0)
   'len',
+  // Type introspection (v6.0.0)
+  'type_of',
+  'is_bigint_coercible',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

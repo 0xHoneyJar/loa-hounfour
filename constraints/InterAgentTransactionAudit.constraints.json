@@ -9,49 +9,82 @@
       "expression": "bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro)",
       "severity": "error",
       "message": "sender.pre_balance - amount must equal sender.post_balance",
-      "fields": ["sender.pre_balance_micro", "sender.post_balance_micro", "amount_micro"]
+      "fields": ["sender.pre_balance_micro", "sender.post_balance_micro", "amount_micro"],
+      "type_signature": {
+        "sender": "object",
+        "amount_micro": "bigint_coercible"
+      }
     },
     {
       "id": "transaction-audit-receiver-conservation",
       "expression": "bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro)",
       "severity": "error",
       "message": "receiver.pre_balance + amount must equal receiver.post_balance",
-      "fields": ["receiver.pre_balance_micro", "receiver.post_balance_micro", "amount_micro"]
+      "fields": ["receiver.pre_balance_micro", "receiver.post_balance_micro", "amount_micro"],
+      "type_signature": {
+        "receiver": "object",
+        "amount_micro": "bigint_coercible"
+      }
     },
     {
       "id": "transaction-audit-no-self-transfer",
       "expression": "sender.agent_id != receiver.agent_id",
       "severity": "error",
       "message": "Sender and receiver cannot be the same agent",
-      "fields": ["sender.agent_id", "receiver.agent_id"]
+      "fields": ["sender.agent_id", "receiver.agent_id"],
+      "type_signature": {
+        "sender": "object",
+        "receiver": "object"
+      }
     },
     {
       "id": "transaction-audit-positive-amount",
       "expression": "bigint_gt(amount_micro, '0')",
       "severity": "error",
       "message": "Transaction amount must be positive",
-      "fields": ["amount_micro"]
+      "fields": ["amount_micro"],
+      "type_signature": {
+        "amount_micro": "bigint_coercible"
+      }
     },
     {
       "id": "transaction-audit-conservation-consistency",
       "expression": "conservation_check != 'conserved' || (bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
       "severity": "error",
       "message": "conservation_check is 'conserved' but balances don't conserve",
-      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"],
+      "type_signature": {
+        "conservation_check": "string",
+        "sender": "object",
+        "receiver": "object",
+        "amount_micro": "bigint_coercible"
+      }
     },
     {
       "id": "transaction-audit-violated-means-violated",
       "expression": "conservation_check != 'violated' || !(bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
       "severity": "error",
       "message": "conservation_check is 'violated' but balances actually conserve — use 'conserved' instead",
-      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"],
+      "type_signature": {
+        "conservation_check": "string",
+        "sender": "object",
+        "receiver": "object",
+        "amount_micro": "bigint_coercible"
+      }
     },
     {
       "id": "transaction-audit-unverifiable-advisory",
       "expression": "conservation_check != 'unverifiable' || !(bigint_eq(bigint_sub(sender.pre_balance_micro, amount_micro), sender.post_balance_micro) && bigint_eq(bigint_add(receiver.pre_balance_micro, amount_micro), receiver.post_balance_micro))",
       "severity": "warning",
       "message": "Transaction passes conservation checks but is marked unverifiable — consider upgrading to 'conserved'",
-      "fields": ["conservation_check", "sender", "receiver", "amount_micro"]
+      "fields": ["conservation_check", "sender", "receiver", "amount_micro"],
+      "type_signature": {
+        "conservation_check": "string",
+        "sender": "object",
+        "receiver": "object",
+        "amount_micro": "bigint_coercible"
+      }
     }
   ]
 }

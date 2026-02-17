@@ -10,7 +10,8 @@
       "severity": "error",
       "message": "All three epistemic states must produce distinguishable consumer behavior. If two states collapse, simplify to boolean.",
       "fields": [],
-      "institutional_context": "Architectural pattern invariant — applies to all Epistemic Tristate instances. Enforcement is via code review and pattern documentation, not runtime expression evaluation."
+      "institutional_context": "Architectural pattern invariant — applies to all Epistemic Tristate instances. Enforcement is via code review and pattern documentation, not runtime expression evaluation.",
+      "type_signature": {}
     }
   ],
   "metadata": {

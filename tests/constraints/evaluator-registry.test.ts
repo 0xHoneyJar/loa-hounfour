@@ -55,8 +55,8 @@ function extractTestedFunctionCalls(): Set<string> {
 }
 
 describe('Evaluator function registry', () => {
-  it('EVALUATOR_BUILTINS contains all 18 registered functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(18);
+  it('EVALUATOR_BUILTINS contains all 20 registered functions', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(20);
   });
 
   it('EVALUATOR_BUILTINS is frozen (const tuple)', () => {
