@@ -111,7 +111,7 @@ describe('tree_authority_narrowing', () => {
 
 describe('EVALUATOR_BUILTINS and SPECS updated', () => {
   it('EVALUATOR_BUILTINS contains 26 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(26);
+    expect(EVALUATOR_BUILTINS).toHaveLength(29);
   });
 
   it('includes tree_budget_conserved', () => {
@@ -123,7 +123,7 @@ describe('EVALUATOR_BUILTINS and SPECS updated', () => {
   });
 
   it('EVALUATOR_BUILTIN_SPECS has 26 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(26);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(29);
   });
 
   it('spec examples execute correctly for tree_budget_conserved', () => {

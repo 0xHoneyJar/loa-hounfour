@@ -1,7 +1,7 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 26 evaluator builtins. Each spec includes
+ * Canonical specifications for all 29 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 26 evaluator builtin specifications.
+ * Canonical registry of all 29 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -836,5 +836,126 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Empty votes returns false for non-deadlock', 'Escalation without escalated_to returns false'],
+  }],
+
+  // -- Governance builtins (v7.0.0) ------------------------------------------
+
+  ['monetary_policy_solvent', {
+    name: 'monetary_policy_solvent',
+    signature: 'monetary_policy_solvent(policy, current_supply) → boolean',
+    description: 'Verifies current_supply does not exceed policy.conservation_ceiling. Both operands are BigInt-compared.',
+    arguments: [
+      { name: 'policy', type: 'MonetaryPolicy', description: 'Policy object with conservation_ceiling field' },
+      { name: 'current_supply', type: 'string', description: 'Current total supply (string-encoded BigInt)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Supply below ceiling',
+        context: { policy: { conservation_ceiling: '1000000' }, supply: '500000' },
+        expression: 'monetary_policy_solvent(policy, supply)',
+        expected: true,
+      },
+      {
+        description: 'Supply at ceiling',
+        context: { policy: { conservation_ceiling: '1000000' }, supply: '1000000' },
+        expression: 'monetary_policy_solvent(policy, supply)',
+        expected: true,
+      },
+      {
+        description: 'Supply exceeds ceiling',
+        context: { policy: { conservation_ceiling: '1000000' }, supply: '1000001' },
+        expression: 'monetary_policy_solvent(policy, supply)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Non-numeric strings return false', 'Null policy returns false'],
+  }],
+
+  ['permission_boundary_active', {
+    name: 'permission_boundary_active',
+    signature: 'permission_boundary_active(boundary) → boolean',
+    description: 'Validates that a boundary has all required structural components: non-empty scope, permitted_if, reporting, and revocation.',
+    arguments: [
+      { name: 'boundary', type: 'PermissionBoundary', description: 'Boundary object to validate' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Complete boundary is active',
+        context: {
+          boundary: {
+            scope: 'billing',
+            permitted_if: "trust_level == 'verified'",
+            reporting: { required: true },
+            revocation: { trigger: 'violation_count' },
+          },
+        },
+        expression: 'permission_boundary_active(boundary)',
+        expected: true,
+      },
+      {
+        description: 'Missing scope is inactive',
+        context: {
+          boundary: {
+            scope: '',
+            permitted_if: "trust_level == 'verified'",
+            reporting: { required: true },
+            revocation: { trigger: 'manual' },
+          },
+        },
+        expression: 'permission_boundary_active(boundary)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Null boundary returns false', 'Missing reporting returns false'],
+  }],
+
+  ['proposal_quorum_met', {
+    name: 'proposal_quorum_met',
+    signature: 'proposal_quorum_met(proposal) → boolean',
+    description: 'Checks whether the weighted votes cast meet or exceed the quorum_required threshold.',
+    arguments: [
+      { name: 'proposal', type: 'GovernanceProposal', description: 'Proposal object with voting.quorum_required and voting.votes_cast' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Quorum met with sufficient weights',
+        context: {
+          proposal: {
+            voting: {
+              quorum_required: 0.5,
+              votes_cast: [
+                { voter_id: 'a', weight: 0.3 },
+                { voter_id: 'b', weight: 0.3 },
+              ],
+            },
+          },
+        },
+        expression: 'proposal_quorum_met(proposal)',
+        expected: true,
+      },
+      {
+        description: 'Quorum not met',
+        context: {
+          proposal: {
+            voting: {
+              quorum_required: 0.75,
+              votes_cast: [
+                { voter_id: 'a', weight: 0.3 },
+                { voter_id: 'b', weight: 0.2 },
+              ],
+            },
+          },
+        },
+        expression: 'proposal_quorum_met(proposal)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Empty votes returns true only if quorum is 0', 'Max 100 votes (resource limit)'],
   }],
 ]);

@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 17 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(17);
+  it('contains exactly 20 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(20);
   });
 
   it('includes all valid categories', () => {
@@ -83,6 +83,9 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'delegation-tree',
       'bridge-transfer-saga',
       'delegation-outcome',
+      'monetary-policy',
+      'permission-boundary',
+      'governance-proposal',
     ]);
   });
 });

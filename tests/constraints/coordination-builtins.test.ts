@@ -15,11 +15,11 @@ import { EVALUATOR_BUILTIN_SPECS } from '../../src/constraints/evaluator-spec.js
 
 describe('EVALUATOR_BUILTINS count (Sprint 2 — 3 new coordination builtins)', () => {
   it('EVALUATOR_BUILTINS contains 26 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(26);
+    expect(EVALUATOR_BUILTINS).toHaveLength(29);
   });
 
   it('EVALUATOR_BUILTIN_SPECS has 26 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(26);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(29);
   });
 
   it('new builtins are registered', () => {

@@ -121,3 +121,28 @@ export {
   type DissentRecord,
   type DelegationOutcome,
 } from './delegation-outcome.js';
+
+// Schemas — Permission Boundary (v7.0.0)
+export {
+  ReportingRequirementSchema,
+  RevocationPolicySchema,
+  PermissionBoundarySchema,
+  type ReportingRequirement,
+  type RevocationPolicy,
+  type PermissionBoundary,
+} from './permission-boundary.js';
+
+// Schemas — Governance Proposal (v7.0.0)
+export {
+  ProposalStatusSchema,
+  PROPOSAL_STATUS_TRANSITIONS,
+  ProposedChangeSchema,
+  GovernanceVoteSchema,
+  VotingRecordSchema,
+  GovernanceProposalSchema,
+  type ProposalStatus,
+  type ProposedChange,
+  type GovernanceVote,
+  type VotingRecord,
+  type GovernanceProposal,
+} from './governance-proposal.js';

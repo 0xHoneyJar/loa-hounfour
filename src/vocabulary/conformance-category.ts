@@ -25,6 +25,9 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('delegation-tree'),
     Type.Literal('bridge-transfer-saga'),
     Type.Literal('delegation-outcome'),
+    Type.Literal('monetary-policy'),
+    Type.Literal('permission-boundary'),
+    Type.Literal('governance-proposal'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -53,4 +56,7 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'delegation-tree',
   'bridge-transfer-saga',
   'delegation-outcome',
+  'monetary-policy',
+  'permission-boundary',
+  'governance-proposal',
 ] as const;

@@ -117,6 +117,11 @@ class Parser {
       ['saga_amount_conserved', () => this.parseSagaAmountConserved()],
       ['saga_steps_sequential', () => this.parseSagaStepsSequential()],
       ['outcome_consensus_valid', () => this.parseOutcomeConsensusValid()],
+
+      // Governance builtins (v7.0.0, FR-4/FR-5)
+      ['monetary_policy_solvent', () => this.parseMonetaryPolicySolvent()],
+      ['permission_boundary_active', () => this.parsePermissionBoundaryActive()],
+      ['proposal_quorum_met', () => this.parseProposalQuorumMet()],
     ]);
   }
 
@@ -1157,6 +1162,104 @@ class Parser {
         return false;
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // monetary_policy_solvent(policy, current_supply) — v7.0.0
+  // ---------------------------------------------------------------------------
+
+  /**
+   * monetary_policy_solvent(policy, current_supply) — verifies current_supply
+   * does not exceed conservation_ceiling. Both operands treated as BigInt.
+   */
+  private parseMonetaryPolicySolvent(): boolean {
+    this.advance(); // consume 'monetary_policy_solvent'
+    this.expect('paren', '(');
+    const policy = this.parseExpr() as any;
+    this.expect('comma');
+    const currentSupply = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (policy == null || typeof policy !== 'object') return false;
+    const ceiling = policy.conservation_ceiling;
+    if (typeof ceiling !== 'string' || typeof currentSupply !== 'string') return false;
+
+    try {
+      return BigInt(currentSupply) <= BigInt(ceiling);
+    } catch {
+      return false;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // permission_boundary_active(boundary) — v7.0.0
+  // ---------------------------------------------------------------------------
+
+  /**
+   * permission_boundary_active(boundary) — validates that a boundary has all
+   * required structural components: non-empty scope, permitted_if expression,
+   * reporting configuration, and revocation policy.
+   */
+  private parsePermissionBoundaryActive(): boolean {
+    this.advance(); // consume 'permission_boundary_active'
+    this.expect('paren', '(');
+    const boundary = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (boundary == null || typeof boundary !== 'object') return false;
+    const rec = boundary as Record<string, unknown>;
+
+    // Must have non-empty scope
+    if (typeof rec.scope !== 'string' || rec.scope.length === 0) return false;
+    // Must have non-empty permitted_if
+    if (typeof rec.permitted_if !== 'string' || rec.permitted_if.length === 0) return false;
+    // Must have reporting object
+    if (rec.reporting == null || typeof rec.reporting !== 'object') return false;
+    // Must have revocation object
+    if (rec.revocation == null || typeof rec.revocation !== 'object') return false;
+
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // proposal_quorum_met(proposal) — v7.0.0
+  // ---------------------------------------------------------------------------
+
+  /**
+   * proposal_quorum_met(proposal) — checks whether the weighted votes cast
+   * meet or exceed the quorum_required threshold.
+   */
+  private parseProposalQuorumMet(): boolean {
+    this.advance(); // consume 'proposal_quorum_met'
+    this.expect('paren', '(');
+    const proposal = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (proposal == null || typeof proposal !== 'object') return false;
+    const rec = proposal as Record<string, unknown>;
+    const voting = rec.voting;
+    if (voting == null || typeof voting !== 'object') return false;
+    const vr = voting as Record<string, unknown>;
+    const quorum = vr.quorum_required;
+    if (typeof quorum !== 'number') return false;
+
+    const votes = vr.votes_cast;
+    if (!Array.isArray(votes)) return false;
+
+    // Resource limit: max 100 votes
+    if (votes.length > 100) return false;
+
+    // Sum weights
+    let totalWeight = 0;
+    for (const vote of votes) {
+      if (vote == null || typeof vote !== 'object') continue;
+      const v = vote as Record<string, unknown>;
+      if (typeof v.weight === 'number') {
+        totalWeight += v.weight;
+      }
+    }
+
+    return totalWeight >= quorum;
+  }
 }
 
 /**
@@ -1205,6 +1308,10 @@ export const EVALUATOR_BUILTINS = [
   'saga_amount_conserved',
   'saga_steps_sequential',
   'outcome_consensus_valid',
+  // Governance builtins (v7.0.0)
+  'monetary_policy_solvent',
+  'permission_boundary_active',
+  'proposal_quorum_met',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

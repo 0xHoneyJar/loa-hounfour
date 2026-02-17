@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-permission-boundary-0001",
+  "category": "permission-boundary",
+  "description": "Valid advisory permission boundary for billing scope",
+  "contract_version": "7.0.0",
+  "input": {
+    "boundary_id": "00000000-0000-0000-0000-000000000301",
+    "scope": "billing",
+    "permitted_if": "trust_scopes.scopes.billing == 'verified' || trust_scopes.scopes.billing == 'trusted'",
+    "reporting": {
+      "required": true,
+      "report_to": "audit-agent",
+      "frequency": "per_action",
+      "format": "audit_trail"
+    },
+    "revocation": {
+      "trigger": "violation_count",
+      "violation_threshold": 3
+    },
+    "severity": "advisory",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.5", "fr": "FR-5" }
+}

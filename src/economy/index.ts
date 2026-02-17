@@ -249,6 +249,14 @@ export {
   type BridgeTransferSaga,
 } from './bridge-transfer-saga.js';
 
+// Schemas — Monetary Policy (v7.0.0)
+export {
+  ReviewTriggerSchema,
+  MonetaryPolicySchema,
+  type ReviewTrigger,
+  type MonetaryPolicy,
+} from './monetary-policy.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,
