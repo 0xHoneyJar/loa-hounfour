@@ -109,7 +109,7 @@ export const ConservationPropertyRegistrySchema = Type.Object(
       description: 'Must equal properties.length — drift guard.',
     }),
     coverage: Type.Record(Type.String(), Type.Integer({ minimum: 0 }), {
-      description: 'Count of properties per universe (single_lot, account, platform, bilateral).',
+      description: 'Count of properties per universe. Keys MUST be InvariantUniverse literals: single_lot, account, platform, bilateral. Enforced by object_keys_subset constraint (medium-2 resolution).',
     }),
     liveness_properties: Type.Array(LivenessPropertySchema, {
       description: 'Liveness properties proving forward progress (v6.0.0, FR-1).',

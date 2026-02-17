@@ -224,8 +224,10 @@ export const BridgeTransferSagaSchema = Type.Object(
       },
       {
         additionalProperties: false,
-        description: 'Timeout configuration for the saga.',
-      },
+        description: 'Timeout configuration for the saga. Schema-level validation ensures well-formed values; runtime enforcement by implementations is REQUIRED.',
+        'x-runtime-enforcement-required': true,
+        'x-enforcement-note': 'Timeout enforcement requires runtime behavior (timers, cancellation). The protocol defines the contract; implementations MUST provide the mechanism. See RFC 7230 §6.5 for the HTTP precedent.',
+      } as Record<string, unknown>,
     ),
     participants: Type.Array(SagaParticipantSchema, {
       minItems: 1,

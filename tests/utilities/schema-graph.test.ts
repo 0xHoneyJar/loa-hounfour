@@ -106,3 +106,80 @@ describe('buildSchemaGraph', () => {
     expect(graph).toEqual([]);
   });
 });
+
+
+describe('extractReferences — deep nesting (medium-3)', () => {
+  it('extracts references at depth 2', () => {
+    const deepSchema = Type.Object({
+      outer: Type.Object({
+        inner: Type.Object({
+          ref_field: Type.String({
+            'x-references': [{ target_schema: 'DeepTarget', target_field: 'id', relationship: 'references' }],
+          } as Record<string, unknown>),
+        }),
+      }),
+    }) as TObject;
+
+    const refs = extractReferences(deepSchema, 'DeepSchema');
+    expect(refs).toHaveLength(1);
+    expect(refs[0].source_field).toBe('outer.inner.ref_field');
+    expect(refs[0].target_schema).toBe('DeepTarget');
+  });
+
+  it('extracts references inside array items', () => {
+    const arraySchema = Type.Object({
+      items: Type.Array(Type.Object({
+        target_id: Type.String({
+          'x-references': [{ target_schema: 'ArrayTarget', target_field: 'id', relationship: 'contains' }],
+        } as Record<string, unknown>),
+      })),
+    }) as TObject;
+
+    const refs = extractReferences(arraySchema, 'ArraySchema');
+    expect(refs).toHaveLength(1);
+    expect(refs[0].source_field).toBe('items[].target_id');
+    expect(refs[0].target_schema).toBe('ArrayTarget');
+    expect(refs[0].relationship).toBe('contains');
+  });
+
+  it('respects MAX_REFERENCE_DEPTH', () => {
+    // Build a schema nested 7 levels deep — should stop at depth 5
+    let innermost = Type.Object({
+      deep_ref: Type.String({
+        'x-references': [{ target_schema: 'TooDeep', target_field: 'id', relationship: 'references' }],
+      } as Record<string, unknown>),
+    });
+    // Wrap it 6 more levels (total 7 nesting levels)
+    for (let i = 0; i < 6; i++) {
+      innermost = Type.Object({ [`level_${i}`]: innermost });
+    }
+    const veryDeep = Type.Object({ root: innermost }) as TObject;
+
+    const refs = extractReferences(veryDeep, 'VeryDeep');
+    // Should NOT find the reference because it's deeper than 5
+    expect(refs).toHaveLength(0);
+  });
+
+  it('handles allOf/anyOf compositions', () => {
+    // Simulate a TypeBox Intersect — it generates allOf in JSON Schema
+    const intersectSchema = Type.Object({
+      composite: Type.Intersect([
+        Type.Object({
+          ref_a: Type.String({
+            'x-references': [{ target_schema: 'TargetA', target_field: 'id', relationship: 'references' }],
+          } as Record<string, unknown>),
+        }),
+        Type.Object({
+          ref_b: Type.String({
+            'x-references': [{ target_schema: 'TargetB', target_field: 'id', relationship: 'references' }],
+          } as Record<string, unknown>),
+        }),
+      ]),
+    }) as TObject;
+
+    const refs = extractReferences(intersectSchema, 'IntersectSchema');
+    expect(refs.length).toBeGreaterThanOrEqual(2);
+    expect(refs.some(r => r.target_schema === 'TargetA')).toBe(true);
+    expect(refs.some(r => r.target_schema === 'TargetB')).toBe(true);
+  });
+});

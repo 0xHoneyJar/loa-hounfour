@@ -1,7 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ConservationPropertyRegistry",
-  "contract_version": "6.0.0",
+  "contract_version": "7.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -9,7 +9,10 @@
       "expression": "total_count == len(properties)",
       "severity": "error",
       "message": "total_count must equal properties array length",
-      "fields": ["total_count", "properties"],
+      "fields": [
+        "total_count",
+        "properties"
+      ],
       "type_signature": {
         "total_count": "integer",
         "properties": "ConservationProperty[]"
@@ -20,7 +23,9 @@
       "expression": "properties.every(p => properties.every(q => !eq(q.invariant_id, p.invariant_id) || eq(q, p)))",
       "severity": "error",
       "message": "All invariant_id values must be unique",
-      "fields": ["properties"],
+      "fields": [
+        "properties"
+      ],
       "type_signature": {
         "properties": "ConservationProperty[]"
       }
@@ -30,7 +35,9 @@
       "expression": "properties.every(p => p.ltl_formula.length > 0)",
       "severity": "error",
       "message": "Every property must have a non-empty LTL formula",
-      "fields": ["properties"],
+      "fields": [
+        "properties"
+      ],
       "type_signature": {
         "properties": "ConservationProperty[]"
       }
@@ -65,6 +72,16 @@
       "category": "consistency",
       "type_signature": {
         "liveness_properties": "LivenessProperty[]"
+      }
+    },
+    {
+      "id": "conservation-registry-coverage-keys-valid",
+      "description": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)",
+      "expression": "object_keys_subset(coverage, ['single_lot', 'account', 'platform', 'bilateral'])",
+      "severity": "error",
+      "category": "type_safety",
+      "type_signature": {
+        "coverage": "Record<InvariantUniverse, integer>"
       }
     }
   ]

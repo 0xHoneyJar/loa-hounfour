@@ -40,6 +40,25 @@ function resolve(data: Record<string, unknown>, path: string): unknown {
   return current;
 }
 
+// ---------------------------------------------------------------------------
+// Type-safe narrowing utilities (F-020 resolution)
+// ---------------------------------------------------------------------------
+
+/**
+ * Narrow an unknown evaluator expression result to a record type.
+ * Returns an empty record if the value is null, undefined, or not an object.
+ * This replaces `as any` casts throughout the evaluator, closing the type
+ * escape hatch identified in bridge review finding F-020.
+ *
+ * @see F-020 — parseExpr() return type safety
+ */
+function asRecord(v: unknown): Record<string, unknown> {
+  if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+    return v as Record<string, unknown>;
+  }
+  return {};
+}
+
 /**
  * Recursive descent parser and evaluator.
  */
@@ -315,11 +334,24 @@ class Parser {
     }
 
     // Bracket array literal: [expr, expr, ...]
+    // Supports field paths, string literals, and number literals as elements.
     if (tok.type === 'bracket' && tok.value === '[') {
       this.advance();
       const elements: unknown[] = [];
       while (this.peek() && !(this.peek()!.type === 'bracket' && this.peek()!.value === ']')) {
-        elements.push(this.parseFieldPath());
+        const elemTok = this.peek()!;
+        if (elemTok.type === 'string') {
+          // String literal element — return value directly, don't resolve as field path
+          this.advance();
+          elements.push(elemTok.value);
+        } else if (elemTok.type === 'number') {
+          // Number literal element
+          this.advance();
+          elements.push(parseFloat(elemTok.value));
+        } else {
+          // Field path — resolve against data context
+          elements.push(this.parseFieldPath());
+        }
         if (this.peek()?.type === 'comma') this.advance();
       }
       this.expect('bracket', ']');
@@ -941,15 +973,16 @@ class Parser {
   private parseTreeBudgetConserved(): boolean {
     this.advance(); // consume 'tree_budget_conserved'
     this.expect('paren', '(');
-    const root = this.parseExpr() as any;
+    const root = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (root == null || typeof root !== 'object') return true;
+    // asRecord returns {} for null/non-object; empty root means no children → vacuously true
+    if (Object.keys(root).length === 0) return true;
 
     const maxDepth = 10;
     const maxNodes = 100;
     const visited = new Set<string>();
-    const stack: Array<{ node: any; depth: number }> = [{ node: root, depth: 0 }];
+    const stack: Array<{ node: Record<string, unknown>; depth: number }> = [{ node: root, depth: 0 }];
     let nodeCount = 0;
 
     while (stack.length > 0) {
@@ -960,17 +993,17 @@ class Parser {
       if (depth > maxDepth) return false;
       if (nodeCount > maxNodes) return false;
 
-      const nodeId = node.node_id ?? String(nodeCount);
+      const nodeId = String(node.node_id ?? nodeCount);
       if (visited.has(nodeId)) continue; // cycle protection
       visited.add(nodeId);
 
       const children = Array.isArray(node.children) ? node.children : [];
       if (children.length === 0) continue;
 
-      const parentBudget = BigInt(node.budget_allocated_micro ?? '0');
+      const parentBudget = BigInt(String(node.budget_allocated_micro ?? '0'));
       let childSum = 0n;
       for (const child of children) {
-        childSum += BigInt(child?.budget_allocated_micro ?? '0');
+        childSum += BigInt(String((child as Record<string, unknown>)?.budget_allocated_micro ?? '0'));
       }
 
       if (childSum > parentBudget) return false;
@@ -992,17 +1025,18 @@ class Parser {
   private parseTreeAuthorityNarrowing(): boolean {
     this.advance(); // consume 'tree_authority_narrowing'
     this.expect('paren', '(');
-    const root = this.parseExpr() as any;
+    const root = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (root == null || typeof root !== 'object') return true;
+    // asRecord returns {} for null/non-object; empty root means no children → vacuously true
+    if (Object.keys(root).length === 0) return true;
 
     const maxDepth = 10;
     const maxNodes = 100;
     const visited = new Set<string>();
-    const stack: Array<{ node: any; parentScope: Set<string>; depth: number }> = [{
+    const stack: Array<{ node: Record<string, unknown>; parentScope: Set<string>; depth: number }> = [{
       node: root,
-      parentScope: new Set((Array.isArray(root.authority_scope) ? root.authority_scope : []).map((s: string) => String(s).toLowerCase())),
+      parentScope: new Set((Array.isArray(root.authority_scope) ? root.authority_scope as unknown[] : []).map((s) => String(s).toLowerCase())),
       depth: 0,
     }];
     let nodeCount = 0;
@@ -1015,7 +1049,7 @@ class Parser {
       if (depth > maxDepth) return false;
       if (nodeCount > maxNodes) return false;
 
-      const nodeId = node.node_id ?? String(nodeCount);
+      const nodeId = String(node.node_id ?? nodeCount);
       if (visited.has(nodeId)) continue;
       visited.add(nodeId);
 
@@ -1052,11 +1086,11 @@ class Parser {
   private parseSagaAmountConserved(): boolean {
     this.advance(); // consume 'saga_amount_conserved'
     this.expect('paren', '(');
-    const saga = this.parseExpr() as any;
+    const saga = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (saga == null || typeof saga !== 'object') return false;
-    const steps = Array.isArray(saga.steps) ? saga.steps : [];
+    if (!Array.isArray(saga.steps)) return false;
+    const steps = saga.steps;
     if (steps.length > 100) return false;
 
     let totalAmount = 0n;
@@ -1109,11 +1143,11 @@ class Parser {
   private parseSagaStepsSequential(): boolean {
     this.advance(); // consume 'saga_steps_sequential'
     this.expect('paren', '(');
-    const saga = this.parseExpr() as any;
+    const saga = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (saga == null || typeof saga !== 'object') return false;
-    const steps = Array.isArray(saga.steps) ? saga.steps : [];
+    if (!Array.isArray(saga.steps)) return false;
+    const steps = saga.steps;
     if (steps.length > 100) return false;
 
     const ids = new Set<string>();
@@ -1139,18 +1173,18 @@ class Parser {
   private parseOutcomeConsensusValid(): boolean {
     this.advance(); // consume 'outcome_consensus_valid'
     this.expect('paren', '(');
-    const outcome = this.parseExpr() as any;
+    const outcome = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (outcome == null || typeof outcome !== 'object') return false;
-    const votes = Array.isArray(outcome.votes) ? outcome.votes : [];
+    if (!Array.isArray(outcome.votes)) return false;
+    const votes = outcome.votes;
     if (votes.length > 100) return false;
     if (votes.length === 0) return false;
 
     const outcomeType = outcome.outcome_type;
     const threshold = typeof outcome.consensus_threshold === 'number' ? outcome.consensus_threshold : 0;
 
-    const agreeCount = votes.filter((v: any) => v?.vote === 'agree').length;
+    const agreeCount = votes.filter((v: unknown) => (v as Record<string, unknown>)?.vote === 'agree').length;
     const requiredAgree = Math.ceil(votes.length * threshold);
 
     switch (outcomeType) {
@@ -1178,12 +1212,11 @@ class Parser {
   private parseMonetaryPolicySolvent(): boolean {
     this.advance(); // consume 'monetary_policy_solvent'
     this.expect('paren', '(');
-    const policy = this.parseExpr() as any;
+    const policy = asRecord(this.parseExpr());
     this.expect('comma');
-    const currentSupply = this.parseExpr() as any;
+    const currentSupply = this.parseExpr();
     this.expect('paren', ')');
 
-    if (policy == null || typeof policy !== 'object') return false;
     const ceiling = policy.conservation_ceiling;
     if (typeof ceiling !== 'string' || typeof currentSupply !== 'string') return false;
 
@@ -1206,11 +1239,11 @@ class Parser {
   private parsePermissionBoundaryActive(): boolean {
     this.advance(); // consume 'permission_boundary_active'
     this.expect('paren', '(');
-    const boundary = this.parseExpr() as any;
+    const boundary = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (boundary == null || typeof boundary !== 'object') return false;
-    const rec = boundary as Record<string, unknown>;
+    // asRecord returns {} for null/non-object, so check structural properties
+    const rec = boundary;
 
     // Must have non-empty scope
     if (typeof rec.scope !== 'string' || rec.scope.length === 0) return false;
@@ -1235,11 +1268,10 @@ class Parser {
   private parseProposalQuorumMet(): boolean {
     this.advance(); // consume 'proposal_quorum_met'
     this.expect('paren', '(');
-    const proposal = this.parseExpr() as any;
+    const proposal = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (proposal == null || typeof proposal !== 'object') return false;
-    const rec = proposal as Record<string, unknown>;
+    const rec = proposal;
     const voting = rec.voting;
     if (voting == null || typeof voting !== 'object') return false;
     const vr = voting as Record<string, unknown>;
@@ -1277,14 +1309,12 @@ class Parser {
   private parseSagaTimeoutValid(): boolean {
     this.advance(); // consume 'saga_timeout_valid'
     this.expect('paren', '(');
-    const saga = this.parseExpr() as any;
+    const saga = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (saga == null || typeof saga !== 'object') return false;
-    const rec = saga as Record<string, unknown>;
-    const steps = rec.steps;
+    const steps = saga.steps;
     if (!Array.isArray(steps)) return false;
-    const timeout = rec.timeout;
+    const timeout = saga.timeout;
     if (timeout == null || typeof timeout !== 'object') return false;
     const to = timeout as Record<string, unknown>;
     const perStepSeconds = to.per_step_seconds;
@@ -1328,11 +1358,10 @@ class Parser {
   private parseProposalWeightsNormalized(): boolean {
     this.advance(); // consume 'proposal_weights_normalized'
     this.expect('paren', '(');
-    const proposal = this.parseExpr() as any;
+    const proposal = asRecord(this.parseExpr());
     this.expect('paren', ')');
 
-    if (proposal == null || typeof proposal !== 'object') return false;
-    const rec = proposal as Record<string, unknown>;
+    const rec = proposal;
     const voting = rec.voting;
     if (voting == null || typeof voting !== 'object') return false;
     const vr = voting as Record<string, unknown>;

@@ -31,60 +31,96 @@ export interface SchemaGraphNode {
 }
 
 /**
+ * Maximum depth for recursive reference extraction.
+ * Prevents unbounded traversal of deeply nested or circular schema structures.
+ */
+const MAX_REFERENCE_DEPTH = 5;
+
+/**
  * Extract x-references from a single TypeBox schema.
  *
- * Walks all properties looking for `x-references` metadata arrays.
+ * Recursively walks all properties (including nested objects, arrays, and
+ * intersect/union compositions) looking for `x-references` metadata arrays.
  * Each x-reference entry should have: { target_schema, target_field, relationship }.
  *
- * NOTE: Only walks one level of nested objects. References on deeply nested
- * properties (depth > 1) or inside Type.Array/Type.Intersect compositions
- * are not discovered. See: bridge-20260217-v55 iter1 finding medium-3.
+ * Depth-limited to MAX_REFERENCE_DEPTH (5) to prevent unbounded traversal.
+ *
+ * @see SDD §2.4.1-2.4.5 — Schema Graph Operations (FR-4)
+ * @see medium-3 resolution — deep reference extraction
  */
 export function extractReferences(schema: TObject, schemaId: string): SchemaReference[] {
   const refs: SchemaReference[] = [];
   const properties = schema.properties as TProperties;
 
   for (const [fieldName, fieldSchema] of Object.entries(properties)) {
-    const xRefs = (fieldSchema as Record<string, unknown>)['x-references'];
-    if (Array.isArray(xRefs)) {
-      for (const ref of xRefs) {
-        if (ref && typeof ref === 'object' && 'target_schema' in ref && 'target_field' in ref) {
-          refs.push({
-            source_schema: schemaId,
-            source_field: fieldName,
-            target_schema: String(ref.target_schema),
-            target_field: String(ref.target_field),
-            relationship: String((ref as Record<string, unknown>).relationship ?? 'references'),
-          });
-        }
-      }
-    }
+    walkSchemaNode(fieldSchema as Record<string, unknown>, schemaId, fieldName, refs, 0);
+  }
 
-    // Check nested objects for x-references (one level deep)
-    if ((fieldSchema as Record<string, unknown>).type === 'object') {
-      const nested = (fieldSchema as Record<string, unknown>).properties as Record<string, unknown> | undefined;
-      if (nested) {
-        for (const [nestedField, nestedSchema] of Object.entries(nested)) {
-          const nestedRefs = (nestedSchema as Record<string, unknown>)['x-references'];
-          if (Array.isArray(nestedRefs)) {
-            for (const ref of nestedRefs) {
-              if (ref && typeof ref === 'object' && 'target_schema' in ref && 'target_field' in ref) {
-                refs.push({
-                  source_schema: schemaId,
-                  source_field: `${fieldName}.${nestedField}`,
-                  target_schema: String(ref.target_schema),
-                  target_field: String(ref.target_field),
-                  relationship: String((ref as Record<string, unknown>).relationship ?? 'references'),
-                });
-              }
-            }
-          }
-        }
+  return refs;
+}
+
+/**
+ * Recursively walk a schema node extracting x-references at any depth.
+ * Handles object types, array items, allOf/anyOf/oneOf compositions.
+ *
+ * @param node - The schema node to inspect
+ * @param schemaId - Source schema identifier
+ * @param fieldPath - Dot-separated path from root (e.g., "config.exchange.rate")
+ * @param refs - Accumulator for discovered references
+ * @param depth - Current recursion depth (bounded by MAX_REFERENCE_DEPTH)
+ */
+function walkSchemaNode(
+  node: Record<string, unknown>,
+  schemaId: string,
+  fieldPath: string,
+  refs: SchemaReference[],
+  depth: number,
+): void {
+  if (depth > MAX_REFERENCE_DEPTH) return;
+  if (node == null || typeof node !== 'object') return;
+
+  // Extract x-references from this node
+  const xRefs = node['x-references'];
+  if (Array.isArray(xRefs)) {
+    for (const ref of xRefs) {
+      if (ref && typeof ref === 'object' && 'target_schema' in ref && 'target_field' in ref) {
+        refs.push({
+          source_schema: schemaId,
+          source_field: fieldPath,
+          target_schema: String((ref as Record<string, unknown>).target_schema),
+          target_field: String((ref as Record<string, unknown>).target_field),
+          relationship: String((ref as Record<string, unknown>).relationship ?? 'references'),
+        });
       }
     }
   }
 
-  return refs;
+  // Recurse into nested object properties
+  if (node.type === 'object' && node.properties != null && typeof node.properties === 'object') {
+    for (const [nestedField, nestedSchema] of Object.entries(node.properties as Record<string, unknown>)) {
+      if (nestedSchema != null && typeof nestedSchema === 'object') {
+        walkSchemaNode(nestedSchema as Record<string, unknown>, schemaId, `${fieldPath}.${nestedField}`, refs, depth + 1);
+      }
+    }
+  }
+
+  // Recurse into array items
+  if (node.type === 'array' && node.items != null && typeof node.items === 'object') {
+    walkSchemaNode(node.items as Record<string, unknown>, schemaId, `${fieldPath}[]`, refs, depth + 1);
+  }
+
+  // Recurse into composition keywords (allOf, anyOf, oneOf — TypeBox Intersect/Union)
+  for (const keyword of ['allOf', 'anyOf', 'oneOf']) {
+    const compositions = node[keyword];
+    if (Array.isArray(compositions)) {
+      for (let i = 0; i < compositions.length; i++) {
+        const comp = compositions[i];
+        if (comp != null && typeof comp === 'object') {
+          walkSchemaNode(comp as Record<string, unknown>, schemaId, fieldPath, refs, depth + 1);
+        }
+      }
+    }
+  }
 }
 
 /**

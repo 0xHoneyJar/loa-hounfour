@@ -65,3 +65,48 @@ describe('conservation-registry-coverage-sums-to-total', () => {
     expect(evaluateConstraint(empty as unknown as Record<string, unknown>, constraint.expression)).toBe(true);
   });
 });
+
+
+describe('conservation-registry-coverage-keys-valid (medium-2)', () => {
+  const constraint = getConstraint('conservation-registry-coverage-keys-valid');
+
+  it('passes with valid InvariantUniverse keys', () => {
+    expect(evaluateConstraint(
+      validRegistry as unknown as Record<string, unknown>,
+      constraint.expression,
+    )).toBe(true);
+  });
+
+  it('fails with invalid coverage key', () => {
+    const bad = {
+      ...validRegistry,
+      coverage: { single_lot: 2, invalid_scope: 1, platform: 0, bilateral: 0 },
+    };
+    expect(evaluateConstraint(
+      bad as unknown as Record<string, unknown>,
+      constraint.expression,
+    )).toBe(false);
+  });
+
+  it('passes with subset of valid keys', () => {
+    const partial = {
+      ...validRegistry,
+      coverage: { single_lot: 3 },
+    };
+    expect(evaluateConstraint(
+      partial as unknown as Record<string, unknown>,
+      constraint.expression,
+    )).toBe(true);
+  });
+
+  it('passes with empty coverage', () => {
+    const empty = {
+      ...validRegistry,
+      coverage: {},
+    };
+    expect(evaluateConstraint(
+      empty as unknown as Record<string, unknown>,
+      constraint.expression,
+    )).toBe(true);
+  });
+});

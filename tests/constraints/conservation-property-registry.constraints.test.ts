@@ -60,12 +60,12 @@ describe('ConservationPropertyRegistry constraint file', () => {
     expect(constraintFile.schema_id).toBe('ConservationPropertyRegistry');
   });
 
-  it('has contract_version 6.0.0', () => {
-    expect(constraintFile.contract_version).toBe('6.0.0');
+  it('has contract_version 7.0.0', () => {
+    expect(constraintFile.contract_version).toBe('7.0.0');
   });
 
-  it('has 6 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(6);
+  it('has 7 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(7);
   });
 
   describe('conservation-registry-count-matches', () => {

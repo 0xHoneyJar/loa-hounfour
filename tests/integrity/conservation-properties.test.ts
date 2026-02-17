@@ -190,6 +190,14 @@ describe('ConservationPropertyRegistrySchema', () => {
     const invalid = { ...validRegistry, properties: [], total_count: 1 };
     expect(Value.Check(ConservationPropertyRegistrySchema, invalid)).toBe(false);
   });
+
+  it('accepts all valid InvariantUniverse coverage keys (medium-2)', () => {
+    const allKeys = {
+      ...validRegistry,
+      coverage: { single_lot: 5, account: 3, platform: 4, bilateral: 2 },
+    };
+    expect(Value.Check(ConservationPropertyRegistrySchema, allKeys)).toBe(true);
+  });
 });
 
 describe('CANONICAL_CONSERVATION_PROPERTIES', () => {
