@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-agent-identity-002",
+  "category": "agent-identity",
+  "description": "Untrusted agent attempting to hold delegation authority — should fail constraint",
+  "contract_version": "5.5.0",
+  "input": {
+    "agent_id": "untrusted-bob",
+    "display_name": "Bob (Untrusted)",
+    "agent_type": "model",
+    "capabilities": ["text-generation"],
+    "trust_level": "untrusted",
+    "delegation_authority": ["invoke"],
+    "max_delegation_depth": 0,
+    "governance_weight": 0,
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "cross_field_validations": [
+    {
+      "rule_id": "agent-identity-delegation-requires-trust",
+      "expected_severity": "error",
+      "expected_message_pattern": "delegation.*trust"
+    }
+  ],
+  "metadata": {
+    "sdd_section": "§2.6"
+  }
+}

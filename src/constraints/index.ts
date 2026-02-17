@@ -22,6 +22,14 @@ export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';
 
+// Evaluator Builtin Specification Registry (v5.5.0, FR-5)
+export {
+  EVALUATOR_BUILTIN_SPECS,
+  type EvaluatorBuiltinSpec,
+  type ArgumentSpec,
+  type EvaluatorExample,
+} from './evaluator-spec.js';
+
 // Vocabulary — State Machines
 export {
   STATE_MACHINES,

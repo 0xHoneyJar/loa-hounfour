@@ -206,3 +206,15 @@ export {
   getDeprecatedSchemas,
   isDeprecated,
 } from '../vocabulary/deprecation.js';
+
+// Schemas — Agent Identity (v5.5.0, FR-6)
+export {
+  AgentIdentitySchema,
+  TrustLevelSchema,
+  AgentTypeSchema,
+  TRUST_LEVELS,
+  DELEGATION_TRUST_THRESHOLD,
+  type AgentIdentity,
+  type TrustLevel,
+  type AgentType,
+} from '../schemas/agent-identity.js';

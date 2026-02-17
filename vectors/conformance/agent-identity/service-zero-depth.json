@@ -1,0 +1,22 @@
+{
+  "vector_id": "conformance-agent-identity-003",
+  "category": "agent-identity",
+  "description": "Service agent with no delegation authority — valid",
+  "contract_version": "5.5.0",
+  "input": {
+    "agent_id": "svc-billing",
+    "display_name": "Billing Service",
+    "agent_type": "service",
+    "capabilities": ["billing", "invoicing"],
+    "trust_level": "basic",
+    "delegation_authority": [],
+    "max_delegation_depth": 0,
+    "governance_weight": 0,
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "sdd_section": "§2.6"
+  }
+}

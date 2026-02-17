@@ -18,6 +18,7 @@ describe('ConformanceCategorySchema', () => {
     'inter-agent-transaction',
     'conservation-properties',
     'jwt-boundary',
+    'agent-identity',
   ];
 
   for (const category of validCategories) {
@@ -44,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 10 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(10);
+  it('contains exactly 11 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(11);
   });
 
   it('includes all valid categories', () => {
@@ -75,6 +76,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'inter-agent-transaction',
       'conservation-properties',
       'jwt-boundary',
+      'agent-identity',
     ]);
   });
 });

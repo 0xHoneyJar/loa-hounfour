@@ -143,16 +143,16 @@ Directory structure:
 <!-- provenance: DERIVED -->
 | Module | Files | Purpose | Documentation |
 |--------|-------|---------|---------------|
-| `constraints/` | 23 | Cross-language constraint expressions (GovernanceConfig, EpistemicTristate, ReservationArithmetic) | \u2014 |
+| `constraints/` | 31 | Cross-language constraint expressions (GovernanceConfig, DelegationChain, InterAgentTransactionAudit, EnsembleCapabilityProfile, ConservationPropertyRegistry, JwtBoundarySpec, AgentIdentity) | \u2014 |
 | `docs/` | 9 | Documentation | \u2014 |
 | `evals/` | 122 | Benchmarking and regression framework for the Loa agent development system. Ensures framework changes don't degrade agent behavior through | [evals/README.md](evals/README.md) |
 | `grimoires/` | 45 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |
-| `schemas/` | 60 | **Contract version: 5.3.0** — The Epistemic Protocol | [schemas/README.md](schemas/README.md) |
+| `schemas/` | 68 | **Contract version: 5.5.0** — The Conservation-Aware Protocol | [schemas/README.md](schemas/README.md) |
 | `scripts/` | 11 | Utility scripts | \u2014 |
 | `specs/` | 1 | Specs | \u2014 |
 | `src/` | 83 | Source code | \u2014 |
 | `tests/` | 207 | Test suites | \u2014 |
-| `vectors/` | 42 | Conformance vectors (8 reservation-enforcement + cross-domain) | \u2014 |
+| `vectors/` | 50 | Conformance vectors (8 reservation-enforcement + 4 delegation-chain + 4 inter-agent-transaction + cross-domain) | \u2014 |
 
 ## Verification
 <!-- provenance: CODE-FACTUAL -->
