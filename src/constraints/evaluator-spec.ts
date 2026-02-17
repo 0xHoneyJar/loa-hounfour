@@ -637,8 +637,8 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
 
   ['tree_budget_conserved', {
     name: 'tree_budget_conserved',
-    signature: 'tree_budget_conserved(root) → boolean | string',
-    description: 'Iteratively validates sum(children.budget) <= parent.budget at every node. Returns true if conserved, false if violated, or error string for limit breaches.',
+    signature: 'tree_budget_conserved(root) → boolean',
+    description: 'Iteratively validates sum(children.budget) <= parent.budget at every node. Returns true if conserved, false if violated or if tree exceeds depth/size limits.',
     arguments: [
       { name: 'root', type: 'DelegationTreeNode', description: 'Root node of the delegation tree' },
     ],
@@ -658,12 +658,12 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         expected: false,
       },
     ],
-    edge_cases: ['Leaf nodes (no children) always valid', 'Returns TREE_DEPTH_EXCEEDED or TREE_SIZE_EXCEEDED for limit breaches'],
+    edge_cases: ['Leaf nodes (no children) always valid', 'Returns false for trees exceeding depth (10) or node count (100) limits'],
   }],
 
   ['tree_authority_narrowing', {
     name: 'tree_authority_narrowing',
-    signature: 'tree_authority_narrowing(root) → boolean | string',
+    signature: 'tree_authority_narrowing(root) → boolean',
     description: 'Iteratively validates child.authority_scope is a subset of parent.authority_scope (equal scope is valid for full delegation). Normalized lowercase, set semantics.',
     arguments: [
       { name: 'root', type: 'DelegationTreeNode', description: 'Root node of the delegation tree' },

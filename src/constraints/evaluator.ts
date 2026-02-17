@@ -924,7 +924,7 @@ class Parser {
    * Uses explicit stack (not recursion) per SDD FL-SDD-002.
    * Enforces max_depth and max_total_nodes limits. Cycle detection via visited set.
    */
-  private parseTreeBudgetConserved(): boolean | string {
+  private parseTreeBudgetConserved(): boolean {
     this.advance(); // consume 'tree_budget_conserved'
     this.expect('paren', '(');
     const root = this.parseExpr() as any;
@@ -943,8 +943,8 @@ class Parser {
       if (node == null || typeof node !== 'object') continue;
 
       nodeCount++;
-      if (depth > maxDepth) return 'TREE_DEPTH_EXCEEDED';
-      if (nodeCount > maxNodes) return 'TREE_SIZE_EXCEEDED';
+      if (depth > maxDepth) return false;
+      if (nodeCount > maxNodes) return false;
 
       const nodeId = node.node_id ?? String(nodeCount);
       if (visited.has(nodeId)) continue; // cycle protection
@@ -975,7 +975,7 @@ class Parser {
    * A child may have equal scope (full delegation) or narrower scope.
    * Authority scopes are normalized lowercase strings with set semantics.
    */
-  private parseTreeAuthorityNarrowing(): boolean | string {
+  private parseTreeAuthorityNarrowing(): boolean {
     this.advance(); // consume 'tree_authority_narrowing'
     this.expect('paren', '(');
     const root = this.parseExpr() as any;
@@ -998,8 +998,8 @@ class Parser {
       if (node == null || typeof node !== 'object') continue;
 
       nodeCount++;
-      if (depth > maxDepth) return 'TREE_DEPTH_EXCEEDED';
-      if (nodeCount > maxNodes) return 'TREE_SIZE_EXCEEDED';
+      if (depth > maxDepth) return false;
+      if (nodeCount > maxNodes) return false;
 
       const nodeId = node.node_id ?? String(nodeCount);
       if (visited.has(nodeId)) continue;
@@ -1017,7 +1017,7 @@ class Parser {
           continue;
         }
 
-        // Check strict subset: every child scope must be in parent scope
+        // Check subset: every child scope must be in parent scope (equal scope is valid)
         for (const scope of childScopes) {
           if (!parentScope.has(scope)) return false;
         }

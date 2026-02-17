@@ -146,3 +146,45 @@ describe('EVALUATOR_BUILTINS and SPECS updated', () => {
     }
   });
 });
+
+describe('tree builtin resource limits', () => {
+  function buildDeepTree(depth: number): Record<string, unknown> {
+    let node: Record<string, unknown> = {
+      node_id: `node-${depth}`,
+      agent_id: `agent-${depth}`,
+      authority_scope: ['billing'],
+      budget_allocated_micro: '100',
+      children: [],
+    };
+    for (let i = depth - 1; i >= 0; i--) {
+      node = {
+        node_id: `node-${i}`,
+        agent_id: `agent-${i}`,
+        authority_scope: ['billing'],
+        budget_allocated_micro: '100',
+        children: [node],
+      };
+    }
+    return node;
+  }
+
+  it('tree_budget_conserved returns false for depth > 10', () => {
+    const root = buildDeepTree(12);
+    expect(evaluateConstraint({ root }, 'tree_budget_conserved(root)')).toBe(false);
+  });
+
+  it('tree_budget_conserved passes for depth <= 10', () => {
+    const root = buildDeepTree(9);
+    expect(evaluateConstraint({ root }, 'tree_budget_conserved(root)')).toBe(true);
+  });
+
+  it('tree_authority_narrowing returns false for depth > 10', () => {
+    const root = buildDeepTree(12);
+    expect(evaluateConstraint({ root }, 'tree_authority_narrowing(root)')).toBe(false);
+  });
+
+  it('tree_authority_narrowing passes for depth <= 10', () => {
+    const root = buildDeepTree(9);
+    expect(evaluateConstraint({ root }, 'tree_authority_narrowing(root)')).toBe(true);
+  });
+});
