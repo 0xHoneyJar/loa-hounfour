@@ -25,22 +25,12 @@ export const MicroUSDUnsigned = Type.String({
 /** Zero in micro-USD. */
 export const ZERO_MICRO = '0' as const;
 
-/** Pattern for valid micro-USD strings (non-negative integers). */
-const MICRO_PATTERN = /^[0-9]+$/;
-
 /** Pattern for valid signed micro-USD strings (allows negative). */
 const SIGNED_MICRO_PATTERN = /^-?[0-9]+$/;
 
 function assertMicro(value: string, label: string): bigint {
   if (!SIGNED_MICRO_PATTERN.test(value)) {
     throw new Error(`${label} must be an integer string, got "${value}"`);
-  }
-  return BigInt(value);
-}
-
-function assertUnsignedMicro(value: string, label: string): bigint {
-  if (!MICRO_PATTERN.test(value)) {
-    throw new Error(`${label} must be a non-negative integer string, got "${value}"`);
   }
   return BigInt(value);
 }

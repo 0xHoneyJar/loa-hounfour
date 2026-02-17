@@ -8,7 +8,7 @@
  * @see SDD §2.5 — Evaluator Specification (FR-5)
  * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2)
  */
-import { type EvaluatorBuiltin, EVALUATOR_BUILTINS } from './evaluator.js';
+import { type EvaluatorBuiltin } from './evaluator.js';
 
 /**
  * Argument specification for a builtin function.
