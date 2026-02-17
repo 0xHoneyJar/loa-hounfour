@@ -1,5 +1,7 @@
 {
-  "schema_id": "billing-entry",
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "BillingEntry",
+  "contract_version": "5.4.0",
   "expression_version": "2.0",
   "constraints": [
     {
@@ -7,6 +9,7 @@
       "expression": "source_completion_id == null || pricing_snapshot != null",
       "description": "If billing references a completion, pricing snapshot must be present",
       "severity": "warning",
+      "category": "economic",
       "fields": ["source_completion_id", "pricing_snapshot"],
       "type_signature": {
         "source_completion_id": "string",
@@ -18,6 +21,7 @@
       "expression": "reconciliation_delta_micro == null || reconciliation_mode == 'provider_invoice_authoritative'",
       "description": "Reconciliation delta only valid with provider_invoice_authoritative mode",
       "severity": "warning",
+      "category": "economic",
       "fields": ["reconciliation_delta_micro", "reconciliation_mode"],
       "type_signature": {
         "reconciliation_delta_micro": "bigint_coercible",
