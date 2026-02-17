@@ -1,10 +1,10 @@
-# Sprint Plan: The Composition-Aware Protocol — v6.0.0
+# Sprint Plan: The Coordination-Aware Protocol — v7.0.0
 
 **Status:** Draft
-**Cycle:** cycle-015
-**Source:** [PR #14 — Bridgebuilder Reviews III & IV](https://github.com/0xHoneyJar/loa-hounfour/pull/14)
+**Cycle:** cycle-016
+**Source:** [PR #14 — Bridgebuilder Deep Review Parts II–IV + Bridge Iterations 1–3](https://github.com/0xHoneyJar/loa-hounfour/pull/14)
 **Branch:** `feature/v5.0.0-multi-model`
-**Goal:** Make the conservation kernel composable — liveness proofs, capability-scoped trust, constraint type system, schema graph operations, registry composition, and concurrent delegation trees.
+**Goal:** Add coordination verbs to the composition kernel — transfer protocols with compensation, conflict resolution with dissent preservation, minting-conservation coupling, MAY permission semantics, and governance proposals.
 
 ---
 
@@ -13,28 +13,28 @@
 | Metric | Value |
 |--------|-------|
 | Sprints | 4 |
-| Total Tasks | 32 |
-| New Schemas | 9 (LivenessProperty, CapabilityScopedTrust, ConstraintTypeSignature, RegistryBridge, BridgeInvariant, MintingPolicy, ExchangeRateSpec, DelegationTree, DelegationTreeNode) |
-| Modified Schemas | 2 (ConservationPropertyRegistry BREAKING, AgentIdentity BREAKING) |
-| New Constraint Files | 4 (LivenessProperty, RegistryBridge, MintingPolicy, DelegationTree) |
-| Modified Constraint Files | 31 (all existing — add type_signature) |
-| New Source Files | 6 |
-| New Evaluator Builtins | 4 (type_of, is_bigint_coercible, tree_budget_conserved, tree_authority_narrowing) |
-| New Conformance Vectors | 12 (3 per new domain) |
-| Estimated New Tests | ~202 |
-| Version | 5.5.0 → 6.0.0 (BREAKING) |
-| Schema Count | 68 → ~77 |
+| Total Tasks | 34 |
+| New Schemas | 16 (BridgeTransferSaga, BridgeTransferStep, SagaParticipant, SagaError, DelegationOutcome, DelegationVote, DissentRecord, MonetaryPolicy, ReviewTrigger, PermissionBoundary, ReportingRequirement, RevocationPolicy, GovernanceProposal, ProposedChange, VotingRecord, GovernanceVote) |
+| Modified Schemas | 2 (RegistryBridge BREAKING: +transfer_protocol, DelegationTreeNode: +last_outcome optional) |
+| New Constraint Files | 5 (BridgeTransferSaga, DelegationOutcome, MonetaryPolicy, PermissionBoundary, GovernanceProposal) |
+| Modified Constraint Files | 1 (RegistryBridge — add transfer_protocol constraints) |
+| New Source Files | 5 (bridge-transfer-saga.ts, delegation-outcome.ts, monetary-policy.ts, permission-boundary.ts, governance-proposal.ts) |
+| New Evaluator Builtins | 6 (saga_amount_conserved, saga_steps_sequential, outcome_consensus_valid, monetary_policy_solvent, permission_granted, within_boundary) |
+| New Conformance Vectors | 18 (4 saga + 4 outcome + 3 monetary + 3 permission + 4 governance) |
+| Estimated New Tests | ~200 |
+| Version | 6.0.0 → 7.0.0 (BREAKING) |
+| Total Evaluator Builtins | 23 → 29 |
 
 ### FR to Sprint Mapping
 
 | FR | Priority | Description | Sprint |
 |----|----------|-------------|--------|
-| FR-1 | P0 | Conservation Liveness Properties | Sprint 1 |
-| FR-2 | P0 | Capability-Scoped Trust Model (BREAKING) | Sprint 1 |
-| FR-3 | P0 | Constraint Type System | Sprint 2 |
-| FR-4 | P1 | Schema Graph Operations | Sprint 2 |
-| FR-5 | P1 | Registry Composition Protocol | Sprint 3 |
-| FR-6 | P1 | DelegationTree for Concurrent Multi-Model | Sprint 3 |
+| FR-1 | P0 | Deferred Finding Resolution (F-007, F-008, F-020) | Sprint 1 |
+| FR-2 | P0 | BridgeTransferSaga — Operation Protocol | Sprint 2 |
+| FR-3 | P1 | DelegationOutcome — Conflict Resolution | Sprint 2 |
+| FR-4 | P1 | MonetaryPolicy — Minting-Conservation Coupling | Sprint 3 |
+| FR-5 | P1 | PermissionBoundary — MAY Semantics | Sprint 3 |
+| FR-6 | P1 | GovernanceProposal — Collective Decision | Sprint 3 |
 | FR-7 | P0 | Version Bump + Migration + Release | Sprint 4 |
 
 ### Inter-Sprint Gates (FL-SPRINT-002)
@@ -45,7 +45,7 @@ Each sprint must pass these gates before the next sprint begins:
 |------|-----------|-------------------|
 | **Green Suite** | All existing + new tests pass | Revert sprint branch, investigate |
 | **Type Check Clean** | No new TypeScript errors | Fix type errors before proceeding |
-| **Constraint Validation** | All constraint files pass type checker (from Sprint 2 onward) | Fix signatures before adding more |
+| **Constraint Validation** | All constraint files pass type checker | Fix signatures before adding more |
 | **Schema Count** | schemas/index.json matches expected count for this sprint | Reconcile missing registrations |
 | **No Regressions** | No existing PASS vectors become FAIL | Root-cause the regression |
 
@@ -55,694 +55,541 @@ Each sprint must pass these gates before the next sprint begins:
 
 | Change | Impact | Sprint |
 |--------|--------|--------|
-| `AgentIdentity.trust_level` → `trust_scopes` | All tests using flat trust_level | Sprint 1 |
-| `ConservationPropertyRegistry` + liveness fields | All registry test vectors | Sprint 1 |
-| Constraint files + `type_signature` | All 31 constraint files | Sprint 2 |
+| `RegistryBridge` gains required `transfer_protocol` field | Existing bridge test vectors, arrakis vendored copy | Sprint 2 |
 
 ---
 
-## Sprint 1: Foundation — Liveness + Scoped Trust (P0)
+## Sprint 1: Stability — Deferred Findings + AST Typing (P0)
 
-**Goal:** Establish the two foundational breaking changes: liveness properties proving forward progress, and capability-scoped trust enabling partial-order authorization. These are prerequisites for everything that follows.
+**Goal:** Resolve all three deferred type safety findings from v6.0.0 bridge reviews. Establish ConstraintASTNode as the typed backbone for the evaluator, enabling Sprint 2–3 builtins to be written against a typed AST rather than `any`.
 
-**Global Sprint ID:** 60
-**Depends on:** Nothing (foundation sprint)
-**Estimated New Tests:** ~54
+**Global Sprint ID:** 64
+**Depends on:** Nothing (stability sprint)
+**Estimated New Tests:** ~30
 
-### S1-T1: LivenessProperty Schema + TimeoutBehavior Vocabulary
+### S1-T1: F-007 — withAnnotation() Utility for TypeBox
 
 **FR:** FR-1
-**SDD:** §2.1.1, §2.1.2
+**SDD:** §2.1.1
 
-**Description:** Create `src/integrity/liveness-properties.ts` with `LivenessPropertySchema`, `TimeoutBehaviorSchema`, and supporting types. Follow the established pattern from `ConservationPropertySchema`.
+**Description:** Replace `as any` cast in `registry-composition.ts:140` with a `withAnnotation<T>()` generic utility that adds custom JSON Schema extension properties without suppressing TypeScript type safety.
 
 **Acceptance Criteria:**
-- `TimeoutBehaviorSchema` vocabulary with $id: 'TimeoutBehavior' — 4 literals: reaper, escalation, reconciliation, manual
-- `LivenessPropertySchema` with all fields per SDD §2.1.2: `liveness_id` (pattern `^L-\d{1,2}$`), `name`, `description`, `ltl_formula`, `companion_safety` (pattern `^I-\d{1,2}$`), `universe` (InvariantUniverseSchema), `timeout_behavior`, `timeout_seconds` (integer, min 1), `error_codes` (array, minItems 1), `severity`, `contract_version`
-- Schema has `$id: 'LivenessProperty'`, `additionalProperties: false`
-- All types exported: `LivenessProperty`, `TimeoutBehavior`
-- All existing tests pass
+- `withAnnotation()` function exported from `src/economy/registry-composition.ts` (or a shared utility)
+- All `x-cross-field-validated` annotations use `withAnnotation()` instead of `as any`
+- No `as any` casts remain in `registry-composition.ts`
+- `x-cross-field-validated` property appears in generated JSON Schema output
+- TypeScript compiler accepts the result without `as any`
+- Existing schema validation tests continue to pass
 
-**Testing:** New `tests/integrity/liveness-properties.test.ts` — schema validation, required fields, pattern matching, vocabulary literals (~12 tests)
+### S1-T2: F-008 — BridgeInvariant ID Pattern Expansion
 
----
+**FR:** FR-1
+**SDD:** §2.1.2
 
-### S1-T2: CANONICAL_LIVENESS_PROPERTIES Constant (6 Properties)
+**Description:** Expand `BridgeInvariant.invariant_id` pattern from `^B-\d{1,2}$` to `^B-\d{1,4}$` to support future growth beyond B-99.
+
+**Acceptance Criteria:**
+- Pattern updated from `^B-\\d{1,2}$` to `^B-\\d{1,4}$`
+- Tests: `B-1` valid, `B-99` valid, `B-100` valid (was previously rejected), `B-9999` valid, `B-10000` rejected
+- All existing bridge invariant tests continue to pass
+
+### S1-T3: F-020 — ConstraintASTNode Discriminated Union Type
 
 **FR:** FR-1
 **SDD:** §2.1.3
 
-**Description:** Export `CANONICAL_LIVENESS_PROPERTIES` readonly array with the 6 canonical liveness properties that complement existing safety invariants.
+**Description:** Define a `ConstraintASTNode` discriminated union type representing all possible AST node shapes in the constraint evaluator. Type `parseExpr()` return as `ConstraintASTNode` instead of implicit `any`.
 
 **Acceptance Criteria:**
-- `CANONICAL_LIVENESS_PROPERTIES: readonly LivenessProperty[]` with exactly 6 entries
-- L-1: Reservation resolution liveness (complements I-11, timeout: reaper, 3600s)
-- L-2: Expiration reclamation liveness (complements I-12, timeout: reaper, 7200s)
-- L-3: Budget replenishment liveness (complements I-5, timeout: escalation, 86400s)
-- L-4: Reconciliation completion liveness (complements I-4/I-13, timeout: reconciliation, 14400s)
-- L-5: Dispute resolution liveness (new companion, timeout: manual, 604800s)
-- L-6: Transfer settlement liveness (complements I-14, timeout: reaper, 3600s)
-- Each entry has valid `ltl_formula` containing F or F_t operator
-- All entries have `contract_version: '6.0.0'`
-- All entries validate against `LivenessPropertySchema`
+- `ConstraintASTNode` type exported from `src/constraints/constraint-types.ts` (or `evaluator.ts`)
+- Discriminated union with `kind` field: `literal`, `identifier`, `member_access`, `function_call`, `binary_op`, `unary_op`, `array_literal`, `every`
+- `parseExpr()` return type annotated (not `any`)
+- All 23 existing builtin evaluation tests continue to pass
+- New compile-time type assertion test: `parseExpr()` return is not `any`
 
-**Testing:** Extend liveness-properties.test.ts — validate all 6 against schema, unique liveness_ids, companion_safety references valid I-IDs (~5 tests)
-
----
-
-### S1-T3: ConservationPropertyRegistry Extension (BREAKING)
+### S1-T4: Barrel Export Updates (Sprint 1)
 
 **FR:** FR-1
-**SDD:** §2.1.4
 
-**Description:** Add required `liveness_properties` and `liveness_count` fields to `ConservationPropertyRegistrySchema`. This is a BREAKING change — all existing registry test data must be updated.
+**Description:** Update `src/constraints/index.ts` and `src/economy/index.ts` barrels to export new types.
 
 **Acceptance Criteria:**
-- `liveness_properties: Type.Array(LivenessPropertySchema)` — required field
-- `liveness_count: Type.Integer({ minimum: 0 })` — required field, drift guard
-- Existing tests updated to include liveness fields (even if empty arrays initially)
-- All schema validation tests updated
-- `CANONICAL_LIVENESS_PROPERTIES` array re-exported from integrity barrel
+- `ConstraintASTNode` exported from constraints barrel
+- `withAnnotation` utility exported from economy barrel (if not in shared utils)
+- No circular dependency introduced
+- Existing barrel imports continue to resolve
 
-**Testing:** New `tests/integrity/conservation-registry-liveness.test.ts` — registry with liveness, registry without liveness fails, count mismatch fails (~8 tests)
-
----
-
-### S1-T4: Liveness Constraint File + Conformance Vectors
+### S1-T5: Sprint 1 Test Harness
 
 **FR:** FR-1
-**SDD:** §2.1.5, §2.1.6
 
-**Description:** Create constraints and conformance vectors for liveness properties and the extended registry.
+**Description:** Tests for all deferred findings.
 
 **Acceptance Criteria:**
-- New `constraints/LivenessProperty.constraints.json` with constraint: `liveness-formula-has-eventually`
-- Add to `constraints/ConservationPropertyRegistry.constraints.json`:
-  - `conservation-registry-liveness-count-matches`: `liveness_count == len(liveness_properties)`
-  - `conservation-liveness-unique-ids`: All liveness_id values unique
-- Conformance vectors:
-  - `vectors/conformance/liveness-properties/complete-safety-liveness-pairs.json` (PASS)
-  - `vectors/conformance/liveness-properties/liveness-without-companion.json` (FAIL)
-  - `vectors/conformance/liveness-properties/liveness-empty-formula.json` (FAIL)
-- All constraints have `type_signature` (forward-compatible with FR-3)
+- `tests/economy/registry-composition-annotations.test.ts`: 5+ tests for F-007 (withAnnotation utility, JSON Schema output, no `as any`)
+- `tests/economy/bridge-invariant-pattern.test.ts`: 6+ tests for F-008 (pattern validation)
+- `tests/constraints/constraint-ast-node.test.ts`: 10+ tests for F-020 (AST node kinds, type narrowing, all builtins still pass)
+- All existing 3,504 tests still pass
+- Zero TypeScript errors
 
-**Testing:** Constraint evaluation tests for liveness constraints (~6 tests)
+### S1-T6: Sprint 1 Gate Check
+
+**Description:** Verify all inter-sprint gates pass.
+
+**Acceptance Criteria:**
+- `npx vitest run` — all tests green
+- `npx tsc --noEmit` — zero errors
+- Schema count unchanged (no new schemas this sprint)
+- All existing conformance vectors still PASS
 
 ---
 
-### S1-T5: CapabilityScope Vocabulary + CapabilityScopedTrust Schema
+## Sprint 2: Coordination — Saga + Conflict Resolution (P0/P1)
+
+**Goal:** Implement the two primary coordination primitives: BridgeTransferSaga (the operation protocol for cross-registry transfers) and DelegationOutcome (conflict resolution recording with dissent preservation). These are the "TCP handshake" and "signal handler" of the composition kernel.
+
+**Global Sprint ID:** 65
+**Depends on:** Sprint 1 (typed AST enables cleaner builtin implementation)
+**Estimated New Tests:** ~70
+
+### S2-T1: BridgeTransferSaga Schema + State Machine
 
 **FR:** FR-2
-**SDD:** §2.2.1, §2.2.2
+**SDD:** §2.2.1–§2.2.5
 
-**Description:** Create `CapabilityScopeSchema` vocabulary and `CapabilityScopedTrustSchema` in `src/schemas/agent-identity.ts`. These are the foundation for the trust model replacement.
-
-**Acceptance Criteria:**
-- `CapabilityScopeSchema` union with $id: 'CapabilityScope' — 6 literals: billing, governance, inference, delegation, audit, composition
-- `CAPABILITY_SCOPES` constant array
-- `CapabilityScopedTrustSchema` with: `scopes` (Record<CapabilityScope, TrustLevel>), `default_level` (TrustLevel)
-- Schema has `$id: 'CapabilityScopedTrust'`, `additionalProperties: false`
-- Types exported: `CapabilityScope`, `CapabilityScopedTrust`
-- TrustLevel and TRUST_LEVELS remain unchanged (used as values within scopes)
-
-**Testing:** New `tests/schemas/capability-scoped-trust.test.ts` — schema validation, scope coverage, vocabulary completeness (~8 tests)
-
----
-
-### S1-T6: AgentIdentity Breaking Change (trust_level → trust_scopes)
-
-**FR:** FR-2
-**SDD:** §2.2.3
-
-**Description:** Replace `trust_level: TrustLevel` with `trust_scopes: CapabilityScopedTrustSchema` in `AgentIdentitySchema`. This is the primary BREAKING change of v6.0.0. Includes dual-read adapter for migration safety (FL-SPRINT-001).
+**Description:** Create `src/economy/bridge-transfer-saga.ts` with all saga schemas: SagaStatus vocabulary, BridgeTransferStep, SagaParticipant, SagaError, and BridgeTransferSaga. Include SAGA_TRANSITIONS state machine definition.
 
 **Acceptance Criteria:**
-- `trust_level` field REMOVED from AgentIdentitySchema
-- `trust_scopes: CapabilityScopedTrustSchema` ADDED as required field
-- **Dual-read adapter** (FL-SPRINT-001): `parseAgentIdentity(data)` function that accepts EITHER v5.5.0 format (with `trust_level`) OR v6.0.0 format (with `trust_scopes`), auto-converting v5.5.0 data via `flatTrustToScoped()`. This enables gradual migration of stored data and test fixtures without big-bang rewrite.
-- All existing `AgentIdentity` references updated throughout codebase (use adapter where reading persisted data)
-- All existing tests using `trust_level` updated to use `trust_scopes`
-- DelegationChain constraint tests updated for scoped trust
-- InterAgentTransactionAudit tests updated
-
-**Testing:** Update all existing agent identity tests (~10+ existing tests to update, plus ~3 adapter tests)
-
----
-
-### S1-T7: Trust Helper Functions
-
-**FR:** FR-2
-**SDD:** §2.2.4
-
-**Description:** Replace flat trust helpers with scope-aware variants. Keep `trustLevelIndex()` (used internally). Add migration helper `flatTrustToScoped()`.
-
-**Acceptance Criteria:**
-- `trustLevelForScope(trust, scope)` — returns TrustLevel for scope, falls back to default_level
-- `meetsThresholdForScope(trust, scope, threshold)` — boolean check per scope
-- `effectiveTrustLevel(trust)` — minimum trust across all scopes (backward-compatible)
-- `flatTrustToScoped(level)` — creates CapabilityScopedTrust with all scopes at same level
-- `trustLevelIndex()` remains (used by scope helpers internally)
-- Old `meetsThreshold()` removed or deprecated
-
-**Testing:** Trust helper tests — trustLevelForScope, meetsThresholdForScope edge cases, effectiveTrustLevel, flatTrustToScoped roundtrip (~7 tests)
-
----
-
-### S1-T8: Updated AgentIdentity Constraints + Conformance Vectors
-
-**FR:** FR-2
-**SDD:** §2.2.5, §2.2.6
-
-**Description:** Rewrite AgentIdentity constraints for scoped trust and create new conformance vectors.
-
-**Acceptance Criteria:**
-- Updated `constraints/AgentIdentity.constraints.json`:
-  - `agent-identity-delegation-requires-trust`: delegation_authority non-empty => delegation scope >= verified
-  - `agent-identity-scope-coverage`: billing and inference scopes must be specified
-  - Remove old trust_level-based constraints
-- All constraints have `type_signature`
-- Conformance vectors:
-  - `vectors/conformance/capability-scoped-trust/multi-scope-agent.json` (PASS)
-  - `vectors/conformance/capability-scoped-trust/delegation-scope-untrusted.json` (FAIL)
-  - `vectors/conformance/capability-scoped-trust/missing-required-scopes.json` (FAIL)
-
-**Testing:** Constraint evaluation tests for scoped trust constraints (~5 tests)
-
----
-
-### S1-T9: Property-Based Tests + Compile-Time Type Tests
-
-**FR:** FR-1, FR-2
-**SDD:** §3.2, §3.3
-
-**Description:** Add property-based tests for trust model correctness and compile-time type safety tests.
-
-**Acceptance Criteria:**
-- Property: `effectiveTrustLevel(flatTrustToScoped(level)) == level` for all TrustLevels
-- Property: Random liveness properties with valid companion_safety always pass validation
-- Property: Scoped trust roundtrip consistency
-- `@ts-expect-error` tests:
-  - Cannot assign TrustLevel directly to CapabilityScopedTrust
-  - Cannot access removed trust_level field on AgentIdentity
-  - Cannot assign CapabilityScopedTrust where TrustLevel expected
-
-**Testing:** ~5 property-based tests + 3 compile-time type tests
-
----
-
-## Sprint 2: Verification — Type System + Graph Operations (P0/P1)
-
-**Goal:** Add static verification infrastructure: a constraint type system ensuring expression correctness at CI time, and schema graph operations enabling automated impact analysis.
-
-**Global Sprint ID:** 61
-**Depends on:** Sprint 1 (liveness + trust model must be stable)
-**Estimated New Tests:** ~71
-
-### S2-T1: ConstraintTypeSignature Schema + ConstraintType Vocabulary
-
-**FR:** FR-3
-**SDD:** §2.3.1
-
-**Description:** Create `src/constraints/constraint-types.ts` with `ConstraintTypeSchema` and `ConstraintTypeSignatureSchema`.
-
-**Acceptance Criteria:**
-- `ConstraintTypeSchema` union with $id: 'ConstraintType' — 8 literals: boolean, bigint, bigint_coercible, string, number, array, object, unknown
-- `ConstraintTypeSignatureSchema` with: `input_schema` (string, minLength 1), `output_type` (ConstraintType), `field_types` (Record<string, ConstraintType>)
-- Schema has `$id: 'ConstraintTypeSignature'`, `additionalProperties: false`
-- Types exported: `ConstraintType`, `ConstraintTypeSignature`
-- Barrel export from constraints/index.ts
-
-**Testing:** New `tests/constraints/constraint-types.test.ts` — schema validation, type universe completeness (~8 tests)
-
----
-
-### S2-T2: Static Type Checker
-
-**FR:** FR-3
-**SDD:** §2.3.3
-
-**Description:** Create `src/constraints/type-checker.ts` implementing `typeCheckConstraintFile()` that validates constraint type signatures against the schema registry.
-
-**Acceptance Criteria:**
-- `TypeCheckError` interface: constraint_id, expression_fragment, expected_type, actual_type, message
-- `TypeCheckWarning` interface: constraint_id, message
-- `TypeCheckResult` interface: valid, errors[], warnings[]
-- `typeCheckConstraintFile(constraintFile, schemaRegistry)` — TypeCheckResult
-- Validates: input_schema exists, field_types paths resolve, output_type matches
-- Returns clear errors for: unknown schema, unresolvable field path, type mismatch
-- Exported from constraints barrel
-
-**Testing:** New `tests/constraints/type-checker.test.ts` — valid file passes, unknown schema errors, bad field path errors, type mismatch warnings (~20 tests)
-
----
-
-### S2-T3: New Evaluator Builtins (type_of, is_bigint_coercible)
-
-**FR:** FR-3
-**SDD:** §2.3.4
-
-**Description:** Add `type_of` and `is_bigint_coercible` builtins to the constraint evaluator.
-
-**Acceptance Criteria:**
-- `type_of(value)` — returns runtime type as string ('boolean', 'bigint', 'string', 'number', 'array', 'object', 'null')
-- `is_bigint_coercible(value)` — returns true if value can be converted to BigInt
-- Both added to evaluator FUNCTION_REGISTRY
-- Both added to EVALUATOR_BUILTINS array (18 → 20)
-- Both have entries in EVALUATOR_BUILTIN_SPECS with proper type signatures
-- All existing evaluator tests pass unchanged
-
-**Testing:** Evaluator tests for new builtins (~8 tests)
-
----
-
-### S2-T4: Migrate All 31 Constraint Files (Add type_signature)
-
-**FR:** FR-3
-**SDD:** §2.3.2, §2.3.5
-
-**Description:** Add `type_signature` to every constraint in all 31 existing constraint files. This is a mechanical but critical migration.
-
-**Acceptance Criteria:**
-- All 31 constraint files updated with `type_signature` on every constraint:
-  - `input_schema` set to the file's `schema_id`
-  - `output_type` set to `"boolean"` (all existing constraints return boolean)
-  - `field_types` populated from the constraint's `fields` array (where present) or inferred from expression
-- Files include: AgentIdentity, DelegationChain, InterAgentTransactionAudit, JwtBoundarySpec, ConservationPropertyRegistry (already done in Sprint 1), GovernanceConfig, BudgetScope, EnsembleCapabilityProfile, and 23 others
-- All existing constraint evaluation tests pass unchanged
-- Type checker validates all migrated files without errors
-
-**Testing:** New `tests/constraints/type-signature-migration.test.ts` — validate every constraint file has type_signature, type checker passes on all (~31 tests, one per file)
-
----
-
-### S2-T5: Type Checker Integration Tests
-
-**FR:** FR-3
-**SDD:** §3.1
-
-**Description:** Comprehensive integration tests verifying the type checker against the real schema registry and all constraint files.
-
-**Acceptance Criteria:**
-- Test that runs type checker against ALL constraint files + schema registry
-- Validates every constraint file type-checks cleanly (no errors)
-- Tests for intentionally bad type signatures (wrong schema, wrong field type)
-- Tests for edge cases: nested field paths, array element types, optional fields
-
-**Testing:** Integration test file (~4 tests with comprehensive coverage)
-
----
-
-### S2-T6: Schema Graph Reachability + Cycle Detection
-
-**FR:** FR-4
-**SDD:** §2.4.1, §2.4.2
-
-**Description:** Add `isReachable()`, `reachableFrom()`, and `detectCycles()` to `src/utilities/schema-graph.ts`.
-
-**Acceptance Criteria:**
-- `isReachable(graph, from, to)` — boolean, uses BFS
-- `reachableFrom(graph, source)` — Set<string>, transitive closure
-- `detectCycles(graph)` — `{ has_cycles: boolean, cycles: string[][] }`, DFS with coloring
-- All functions handle empty graphs, single-node graphs, disconnected components
-- Functions exported from utilities barrel
-- Production schema graph returns `has_cycles: false`
-
-**Testing:** New `tests/utilities/schema-graph-operations.test.ts` — reachability tests, cycle detection on clean and cyclic graphs (~10 tests)
-
----
-
-### S2-T7: Schema Graph Impact Analysis + Topological Sort
-
-**FR:** FR-4
-**SDD:** §2.4.3, §2.4.4
-
-**Description:** Add `analyzeImpact()` and `topologicalSort()` to schema graph operations.
-
-**Acceptance Criteria:**
-- `analyzeImpact(graph, schemaId, constraintFiles?)` — ImpactReport with directly_affected, transitively_affected, affected_constraints, total_impact_radius
-- `topologicalSort(graph)` — string[] | null (null if cycles exist), uses Kahn's algorithm
-- Impact analysis follows incoming edges (who references this schema?)
-- Topological sort produces valid dependency-first ordering
-- AgentIdentity impact radius includes DelegationChain, DelegationTree, InterAgentTransactionAudit
-
-**Testing:** Extend schema-graph-operations.test.ts — impact analysis on AgentIdentity, topological sort ordering validation (~10 tests)
-
----
-
-### S2-T8: Schema Graph Acyclic Constraint
-
-**FR:** FR-4
-**SDD:** §2.4.5
-
-**Description:** Add a constraint that enforces the schema graph is a DAG. Create a test that builds the real schema graph and validates it.
-
-**Acceptance Criteria:**
-- `schema-graph-acyclic` check runs against full schema graph
-- Test that builds graph from all registered schemas and validates no cycles
-- Test with intentionally cyclic test graph that correctly detects the cycle
-- ImpactReport interface exported from utilities
-
-**Testing:** Graph constraint tests (~4 tests)
-
----
-
-## Sprint 3: Composition — Registry Bridge + DelegationTree (P1)
-
-**Goal:** Build the composition layer: registries that can exchange value across economy boundaries, and delegation trees that enable concurrent multi-model orchestration.
-
-**Global Sprint ID:** 62
-**Depends on:** Sprint 2 (type system provides validation infrastructure)
-**Estimated New Tests:** ~72
-
-### S3-T1: RegistryBridge + BridgeInvariant Schemas
-
-**FR:** FR-5
-**SDD:** §2.5.1
-
-**Description:** Create `src/economy/registry-composition.ts` with `RegistryBridgeSchema`, `BridgeInvariantSchema`, `BridgeEnforcementSchema`, and `SettlementPolicySchema`.
-
-**Acceptance Criteria:**
-- `BridgeEnforcementSchema` vocabulary: atomic, eventual, manual
-- `BridgeInvariantSchema` with: `invariant_id` (pattern `^B-\d{1,2}$`), `name`, `description`, `ltl_formula`, `enforcement`
-- `SettlementPolicySchema` vocabulary: immediate, batched, netting
-- `RegistryBridgeSchema` with: `bridge_id` (uuid), `source_registry_id` (uuid), `target_registry_id` (uuid), `bridge_invariants` (array, minItems 1), `exchange_rate` (ExchangeRateSpec), `settlement` (SettlementPolicy), `contract_version`
-- Schema has `$id: 'RegistryBridge'`, `additionalProperties: false`, `x-cross-field-validated: true`
+- `SagaStatusSchema` vocabulary with 8 states: initiated, reserving, transferring, settling, settled, compensating, reversed, failed
+- `SAGA_TRANSITIONS` map with valid transitions (settled/reversed/failed are terminal)
+- `StepTypeSchema`: reserve, validate, transfer, confirm, settle
+- `StepStatusSchema`: pending, in_progress, completed, failed, compensated
+- `BridgeTransferStepSchema` with step_id, step_type, participant, status, amount_micro (BigInt string), exchange_rate (optional), timestamps
+- `SagaParticipantSchema` with agent_id, role (initiator/counterparty/observer/arbiter), registry_id, trust_scopes
+- `SagaErrorSchema` with error_code, message, failed_step_id, recoverable
+- `BridgeTransferSagaSchema` with saga_id, bridge_id, source/target_registry, saga_type (atomic/choreography), status, steps, compensation_steps, timeout, participants, timestamps, error, contract_version
+- All schemas have `$id` and `additionalProperties: false`
 - All types exported
 
-**Testing:** New `tests/economy/registry-composition.test.ts` — schema validation, required fields (~8 tests)
+### S2-T2: RegistryBridge Extension (BREAKING)
 
----
+**FR:** FR-2
+**SDD:** §2.2.6
 
-### S3-T2: CANONICAL_BRIDGE_INVARIANTS Constant
-
-**FR:** FR-5
-**SDD:** §2.5.2
-
-**Description:** Export the 4 canonical bridge invariants (B-1 through B-4) as a readonly constant.
+**Description:** Add required `transfer_protocol` field to `RegistryBridgeSchema` in `src/economy/registry-composition.ts`.
 
 **Acceptance Criteria:**
-- `CANONICAL_BRIDGE_INVARIANTS: readonly BridgeInvariant[]` with 4 entries
-- B-1: Cross-registry conservation (atomic)
-- B-2: Bridge idempotency (atomic)
-- B-3: Settlement completeness (eventual)
-- B-4: Exchange rate consistency (atomic)
-- All entries validate against BridgeInvariantSchema
+- `transfer_protocol` field added to RegistryBridge: `{ saga_type: 'atomic' | 'choreography', timeout_seconds: integer >= 1, max_retries: integer 0–10 }`
+- Field is required (breaking change)
+- All existing RegistryBridge test instances updated with `transfer_protocol`
+- All existing RegistryBridge conformance vectors updated
+- Migration note in code comments
 
-**Testing:** Validate all 4 against schema, unique invariant_ids (~4 tests)
+### S2-T3: BridgeTransferSaga Constraint File
 
----
+**FR:** FR-2
+**SDD:** §2.2.7
 
-### S3-T3: ExchangeRateSpec + MintingPolicy Schemas
-
-**FR:** FR-5
-**SDD:** §2.5.1, §2.5.3
-
-**Description:** Create `ExchangeRateSpecSchema` (in registry-composition.ts) and `MintingPolicySchema` (in new `src/economy/minting-policy.ts`).
+**Description:** Create `constraints/BridgeTransferSaga.constraints.json` with saga-specific constraints.
 
 **Acceptance Criteria:**
-- `ExchangeRateTypeSchema` vocabulary: fixed, oracle, governance
-- `ExchangeRateSpecSchema` with: `rate_type`, `value` (optional), `oracle_endpoint` (optional), `governance_proposal_required`, `staleness_threshold_seconds`
-- Schema has `$id: 'ExchangeRateSpec'`, `additionalProperties: false`
-- `MintingPolicySchema` with: `policy_id` (uuid), `registry_id` (uuid), `mint_authority`, `mint_constraints` (array), `max_mint_per_epoch` (string, numeric pattern), `epoch_seconds`, `requires_governance_approval`, `contract_version`
-- Schema has `$id: 'MintingPolicy'`, `additionalProperties: false`
-- Economy barrel updated to export both
+- 5 constraints: saga-steps-ordered, saga-amount-conserved, saga-timeout-positive, saga-participants-include-initiator, saga-settled-has-timestamp
+- All have type_signature fields
+- Constraint file passes type checker validation
+- Category assignments: structural (3), economic (1), temporal (1)
 
-**Testing:** New `tests/economy/minting-policy.test.ts` — schema validation (~8 tests)
+### S2-T4: Saga Evaluator Builtins (saga_amount_conserved, saga_steps_sequential)
 
----
+**FR:** FR-2
+**SDD:** §2.2.8
 
-### S3-T4: Bridge + Minting Constraint Files + Conformance Vectors
-
-**FR:** FR-5
-**SDD:** §2.5.4
-
-**Description:** Create constraint files and conformance vectors for registry composition schemas.
+**Description:** Implement 2 new evaluator builtins in `src/constraints/evaluator.ts` and add their specs to `evaluator-spec.ts`.
 
 **Acceptance Criteria:**
-- New `constraints/RegistryBridge.constraints.json`:
-  - `registry-bridge-distinct-registries`: source != target
-  - `registry-bridge-invariant-unique-ids`: unique bridge invariant IDs
-- New `constraints/MintingPolicy.constraints.json`:
-  - `minting-policy-max-positive`: max_mint_per_epoch > 0
-- All constraints have `type_signature`
-- Conformance vectors:
-  - `vectors/conformance/registry-bridge/valid-bridge.json` (PASS)
-  - `vectors/conformance/registry-bridge/same-registry-bridge.json` (FAIL)
-  - `vectors/conformance/registry-bridge/duplicate-invariant-ids.json` (FAIL)
+- `saga_amount_conserved(saga)`: sums completed step amounts on source vs target side with exchange rate conversion, BigInt comparison, returns boolean
+- `saga_steps_sequential(saga)`: verifies step_id uniqueness, returns boolean
+- Resource limit: max 100 steps per saga (fail-closed on violation)
+- Both registered in `EVALUATOR_BUILTINS` array (now 25 total)
+- Both have `EVALUATOR_BUILTIN_SPECS` entries with description, signature, examples
+- Spec examples execute correctly
 
-**Testing:** Constraint evaluation tests (~6 tests)
+### S2-T5: DelegationOutcome Schema
+
+**FR:** FR-3
+**SDD:** §2.3.1–§2.3.4
+
+**Description:** Create `src/governance/delegation-outcome.ts` with outcome schemas: OutcomeType vocabulary, DelegationVote, DissentRecord, and DelegationOutcome.
+
+**Acceptance Criteria:**
+- `OutcomeTypeSchema`: unanimous, majority, deadlock, escalation
+- `VoteChoiceSchema`: agree, disagree, abstain
+- `DelegationVoteSchema`: voter_id, vote, result (Unknown), confidence (0–1), reasoning (optional)
+- `DissentTypeSchema`: minority_report, abstention, timeout
+- `DissentSeveritySchema`: informational, warning, blocking
+- `DissentRecordSchema`: dissenter_id, dissent_type, proposed_alternative (Unknown), reasoning (non-empty), severity, acknowledged
+- `DelegationOutcomeSchema`: outcome_id (uuid), tree_node_id, outcome_type, result (Unknown|null), votes (min 1), consensus_achieved, consensus_threshold (0–1), dissent_records, escalated_to/escalation_reason (optional), resolved_at, contract_version
+- All schemas have `$id` and `additionalProperties: false`
+
+### S2-T6: DelegationTreeNode Extension + Outcome Constraint File
+
+**FR:** FR-3
+**SDD:** §2.3.5–§2.3.6
+
+**Description:** Add optional `last_outcome` to DelegationTreeNode. Create `constraints/DelegationOutcome.constraints.json`.
+
+**Acceptance Criteria:**
+- `last_outcome: Type.Optional(DelegationOutcomeSchema)` added to DelegationTreeNode
+- Non-breaking: existing trees without `last_outcome` remain valid
+- 5 constraints: outcome-votes-match-children, outcome-consensus-consistent, outcome-deadlock-no-result, outcome-escalation-has-target, outcome-dissent-has-reasoning
+- Constraint file passes type checker
+
+### S2-T7: Outcome Evaluator Builtin (outcome_consensus_valid)
+
+**FR:** FR-3
+**SDD:** §2.3.7
+
+**Description:** Implement `outcome_consensus_valid(outcome)` evaluator builtin.
+
+**Acceptance Criteria:**
+- `outcome_consensus_valid(outcome)`: verifies vote counts match outcome_type claim — unanimous requires all agree, majority requires agree count >= ceil(total * consensus_threshold), deadlock requires agree count < ceil(total * threshold)
+- Registered in `EVALUATOR_BUILTINS` (now 26 total)
+- Spec entry with examples for all 4 outcome types
+- Resource limit: max 100 votes
+
+### S2-T8: Barrel Exports + Conformance Vectors (Sprint 2)
+
+**FR:** FR-2, FR-3
+
+**Description:** Update barrel exports for economy and governance. Create conformance vectors.
+
+**Acceptance Criteria:**
+- `src/economy/index.ts` exports all saga schemas and types
+- `src/governance/index.ts` exports all outcome schemas and types
+- 4 saga conformance vectors in `vectors/conformance/bridge-transfer-saga/`: successful-atomic, partial-failure-compensation, timeout-triggered, invalid-compensation-order
+- 4 outcome conformance vectors in `vectors/conformance/delegation-outcome/`: unanimous-3of3, majority-2of3-minority, deadlock-escalation, invalid-unanimous-with-dissent
+- All vectors have `.json` extension and follow existing vector format
+
+### S2-T9: Sprint 2 Test Harness
+
+**FR:** FR-2, FR-3
+
+**Description:** Comprehensive tests for saga and outcome schemas, state machines, builtins, and constraints.
+
+**Acceptance Criteria:**
+- `tests/economy/bridge-transfer-saga.test.ts`: 25+ tests (schema validation, state machine transitions, saga_amount_conserved, saga_steps_sequential, conformance vectors)
+- `tests/governance/delegation-outcome.test.ts`: 25+ tests (schema validation, all 4 outcome types, dissent recording, outcome_consensus_valid, conformance vectors)
+- `tests/constraints/saga-builtins.test.ts`: 10+ tests for saga evaluator builtins
+- `tests/constraints/outcome-builtins.test.ts`: 5+ tests for outcome evaluator builtin
+- Updated EVALUATOR_BUILTINS count test (23 → 26) and EVALUATOR_BUILTIN_SPECS count test
+- All existing 3,504+ tests still pass
+
+### S2-T10: Sprint 2 Gate Check
+
+**Description:** Verify all inter-sprint gates pass.
+
+**Acceptance Criteria:**
+- `npx vitest run` — all tests green
+- `npx tsc --noEmit` — zero errors
+- Schema count increased by expected amount
+- All existing conformance vectors still PASS
+- New conformance vectors all PASS
 
 ---
 
-### S3-T5: DelegationTree + DelegationTreeNode Schemas
+## Sprint 3: Governance — Monetary Policy + Permissions + Proposals (P1)
+
+**Goal:** Complete the governance layer with three schemas that address the remaining coordination gaps: MonetaryPolicy (coupling creation to conservation), PermissionBoundary (MAY semantics), and GovernanceProposal (collective voice). These are the "central bank", "capability system", and "constitutional process" of the protocol kernel.
+
+**Global Sprint ID:** 66
+**Depends on:** Sprint 2 (governance schemas reference delegation primitives)
+**Estimated New Tests:** ~70
+
+### S3-T1: MonetaryPolicy Schema + ReviewTrigger
+
+**FR:** FR-4
+**SDD:** §2.4.1–§2.4.2
+
+**Description:** Create `src/economy/monetary-policy.ts` with MonetaryPolicy and ReviewTrigger schemas.
+
+**Acceptance Criteria:**
+- `ReviewTriggerSchema`: trigger_type (epoch_boundary/supply_threshold/manual/governance_vote), threshold_pct (optional), epoch_interval (optional)
+- `MonetaryPolicySchema`: policy_id (uuid), registry_id (uuid), minting_policy (references MintingPolicyConfig.policy_id), conservation_ceiling (BigInt string), coupling_invariant (constraint expression string), collateral_ratio_bps (integer), review_trigger, last_reviewed_at (datetime|null), contract_version
+- `$id: 'MonetaryPolicy'`, `$id: 'ReviewTrigger'`
+- `additionalProperties: false` on both
+
+### S3-T2: MonetaryPolicy Constraint File + Builtin
+
+**FR:** FR-4
+**SDD:** §2.4.3–§2.4.4
+
+**Description:** Create `constraints/MonetaryPolicy.constraints.json` and implement `monetary_policy_solvent` evaluator builtin.
+
+**Acceptance Criteria:**
+- 4 constraints: monetary-policy-ceiling-positive, monetary-policy-collateral-minimum (>= 10000 bps), monetary-policy-coupling-references-both, monetary-policy-has-trigger
+- `monetary_policy_solvent(policy, current_supply)`: verifies current_supply <= conservation_ceiling (BigInt comparison)
+- Registered in EVALUATOR_BUILTINS (now 27)
+- Spec entry with examples
+- Constraint file passes type checker
+
+### S3-T3: PermissionBoundary Schema + Supporting Types
+
+**FR:** FR-5
+**SDD:** §2.5.1–§2.5.3
+
+**Description:** Create `src/governance/permission-boundary.ts` with PermissionBoundary, ReportingRequirement, and RevocationPolicy schemas.
+
+**Acceptance Criteria:**
+- `ReportingRequirementSchema`: required (boolean), report_to (string), frequency (per_action/per_epoch/on_violation), format (audit_trail/summary/detailed)
+- `RevocationPolicySchema`: trigger (violation_count/governance_vote/manual/timeout), violation_threshold (optional), timeout_seconds (optional)
+- `PermissionBoundarySchema`: boundary_id (uuid), scope (string), permitted_if (constraint expression string), reporting, revocation, severity (advisory/monitored), contract_version
+- All schemas have `$id`, `additionalProperties: false`
+
+### S3-T4: PermissionBoundary Constraint File + Builtins
+
+**FR:** FR-5
+**SDD:** §2.5.4–§2.5.5
+
+**Description:** Create `constraints/PermissionBoundary.constraints.json` and implement `permission_granted` and `within_boundary` evaluator builtins.
+
+**Acceptance Criteria:**
+- 3 constraints: permission-boundary-has-reporting, permission-boundary-has-revocation, permission-scope-unique
+- `permission_granted(context, boundary_id)`: evaluates whether the boundary's `permitted_if` expression is satisfied in the given context; returns boolean
+- `within_boundary(context, boundary_id)`: checks scope match and reporting requirement satisfaction; returns boolean
+- Both registered in EVALUATOR_BUILTINS (now 29)
+- Spec entries with examples for both
+- Constraint file passes type checker
+
+### S3-T5: GovernanceProposal Schema + Supporting Types
 
 **FR:** FR-6
-**SDD:** §2.6.1, §2.6.2
+**SDD:** §2.6.1–§2.6.4
 
-**Description:** Create `src/governance/delegation-tree.ts` with `DelegationTreeSchema`, `DelegationTreeNodeSchema`, and supporting vocabularies.
-
-**Acceptance Criteria:**
-- `ForkTypeSchema` vocabulary: parallel, sequential, conditional
-- `TreeNodeStatusSchema` vocabulary: pending, active, completed, failed, cancelled
-- `TreeStrategySchema` vocabulary: first_complete, best_of_n, consensus, pipeline
-- `BudgetAllocationSchema` vocabulary: equal_split, weighted, on_demand
-- `DelegationTreeNodeSchema` with: `node_id`, `agent_id`, `authority_scope` (array), `budget_allocated_micro` (string, numeric pattern), `children` (array of self-reference), `fork_type`, `join_condition` (optional), `status`, `timestamp`
-- `DelegationTreeSchema` with: `tree_id` (uuid), `root` (DelegationTreeNode), `strategy`, `total_budget_micro`, `budget_allocation`, `max_depth` (integer, 1-10, default 10), `max_total_nodes` (integer, 1-1000, default 100), `created_at`, `contract_version`
-- **Concurrency semantics** (FL-SPRINT-003): `DelegationTreeNodeSchema` includes `version: Type.Integer({ minimum: 0, default: 0 })` field for optimistic concurrency control. Budget updates use compare-and-swap on version — `TREE_VERSION_CONFLICT` error if version mismatch. Status transitions are atomic per-node.
-- Schemas have proper `$id`, `additionalProperties: false`
-- Governance barrel updated
-
-**Testing:** New `tests/governance/delegation-tree.test.ts` — schema validation, recursive node structure, vocabulary completeness (~10 tests)
-
----
-
-### S3-T6: Tree Evaluator Builtins (tree_budget_conserved, tree_authority_narrowing)
-
-**FR:** FR-6
-**SDD:** §2.6.3
-
-**Description:** Add two new evaluator builtins for recursive tree validation.
+**Description:** Create `src/governance/governance-proposal.ts` with GovernanceProposal, ProposedChange, VotingRecord, and GovernanceVote schemas.
 
 **Acceptance Criteria:**
-- `tree_budget_conserved(root)` — **iteratively** validates sum(children.budget) <= parent.budget at every node (uses explicit stack, not recursion — per SDD FL-SDD-002). Enforces `max_depth` and `max_total_nodes` from parent DelegationTree. Cycle detection via visited set.
-- `tree_authority_narrowing(root)` — **iteratively** validates child.authority_scope is strict subset of parent.authority_scope
-- **authority_scope semantics** (FL-SPRINT-004): `authority_scope` elements are normalized lowercase strings representing capability names (e.g., `["billing", "inference"]`). Subset is strict set inclusion: `child_scopes.every(s => parent_scopes.includes(s))`. Empty scope at leaf is valid (fully delegated). Duplicate elements are deduplicated before comparison. Ordering is irrelevant (set semantics).
-- Both added to FUNCTION_REGISTRY (20 → 22 builtins)
-- Both added to EVALUATOR_BUILTIN_SPECS with type signatures
-- Short-circuit on first violation. Returns `TREE_DEPTH_EXCEEDED` or `TREE_SIZE_EXCEEDED` if limits breached.
-- Handle leaf nodes (no children = always valid)
+- `ProposalStatusSchema` vocabulary: proposed, voting, ratified, rejected, withdrawn (with PROPOSAL_STATUS_TRANSITIONS map)
+- `ProposedChangeSchema`: change_type (parameter_update/constraint_addition/constraint_removal/policy_change), target (string), current_value (Unknown), proposed_value (Unknown), justification (string)
+- `GovernanceVoteSchema`: voter_id, vote (approve/reject/abstain), weight (number 0–1), reasoning (optional)
+- `VotingRecordSchema`: quorum_required (number 0–1), votes_cast (array GovernanceVote), voting_opened_at, voting_closed_at (optional)
+- `GovernanceProposalSchema`: proposal_id (uuid), registry_id (uuid), proposer_id (string), title, description, changes (array ProposedChange min 1), status (ProposalStatus), voting (VotingRecord), ratified_at (optional), contract_version
+- All schemas have `$id`, `additionalProperties: false`
 
-**Testing:** New `tests/constraints/tree-builtins.test.ts` — valid trees, budget overflow at depth 2, authority widening at depth 3, leaf nodes (~10 tests)
-
----
-
-### S3-T7: chainToTree / treeToChain Conversion Utilities
+### S3-T6: GovernanceProposal Constraint File
 
 **FR:** FR-6
 **SDD:** §2.6.5
 
-**Description:** Implement bidirectional conversion between DelegationChain and DelegationTree.
+**Description:** Create `constraints/GovernanceProposal.constraints.json`.
 
 **Acceptance Criteria:**
-- `chainToTree(chain)` — converts linear chain to single-path tree (strategy: pipeline)
-- `treeToChain(tree)` — returns DelegationChain if tree has no branching, null otherwise
-- `treeToChain(chainToTree(chain))` produces structurally equivalent chain (roundtrip)
-- Handles empty chains and single-node trees
+- 5 constraints: proposal-has-changes, proposal-ratified-has-timestamp, proposal-voting-has-quorum, proposal-changes-have-justification, proposal-proposer-non-empty
+- Constraint file passes type checker
+- Category assignments: structural (3), governance (2)
 
-**Testing:** Conversion tests — roundtrip, branching tree returns null, empty chain handling (~5 tests)
+### S3-T7: Barrel Exports + Conformance Vectors (Sprint 3)
+
+**FR:** FR-4, FR-5, FR-6
+
+**Description:** Update barrel exports. Create conformance vectors for all three new domains.
+
+**Acceptance Criteria:**
+- `src/economy/index.ts` exports MonetaryPolicy, ReviewTrigger schemas and types
+- `src/governance/index.ts` exports PermissionBoundary, ReportingRequirement, RevocationPolicy, GovernanceProposal, ProposedChange, VotingRecord, GovernanceVote schemas and types
+- 3 monetary policy vectors in `vectors/conformance/monetary-policy/`: valid-150pct-collateral, invalid-mint-exceeds-ceiling, invalid-undercollateralized
+- 3 permission boundary vectors in `vectors/conformance/permission-boundary/`: valid-granted-with-reporting, revocation-triggered, invalid-no-revocation-policy
+- 4 governance proposal vectors in `vectors/conformance/governance-proposal/`: valid-ratified, valid-rejected, valid-withdrawn, invalid-no-changes
+- All vectors follow existing format
+
+### S3-T8: Sprint 3 Test Harness
+
+**FR:** FR-4, FR-5, FR-6
+
+**Description:** Comprehensive tests for monetary policy, permission boundaries, and governance proposals.
+
+**Acceptance Criteria:**
+- `tests/economy/monetary-policy.test.ts`: 20+ tests (schema validation, monetary_policy_solvent, constraint file validation, conformance vectors)
+- `tests/governance/permission-boundary.test.ts`: 20+ tests (schema validation, permission_granted, within_boundary, constraint file validation, conformance vectors)
+- `tests/governance/governance-proposal.test.ts`: 20+ tests (schema validation, state machine transitions, constraint file validation, conformance vectors)
+- `tests/constraints/monetary-builtins.test.ts`: 5+ tests for monetary_policy_solvent
+- `tests/constraints/permission-builtins.test.ts`: 10+ tests for permission_granted and within_boundary
+- Updated EVALUATOR_BUILTINS count test (26 → 29) and EVALUATOR_BUILTIN_SPECS count test
+- All existing tests still pass
+
+### S3-T9: Sprint 3 Gate Check
+
+**Description:** Verify all inter-sprint gates pass.
+
+**Acceptance Criteria:**
+- `npx vitest run` — all tests green
+- `npx tsc --noEmit` — zero errors
+- Schema count increased by expected amount
+- All existing conformance vectors still PASS
+- New conformance vectors all PASS
 
 ---
 
-### S3-T8: DelegationTree Constraint File + Conformance Vectors
+## Sprint 4: Release — Version Bump + Integration + Conformance (P0)
 
-**FR:** FR-6
-**SDD:** §2.6.4, §2.6.6
+**Goal:** Bump version to 7.0.0, update schema index, write migration guide, run full conformance suite, and ensure everything is release-ready. This is the integration sprint — no new schemas, just wiring, documentation, and validation.
 
-**Description:** Create constraint file and conformance vectors for DelegationTree.
+**Global Sprint ID:** 67
+**Depends on:** Sprint 3 (all schemas and builtins complete)
+**Estimated New Tests:** ~30
 
-**Acceptance Criteria:**
-- New `constraints/DelegationTree.constraints.json` with 4 constraints:
-  - `delegation-tree-budget-conservation`: tree_budget_conserved(root)
-  - `delegation-tree-authority-narrowing`: tree_authority_narrowing(root)
-  - `delegation-tree-consensus-minimum`: consensus strategy => >= 3 children
-  - `delegation-tree-root-budget-match`: root.budget == total_budget
-- All constraints have `type_signature`
-- Conformance vectors:
-  - `vectors/conformance/delegation-tree/parallel-ensemble.json` (PASS)
-  - `vectors/conformance/delegation-tree/budget-overflow.json` (FAIL)
-  - `vectors/conformance/delegation-tree/consensus-too-few.json` (FAIL)
-
-**Testing:** Constraint evaluation + vector validation tests (~8 tests)
-
----
-
-### S3-T9: Property-Based Tests for Composition + Trees
-
-**FR:** FR-5, FR-6
-**SDD:** §3.2
-
-**Description:** Property-based tests ensuring structural invariants hold for random inputs.
-
-**Acceptance Criteria:**
-- Property: Random tree where children sum <= parent -> tree_budget_conserved returns true
-- Property: Random tree where children scope is subset of parent -> tree_authority_narrowing returns true
-- Property: Random tree where children sum > parent -> tree_budget_conserved returns false
-- Property: source.debit == target.credit * rate holds for random MicroUSD amounts and rates
-- Property: Bridge with distinct registries always passes distinct-registries constraint
-- Property: chainToTree/treeToChain roundtrip preserves agent_ids
-
-**Testing:** ~13 property-based tests using fast-check
-
----
-
-## Sprint 4: Release — Version Bump + Migration + Integration (P0)
-
-**Goal:** Bump version to 6.0.0, register all new schemas, update barrel exports, update all conformance vectors for breaking changes, verify full backward compatibility, and create migration documentation.
-
-**Global Sprint ID:** 63
-**Depends on:** Sprint 3 (all schemas and operations must be complete)
-**Estimated New Tests:** ~5
-
-### S4-T1: Version Bump (6.0.0)
+### S4-T1: Version Bump to 7.0.0
 
 **FR:** FR-7
-**SDD:** §2.7
 
-**Description:** Update version constants and package version.
+**Description:** Update CONTRACT_VERSION across all files. Update package.json, schemas/index.json, and all new constraint files.
 
 **Acceptance Criteria:**
-- `src/version.ts`: `CONTRACT_VERSION = '6.0.0'`
-- `src/version.ts`: `MIN_SUPPORTED_VERSION = '6.0.0'` (breaking — old versions not compatible)
-- `package.json`: `"version": "6.0.0"`
-- Version tests pass
+- `CONTRACT_VERSION` updated to `'7.0.0'` wherever referenced
+- `package.json` version updated to `7.0.0`
+- `schemas/index.json` updated with all 16 new schemas registered
+- All new constraint files have `contract_version: "7.0.0"`
+- Version consistency check passes across all files
 
-**Testing:** Existing version tests updated (~2 test updates)
+### S4-T2: Schema Index Update
+
+**FR:** FR-7
+
+**Description:** Register all new schemas in `schemas/index.json`. Verify schema count.
+
+**Acceptance Criteria:**
+- All 16 new schemas registered with correct `$id`, file path, and `contract_version`
+- Schema count test updated to reflect new total
+- Schema graph operations (reachability, cycles, topological sort) produce valid results with new schemas
+- No orphan schemas (all referenced types are registered)
+
+### S4-T3: RegistryBridge Migration Support
+
+**FR:** FR-7
+
+**Description:** Update all existing RegistryBridge instances (test fixtures, conformance vectors, examples) to include the required `transfer_protocol` field.
+
+**Acceptance Criteria:**
+- All RegistryBridge test fixtures have `transfer_protocol: { saga_type: 'atomic', timeout_seconds: 3600, max_retries: 3 }` (default)
+- All RegistryBridge conformance vectors updated
+- RegistryBridge constraint file updated with transfer_protocol constraints
+- No broken references
+
+### S4-T4: Full Conformance Suite Run
+
+**FR:** FR-7
+
+**Description:** Run all conformance vectors (existing + new) and verify 100% pass rate.
+
+**Acceptance Criteria:**
+- All existing conformance vectors pass
+- All 18 new conformance vectors pass
+- Conformance summary logged
+
+### S4-T5: Cross-Schema Reference Validation
+
+**FR:** FR-7
+
+**Description:** Verify all cross-schema references resolve correctly in the schema graph.
+
+**Acceptance Criteria:**
+- `BridgeTransferSaga.bridge_id` → `RegistryBridge.bridge_id` validates
+- `DelegationOutcome.tree_node_id` → `DelegationTreeNode.node_id` validates
+- `MonetaryPolicy.minting_policy` → `MintingPolicyConfig.policy_id` validates
+- `MonetaryPolicy.registry_id` → `ConservationPropertyRegistry.registry_id` validates
+- `GovernanceProposal.registry_id` → `ConservationPropertyRegistry.registry_id` validates
+- `SagaParticipant.trust_scopes` → `CapabilityScopedTrust` validates
+- Schema graph reachability analysis shows all new schemas are connected
+
+### S4-T6: Final Integration Tests
+
+**FR:** FR-7
+
+**Description:** Integration tests that exercise cross-domain coordination scenarios.
+
+**Acceptance Criteria:**
+- Integration test: Cross-registry transfer via saga (create bridge → create saga → validate steps → settle)
+- Integration test: Delegation decision with dissent (create tree → record outcome → verify dissent preserved)
+- Integration test: Monetary policy solvency check (create minting policy → create monetary policy → verify coupling)
+- Integration test: Permission boundary evaluation (create boundary → evaluate permission_granted → verify reporting)
+- Integration test: Governance proposal lifecycle (propose → vote → ratify/reject → verify status transitions)
+- All 3,504 + ~200 new tests pass (target: ~3,700 total)
+
+### S4-T7: Sprint 4 Gate Check + EVALUATOR_BUILTINS Count
+
+**Description:** Final gate check. Verify builtin counts, schema counts, and full test suite.
+
+**Acceptance Criteria:**
+- `npx vitest run` — all tests green (target ~3,700)
+- `npx tsc --noEmit` — zero errors
+- `EVALUATOR_BUILTINS` has exactly 29 entries
+- `EVALUATOR_BUILTIN_SPECS` has exactly 29 entries
+- Schema count matches expected total
+- All conformance vectors PASS
+- Version is 7.0.0 across all files
+- No remaining `as any` casts in modified files
+
+### S4-T8: Release Notes Draft
+
+**FR:** FR-7
+
+**Description:** Prepare release notes summarizing v7.0.0 changes.
+
+**Acceptance Criteria:**
+- Release notes document the 5 coordination gaps addressed
+- Breaking change section with migration path for `RegistryBridge.transfer_protocol`
+- New schema catalog (16 schemas)
+- New evaluator builtin catalog (6 builtins)
+- Test count and conformance vector summary
+- FAANG parallel: Temporal/Cadence (saga), MakerDAO (monetary policy), Linux capabilities (permission system), Kubernetes RBAC (governance)
 
 ---
 
-### S4-T2: Schema Registry Update (schemas/index.json)
+## Deferred to v8.0.0+
 
-**FR:** FR-7
-**SDD:** §2.7
+Items identified in Deep Review Parts II–IV that are deliberately out of scope for v7.0.0:
 
-**Description:** Register all new schemas in the schema index.
-
-**Acceptance Criteria:**
-- `schemas/index.json` updated to include all new schemas:
-  - LivenessProperty, TimeoutBehavior
-  - CapabilityScope, CapabilityScopedTrust
-  - ConstraintType, ConstraintTypeSignature
-  - BridgeEnforcement, BridgeInvariant
-  - ExchangeRateType, ExchangeRateSpec
-  - SettlementPolicy, RegistryBridge
-  - MintingPolicy
-  - ForkType, TreeNodeStatus, TreeStrategy, BudgetAllocation
-  - DelegationTreeNode, DelegationTree
-- Schema count ~68 → ~77 (9 new primary + vocabulary types)
-- All schema IDs unique
-
-**Testing:** Schema registry validation test — all registered schemas resolvable (~1 test)
-
----
-
-### S4-T3: Barrel Exports + New Subpaths
-
-**FR:** FR-7
-**SDD:** §2.7, §1.3
-
-**Description:** Update all barrel files and add new subpath exports.
-
-**Acceptance Criteria:**
-- `src/integrity/index.ts` — export liveness-properties
-- `src/economy/index.ts` — export registry-composition, minting-policy
-- `src/governance/index.ts` — export delegation-tree
-- `src/constraints/index.ts` — export constraint-types, type-checker
-- `src/index.ts` — verify top-level barrel re-exports all new domains
-- New subpath in `package.json` exports: `"./graph"`, `"./composition"`
-- All imports resolve correctly
-
-**Testing:** Import resolution tests (~2 tests)
-
----
-
-### S4-T4: Update Existing Conformance Vectors for Breaking Changes
-
-**FR:** FR-7
-**SDD:** §6
-
-**Description:** Update all existing conformance vectors that contain AgentIdentity or ConservationPropertyRegistry data for the v6.0.0 schema changes.
-
-**Acceptance Criteria:**
-- All existing vectors with `trust_level` updated to `trust_scopes` (using flatTrustToScoped equivalent)
-- All existing vectors with ConservationPropertyRegistry updated to include `liveness_properties: []` and `liveness_count: 0`
-- All existing constraint vectors verified against updated schemas
-- No existing PASS vectors become FAIL
-- No existing FAIL vectors become PASS (unless the failure reason was the old trust model)
-
-**Testing:** Run full conformance vector suite — all vectors pass/fail as expected
-
----
-
-### S4-T5: Full Test Suite Verification
-
-**FR:** FR-7
-**SDD:** §5.1
-
-**Description:** Comprehensive verification that all 2,824 existing tests + ~202 new tests pass.
-
-**Acceptance Criteria:**
-- All existing tests pass (updated for breaking changes in Sprint 1)
-- All new tests from Sprints 1-3 pass
-- Total test count ~3,026 (2,824 + 202)
-- No flaky tests
-- TypeScript compilation clean (no errors, no suppressions)
-- Constraint type checker runs on all 35 constraint files without errors
-
-**Testing:** Full `npm test` run
-
----
-
-### S4-T6: Migration Documentation
-
-**FR:** FR-7
-**SDD:** §6
-
-**Description:** Ensure migration guidance is clear and complete for all breaking changes.
-
-**Acceptance Criteria:**
-- `CHANGELOG.md` entry for v6.0.0 with all breaking changes listed
-- Migration paths documented for:
-  - AgentIdentity trust_level → trust_scopes (with flatTrustToScoped helper)
-  - ConservationPropertyRegistry + liveness fields
-  - Constraint files + type_signature
-- Contract version compatibility note: MIN_SUPPORTED_VERSION = 6.0.0
-
-**Testing:** No additional tests (documentation task)
+| Item | Source | Reason for Deferral |
+|------|--------|-------------------|
+| TLA+/Alloy model checking | Deep Review Part IV | Verification infrastructure, not schema definition |
+| CompetitionPolicy schema | Deep Review Part III | Requires market simulation framework |
+| Emergent Pattern Recognition | Deep Review Part IV | ML/statistical infrastructure |
+| Meeting Geometry schemas | loa #247 | Aspirational; needs more design work |
+| Event sourcing / CQRS | Deep Review Part IV | Runtime concern, not schema definition |
+| Full CEL/Rego policy language | Deep Review Part IV | Major scope expansion |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation | Sprint |
-|------|-----------|--------|------------|--------|
-| Breaking trust model cascades to many tests | High | Medium | flatTrustToScoped helper, update tests systematically | Sprint 1 |
-| Constraint type_signature migration is tedious | High | Low | Mechanical — each file follows the same pattern | Sprint 2 |
-| Recursive DelegationTree self-reference in TypeBox | Medium | High | **Sprint 2 spike** (FL-SPRINT-B06): Prove Type.Ref recursive pattern works with TypeBox — schema compilation, validation at depth 5+, JSON Schema export. If it fails, fallback to manual validation layer. | Sprint 2 (spike) → Sprint 3 |
-| Type checker false positives on complex expressions | Medium | Medium | Start conservative — only check resolvable field paths | Sprint 2 |
-| Schema count growth affects index.json maintenance | Low | Low | Already managing 68 schemas; tooling handles it | Sprint 4 |
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| RegistryBridge breaking change causes test cascade | Medium | Medium | Sprint 2 updates all existing instances first (S2-T2) |
+| Saga evaluator builtin complexity (exchange rate conversion) | Low | Medium | BigInt arithmetic already established in codebase (branded-types.ts) |
+| PermissionBoundary `permitted_if` expression evaluation | Medium | Low | Reuse existing evaluateConstraint() — permission expressions are just constraint expressions |
+| GovernanceProposal scope creep (voting logic) | Low | Medium | Schema defines structure only; voting implementation is arrakis's responsibility |
+| Sprint 3 has most new schemas (10) — risk of overload | Medium | Medium | Schemas are well-specified in SDD; constraint files follow established patterns |
 
 ---
 
-## Success Metrics
+## FAANG Parallel Summary
 
-| Metric | Target | Measured At |
-|--------|--------|-------------|
-| New liveness properties | 6 | Sprint 1 complete |
-| Capability scopes | 6 | Sprint 1 complete |
-| Constraint files with type_signature | 35 (31 migrated + 4 new) | Sprint 2 complete |
-| Graph operations | 4 (reach, cycle, impact, topo) | Sprint 2 complete |
-| Bridge invariants | 4 | Sprint 3 complete |
-| DelegationTree evaluator builtins | 2 | Sprint 3 complete |
-| New tests | ~202 | Sprint 4 complete |
-| Total tests passing | ~3,026 | Sprint 4 complete |
-| CONTRACT_VERSION | 6.0.0 | Sprint 4 complete |
+| v7.0.0 Feature | Industry Parallel | Why It Matters |
+|----------------|-------------------|----------------|
+| BridgeTransferSaga | Temporal/Uber Cadence, AWS Step Functions | Saga orchestration for distributed transactions across trust boundaries |
+| DelegationOutcome | Apache Kafka consumer groups, Raft leader election logs | Recording consensus + dissent enables debugging and audit |
+| MonetaryPolicy | MakerDAO collateral ratios, Federal Reserve dual mandate | Coupling creation to preservation prevents hyperinflation |
+| PermissionBoundary | Linux capabilities(7), Android permissions model | MAY semantics enable safe experimentation alongside prohibition |
+| GovernanceProposal | Kubernetes KEPs, Python PEPs, Ethereum EIPs | Governed agents need voice, not just governance weight |
+
+---
+
+## Cambrian Assessment (v7.0.0)
+
+| Condition | Status | Evidence |
+|-----------|--------|----------|
+| 1. Sufficient building blocks | **MET (strengthened)** | 87+ schemas including 16 coordination primitives |
+| 2. Compositional combinatorics | **MET (strengthened)** | Cross-registry saga + delegation outcome + monetary coupling create new composition axes |
+| 3. Selection pressure | **MET** | Constraint evaluator (29 builtins) + conformance vectors |
+| 4. Environmental scaffolding | **MET (strengthened)** | Permission boundaries enable safe experimentation zones |
+| 5. Protected variation | **MET (strengthened)** | Governance proposals enable change without revolution |
+| 6. Community memory | **APPROACHING** | Dissent records preserve minority wisdom; still no formal knowledge base |

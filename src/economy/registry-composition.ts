@@ -7,7 +7,24 @@
  * @see SDD §2.5.1-2.5.3 — Registry Bridge, Invariants, Exchange Rate
  * @since v6.0.0
  */
-import { Type, type Static } from '@sinclair/typebox';
+import { type TSchema, Type, type Static } from '@sinclair/typebox';
+
+// ---------------------------------------------------------------------------
+// JSON Schema Extension Utility (F-007 resolution)
+// ---------------------------------------------------------------------------
+
+/**
+ * Add custom JSON Schema extension properties to a TypeBox schema without
+ * `as any` cast. Preserves full type safety while allowing x-* annotations.
+ *
+ * @see SDD §2.1.1 — F-007 resolution
+ */
+export function withAnnotation<T extends TSchema>(
+  schema: T,
+  annotations: Record<string, unknown>,
+): T {
+  return { ...schema, ...annotations } as T;
+}
 
 // ---------------------------------------------------------------------------
 // Bridge Enforcement Vocabulary
@@ -33,8 +50,8 @@ export type BridgeEnforcement = Static<typeof BridgeEnforcementSchema>;
 export const BridgeInvariantSchema = Type.Object(
   {
     invariant_id: Type.String({
-      pattern: '^B-\\d{1,2}$',
-      description: 'Unique invariant identifier (e.g., B-1, B-2).',
+      pattern: '^B-\\d{1,4}$',
+      description: 'Unique invariant identifier (e.g., B-1, B-99, B-9999).',
     }),
     name: Type.String({ minLength: 1 }),
     description: Type.String({ minLength: 1 }),
@@ -119,25 +136,27 @@ export type ExchangeRateSpec = Static<typeof ExchangeRateSpecSchema>;
 // Registry Bridge
 // ---------------------------------------------------------------------------
 
-export const RegistryBridgeSchema = Type.Object(
-  {
-    bridge_id: Type.String({ format: 'uuid' }),
-    source_registry_id: Type.String({ format: 'uuid' }),
-    target_registry_id: Type.String({ format: 'uuid' }),
-    bridge_invariants: Type.Array(BridgeInvariantSchema, {
-      minItems: 1,
-      description: 'Invariants that must hold for this bridge.',
-    }),
-    exchange_rate: ExchangeRateSpecSchema,
-    settlement: SettlementPolicySchema,
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'RegistryBridge',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-    description: 'A bridge enabling value transfer between two economy registries.',
-  } as any,
+export const RegistryBridgeSchema = withAnnotation(
+  Type.Object(
+    {
+      bridge_id: Type.String({ format: 'uuid' }),
+      source_registry_id: Type.String({ format: 'uuid' }),
+      target_registry_id: Type.String({ format: 'uuid' }),
+      bridge_invariants: Type.Array(BridgeInvariantSchema, {
+        minItems: 1,
+        description: 'Invariants that must hold for this bridge.',
+      }),
+      exchange_rate: ExchangeRateSpecSchema,
+      settlement: SettlementPolicySchema,
+      contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+    },
+    {
+      $id: 'RegistryBridge',
+      additionalProperties: false,
+      description: 'A bridge enabling value transfer between two economy registries.',
+    },
+  ),
+  { 'x-cross-field-validated': true },
 );
 export type RegistryBridge = Static<typeof RegistryBridgeSchema>;
 

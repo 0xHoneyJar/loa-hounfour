@@ -206,6 +206,7 @@ export {
 
 // Schemas — Registry Composition (v6.0.0, FR-5)
 export {
+  withAnnotation,
   BridgeEnforcementSchema,
   BridgeInvariantSchema,
   SettlementPolicySchema,

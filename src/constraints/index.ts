@@ -37,6 +37,7 @@ export {
   CONSTRAINT_TYPES,
   type ConstraintType,
   type ConstraintTypeSignature,
+  type ConstraintASTNode,
 } from './constraint-types.js';
 
 // Static Type Checker (v6.0.0, FR-3)

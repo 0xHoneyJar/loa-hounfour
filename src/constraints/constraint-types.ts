@@ -72,3 +72,28 @@ export const ConstraintTypeSignatureSchema = Type.Object(
 );
 
 export type ConstraintTypeSignature = Static<typeof ConstraintTypeSignatureSchema>;
+
+// ---------------------------------------------------------------------------
+// Constraint AST Node — Discriminated Union (F-020 resolution)
+// ---------------------------------------------------------------------------
+
+/**
+ * Discriminated union representing all possible AST node shapes
+ * produced by the constraint expression parser.
+ *
+ * This types the intermediate representation without changing
+ * evaluation semantics — the parser still evaluates inline,
+ * but the boundary return type is no longer `any`.
+ *
+ * @see SDD §2.1.3 — F-020 resolution
+ * @since v7.0.0
+ */
+export type ConstraintASTNode =
+  | { readonly kind: 'literal'; readonly value: string | number | boolean | null }
+  | { readonly kind: 'identifier'; readonly name: string }
+  | { readonly kind: 'member_access'; readonly object: string; readonly property: string }
+  | { readonly kind: 'function_call'; readonly name: string; readonly args: readonly ConstraintASTNode[] }
+  | { readonly kind: 'binary_op'; readonly op: string; readonly left: ConstraintASTNode; readonly right: ConstraintASTNode }
+  | { readonly kind: 'unary_op'; readonly op: string; readonly operand: ConstraintASTNode }
+  | { readonly kind: 'array_literal'; readonly elements: readonly ConstraintASTNode[] }
+  | { readonly kind: 'every'; readonly array: string; readonly predicate: string };

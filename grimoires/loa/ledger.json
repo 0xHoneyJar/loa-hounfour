@@ -966,13 +966,55 @@
           "status": "pending"
         }
       ],
-      "status": "active",
+      "status": "archived",
       "created_at": "2026-02-17T14:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/14",
+      "archived_at": "2026-02-17T18:00:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-17-composition-aware-v6.0.0",
+      "archive_note": "4 sprints + 3 bridge iterations completed (FLATLINE at iter 3). v6.0.0 delivered: liveness properties, capability-scoped trust, constraint type system, schema graph operations, registry composition (RegistryBridge), DelegationTree with tree builtins, 23 evaluator builtins. +680 new tests (2,824→3,504). 12 findings addressed, 3 deferred (F-007, F-008, F-020). Deep Review Parts I-IV posted. Bridgebuilder Field Reports #40-41."
+    },
+    {
+      "id": "cycle-016",
+      "label": "The Coordination-Aware Protocol — v7.0.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 64,
+          "label": "Stability — Deferred Findings + AST Typing",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 65,
+          "label": "Coordination — Saga + Conflict Resolution",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6", "S2-T7", "S2-T8", "S2-T9", "S2-T10"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 66,
+          "label": "Governance — Monetary Policy + Permissions + Proposals",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7", "S3-T8", "S3-T9"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-4",
+          "global_id": 67,
+          "label": "Release — Version Bump + Integration + Conformance",
+          "tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6", "S4-T7", "S4-T8"],
+          "status": "pending"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-02-17T18:00:00Z",
       "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/14"
     }
   ],
-  "active_cycle": "cycle-015",
+  "active_cycle": "cycle-016",
   "active_bugfix": null,
-  "global_sprint_counter": 63,
+  "global_sprint_counter": 67,
   "bugfix_cycles": []
 }

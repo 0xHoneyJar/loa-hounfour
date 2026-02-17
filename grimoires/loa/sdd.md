@@ -1,31 +1,31 @@
-# SDD: loa-hounfour v6.0.0 — The Composition-Aware Protocol
+# SDD: loa-hounfour v7.0.0 — The Coordination-Aware Protocol
 
 **Status:** Draft
-**Author:** Bridgebuilder (Field Report #40)
+**Author:** Bridgebuilder (Field Report #42)
 **Date:** 2026-02-17
-**PRD:** `grimoires/loa/prd.md` (v6.0.0)
-**Cycle:** cycle-015
+**PRD:** `grimoires/loa/prd.md` (v7.0.0)
+**Cycle:** cycle-016
 **Sources:**
-- PRD §4 (FR-1 through FR-7)
-- Existing codebase: `src/integrity/`, `src/schemas/agent-identity.ts`, `src/constraints/evaluator.ts`, `src/utilities/schema-graph.ts`
-- v5.5.0 SDD (archived at `grimoires/loa/archive/2026-02-17-conservation-aware-v5.5.0/sdd.md`)
+- PRD section 4 (FR-1 through FR-7)
+- Existing codebase: `src/economy/registry-composition.ts`, `src/governance/delegation-tree.ts`, `src/constraints/evaluator.ts`
+- v6.0.0 SDD (archived)
 
 ---
 
 ## 0. Executive Summary
 
-v6.0.0 is the composition release. It takes the conservation kernel built in v5.5.0 and makes it composable across economies, trust scopes, and concurrent delegation paths.
+v7.0.0 is the coordination release. It takes the composition primitives built in v6.0.0 and adds the operational verbs: transfer, resolve, couple, permit, propose.
 
-**Breaking changes** (see §6 Migration Guide):
-- `AgentIdentity.trust_level` (flat `TrustLevel`) → `AgentIdentity.trust_scopes` (`CapabilityScopedTrust`)
-- `ConservationPropertyRegistry` gains required `liveness_properties` and `liveness_count` fields
-- All 31+ constraint files gain required `type_signature` field
+**Breaking changes** (see section 6 Migration Guide):
+- `RegistryBridge` gains required `transfer_protocol` field
 
-**New schemas:** LivenessProperty, CapabilityScopedTrust, ConstraintTypeSignature, RegistryBridge, BridgeInvariant, MintingPolicy, ExchangeRateSpec, DelegationTree, DelegationTreeNode
+**New schemas:** BridgeTransferSaga, BridgeTransferStep, SagaParticipant, SagaError, DelegationOutcome, DelegationVote, DissentRecord, MonetaryPolicy, ReviewTrigger, PermissionBoundary, ReportingRequirement, RevocationPolicy, GovernanceProposal, ProposedChange, VotingRecord, GovernanceVote
 
-**New capabilities:** Schema graph operations (reachability, cycles, impact, topological sort), constraint type checker, delegation tree builtins
+**New capabilities:** Saga state machine validation, conflict resolution recording, minting-conservation coupling, MAY permission semantics, governance voting
 
-**FAANG Parallel:** Google's proto2→proto3 transition — breaking changes to the protocol definition format before the ecosystem was too large to migrate, resulting in a cleaner foundation that scaled to billions of daily RPCs.
+**Code quality:** 3 deferred type safety issues resolved (F-007, F-008, F-020)
+
+**FAANG Parallel:** Temporal (formerly Uber Cadence) — adding saga orchestration and compensation logic to what was previously just a workflow definition format. The saga definition is the specification; runtimes implement the state machine.
 
 ---
 
@@ -35,1322 +35,1089 @@ v6.0.0 is the composition release. It takes the conservation kernel built in v5.
 
 ```
 src/
-├── integrity/                              # FR-1: Conservation + Liveness
-│   ├── conservation-properties.ts          # (existing — MODIFIED: registry gains liveness)
-│   ├── liveness-properties.ts              # NEW: LivenessProperty schema + CANONICAL_LIVENESS_PROPERTIES
-│   ├── idempotency.ts                      # (existing)
-│   ├── req-hash.ts                         # (existing)
-│   └── index.ts                            # barrel (extend)
-├── economy/                                # FR-5: Registry Composition
-│   ├── jwt-boundary.ts                     # (existing — no changes)
+├── economy/                                # FR-2, FR-4: Saga + MonetaryPolicy
+│   ├── registry-composition.ts             # MODIFIED: F-007, F-008 fixes
+│   ├── bridge-transfer-saga.ts             # NEW: BridgeTransferSaga, Step, Participant
+│   ├── monetary-policy.ts                  # NEW: MonetaryPolicy, ReviewTrigger
+│   ├── minting-policy.ts                   # (existing — no changes)
 │   ├── branded-types.ts                    # (existing — no changes)
-│   ├── registry-composition.ts             # NEW: RegistryBridge, BridgeInvariant
-│   ├── minting-policy.ts                   # NEW: MintingPolicy, ExchangeRateSpec
-│   ├── index.ts                            # barrel (extend)
+│   ├── jwt-boundary.ts                     # (existing — no changes)
+│   ├── index.ts                            # barrel (extend with new exports)
 │   └── ... (existing files)
-├── schemas/
-│   ├── agent-identity.ts                   # FR-2: BREAKING — CapabilityScopedTrust
-│   └── ... (existing schemas)
-├── governance/
-│   ├── delegation-tree.ts                  # FR-6: NEW — DelegationTree + DelegationTreeNode
-│   ├── index.ts                            # barrel (extend)
+├── governance/                             # FR-3, FR-5, FR-6
+│   ├── delegation-tree.ts                  # MODIFIED: optional last_outcome field
+│   ├── delegation-outcome.ts               # NEW: DelegationOutcome, Vote, Dissent
+│   ├── permission-boundary.ts              # NEW: PermissionBoundary, Reporting, Revocation
+│   ├── governance-proposal.ts              # NEW: GovernanceProposal, ProposedChange, Voting
+│   ├── index.ts                            # barrel (extend with new exports)
 │   └── ... (existing governance schemas)
-├── constraints/
-│   ├── evaluator.ts                        # (extend — new tree builtins)
-│   ├── evaluator-spec.ts                   # (extend — new builtin specs)
-│   ├── type-checker.ts                     # FR-3: NEW — static constraint type checker
-│   ├── constraint-types.ts                 # FR-3: NEW — ConstraintTypeSignature schema
+├── constraints/                            # FR-1 (F-020), FR-2–FR-6 builtins
+│   ├── evaluator.ts                        # MODIFIED: F-020 AST typing + 4 new builtins
+│   ├── evaluator-spec.ts                   # MODIFIED: specs for new builtins
+│   ├── constraint-types.ts                 # MODIFIED: ConstraintASTNode union type
+│   ├── type-checker.ts                     # (existing — validates new constraint files)
 │   ├── index.ts                            # barrel (extend)
 │   └── ... (existing)
-├── utilities/
-│   ├── schema-graph.ts                     # FR-4: EXTENDED — graph operations
-│   └── ... (existing)
+├── composition/                            # Barrel (extend)
+│   └── index.ts                            # Add saga, outcome, permission exports
 └── index.ts                                # top-level barrel (extend)
 
-constraints/                                # All files modified (type_signature added)
-├── ConservationPropertyRegistry.constraints.json  # (extend — liveness constraints)
-├── AgentIdentity.constraints.json                 # (MODIFIED — scoped trust constraints)
-├── DelegationTree.constraints.json                # NEW
-├── RegistryBridge.constraints.json                # NEW
-├── MintingPolicy.constraints.json                 # NEW
-├── LivenessProperty.constraints.json              # NEW
-└── ... (existing — all gain type_signature)
+constraints/                                # New constraint files
+├── BridgeTransferSaga.constraints.json     # NEW (FR-2)
+├── DelegationOutcome.constraints.json      # NEW (FR-3)
+├── MonetaryPolicy.constraints.json         # NEW (FR-4)
+├── PermissionBoundary.constraints.json     # NEW (FR-5)
+├── GovernanceProposal.constraints.json     # NEW (FR-6)
+├── RegistryBridge.constraints.json         # MODIFIED (add transfer_protocol)
+└── ... (existing — unchanged)
 
 vectors/conformance/
-├── liveness-properties/                    # NEW directory (3 vectors)
-├── capability-scoped-trust/                # NEW directory (3 vectors)
-├── delegation-tree/                        # NEW directory (3 vectors)
-├── registry-bridge/                        # NEW directory (3 vectors)
-└── ... (existing — vectors updated for breaking changes)
+├── bridge-transfer-saga/                   # NEW directory (4 vectors)
+├── delegation-outcome/                     # NEW directory (4 vectors)
+├── monetary-policy/                        # NEW directory (3 vectors)
+├── permission-boundary/                    # NEW directory (3 vectors)
+├── governance-proposal/                    # NEW directory (4 vectors)
+└── ... (existing — unchanged)
 ```
 
-### 1.2 Schema Dependency Graph (v6.0.0)
+### 1.2 Schema Dependency Graph (v7.0.0 additions)
 
 ```
-                    AgentIdentity (MODIFIED)
-                    ├── trust_scopes: CapabilityScopedTrust (NEW)
+                    RegistryBridge (MODIFIED)
+                    ├── transfer_protocol (NEW required)
                     │
-           ┌────────┼────────────────────────┐
-           │        │                        │
-           ▼        ▼                        ▼
-    DelegationTree  DelegationChain    RegistryBridge (NEW)
-    (NEW)           (existing)         ├── source_registry → ConservationPropertyRegistry
-    ├── nodes[].agent_id → AgentIdentity    ├── target_registry → ConservationPropertyRegistry
-    ├── tree_budget_conserved (builtin)     ├── bridge_invariants: BridgeInvariant[]
-    │                                       └── exchange_rate: ExchangeRateSpec
-    ▼
-    ConservationPropertyRegistry (MODIFIED)
-    ├── properties: ConservationProperty[] (existing)
-    ├── liveness_properties: LivenessProperty[] (NEW)
-    ├── liveness_count (NEW)
-    │
-    └── (all constraint files gain type_signature)
-         └── ConstraintTypeSignature (NEW)
-             ├── input_schema
-             ├── output_type
-             └── field_types
+                    ▼
+            BridgeTransferSaga (NEW)
+            ├── bridge_id → RegistryBridge.bridge_id
+            ├── steps: BridgeTransferStep[]
+            ├── compensation_steps: BridgeTransferStep[]
+            ├── participants: SagaParticipant[]
+            │   └── trust_scopes → CapabilityScopedTrust
+            └── saga_amount_conserved (builtin)
+
+            DelegationTreeNode (MODIFIED)
+            ├── last_outcome?: DelegationOutcome (NEW optional)
+            │
+            ▼
+            DelegationOutcome (NEW)
+            ├── votes: DelegationVote[]
+            ├── dissent_records: DissentRecord[]
+            └── outcome_consensus_valid (builtin)
+
+            MintingPolicyConfig (existing)
+            ├── ←── MonetaryPolicy (NEW)
+            │       ├── minting_policy → MintingPolicyConfig.policy_id
+            │       ├── registry_id → ConservationPropertyRegistry.registry_id
+            │       ├── review_trigger: ReviewTrigger
+            │       └── monetary_policy_solvent (builtin)
+            ▼
+            ConservationPropertyRegistry (existing)
+
+            PermissionBoundary (NEW)
+            ├── reporting: ReportingRequirement
+            ├── revocation: RevocationPolicy
+            └── permission_granted / within_boundary (builtins)
+
+            GovernanceProposal (NEW)
+            ├── registry_id → ConservationPropertyRegistry.registry_id
+            ├── changes: ProposedChange[]
+            └── voting: VotingRecord
+                └── votes: GovernanceVote[]
 ```
 
-### 1.3 Subpath Exports (v6.0.0)
+### 1.3 Subpath Exports (v7.0.0)
 
 | Subpath | Content | Change |
 |---------|---------|--------|
-| `@0xhoneyjar/loa-hounfour/integrity` | Conservation + liveness | Extend (LivenessProperty) |
-| `@0xhoneyjar/loa-hounfour/economy` | JWT + branded + registry composition | Extend (RegistryBridge, MintingPolicy) |
-| `@0xhoneyjar/loa-hounfour/governance` | Sanctions + disputes + delegation tree | Extend (DelegationTree) |
-| `@0xhoneyjar/loa-hounfour/constraints` | Evaluator + type checker + builtins | Extend (type checker) |
-| `@0xhoneyjar/loa-hounfour/graph` | Schema graph + operations | **NEW** subpath |
+| `@0xhoneyjar/loa-hounfour/economy` | JWT + branded + registry + saga + monetary | Extend (BridgeTransferSaga, MonetaryPolicy) |
+| `@0xhoneyjar/loa-hounfour/governance` | Sanctions + disputes + delegation + outcome + permission + proposal | Extend (DelegationOutcome, PermissionBoundary, GovernanceProposal) |
+| `@0xhoneyjar/loa-hounfour/constraints` | Evaluator + type checker + builtins | Extend (4 new builtins, AST types) |
+| `@0xhoneyjar/loa-hounfour/composition` | Cross-domain composition types | Extend (saga, outcome, permission) |
 
 ---
 
 ## 2. Schema Design
 
-### 2.1 FR-1: Conservation Liveness Properties (P0)
+### 2.1 FR-1: Deferred Finding Resolution (P0)
 
-**File:** `src/integrity/liveness-properties.ts` (NEW)
-**Modifies:** `src/integrity/conservation-properties.ts` (ConservationPropertyRegistry)
+#### 2.1.1 F-007: TypeBox Cross-Field Annotation Type Safety
 
-#### 2.1.1 TimeoutBehavior Vocabulary
+**File:** `src/economy/registry-composition.ts`
+
+Replace `as any` cast with TypeBox-native annotation approach:
 
 ```typescript
-export const TimeoutBehaviorSchema = Type.Union(
+// BEFORE (F-007):
+const schema = Type.Object({...}, { 'x-cross-field-validated': true } as any);
+
+// AFTER: Use Type.Unsafe() wrapper to add custom annotations without cast
+function withAnnotation<T extends TSchema>(
+  schema: T,
+  annotations: Record<string, unknown>,
+): T {
+  return { ...schema, ...annotations } as T;
+}
+
+// Usage:
+const schema = withAnnotation(
+  Type.Object({...}),
+  { 'x-cross-field-validated': true },
+);
+```
+
+This preserves the annotation in generated JSON Schema without suppressing type safety. The `withAnnotation` utility is generic and reusable for any custom JSON Schema extension property.
+
+**Tests:**
+- Verify `'x-cross-field-validated'` appears in JSON Schema output
+- Verify TypeScript compiler accepts the result without `as any`
+- Verify existing schema validation still passes
+
+#### 2.1.2 F-008: BridgeInvariant ID Pattern Expansion
+
+**File:** `src/economy/registry-composition.ts:36`
+
+```typescript
+// BEFORE:
+invariant_id: Type.String({ pattern: '^B-\\d{1,2}$' })
+
+// AFTER:
+invariant_id: Type.String({ pattern: '^B-\\d{1,4}$' })
+```
+
+**Tests:**
+- `B-1`: valid
+- `B-99`: valid
+- `B-100`: valid (was previously rejected)
+- `B-9999`: valid
+- `B-10000`: rejected
+- `B-0`: valid (single digit)
+
+#### 2.1.3 F-020: parseExpr() Return Type Safety
+
+**File:** `src/constraints/constraint-types.ts` (extend), `src/constraints/evaluator.ts`
+
+Define a discriminated union for AST nodes:
+
+```typescript
+// In constraint-types.ts:
+export type ConstraintASTNode =
+  | { kind: 'literal'; value: string | number | boolean | null }
+  | { kind: 'identifier'; name: string }
+  | { kind: 'member_access'; object: ConstraintASTNode; property: string }
+  | { kind: 'function_call'; name: string; args: ConstraintASTNode[] }
+  | { kind: 'binary_op'; op: string; left: ConstraintASTNode; right: ConstraintASTNode }
+  | { kind: 'unary_op'; op: string; operand: ConstraintASTNode }
+  | { kind: 'array_literal'; elements: ConstraintASTNode[] }
+  | { kind: 'every'; array: ConstraintASTNode; predicate: ConstraintASTNode };
+```
+
+**Implementation strategy:** The current evaluator uses a recursive descent parser that evaluates inline (parse and evaluate are interleaved). F-020 requires typing the intermediate representation without rewriting the evaluator. The approach:
+
+1. Add `ConstraintASTNode` type to `constraint-types.ts`
+2. Add type annotation to `parseExpr()` return: `parseExpr(): unknown` becomes `parseExpr(): ConstraintASTNode | unknown`
+3. Gradually narrow: top-level `evaluateConstraint()` wraps result in type guard
+4. This is NOT a full AST rewrite — it types the boundary without changing evaluation semantics
+
+**Tests:**
+- All 23 existing builtin tests continue to pass
+- New test: `typeof parseExpr(...)` is not `any` (compile-time assertion)
+- New test: evaluator handles all AST node kinds correctly
+
+---
+
+### 2.2 FR-2: BridgeTransferSaga (P0)
+
+**File:** `src/economy/bridge-transfer-saga.ts` (NEW)
+
+#### 2.2.1 SagaStatus State Machine
+
+```typescript
+export const SagaStatusSchema = Type.Union(
   [
-    Type.Literal('reaper'),          // automated cleanup process
-    Type.Literal('escalation'),      // escalate to higher authority
-    Type.Literal('reconciliation'),  // batch reconciliation process
-    Type.Literal('manual'),          // human intervention required
+    Type.Literal('initiated'),
+    Type.Literal('reserving'),
+    Type.Literal('transferring'),
+    Type.Literal('settling'),
+    Type.Literal('settled'),
+    Type.Literal('compensating'),
+    Type.Literal('reversed'),
+    Type.Literal('failed'),
   ],
   {
-    $id: 'TimeoutBehavior',
-    description: 'What happens when a liveness property timeout expires.',
+    $id: 'SagaStatus',
+    description: 'State machine for bridge transfer sagas.',
   },
 );
+export type SagaStatus = Static<typeof SagaStatusSchema>;
 
-export type TimeoutBehavior = Static<typeof TimeoutBehaviorSchema>;
+export const SAGA_TRANSITIONS: Record<SagaStatus, readonly SagaStatus[]> = {
+  initiated: ['reserving', 'failed'],
+  reserving: ['transferring', 'compensating', 'failed'],
+  transferring: ['settling', 'compensating', 'failed'],
+  settling: ['settled', 'compensating', 'failed'],
+  settled: [],                    // terminal
+  compensating: ['reversed', 'failed'],
+  reversed: [],                   // terminal
+  failed: [],                     // terminal
+};
 ```
 
-#### 2.1.2 LivenessProperty Schema
+#### 2.2.2 BridgeTransferStep Schema
 
 ```typescript
-export const LivenessPropertySchema = Type.Object(
+export const StepTypeSchema = Type.Union(
+  [
+    Type.Literal('reserve'),
+    Type.Literal('validate'),
+    Type.Literal('transfer'),
+    Type.Literal('confirm'),
+    Type.Literal('settle'),
+  ],
+  { $id: 'StepType' },
+);
+
+export const StepStatusSchema = Type.Union(
+  [
+    Type.Literal('pending'),
+    Type.Literal('in_progress'),
+    Type.Literal('completed'),
+    Type.Literal('failed'),
+    Type.Literal('compensated'),
+  ],
+  { $id: 'StepStatus' },
+);
+
+export const BridgeTransferStepSchema = Type.Object(
   {
-    liveness_id: Type.String({
-      pattern: '^L-\\d{1,2}$',
-      description: 'Canonical liveness identifier (L-1 through L-N).',
-    }),
-    name: Type.String({ minLength: 1 }),
-    description: Type.String({ minLength: 1 }),
-    ltl_formula: Type.String({
-      minLength: 1,
-      description: 'LTL formula containing F (eventually) or F_t (bounded eventually).',
-    }),
-    companion_safety: Type.String({
-      pattern: '^I-\\d{1,2}$',
-      description: 'Invariant ID of the safety property this liveness complements.',
-    }),
-    universe: InvariantUniverseSchema,
-    timeout_behavior: TimeoutBehaviorSchema,
-    timeout_seconds: Type.Integer({
-      minimum: 1,
-      description: 'Maximum time before liveness check fires. Advisory — runtime chooses enforcement.',
-    }),
-    error_codes: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
-    severity: Type.Union([
-      Type.Literal('critical'),
-      Type.Literal('error'),
-      Type.Literal('warning'),
-    ]),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+    step_id: Type.String({ minLength: 1 }),
+    step_type: StepTypeSchema,
+    participant: Type.String({ minLength: 1, description: 'agent_id of responsible party' }),
+    status: StepStatusSchema,
+    amount_micro: Type.String({ pattern: '^[0-9]+$', description: 'BigInt micro-USD' }),
+    exchange_rate: Type.Optional(ExchangeRateSpecSchema),
+    started_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    completed_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    error: Type.Optional(Type.String()),
   },
   {
-    $id: 'LivenessProperty',
+    $id: 'BridgeTransferStep',
     additionalProperties: false,
-    description: 'Liveness invariant guaranteeing forward progress with bounded temporal logic.',
   },
 );
+export type BridgeTransferStep = Static<typeof BridgeTransferStepSchema>;
 ```
 
-#### 2.1.3 Canonical Liveness Properties
+#### 2.2.3 SagaParticipant Schema
 
 ```typescript
-export const CANONICAL_LIVENESS_PROPERTIES: readonly LivenessProperty[] = [
-  {
-    liveness_id: 'L-1',
-    name: 'Reservation resolution liveness',
-    description: 'A pending reservation must reach a terminal state within timeout.',
-    ltl_formula: 'G(reservation.pending => F_t(reservation.terminal))',
-    companion_safety: 'I-11',
-    universe: 'single_lot',
-    timeout_behavior: 'reaper',
-    timeout_seconds: 3600,   // 1 hour
-    error_codes: ['RESERVATION_TIMEOUT'],
-    severity: 'warning',
-    contract_version: '6.0.0',
-  },
-  // L-2 through L-6 as specified in PRD §FR-1
-] as const;
-```
+export const ParticipantRoleSchema = Type.Union(
+  [
+    Type.Literal('initiator'),
+    Type.Literal('counterparty'),
+    Type.Literal('observer'),
+    Type.Literal('arbiter'),
+  ],
+  { $id: 'ParticipantRole' },
+);
 
-#### 2.1.4 ConservationPropertyRegistry Extension (BREAKING)
-
-```typescript
-// MODIFIED: Add required liveness fields to existing schema
-export const ConservationPropertyRegistrySchema = Type.Object(
+export const SagaParticipantSchema = Type.Object(
   {
+    agent_id: Type.String({ minLength: 1 }),
+    role: ParticipantRoleSchema,
     registry_id: Type.String({ format: 'uuid' }),
-    properties: Type.Array(ConservationPropertySchema, { minItems: 1 }),
-    total_count: Type.Integer({ minimum: 1 }),
-    coverage: Type.Record(Type.String(), Type.Integer({ minimum: 0 })),
-    liveness_properties: Type.Array(LivenessPropertySchema, {  // NEW required
-      description: 'Liveness companions for safety properties.',
+    trust_scopes: CapabilityScopedTrustSchema,
+  },
+  {
+    $id: 'SagaParticipant',
+    additionalProperties: false,
+  },
+);
+export type SagaParticipant = Static<typeof SagaParticipantSchema>;
+```
+
+#### 2.2.4 SagaError Schema
+
+```typescript
+export const SagaErrorSchema = Type.Object(
+  {
+    error_code: Type.String({ minLength: 1 }),
+    message: Type.String({ minLength: 1 }),
+    failed_step_id: Type.Optional(Type.String()),
+    recoverable: Type.Boolean(),
+  },
+  {
+    $id: 'SagaError',
+    additionalProperties: false,
+  },
+);
+export type SagaError = Static<typeof SagaErrorSchema>;
+```
+
+#### 2.2.5 BridgeTransferSaga Schema
+
+```typescript
+export const BridgeTransferSagaSchema = Type.Object(
+  {
+    saga_id: Type.String({ format: 'uuid' }),
+    bridge_id: Type.String({ format: 'uuid', description: 'References RegistryBridge.bridge_id' }),
+    source_registry: Type.String({ format: 'uuid' }),
+    target_registry: Type.String({ format: 'uuid' }),
+    saga_type: Type.Union([Type.Literal('atomic'), Type.Literal('choreography')]),
+    status: SagaStatusSchema,
+    steps: Type.Array(BridgeTransferStepSchema, { minItems: 1 }),
+    compensation_steps: Type.Array(BridgeTransferStepSchema),
+    timeout: Type.Object({
+      total_seconds: Type.Integer({ minimum: 1 }),
+      per_step_seconds: Type.Integer({ minimum: 1 }),
     }),
-    liveness_count: Type.Integer({  // NEW required
-      minimum: 0,
-      description: 'Must equal liveness_properties.length — drift guard.',
-    }),
+    participants: Type.Array(SagaParticipantSchema, { minItems: 1 }),
+    initiated_at: Type.String({ format: 'date-time' }),
+    settled_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    error: Type.Optional(SagaErrorSchema),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {
-    $id: 'ConservationPropertyRegistry',
+    $id: 'BridgeTransferSaga',
     additionalProperties: false,
-    'x-cross-field-validated': true,
+    description: 'Saga-patterned operation protocol for cross-registry value transfer.',
   },
 );
+export type BridgeTransferSaga = Static<typeof BridgeTransferSagaSchema>;
 ```
 
-#### 2.1.5 Constraints
+#### 2.2.6 RegistryBridge Extension (BREAKING)
 
-**File:** `constraints/LivenessProperty.constraints.json` (NEW)
+**File:** `src/economy/registry-composition.ts`
+
+Add required `transfer_protocol` field:
+
+```typescript
+// Add to RegistryBridgeSchema:
+transfer_protocol: Type.Object({
+  saga_type: Type.Union([Type.Literal('atomic'), Type.Literal('choreography')]),
+  timeout_seconds: Type.Integer({ minimum: 1 }),
+  max_retries: Type.Integer({ minimum: 0, maximum: 10 }),
+}),
+```
+
+#### 2.2.7 Constraints
+
+**File:** `constraints/BridgeTransferSaga.constraints.json`
 
 ```json
 {
-  "schema_id": "LivenessProperty",
-  "contract_version": "6.0.0",
+  "schema_id": "BridgeTransferSaga",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
-      "id": "liveness-formula-has-eventually",
-      "expression": "ltl_formula.length > 0",
+      "id": "saga-steps-ordered",
+      "description": "Steps must have sequential step_ids",
+      "expression": "steps.every(s => s.step_id != '')",
       "severity": "error",
-      "message": "Liveness formula must be non-empty (and should contain F operator)",
-      "type_signature": {
-        "input_schema": "LivenessProperty",
-        "output_type": "boolean",
-        "field_types": { "ltl_formula": "string" }
-      }
+      "category": "structural",
+      "type_signature": { "steps": "array" }
+    },
+    {
+      "id": "saga-amount-conserved",
+      "description": "Source debit equals target credit after exchange rate",
+      "expression": "saga_amount_conserved(saga)",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": { "saga": "BridgeTransferSaga" }
+    },
+    {
+      "id": "saga-timeout-positive",
+      "description": "Timeout values must be positive",
+      "expression": "timeout.total_seconds > 0 && timeout.per_step_seconds > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "timeout": "object" }
+    },
+    {
+      "id": "saga-participants-include-initiator",
+      "description": "At least one participant must have role initiator",
+      "expression": "participants.length > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "participants": "array" }
+    },
+    {
+      "id": "saga-settled-has-timestamp",
+      "description": "Settled sagas must have settled_at timestamp",
+      "expression": "status != 'settled' || settled_at != null",
+      "severity": "error",
+      "category": "temporal",
+      "type_signature": { "status": "string", "settled_at": "string_or_null" }
     }
   ]
 }
 ```
 
-**Additions to** `constraints/ConservationPropertyRegistry.constraints.json`:
+#### 2.2.8 Evaluator Builtins
 
-```json
-{
-  "id": "conservation-registry-liveness-count-matches",
-  "expression": "liveness_count == len(liveness_properties)",
-  "severity": "error",
-  "message": "liveness_count must equal liveness_properties array length",
-  "type_signature": {
-    "input_schema": "ConservationPropertyRegistry",
-    "output_type": "boolean",
-    "field_types": { "liveness_count": "number", "liveness_properties": "array" }
-  }
-},
-{
-  "id": "conservation-liveness-unique-ids",
-  "expression": "liveness_properties.every(l => !liveness_properties.some(m => eq(m.liveness_id, l.liveness_id) && m !== l))",
-  "severity": "error",
-  "message": "All liveness_id values must be unique",
-  "type_signature": {
-    "input_schema": "ConservationPropertyRegistry",
-    "output_type": "boolean",
-    "field_types": { "liveness_properties": "array" }
-  }
-}
-```
+**`saga_amount_conserved(saga)`:**
+- Iterates all completed steps
+- Sums `amount_micro` for source-side steps (debits)
+- Sums `amount_micro` for target-side steps (credits), adjusting by exchange rate
+- Returns `true` if `source_total == target_total` (BigInt comparison)
+- Returns `false` if any step has a non-numeric `amount_micro`
+- Resource limit: max 100 steps (fail-closed)
 
-#### 2.1.6 Conformance Vectors
-
-| Vector | Description | Expected |
-|--------|-------------|----------|
-| `liveness-properties/complete-safety-liveness-pairs.json` | Registry with 14 safety + 6 liveness, correct counts | PASS |
-| `liveness-properties/liveness-without-companion.json` | Liveness L-99 with companion_safety referencing non-existent I-99 | FAIL |
-| `liveness-properties/liveness-empty-formula.json` | Liveness with empty ltl_formula | FAIL |
+**`saga_steps_sequential(saga)`:**
+- Verifies step_id values are unique
+- Returns `true` if no duplicates, `false` otherwise
+- Resource limit: max 100 steps
 
 ---
 
-### 2.2 FR-2: Capability-Scoped Trust Model (P0, BREAKING)
+### 2.3 FR-3: DelegationOutcome (P1)
 
-**File:** `src/schemas/agent-identity.ts` (MODIFIED)
+**File:** `src/governance/delegation-outcome.ts` (NEW)
 
-#### 2.2.1 CapabilityScope Vocabulary
+#### 2.3.1 OutcomeType Vocabulary
 
 ```typescript
-export const CapabilityScopeSchema = Type.Union(
+export const OutcomeTypeSchema = Type.Union(
   [
-    Type.Literal('billing'),
-    Type.Literal('governance'),
-    Type.Literal('inference'),
-    Type.Literal('delegation'),
-    Type.Literal('audit'),
-    Type.Literal('composition'),
+    Type.Literal('unanimous'),
+    Type.Literal('majority'),
+    Type.Literal('deadlock'),
+    Type.Literal('escalation'),
   ],
   {
-    $id: 'CapabilityScope',
-    description: 'Domain in which trust is independently assessed.',
+    $id: 'OutcomeType',
+    description: 'How a delegation decision was reached.',
   },
 );
-
-export type CapabilityScope = Static<typeof CapabilityScopeSchema>;
-
-export const CAPABILITY_SCOPES = [
-  'billing', 'governance', 'inference', 'delegation', 'audit', 'composition',
-] as const;
+export type OutcomeType = Static<typeof OutcomeTypeSchema>;
 ```
 
-#### 2.2.2 CapabilityScopedTrust Schema
+#### 2.3.2 DelegationVote Schema
 
 ```typescript
-export const CapabilityScopedTrustSchema = Type.Object(
+export const VoteChoiceSchema = Type.Union(
+  [Type.Literal('agree'), Type.Literal('disagree'), Type.Literal('abstain')],
+  { $id: 'VoteChoice' },
+);
+
+export const DelegationVoteSchema = Type.Object(
   {
-    scopes: Type.Record(
-      CapabilityScopeSchema,
-      TrustLevelSchema,
-      { description: 'Trust level per capability scope.' }
-    ),
-    default_level: TrustLevelSchema,
+    voter_id: Type.String({ minLength: 1 }),
+    vote: VoteChoiceSchema,
+    result: Type.Unknown({ description: 'This voter\'s proposed result.' }),
+    confidence: Type.Number({ minimum: 0, maximum: 1 }),
+    reasoning: Type.Optional(Type.String()),
   },
   {
-    $id: 'CapabilityScopedTrust',
+    $id: 'DelegationVote',
     additionalProperties: false,
-    description: 'Capability-scoped trust model. Each scope has independent trust level.',
   },
 );
-
-export type CapabilityScopedTrust = Static<typeof CapabilityScopedTrustSchema>;
+export type DelegationVote = Static<typeof DelegationVoteSchema>;
 ```
 
-#### 2.2.3 AgentIdentity Schema (BREAKING CHANGES)
+#### 2.3.3 DissentRecord Schema
 
 ```typescript
-export const AgentIdentitySchema = Type.Object(
+export const DissentTypeSchema = Type.Union(
+  [Type.Literal('minority_report'), Type.Literal('abstention'), Type.Literal('timeout')],
+  { $id: 'DissentType' },
+);
+
+export const DissentSeveritySchema = Type.Union(
+  [Type.Literal('informational'), Type.Literal('warning'), Type.Literal('blocking')],
+  { $id: 'DissentSeverity' },
+);
+
+export const DissentRecordSchema = Type.Object(
   {
-    agent_id: Type.String({
-      pattern: '^[a-z][a-z0-9_-]{2,63}$',
-      description: 'Unique agent identifier.',
-    }),
-    display_name: Type.String({ minLength: 1, maxLength: 128 }),
-    agent_type: AgentTypeSchema,
-    capabilities: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
-    // BREAKING: trust_level removed, trust_scopes replaces it
-    trust_scopes: CapabilityScopedTrustSchema,
-    delegation_authority: Type.Array(Type.String({ minLength: 1 })),
-    max_delegation_depth: Type.Integer({ minimum: 0, maximum: 10 }),
-    governance_weight: Type.Number({ minimum: 0, maximum: 1 }),
-    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+    dissenter_id: Type.String({ minLength: 1 }),
+    dissent_type: DissentTypeSchema,
+    proposed_alternative: Type.Unknown(),
+    reasoning: Type.String({ minLength: 1 }),
+    severity: DissentSeveritySchema,
+    acknowledged: Type.Boolean(),
+  },
+  {
+    $id: 'DissentRecord',
+    additionalProperties: false,
+    description: 'Record of minority dissent in a delegation decision.',
+  },
+);
+export type DissentRecord = Static<typeof DissentRecordSchema>;
+```
+
+#### 2.3.4 DelegationOutcome Schema
+
+```typescript
+export const DelegationOutcomeSchema = Type.Object(
+  {
+    outcome_id: Type.String({ format: 'uuid' }),
+    tree_node_id: Type.String({ minLength: 1, description: 'References DelegationTreeNode.node_id' }),
+    outcome_type: OutcomeTypeSchema,
+    result: Type.Union([Type.Unknown(), Type.Null()]),
+    votes: Type.Array(DelegationVoteSchema, { minItems: 1 }),
+    consensus_achieved: Type.Boolean(),
+    consensus_threshold: Type.Number({ minimum: 0, maximum: 1 }),
+    dissent_records: Type.Array(DissentRecordSchema),
+    escalated_to: Type.Optional(Type.String({ minLength: 1 })),
+    escalation_reason: Type.Optional(Type.String({ minLength: 1 })),
+    resolved_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {
-    $id: 'AgentIdentity',
+    $id: 'DelegationOutcome',
     additionalProperties: false,
-    'x-cross-field-validated': true,
+    description: 'Recorded outcome of a delegation tree decision, preserving dissent.',
   },
 );
+export type DelegationOutcome = Static<typeof DelegationOutcomeSchema>;
 ```
 
-#### 2.2.4 Helper Functions
+#### 2.3.5 DelegationTreeNode Extension
+
+**File:** `src/governance/delegation-tree.ts`
+
+Add optional `last_outcome` field:
 
 ```typescript
-// TrustLevel and TRUST_LEVELS remain unchanged (used as values within scopes)
-
-/**
- * Get trust level for a specific capability scope.
- * Falls back to default_level if scope not explicitly set.
- */
-export function trustLevelForScope(
-  trust: CapabilityScopedTrust,
-  scope: CapabilityScope
-): TrustLevel {
-  return trust.scopes[scope] ?? trust.default_level;
-}
-
-/**
- * Check if trust meets threshold for a specific scope.
- */
-export function meetsThresholdForScope(
-  trust: CapabilityScopedTrust,
-  scope: CapabilityScope,
-  threshold: TrustLevel
-): boolean {
-  const level = trustLevelForScope(trust, scope);
-  return trustLevelIndex(level) >= trustLevelIndex(threshold);
-}
-
-/**
- * Compute effective trust level (minimum across all scopes).
- * Used for backward-compatible comparisons.
- */
-export function effectiveTrustLevel(trust: CapabilityScopedTrust): TrustLevel {
-  let minIdx = TRUST_LEVELS.length - 1;
-  for (const scope of CAPABILITY_SCOPES) {
-    const level = trustLevelForScope(trust, scope);
-    const idx = trustLevelIndex(level);
-    if (idx < minIdx) minIdx = idx;
-  }
-  return TRUST_LEVELS[minIdx];
-}
-
-/**
- * Migration helper: convert flat TrustLevel to CapabilityScopedTrust.
- * Sets all scopes to the same level (backward-compatible).
- */
-export function flatTrustToScoped(level: TrustLevel): CapabilityScopedTrust {
-  const scopes: Record<string, TrustLevel> = {};
-  for (const scope of CAPABILITY_SCOPES) {
-    scopes[scope] = level;
-  }
-  return { scopes, default_level: level } as CapabilityScopedTrust;
-}
+// Add to DelegationTreeNodeSchema (inside the Recursive callback):
+last_outcome: Type.Optional(DelegationOutcomeSchema),
 ```
 
-#### 2.2.5 Updated Constraints
+This is a non-breaking additive change. Existing trees without `last_outcome` remain valid.
 
-**File:** `constraints/AgentIdentity.constraints.json` (MODIFIED)
+#### 2.3.6 Constraints
+
+**File:** `constraints/DelegationOutcome.constraints.json`
 
 ```json
 {
-  "id": "agent-identity-delegation-requires-trust",
-  "expression": "delegation_authority.length == 0 || trust_scopes.scopes.delegation == 'verified' || trust_scopes.scopes.delegation == 'trusted' || trust_scopes.scopes.delegation == 'sovereign'",
-  "severity": "error",
-  "message": "Delegation authority requires delegation scope trust >= verified",
-  "type_signature": {
-    "input_schema": "AgentIdentity",
-    "output_type": "boolean",
-    "field_types": {
-      "delegation_authority": "array",
-      "trust_scopes.scopes.delegation": "string"
+  "schema_id": "DelegationOutcome",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "outcome-consensus-consistent",
+      "description": "Unanimous outcomes must have all votes as agree",
+      "expression": "outcome_type != 'unanimous' || votes.every(v => v.vote == 'agree')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "votes": "array" }
+    },
+    {
+      "id": "outcome-deadlock-no-result",
+      "description": "Deadlocked outcomes must have null result",
+      "expression": "outcome_type != 'deadlock' || result == null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "result": "unknown" }
+    },
+    {
+      "id": "outcome-escalation-has-target",
+      "description": "Escalated outcomes must specify escalation target",
+      "expression": "outcome_type != 'escalation' || escalated_to != null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "escalated_to": "string_or_null" }
+    },
+    {
+      "id": "outcome-dissent-has-reasoning",
+      "description": "Every dissent record must have non-empty reasoning",
+      "expression": "dissent_records.every(d => d.reasoning != '')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "dissent_records": "array" }
     }
-  }
-},
-{
-  "id": "agent-identity-scope-coverage",
-  "expression": "trust_scopes.scopes.billing != null && trust_scopes.scopes.inference != null",
-  "severity": "error",
-  "message": "At least billing and inference scopes must be specified",
-  "type_signature": {
-    "input_schema": "AgentIdentity",
-    "output_type": "boolean",
-    "field_types": {
-      "trust_scopes.scopes.billing": "string",
-      "trust_scopes.scopes.inference": "string"
-    }
-  }
+  ]
 }
 ```
 
-#### 2.2.6 Conformance Vectors
+#### 2.3.7 Evaluator Builtin
 
-| Vector | Description | Expected |
-|--------|-------------|----------|
-| `capability-scoped-trust/multi-scope-agent.json` | Agent with billing=trusted, governance=basic, inference=verified | PASS |
-| `capability-scoped-trust/delegation-scope-untrusted.json` | Agent with delegation=untrusted but delegation_authority non-empty | FAIL |
-| `capability-scoped-trust/missing-required-scopes.json` | Agent missing billing scope | FAIL |
+**`outcome_consensus_valid(outcome)`:**
+- Counts agree/disagree/abstain votes
+- For `unanimous`: all votes must be `agree`
+- For `majority`: agree count >= votes.length * consensus_threshold
+- For `deadlock`: agree count < votes.length * consensus_threshold
+- For `escalation`: any configuration valid (escalation can happen regardless)
+- Returns boolean
+- Resource limit: max 1000 votes
 
 ---
 
-### 2.3 FR-3: Constraint Type System (P0)
+### 2.4 FR-4: MonetaryPolicy (P1)
 
-**Files:** `src/constraints/constraint-types.ts` (NEW), `src/constraints/type-checker.ts` (NEW)
+**File:** `src/economy/monetary-policy.ts` (NEW)
 
-#### 2.3.1 ConstraintTypeSignature Schema
+#### 2.4.1 ReviewTrigger Schema
 
 ```typescript
-export const ConstraintTypeSchema = Type.Union([
-  Type.Literal('boolean'),
-  Type.Literal('bigint'),
-  Type.Literal('bigint_coercible'),
-  Type.Literal('string'),
-  Type.Literal('number'),
-  Type.Literal('array'),
-  Type.Literal('object'),
-  Type.Literal('unknown'),
-], { $id: 'ConstraintType' });
+export const ReviewTriggerTypeSchema = Type.Union(
+  [
+    Type.Literal('epoch_boundary'),
+    Type.Literal('supply_threshold'),
+    Type.Literal('manual'),
+    Type.Literal('governance_vote'),
+  ],
+  { $id: 'ReviewTriggerType' },
+);
 
-export type ConstraintType = Static<typeof ConstraintTypeSchema>;
-
-export const ConstraintTypeSignatureSchema = Type.Object(
+export const ReviewTriggerSchema = Type.Object(
   {
-    input_schema: Type.String({
-      minLength: 1,
-      description: 'Schema name that this constraint targets. Must exist in registry.',
-    }),
-    output_type: ConstraintTypeSchema,
-    field_types: Type.Record(Type.String(), ConstraintTypeSchema, {
-      description: 'Map of dotted field paths to their expected types.',
-    }),
+    trigger_type: ReviewTriggerTypeSchema,
+    threshold_pct: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+    epoch_interval: Type.Optional(Type.Integer({ minimum: 1 })),
   },
   {
-    $id: 'ConstraintTypeSignature',
+    $id: 'ReviewTrigger',
     additionalProperties: false,
+    description: 'When governance should re-evaluate the monetary policy.',
   },
 );
-
-export type ConstraintTypeSignature = Static<typeof ConstraintTypeSignatureSchema>;
+export type ReviewTrigger = Static<typeof ReviewTriggerSchema>;
 ```
 
-#### 2.3.2 Constraint File Schema Extension
-
-Every constraint in every `.constraints.json` file gains a required `type_signature` field:
-
-```json
-{
-  "id": "conservation-registry-count-matches",
-  "expression": "total_count == len(properties)",
-  "severity": "error",
-  "message": "total_count must equal properties array length",
-  "fields": ["total_count", "properties"],
-  "type_signature": {
-    "input_schema": "ConservationPropertyRegistry",
-    "output_type": "boolean",
-    "field_types": {
-      "total_count": "number",
-      "properties": "array"
-    }
-  }
-}
-```
-
-#### 2.3.3 Static Type Checker
-
-**File:** `src/constraints/type-checker.ts`
+#### 2.4.2 MonetaryPolicy Schema
 
 ```typescript
-export interface TypeCheckError {
-  constraint_id: string;
-  expression_fragment: string;
-  expected_type: ConstraintType;
-  actual_type: ConstraintType;
-  message: string;
-}
-
-export interface TypeCheckWarning {
-  constraint_id: string;
-  message: string;
-}
-
-export interface TypeCheckResult {
-  valid: boolean;
-  errors: TypeCheckError[];
-  warnings: TypeCheckWarning[];
-}
-
-/**
- * Type-check a constraint file against the schema registry.
- *
- * Validates:
- * 1. input_schema exists in registry
- * 2. All field_types paths resolve to real fields
- * 3. Function argument types match evaluator builtin signatures
- * 4. No implicit coercions that could produce wrong results
- */
-export function typeCheckConstraintFile(
-  constraintFile: ConstraintFileContent,
-  schemaRegistry: Map<string, TObject>
-): TypeCheckResult {
-  // Implementation: for each constraint in the file:
-  //   1. Resolve input_schema from registry
-  //   2. Walk field_types, verify each path exists in schema
-  //   3. Parse expression tokens, check function arg types
-  //   4. Verify output_type matches expression result type
-}
-```
-
-#### 2.3.3a Constraint Expression Grammar (FL-SDD-003)
-
-The constraint language is defined by this EBNF grammar. The type checker and evaluator must both parse according to these rules:
-
-```ebnf
-expression     = or_expr ;
-or_expr        = and_expr { "||" and_expr } ;
-and_expr       = comparison { "&&" comparison } ;
-comparison     = addition { ( "==" | "!=" | "<" | "<=" | ">" | ">=" ) addition } ;
-addition       = multiplication { ( "+" | "-" ) multiplication } ;
-multiplication = unary { ( "*" | "/" | "%" ) unary } ;
-unary          = [ "!" ] primary ;
-primary        = function_call | field_path | literal | "(" expression ")" ;
-function_call  = IDENTIFIER "(" [ expression { "," expression } ] ")" ;
-field_path     = IDENTIFIER { "." IDENTIFIER } [ "[]" ] [ "?" ] ;
-literal        = NUMBER | STRING | "true" | "false" | "null" ;
-```
-
-**Operator precedence** (lowest to highest): `||`, `&&`, comparisons, `+`/`-`, `*`/`/`/`%`, `!`
-
-**Path resolution rules:**
-- Dotted paths resolve left-to-right: `trust_scopes.scopes.billing` → `obj.trust_scopes.scopes.billing`
-- Array indexing via `[]` operates on array fields: `properties[].id` maps over array elements
-- Optional `?` returns `null` for missing fields instead of error: `optional_field?.nested`
-- Recursion limit: 10 levels of nesting (enforced by type checker)
-
-**Builtin function signatures** (v6.0.0 — type checker validates arity and argument types):
-
-| Function | Signature | Returns |
-|----------|-----------|---------|
-| `len(x)` | `array → number` | Array length |
-| `bigint_eq(a, b)` | `bigint_coercible, bigint_coercible → boolean` | BigInt equality |
-| `bigint_gt(a, b)` | `bigint_coercible, bigint_coercible → boolean` | BigInt greater-than |
-| `bigint_gte(a, b)` | `bigint_coercible, bigint_coercible → boolean` | BigInt greater-or-equal |
-| `bigint_add(a, b)` | `bigint_coercible, bigint_coercible → bigint_coercible` | BigInt addition |
-| `bigint_sub(a, b)` | `bigint_coercible, bigint_coercible → bigint_coercible` | BigInt subtraction |
-| `type_of(x)` | `unknown → string` | Runtime type name |
-| `is_bigint_coercible(x)` | `unknown → boolean` | Can convert to BigInt |
-| `tree_budget_conserved(node)` | `object → boolean` | Tree budget invariant |
-| `tree_authority_narrowing(node)` | `object → boolean` | Tree authority invariant |
-| `eq(a, b)` | `unknown, unknown → boolean` | Deep equality |
-
-**v6.0.0 type checker scope** (conservative — per FL-SDD-B07):
-1. Path existence: All `field_types` paths resolve to real schema fields
-2. Builtin arity: Function calls have correct number of arguments
-3. Builtin arg types: Arguments match expected types from signature table
-4. No implicit coercions: `string` fields used in `bigint_*` functions must be declared `bigint_coercible`
-
-Full expression type inference (tracking types through operators and nested expressions) is deferred to v6.1.0.
-
-#### 2.3.4 New Evaluator Builtins
-
-```typescript
-// Add to evaluator.ts function registry:
-
-['type_of', () => this.parseTypeOf()],
-['is_bigint_coercible', () => this.parseIsBigintCoercible()],
-
-// type_of(value) → string ('boolean'|'bigint'|'string'|'number'|'array'|'object'|'null')
-// is_bigint_coercible(value) → boolean (can be converted to BigInt without error)
-```
-
-#### 2.3.5 Constraint File Migration
-
-All 31 existing constraint files must be updated with `type_signature`. This is mechanical — each constraint's `fields` array maps directly to `field_types`:
-
-| File | Constraints | Migration Complexity |
-|------|------------|---------------------|
-| `AgentIdentity.constraints.json` | 3 | Low — rewrite for scoped trust |
-| `DelegationChain.constraints.json` | 7 | Low — add type_signature |
-| `JwtBoundarySpec.constraints.json` | 3 | Low — add type_signature |
-| `ConservationPropertyRegistry.constraints.json` | 4 + 2 new | Medium — extend for liveness |
-| Other 27 files | ~50 constraints | Low — mechanical type_signature addition |
-
----
-
-### 2.4 FR-4: Schema Graph Operations (P1)
-
-**File:** `src/utilities/schema-graph.ts` (EXTENDED)
-
-#### 2.4.1 Reachability
-
-```typescript
-/**
- * Check if target is reachable from source via directed edges.
- * Uses BFS to avoid stack overflow on large graphs.
- */
-export function isReachable(
-  graph: SchemaGraphNode[],
-  from: string,
-  to: string
-): boolean;
-
-/**
- * Find all schemas reachable from a source (transitive closure).
- */
-export function reachableFrom(
-  graph: SchemaGraphNode[],
-  source: string
-): Set<string>;
-```
-
-#### 2.4.2 Cycle Detection
-
-```typescript
-export interface CycleInfo {
-  has_cycles: boolean;
-  cycles: string[][];  // Each inner array is a cycle path [A, B, C, A]
-}
-
-/**
- * Detect cycles in the schema reference graph using DFS with coloring.
- * White=unvisited, Gray=in-progress, Black=complete.
- */
-export function detectCycles(graph: SchemaGraphNode[]): CycleInfo;
-```
-
-#### 2.4.3 Impact Analysis
-
-```typescript
-export interface ImpactReport {
-  schema_id: string;
-  directly_affected: string[];
-  transitively_affected: string[];
-  affected_constraints: string[];
-  total_impact_radius: number;
-}
-
-/**
- * Analyze the blast radius of changing a schema.
- * Follows incoming references (who references me?) transitively.
- */
-export function analyzeImpact(
-  graph: SchemaGraphNode[],
-  schemaId: string,
-  constraintFiles?: Array<{ schema_id: string; constraints: Array<{ id: string }> }>
-): ImpactReport;
-```
-
-#### 2.4.4 Topological Sort
-
-```typescript
-/**
- * Topological ordering of schemas (dependency-first).
- * Returns null if cycles exist (not a DAG).
- * Uses Kahn's algorithm.
- */
-export function topologicalSort(graph: SchemaGraphNode[]): string[] | null;
-```
-
-#### 2.4.5 Tests
-
-- `isReachable(graph, 'DelegationChain', 'InterAgentTransactionAudit')` → true
-- `analyzeImpact(graph, 'AgentIdentity')` → includes DelegationChain, DelegationTree, etc.
-- `topologicalSort(graph)` → produces valid ordering of all 70+ schemas
-- `detectCycles(graph)` → `has_cycles: false` on production graph
-- `detectCycles(testGraphWithCycle)` → `has_cycles: true` with cycle path
-
----
-
-### 2.5 FR-5: Registry Composition Protocol (P1)
-
-**Files:** `src/economy/registry-composition.ts` (NEW), `src/economy/minting-policy.ts` (NEW)
-
-#### 2.5.1 RegistryBridge Schema
-
-```typescript
-export const BridgeEnforcementSchema = Type.Union([
-  Type.Literal('atomic'),     // both sides or neither
-  Type.Literal('eventual'),   // eventual consistency
-  Type.Literal('manual'),     // human resolution
-]);
-
-export const BridgeInvariantSchema = Type.Object(
-  {
-    invariant_id: Type.String({ pattern: '^B-\\d{1,2}$' }),
-    name: Type.String({ minLength: 1 }),
-    description: Type.String({ minLength: 1 }),
-    ltl_formula: Type.String({ minLength: 1 }),
-    enforcement: BridgeEnforcementSchema,
-  },
-  { additionalProperties: false },
-);
-
-export const ExchangeRateTypeSchema = Type.Union([
-  Type.Literal('fixed'),
-  Type.Literal('oracle'),
-  Type.Literal('governance'),
-]);
-
-export const ExchangeRateSpecSchema = Type.Object(
-  {
-    rate_type: ExchangeRateTypeSchema,
-    value: Type.Optional(Type.String({ description: 'Fixed rate as MicroUSD ratio.' })),
-    oracle_endpoint: Type.Optional(Type.String({ description: 'Oracle URL for dynamic rates.' })),
-    governance_proposal_required: Type.Boolean(),
-    staleness_threshold_seconds: Type.Integer({ minimum: 1 }),
-  },
-  { $id: 'ExchangeRateSpec', additionalProperties: false },
-);
-
-export const SettlementPolicySchema = Type.Union([
-  Type.Literal('immediate'),   // settle on each transaction
-  Type.Literal('batched'),     // settle periodically
-  Type.Literal('netting'),     // net offsetting transactions
-]);
-
-export const RegistryBridgeSchema = Type.Object(
-  {
-    bridge_id: Type.String({ format: 'uuid' }),
-    source_registry_id: Type.String({ format: 'uuid' }),
-    target_registry_id: Type.String({ format: 'uuid' }),
-    bridge_invariants: Type.Array(BridgeInvariantSchema, { minItems: 1 }),
-    exchange_rate: ExchangeRateSpecSchema,
-    settlement: SettlementPolicySchema,
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'RegistryBridge',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-```
-
-#### 2.5.1a ExchangeRateSpec Conditional Validation (FL-SDD-004)
-
-**Conditional required fields by rate_type:**
-
-| `rate_type` | `value` required? | `oracle_endpoint` required? | `governance_proposal_required` |
-|-------------|------------------|-----------------------------|-------------------------------|
-| `fixed` | YES (MicroUSD ratio) | NO | `false` |
-| `oracle` | NO (fetched at runtime) | YES | `false` |
-| `governance` | NO (set by governance) | NO | `true` |
-
-**Constraint** (added to `RegistryBridge.constraints.json`):
-```json
-{
-  "id": "exchange-rate-conditional-fields",
-  "expression": "(exchange_rate.rate_type != 'fixed' || exchange_rate.value != null) && (exchange_rate.rate_type != 'oracle' || exchange_rate.oracle_endpoint != null) && (exchange_rate.rate_type != 'governance' || exchange_rate.governance_proposal_required == true)",
-  "severity": "error",
-  "message": "Exchange rate fields must match rate_type requirements"
-}
-```
-
-**Staleness behavior:**
-- `staleness_threshold_seconds` applies to `oracle` and `governance` rate types
-- For `oracle`: if last-fetched rate is older than threshold, bridge operations MUST reject with `EXCHANGE_RATE_STALE` error (fail-closed)
-- For `governance`: if last governance vote is older than threshold, bridge logs a `RATE_GOVERNANCE_STALE` warning but proceeds with last-approved rate (fail-open with audit trail)
-- For `fixed`: `staleness_threshold_seconds` is informational only (ignored by enforcement)
-
-**Schema-vs-runtime boundary:** The `oracle_endpoint` field defines the configuration surface — what oracle to query and how fresh rates must be. Actual oracle integration (authentication, response parsing, caching, signed payloads) is an implementation concern for the runtime layer consuming these schemas. B-1 atomicity with oracle rates requires the rate to be **locked before** the transaction begins (rate fetched → escrowed → settled at locked rate).
-
-#### 2.5.2 Canonical Bridge Invariants
-
-```typescript
-export const CANONICAL_BRIDGE_INVARIANTS: readonly BridgeInvariant[] = [
-  {
-    invariant_id: 'B-1',
-    name: 'Cross-registry conservation',
-    description: 'Source debit equals target credit times exchange rate.',
-    ltl_formula: 'G(source.debit == target.credit * exchange_rate)',
-    enforcement: 'atomic',
-  },
-  {
-    invariant_id: 'B-2',
-    name: 'Bridge idempotency',
-    description: 'Every bridge transaction has a unique ID.',
-    ltl_formula: 'G(unique(bridge_transaction.id))',
-    enforcement: 'atomic',
-  },
-  {
-    invariant_id: 'B-3',
-    name: 'Settlement completeness',
-    description: 'Initiated bridge transactions must settle within timeout.',
-    ltl_formula: 'G(bridge_transaction.initiated => F_t(bridge_transaction.settled))',
-    enforcement: 'eventual',
-  },
-  {
-    invariant_id: 'B-4',
-    name: 'Exchange rate consistency',
-    description: 'Exchange rate must be effective before transaction timestamp.',
-    ltl_formula: 'G(exchange_rate.effective_at <= transaction.timestamp)',
-    enforcement: 'atomic',
-  },
-] as const;
-```
-
-#### 2.5.2a Bridge Failure-Mode Matrix (FL-SDD-001)
-
-Each enforcement mode defines explicit failure semantics:
-
-| Enforcement | Failure Mode | Timeout | Retry | Compensation | Idempotency |
-|-------------|-------------|---------|-------|--------------|-------------|
-| `atomic` | Both-or-neither via escrow | 30s default | Idempotent replay with same `tx_id` | Automatic rollback on timeout | Required `tx_id` (UUID) deduplicates |
-| `eventual` | Source commits first, target follows | Configurable via `staleness_threshold_seconds` | Exponential backoff (max 3 retries) | Compensating debit on target failure | `tx_id` + `sequence_number` |
-| `manual` | Flagged for human resolution | None (operator SLA) | N/A | Operator-initiated reversal | Audit trail with `tx_id` |
-
-**Atomic settlement lifecycle:**
-1. `INITIATED` — escrow created, source debited into escrow
-2. `ESCROWED` — source confirmed, target credit pending
-3. `SETTLED` — target credited, escrow released
-4. `FAILED` — timeout or validation failure, escrow returned to source
-5. `COMPENSATING` — partial failure detected, compensation in progress
-
-**Required transaction fields** (added to bridge operations, not schema):
-- `tx_id: string (UUID)` — idempotency key
-- `nonce: integer` — replay protection (monotonically increasing per bridge)
-- `effective_at: string (date-time)` — exchange rate lock timestamp
-- `settlement_deadline: string (date-time)` — timeout for ESCROWED → SETTLED transition
-
-**Reconciliation:** Periodic reconciliation job compares source debits against target credits for `eventual` mode. Discrepancies flagged as `RECONCILIATION_DRIFT` events with automatic compensation if drift < 1% of epoch volume.
-
-#### 2.5.3 MintingPolicy Schema
-
-```typescript
-export const MintingPolicySchema = Type.Object(
+export const MonetaryPolicySchema = Type.Object(
   {
     policy_id: Type.String({ format: 'uuid' }),
+    registry_id: Type.String({ format: 'uuid', description: 'Conservation registry this governs' }),
+    minting_policy: Type.String({ format: 'uuid', description: 'References MintingPolicyConfig.policy_id' }),
+    conservation_ceiling: Type.String({ pattern: '^[0-9]+$', description: 'BigInt: maximum total supply' }),
+    coupling_invariant: Type.String({ minLength: 1, description: 'Constraint expression binding minting to conservation' }),
+    collateral_ratio_bps: Type.Integer({ minimum: 10000, description: 'Minimum 100% collateralization (10000 bps)' }),
+    review_trigger: ReviewTriggerSchema,
+    last_reviewed_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'MonetaryPolicy',
+    additionalProperties: false,
+    description: 'Coupling between minting policy and conservation invariants.',
+  },
+);
+export type MonetaryPolicy = Static<typeof MonetaryPolicySchema>;
+```
+
+#### 2.4.3 Constraints
+
+**File:** `constraints/MonetaryPolicy.constraints.json`
+
+```json
+{
+  "schema_id": "MonetaryPolicy",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "monetary-policy-ceiling-positive",
+      "description": "Conservation ceiling must be positive",
+      "expression": "bigint_gt(conservation_ceiling, '0')",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": { "conservation_ceiling": "bigint_coercible" }
+    },
+    {
+      "id": "monetary-policy-collateral-minimum",
+      "description": "Collateral ratio must be at least 100% (10000 bps)",
+      "expression": "collateral_ratio_bps >= 10000",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": { "collateral_ratio_bps": "number" }
+    },
+    {
+      "id": "monetary-policy-coupling-non-empty",
+      "description": "Coupling invariant expression must be non-empty",
+      "expression": "coupling_invariant != ''",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "coupling_invariant": "string" }
+    }
+  ]
+}
+```
+
+#### 2.4.4 Evaluator Builtin
+
+**`monetary_policy_solvent(policy, current_supply)`:**
+- Parses `policy.conservation_ceiling` and `current_supply` as BigInt
+- Returns `true` if `current_supply <= conservation_ceiling`
+- Returns `false` if `current_supply > conservation_ceiling`
+- Returns `false` for non-numeric inputs (fail-closed)
+
+---
+
+### 2.5 FR-5: PermissionBoundary (P1)
+
+**File:** `src/governance/permission-boundary.ts` (NEW)
+
+#### 2.5.1 ReportingRequirement Schema
+
+```typescript
+export const ReportFrequencySchema = Type.Union(
+  [Type.Literal('per_action'), Type.Literal('per_epoch'), Type.Literal('on_violation')],
+  { $id: 'ReportFrequency' },
+);
+
+export const ReportFormatSchema = Type.Union(
+  [Type.Literal('audit_trail'), Type.Literal('summary'), Type.Literal('detailed')],
+  { $id: 'ReportFormat' },
+);
+
+export const ReportingRequirementSchema = Type.Object(
+  {
+    required: Type.Boolean(),
+    report_to: Type.String({ minLength: 1 }),
+    frequency: ReportFrequencySchema,
+    format: ReportFormatSchema,
+  },
+  {
+    $id: 'ReportingRequirement',
+    additionalProperties: false,
+  },
+);
+export type ReportingRequirement = Static<typeof ReportingRequirementSchema>;
+```
+
+#### 2.5.2 RevocationPolicy Schema
+
+```typescript
+export const RevocationTriggerSchema = Type.Union(
+  [
+    Type.Literal('violation_count'),
+    Type.Literal('governance_vote'),
+    Type.Literal('manual'),
+    Type.Literal('timeout'),
+  ],
+  { $id: 'RevocationTrigger' },
+);
+
+export const RevocationPolicySchema = Type.Object(
+  {
+    trigger: RevocationTriggerSchema,
+    violation_threshold: Type.Optional(Type.Integer({ minimum: 1 })),
+    timeout_seconds: Type.Optional(Type.Integer({ minimum: 1 })),
+  },
+  {
+    $id: 'RevocationPolicy',
+    additionalProperties: false,
+  },
+);
+export type RevocationPolicy = Static<typeof RevocationPolicySchema>;
+```
+
+#### 2.5.3 PermissionBoundary Schema
+
+```typescript
+export const PermissionSeveritySchema = Type.Union(
+  [Type.Literal('advisory'), Type.Literal('monitored')],
+  { $id: 'PermissionSeverity' },
+);
+
+export const PermissionBoundarySchema = Type.Object(
+  {
+    boundary_id: Type.String({ format: 'uuid' }),
+    scope: Type.String({ minLength: 1, description: 'Domain of permitted action' }),
+    permitted_if: Type.String({ minLength: 1, description: 'Constraint expression that ENABLES' }),
+    reporting: ReportingRequirementSchema,
+    revocation: RevocationPolicySchema,
+    severity: PermissionSeveritySchema,
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'PermissionBoundary',
+    additionalProperties: false,
+    description: 'Explicit permission semantic — what is MAY rather than MUST or MUST NOT.',
+  },
+);
+export type PermissionBoundary = Static<typeof PermissionBoundarySchema>;
+```
+
+#### 2.5.4 Constraint File Extension
+
+Add optional `permission_boundaries` array to the constraint file JSON schema. This is additive — existing constraint files without `permission_boundaries` remain valid.
+
+#### 2.5.5 Evaluator Builtins
+
+**`permission_granted(context, boundary_id)`:**
+- Looks up PermissionBoundary by boundary_id in context
+- Evaluates the `permitted_if` expression against context
+- Returns `true` if expression evaluates to truthy
+- Returns `false` if expression evaluates to falsy or boundary not found
+
+**`within_boundary(context, boundary_id)`:**
+- Checks permission_granted AND reporting requirements met
+- Returns `true` if both conditions satisfied
+- Returns `false` otherwise
+
+---
+
+### 2.6 FR-6: GovernanceProposal (P2)
+
+**File:** `src/governance/governance-proposal.ts` (NEW)
+
+#### 2.6.1 ProposalStatus State Machine
+
+```typescript
+export const ProposalStatusSchema = Type.Union(
+  [
+    Type.Literal('proposed'),
+    Type.Literal('voting'),
+    Type.Literal('ratified'),
+    Type.Literal('rejected'),
+    Type.Literal('expired'),
+    Type.Literal('withdrawn'),
+  ],
+  { $id: 'ProposalStatus' },
+);
+
+export const PROPOSAL_TRANSITIONS: Record<string, readonly string[]> = {
+  proposed: ['voting', 'withdrawn'],
+  voting: ['ratified', 'rejected', 'expired'],
+  ratified: [],     // terminal
+  rejected: [],     // terminal
+  expired: [],      // terminal
+  withdrawn: [],    // terminal
+};
+```
+
+#### 2.6.2 ProposedChange Schema
+
+```typescript
+export const ProposedChangeSchema = Type.Object(
+  {
+    target_field: Type.String({ minLength: 1, description: 'JSON path to field being changed' }),
+    current_value: Type.Unknown(),
+    proposed_value: Type.Unknown(),
+    rationale: Type.String({ minLength: 1 }),
+  },
+  {
+    $id: 'ProposedChange',
+    additionalProperties: false,
+  },
+);
+export type ProposedChange = Static<typeof ProposedChangeSchema>;
+```
+
+#### 2.6.3 GovernanceVote Schema
+
+```typescript
+export const GovernanceVoteChoiceSchema = Type.Union(
+  [Type.Literal('approve'), Type.Literal('reject'), Type.Literal('abstain')],
+  { $id: 'GovernanceVoteChoice' },
+);
+
+export const GovernanceVoteSchema = Type.Object(
+  {
+    voter_id: Type.String({ minLength: 1 }),
+    vote: GovernanceVoteChoiceSchema,
+    weight: Type.Number({ minimum: 0 }),
+    reasoning: Type.Optional(Type.String()),
+    voted_at: Type.String({ format: 'date-time' }),
+  },
+  {
+    $id: 'GovernanceVote',
+    additionalProperties: false,
+  },
+);
+export type GovernanceVote = Static<typeof GovernanceVoteSchema>;
+```
+
+#### 2.6.4 VotingRecord Schema
+
+```typescript
+export const VotingRecordSchema = Type.Object(
+  {
+    total_weight: Type.Number({ minimum: 0 }),
+    participating_weight: Type.Number({ minimum: 0 }),
+    approve_weight: Type.Number({ minimum: 0 }),
+    reject_weight: Type.Number({ minimum: 0 }),
+    abstain_weight: Type.Number({ minimum: 0 }),
+    votes: Type.Array(GovernanceVoteSchema),
+  },
+  {
+    $id: 'VotingRecord',
+    additionalProperties: false,
+  },
+);
+export type VotingRecord = Static<typeof VotingRecordSchema>;
+```
+
+#### 2.6.5 GovernanceProposal Schema
+
+```typescript
+export const GovernanceProposalSchema = Type.Object(
+  {
+    proposal_id: Type.String({ format: 'uuid' }),
+    proposer_id: Type.String({ minLength: 1 }),
     registry_id: Type.String({ format: 'uuid' }),
-    mint_authority: Type.String({ minLength: 1, description: 'Agent ID authorized to mint.' }),
-    mint_constraints: Type.Array(Type.String({ minLength: 1 }), {
-      description: 'Constraint expression IDs that must pass before minting.',
-    }),
-    max_mint_per_epoch: Type.String({
-      pattern: '^[0-9]+$',
-      description: 'Maximum MicroUSD mintable per epoch.',
-    }),
-    epoch_seconds: Type.Integer({ minimum: 1 }),
-    requires_governance_approval: Type.Boolean(),
+    proposal_type: Type.Union([
+      Type.Literal('parameter_change'),
+      Type.Literal('policy_change'),
+      Type.Literal('boundary_change'),
+      Type.Literal('emergency'),
+    ]),
+    title: Type.String({ minLength: 1, maxLength: 200 }),
+    description: Type.String({ minLength: 1 }),
+    changes: Type.Array(ProposedChangeSchema, { minItems: 1 }),
+    status: ProposalStatusSchema,
+    voting: VotingRecordSchema,
+    quorum_threshold_bps: Type.Integer({ minimum: 0, maximum: 10000 }),
+    approval_threshold_bps: Type.Integer({ minimum: 0, maximum: 10000 }),
+    voting_period_seconds: Type.Integer({ minimum: 1 }),
+    proposed_at: Type.String({ format: 'date-time' }),
+    resolved_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
   {
-    $id: 'MintingPolicy',
+    $id: 'GovernanceProposal',
     additionalProperties: false,
+    description: 'Mechanism for governed agents to propose and vote on changes.',
   },
 );
+export type GovernanceProposal = Static<typeof GovernanceProposalSchema>;
 ```
 
-#### 2.5.4 Constraints
+#### 2.6.6 Constraints
 
-**File:** `constraints/RegistryBridge.constraints.json` (NEW)
+**File:** `constraints/GovernanceProposal.constraints.json`
 
+Constraints as specified in PRD section FR-6: quorum-met, approval-met, rejection-consistent, voting-period-positive, changes-non-empty.
+
+---
+
+## 3. Evaluator Changes
+
+### 3.1 New Builtins Summary
+
+| Builtin | FR | Signature | Return |
+|---------|----|-----------|----|
+| `saga_amount_conserved` | FR-2 | `(saga: BridgeTransferSaga)` | boolean |
+| `saga_steps_sequential` | FR-2 | `(saga: BridgeTransferSaga)` | boolean |
+| `outcome_consensus_valid` | FR-3 | `(outcome: DelegationOutcome)` | boolean |
+| `monetary_policy_solvent` | FR-4 | `(policy: MonetaryPolicy, current_supply: string)` | boolean |
+| `permission_granted` | FR-5 | `(context: object, boundary_id: string)` | boolean |
+| `within_boundary` | FR-5 | `(context: object, boundary_id: string)` | boolean |
+
+**Total builtins after v7.0.0:** 23 + 6 = **29**
+
+### 3.2 Registration Pattern
+
+Follow existing pattern in `evaluator.ts`:
+```typescript
+fns.set('saga_amount_conserved', () => {
+  // ... parse args, validate, compute
+});
+```
+
+Each builtin gets a corresponding spec in `evaluator-spec.ts` with examples.
+
+### 3.3 Resource Limits
+
+All new builtins enforce resource limits consistent with existing tree builtins:
+- Max array size: 1000 elements (steps, votes, etc.)
+- Fail-closed on limit breach: return `false`
+- No recursion in new builtins (saga and outcome are flat structures)
+
+---
+
+## 4. Conformance Vectors
+
+### 4.1 New Vector Directories
+
+| Directory | Vectors | Total |
+|-----------|---------|-------|
+| `vectors/conformance/bridge-transfer-saga/` | 4 | vector-NNNN through vector-NNNN+3 |
+| `vectors/conformance/delegation-outcome/` | 4 | vector-NNNN+4 through vector-NNNN+7 |
+| `vectors/conformance/monetary-policy/` | 3 | vector-NNNN+8 through vector-NNNN+10 |
+| `vectors/conformance/permission-boundary/` | 3 | vector-NNNN+11 through vector-NNNN+13 |
+| `vectors/conformance/governance-proposal/` | 4 | vector-NNNN+14 through vector-NNNN+17 |
+
+### 4.2 Vector ID Assignment
+
+Vector IDs continue from existing sequence. Exact IDs assigned during implementation.
+
+---
+
+## 5. Version Constants
+
+**File:** `src/version.ts`
+
+```typescript
+export const CONTRACT_VERSION = '7.0.0';
+export const MIN_SUPPORTED_VERSION = '7.0.0';
+```
+
+**File:** `schemas/index.json`
+
+Regenerated with all new schemas. Schema count target: 87 + ~16 = ~103.
+
+---
+
+## 6. Migration Guide
+
+### 6.1 Breaking: RegistryBridge.transfer_protocol
+
+**Before (v6.0.0):**
+```json
+{ "bridge_id": "...", "source_registry": "...", ... }
+```
+
+**After (v7.0.0):**
 ```json
 {
-  "schema_id": "RegistryBridge",
-  "contract_version": "6.0.0",
-  "constraints": [
-    {
-      "id": "registry-bridge-distinct-registries",
-      "expression": "source_registry_id != target_registry_id",
-      "severity": "error",
-      "message": "Source and target registries must be different",
-      "type_signature": {
-        "input_schema": "RegistryBridge",
-        "output_type": "boolean",
-        "field_types": {
-          "source_registry_id": "string",
-          "target_registry_id": "string"
-        }
-      }
-    },
-    {
-      "id": "registry-bridge-invariant-unique-ids",
-      "expression": "bridge_invariants.every(b => !bridge_invariants.some(c => eq(c.invariant_id, b.invariant_id) && c !== b))",
-      "severity": "error",
-      "message": "All bridge invariant IDs must be unique",
-      "type_signature": {
-        "input_schema": "RegistryBridge",
-        "output_type": "boolean",
-        "field_types": { "bridge_invariants": "array" }
-      }
-    }
-  ]
+  "bridge_id": "...",
+  "source_registry": "...",
+  "transfer_protocol": {
+    "saga_type": "atomic",
+    "timeout_seconds": 3600,
+    "max_retries": 3
+  },
+  ...
 }
 ```
 
-**File:** `constraints/MintingPolicy.constraints.json` (NEW)
+All existing RegistryBridge instances must add the `transfer_protocol` field.
 
-```json
-{
-  "schema_id": "MintingPolicy",
-  "contract_version": "6.0.0",
-  "constraints": [
-    {
-      "id": "minting-policy-max-positive",
-      "expression": "bigint_gt(max_mint_per_epoch, 0)",
-      "severity": "error",
-      "message": "Maximum mint per epoch must be positive",
-      "type_signature": {
-        "input_schema": "MintingPolicy",
-        "output_type": "boolean",
-        "field_types": { "max_mint_per_epoch": "bigint_coercible" }
-      }
-    }
-  ]
-}
-```
+### 6.2 Non-Breaking Additions
+
+All other changes are additive:
+- New optional `last_outcome` on DelegationTreeNode
+- New schemas (BridgeTransferSaga, DelegationOutcome, MonetaryPolicy, PermissionBoundary, GovernanceProposal)
+- New evaluator builtins (6 new, 23 existing unchanged)
+- New constraint files (5 new, existing unchanged)
+- Optional `permission_boundaries` in constraint file schema
 
 ---
 
-### 2.6 FR-6: DelegationTree (P1)
+## 7. Test Strategy
 
-**File:** `src/governance/delegation-tree.ts` (NEW)
+### 7.1 Test Targets
 
-#### 2.6.1 DelegationTreeNode Schema
+| Category | Target |
+|----------|--------|
+| Schema validation (new schemas) | ~60 tests |
+| Constraint evaluation (new builtins) | ~40 tests |
+| Constraint file validation (new files) | ~30 tests |
+| Conformance vectors (new) | ~18 tests |
+| F-007, F-008, F-020 fixes | ~15 tests |
+| Property-based tests (fast-check) | ~20 tests |
+| State machine transition tests | ~20 tests |
+| **Total new tests** | **~200** |
 
-```typescript
-export const ForkTypeSchema = Type.Union([
-  Type.Literal('parallel'),     // all children execute concurrently
-  Type.Literal('sequential'),   // children execute in order
-  Type.Literal('conditional'),  // children execute based on condition
-]);
+### 7.2 Property-Based Tests
 
-export const TreeNodeStatusSchema = Type.Union([
-  Type.Literal('pending'),
-  Type.Literal('active'),
-  Type.Literal('completed'),
-  Type.Literal('failed'),
-  Type.Literal('cancelled'),
-]);
-
-export const DelegationTreeNodeSchema: TObject = Type.Object(
-  {
-    node_id: Type.String({ minLength: 1 }),
-    agent_id: Type.String({ minLength: 1, description: 'References AgentIdentity.agent_id.' }),
-    authority_scope: Type.Array(Type.String({ minLength: 1 })),
-    budget_allocated_micro: Type.String({
-      pattern: '^[0-9]+$',
-      description: 'MicroUSD budget for this node.',
-    }),
-    children: Type.Array(Type.Ref('DelegationTreeNode'), {
-      description: 'Child delegation nodes (empty for leaves).',
-    }),
-    fork_type: ForkTypeSchema,
-    join_condition: Type.Optional(Type.String({
-      description: 'Constraint expression for join point evaluation.',
-    })),
-    status: TreeNodeStatusSchema,
-    timestamp: Type.String({ format: 'date-time' }),
-  },
-  {
-    $id: 'DelegationTreeNode',
-    additionalProperties: false,
-  },
-);
-```
-
-#### 2.6.2 DelegationTree Schema
-
-```typescript
-export const TreeStrategySchema = Type.Union([
-  Type.Literal('first_complete'),  // first child result wins
-  Type.Literal('best_of_n'),      // best result selected
-  Type.Literal('consensus'),       // majority agreement required
-  Type.Literal('pipeline'),        // output flows through sequential stages
-]);
-
-export const BudgetAllocationSchema = Type.Union([
-  Type.Literal('equal_split'),    // divide equally among children
-  Type.Literal('weighted'),       // allocate by weight
-  Type.Literal('on_demand'),      // allocate as children request
-]);
-
-export const DelegationTreeSchema = Type.Object(
-  {
-    tree_id: Type.String({ format: 'uuid' }),
-    root: DelegationTreeNodeSchema,
-    strategy: TreeStrategySchema,
-    total_budget_micro: Type.String({ pattern: '^[0-9]+$' }),
-    budget_allocation: BudgetAllocationSchema,
-    max_depth: Type.Integer({ minimum: 1, maximum: 10, default: 10,
-      description: 'Hard cap on tree depth. Prevents DoS via deeply nested trees.' }),
-    max_total_nodes: Type.Integer({ minimum: 1, maximum: 1000, default: 100,
-      description: 'Hard cap on total node count. Prevents DoS via wide trees.' }),
-    created_at: Type.String({ format: 'date-time' }),
-    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
-  },
-  {
-    $id: 'DelegationTree',
-    additionalProperties: false,
-    'x-cross-field-validated': true,
-  },
-);
-```
-
-#### 2.6.3 New Evaluator Builtins for Tree Validation
-
-```typescript
-// tree_budget_conserved(root): Recursively validate that sum of children
-// budget_allocated_micro <= parent budget_allocated_micro at every node.
-['tree_budget_conserved', () => this.parseTreeBudgetConserved()],
-
-// tree_authority_narrowing(root): Recursively validate that each child's
-// authority_scope is a subset of its parent's authority_scope.
-['tree_authority_narrowing', () => this.parseTreeAuthorityNarrowing()],
-```
-
-**Implementation approach (FL-SDD-002):** Both builtins use **iterative traversal** with an explicit stack (not recursion) to prevent stack overflow on deep trees. A `visited: Set<string>` tracks node_ids to detect reference cycles in deserialized JSON. Traversal enforces `max_depth` and `max_total_nodes` from the parent DelegationTree, returning a `TREE_DEPTH_EXCEEDED` or `TREE_SIZE_EXCEEDED` error if limits are breached. Short-circuits on first invariant violation.
-
-**Evaluator budget:** Tree builtins are subject to a per-evaluation node visit budget of `max_total_nodes * 2` (accounting for both builtins). Exceeding the budget returns `EVALUATOR_BUDGET_EXHAUSTED`.
-
-#### 2.6.4 Constraints
-
-**File:** `constraints/DelegationTree.constraints.json` (NEW)
-
-```json
-{
-  "schema_id": "DelegationTree",
-  "contract_version": "6.0.0",
-  "constraints": [
-    {
-      "id": "delegation-tree-budget-conservation",
-      "expression": "tree_budget_conserved(root)",
-      "severity": "error",
-      "message": "Children cannot spend more than parent allocated",
-      "type_signature": {
-        "input_schema": "DelegationTree",
-        "output_type": "boolean",
-        "field_types": { "root": "object" }
-      }
-    },
-    {
-      "id": "delegation-tree-authority-narrowing",
-      "expression": "tree_authority_narrowing(root)",
-      "severity": "error",
-      "message": "Authority can only narrow, never widen",
-      "type_signature": {
-        "input_schema": "DelegationTree",
-        "output_type": "boolean",
-        "field_types": { "root": "object" }
-      }
-    },
-    {
-      "id": "delegation-tree-consensus-minimum",
-      "expression": "strategy != 'consensus' || len(root.children) >= 3",
-      "severity": "error",
-      "message": "Consensus strategy requires at least 3 child nodes",
-      "type_signature": {
-        "input_schema": "DelegationTree",
-        "output_type": "boolean",
-        "field_types": { "strategy": "string", "root.children": "array" }
-      }
-    },
-    {
-      "id": "delegation-tree-root-budget-match",
-      "expression": "bigint_eq(root.budget_allocated_micro, total_budget_micro)",
-      "severity": "error",
-      "message": "Root node budget must equal tree total budget",
-      "type_signature": {
-        "input_schema": "DelegationTree",
-        "output_type": "boolean",
-        "field_types": {
-          "root.budget_allocated_micro": "bigint_coercible",
-          "total_budget_micro": "bigint_coercible"
-        }
-      }
-    }
-  ]
-}
-```
-
-#### 2.6.5 Conversion Utilities
-
-```typescript
-/**
- * Convert a DelegationChain to a DelegationTree (linear tree — no branching).
- */
-export function chainToTree(chain: DelegationChain): DelegationTree;
-
-/**
- * Convert a DelegationTree to a DelegationChain.
- * Returns null if the tree has any branching (multiple children at any node).
- */
-export function treeToChain(tree: DelegationTree): DelegationChain | null;
-```
-
-#### 2.6.6 Conformance Vectors
-
-| Vector | Description | Expected |
-|--------|-------------|----------|
-| `delegation-tree/parallel-ensemble.json` | Root with 3 parallel children, budget conserved | PASS |
-| `delegation-tree/budget-overflow.json` | Children sum exceeds parent budget | FAIL |
-| `delegation-tree/consensus-too-few.json` | Consensus strategy with 2 children | FAIL |
+Using fast-check for:
+- Saga amount conservation: `forAll(saga, amount_in == amount_out)`
+- Outcome consensus validity: `forAll(outcome, votes_consistent_with_type)`
+- Monetary policy solvency: `forAll(policy, supply <= ceiling)`
+- Vote weight arithmetic: `forAll(votes, sum(approve + reject + abstain) == participating)`
 
 ---
 
-### 2.7 FR-7: Version Bump & Release (P0)
-
-1. `src/version.ts`: `CONTRACT_VERSION = '6.0.0'`, `MIN_SUPPORTED_VERSION = '6.0.0'`
-2. `package.json`: `"version": "6.0.0"`
-3. `schemas/index.json`: Add LivenessProperty, CapabilityScopedTrust, ConstraintTypeSignature, RegistryBridge, BridgeInvariant, MintingPolicy, ExchangeRateSpec, DelegationTree, DelegationTreeNode (68 → ~77 schemas)
-4. Barrel exports: Update all domain barrels
-5. New subpath: `"./graph": "./dist/utilities/schema-graph.js"`
-6. New subpath: `"./composition": "./dist/economy/registry-composition.js"`
-
----
-
-## 3. Testing Strategy
-
-### 3.1 Test Breakdown
-
-| Feature | Test File | Unit | Property | Vector | Compile | Total |
-|---------|-----------|------|----------|--------|---------|-------|
-| FR-1: Liveness Properties | `tests/integrity/liveness-properties.test.ts` | 12 | 5 | 3 | 0 | 20 |
-| FR-1: Registry Extension | `tests/integrity/conservation-registry-liveness.test.ts` | 8 | 0 | 0 | 0 | 8 |
-| FR-2: Scoped Trust | `tests/schemas/capability-scoped-trust.test.ts` | 15 | 5 | 3 | 3 | 26 |
-| FR-3: Type Checker | `tests/constraints/type-checker.test.ts` | 20 | 0 | 0 | 0 | 20 |
-| FR-3: Existing File Migration | `tests/constraints/type-signature-migration.test.ts` | 31 | 0 | 0 | 0 | 31 |
-| FR-4: Graph Operations | `tests/utilities/schema-graph-operations.test.ts` | 20 | 0 | 0 | 0 | 20 |
-| FR-5: Registry Composition | `tests/economy/registry-composition.test.ts` | 12 | 5 | 3 | 0 | 20 |
-| FR-5: Minting Policy | `tests/economy/minting-policy.test.ts` | 8 | 3 | 0 | 0 | 11 |
-| FR-6: DelegationTree | `tests/governance/delegation-tree.test.ts` | 15 | 8 | 3 | 0 | 26 |
-| FR-6: Tree Builtins | `tests/constraints/tree-builtins.test.ts` | 10 | 5 | 0 | 0 | 15 |
-| FR-7: Version + Migration | `tests/version.test.ts` + migration tests | 5 | 0 | 0 | 0 | 5 |
-| **Total** | | **156** | **31** | **12** | **3** | **~202** |
-
-### 3.2 Property-Based Tests
-
-- **Liveness**: Random liveness properties with valid companion_safety always pass validation
-- **Scoped Trust**: `effectiveTrustLevel(flatTrustToScoped(level)) == level` for all levels
-- **Tree Budget**: Random tree where children sum ≤ parent → tree_budget_conserved returns true
-- **Tree Authority**: Random tree where children scope ⊆ parent scope → tree_authority_narrowing returns true
-- **Bridge Conservation**: source.debit == target.credit * rate for random amounts and rates
-
-### 3.3 Compile-Time Type Tests
-
-```typescript
-// @ts-expect-error — Cannot assign TrustLevel to CapabilityScopedTrust
-const bad1: CapabilityScopedTrust = 'verified';
-
-// @ts-expect-error — Cannot access removed trust_level field
-const bad2 = agentIdentity.trust_level;
-
-// @ts-expect-error — Cannot pass DelegationTree where DelegationChain expected
-const bad3: DelegationChain = delegationTree;
-```
-
----
-
-## 4. Sprint Plan
-
-### Sprint 1: Foundation — Liveness + Scoped Trust (P0)
-- **S1-T1**: LivenessProperty schema + TimeoutBehavior vocabulary
-- **S1-T2**: CANONICAL_LIVENESS_PROPERTIES constant (6 properties)
-- **S1-T3**: ConservationPropertyRegistry extension (liveness_properties, liveness_count)
-- **S1-T4**: Liveness constraint file + conformance vectors
-- **S1-T5**: CapabilityScope vocabulary + CapabilityScopedTrust schema
-- **S1-T6**: AgentIdentity breaking change (trust_level → trust_scopes)
-- **S1-T7**: Helper functions (trustLevelForScope, meetsThresholdForScope, effectiveTrustLevel, flatTrustToScoped)
-- **S1-T8**: Updated AgentIdentity constraints + conformance vectors
-- **S1-T9**: Update existing tests referencing trust_level
-
-### Sprint 2: Verification — Type System + Graph Operations (P0/P1)
-- **S2-T1**: ConstraintTypeSignature schema + ConstraintType vocabulary
-- **S2-T2**: Static type checker (typeCheckConstraintFile)
-- **S2-T3**: New evaluator builtins (type_of, is_bigint_coercible)
-- **S2-T4**: Migrate all 31 existing constraint files (add type_signature)
-- **S2-T5**: Type checker tests + migration verification tests
-- **S2-T6**: Schema graph reachability + cycle detection
-- **S2-T7**: Schema graph impact analysis + topological sort
-- **S2-T8**: Graph operation tests
-
-### Sprint 3: Composition — Registry Bridge + DelegationTree (P1)
-- **S3-T1**: RegistryBridge + BridgeInvariant schemas
-- **S3-T2**: CANONICAL_BRIDGE_INVARIANTS constant
-- **S3-T3**: ExchangeRateSpec + MintingPolicy + SettlementPolicy schemas
-- **S3-T4**: Bridge + minting constraint files + conformance vectors
-- **S3-T5**: DelegationTree + DelegationTreeNode schemas
-- **S3-T6**: New evaluator builtins (tree_budget_conserved, tree_authority_narrowing)
-- **S3-T7**: chainToTree / treeToChain conversion utilities
-- **S3-T8**: DelegationTree constraint file + conformance vectors
-- **S3-T9**: Composition + tree tests
-
-### Sprint 4: Release — Version Bump + Migration (P0)
-- **S4-T1**: Version bump (6.0.0), MIN_SUPPORTED_VERSION update
-- **S4-T2**: schemas/index.json update (register all new schemas)
-- **S4-T3**: Barrel exports + new subpaths (./graph, ./composition)
-- **S4-T4**: Update all existing conformance vectors for breaking changes
-- **S4-T5**: Full backward-compatibility verification (all 2,824 tests updated and passing)
-- **S4-T6**: Migration guide documentation
-
----
-
-## 5. Security Considerations
-
-| Threat | Mitigation | Schema |
-|--------|------------|--------|
-| Liveness timeout gaming | Bounded liveness (F_t) with enforced timeout; reaper is application-layer | LivenessProperty.timeout_seconds |
-| Trust scope escalation | Scopes are independent; delegation checks delegation scope specifically | CapabilityScopedTrust |
-| Type signature spoofing | Type checker validates against actual schema registry | typeCheckConstraintFile |
-| Cross-registry double-spend | B-1 bridge invariant requires atomic enforcement | RegistryBridge.bridge_invariants |
-| Tree budget inflation | tree_budget_conserved checks sum recursively at every node | DelegationTree constraints |
-| Schema graph cycle injection | detectCycles runs as CI gate | schema-graph-acyclic constraint |
-
----
-
-## 6. Migration Guide (v5.5.0 → v6.0.0)
-
-### 6.1 AgentIdentity (BREAKING)
-
-**Before (v5.5.0):**
-```typescript
-const agent: AgentIdentity = {
-  agent_id: 'gpt-4o',
-  trust_level: 'verified',
-  // ...
-};
-```
-
-**After (v6.0.0):**
-```typescript
-import { flatTrustToScoped } from '@0xhoneyjar/loa-hounfour';
-
-const agent: AgentIdentity = {
-  agent_id: 'gpt-4o',
-  trust_scopes: flatTrustToScoped('verified'),
-  // OR explicit scopes:
-  trust_scopes: {
-    scopes: {
-      billing: 'trusted',
-      governance: 'basic',
-      inference: 'verified',
-      delegation: 'basic',
-      audit: 'verified',
-      composition: 'basic',
-    },
-    default_level: 'basic',
-  },
-  // ...
-};
-```
-
-**Helper:** `flatTrustToScoped(level)` converts a flat trust level to scoped trust with all scopes set to the same level, providing a mechanical migration path.
-
-### 6.2 ConservationPropertyRegistry (BREAKING)
-
-**Before (v5.5.0):**
-```typescript
-const registry: ConservationPropertyRegistry = {
-  properties: [...],
-  total_count: 14,
-  coverage: { ... },
-  // ...
-};
-```
-
-**After (v6.0.0):**
-```typescript
-const registry: ConservationPropertyRegistry = {
-  properties: [...],
-  total_count: 14,
-  coverage: { ... },
-  liveness_properties: [],  // NEW required (can be empty)
-  liveness_count: 0,        // NEW required
-  // ...
-};
-```
-
-### 6.3 Constraint Files (BREAKING)
-
-Every constraint gains `type_signature`. Existing constraints without it will fail validation.
-
-**Migration script:** A `scripts/migrate-constraints-v6.sh` script will be provided that:
-1. Reads each constraint file
-2. Infers `input_schema` from `schema_id`
-3. Infers `field_types` from `fields` array
-4. Defaults `output_type` to `"boolean"`
-5. Writes updated file
+*— Bridgebuilder*
+*SDD v7.0.0 — The Coordination-Aware Protocol*
