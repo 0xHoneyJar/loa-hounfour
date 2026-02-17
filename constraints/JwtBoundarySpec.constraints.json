@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "JwtBoundarySpec",
+  "contract_version": "5.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "jwt-boundary-step-ordering",
+      "expression": "steps[0].step_number == 1 && steps[1].step_number == 2 && steps[2].step_number == 3 && steps[3].step_number == 4 && steps[4].step_number == 5 && steps[5].step_number == 6",
+      "severity": "error",
+      "message": "Steps must be numbered 1-6 consecutively",
+      "fields": ["steps"]
+    },
+    {
+      "id": "jwt-boundary-crypto-steps-blocking",
+      "expression": "steps[0].is_blocking && steps[1].is_blocking",
+      "severity": "error",
+      "message": "Cryptographic steps (1-2) must be blocking",
+      "fields": ["steps"]
+    },
+    {
+      "id": "jwt-boundary-algorithm-non-empty",
+      "expression": "algorithm_whitelist.length > 0",
+      "severity": "error",
+      "message": "Algorithm whitelist must contain at least one entry",
+      "fields": ["algorithm_whitelist"]
+    }
+  ]
+}

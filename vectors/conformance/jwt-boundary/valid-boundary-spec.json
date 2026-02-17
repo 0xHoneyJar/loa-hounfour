@@ -1,0 +1,31 @@
+{
+  "vector_id": "conformance-jwt-boundary-001",
+  "category": "jwt-boundary",
+  "description": "Valid JWT boundary spec with all 6 steps in order, blocking crypto steps, and non-empty algorithm whitelist",
+  "contract_version": "5.5.0",
+  "input": {
+    "spec_id": "550e8400-e29b-41d4-a716-446655440010",
+    "boundary_name": "arrakis-to-loa-finn",
+    "steps": [
+      { "step_number": 1, "name": "Signature verification", "description": "Verify EdDSA/Ed25519 signature", "error_code": "JWT_SIGNATURE_INVALID", "is_blocking": true },
+      { "step_number": 2, "name": "Algorithm whitelist", "description": "Verify signing algorithm is permitted", "error_code": "JWT_ALGORITHM_REJECTED", "is_blocking": true },
+      { "step_number": 3, "name": "Claims validation", "description": "Validate inbound claims against schema", "error_code": "JWT_CLAIMS_INVALID", "is_blocking": true },
+      { "step_number": 4, "name": "Reservation existence", "description": "Verify referenced reservation exists and is active", "error_code": "JWT_RESERVATION_NOT_FOUND", "is_blocking": true },
+      { "step_number": 5, "name": "Replay detection", "description": "Verify JTI not in idempotency store", "error_code": "JWT_REPLAY_DETECTED", "is_blocking": true },
+      { "step_number": 6, "name": "Overspend guard", "description": "Verify actual_cost <= reserved_amount", "error_code": "JWT_OVERSPEND", "is_blocking": true }
+    ],
+    "algorithm_whitelist": ["EdDSA"],
+    "claims_schema_ref": "OutboundClaims",
+    "replay_window_seconds": 300,
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "fr": "FR-2"
+  }
+}

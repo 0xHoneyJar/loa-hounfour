@@ -31,6 +31,10 @@
       "types": "./dist/constraints/index.d.ts",
       "import": "./dist/constraints/index.js"
     },
+    "./integrity": {
+      "types": "./dist/integrity/index.d.ts",
+      "import": "./dist/integrity/index.js"
+    },
     "./schemas/*": "./schemas/*"
   },
   "files": [

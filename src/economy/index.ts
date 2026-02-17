@@ -173,6 +173,19 @@ export {
   type InterAgentTransactionAudit,
 } from '../schemas/inter-agent-transaction-audit.js';
 
+// Schemas — JWT Boundary Verification (v5.5.0, FR-2)
+export {
+  JwtVerificationStepSchema,
+  JwtBoundarySpecSchema,
+  OutboundClaimsSchema,
+  InboundClaimsSchema,
+  CANONICAL_JWT_BOUNDARY_STEPS,
+  type JwtVerificationStep,
+  type JwtBoundarySpec,
+  type OutboundClaims,
+  type InboundClaims,
+} from './jwt-boundary.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

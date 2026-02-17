@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ConservationPropertyRegistry",
+  "contract_version": "5.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "conservation-registry-count-matches",
+      "expression": "total_count == len(properties)",
+      "severity": "error",
+      "message": "total_count must equal properties array length",
+      "fields": ["total_count", "properties"]
+    },
+    {
+      "id": "conservation-property-unique-ids",
+      "expression": "properties.every(p => properties.every(q => !eq(q.invariant_id, p.invariant_id) || eq(q, p)))",
+      "severity": "error",
+      "message": "All invariant_id values must be unique",
+      "fields": ["properties"]
+    },
+    {
+      "id": "conservation-property-ltl-non-empty",
+      "expression": "properties.every(p => p.ltl_formula.length > 0)",
+      "severity": "error",
+      "message": "Every property must have a non-empty LTL formula",
+      "fields": ["properties"]
+    }
+  ]
+}

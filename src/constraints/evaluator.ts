@@ -98,6 +98,9 @@ class Parser {
       ['changed', () => this.parseChanged()],
       ['previous', () => this.parsePrevious()],
       ['delta', () => this.parseDelta()],
+
+      // Length (v5.5.0, FR-1)
+      ['len', () => this.parseLen()],
     ]);
   }
 
@@ -822,6 +825,22 @@ class Parser {
     }
     return true;
   }
+
+  /**
+   * len(value) — returns length of array, object keys, or string.
+   * @see SDD §2.1.5 — New evaluator builtin for conservation constraints
+   */
+  private parseLen(): unknown {
+    this.advance(); // consume 'len'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (Array.isArray(value)) return value.length;
+    if (typeof value === 'string') return value.length;
+    if (value != null && typeof value === 'object') return Object.keys(value).length;
+    return 0;
+  }
 }
 
 /**
@@ -856,6 +875,8 @@ export const EVALUATOR_BUILTINS = [
   'changed',
   'previous',
   'delta',
+  // Length (v5.5.0)
+  'len',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
