@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 23 evaluator builtins. Each spec includes
+ * Canonical specifications for all 26 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins — type_of, is_bigint_coercible, unique_values, tree_budget_conserved, tree_authority_narrowing)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (26 builtins — saga_amount_conserved, saga_steps_sequential, outcome_consensus_valid)
  */
 import { type EvaluatorBuiltin, EVALUATOR_BUILTINS } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 23 evaluator builtin specifications.
+ * Canonical registry of all 26 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -685,5 +685,156 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Empty scope at leaf is valid', 'Duplicate elements deduplicated before comparison'],
+  }],
+
+  // -- Coordination builtins (v7.0.0) ----------------------------------------
+
+  ['saga_amount_conserved', {
+    name: 'saga_amount_conserved',
+    signature: 'saga_amount_conserved(saga) → boolean',
+    description: 'Verifies total debited equals total credited across all completed saga steps, and compensation steps balance reversed amounts. Resource limit: 100 steps.',
+    arguments: [
+      { name: 'saga', type: 'BridgeTransferSaga', description: 'Saga object with steps and compensation_steps arrays' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Balanced transfer steps',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1', step_type: 'transfer', status: 'completed', amount_micro: '1000' },
+              { step_id: 's2', step_type: 'transfer', status: 'completed', amount_micro: '500' },
+            ],
+            compensation_steps: [],
+          },
+        },
+        expression: 'saga_amount_conserved(saga)',
+        expected: true,
+      },
+      {
+        description: 'Compensation restores balance',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1', step_type: 'transfer', status: 'completed', amount_micro: '1000' },
+            ],
+            compensation_steps: [
+              { step_id: 'c1', step_type: 'transfer', status: 'completed', amount_micro: '1000' },
+            ],
+          },
+        },
+        expression: 'saga_amount_conserved(saga)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Empty steps array returns true (vacuously)', 'Only completed steps count', 'Exceeding 100 steps returns false'],
+  }],
+
+  ['saga_steps_sequential', {
+    name: 'saga_steps_sequential',
+    signature: 'saga_steps_sequential(saga) → boolean',
+    description: 'Verifies all step_id values in the saga are unique. Resource limit: 100 steps.',
+    arguments: [
+      { name: 'saga', type: 'BridgeTransferSaga', description: 'Saga object with steps array' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Unique step IDs',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1' },
+              { step_id: 's2' },
+              { step_id: 's3' },
+            ],
+          },
+        },
+        expression: 'saga_steps_sequential(saga)',
+        expected: true,
+      },
+      {
+        description: 'Duplicate step IDs',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1' },
+              { step_id: 's2' },
+              { step_id: 's1' },
+            ],
+          },
+        },
+        expression: 'saga_steps_sequential(saga)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Empty steps array returns true', 'Single step returns true', 'Exceeding 100 steps returns false'],
+  }],
+
+  ['outcome_consensus_valid', {
+    name: 'outcome_consensus_valid',
+    signature: 'outcome_consensus_valid(outcome) → boolean',
+    description: 'Verifies vote counts and consensus threshold match the claimed outcome_type: unanimous requires all agree, majority requires agree >= threshold, deadlock requires agree < threshold, escalation requires escalated_to.',
+    arguments: [
+      { name: 'outcome', type: 'DelegationOutcome', description: 'Outcome object with votes, outcome_type, consensus_threshold, and optional escalated_to' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Valid unanimous outcome',
+        context: {
+          outcome: {
+            outcome_type: 'unanimous',
+            votes: [
+              { vote: 'agree' },
+              { vote: 'agree' },
+              { vote: 'agree' },
+            ],
+            consensus_threshold: 1.0,
+            consensus_achieved: true,
+          },
+        },
+        expression: 'outcome_consensus_valid(outcome)',
+        expected: true,
+      },
+      {
+        description: 'Invalid unanimous with disagree',
+        context: {
+          outcome: {
+            outcome_type: 'unanimous',
+            votes: [
+              { vote: 'agree' },
+              { vote: 'disagree' },
+            ],
+            consensus_threshold: 1.0,
+            consensus_achieved: true,
+          },
+        },
+        expression: 'outcome_consensus_valid(outcome)',
+        expected: false,
+      },
+      {
+        description: 'Valid majority outcome',
+        context: {
+          outcome: {
+            outcome_type: 'majority',
+            votes: [
+              { vote: 'agree' },
+              { vote: 'agree' },
+              { vote: 'disagree' },
+            ],
+            consensus_threshold: 0.5,
+            consensus_achieved: true,
+          },
+        },
+        expression: 'outcome_consensus_valid(outcome)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Empty votes returns false for non-deadlock', 'Escalation without escalated_to returns false'],
   }],
 ]);

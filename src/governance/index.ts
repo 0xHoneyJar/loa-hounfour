@@ -103,3 +103,21 @@ export {
   type DelegationTreeNode,
   type DelegationTree,
 } from './delegation-tree.js';
+
+// Schemas — Delegation Outcome (v7.0.0)
+export {
+  OutcomeTypeSchema,
+  VoteChoiceSchema,
+  DelegationVoteSchema,
+  DissentTypeSchema,
+  DissentSeveritySchema,
+  DissentRecordSchema,
+  DelegationOutcomeSchema,
+  type OutcomeType,
+  type VoteChoice,
+  type DelegationVote,
+  type DissentType,
+  type DissentSeverity,
+  type DissentRecord,
+  type DelegationOutcome,
+} from './delegation-outcome.js';

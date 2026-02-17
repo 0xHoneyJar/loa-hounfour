@@ -70,8 +70,8 @@ describe('is_bigint_coercible builtin', () => {
 });
 
 describe('EVALUATOR_BUILTINS registry', () => {
-  it('contains 23 builtins (18 + type_of + is_bigint_coercible + unique_values + tree_budget_conserved + tree_authority_narrowing)', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(23);
+  it('contains 26 builtins (23 + saga_amount_conserved + saga_steps_sequential + outcome_consensus_valid)', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(26);
   });
 
   it('includes type_of', () => {
@@ -84,8 +84,8 @@ describe('EVALUATOR_BUILTINS registry', () => {
 });
 
 describe('EVALUATOR_BUILTIN_SPECS registry', () => {
-  it('has specs for all 23 builtins', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(23);
+  it('has specs for all 26 builtins', () => {
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(26);
   });
 
   it('has spec for type_of', () => {

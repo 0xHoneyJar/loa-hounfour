@@ -228,6 +228,27 @@ export {
   type MintingPolicy,
 } from './minting-policy.js';
 
+// Schemas — Bridge Transfer Saga (v7.0.0)
+export {
+  SagaStatusSchema,
+  SAGA_TRANSITIONS,
+  StepTypeSchema,
+  StepStatusSchema,
+  BridgeTransferStepSchema,
+  ParticipantRoleSchema,
+  SagaParticipantSchema,
+  SagaErrorSchema,
+  BridgeTransferSagaSchema,
+  type SagaStatus,
+  type StepType,
+  type StepStatus,
+  type BridgeTransferStep,
+  type ParticipantRole,
+  type SagaParticipant,
+  type SagaError,
+  type BridgeTransferSaga,
+} from './bridge-transfer-saga.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

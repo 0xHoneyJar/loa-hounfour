@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 15 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(15);
+  it('contains exactly 17 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(17);
   });
 
   it('includes all valid categories', () => {
@@ -81,6 +81,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'liveness-properties',
       'registry-bridge',
       'delegation-tree',
+      'bridge-transfer-saga',
+      'delegation-outcome',
     ]);
   });
 });

@@ -100,6 +100,23 @@ export const DelegationTreeNodeSchema = Type.Recursive(
           default: 0,
           description: 'Optimistic concurrency control version.',
         }),
+        last_outcome: Type.Optional(Type.Object(
+          {
+            outcome_id: Type.String({ format: 'uuid' }),
+            outcome_type: Type.Union([
+              Type.Literal('unanimous'),
+              Type.Literal('majority'),
+              Type.Literal('deadlock'),
+              Type.Literal('escalation'),
+            ]),
+            consensus_achieved: Type.Boolean(),
+            resolved_at: Type.String({ format: 'date-time' }),
+          },
+          {
+            additionalProperties: false,
+            description: 'Summary of the last delegation outcome for this node (v7.0.0).',
+          },
+        )),
         timestamp: Type.String({ format: 'date-time' }),
       },
       {

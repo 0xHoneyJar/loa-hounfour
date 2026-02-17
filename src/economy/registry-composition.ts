@@ -148,6 +148,12 @@ export const RegistryBridgeSchema = withAnnotation(
       }),
       exchange_rate: ExchangeRateSpecSchema,
       settlement: SettlementPolicySchema,
+      transfer_protocol: Type.Optional(Type.Union(
+        [Type.Literal('atomic'), Type.Literal('choreography')],
+        {
+          description: 'Saga coordination pattern for cross-registry transfers. BREAKING v7.0.0.',
+        },
+      )),
       contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     },
     {
