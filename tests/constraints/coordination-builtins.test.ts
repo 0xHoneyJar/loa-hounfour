@@ -15,11 +15,11 @@ import { EVALUATOR_BUILTIN_SPECS } from '../../src/constraints/evaluator-spec.js
 
 describe('EVALUATOR_BUILTINS count (Sprint 2 — 3 new coordination builtins)', () => {
   it('EVALUATOR_BUILTINS contains 26 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(29);
+    expect(EVALUATOR_BUILTINS).toHaveLength(31);
   });
 
   it('EVALUATOR_BUILTIN_SPECS has 26 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(29);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
   });
 
   it('new builtins are registered', () => {
@@ -218,10 +218,94 @@ describe('outcome_consensus_valid', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Spec examples cross-check (all 26 builtins)
+// saga_timeout_valid (Bridge iteration 2)
 // ---------------------------------------------------------------------------
 
-describe('All 26 builtin spec examples evaluate correctly', () => {
+describe('saga_timeout_valid', () => {
+  it('returns true when completed steps are within timeout', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:00:30Z', amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(true);
+  });
+
+  it('returns false when step exceeds per_step_seconds', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:02:00Z', amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(false);
+  });
+
+  it('skips pending steps', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'pending', started_at: null, completed_at: null, amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(true);
+  });
+
+  it('returns false when completed step missing timestamps', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'completed', started_at: null, completed_at: null, amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(false);
+  });
+
+  it('returns true for empty steps', () => {
+    const saga = {
+      steps: [],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(true);
+  });
+
+  it('returns false for null saga', () => {
+    expect(evaluateConstraint({ saga: null }, 'saga_timeout_valid(saga)')).toBe(false);
+  });
+
+  it('returns false when timeout is missing', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:00:30Z', amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(false);
+  });
+
+  it('returns true when step duration exactly equals per_step_seconds', () => {
+    const saga = {
+      steps: [
+        { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:01:00Z', amount_micro: '1000' },
+      ],
+      compensation_steps: [],
+      timeout: { total_seconds: 300, per_step_seconds: 60 },
+    };
+    expect(evaluateConstraint({ saga }, 'saga_timeout_valid(saga)')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Spec examples cross-check (all 31 builtins)
+// ---------------------------------------------------------------------------
+
+describe('All 31 builtin spec examples evaluate correctly', () => {
   it('every spec example matches expected result', () => {
     for (const [name, spec] of EVALUATOR_BUILTIN_SPECS) {
       for (const example of spec.examples) {

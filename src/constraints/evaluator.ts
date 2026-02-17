@@ -122,6 +122,10 @@ class Parser {
       ['monetary_policy_solvent', () => this.parseMonetaryPolicySolvent()],
       ['permission_boundary_active', () => this.parsePermissionBoundaryActive()],
       ['proposal_quorum_met', () => this.parseProposalQuorumMet()],
+
+      // Bridge iteration 2 builtins (v7.0.0)
+      ['saga_timeout_valid', () => this.parseSagaTimeoutValid()],
+      ['proposal_weights_normalized', () => this.parseProposalWeightsNormalized()],
     ]);
   }
 
@@ -1260,6 +1264,101 @@ class Parser {
 
     return totalWeight >= quorum;
   }
+
+  // ---------------------------------------------------------------------------
+  // saga_timeout_valid(saga) — v7.0.0 bridge iteration 2
+  // ---------------------------------------------------------------------------
+
+  /**
+   * saga_timeout_valid(saga) — checks that completed steps have timestamps
+   * and that step durations do not exceed per_step_seconds timeout.
+   * Returns true if all completed steps satisfy the timeout constraint.
+   */
+  private parseSagaTimeoutValid(): boolean {
+    this.advance(); // consume 'saga_timeout_valid'
+    this.expect('paren', '(');
+    const saga = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (saga == null || typeof saga !== 'object') return false;
+    const rec = saga as Record<string, unknown>;
+    const steps = rec.steps;
+    if (!Array.isArray(steps)) return false;
+    const timeout = rec.timeout;
+    if (timeout == null || typeof timeout !== 'object') return false;
+    const to = timeout as Record<string, unknown>;
+    const perStepSeconds = to.per_step_seconds;
+    if (typeof perStepSeconds !== 'number' || perStepSeconds <= 0) return false;
+
+    // Resource limit: max 100 steps
+    if (steps.length > 100) return false;
+
+    for (const step of steps) {
+      if (step == null || typeof step !== 'object') continue;
+      const s = step as Record<string, unknown>;
+      if (s.status !== 'completed') continue;
+
+      // Completed steps must have both timestamps
+      if (typeof s.started_at !== 'string' || typeof s.completed_at !== 'string') return false;
+
+      // Verify duration <= per_step_seconds
+      try {
+        const started = new Date(s.started_at as string).getTime();
+        const completed = new Date(s.completed_at as string).getTime();
+        if (isNaN(started) || isNaN(completed)) return false;
+        const durationSeconds = (completed - started) / 1000;
+        if (durationSeconds > perStepSeconds) return false;
+      } catch {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // proposal_weights_normalized(proposal) — v7.0.0 bridge iteration 2
+  // ---------------------------------------------------------------------------
+
+  /**
+   * proposal_weights_normalized(proposal) — checks that the sum of all
+   * vote weights in a governance proposal equals 1.0 (within floating-point
+   * tolerance of 0.001).
+   */
+  private parseProposalWeightsNormalized(): boolean {
+    this.advance(); // consume 'proposal_weights_normalized'
+    this.expect('paren', '(');
+    const proposal = this.parseExpr() as any;
+    this.expect('paren', ')');
+
+    if (proposal == null || typeof proposal !== 'object') return false;
+    const rec = proposal as Record<string, unknown>;
+    const voting = rec.voting;
+    if (voting == null || typeof voting !== 'object') return false;
+    const vr = voting as Record<string, unknown>;
+
+    const votes = vr.votes_cast;
+    if (!Array.isArray(votes)) return false;
+
+    // Resource limit: max 100 votes
+    if (votes.length > 100) return false;
+
+    // Empty votes are trivially normalized (0.0, no voters yet)
+    if (votes.length === 0) return true;
+
+    // Sum weights
+    let totalWeight = 0;
+    for (const vote of votes) {
+      if (vote == null || typeof vote !== 'object') continue;
+      const v = vote as Record<string, unknown>;
+      if (typeof v.weight === 'number') {
+        totalWeight += v.weight;
+      }
+    }
+
+    // Check within tolerance of 1.0
+    return Math.abs(totalWeight - 1.0) <= 0.001;
+  }
 }
 
 /**
@@ -1312,6 +1411,9 @@ export const EVALUATOR_BUILTINS = [
   'monetary_policy_solvent',
   'permission_boundary_active',
   'proposal_quorum_met',
+  // Bridge iteration 2 builtins (v7.0.0)
+  'saga_timeout_valid',
+  'proposal_weights_normalized',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

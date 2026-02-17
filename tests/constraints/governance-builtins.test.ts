@@ -178,12 +178,102 @@ describe('proposal_quorum_met', () => {
 });
 
 // ---------------------------------------------------------------------------
+// proposal_weights_normalized (Bridge iteration 2)
+// ---------------------------------------------------------------------------
+
+describe('proposal_weights_normalized', () => {
+  it('returns true when weights sum to 1.0', () => {
+    const proposal = {
+      voting: {
+        votes_cast: [
+          { voter_id: 'a', weight: 0.3 },
+          { voter_id: 'b', weight: 0.4 },
+          { voter_id: 'c', weight: 0.3 },
+        ],
+      },
+    };
+    expect(evaluateConstraint(
+      { proposal },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(true);
+  });
+
+  it('returns false when weights do not sum to 1.0', () => {
+    const proposal = {
+      voting: {
+        votes_cast: [
+          { voter_id: 'a', weight: 0.5 },
+          { voter_id: 'b', weight: 0.6 },
+        ],
+      },
+    };
+    expect(evaluateConstraint(
+      { proposal },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(false);
+  });
+
+  it('returns true for empty votes', () => {
+    const proposal = {
+      voting: {
+        votes_cast: [],
+      },
+    };
+    expect(evaluateConstraint(
+      { proposal },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(true);
+  });
+
+  it('returns false for null proposal', () => {
+    expect(evaluateConstraint(
+      { proposal: null },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(false);
+  });
+
+  it('tolerates minor floating-point drift within 0.001', () => {
+    const proposal = {
+      voting: {
+        votes_cast: [
+          { voter_id: 'a', weight: 0.1 },
+          { voter_id: 'b', weight: 0.2 },
+          { voter_id: 'c', weight: 0.3 },
+          { voter_id: 'd', weight: 0.4 },
+        ],
+      },
+    };
+    // 0.1 + 0.2 + 0.3 + 0.4 may not be exactly 1.0 in IEEE 754
+    expect(evaluateConstraint(
+      { proposal },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(true);
+  });
+
+  it('returns false when weights are significantly off', () => {
+    const proposal = {
+      voting: {
+        votes_cast: [
+          { voter_id: 'a', weight: 0.3 },
+          { voter_id: 'b', weight: 0.3 },
+        ],
+      },
+    };
+    // sum = 0.6 — way below 1.0
+    expect(evaluateConstraint(
+      { proposal },
+      'proposal_weights_normalized(proposal)',
+    )).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Registry and specs
 // ---------------------------------------------------------------------------
 
 describe('Sprint 3 builtins in registry', () => {
   it('EVALUATOR_BUILTINS contains 29 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(29);
+    expect(EVALUATOR_BUILTINS).toHaveLength(31);
   });
 
   it('includes monetary_policy_solvent', () => {
@@ -199,7 +289,7 @@ describe('Sprint 3 builtins in registry', () => {
   });
 
   it('EVALUATOR_BUILTIN_SPECS has 29 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(29);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
   });
 
   it('spec examples execute correctly for monetary_policy_solvent', () => {

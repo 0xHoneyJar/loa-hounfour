@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 29 evaluator builtins. Each spec includes
+ * Canonical specifications for all 31 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (26 builtins — saga_amount_conserved, saga_steps_sequential, outcome_consensus_valid)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2)
  */
 import { type EvaluatorBuiltin, EVALUATOR_BUILTINS } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 29 evaluator builtin specifications.
+ * Canonical registry of all 31 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -957,5 +957,120 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Empty votes returns true only if quorum is 0', 'Max 100 votes (resource limit)'],
+  }],
+
+  // -- Bridge iteration 2 builtins (v7.0.0) ----------------------------------
+
+  ['saga_timeout_valid', {
+    name: 'saga_timeout_valid',
+    signature: 'saga_timeout_valid(saga) → boolean',
+    description: 'Validates that completed saga steps have both started_at and completed_at timestamps, and that each step duration does not exceed timeout.per_step_seconds.',
+    arguments: [
+      { name: 'saga', type: 'BridgeTransferSaga', description: 'Saga object with steps and timeout configuration' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Completed step within timeout',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:00:30Z', amount_micro: '1000' },
+            ],
+            compensation_steps: [],
+            timeout: { total_seconds: 300, per_step_seconds: 60 },
+          },
+        },
+        expression: 'saga_timeout_valid(saga)',
+        expected: true,
+      },
+      {
+        description: 'Completed step exceeding per_step timeout',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1', status: 'completed', started_at: '2026-01-15T10:00:00Z', completed_at: '2026-01-15T10:02:00Z', amount_micro: '1000' },
+            ],
+            compensation_steps: [],
+            timeout: { total_seconds: 300, per_step_seconds: 60 },
+          },
+        },
+        expression: 'saga_timeout_valid(saga)',
+        expected: false,
+      },
+      {
+        description: 'Pending steps are skipped',
+        context: {
+          saga: {
+            steps: [
+              { step_id: 's1', status: 'pending', started_at: null, completed_at: null, amount_micro: '1000' },
+            ],
+            compensation_steps: [],
+            timeout: { total_seconds: 300, per_step_seconds: 60 },
+          },
+        },
+        expression: 'saga_timeout_valid(saga)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Only completed steps are checked', 'Missing timestamps on completed steps return false', 'Exceeding 100 steps returns false'],
+  }],
+
+  ['proposal_weights_normalized', {
+    name: 'proposal_weights_normalized',
+    signature: 'proposal_weights_normalized(proposal) → boolean',
+    description: 'Verifies that the sum of all vote weights in a governance proposal equals 1.0 within floating-point tolerance (0.001).',
+    arguments: [
+      { name: 'proposal', type: 'GovernanceProposal', description: 'Proposal object with voting.votes_cast containing weight fields' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Weights sum to 1.0',
+        context: {
+          proposal: {
+            voting: {
+              votes_cast: [
+                { voter_id: 'a', weight: 0.3 },
+                { voter_id: 'b', weight: 0.4 },
+                { voter_id: 'c', weight: 0.3 },
+              ],
+            },
+          },
+        },
+        expression: 'proposal_weights_normalized(proposal)',
+        expected: true,
+      },
+      {
+        description: 'Weights do not sum to 1.0',
+        context: {
+          proposal: {
+            voting: {
+              votes_cast: [
+                { voter_id: 'a', weight: 0.5 },
+                { voter_id: 'b', weight: 0.6 },
+              ],
+            },
+          },
+        },
+        expression: 'proposal_weights_normalized(proposal)',
+        expected: false,
+      },
+      {
+        description: 'Empty votes is vacuously true',
+        context: {
+          proposal: {
+            voting: {
+              votes_cast: [],
+            },
+          },
+        },
+        expression: 'proposal_weights_normalized(proposal)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Empty votes returns true', 'Tolerance is 0.001', 'Max 100 votes (resource limit)'],
   }],
 ]);

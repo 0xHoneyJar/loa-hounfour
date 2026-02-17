@@ -54,6 +54,16 @@
         "status": "string",
         "settled_at": "string"
       }
+    },
+    {
+      "id": "saga-timeout-valid",
+      "description": "Completed saga steps must complete within per_step_seconds timeout",
+      "expression": "saga_timeout_valid(saga)",
+      "severity": "warning",
+      "category": "temporal",
+      "type_signature": {
+        "saga": "BridgeTransferSaga"
+      }
     }
   ]
 }
