@@ -23,12 +23,12 @@ describe('MintingPolicy constraint file', () => {
     expect(constraintFile.schema_id).toBe('MintingPolicy');
   });
 
-  it('has contract_version 6.0.0', () => {
-    expect(constraintFile.contract_version).toBe('6.0.0');
+  it('has contract_version 7.0.0', () => {
+    expect(constraintFile.contract_version).toBe('7.0.0');
   });
 
-  it('has 2 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(2);
+  it('has 3 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(3);
   });
 
   it('all constraints have type_signature', () => {

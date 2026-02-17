@@ -5,6 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
 import '../../src/validators/index.js';
 import { MintingPolicySchema } from '../../src/economy/minting-policy.js';
+import { evaluateConstraint } from '../../src/constraints/evaluator.js';
 
 const validPolicy = {
   policy_id: '123e4567-e89b-12d3-a456-426614174000',
@@ -48,5 +49,28 @@ describe('MintingPolicySchema', () => {
 
   it('rejects bad contract_version format', () => {
     expect(Value.Check(MintingPolicySchema, { ...validPolicy, contract_version: 'v6' })).toBe(false);
+  });
+});
+
+describe('MintingPolicy constraints (F-010)', () => {
+  it('minting-policy-epoch-minimum: warns when epoch < 60s', () => {
+    expect(evaluateConstraint(
+      { epoch_seconds: 30 },
+      'epoch_seconds >= 60',
+    )).toBe(false);
+  });
+
+  it('minting-policy-epoch-minimum: passes when epoch >= 60s', () => {
+    expect(evaluateConstraint(
+      { epoch_seconds: 86400 },
+      'epoch_seconds >= 60',
+    )).toBe(true);
+  });
+
+  it('minting-policy-epoch-minimum: passes at boundary (60s)', () => {
+    expect(evaluateConstraint(
+      { epoch_seconds: 60 },
+      'epoch_seconds >= 60',
+    )).toBe(true);
   });
 });

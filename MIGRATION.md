@@ -4,6 +4,118 @@
 
 ---
 
+## v6.0.0 → v7.0.0 (Breaking)
+
+**Breaking change:** `RegistryBridge` gains a required `transfer_protocol` field.
+
+### RegistryBridge — `transfer_protocol` (required)
+
+```typescript
+// BEFORE (v6.0.0):
+const bridge = {
+  bridge_id: 'bridge-1',
+  source_registry: 'registry-a',
+  target_registry: 'registry-b',
+  exchange_rate: { rate_type: 'fixed', rate_bps: 10000 },
+  invariants: [],
+  enforcement: 'strict',
+  settlement_policy: { settlement_type: 'immediate' },
+  contract_version: '6.0.0',
+};
+
+// AFTER (v7.0.0) — add transfer_protocol:
+const bridge = {
+  bridge_id: 'bridge-1',
+  source_registry: 'registry-a',
+  target_registry: 'registry-b',
+  exchange_rate: { rate_type: 'fixed', rate_bps: 10000 },
+  invariants: [],
+  enforcement: 'strict',
+  settlement_policy: { settlement_type: 'immediate' },
+  transfer_protocol: { saga_type: 'atomic' }, // NEW — 'atomic' or 'choreography'
+  contract_version: '7.0.0',
+};
+```
+
+### New schemas (additive — no migration needed)
+
+| Schema | Import Path | Purpose |
+|--------|------------|---------|
+| `BridgeTransferSaga` | `economy` or `composition` | Saga pattern for cross-registry transfers |
+| `DelegationOutcome` | `governance` or `composition` | Conflict resolution with dissent recording |
+| `MonetaryPolicy` | `economy` or `composition` | Minting-conservation coupling |
+| `PermissionBoundary` | `governance` or `composition` | MAY permission semantics |
+| `GovernanceProposal` | `governance` or `composition` | Weighted voting mechanism |
+
+### New evaluator builtins (23 → 31)
+
+| Builtin | Purpose |
+|---------|---------|
+| `saga_amount_conserved` | Validate saga step amounts balance |
+| `saga_steps_sequential` | Validate unique step IDs |
+| `saga_timeout_valid` | Validate step durations within limits |
+| `outcome_consensus_valid` | Validate consensus outcome consistency |
+| `monetary_policy_solvent` | Validate supply within ceiling |
+| `permission_boundary_active` | Validate boundary completeness |
+| `proposal_quorum_met` | Validate weighted vote quorum |
+| `proposal_weights_normalized` | Validate weights sum to 1.0 |
+
+---
+
+## v5.4.0 → v6.0.0 (Breaking)
+
+**Breaking change:** `AgentIdentity.trust_level` replaced by `trust_scopes`.
+
+### trust_level → trust_scopes
+
+```typescript
+// BEFORE (v5.4.0):
+const agent = {
+  agent_id: 'agent-1',
+  trust_level: 'trusted',
+  // ...
+};
+
+// AFTER (v6.0.0) — replace with scoped trust:
+const agent = {
+  agent_id: 'agent-1',
+  trust_scopes: {
+    data_access: 'verified',
+    financial: 'audited',
+    delegation: 'verified',
+    model_selection: 'provisional',
+    governance: 'provisional',
+    external_communication: 'restricted',
+  },
+  // ...
+};
+```
+
+### Trust level mapping guide
+
+| Old `trust_level` | Suggested `trust_scopes` default |
+|-------------------|----------------------------------|
+| `untrusted` | All scopes: `'restricted'` |
+| `provisional` | All scopes: `'provisional'` |
+| `trusted` | All scopes: `'verified'` |
+| `audited` | All scopes: `'audited'` |
+
+Refine per-scope after initial migration. Use helpers:
+```typescript
+import { trustLevelIndex, meetsThreshold } from '@0xhoneyjar/loa-hounfour/core';
+```
+
+---
+
+## Version Support Matrix (Current)
+
+| Property | Value |
+|----------|-------|
+| **Current Version** | 7.0.0 |
+| **Minimum Supported** | 6.0.0 |
+
+---
+
 ## Schema Evolution Strategy
 
 ### Version Support Policy
