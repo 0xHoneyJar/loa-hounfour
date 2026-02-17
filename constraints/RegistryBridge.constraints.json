@@ -24,6 +24,26 @@
       "type_signature": {
         "bridge_invariants": "array"
       }
+    },
+    {
+      "id": "registry-bridge-fixed-rate-requires-value",
+      "description": "Fixed exchange rate must specify a value",
+      "expression": "exchange_rate.rate_type != 'fixed' || exchange_rate.value != null",
+      "severity": "error",
+      "category": "integrity",
+      "type_signature": {
+        "exchange_rate": "object"
+      }
+    },
+    {
+      "id": "registry-bridge-oracle-rate-requires-endpoint",
+      "description": "Oracle exchange rate must specify an oracle endpoint",
+      "expression": "exchange_rate.rate_type != 'oracle' || exchange_rate.oracle_endpoint != null",
+      "severity": "error",
+      "category": "integrity",
+      "type_signature": {
+        "exchange_rate": "object"
+      }
     }
   ]
 }

@@ -13,6 +13,17 @@
       "type_signature": {
         "max_mint_per_epoch": "bigint_coercible"
       }
+    },
+    {
+      "id": "minting-policy-governance-requires-constraints",
+      "description": "Governance-approved minting must have at least one mint constraint",
+      "expression": "requires_governance_approval != true || mint_constraints.length > 0",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": {
+        "requires_governance_approval": "boolean",
+        "mint_constraints": "array"
+      }
     }
   ]
 }

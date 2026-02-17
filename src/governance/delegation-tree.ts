@@ -168,7 +168,7 @@ export function chainToTree(chain: {
   max_depth?: number;
 }): DelegationTree {
   const now = new Date().toISOString();
-  const uuid = () => '00000000-0000-4000-8000-' + Math.random().toString(16).slice(2, 14);
+  const uuid = () => crypto.randomUUID();
 
   // Build nodes from bottom up
   const links = chain.links ?? [];

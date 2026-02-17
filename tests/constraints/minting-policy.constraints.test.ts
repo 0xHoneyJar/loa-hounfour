@@ -27,12 +27,14 @@ describe('MintingPolicy constraint file', () => {
     expect(constraintFile.contract_version).toBe('6.0.0');
   });
 
-  it('has 1 constraint', () => {
-    expect(constraintFile.constraints).toHaveLength(1);
+  it('has 2 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(2);
   });
 
-  it('constraint has type_signature', () => {
-    expect(constraintFile.constraints[0].type_signature).toBeDefined();
+  it('all constraints have type_signature', () => {
+    for (const c of constraintFile.constraints) {
+      expect(c.type_signature, `${c.id} missing type_signature`).toBeDefined();
+    }
   });
 });
 
@@ -51,6 +53,25 @@ describe('minting-policy-max-positive', () => {
 
   it('passes for very large max_mint_per_epoch', () => {
     const data = { max_mint_per_epoch: '999999999999999999' };
+    expect(evaluateConstraint(data, c.expression)).toBe(true);
+  });
+});
+
+describe('minting-policy-governance-requires-constraints', () => {
+  const c = findConstraint('minting-policy-governance-requires-constraints');
+
+  it('passes when governance required and constraints exist', () => {
+    const data = { requires_governance_approval: true, mint_constraints: ['max-daily'] };
+    expect(evaluateConstraint(data, c.expression)).toBe(true);
+  });
+
+  it('fails when governance required but no constraints', () => {
+    const data = { requires_governance_approval: true, mint_constraints: [] };
+    expect(evaluateConstraint(data, c.expression)).toBe(false);
+  });
+
+  it('passes when governance not required and no constraints', () => {
+    const data = { requires_governance_approval: false, mint_constraints: [] };
     expect(evaluateConstraint(data, c.expression)).toBe(true);
   });
 });

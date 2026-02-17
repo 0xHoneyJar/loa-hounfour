@@ -906,7 +906,9 @@ class Parser {
     const seen = new Set<unknown>();
     for (const item of arr) {
       if (item != null && typeof item === 'object') {
-        const val = (item as Record<string, unknown>)[field];
+        const val = field.includes('.')
+          ? resolve(item as Record<string, unknown>, field)
+          : (item as Record<string, unknown>)[field];
         if (val !== undefined) {
           if (seen.has(val)) return false;
           seen.add(val);
@@ -969,7 +971,8 @@ class Parser {
 
   /**
    * tree_authority_narrowing(root) — iteratively validates that
-   * child.authority_scope is a strict subset of parent.authority_scope.
+   * child.authority_scope is a subset of parent.authority_scope.
+   * A child may have equal scope (full delegation) or narrower scope.
    * Authority scopes are normalized lowercase strings with set semantics.
    */
   private parseTreeAuthorityNarrowing(): boolean | string {

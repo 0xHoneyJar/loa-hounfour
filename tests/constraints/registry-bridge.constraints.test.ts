@@ -41,8 +41,8 @@ describe('RegistryBridge constraint file', () => {
     expect(constraintFile.contract_version).toBe('6.0.0');
   });
 
-  it('has 2 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(2);
+  it('has 4 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(4);
   });
 
   it('all constraints have type_signature', () => {
@@ -81,6 +81,54 @@ describe('registry-bridge-invariant-unique-ids', () => {
       ],
     };
     expect(evaluateConstraint(data, c.expression)).toBe(false);
+  });
+});
+
+describe('registry-bridge-fixed-rate-requires-value', () => {
+  const c = findConstraint('registry-bridge-fixed-rate-requires-value');
+
+  it('passes when fixed rate has value', () => {
+    expect(evaluateConstraint(validBridge, c.expression)).toBe(true);
+  });
+
+  it('fails when fixed rate has no value', () => {
+    const data = {
+      ...validBridge,
+      exchange_rate: { rate_type: 'fixed', value: null, governance_proposal_required: false, staleness_threshold_seconds: 3600 },
+    };
+    expect(evaluateConstraint(data, c.expression)).toBe(false);
+  });
+
+  it('passes when non-fixed rate has no value', () => {
+    const data = {
+      ...validBridge,
+      exchange_rate: { rate_type: 'oracle', oracle_endpoint: 'https://oracle.example', governance_proposal_required: false, staleness_threshold_seconds: 3600 },
+    };
+    expect(evaluateConstraint(data, c.expression)).toBe(true);
+  });
+});
+
+describe('registry-bridge-oracle-rate-requires-endpoint', () => {
+  const c = findConstraint('registry-bridge-oracle-rate-requires-endpoint');
+
+  it('passes when oracle rate has endpoint', () => {
+    const data = {
+      ...validBridge,
+      exchange_rate: { rate_type: 'oracle', oracle_endpoint: 'https://oracle.example', governance_proposal_required: false, staleness_threshold_seconds: 3600 },
+    };
+    expect(evaluateConstraint(data, c.expression)).toBe(true);
+  });
+
+  it('fails when oracle rate has no endpoint', () => {
+    const data = {
+      ...validBridge,
+      exchange_rate: { rate_type: 'oracle', oracle_endpoint: null, governance_proposal_required: false, staleness_threshold_seconds: 3600 },
+    };
+    expect(evaluateConstraint(data, c.expression)).toBe(false);
+  });
+
+  it('passes when non-oracle rate has no endpoint', () => {
+    expect(evaluateConstraint(validBridge, c.expression)).toBe(true);
   });
 });
 

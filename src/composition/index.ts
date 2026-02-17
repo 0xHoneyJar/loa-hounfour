@@ -21,6 +21,7 @@ export {
   type ExchangeRateSpec,
   type SettlementPolicy,
   type RegistryBridge,
+  CANONICAL_BRIDGE_INVARIANTS,
 } from '../economy/registry-composition.js';
 
 // Minting Policy (economy domain)

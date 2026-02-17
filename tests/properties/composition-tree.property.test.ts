@@ -300,6 +300,11 @@ describe('chainToTree/treeToChain roundtrip property', () => {
             node = node.children?.[0] as any;
           }
           expect(treeAgents).toEqual(originalAgents);
+
+          // Budget values preserved through roundtrip
+          const originalBudgets = chain.links.map((l) => l.budget_allocated_micro);
+          const backBudgets = back!.links.map((l: any) => l.budget_allocated_micro);
+          expect(backBudgets).toEqual(originalBudgets);
         },
       ),
       { numRuns: 20 },

@@ -664,7 +664,7 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
   ['tree_authority_narrowing', {
     name: 'tree_authority_narrowing',
     signature: 'tree_authority_narrowing(root) → boolean | string',
-    description: 'Iteratively validates child.authority_scope is strict subset of parent.authority_scope. Normalized lowercase, set semantics.',
+    description: 'Iteratively validates child.authority_scope is a subset of parent.authority_scope (equal scope is valid for full delegation). Normalized lowercase, set semantics.',
     arguments: [
       { name: 'root', type: 'DelegationTreeNode', description: 'Root node of the delegation tree' },
     ],
