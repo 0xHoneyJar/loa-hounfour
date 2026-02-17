@@ -1,32 +1,35 @@
 {
-  "plan_id": "plan-20260216-v51-protocol-constitution",
+  "plan_id": "plan-20260217-v70-coordination-aware",
   "branch": "feature/v5.0.0-multi-model",
   "state": "RUNNING",
   "timestamps": {
-    "started": "2026-02-16T15:00:00Z",
-    "last_activity": "2026-02-16T15:00:00Z"
+    "started": "2026-02-17T19:45:00Z",
+    "last_activity": "2026-02-17T19:45:00Z"
   },
   "sprints": {
     "total": 4,
     "completed": 0,
     "current": "sprint-1",
     "list": [
-      {"id": "sprint-1", "status": "pending", "cycles": 0, "files_changed": 0},
-      {"id": "sprint-2", "status": "pending", "cycles": 0, "files_changed": 0},
-      {"id": "sprint-3", "status": "pending", "cycles": 0, "files_changed": 0},
-      {"id": "sprint-4", "status": "pending", "cycles": 0, "files_changed": 0}
+      {"id": "sprint-1", "status": "completed", "cycles": 1},
+      {"id": "sprint-2", "status": "pending", "cycles": 0},
+      {"id": "sprint-3", "status": "pending", "cycles": 0},
+      {"id": "sprint-4", "status": "pending", "cycles": 0}
     ]
   },
   "options": {
     "from": 1,
     "to": 4,
     "max_cycles": 20,
-    "timeout_hours": 8
+    "timeout_hours": 8,
+    "local_mode": true,
+    "push_mode": "LOCAL"
   },
   "metrics": {
     "total_cycles": 0,
     "total_files_changed": 0,
     "total_findings_fixed": 0
   },
-  "cycle": "cycle-011"
+  "cycle": "cycle-016",
+  "simstim_id": null
 }

@@ -1,0 +1,754 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/bridge-transfer-saga",
+  "additionalProperties": false,
+  "description": "A saga orchestrating cross-registry bridge transfer with compensation semantics.",
+  "type": "object",
+  "required": [
+    "saga_id",
+    "bridge_id",
+    "source_registry",
+    "target_registry",
+    "saga_type",
+    "status",
+    "steps",
+    "compensation_steps",
+    "timeout",
+    "participants",
+    "initiated_at",
+    "settled_at",
+    "contract_version"
+  ],
+  "properties": {
+    "saga_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "bridge_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "source_registry": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "target_registry": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "saga_type": {
+      "description": "Whether the saga uses atomic or choreography coordination.",
+      "anyOf": [
+        {
+          "const": "atomic",
+          "type": "string"
+        },
+        {
+          "const": "choreography",
+          "type": "string"
+        }
+      ]
+    },
+    "status": {
+      "$id": "SagaStatus",
+      "description": "Status of a bridge transfer saga lifecycle.",
+      "anyOf": [
+        {
+          "const": "initiated",
+          "type": "string"
+        },
+        {
+          "const": "reserving",
+          "type": "string"
+        },
+        {
+          "const": "transferring",
+          "type": "string"
+        },
+        {
+          "const": "settling",
+          "type": "string"
+        },
+        {
+          "const": "settled",
+          "type": "string"
+        },
+        {
+          "const": "compensating",
+          "type": "string"
+        },
+        {
+          "const": "reversed",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        }
+      ]
+    },
+    "steps": {
+      "minItems": 1,
+      "description": "Ordered list of saga steps (at least one required).",
+      "type": "array",
+      "items": {
+        "$id": "BridgeTransferStep",
+        "additionalProperties": false,
+        "description": "A single step in a bridge transfer saga.",
+        "type": "object",
+        "required": [
+          "step_id",
+          "step_type",
+          "participant",
+          "status",
+          "amount_micro",
+          "started_at",
+          "completed_at"
+        ],
+        "properties": {
+          "step_id": {
+            "minLength": 1,
+            "description": "Unique identifier for this saga step.",
+            "type": "string"
+          },
+          "step_type": {
+            "$id": "StepType",
+            "description": "Type of step within a bridge transfer saga.",
+            "anyOf": [
+              {
+                "const": "reserve",
+                "type": "string"
+              },
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "transfer",
+                "type": "string"
+              },
+              {
+                "const": "confirm",
+                "type": "string"
+              },
+              {
+                "const": "settle",
+                "type": "string"
+              }
+            ]
+          },
+          "participant": {
+            "minLength": 1,
+            "description": "Agent or service responsible for executing this step.",
+            "type": "string"
+          },
+          "status": {
+            "$id": "StepStatus",
+            "description": "Status of an individual saga step.",
+            "anyOf": [
+              {
+                "const": "pending",
+                "type": "string"
+              },
+              {
+                "const": "in_progress",
+                "type": "string"
+              },
+              {
+                "const": "completed",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "compensated",
+                "type": "string"
+              }
+            ]
+          },
+          "amount_micro": {
+            "pattern": "^[0-9]+$",
+            "description": "Amount in micro-units (string-encoded BigInt).",
+            "type": "string"
+          },
+          "exchange_rate": {
+            "$id": "ExchangeRateSpec",
+            "additionalProperties": false,
+            "description": "Specification for how exchange rates are determined and maintained.",
+            "type": "object",
+            "required": [
+              "rate_type",
+              "governance_proposal_required",
+              "staleness_threshold_seconds"
+            ],
+            "properties": {
+              "rate_type": {
+                "$id": "ExchangeRateType",
+                "description": "How the exchange rate between registries is determined.",
+                "anyOf": [
+                  {
+                    "const": "fixed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "oracle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  }
+                ]
+              },
+              "value": {
+                "pattern": "^\\d+(\\.\\d+)?$",
+                "description": "Fixed rate value (required when rate_type is \"fixed\").",
+                "type": "string"
+              },
+              "oracle_endpoint": {
+                "format": "uri",
+                "description": "Oracle endpoint (required when rate_type is \"oracle\").",
+                "type": "string"
+              },
+              "governance_proposal_required": {
+                "default": false,
+                "description": "Whether rate changes require a governance proposal.",
+                "type": "boolean"
+              },
+              "staleness_threshold_seconds": {
+                "minimum": 0,
+                "default": 3600,
+                "description": "Maximum age in seconds before the rate is considered stale.",
+                "type": "integer"
+              }
+            }
+          },
+          "started_at": {
+            "description": "When step execution began, or null if not yet started.",
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_at": {
+            "description": "When step completed, or null if not yet completed.",
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "description": "Error message if step failed.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "compensation_steps": {
+      "description": "Compensation steps to reverse completed work on failure.",
+      "type": "array",
+      "items": {
+        "$id": "BridgeTransferStep",
+        "additionalProperties": false,
+        "description": "A single step in a bridge transfer saga.",
+        "type": "object",
+        "required": [
+          "step_id",
+          "step_type",
+          "participant",
+          "status",
+          "amount_micro",
+          "started_at",
+          "completed_at"
+        ],
+        "properties": {
+          "step_id": {
+            "minLength": 1,
+            "description": "Unique identifier for this saga step.",
+            "type": "string"
+          },
+          "step_type": {
+            "$id": "StepType",
+            "description": "Type of step within a bridge transfer saga.",
+            "anyOf": [
+              {
+                "const": "reserve",
+                "type": "string"
+              },
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "transfer",
+                "type": "string"
+              },
+              {
+                "const": "confirm",
+                "type": "string"
+              },
+              {
+                "const": "settle",
+                "type": "string"
+              }
+            ]
+          },
+          "participant": {
+            "minLength": 1,
+            "description": "Agent or service responsible for executing this step.",
+            "type": "string"
+          },
+          "status": {
+            "$id": "StepStatus",
+            "description": "Status of an individual saga step.",
+            "anyOf": [
+              {
+                "const": "pending",
+                "type": "string"
+              },
+              {
+                "const": "in_progress",
+                "type": "string"
+              },
+              {
+                "const": "completed",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "compensated",
+                "type": "string"
+              }
+            ]
+          },
+          "amount_micro": {
+            "pattern": "^[0-9]+$",
+            "description": "Amount in micro-units (string-encoded BigInt).",
+            "type": "string"
+          },
+          "exchange_rate": {
+            "$id": "ExchangeRateSpec",
+            "additionalProperties": false,
+            "description": "Specification for how exchange rates are determined and maintained.",
+            "type": "object",
+            "required": [
+              "rate_type",
+              "governance_proposal_required",
+              "staleness_threshold_seconds"
+            ],
+            "properties": {
+              "rate_type": {
+                "$id": "ExchangeRateType",
+                "description": "How the exchange rate between registries is determined.",
+                "anyOf": [
+                  {
+                    "const": "fixed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "oracle",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  }
+                ]
+              },
+              "value": {
+                "pattern": "^\\d+(\\.\\d+)?$",
+                "description": "Fixed rate value (required when rate_type is \"fixed\").",
+                "type": "string"
+              },
+              "oracle_endpoint": {
+                "format": "uri",
+                "description": "Oracle endpoint (required when rate_type is \"oracle\").",
+                "type": "string"
+              },
+              "governance_proposal_required": {
+                "default": false,
+                "description": "Whether rate changes require a governance proposal.",
+                "type": "boolean"
+              },
+              "staleness_threshold_seconds": {
+                "minimum": 0,
+                "default": 3600,
+                "description": "Maximum age in seconds before the rate is considered stale.",
+                "type": "integer"
+              }
+            }
+          },
+          "started_at": {
+            "description": "When step execution began, or null if not yet started.",
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_at": {
+            "description": "When step completed, or null if not yet completed.",
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "description": "Error message if step failed.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "timeout": {
+      "additionalProperties": false,
+      "description": "Timeout configuration for the saga.",
+      "type": "object",
+      "required": [
+        "total_seconds",
+        "per_step_seconds"
+      ],
+      "properties": {
+        "total_seconds": {
+          "minimum": 1,
+          "description": "Maximum total duration for the saga in seconds.",
+          "type": "integer"
+        },
+        "per_step_seconds": {
+          "minimum": 1,
+          "description": "Maximum duration for any individual step in seconds.",
+          "type": "integer"
+        }
+      }
+    },
+    "participants": {
+      "minItems": 1,
+      "description": "Participants involved in this saga (at least one required).",
+      "type": "array",
+      "items": {
+        "$id": "SagaParticipant",
+        "additionalProperties": false,
+        "description": "A participant in a bridge transfer saga with their trust profile.",
+        "type": "object",
+        "required": [
+          "agent_id",
+          "role",
+          "registry_id",
+          "trust_scopes"
+        ],
+        "properties": {
+          "agent_id": {
+            "minLength": 1,
+            "description": "Unique agent identifier for this participant.",
+            "type": "string"
+          },
+          "role": {
+            "$id": "ParticipantRole",
+            "description": "Role of a participant in a bridge transfer saga.",
+            "anyOf": [
+              {
+                "const": "initiator",
+                "type": "string"
+              },
+              {
+                "const": "counterparty",
+                "type": "string"
+              },
+              {
+                "const": "observer",
+                "type": "string"
+              },
+              {
+                "const": "arbiter",
+                "type": "string"
+              }
+            ]
+          },
+          "registry_id": {
+            "format": "uuid",
+            "description": "Registry this participant belongs to.",
+            "type": "string"
+          },
+          "trust_scopes": {
+            "$id": "CapabilityScopedTrust",
+            "additionalProperties": false,
+            "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+            "type": "object",
+            "required": [
+              "scopes",
+              "default_level"
+            ],
+            "properties": {
+              "scopes": {
+                "additionalProperties": false,
+                "description": "Per-scope trust levels. Missing scopes fall back to default_level.",
+                "type": "object",
+                "properties": {
+                  "billing": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "governance": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "inference": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "delegation": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "audit": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "composition": {
+                    "$id": "TrustLevel",
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              },
+              "default_level": {
+                "$id": "TrustLevel",
+                "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                "anyOf": [
+                  {
+                    "const": "untrusted",
+                    "type": "string"
+                  },
+                  {
+                    "const": "basic",
+                    "type": "string"
+                  },
+                  {
+                    "const": "verified",
+                    "type": "string"
+                  },
+                  {
+                    "const": "trusted",
+                    "type": "string"
+                  },
+                  {
+                    "const": "sovereign",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "initiated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "settled_at": {
+      "description": "When the saga was settled, or null if not yet settled.",
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error": {
+      "$id": "SagaError",
+      "additionalProperties": false,
+      "description": "Error details for a failed or compensating saga.",
+      "type": "object",
+      "required": [
+        "error_code",
+        "message",
+        "recoverable"
+      ],
+      "properties": {
+        "error_code": {
+          "minLength": 1,
+          "description": "Machine-readable error code.",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "description": "Human-readable error message.",
+          "type": "string"
+        },
+        "failed_step_id": {
+          "description": "ID of the step that caused the failure.",
+          "type": "string"
+        },
+        "recoverable": {
+          "description": "Whether the saga can be retried or compensated.",
+          "type": "boolean"
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

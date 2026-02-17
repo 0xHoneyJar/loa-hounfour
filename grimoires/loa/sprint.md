@@ -1,10 +1,10 @@
-# Sprint Plan: Bridgebuilder Field Report #37 — Polish & Merge
+# Sprint Plan: v7.0.0 Stabilization — Pre-Merge Hygiene
 
 **Status:** Draft
-**Cycle:** cycle-013 (continued)
-**Source:** [Bridgebuilder Field Report #37](https://github.com/0xHoneyJar/loa-hounfour/pull/12#issuecomment-3910553974)
+**Cycle:** cycle-016 (continued)
+**Source:** [PR #14 — Bridgebuilder Reviews I–VIII](https://github.com/0xHoneyJar/loa-hounfour/pull/14)
 **Branch:** `feature/v5.0.0-multi-model`
-**Goal:** Implement ALL findings from the Bridgebuilder review, regardless of severity level, then prepare PR #12 for merge.
+**Goal:** Resolve all remaining pre-merge issues to deliver a stable v7.0.0 for downstream consumption. Zero actionable code findings remain — this is build hygiene, consumer documentation, and deferred LOW findings.
 
 ---
 
@@ -13,181 +13,232 @@
 | Metric | Value |
 |--------|-------|
 | Sprints | 2 |
-| Total Tasks | 8 |
-| Findings Addressed | 5 actionable findings (+ 3 praises, 1 observation) |
-| Version | Remains 5.4.0 (pre-merge polish, no bump needed) |
-| Backward Compatibility | 100% — all 2,469 existing tests unchanged |
+| Total Tasks | 13 |
+| Current State | 3,902 tests passing, 153 files, 31 builtins, 3 TypeScript errors |
+| Target State | 0 TypeScript errors, all barrels wired, CHANGELOG + MIGRATION complete |
+| Risk Level | Low — all changes are additive or corrective, no architectural work |
 
-### Findings to Task Mapping
+### Issue Source Mapping
 
-| Finding # | Severity | Description | Task |
-|-----------|----------|-------------|------|
-| 4 | INFO | conservation_check tristate asymmetry | S1-T2 |
-| 5 | INFO | Model identifiers as plain strings | S1-T3 |
-| 6 | LOW | mission_alignment as free-text | S1-T4 |
-| 8 | INFO | Evaluator parsePrimary 15+ functions | S2-T1, S2-T2 |
-| 9 | INFO | revocation_policy not constraint-enforced | S1-T1 |
+| Issue | Source | Severity | Sprint |
+|-------|--------|----------|--------|
+| 3 TypeScript errors in `signature.ts` | Build output | P0 | Sprint 1 |
+| Stale test description strings (26/29 → 31) | Bridge Review VI | P1 | Sprint 1 |
+| Composition barrel not in top-level exports | Bridge Review VIII | P1 | Sprint 1 |
+| Composition barrel missing v7.0.0 types | Code audit | P1 | Sprint 1 |
+| F-009: Property test missing budget assertion | Bridge v6.0.0 iter 1 | LOW | Sprint 1 |
+| CHANGELOG.md stale (stuck at v1.1.0) | Bridge Review VIII | P1 | Sprint 2 |
+| No MIGRATION.md for breaking changes | Bridge Review VIII | P1 | Sprint 2 |
+| No conformance vector consumer docs | Bridge Review VIII | LOW | Sprint 2 |
+| F-010: MintingPolicy single-constraint gap | Bridge v6.0.0 iter 1 | LOW | Sprint 2 |
+
+### Inter-Sprint Gates
+
+| Gate | Condition |
+|------|-----------|
+| **Green Suite** | All 3,902+ tests pass |
+| **Type Check Clean** | `tsc --noEmit` produces 0 errors |
+| **Schema Check** | `npm run schema:check` passes |
+| **Constraint Validation** | `npm run check:constraints` passes |
 
 ---
 
-## Sprint 1: Constraint Completeness & Schema Hardening
+## Sprint 1: Build Hygiene & Type Safety (P0)
 
-**Goal:** Close all constraint gaps and harden schema types identified by the Bridgebuilder review.
+**Goal:** Achieve a clean `tsc --noEmit` build, fix all stale test metadata, wire all barrels correctly, and close the last deferred property test gap.
 
-### S1-T1: DelegationChain Revocation Policy Constraint
+**Global Sprint ID:** 68
+**Depends on:** Nothing (all v7.0.0 feature work complete)
+**Estimated New Tests:** ~5
 
-**Finding:** #9 — `revocation_policy` field declared but not enforced by constraints.
+### S1-T1: Fix `jose` Import Types in `signature.ts`
 
-**Description:** Add a constraint to `constraints/DelegationChain.constraints.json` that validates revocation semantics: if the chain status is `revoked` and `revocation_policy` is `cascade`, then all link outcomes must be `failed` or the chain status itself expresses the revocation. Since runtime revocation isn't implemented yet, add a lighter consistency constraint: if status is `revoked`, revocation_policy must be present.
+**Source:** `tsc --noEmit` errors (lines 43, 113)
+**File:** `src/utilities/signature.ts`
+
+**Description:** The `jose` v6 library restructured its exports. `jose.KeyLike` is no longer accessible as a namespace member. Import `KeyLike` as a named type import instead.
 
 **Acceptance Criteria:**
-- New constraint `delegation-chain-revocation-requires-policy` in `DelegationChain.constraints.json`
-- Expression: `status != 'revoked' || revocation_policy != null`
-- Severity: error
-- Message: "Revoked chain must declare a revocation_policy"
-- Total DelegationChain constraints: 7
-- All existing tests still pass
-- 2+ new tests covering: revoked chain with policy (pass), revoked chain without policy (fail)
+- `import type { KeyLike } from 'jose'` (or equivalent correct import) replaces `jose.KeyLike`
+- Both `KeyResolver` type (line 43) and `key` variable (line 113) use the correct type
+- `tsc --noEmit` produces no errors for these two locations
+- Existing signature tests continue to pass
 
-**Testing:** Extend `tests/constraints/delegation-chain-constraints.test.ts`
+### S1-T2: Fix `canonicalize` Import in `signature.ts`
 
----
+**Source:** `tsc --noEmit` error (line 56)
+**File:** `src/utilities/signature.ts`
 
-### S1-T2: InterAgentTransactionAudit Conservation Tristate Completeness
-
-**Finding:** #4 — `violated` and `unverifiable` states have no constraints.
-
-**Description:** Add constraints that give semantic meaning to the `violated` and `unverifiable` conservation states. When `conservation_check == 'violated'`, the balances should demonstrably NOT conserve (otherwise why claim violation?). When `conservation_check == 'unverifiable'`, no balance conservation assertion is made (already the case), but add an advisory constraint noting the epistemological gap.
+**Description:** The `canonicalize` package's default export doesn't match the expected call signature under the current TypeScript module resolution. Fix the import to use the correct ESM import pattern for the `canonicalize` package.
 
 **Acceptance Criteria:**
-- New constraint `transaction-audit-violated-means-violated` (severity: error)
-  - Expression: when conservation_check is 'violated', at least one of sender or receiver conservation must fail
-  - This prevents falsely claiming violation when balances actually conserve
-- New constraint `transaction-audit-unverifiable-advisory` (severity: warning)
-  - Expression: advisory when conservation_check is 'unverifiable' AND both balance checks pass (could be marked conserved instead)
-  - Message: "Transaction passes conservation checks but is marked unverifiable — consider upgrading to 'conserved'"
-- Total InterAgentTransactionAudit constraints: 7
-- All existing tests still pass
-- 4+ new tests: violated-with-real-violation (pass), violated-but-balances-conserve (fail), unverifiable-with-passing-checks (warning), unverifiable-with-failing-checks (pass)
+- `canonicalize(rest)` call compiles without error
+- `tsc --noEmit` produces no errors for line 56
+- `canonicalizeProviderSpec()` function continues to work correctly
+- Existing signature tests continue to pass
 
-**Testing:** Extend `tests/constraints/inter-agent-transaction-audit-constraints.test.ts`
+### S1-T3: Update Stale Test Description Strings
 
----
+**Source:** Bridge Review VI audit
+**Files:** 5 test files with 9 stale `it('...')` description strings
 
-### S1-T3: EnsembleCapabilityProfile Model Identifier Format
-
-**Finding:** #5 — Model identifiers as plain strings, no format constraint.
-
-**Description:** Add a `pattern` constraint to model identifiers in EnsembleCapabilityProfile to enforce a minimum structure. Use a lightweight pattern: identifiers must be lowercase alphanumeric with hyphens and optional `/` separator for namespacing (e.g., `openai/gpt-4`, `anthropic/claude-opus`, `local-model-1`). This matches the `model-provider-spec` naming convention already in the index.
+**Description:** Test assertion values were updated from 26/29 → 31 when builtins were added, but the human-readable `it()` description strings were not updated. Fix all 9 occurrences across 5 files.
 
 **Acceptance Criteria:**
-- Update `models` array items in `EnsembleCapabilityProfileSchema` to include pattern: `^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)?$`
-- Update `individual_capabilities` record key to use the same pattern constraint
-- All existing conformance vectors still pass (update any that use uppercase model names)
-- 3+ new tests: valid namespaced identifier, valid simple identifier, invalid identifier with spaces or uppercase
+- `tests/constraints/tree-builtins.test.ts` — 2 descriptions updated (26 → 31)
+- `tests/constraints/coordination-builtins.test.ts` — 2 descriptions updated (26 → 31)
+- `tests/constraints/governance-builtins.test.ts` — 2 descriptions updated (29 → 31)
+- `tests/constraints/evaluator-spec.test.ts` — 1 description updated (26 → 31)
+- `tests/constraints/constraint-ast-node.test.ts` — 2 descriptions updated (26 → 31)
+- All 3,902 tests continue to pass
 
-**Testing:** Extend `tests/schemas/ensemble-capability-profile.test.ts`
+### S1-T4: Wire Composition Barrel into Top-Level Exports
 
----
+**Source:** Bridge Review VIII, code audit
+**File:** `src/index.ts`
 
-### S1-T4: GovernanceConfig Mission Alignment Structured Type
-
-**Finding:** #6 — `mission_alignment` as free-text string.
-
-**Description:** Replace the free-text `mission_alignment` with a structured `MissionAlignmentSchema` that has a `statement` (the text), a `category` (enum of broad alignment categories), and an optional `url` for reference. Keep the change backward-compatible by making all fields optional except `statement`.
-
-**Acceptance Criteria:**
-- New `MissionAlignmentSchema` with:
-  - `statement: Type.String({ minLength: 1 })` (the mission text)
-  - `category: Type.Optional(Type.Union([...]))` — enum: 'research' | 'commerce' | 'public_good' | 'education' | 'infrastructure'
-  - `url: Type.Optional(Type.String({ format: 'uri' }))` (reference URL)
-- `mission_alignment` field type changed from `Type.Optional(Type.String())` to `Type.Optional(MissionAlignmentSchema)`
-- Type export: `MissionAlignment`
-- All existing GovernanceConfig tests updated if needed
-- 4+ new tests: valid with full fields, valid with statement only, invalid with empty statement, valid without mission_alignment (backward compat)
-
-**Testing:** Extend `tests/schemas/governance-config.test.ts`
-
----
-
-## Sprint 2: Evaluator Registry & Merge Preparation
-
-**Goal:** Refactor the evaluator to a function registry pattern and prepare the PR for merge.
-
-### S2-T1: Evaluator Function Registry Architecture
-
-**Finding:** #8 — parsePrimary at 15+ functions in an if-chain, consider registry pattern.
-
-**Description:** Refactor `src/constraints/evaluator.ts` to use a `Map<string, FunctionHandler>` registry instead of the current if-chain in `parsePrimary`. Each built-in function becomes a registered handler. The registry is populated at module initialization. This is a pure refactor — no behavior changes.
+**Description:** `src/composition/index.ts` exists as a well-structured barrel but is not re-exported from `src/index.ts`. This means `import { RegistryBridgeSchema } from '@0xhoneyjar/loa-hounfour'` works (via economy barrel) but the composition sub-package is invisible from the main entry point. Add the re-export.
 
 **Acceptance Criteria:**
-- New type: `type FunctionHandler = (parser: ParserContext) => unknown`
-- New `FUNCTION_REGISTRY: Map<string, FunctionHandler>` initialized with all 15+ handlers
-- `parsePrimary` reduces to: check registry, call handler if found, fall through to field path
-- All existing evaluator tests pass unchanged (zero behavior change)
-- `MAX_EXPRESSION_DEPTH` preserved
-- Each handler is a named function (not anonymous) for stack trace readability
-- Registry is frozen after initialization (Object.freeze or readonly Map)
+- `src/index.ts` includes `export * from './composition/index.js'`
+- No duplicate export conflicts (composition barrel re-exports a subset of economy + governance)
+- NOTE: If duplicate exports arise, use explicit named re-export to avoid conflicts
+- `tsc --noEmit` clean after addition
 
-**Testing:** All existing tests in `tests/constraints/` pass unchanged. Add `tests/constraints/evaluator-registry.test.ts` with:
-- Registry contains expected function names
-- Unknown function names fall through to field path resolution
-- Registry cannot be mutated after initialization
+### S1-T5: Extend Composition Barrel with v7.0.0 Types
 
----
+**Source:** SDD §1.3 — Subpath Exports
+**File:** `src/composition/index.ts`
 
-### S2-T2: Evaluator Registry Tests & Documentation
-
-**Description:** Verify the evaluator refactor via comprehensive round-trip testing and add inline documentation.
+**Description:** The composition barrel was created in v6.0.0 and includes registry bridges, minting policies, and delegation trees. v7.0.0 added saga, outcome, permission, and proposal types that are cross-domain composition primitives. Extend the barrel.
 
 **Acceptance Criteria:**
-- All 2,469+ existing tests pass (the ultimate refactor safety net)
-- JSDoc on FUNCTION_REGISTRY explaining extension pattern
-- JSDoc on FunctionHandler type
-- Each registered handler has a one-line JSDoc
-- `npm run typecheck` passes
+- BridgeTransferSaga types re-exported from economy domain
+- DelegationOutcome types re-exported from governance domain
+- PermissionBoundary types re-exported from governance domain
+- GovernanceProposal types re-exported from governance domain
+- MonetaryPolicy types re-exported from economy domain
+- No import cycle introduced
+- `tsc --noEmit` clean
 
-**Testing:** Full test suite run
+### S1-T6: F-009 — Property Test Budget Preservation Assertion
 
----
+**Source:** Bridge v6.0.0 iteration 1, deferred LOW finding
+**File:** `tests/governance/delegation-tree.test.ts` (or nearest property test file)
 
-### S2-T3: Merge Preparation
-
-**Description:** Final checks, test suite verification, and PR update for merge readiness.
+**Description:** The property test for delegation tree roundtrip (`chainToTree → treeToChain`) validates structural integrity but does not assert budget preservation across the roundtrip. Add a `budget_allocated_micro` conservation check.
 
 **Acceptance Criteria:**
-- Full test suite passes (`npm run test`)
-- TypeScript type check passes (`npm run typecheck`)
-- `BUTTERFREEZONE.md` updated with final schema/test counts
-- `schemas/index.json` schema count still accurate (63)
-- No untracked files that should be committed
-- PR #12 description updated if needed to reflect polish sprint
-- PR marked ready for review (remove draft status)
+- Property test asserts that sum of child budgets is preserved through roundtrip
+- At least 1 new test case
+- All existing tests pass
 
-**Testing:** Full test suite + manual verification
+### S1-T7: Verify Clean Build
 
----
+**Source:** Gate requirement
+**Commands:** `tsc --noEmit`, `vitest run`
 
-## Risk Assessment
+**Description:** After all Sprint 1 tasks, verify the build is completely clean.
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| MissionAlignmentSchema is breaking for existing consumers | Medium | The field was Optional before and remains Optional — only the inner type changes. Consumers not using mission_alignment are unaffected. |
-| Evaluator registry refactor introduces subtle behavior change | High | 2,469 existing tests act as comprehensive regression net. Zero behavior change is the acceptance criterion. |
-| Model identifier pattern rejects existing valid identifiers | Low | Pattern is permissive (lowercase alphanumeric + hyphen + dot + underscore + optional namespace). Update any vectors that don't match. |
-| conservation_check violated constraint is too strict | Medium | The constraint only fires when conservation_check == 'violated' — existing 'conserved' and 'unverifiable' paths unchanged. |
+**Acceptance Criteria:**
+- `tsc --noEmit` exits 0 with no errors
+- All tests pass (3,902+)
+- No new warnings introduced
 
 ---
 
-## Dependencies
+## Sprint 2: Consumer Documentation & Release Readiness (P1)
 
-```
-Sprint 1 ─── Sprint 2
-  S1-T1        S2-T1 (evaluator refactor independent of S1 constraints
-  S1-T2         but should run after to include new constraint expressions
-  S1-T3         in the registry)
-  S1-T4        S2-T2 (verification)
-               S2-T3 (merge prep — runs last)
-```
+**Goal:** Ensure downstream consumers (arrakis, loa-finn) can adopt v7.0.0 with full understanding of breaking changes, migration paths, and how to use conformance vectors. Close the last deferred constraint gap.
 
-Sprint 2 depends on Sprint 1 completion for the final test count and constraint coverage.
+**Global Sprint ID:** 69
+**Depends on:** Sprint 1 (clean build)
+**Estimated New Tests:** ~3
+
+### S2-T1: Update CHANGELOG.md
+
+**Source:** Bridge Review VIII
+**File:** `CHANGELOG.md`
+
+**Description:** CHANGELOG.md is stuck at v1.1.0 (from Feb 13). It needs entries for v5.5.0 (Conservation-Aware), v6.0.0 (Composition-Aware), and v7.0.0 (Coordination-Aware). Use conventional changelog format with Added/Changed/Fixed/Breaking sections.
+
+**Acceptance Criteria:**
+- `## [7.0.0]` section with all v7.0.0 additions (16 new schemas, 8 new builtins, saga/outcome/permission/proposal)
+- `## [6.0.0]` section with composition primitives (registry bridges, delegation trees, constraint type system, schema graph)
+- `## [5.5.0]` section with conservation foundation (branded types, JWT boundary, evaluator specs, agent identity)
+- Breaking changes clearly marked in each section
+- Source references to PR #14 and relevant issues
+
+### S2-T2: Create MIGRATION.md
+
+**Source:** Bridge Review VIII, SDD §6
+**File:** `MIGRATION.md`
+
+**Description:** No migration guide exists for the v5.5.0 → v7.0.0 breaking changes. Downstream consumers need step-by-step instructions for:
+- `trust_level` → `trust_scopes` migration (v6.0.0)
+- `RegistryBridge` + required `transfer_protocol` field (v7.0.0)
+- New constraint file schema additions
+- Evaluator builtin count changes (23 → 31)
+
+**Acceptance Criteria:**
+- Clear before/after code examples for each breaking change
+- `trust_level` → `trust_scopes` migration with TypeScript code snippet
+- `RegistryBridge.transfer_protocol` addition with minimal valid example
+- Version-by-version migration path (v5.4.0 → v5.5.0 → v6.0.0 → v7.0.0)
+- Links to relevant SDD sections and PR #14 for context
+
+### S2-T3: Add Conformance Vector Consumer README
+
+**Source:** Bridge Review VIII
+**File:** `vectors/conformance/README.md`
+
+**Description:** The `vectors/conformance/` directory contains 21 subdirectories with JSON test vectors but no documentation explaining how to use them. Cross-language consumers (Python, Go, Rust) need to understand the vector format, validation approach, and how to write a conformance runner.
+
+**Acceptance Criteria:**
+- Vector format documented (JSON structure, field semantics)
+- Example of running vectors in TypeScript (reference to existing `test:vectors` script)
+- Example schema for a cross-language runner (pseudocode or schema)
+- List of all 21 vector categories with brief description
+- Instructions for adding new vectors
+
+### S2-T4: F-010 — MintingPolicy Constraint Strengthening
+
+**Source:** Bridge v6.0.0 iteration 1, deferred LOW finding
+**File:** `constraints/MintingPolicy.constraints.json`
+
+**Description:** MintingPolicy constraints file has only one constraint. MonetaryPolicy (v7.0.0) partially addresses this by coupling minting to conservation, but MintingPolicy itself should validate that `max_supply_micro` is non-negative and that `policy_id` follows the expected pattern.
+
+**Acceptance Criteria:**
+- At least 1 additional constraint added to `MintingPolicy.constraints.json`
+- Constraint validates `max_supply_micro` is a valid non-negative BigInt string
+- Constraint file passes `check:constraints` validation
+- Tests verify the new constraint evaluates correctly
+
+### S2-T5: Pre-Merge Verification Suite
+
+**Source:** Gate requirement
+**Commands:** All check scripts
+
+**Description:** Run the complete verification suite to confirm merge readiness.
+
+**Acceptance Criteria:**
+- `npm run typecheck` — 0 errors
+- `npm run test` — all pass
+- `npm run schema:check` — all pass
+- `npm run vectors:check` — all pass
+- `npm run check:constraints` — all pass (or document known limitations)
+- `npm run check:all` — clean exit
+
+### S2-T6: Update PR #14 Description for Merge
+
+**Source:** Final step
+**Target:** PR #14 body
+
+**Description:** Update the PR description with a comprehensive summary of everything delivered across v5.5.0 → v7.0.0, including test counts, schema counts, builtin counts, and a link to MIGRATION.md for reviewers.
+
+**Acceptance Criteria:**
+- PR body includes version summary table (v5.5.0, v6.0.0, v7.0.0)
+- Test count (3,900+), schema count (92+), builtin count (31)
+- Link to MIGRATION.md for breaking change review
+- Bridge iteration summary (flatline achieved at iteration 2)
+- Ready for merge approval

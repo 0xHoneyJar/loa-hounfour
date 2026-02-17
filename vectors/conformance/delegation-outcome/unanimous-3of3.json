@@ -1,0 +1,48 @@
+{
+  "vector_id": "conformance-delegation-outcome-0001",
+  "category": "delegation-outcome",
+  "description": "Unanimous outcome with 3 agree votes, no dissent, consensus achieved",
+  "contract_version": "7.0.0",
+  "input": {
+    "outcome_id": "00000000-0000-0000-0000-000000000101",
+    "tree_node_id": "root-orchestrator-node",
+    "outcome_type": "unanimous",
+    "result": { "action": "approve_budget_increase", "amount_micro": "5000000" },
+    "votes": [
+      {
+        "voter_id": "agent-alpha",
+        "vote": "agree",
+        "result": { "action": "approve_budget_increase", "amount_micro": "5000000" },
+        "confidence": 0.95,
+        "reasoning": "Budget increase aligns with projected growth targets"
+      },
+      {
+        "voter_id": "agent-beta",
+        "vote": "agree",
+        "result": { "action": "approve_budget_increase", "amount_micro": "5000000" },
+        "confidence": 0.88,
+        "reasoning": "Historical spending patterns justify the request"
+      },
+      {
+        "voter_id": "agent-gamma",
+        "vote": "agree",
+        "result": { "action": "approve_budget_increase", "amount_micro": "5000000" },
+        "confidence": 0.92
+      }
+    ],
+    "consensus_achieved": true,
+    "consensus_threshold": 0.67,
+    "dissent_records": [],
+    "resolved_at": "2026-02-17T14:00:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.3",
+    "fr": "FR-8"
+  }
+}

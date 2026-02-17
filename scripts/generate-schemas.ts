@@ -59,6 +59,53 @@ import { ConformanceVectorSchema } from '../src/schemas/model/conformance-vector
 import { SanctionSeveritySchema } from '../src/vocabulary/sanction-severity.js';
 // v5.1.0 — Reconciliation
 import { ReconciliationModeSchema } from '../src/vocabulary/reconciliation-mode.js';
+// v5.2.0 — Capacity Reservation
+import { AgentCapacityReservationSchema } from '../src/schemas/model/routing/agent-capacity-reservation.js';
+import { ReservationTierSchema } from '../src/vocabulary/reservation-tier.js';
+import { ReservationEnforcementSchema } from '../src/vocabulary/reservation-enforcement.js';
+import { ReservationStateSchema } from '../src/vocabulary/reservation-state.js';
+// v5.2.0 — Conservation
+import { ConservationStatusSchema } from '../src/vocabulary/conservation-status.js';
+import { AuditTrailEntrySchema } from '../src/schemas/audit-trail-entry.js';
+// v5.3.0 — Governance
+import { GovernanceConfigSchema } from '../src/schemas/governance-config.js';
+// v5.4.0 — Delegation
+import { DelegationChainSchema } from '../src/schemas/model/routing/delegation-chain.js';
+// v5.4.0 — Inter-Agent
+import { InterAgentTransactionAuditSchema } from '../src/schemas/inter-agent-transaction-audit.js';
+// v5.4.0 — Ensemble
+import { EnsembleCapabilityProfileSchema } from '../src/schemas/model/ensemble/ensemble-capability-profile.js';
+// v5.5.0 — Conservation Registry
+import { ConservationPropertyRegistrySchema } from '../src/integrity/conservation-properties.js';
+// v5.5.0 — JWT Boundary
+import { JwtBoundarySpecSchema, OutboundClaimsSchema, InboundClaimsSchema } from '../src/economy/jwt-boundary.js';
+// v5.5.0 — Agent Identity
+import { AgentIdentitySchema, CapabilityScopedTrustSchema, CapabilityScopeSchema } from '../src/schemas/agent-identity.js';
+// v6.0.0 — Liveness
+import { LivenessPropertySchema, TimeoutBehaviorSchema } from '../src/integrity/liveness-properties.js';
+// v6.0.0 — Constraint Type System
+import { ConstraintTypeSchema } from '../src/constraints/constraint-types.js';
+import { ConstraintTypeSignatureSchema } from '../src/constraints/constraint-types.js';
+// v6.0.0 — Registry Bridge + Delegation Tree
+import { BridgeEnforcementSchema } from '../src/economy/registry-composition.js';
+import { BridgeInvariantSchema } from '../src/economy/registry-composition.js';
+import { ExchangeRateTypeSchema } from '../src/economy/registry-composition.js';
+import { ExchangeRateSpecSchema } from '../src/economy/registry-composition.js';
+import { SettlementPolicySchema } from '../src/economy/registry-composition.js';
+import { RegistryBridgeSchema } from '../src/economy/registry-composition.js';
+import { MintingPolicySchema } from '../src/economy/minting-policy.js';
+import { ForkTypeSchema } from '../src/governance/delegation-tree.js';
+import { TreeNodeStatusSchema } from '../src/governance/delegation-tree.js';
+import { TreeStrategySchema } from '../src/governance/delegation-tree.js';
+import { BudgetAllocationSchema } from '../src/governance/delegation-tree.js';
+import { DelegationTreeNodeSchema } from '../src/governance/delegation-tree.js';
+import { DelegationTreeSchema } from '../src/governance/delegation-tree.js';
+// v7.0.0 — Coordination Layer
+import { BridgeTransferSagaSchema } from '../src/economy/bridge-transfer-saga.js';
+import { MonetaryPolicySchema } from '../src/economy/monetary-policy.js';
+import { DelegationOutcomeSchema } from '../src/governance/delegation-outcome.js';
+import { PermissionBoundarySchema } from '../src/governance/permission-boundary.js';
+import { GovernanceProposalSchema } from '../src/governance/governance-proposal.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -135,6 +182,58 @@ const schemas = [
   { name: 'sanction-severity', schema: SanctionSeveritySchema },
   // v5.1.0 — Reconciliation
   { name: 'reconciliation-mode', schema: ReconciliationModeSchema },
+  // v5.2.0 — Capacity Reservation
+  { name: 'agent-capacity-reservation', schema: AgentCapacityReservationSchema },
+  { name: 'reservation-tier', schema: ReservationTierSchema },
+  { name: 'reservation-enforcement', schema: ReservationEnforcementSchema },
+  { name: 'reservation-state', schema: ReservationStateSchema },
+  // v5.2.0 — Conservation
+  { name: 'conservation-status', schema: ConservationStatusSchema },
+  { name: 'audit-trail-entry', schema: AuditTrailEntrySchema },
+  // v5.3.0 — Governance
+  { name: 'governance-config', schema: GovernanceConfigSchema },
+  // v5.4.0 — Delegation
+  { name: 'delegation-chain', schema: DelegationChainSchema },
+  // v5.4.0 — Inter-Agent
+  { name: 'inter-agent-transaction-audit', schema: InterAgentTransactionAuditSchema },
+  // v5.4.0 — Ensemble
+  { name: 'ensemble-capability-profile', schema: EnsembleCapabilityProfileSchema },
+  // v5.5.0 — Conservation Registry
+  { name: 'conservation-property-registry', schema: ConservationPropertyRegistrySchema },
+  // v5.5.0 — JWT Boundary
+  { name: 'jwt-boundary-spec', schema: JwtBoundarySpecSchema },
+  { name: 'outbound-claims', schema: OutboundClaimsSchema },
+  { name: 'inbound-claims', schema: InboundClaimsSchema },
+  // v5.5.0 — Agent Identity
+  { name: 'agent-identity', schema: AgentIdentitySchema },
+  // v6.0.0 — Liveness + Capability Trust
+  { name: 'liveness-property', schema: LivenessPropertySchema },
+  { name: 'timeout-behavior', schema: TimeoutBehaviorSchema },
+  { name: 'capability-scope', schema: CapabilityScopeSchema },
+  { name: 'capability-scoped-trust', schema: CapabilityScopedTrustSchema },
+  // v6.0.0 — Constraint Type System
+  { name: 'constraint-type', schema: ConstraintTypeSchema },
+  { name: 'constraint-type-signature', schema: ConstraintTypeSignatureSchema },
+  // v6.0.0 — Registry Bridge + Delegation Tree
+  { name: 'bridge-enforcement', schema: BridgeEnforcementSchema },
+  { name: 'bridge-invariant', schema: BridgeInvariantSchema },
+  { name: 'exchange-rate-type', schema: ExchangeRateTypeSchema },
+  { name: 'exchange-rate-spec', schema: ExchangeRateSpecSchema },
+  { name: 'settlement-policy', schema: SettlementPolicySchema },
+  { name: 'registry-bridge', schema: RegistryBridgeSchema },
+  { name: 'minting-policy', schema: MintingPolicySchema },
+  { name: 'fork-type', schema: ForkTypeSchema },
+  { name: 'tree-node-status', schema: TreeNodeStatusSchema },
+  { name: 'tree-strategy', schema: TreeStrategySchema },
+  { name: 'budget-allocation', schema: BudgetAllocationSchema },
+  { name: 'delegation-tree-node', schema: DelegationTreeNodeSchema },
+  { name: 'delegation-tree', schema: DelegationTreeSchema },
+  // v7.0.0 — Coordination Layer
+  { name: 'bridge-transfer-saga', schema: BridgeTransferSagaSchema },
+  { name: 'monetary-policy', schema: MonetaryPolicySchema },
+  { name: 'delegation-outcome', schema: DelegationOutcomeSchema },
+  { name: 'permission-boundary', schema: PermissionBoundarySchema },
+  { name: 'governance-proposal', schema: GovernanceProposalSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

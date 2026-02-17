@@ -1,0 +1,60 @@
+{
+  "vector_id": "conformance-delegation-outcome-0003",
+  "category": "delegation-outcome",
+  "description": "Deadlock outcome with 1 agree, 2 disagree, null result, escalated to higher authority",
+  "contract_version": "7.0.0",
+  "input": {
+    "outcome_id": "00000000-0000-0000-0000-000000000103",
+    "tree_node_id": "dispute-resolution-node",
+    "outcome_type": "deadlock",
+    "result": null,
+    "votes": [
+      {
+        "voter_id": "agent-alpha",
+        "vote": "agree",
+        "result": { "action": "revoke_bridge_access" },
+        "confidence": 0.72,
+        "reasoning": "Bridge violations warrant immediate access revocation"
+      },
+      {
+        "voter_id": "agent-beta",
+        "vote": "disagree",
+        "result": { "action": "issue_warning_only" },
+        "confidence": 0.80,
+        "reasoning": "Violations were minor and do not warrant revocation"
+      },
+      {
+        "voter_id": "agent-gamma",
+        "vote": "disagree",
+        "result": { "action": "issue_warning_only" },
+        "confidence": 0.65,
+        "reasoning": "First-time offense merits a warning, not punitive action"
+      }
+    ],
+    "consensus_achieved": false,
+    "consensus_threshold": 0.75,
+    "dissent_records": [
+      {
+        "dissenter_id": "agent-alpha",
+        "dissent_type": "minority_report",
+        "proposed_alternative": { "action": "revoke_bridge_access", "grace_period_hours": 24 },
+        "reasoning": "Even with deadlock, the security risk of continued bridge access requires escalation to a sovereign authority for resolution.",
+        "severity": "blocking",
+        "acknowledged": false
+      }
+    ],
+    "escalated_to": "sovereign-arbiter-001",
+    "escalation_reason": "Deadlock on bridge access revocation — consensus threshold 0.75 not met with 1/3 agree",
+    "resolved_at": "2026-02-17T16:45:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.3",
+    "fr": "FR-8"
+  }
+}

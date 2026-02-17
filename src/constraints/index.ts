@@ -22,6 +22,33 @@ export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';
 
+// Evaluator Builtin Specification Registry (v5.5.0, FR-5)
+export {
+  EVALUATOR_BUILTIN_SPECS,
+  type EvaluatorBuiltinSpec,
+  type ArgumentSpec,
+  type EvaluatorExample,
+} from './evaluator-spec.js';
+
+// Constraint Type System (v6.0.0, FR-3)
+export {
+  ConstraintTypeSchema,
+  ConstraintTypeSignatureSchema,
+  CONSTRAINT_TYPES,
+  type ConstraintType,
+  type ConstraintTypeSignature,
+  type ConstraintASTNode,
+} from './constraint-types.js';
+
+// Static Type Checker (v6.0.0, FR-3)
+export {
+  typeCheckConstraintFile,
+  type TypeCheckError,
+  type TypeCheckWarning,
+  type TypeCheckResult,
+  type SchemaRegistryEntry,
+} from './type-checker.js';
+
 // Vocabulary — State Machines
 export {
   STATE_MACHINES,

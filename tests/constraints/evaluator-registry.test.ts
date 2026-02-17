@@ -33,7 +33,7 @@ function getTestedConstraintSchemaIds(): string[] {
  * Extract standalone function calls from tested constraint files only.
  */
 function extractTestedFunctionCalls(): Set<string> {
-  const METHOD_NAMES = new Set(['every', 'length']);
+  const METHOD_NAMES = new Set(['every', 'some', 'length']);
   const testedSchemas = new Set(getTestedConstraintSchemaIds());
   const calls = new Set<string>();
   const files = readdirSync(constraintsDir).filter(f => f.endsWith('.constraints.json'));
@@ -55,8 +55,8 @@ function extractTestedFunctionCalls(): Set<string> {
 }
 
 describe('Evaluator function registry', () => {
-  it('EVALUATOR_BUILTINS contains all 17 registered functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(17);
+  it('EVALUATOR_BUILTINS contains all 26 registered functions', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(31);
   });
 
   it('EVALUATOR_BUILTINS is frozen (const tuple)', () => {

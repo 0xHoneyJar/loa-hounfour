@@ -18,8 +18,16 @@ import { ConservationStatusSchema } from '../vocabulary/conservation-status.js';
 export const AuditTrailEntrySchema = Type.Object(
   {
     entry_id: Type.String({ format: 'uuid', description: 'Unique identifier for this audit trail entry' }),
-    completion_id: Type.String({ format: 'uuid', description: 'The completion that generated cost' }),
-    billing_entry_id: Type.String({ format: 'uuid', description: 'The billing entry that recorded cost' }),
+    completion_id: Type.String({
+      format: 'uuid',
+      description: 'The completion that generated cost',
+      'x-references': [{ target_schema: 'InvokeResponse', target_field: 'id', relationship: 'references' }],
+    } as Record<string, unknown>),
+    billing_entry_id: Type.String({
+      format: 'uuid',
+      description: 'The billing entry that recorded cost',
+      'x-references': [{ target_schema: 'BillingEntry', target_field: 'entry_id', relationship: 'references' }],
+    } as Record<string, unknown>),
     agent_id: Type.String({ minLength: 1, description: 'Agent that requested the completion' }),
     provider: Type.String({ minLength: 1, description: 'Model provider identifier (e.g. "openai", "anthropic")' }),
     model_id: Type.String({ minLength: 1, description: 'Model identifier used for the completion' }),

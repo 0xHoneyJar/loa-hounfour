@@ -17,7 +17,7 @@
  * @see Issue #9 — Enshrined agent-owned inference capacity
  */
 import { parseMicroUSD } from './pricing.js';
-import { RESERVATION_TIER_MAP, type ReservationTier } from '../vocabulary/reservation-tier.js';
+import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
 import type { ReservationEnforcement } from '../vocabulary/reservation-enforcement.js';
 import type { ConformanceLevel } from '../schemas/model/conformance-level.js';
 import type { GovernanceConfig } from '../schemas/governance-config.js';

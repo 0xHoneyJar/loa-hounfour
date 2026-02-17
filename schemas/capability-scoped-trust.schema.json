@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/capability-scoped-trust",
+  "additionalProperties": false,
+  "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+  "type": "object",
+  "required": [
+    "scopes",
+    "default_level"
+  ],
+  "properties": {
+    "scopes": {
+      "additionalProperties": false,
+      "description": "Per-scope trust levels. Missing scopes fall back to default_level.",
+      "type": "object",
+      "properties": {
+        "billing": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        },
+        "governance": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        },
+        "inference": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        },
+        "delegation": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        },
+        "audit": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        },
+        "composition": {
+          "$id": "TrustLevel",
+          "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+          "anyOf": [
+            {
+              "const": "untrusted",
+              "type": "string"
+            },
+            {
+              "const": "basic",
+              "type": "string"
+            },
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "trusted",
+              "type": "string"
+            },
+            {
+              "const": "sovereign",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "default_level": {
+      "$id": "TrustLevel",
+      "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+      "anyOf": [
+        {
+          "const": "untrusted",
+          "type": "string"
+        },
+        {
+          "const": "basic",
+          "type": "string"
+        },
+        {
+          "const": "verified",
+          "type": "string"
+        },
+        {
+          "const": "trusted",
+          "type": "string"
+        },
+        {
+          "const": "sovereign",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

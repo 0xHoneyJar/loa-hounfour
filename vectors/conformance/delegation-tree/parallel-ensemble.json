@@ -1,0 +1,70 @@
+{
+  "vector_id": "conformance-delegation-tree-0001",
+  "category": "delegation-tree",
+  "description": "Valid parallel ensemble tree: 3 children with conserved budget and narrowing authority",
+  "contract_version": "6.0.0",
+  "input": {
+    "tree_id": "550e8400-e29b-41d4-a716-446655440400",
+    "root": {
+      "node_id": "550e8400-e29b-41d4-a716-446655440401",
+      "agent_id": "orchestrator",
+      "authority_scope": ["billing", "inference", "delegation"],
+      "budget_allocated_micro": "1000000",
+      "children": [
+        {
+          "node_id": "550e8400-e29b-41d4-a716-446655440402",
+          "agent_id": "agent-a",
+          "authority_scope": ["billing", "inference"],
+          "budget_allocated_micro": "400000",
+          "children": [],
+          "fork_type": "parallel",
+          "status": "active",
+          "version": 0,
+          "timestamp": "2026-02-17T10:01:00Z"
+        },
+        {
+          "node_id": "550e8400-e29b-41d4-a716-446655440403",
+          "agent_id": "agent-b",
+          "authority_scope": ["inference"],
+          "budget_allocated_micro": "300000",
+          "children": [],
+          "fork_type": "parallel",
+          "status": "active",
+          "version": 0,
+          "timestamp": "2026-02-17T10:01:00Z"
+        },
+        {
+          "node_id": "550e8400-e29b-41d4-a716-446655440404",
+          "agent_id": "agent-c",
+          "authority_scope": ["billing"],
+          "budget_allocated_micro": "300000",
+          "children": [],
+          "fork_type": "parallel",
+          "status": "active",
+          "version": 0,
+          "timestamp": "2026-02-17T10:01:00Z"
+        }
+      ],
+      "fork_type": "parallel",
+      "status": "active",
+      "version": 0,
+      "timestamp": "2026-02-17T10:00:00Z"
+    },
+    "strategy": "consensus",
+    "total_budget_micro": "1000000",
+    "budget_allocation": "weighted",
+    "max_depth": 5,
+    "max_total_nodes": 50,
+    "created_at": "2026-02-17T10:00:00Z",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.6",
+    "fr": "FR-6"
+  }
+}

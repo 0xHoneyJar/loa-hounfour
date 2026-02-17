@@ -39,10 +39,15 @@ export const InterAgentTransactionAuditSchema = Type.Object(
       minLength: 1,
       description: 'FL-SDD-003: Prevents duplicate processing. Uniqueness scope is per-sender agent_id. Consumers MUST reject duplicate keys within retention window.',
     }),
-    delegation_chain_id: Type.Optional(Type.String({ format: 'uuid' })),
+    delegation_chain_id: Type.Optional(Type.String({
+      format: 'uuid',
+      'x-references': [{ target_schema: 'DelegationChain', target_field: 'chain_id', relationship: 'references' }],
+    } as Record<string, unknown>)),
     governance_context: Type.Optional(Type.Object(
       {
-        proposal_id: Type.Optional(Type.String()),
+        proposal_id: Type.Optional(Type.String({
+          'x-references': [{ target_schema: 'ConstraintProposal', target_field: 'proposal_id', relationship: 'references' }],
+        } as Record<string, unknown>)),
         governance_version: Type.Optional(Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' })),
       },
       { additionalProperties: false }

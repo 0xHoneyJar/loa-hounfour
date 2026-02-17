@@ -9,28 +9,43 @@
       "expression": "tools == null || tool_choice != null",
       "severity": "error",
       "message": "When tools are provided, tool_choice is required",
-      "fields": ["tools", "tool_choice"]
+      "fields": ["tools", "tool_choice"],
+      "type_signature": {
+        "tools": "array",
+        "tool_choice": "string"
+      }
     },
     {
       "id": "completion-request-native-runtime-session",
       "expression": "execution_mode != 'native_runtime' || session_id != null",
       "severity": "error",
       "message": "session_id is required when execution_mode is 'native_runtime'",
-      "fields": ["execution_mode", "session_id"]
+      "fields": ["execution_mode", "session_id"],
+      "type_signature": {
+        "execution_mode": "string",
+        "session_id": "string"
+      }
     },
     {
       "id": "completion-request-native-runtime-provider",
       "expression": "execution_mode != 'native_runtime' || provider != null",
       "severity": "error",
       "message": "provider is required when execution_mode is 'native_runtime'",
-      "fields": ["execution_mode", "provider"]
+      "fields": ["execution_mode", "provider"],
+      "type_signature": {
+        "execution_mode": "string",
+        "provider": "string"
+      }
     },
     {
       "id": "completion-request-zero-budget-warning",
       "expression": "budget_limit_micro == null || budget_limit_micro != '0'",
       "severity": "warning",
       "message": "budget_limit_micro is zero — request will be rejected by budget enforcement",
-      "fields": ["budget_limit_micro"]
+      "fields": ["budget_limit_micro"],
+      "type_signature": {
+        "budget_limit_micro": "bigint_coercible"
+      }
     }
   ]
 }

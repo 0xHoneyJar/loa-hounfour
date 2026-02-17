@@ -1,9 +1,9 @@
 # Conformance Vectors
 
-**Version:** 5.1.0
+**Version:** 7.0.0
 
-Golden test vectors for validating model provider implementations against the
-loa-hounfour protocol contract. Each vector encodes a specific input/output
+Golden test vectors for validating protocol implementations against the
+loa-hounfour contract. Each vector encodes a specific input/output
 pair with matching rules that define how expected and actual outputs should
 be compared.
 
@@ -11,11 +11,26 @@ be compared.
 
 ```
 conformance/
-  provider-normalization/   # CompletionResult field mapping per provider
-  pricing-calculation/      # BigInt pricing arithmetic vectors
-  thinking-trace/           # ThinkingTrace normalization vectors
-  tool-call-roundtrip/      # ToolCall encoding/decoding vectors
-  ensemble-position/        # EnsembleResult position and routing vectors
+  agent-identity/            # AgentIdentity schema validation
+  bridge-transfer-saga/      # Saga state machine and conservation vectors
+  capability-scoped-trust/   # 6-dimension trust scope validation
+  conservation-properties/   # Conservation invariant vectors
+  delegation-chain/          # DelegationChain link validation
+  delegation-outcome/        # Consensus outcome + dissent recording
+  delegation-tree/           # Tree structure + budget/authority vectors
+  ensemble-position/         # EnsembleResult position and routing
+  governance-proposal/       # Weighted voting + quorum validation
+  inter-agent-transaction/   # Cross-agent transaction audit vectors
+  jwt-boundary/              # JWT boundary verification pipeline
+  liveness-properties/       # Temporal logic property validation
+  monetary-policy/           # Minting-conservation coupling
+  permission-boundary/       # MAY permission semantics
+  pricing-calculation/       # BigInt pricing arithmetic
+  provider-normalization/    # CompletionResult field mapping per provider
+  registry-bridge/           # Cross-registry bridge invariants
+  reservation-enforcement/   # Capacity reservation vectors
+  thinking-trace/            # ThinkingTrace normalization
+  tool-call-roundtrip/       # ToolCall encoding/decoding
 ```
 
 ## Vector Schema
@@ -29,6 +44,44 @@ Key fields:
 - `expected_output`: Expected normalized output
 - `matching_rules`: How to compare actual vs expected (field selection, tolerance, etc.)
 - `expected_valid`: Whether the vector represents a valid or invalid scenario
+
+## Running Vectors
+
+### TypeScript (canonical runner)
+
+```bash
+# Run all vectors
+npm run test:vectors
+
+# Run a specific category
+npx vitest run tests/vectors/conformance-validation.test.ts -t "bridge-transfer-saga"
+```
+
+### Cross-Language Usage
+
+Vectors are plain JSON files. Any language can validate against them:
+
+1. **Load** the vector JSON file
+2. **Parse** the `input` field as the schema input
+3. **Validate** against the corresponding TypeBox/JSON Schema
+4. **Compare** your output against `expected_output` using `matching_rules`
+
+```python
+# Python example (pseudocode)
+import json
+from jsonschema import validate
+
+vector = json.load(open("vectors/conformance/pricing-calculation/conformance-pricing-001.json"))
+# Your implementation processes vector["input"]
+result = your_implementation(vector["input"])
+# Compare result against vector["expected_output"]
+assert matches(result, vector["expected_output"], vector["matching_rules"])
+```
+
+JSON Schemas for validation are available via:
+```
+@0xhoneyjar/loa-hounfour/schemas/{schema-name}.json
+```
 
 ## Adding Vectors
 

@@ -21,6 +21,7 @@
 ## Blockers
 
 - (RESOLVED) loa-hounfour v2.0.0 is implemented on `feature/protocol-types-v2` — PR #1 open as draft, awaiting merge
+- (RESOLVED) cycle-010 sprints 6-8 deferred to cycle-011 scope where relevant (billing provenance converges with pricing convergence FR-3)
 
 ## Observations
 
@@ -52,3 +53,6 @@
 - ECONOMY_FLOW vocabulary linking schemas across the three-economy pipeline (Performance → Reputation → Routing → Billing) uses semantic/causal links, not direct foreign keys — document linking_field semantics clearly
 - Sanction escalation rules as cross-field warnings (not errors) allows operator override while still flagging deviations — warning-level enforcement is appropriate for policy-configurable behavior
 - Bridgebuilder iteration 3 returned ALL PRAISE (5/5) with zero actionable findings — confirms kaironic termination pattern: methodology exhaustion signals diminishing returns
+- cycle-010 → cycle-011 transition: "The adapter abstraction wants to be a protocol" (issue #349) is the foundational insight. v5.0.0 built the behavioral contract; v5.1.0 builds the constitutional contract. The missing Ostrom principles (1: boundaries, 4: monitoring, 5: graduated sanctions) map directly to ModelProviderSpec, conformance vectors, and sanction formalization.
+- The Kubernetes Conformance Working Group parallel is apt: K8s went from "works" to "trustworthy" when it added conformance testing. Our conformance vectors are that primitive.
+- Pricing convergence chain (ModelCapabilities.pricing → CompletionResult.usage.cost_micro → BillingEntry.cost_micro) is a conservation law — the double-entry bookkeeping of the agent economy. `computeCostMicro()` as a pure function makes this auditable.

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/bridge-invariant",
+  "additionalProperties": false,
+  "description": "A formally specified invariant for a registry bridge.",
+  "type": "object",
+  "required": [
+    "invariant_id",
+    "name",
+    "description",
+    "ltl_formula",
+    "enforcement"
+  ],
+  "properties": {
+    "invariant_id": {
+      "pattern": "^B-\\d{1,4}$",
+      "description": "Unique invariant identifier (e.g., B-1, B-99, B-9999).",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "description": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "ltl_formula": {
+      "minLength": 1,
+      "description": "Linear temporal logic formula for the invariant.",
+      "type": "string"
+    },
+    "enforcement": {
+      "$id": "BridgeEnforcement",
+      "description": "How a bridge invariant is enforced: atomically, eventually, or manually.",
+      "anyOf": [
+        {
+          "const": "atomic",
+          "type": "string"
+        },
+        {
+          "const": "eventual",
+          "type": "string"
+        },
+        {
+          "const": "manual",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

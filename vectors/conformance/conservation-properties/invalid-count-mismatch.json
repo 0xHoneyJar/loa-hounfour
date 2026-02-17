@@ -1,0 +1,42 @@
+{
+  "vector_id": "conformance-conservation-properties-002",
+  "category": "conservation-properties",
+  "description": "Invalid registry: total_count does not match properties array length",
+  "contract_version": "5.5.0",
+  "input": {
+    "total_count": 5,
+    "properties": [
+      {
+        "invariant_id": "I-1",
+        "name": "Budget Conservation",
+        "ltl_formula": "G(budget_post == budget_pre - cost)",
+        "description": "Budget must decrease by exactly the cost of the operation",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["BUDGET_EXCEEDED"],
+        "severity": "critical"
+      },
+      {
+        "invariant_id": "I-2",
+        "name": "Escrow Atomicity",
+        "ltl_formula": "G(escrow_lock -> F(escrow_release | escrow_refund))",
+        "description": "Every escrow lock must eventually be released or refunded",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["ESCROW_STUCK"],
+        "severity": "critical"
+      }
+    ],
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "fr": "FR-1",
+    "expected_constraint_violation": "conservation-registry-count-matches"
+  }
+}

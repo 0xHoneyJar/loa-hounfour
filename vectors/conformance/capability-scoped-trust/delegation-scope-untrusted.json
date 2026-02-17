@@ -1,0 +1,38 @@
+{
+  "vector_id": "conformance-capability-scoped-trust-002",
+  "category": "capability-scoped-trust",
+  "description": "Agent with untrusted delegation scope but non-empty delegation_authority — should fail",
+  "contract_version": "6.0.0",
+  "input": {
+    "agent_id": "agent-bad-delegation",
+    "display_name": "Bad Delegation Agent",
+    "agent_type": "model",
+    "capabilities": ["text-generation"],
+    "trust_scopes": {
+      "scopes": {
+        "billing": "trusted",
+        "governance": "untrusted",
+        "inference": "trusted",
+        "delegation": "untrusted",
+        "audit": "basic",
+        "composition": "untrusted"
+      },
+      "default_level": "untrusted"
+    },
+    "delegation_authority": ["invoke"],
+    "max_delegation_depth": 1,
+    "governance_weight": 0,
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "cross_field_validations": [
+    {
+      "rule_id": "agent-identity-delegation-requires-trust",
+      "expected_severity": "error"
+    }
+  ],
+  "metadata": {
+    "sdd_section": "§2.2"
+  }
+}

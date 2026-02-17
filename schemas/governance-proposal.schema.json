@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/governance-proposal",
+  "additionalProperties": false,
+  "description": "A formal governance proposal with voting lifecycle.",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "registry_id",
+    "proposer_id",
+    "title",
+    "description",
+    "changes",
+    "status",
+    "voting",
+    "contract_version"
+  ],
+  "properties": {
+    "proposal_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "proposer_id": {
+      "minLength": 1,
+      "description": "Agent who created the proposal.",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "description": "Short title for the proposal.",
+      "type": "string"
+    },
+    "description": {
+      "minLength": 1,
+      "description": "Detailed description of the proposal.",
+      "type": "string"
+    },
+    "changes": {
+      "minItems": 1,
+      "description": "Proposed changes (at least one required).",
+      "type": "array",
+      "items": {
+        "$id": "ProposedChange",
+        "additionalProperties": false,
+        "description": "A single proposed change within a governance proposal.",
+        "type": "object",
+        "required": [
+          "change_type",
+          "target",
+          "current_value",
+          "proposed_value",
+          "justification"
+        ],
+        "properties": {
+          "change_type": {
+            "description": "Category of proposed change.",
+            "anyOf": [
+              {
+                "const": "parameter_update",
+                "type": "string"
+              },
+              {
+                "const": "constraint_addition",
+                "type": "string"
+              },
+              {
+                "const": "constraint_removal",
+                "type": "string"
+              },
+              {
+                "const": "policy_change",
+                "type": "string"
+              }
+            ]
+          },
+          "target": {
+            "minLength": 1,
+            "description": "What is being changed (field path or constraint ID).",
+            "type": "string"
+          },
+          "current_value": {
+            "description": "Current value of the target."
+          },
+          "proposed_value": {
+            "description": "Proposed new value."
+          },
+          "justification": {
+            "minLength": 1,
+            "description": "Rationale for this change.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "$id": "ProposalStatus",
+      "description": "Lifecycle status of a governance proposal.",
+      "anyOf": [
+        {
+          "const": "proposed",
+          "type": "string"
+        },
+        {
+          "const": "voting",
+          "type": "string"
+        },
+        {
+          "const": "ratified",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        },
+        {
+          "const": "withdrawn",
+          "type": "string"
+        }
+      ]
+    },
+    "voting": {
+      "$id": "VotingRecord",
+      "additionalProperties": false,
+      "description": "Record of voting on a governance proposal.",
+      "type": "object",
+      "required": [
+        "quorum_required",
+        "votes_cast",
+        "voting_opened_at",
+        "voting_closed_at"
+      ],
+      "properties": {
+        "quorum_required": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum weighted participation required for valid vote.",
+          "type": "number"
+        },
+        "votes_cast": {
+          "description": "Votes cast so far.",
+          "type": "array",
+          "items": {
+            "$id": "GovernanceVote",
+            "additionalProperties": false,
+            "description": "A vote cast on a governance proposal.",
+            "type": "object",
+            "required": [
+              "voter_id",
+              "vote",
+              "weight"
+            ],
+            "properties": {
+              "voter_id": {
+                "minLength": 1,
+                "description": "Agent casting the vote.",
+                "type": "string"
+              },
+              "vote": {
+                "description": "The vote choice.",
+                "anyOf": [
+                  {
+                    "const": "approve",
+                    "type": "string"
+                  },
+                  {
+                    "const": "reject",
+                    "type": "string"
+                  },
+                  {
+                    "const": "abstain",
+                    "type": "string"
+                  }
+                ]
+              },
+              "weight": {
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Voting weight (governance_weight of the agent).",
+                "type": "number"
+              },
+              "reasoning": {
+                "description": "Explanation for the vote.",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "voting_opened_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "voting_closed_at": {
+          "description": "When voting closed, or null if still open.",
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ratified_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

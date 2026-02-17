@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/protocol-discovery",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/protocol-discovery",
   "additionalProperties": false,
   "description": "Protocol discovery document for /.well-known/loa-hounfour",
   "type": "object",
@@ -75,6 +75,33 @@
           "conformance_level": {
             "description": "Highest conformance level achieved by any model from this provider",
             "type": "string"
+          },
+          "supports_reservations": {
+            "description": "Whether this provider supports capacity reservations",
+            "type": "boolean"
+          },
+          "reservation_enforcement": {
+            "$id": "ReservationEnforcement",
+            "description": "How reservation guarantees are enforced by the provider.",
+            "anyOf": [
+              {
+                "const": "strict",
+                "type": "string"
+              },
+              {
+                "const": "advisory",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              }
+            ]
+          },
+          "total_capacity_tokens_per_minute": {
+            "minimum": 0,
+            "description": "Total capacity in tokens per minute across all models from this provider",
+            "type": "integer"
           }
         }
       }
@@ -85,5 +112,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

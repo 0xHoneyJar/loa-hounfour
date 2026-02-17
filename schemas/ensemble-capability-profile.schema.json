@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/ensemble-capability-profile",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Collective capability declaration for model ensembles (patchwork AGI hypothesis).",
+  "type": "object",
+  "required": [
+    "profile_id",
+    "ensemble_strategy",
+    "models",
+    "individual_capabilities",
+    "emergent_capabilities",
+    "capability_evidence",
+    "contract_version"
+  ],
+  "properties": {
+    "profile_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "ensemble_strategy": {
+      "$id": "EnsembleStrategy",
+      "$comment": "Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31",
+      "anyOf": [
+        {
+          "const": "first_complete",
+          "type": "string"
+        },
+        {
+          "const": "best_of_n",
+          "type": "string"
+        },
+        {
+          "const": "consensus",
+          "type": "string"
+        },
+        {
+          "const": "sequential",
+          "type": "string"
+        },
+        {
+          "const": "dialogue",
+          "type": "string"
+        }
+      ]
+    },
+    "models": {
+      "minItems": 2,
+      "description": "Model identifiers in the ensemble",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)?$",
+        "description": "Model identifier (lowercase alphanumeric with hyphens/dots, optional namespace)",
+        "x-references": [
+          {
+            "target_schema": "ModelProviderSpec",
+            "target_field": "model_id",
+            "relationship": "references"
+          }
+        ],
+        "type": "string"
+      }
+    },
+    "individual_capabilities": {
+      "description": "Per-model capability declarations",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "emergent_capabilities": {
+      "description": "Capabilities that emerge only from ensemble combination",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "capability_evidence": {
+      "description": "Evidence supporting capability claims",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "capability",
+          "evidence_type"
+        ],
+        "properties": {
+          "capability": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "evidence_type": {
+            "anyOf": [
+              {
+                "const": "tested",
+                "type": "string"
+              },
+              {
+                "const": "theoretical",
+                "type": "string"
+              },
+              {
+                "const": "observed",
+                "type": "string"
+              }
+            ]
+          },
+          "vector_id": {
+            "description": "Conformance vector ID demonstrating capability",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "safety_profile": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "max_autonomy_level",
+        "requires_human_approval",
+        "monitoring_requirements"
+      ],
+      "properties": {
+        "max_autonomy_level": {
+          "anyOf": [
+            {
+              "const": "supervised",
+              "type": "string"
+            },
+            {
+              "const": "semi_autonomous",
+              "type": "string"
+            },
+            {
+              "const": "autonomous",
+              "type": "string"
+            }
+          ]
+        },
+        "requires_human_approval": {
+          "description": "Actions requiring human-in-the-loop approval",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monitoring_requirements": {
+          "description": "Required monitoring for this ensemble configuration",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

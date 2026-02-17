@@ -1,0 +1,80 @@
+{
+  "vector_id": "conformance-bridge-transfer-saga-0003",
+  "category": "bridge-transfer-saga",
+  "description": "Saga where timeout was exceeded during transfer step, status failed with timeout error",
+  "contract_version": "7.0.0",
+  "input": {
+    "saga_id": "00000000-0000-0000-0000-000000000003",
+    "bridge_id": "00000000-0000-0000-0000-000000000010",
+    "source_registry": "00000000-0000-0000-0000-000000000020",
+    "target_registry": "00000000-0000-0000-0000-000000000021",
+    "saga_type": "choreography",
+    "status": "failed",
+    "steps": [
+      {
+        "step_id": "step-reserve-003",
+        "step_type": "reserve",
+        "participant": "source-registry-agent",
+        "status": "completed",
+        "amount_micro": "1000000",
+        "started_at": "2026-02-17T12:00:00Z",
+        "completed_at": "2026-02-17T12:00:03Z"
+      },
+      {
+        "step_id": "step-validate-003",
+        "step_type": "validate",
+        "participant": "compliance-checker",
+        "status": "completed",
+        "amount_micro": "1000000",
+        "started_at": "2026-02-17T12:00:03Z",
+        "completed_at": "2026-02-17T12:00:10Z"
+      },
+      {
+        "step_id": "step-transfer-003",
+        "step_type": "transfer",
+        "participant": "bridge-operator",
+        "status": "failed",
+        "amount_micro": "1000000",
+        "started_at": "2026-02-17T12:00:10Z",
+        "completed_at": "2026-02-17T12:01:10Z",
+        "error": "Step timeout exceeded: 60s elapsed with no response from target registry"
+      }
+    ],
+    "compensation_steps": [],
+    "timeout": {
+      "total_seconds": 120,
+      "per_step_seconds": 60
+    },
+    "participants": [
+      {
+        "agent_id": "source-registry-agent",
+        "role": "initiator",
+        "registry_id": "00000000-0000-0000-0000-000000000020",
+        "trust_scopes": {
+          "scopes": {
+            "billing": "trusted"
+          },
+          "default_level": "basic"
+        }
+      }
+    ],
+    "initiated_at": "2026-02-17T12:00:00Z",
+    "settled_at": null,
+    "error": {
+      "error_code": "STEP_TIMEOUT",
+      "message": "Transfer step exceeded per_step_seconds timeout of 60s",
+      "failed_step_id": "step-transfer-003",
+      "recoverable": false
+    },
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "fr": "FR-7"
+  }
+}

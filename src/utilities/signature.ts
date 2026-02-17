@@ -13,7 +13,11 @@
  * @see SDD §10.1 — JWS Security
  */
 import * as jose from 'jose';
-import canonicalize from 'canonicalize';
+// canonicalize is CJS (module.exports = fn) with a .d.ts that declares
+// `export default`. Under moduleResolution: "NodeNext", the namespace
+// wrapper makes the direct call fail typecheck. Cast once here.
+import _canonicalize from 'canonicalize';
+const canonicalize = _canonicalize as unknown as (input: unknown) => string | undefined;
 
 /** Algorithms allowed for JWS verification. */
 const ALLOWED_ALGORITHMS = new Set(['ES256', 'EdDSA']);
@@ -40,7 +44,7 @@ export type SignatureVerificationResult =
  * Callback for resolving public keys by key ID.
  * Returns a JWK or KeyLike object for verification.
  */
-export type KeyResolver = (keyId: string, algorithm: string) => Promise<jose.KeyLike | Uint8Array>;
+export type KeyResolver = (keyId: string, algorithm: string) => Promise<jose.CryptoKey | jose.KeyObject | Uint8Array>;
 
 /**
  * Canonicalize a ModelProviderSpec for signing.
@@ -110,7 +114,7 @@ export async function verifyProviderSignature(
 
   // Resolve key
   const kid = header.kid ?? 'default';
-  let key: jose.KeyLike | Uint8Array;
+  let key: jose.CryptoKey | jose.KeyObject | Uint8Array;
   try {
     key = await keyResolver(kid, header.alg);
   } catch (err) {

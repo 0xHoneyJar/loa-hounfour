@@ -1,1127 +1,1123 @@
-# SDD: loa-hounfour v5.3.0 — The Epistemic Protocol
+# SDD: loa-hounfour v7.0.0 — The Coordination-Aware Protocol
 
 **Status:** Draft
-**Author:** Agent (Simstim Phase 3: Architecture)
+**Author:** Bridgebuilder (Field Report #42)
 **Date:** 2026-02-17
-**PRD:** [grimoires/loa/prd.md](grimoires/loa/prd.md)
-**Cycle:** cycle-012
+**PRD:** `grimoires/loa/prd.md` (v7.0.0)
+**Cycle:** cycle-016
 **Sources:**
-- PRD v5.3.0 — The Epistemic Protocol (with Flatline integrations: FL-PRD-001–008)
-- Existing codebase: 100 source files, 59 schemas, 23 constraint files, 63 vectors, 2,159 tests
-- Previous SDD: v5.2.0 (cycle-011)
-- PR #10 Bridgebuilder Reviews I-III (4 unresolved + 2 actionable PRAISE + 3 SPECULATION)
-- Issue #9 — Enshrined Agent-Owned Inference Capacity
+- PRD section 4 (FR-1 through FR-7)
+- Existing codebase: `src/economy/registry-composition.ts`, `src/governance/delegation-tree.ts`, `src/constraints/evaluator.ts`
+- v6.0.0 SDD (archived)
 
 ---
 
-## 1. Executive Summary
+## 0. Executive Summary
 
-This SDD defines the architecture for extending `@0xhoneyjar/loa-hounfour` from v5.2.0 (The Rights of the Governed) to v5.3.0 (The Epistemic Protocol). The package remains a zero-runtime-dependency TypeScript library (runtime: `@sinclair/typebox`, `@noble/hashes`, `jose`, `canonicalize`).
+v7.0.0 is the coordination release. It takes the composition primitives built in v6.0.0 and adds the operational verbs: transfer, resolve, couple, permit, propose.
 
-**Architecture philosophy:** Name what is implicit. Fix what is broken. Govern what was decreed.
+**Breaking changes** (see section 6 Migration Guide):
+- `RegistryBridge` gains required `transfer_protocol` field
 
-The v5.2.0 review cycle revealed that the codebase had independently discovered three-valued logic across multiple subsystems without naming the pattern. v5.3.0 makes this explicit, fixes a correctness gap in reservation enforcement, and introduces the first governance-configurable parameters.
+**New schemas:** BridgeTransferSaga, BridgeTransferStep, SagaParticipant, SagaError, DelegationOutcome, DelegationVote, DissentRecord, MonetaryPolicy, ReviewTrigger, PermissionBoundary, ReportingRequirement, RevocationPolicy, GovernanceProposal, ProposedChange, VotingRecord, GovernanceVote
 
-**Key architectural decisions:**
+**New capabilities:** Saga state machine validation, conflict resolution recording, minting-conservation coupling, MAY permission semantics, governance voting
 
-1. **Post-transaction floor check** — `shouldAllowRequest` Case 1 now checks `available - cost >= reserved` before allowing. Correctness fix for HIGH-V52-001.
-2. **Advisory = allow-with-warning** — Advisory enforcement mode semantically distinct from strict: advisory ALLOWS through floor breaches with warnings, strict BLOCKS. Decision: FL-PRD-001.
-3. **Epistemic Tristate as pattern-doc, not generic type** — Instances (ConservationStatus, SignatureVerificationResult) differ too much in shape for a useful generic. Value is in naming and cataloguing. Decision: FL-PRD-006.
-4. **GovernanceConfig as optional overlay** — New schema that can override `RESERVATION_TIER_MAP` defaults. Both `resolveReservationTier()` and `validateReservationTier()` accept optional config.
-5. **Marketplace dimensions deferred** — FR-9 from PRD moved to Out of Scope (v5.4.0). No consumer exists yet (loa-finn #31 still RFC). Decision: FL-PRD-007.
-6. **`ROUNDING_BIAS = 'rights_holder'`** — Documentation-as-code constant encoding the protocol's ceiling-division policy.
+**Code quality:** 3 deferred type safety issues resolved (F-007, F-008, F-020)
+
+**FAANG Parallel:** Temporal (formerly Uber Cadence) — adding saga orchestration and compensation logic to what was previously just a workflow definition format. The saga definition is the specification; runtimes implement the state machine.
 
 ---
 
-## 2. Module Architecture
+## 1. System Architecture
 
-### 2.1 Current Structure (v5.2.0)
+### 1.1 Module Map
 
 ```
 src/
-├── schemas/           # 46 schema files (model/, routing/, ensemble/)
-├── utilities/         # 8 files: billing, conformance-matcher, lifecycle, nft-id, pricing, reputation, reservation, signature
-├── vocabulary/        # 28 modules: currency, conformance-category, conservation-status, reservation-*, ...
-├── validators/        # 3 files: index.ts (registry), billing.ts, compatibility.ts
-├── constraints/       # index.ts, types.ts, evaluator.ts, detailed-evaluator.ts, grammar.ts, tokenizer.ts
-├── integrity/         # req-hash, idempotency
-├── core/              # Barrel: 209 exports
-├── economy/           # Barrel: 186 exports
-├── governance/        # Barrel: 73 exports
-├── model/             # Barrel: 206 exports
-├── version.ts         # CONTRACT_VERSION = '5.2.0'
-└── index.ts           # Root barrel: 25 exports
+├── economy/                                # FR-2, FR-4: Saga + MonetaryPolicy
+│   ├── registry-composition.ts             # MODIFIED: F-007, F-008 fixes
+│   ├── bridge-transfer-saga.ts             # NEW: BridgeTransferSaga, Step, Participant
+│   ├── monetary-policy.ts                  # NEW: MonetaryPolicy, ReviewTrigger
+│   ├── minting-policy.ts                   # (existing — no changes)
+│   ├── branded-types.ts                    # (existing — no changes)
+│   ├── jwt-boundary.ts                     # (existing — no changes)
+│   ├── index.ts                            # barrel (extend with new exports)
+│   └── ... (existing files)
+├── governance/                             # FR-3, FR-5, FR-6
+│   ├── delegation-tree.ts                  # MODIFIED: optional last_outcome field
+│   ├── delegation-outcome.ts               # NEW: DelegationOutcome, Vote, Dissent
+│   ├── permission-boundary.ts              # NEW: PermissionBoundary, Reporting, Revocation
+│   ├── governance-proposal.ts              # NEW: GovernanceProposal, ProposedChange, Voting
+│   ├── index.ts                            # barrel (extend with new exports)
+│   └── ... (existing governance schemas)
+├── constraints/                            # FR-1 (F-020), FR-2–FR-6 builtins
+│   ├── evaluator.ts                        # MODIFIED: F-020 AST typing + 4 new builtins
+│   ├── evaluator-spec.ts                   # MODIFIED: specs for new builtins
+│   ├── constraint-types.ts                 # MODIFIED: ConstraintASTNode union type
+│   ├── type-checker.ts                     # (existing — validates new constraint files)
+│   ├── index.ts                            # barrel (extend)
+│   └── ... (existing)
+├── composition/                            # Barrel (extend)
+│   └── index.ts                            # Add saga, outcome, permission exports
+└── index.ts                                # top-level barrel (extend)
+
+constraints/                                # New constraint files
+├── BridgeTransferSaga.constraints.json     # NEW (FR-2)
+├── DelegationOutcome.constraints.json      # NEW (FR-3)
+├── MonetaryPolicy.constraints.json         # NEW (FR-4)
+├── PermissionBoundary.constraints.json     # NEW (FR-5)
+├── GovernanceProposal.constraints.json     # NEW (FR-6)
+├── RegistryBridge.constraints.json         # MODIFIED (add transfer_protocol)
+└── ... (existing — unchanged)
+
+vectors/conformance/
+├── bridge-transfer-saga/                   # NEW directory (4 vectors)
+├── delegation-outcome/                     # NEW directory (4 vectors)
+├── monetary-policy/                        # NEW directory (3 vectors)
+├── permission-boundary/                    # NEW directory (3 vectors)
+├── governance-proposal/                    # NEW directory (4 vectors)
+└── ... (existing — unchanged)
 ```
 
-### 2.2 v5.3.0 Changes (Additions + Modifications)
+### 1.2 Schema Dependency Graph (v7.0.0 additions)
 
-```diff
- src/
- ├── schemas/
-+│   ├── governance-config.ts                     # NEW: FR-6 — GovernanceConfig schema
- │   └── discovery.ts                             # MODIFIED: FR-8 — @example JSDoc blocks
- ├── utilities/
- │   ├── reservation.ts                           # MODIFIED: FR-1/FR-2 — post-tx floor check + advisory warnings
-+│   ├── governance.ts                            # NEW: FR-6 — resolveReservationTier()
- │   └── pricing.ts                               # (unchanged — JSDoc additions only)
- ├── vocabulary/
- │   ├── conservation-status.ts                   # MODIFIED: FR-4 — JSDoc pattern reference
- │   └── reservation-tier.ts                      # MODIFIED: FR-5 — ROUNDING_BIAS constant
-+├── docs/patterns/
-+│   └── epistemic-tristate.md                    # NEW: FR-4 — Pattern documentation
-+├── constraints/
-+│   ├── EpistemicTristate.constraints.json        # NEW: FR-4 — Tristate invariant
-+│   ├── ReservationArithmetic.constraints.json    # NEW: FR-5 — Rounding bias invariant
-+│   └── GovernanceConfig.constraints.json         # NEW: FR-6 — Governance bounds
- ├── version.ts                                   # MODIFIED: CONTRACT_VERSION = '5.3.0'
- └── index.ts                                     # MODIFIED: new exports
+```
+                    RegistryBridge (MODIFIED)
+                    ├── transfer_protocol (NEW required)
+                    │
+                    ▼
+            BridgeTransferSaga (NEW)
+            ├── bridge_id → RegistryBridge.bridge_id
+            ├── steps: BridgeTransferStep[]
+            ├── compensation_steps: BridgeTransferStep[]
+            ├── participants: SagaParticipant[]
+            │   └── trust_scopes → CapabilityScopedTrust
+            └── saga_amount_conserved (builtin)
+
+            DelegationTreeNode (MODIFIED)
+            ├── last_outcome?: DelegationOutcome (NEW optional)
+            │
+            ▼
+            DelegationOutcome (NEW)
+            ├── votes: DelegationVote[]
+            ├── dissent_records: DissentRecord[]
+            └── outcome_consensus_valid (builtin)
+
+            MintingPolicyConfig (existing)
+            ├── ←── MonetaryPolicy (NEW)
+            │       ├── minting_policy → MintingPolicyConfig.policy_id
+            │       ├── registry_id → ConservationPropertyRegistry.registry_id
+            │       ├── review_trigger: ReviewTrigger
+            │       └── monetary_policy_solvent (builtin)
+            ▼
+            ConservationPropertyRegistry (existing)
+
+            PermissionBoundary (NEW)
+            ├── reporting: ReportingRequirement
+            ├── revocation: RevocationPolicy
+            └── permission_granted / within_boundary (builtins)
+
+            GovernanceProposal (NEW)
+            ├── registry_id → ConservationPropertyRegistry.registry_id
+            ├── changes: ProposedChange[]
+            └── voting: VotingRecord
+                └── votes: GovernanceVote[]
 ```
 
-### 2.3 New File Summary
+### 1.3 Subpath Exports (v7.0.0)
 
-| File | FR | Lines (est.) | Purpose |
-|------|-----|-------------|---------|
-| `schemas/governance-config.ts` | FR-6 | ~70 | GovernanceConfig schema |
-| `utilities/governance.ts` | FR-6 | ~60 | resolveReservationTier, resolveAdvisoryThreshold |
-| `docs/patterns/epistemic-tristate.md` | FR-4 | ~120 | Pattern documentation with parallels |
-| `constraints/EpistemicTristate.constraints.json` | FR-4 | ~25 | Tristate distinguishability invariant |
-| `constraints/ReservationArithmetic.constraints.json` | FR-5 | ~20 | Rounding bias invariant |
-| `constraints/GovernanceConfig.constraints.json` | FR-6 | ~30 | Governance parameter bounds |
-
-### 2.4 Modified File Summary
-
-| File | FR | Changes |
-|------|-----|---------|
-| `utilities/reservation.ts` | FR-1, FR-2 | Post-tx floor check, advisory warnings, new fields on ReservationDecision |
-| `vocabulary/conservation-status.ts` | FR-4 | JSDoc referencing Epistemic Tristate pattern |
-| `utilities/signature.ts` | FR-4 | JSDoc referencing Epistemic Tristate pattern |
-| `vocabulary/reservation-tier.ts` | FR-5, FR-6 | ROUNDING_BIAS constant, JSDoc on ceil-division policy |
-| `schemas/discovery.ts` | FR-8 | @example JSDoc blocks on buildDiscoveryDocument |
-| `constraints/index.ts` | FR-7 | JSDoc header referencing Ostrom principles |
-| `version.ts` | FR-9 | CONTRACT_VERSION = '5.3.0' |
+| Subpath | Content | Change |
+|---------|---------|--------|
+| `@0xhoneyjar/loa-hounfour/economy` | JWT + branded + registry + saga + monetary | Extend (BridgeTransferSaga, MonetaryPolicy) |
+| `@0xhoneyjar/loa-hounfour/governance` | Sanctions + disputes + delegation + outcome + permission + proposal | Extend (DelegationOutcome, PermissionBoundary, GovernanceProposal) |
+| `@0xhoneyjar/loa-hounfour/constraints` | Evaluator + type checker + builtins | Extend (4 new builtins, AST types) |
+| `@0xhoneyjar/loa-hounfour/composition` | Cross-domain composition types | Extend (saga, outcome, permission) |
 
 ---
 
-## 3. Component Design
+## 2. Schema Design
 
-### 3.1 FR-1: Post-Transaction Floor Enforcement (HIGH-V52-001)
+### 2.1 FR-1: Deferred Finding Resolution (P0)
 
-**File:** `src/utilities/reservation.ts`
-**Impact:** Modify `shouldAllowRequest()` algorithm — Case 1 gains a post-transaction floor check.
+#### 2.1.1 F-007: TypeBox Cross-Field Annotation Type Safety
 
-#### 3.1.1 Current Algorithm (v5.2.0 — Buggy)
+**File:** `src/economy/registry-composition.ts`
 
-```typescript
-// reservation.ts:144-151 — CURRENT (v5.2.0)
-// Case 1: Sufficient budget — always allow
-if (available >= cost) {
-  return {
-    allowed: true,
-    reason: 'Sufficient budget available',
-    floor_breached: false,
-  };
-}
-```
-
-**Bug:** `available=1000, cost=900, reserved=500` → Case 1 fires (`1000 >= 900`) → `allowed: true`. But post-transaction balance is `100 < 500 = reserved`. The floor is breached silently.
-
-#### 3.1.2 Corrected Algorithm (v5.3.0)
+Replace `as any` cast with TypeBox-native annotation approach:
 
 ```typescript
-export interface ReservationDecision {
-  allowed: boolean;
-  reason: string;
-  floor_breached: boolean;
-  enforcement_action?: 'block' | 'warn' | 'downgrade';
-  /** Advisory warning when approaching or breaching floor. */
-  warning?: string;
-  /** Post-transaction available balance (string-encoded BigInt). */
-  post_transaction_available?: string;
+// BEFORE (F-007):
+const schema = Type.Object({...}, { 'x-cross-field-validated': true } as any);
+
+// AFTER: Use Type.Unsafe() wrapper to add custom annotations without cast
+function withAnnotation<T extends TSchema>(
+  schema: T,
+  annotations: Record<string, unknown>,
+): T {
+  return { ...schema, ...annotations } as T;
 }
 
-export function shouldAllowRequest(
-  availableMicro: string,
-  costMicro: string,
-  reservedMicro: string,
-  enforcement: ReservationEnforcement,
-): ReservationDecision {
-  const available = parseMicroUSD(availableMicro);
-  const cost = parseMicroUSD(costMicro);
-  const reserved = parseMicroUSD(reservedMicro);
-  const postTransaction = available - cost;
-
-  // Case 1: Sufficient budget — but check post-transaction floor
-  if (available >= cost) {
-    // NEW: Post-transaction floor check (HIGH-V52-001 fix)
-    if (postTransaction < reserved) {
-      // Request would breach reservation floor
-      return handleFloorBreach(enforcement, postTransaction, reserved);
-    }
-
-    // Check advisory near-floor warning (FR-2)
-    if (enforcement === 'advisory') {
-      const warningResult = checkAdvisoryWarning(postTransaction, reserved);
-      if (warningResult) {
-        return {
-          allowed: true,
-          reason: 'Sufficient budget available',
-          floor_breached: false,
-          warning: warningResult,
-          post_transaction_available: postTransaction.toString(),
-        };
-      }
-    }
-
-    return {
-      allowed: true,
-      reason: 'Sufficient budget available',
-      floor_breached: false,
-      post_transaction_available: postTransaction.toString(),
-    };
-  }
-
-  // Case 2: Floor breach — available is at or below the reserved floor (SKP-003)
-  if (available <= reserved) {
-    return handleAtFloor(enforcement, available, reserved);
-  }
-
-  // Case 3: Above floor but insufficient — normal budget shortfall
-  return {
-    allowed: false,
-    reason: 'Insufficient budget (above reservation floor)',
-    floor_breached: false,
-    enforcement_action: enforcement === 'strict' ? 'block'
-      : enforcement === 'advisory' ? 'warn' : 'block',
-  };
-}
+// Usage:
+const schema = withAnnotation(
+  Type.Object({...}),
+  { 'x-cross-field-validated': true },
+);
 ```
 
-#### 3.1.3 Floor Breach Handler
+This preserves the annotation in generated JSON Schema without suppressing type safety. The `withAnnotation` utility is generic and reusable for any custom JSON Schema extension property.
+
+**Tests:**
+- Verify `'x-cross-field-validated'` appears in JSON Schema output
+- Verify TypeScript compiler accepts the result without `as any`
+- Verify existing schema validation still passes
+
+#### 2.1.2 F-008: BridgeInvariant ID Pattern Expansion
+
+**File:** `src/economy/registry-composition.ts:36`
 
 ```typescript
-/**
- * Handle the case where a request would breach the reservation floor.
- *
- * Enforcement semantics:
- * - strict: BLOCK — the floor is inviolable
- * - advisory: ALLOW with warning — soft enforcement, caller decides
- * - unsupported: BLOCK — no enforcement mechanism, conservative default
- */
-function handleFloorBreach(
-  enforcement: ReservationEnforcement,
-  postTransaction: bigint,
-  reserved: bigint,
-): ReservationDecision {
-  const postTxStr = postTransaction.toString();
+// BEFORE:
+invariant_id: Type.String({ pattern: '^B-\\d{1,2}$' })
 
-  if (enforcement === 'advisory') {
-    // Advisory ALLOWS but warns (FL-PRD-001 decision)
-    return {
-      allowed: true,
-      reason: 'Sufficient budget available (advisory: floor would be breached)',
-      floor_breached: false, // Not yet breached — would be breached after spending
-      warning: `Post-transaction balance (${postTxStr}) would breach reservation floor (${reserved.toString()})`,
-      post_transaction_available: postTxStr,
-    };
-  }
-
-  // strict and unsupported: BLOCK
-  return {
-    allowed: false,
-    reason: `Request would breach reservation floor (post-transaction balance: ${postTxStr}, floor: ${reserved.toString()})`,
-    floor_breached: true,
-    enforcement_action: 'block',
-    post_transaction_available: postTxStr,
-  };
-}
+// AFTER:
+invariant_id: Type.String({ pattern: '^B-\\d{1,4}$' })
 ```
 
-#### 3.1.4 At-Floor Handler (Case 2 — Preserves SKP-003)
+**Tests:**
+- `B-1`: valid
+- `B-99`: valid
+- `B-100`: valid (was previously rejected)
+- `B-9999`: valid
+- `B-10000`: rejected
+- `B-0`: valid (single digit)
+
+#### 2.1.3 F-020: parseExpr() Return Type Safety
+
+**File:** `src/constraints/constraint-types.ts` (extend), `src/constraints/evaluator.ts`
+
+Define a discriminated union for AST nodes:
 
 ```typescript
-function handleAtFloor(
-  enforcement: ReservationEnforcement,
-  available: bigint,
-  reserved: bigint,
-): ReservationDecision {
-  if (enforcement === 'unsupported') {
-    return {
-      allowed: false,
-      reason: 'Insufficient budget (reservation enforcement unsupported)',
-      floor_breached: true,
-      enforcement_action: 'block',
-    };
-  }
-
-  if (enforcement === 'advisory') {
-    return {
-      allowed: false,
-      reason: 'Budget at or below reservation floor (advisory)',
-      floor_breached: true,
-      enforcement_action: 'warn',
-    };
-  }
-
-  // strict
-  return {
-    allowed: false,
-    reason: 'Budget at or below reservation floor (strict enforcement)',
-    floor_breached: true,
-    enforcement_action: 'block',
-  };
-}
+// In constraint-types.ts:
+export type ConstraintASTNode =
+  | { kind: 'literal'; value: string | number | boolean | null }
+  | { kind: 'identifier'; name: string }
+  | { kind: 'member_access'; object: ConstraintASTNode; property: string }
+  | { kind: 'function_call'; name: string; args: ConstraintASTNode[] }
+  | { kind: 'binary_op'; op: string; left: ConstraintASTNode; right: ConstraintASTNode }
+  | { kind: 'unary_op'; op: string; operand: ConstraintASTNode }
+  | { kind: 'array_literal'; elements: ConstraintASTNode[] }
+  | { kind: 'every'; array: ConstraintASTNode; predicate: ConstraintASTNode };
 ```
 
-**GovernanceConfig integration (FL-SDD-003):** In Sprint 3 (FR-6), `shouldAllowRequest` gains an optional 5th parameter `config?: GovernanceConfig` that flows through to `checkAdvisoryWarning` for configurable threshold. Sprint 1 uses the hardcoded `ADVISORY_WARNING_THRESHOLD_PERCENT` constant; Sprint 3 makes it configurable. The function signature changes are backward-compatible (new optional param).
+**Implementation strategy:** The current evaluator uses a recursive descent parser that evaluates inline (parse and evaluate are interleaved). F-020 requires typing the intermediate representation without rewriting the evaluator. The approach:
 
-**Backward compatibility:** The only behavior change is in Case 1 when `available >= cost` AND `available - cost < reserved`. Previously returned `allowed: true`; now returns `allowed: false` under strict/unsupported. This is a correctness fix documented in CHANGELOG.
+1. Add `ConstraintASTNode` type to `constraint-types.ts`
+2. Add type annotation to `parseExpr()` return: `parseExpr(): unknown` becomes `parseExpr(): ConstraintASTNode | unknown`
+3. Gradually narrow: top-level `evaluateConstraint()` wraps result in type guard
+4. This is NOT a full AST rewrite — it types the boundary without changing evaluation semantics
 
-**Test strategy:** Existing tests for `shouldAllowRequest` cover Cases 2 and 3 — these continue passing. New tests target the Case 1 post-transaction check edge cases. Property-based tests via fast-check for arbitrary `available/cost/reserved` triples.
+**Tests:**
+- All 23 existing builtin tests continue to pass
+- New test: `typeof parseExpr(...)` is not `any` (compile-time assertion)
+- New test: evaluator handles all AST node kinds correctly
 
 ---
 
-### 3.2 FR-2: Advisory Graduated Warnings (MEDIUM-V52-001)
+### 2.2 FR-2: BridgeTransferSaga (P0)
 
-**File:** `src/utilities/reservation.ts`
-**Impact:** New helper function + constant for advisory near-floor warnings.
+**File:** `src/economy/bridge-transfer-saga.ts` (NEW)
 
-#### 3.2.1 Warning Threshold Constant
-
-```typescript
-/**
- * Advisory warning threshold: warn when post-transaction balance is
- * within this percentage of the reservation floor.
- *
- * 20% means: if floor is 500, warn when post-transaction < 600.
- * Calculation: post_transaction < reserved * (100 + threshold) / 100
- *
- * Configurable via GovernanceConfig (FR-6).
- */
-export const ADVISORY_WARNING_THRESHOLD_PERCENT = 20;
-```
-
-#### 3.2.2 Warning Check Function
+#### 2.2.1 SagaStatus State Machine
 
 ```typescript
-/**
- * Check if post-transaction balance is within the advisory warning zone.
- *
- * Warning zone: post_transaction_available < reserved * (100 + threshold) / 100
- * Uses BigInt ceiling multiplication to match protocol rounding bias.
- *
- * @returns Warning message if in warning zone, null otherwise.
- */
-function checkAdvisoryWarning(
-  postTransaction: bigint,
-  reserved: bigint,
-  thresholdPercent: number = ADVISORY_WARNING_THRESHOLD_PERCENT,
-): string | null {
-  if (reserved <= 0n) return null;
-
-  // Warning threshold: reserved * (100 + threshold) / 100
-  // E.g., reserved=500, threshold=20 → threshold_value = 500 * 120 / 100 = 600
-  const warningThreshold = (reserved * BigInt(100 + thresholdPercent)) / 100n;
-
-  if (postTransaction < warningThreshold) {
-    return `Post-transaction balance (${postTransaction.toString()}) is within ${thresholdPercent}% of reservation floor (${reserved.toString()})`;
-  }
-
-  return null;
-}
-```
-
-#### 3.2.3 Enforcement Semantics Summary
-
-| Scenario | strict | advisory | unsupported |
-|----------|--------|----------|-------------|
-| Sufficient budget, post-tx above floor + above warning zone | allow | allow | allow |
-| Sufficient budget, post-tx above floor + in warning zone | allow (no warning) | allow + warning | allow (no warning) |
-| Sufficient budget, post-tx would breach floor | **block** | **allow + warning** | **block** |
-| Already at/below floor | block | block (warn) | block |
-| Above floor, insufficient budget | block | warn | block |
-
-**Key design point:** Advisory mode is the ONLY mode that allows through a floor breach (with warning). This makes advisory semantically meaningful — it's not just "strict with different labels." The FAANG parallel is AWS Budgets: you can set a budget to `alert` (advisory) or `enforce` (strict).
-
----
-
-### 3.3 FR-3: Conformance Vectors — Full Enforcement Coverage (MEDIUM-V52-002)
-
-**Directory:** `vectors/conformance/reservation-enforcement/`
-**Impact:** 4+ new vectors alongside the existing 4 strict-only vectors.
-
-#### 3.3.1 New Vectors
-
-| Vector ID | Enforcement | Scenario | expected_valid |
-|-----------|-------------|----------|----------------|
-| `conformance-reservation-enforcement-0005` | advisory | Post-tx would breach floor → allowed with warning | true |
-| `conformance-reservation-enforcement-0006` | advisory | Post-tx in warning zone (within 20%) → allowed with warning | true |
-| `conformance-reservation-enforcement-0007` | unsupported | Sufficient budget, above floor → allowed, no enforcement | true |
-| `conformance-reservation-enforcement-0008` | unsupported | At floor → blocked with enforcement_action 'block' | true |
-
-#### 3.3.2 Vector Schema Extension
-
-The `ReservationVector` interface in the test harness gains:
-
-```typescript
-interface ReservationVector {
-  // ... existing fields ...
-  expected_output: {
-    reserved_micro: string;
-    tier_valid?: boolean;
-    enforcement?: string;
-    allowed?: boolean;
-    floor_breached?: boolean;
-    reason?: string;
-    /** NEW: Expected warning message pattern (advisory mode). */
-    warning_pattern?: string;
-    /** NEW: Expected post-transaction available. */
-    post_transaction_available?: string;
-  };
-}
-```
-
-#### 3.3.3 Vector 0005: Advisory Floor Breach (Allow with Warning)
-
-```json
-{
-  "vector_id": "conformance-reservation-enforcement-0005",
-  "category": "reservation-enforcement",
-  "description": "Advisory enforcement allows request that would breach floor, with warning",
-  "contract_version": "5.3.0",
-  "input": {
-    "agent_id": "agent-advisory-breach",
-    "conformance_level": "self_declared",
-    "reserved_capacity_bps": 500,
-    "budget_limit_micro": "10000",
-    "budget_spent_micro": "0",
-    "request_cost_micro": "9600",
-    "enforcement": "advisory"
-  },
-  "expected_output": {
-    "reserved_micro": "500",
-    "allowed": true,
-    "floor_breached": false,
-    "warning_pattern": "would breach reservation floor",
-    "post_transaction_available": "400"
-  },
-  "expected_valid": true,
-  "matching_rules": { "select_fields": ["allowed", "floor_breached"] },
-  "metadata": { "finding": "MEDIUM-V52-002", "enforcement_mode": "advisory" }
-}
-```
-
-#### 3.3.4 Test Harness Update
-
-**File:** `tests/vectors/reservation-enforcement-vectors.test.ts`
-
-Add test blocks for vectors 0005-0008 exercising advisory and unsupported modes. The harness calls `shouldAllowRequest()` with the corrected (v5.3.0) algorithm and validates `warning` field presence for advisory vectors.
-
----
-
-### 3.4 FR-4: Epistemic Tristate Pattern Formalization (PRAISE-V52-001)
-
-**Impact:** Documentation + JSDoc + constraint file. No new TypeBox schema.
-
-#### 3.4.1 Pattern Document
-
-**File:** `docs/patterns/epistemic-tristate.md`
-
-```markdown
-# Epistemic Tristate Pattern
-
-## Definition
-
-A three-valued logic pattern for trust-sensitive assertions where the system
-must distinguish between "known to be true," "known to be false," and "unknown."
-
-## When to Use
-
-Use the Epistemic Tristate when your subsystem:
-- Makes trust assertions that could be unverifiable at runtime
-- Deals with verification that depends on external state (keys, snapshots, context)
-- Must communicate uncertainty honestly rather than defaulting to pass/fail
-
-Decision rubric: If "false" and "I don't know" would require different consumer
-actions, you need three states, not two.
-
-## Instances in loa-hounfour
-
-| Subsystem | Type | States | File |
-|-----------|------|--------|------|
-| Conservation | `ConservationStatus` | `conserved \| violated \| unverifiable` | `vocabulary/conservation-status.ts` |
-| Signature | `SignatureVerificationResult` | `verified: true \| false \| 'unverifiable'` | `utilities/signature.ts` |
-| Conformance | Implicit | match \| mismatch \| missing dimension | `utilities/conformance-matcher.ts` |
-
-## Why Not a Generic Type?
-
-The instances differ in shape:
-- `ConservationStatus` is a string literal union (TypeBox schema)
-- `SignatureVerificationResult` is a discriminated union with mixed types
-- Conformance matching is implicit (missing dimension = unknown)
-
-Forcing a generic type would sacrifice type safety for uniformity.
-The pattern's value is in **naming**, not **abstracting**.
-
-## Parallels
-
-| System | Tristate | Problem Solved |
-|--------|----------|----------------|
-| Kubernetes conditions | `True \| False \| Unknown` | Controllers can't distinguish "unhealthy" from "haven't checked" |
-| Protobuf field presence | set \| default \| absent | `has_field()` distinguishes explicit default from absent |
-| Certificate Transparency | good \| revoked \| unknown | OCSP responders may not have revocation data yet |
-| SQL NULL | true \| false \| NULL | Ternary logic for missing/unknown data |
-| Łukasiewicz (1920) | 1 \| 0 \| ½ | Formalized three-valued propositional logic |
-
-## Invariant
-
-All three states MUST be distinguishable — no two states may collapse to
-the same consumer behavior. If consumers treat "false" and "unknown" identically,
-the tristate has degenerated to a boolean and should be simplified.
-
-See: `constraints/EpistemicTristate.constraints.json`
-```
-
-#### 3.4.2 Constraint File
-
-**File:** `constraints/EpistemicTristate.constraints.json`
-
-```json
-{
-  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
-  "schema_id": "EpistemicTristate",
-  "contract_version": "5.3.0",
-  "expression_version": "1.0",
-  "constraints": [
-    {
-      "id": "tristate-distinguishability",
-      "expression": "true",
-      "severity": "error",
-      "message": "All three epistemic states must produce distinguishable consumer behavior. If two states collapse, simplify to boolean.",
-      "fields": [],
-      "institutional_context": "Architectural pattern invariant — applies to all Epistemic Tristate instances. Enforcement is via code review and pattern documentation, not runtime expression evaluation."
-    }
+export const SagaStatusSchema = Type.Union(
+  [
+    Type.Literal('initiated'),
+    Type.Literal('reserving'),
+    Type.Literal('transferring'),
+    Type.Literal('settling'),
+    Type.Literal('settled'),
+    Type.Literal('compensating'),
+    Type.Literal('reversed'),
+    Type.Literal('failed'),
   ],
-  "metadata": {
-    "pattern": "epistemic-tristate",
-    "instances": ["ConservationStatus", "SignatureVerificationResult", "conformance-matching"],
-    "references": ["Łukasiewicz 1920", "Kubernetes conditions", "Protobuf field presence"]
-  }
-}
+  {
+    $id: 'SagaStatus',
+    description: 'State machine for bridge transfer sagas.',
+  },
+);
+export type SagaStatus = Static<typeof SagaStatusSchema>;
+
+export const SAGA_TRANSITIONS: Record<SagaStatus, readonly SagaStatus[]> = {
+  initiated: ['reserving', 'failed'],
+  reserving: ['transferring', 'compensating', 'failed'],
+  transferring: ['settling', 'compensating', 'failed'],
+  settling: ['settled', 'compensating', 'failed'],
+  settled: [],                    // terminal
+  compensating: ['reversed', 'failed'],
+  reversed: [],                   // terminal
+  failed: [],                     // terminal
+};
 ```
 
-#### 3.4.3 JSDoc Updates
-
-**File:** `src/vocabulary/conservation-status.ts` — Add to existing JSDoc:
+#### 2.2.2 BridgeTransferStep Schema
 
 ```typescript
-/**
- * Conservation verification status — tristate result of pricing conservation check.
- *
- * Instance of the Epistemic Tristate pattern (docs/patterns/epistemic-tristate.md).
- * ...existing docs...
- */
+export const StepTypeSchema = Type.Union(
+  [
+    Type.Literal('reserve'),
+    Type.Literal('validate'),
+    Type.Literal('transfer'),
+    Type.Literal('confirm'),
+    Type.Literal('settle'),
+  ],
+  { $id: 'StepType' },
+);
+
+export const StepStatusSchema = Type.Union(
+  [
+    Type.Literal('pending'),
+    Type.Literal('in_progress'),
+    Type.Literal('completed'),
+    Type.Literal('failed'),
+    Type.Literal('compensated'),
+  ],
+  { $id: 'StepStatus' },
+);
+
+export const BridgeTransferStepSchema = Type.Object(
+  {
+    step_id: Type.String({ minLength: 1 }),
+    step_type: StepTypeSchema,
+    participant: Type.String({ minLength: 1, description: 'agent_id of responsible party' }),
+    status: StepStatusSchema,
+    amount_micro: Type.String({ pattern: '^[0-9]+$', description: 'BigInt micro-USD' }),
+    exchange_rate: Type.Optional(ExchangeRateSpecSchema),
+    started_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    completed_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    error: Type.Optional(Type.String()),
+  },
+  {
+    $id: 'BridgeTransferStep',
+    additionalProperties: false,
+  },
+);
+export type BridgeTransferStep = Static<typeof BridgeTransferStepSchema>;
 ```
 
-**File:** `src/utilities/signature.ts` — Add to `SignatureVerificationResult` JSDoc:
+#### 2.2.3 SagaParticipant Schema
 
 ```typescript
-/**
- * Discriminated union for signature verification results.
- *
- * Instance of the Epistemic Tristate pattern (docs/patterns/epistemic-tristate.md):
- * - `verified: true` — known good (signature valid)
- * - `verified: false` — known bad (signature invalid or verification failed)
- * - `verified: 'unverifiable'` — unknown (cannot verify: missing signature, no key resolver)
- */
+export const ParticipantRoleSchema = Type.Union(
+  [
+    Type.Literal('initiator'),
+    Type.Literal('counterparty'),
+    Type.Literal('observer'),
+    Type.Literal('arbiter'),
+  ],
+  { $id: 'ParticipantRole' },
+);
+
+export const SagaParticipantSchema = Type.Object(
+  {
+    agent_id: Type.String({ minLength: 1 }),
+    role: ParticipantRoleSchema,
+    registry_id: Type.String({ format: 'uuid' }),
+    trust_scopes: CapabilityScopedTrustSchema,
+  },
+  {
+    $id: 'SagaParticipant',
+    additionalProperties: false,
+  },
+);
+export type SagaParticipant = Static<typeof SagaParticipantSchema>;
 ```
 
----
-
-### 3.5 FR-5: Ceil-Division Bias Documentation (PRAISE-V52-002)
-
-**File:** `src/vocabulary/reservation-tier.ts`
-**Impact:** New constant + JSDoc. No logic change.
-
-#### 3.5.1 ROUNDING_BIAS Constant
+#### 2.2.4 SagaError Schema
 
 ```typescript
-/**
- * Protocol rounding bias policy.
- *
- * When arithmetic rounding creates ambiguity (e.g., ceil vs floor division),
- * the protocol biases toward the rights-holder (the agent). This ensures:
- * - computeReservedMicro uses ceiling division: (limit * bps + 9999) / 10000
- * - shouldAllowRequest uses SKP-003: available <= reserved (not <)
- *
- * Combined effect: the agent always gets the benefit of sub-micro fractions.
- * This is a deliberate policy choice, not an implementation detail.
- *
- * Basel III parallel: regulatory capital ratios round toward the safety margin.
- *
- * @see computeReservedMicro — ceiling division
- * @see shouldAllowRequest — SKP-003 floor enforcement
- * @see constraints/ReservationArithmetic.constraints.json
- */
-export const ROUNDING_BIAS = 'rights_holder' as const;
-
-export type RoundingBias = typeof ROUNDING_BIAS;
+export const SagaErrorSchema = Type.Object(
+  {
+    error_code: Type.String({ minLength: 1 }),
+    message: Type.String({ minLength: 1 }),
+    failed_step_id: Type.Optional(Type.String()),
+    recoverable: Type.Boolean(),
+  },
+  {
+    $id: 'SagaError',
+    additionalProperties: false,
+  },
+);
+export type SagaError = Static<typeof SagaErrorSchema>;
 ```
 
-#### 3.5.2 JSDoc Enhancements
-
-**File:** `src/utilities/reservation.ts:computeReservedMicro` — Enhance existing JSDoc:
+#### 2.2.5 BridgeTransferSaga Schema
 
 ```typescript
-/**
- * Compute the reserved micro-USD amount for a given budget limit and basis points.
- *
- * Uses ceil division: `(limit * bps + 9999) / 10000` to ensure the reserved
- * amount is never understated. This implements the protocol's ROUNDING_BIAS
- * toward the rights-holder: when rounding creates ambiguity, the agent gets
- * the benefit.
- *
- * @see ROUNDING_BIAS — 'rights_holder' policy documentation
- * ...existing params/returns...
- */
+export const BridgeTransferSagaSchema = Type.Object(
+  {
+    saga_id: Type.String({ format: 'uuid' }),
+    bridge_id: Type.String({ format: 'uuid', description: 'References RegistryBridge.bridge_id' }),
+    source_registry: Type.String({ format: 'uuid' }),
+    target_registry: Type.String({ format: 'uuid' }),
+    saga_type: Type.Union([Type.Literal('atomic'), Type.Literal('choreography')]),
+    status: SagaStatusSchema,
+    steps: Type.Array(BridgeTransferStepSchema, { minItems: 1 }),
+    compensation_steps: Type.Array(BridgeTransferStepSchema),
+    timeout: Type.Object({
+      total_seconds: Type.Integer({ minimum: 1 }),
+      per_step_seconds: Type.Integer({ minimum: 1 }),
+    }),
+    participants: Type.Array(SagaParticipantSchema, { minItems: 1 }),
+    initiated_at: Type.String({ format: 'date-time' }),
+    settled_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    error: Type.Optional(SagaErrorSchema),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'BridgeTransferSaga',
+    additionalProperties: false,
+    description: 'Saga-patterned operation protocol for cross-registry value transfer.',
+  },
+);
+export type BridgeTransferSaga = Static<typeof BridgeTransferSagaSchema>;
 ```
 
-**File:** `src/utilities/reservation.ts:shouldAllowRequest` — Enhance existing JSDoc:
+#### 2.2.6 RegistryBridge Extension (BREAKING)
+
+**File:** `src/economy/registry-composition.ts`
+
+Add required `transfer_protocol` field:
 
 ```typescript
-/**
- * ...existing docs...
- *
- * **SKP-003 + ROUNDING_BIAS:** The floor breach condition is `available <= reserved`
- * (not `<`). Combined with ceiling division in computeReservedMicro, this ensures
- * the protocol systematically favors the rights-holder at boundaries.
- *
- * @see ROUNDING_BIAS — 'rights_holder' policy documentation
- */
+// Add to RegistryBridgeSchema:
+transfer_protocol: Type.Object({
+  saga_type: Type.Union([Type.Literal('atomic'), Type.Literal('choreography')]),
+  timeout_seconds: Type.Integer({ minimum: 1 }),
+  max_retries: Type.Integer({ minimum: 0, maximum: 10 }),
+}),
 ```
 
-#### 3.5.3 Constraint File
+#### 2.2.7 Constraints
 
-**File:** `constraints/ReservationArithmetic.constraints.json`
+**File:** `constraints/BridgeTransferSaga.constraints.json`
 
 ```json
 {
-  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
-  "schema_id": "ReservationArithmetic",
-  "contract_version": "5.3.0",
+  "schema_id": "BridgeTransferSaga",
+  "contract_version": "7.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
-      "id": "ceil-division-bias",
-      "expression": "true",
+      "id": "saga-steps-ordered",
+      "description": "Steps must have sequential step_ids",
+      "expression": "steps.every(s => s.step_id != '')",
       "severity": "error",
-      "message": "computeReservedMicro MUST use ceiling division: (limit * bps + 9999) / 10000. Floor division would reduce reserved capacity below the intended percentage, violating the rights-holder bias.",
-      "fields": [],
-      "institutional_context": "Protocol arithmetic invariant. Rounding ALWAYS favors the agent (rights-holder). Changing to floor division is a constitutional amendment, not an optimization."
+      "category": "structural",
+      "type_signature": { "steps": "array" }
     },
     {
-      "id": "floor-check-inclusive",
-      "expression": "true",
+      "id": "saga-amount-conserved",
+      "description": "Source debit equals target credit after exchange rate",
+      "expression": "saga_amount_conserved(saga)",
       "severity": "error",
-      "message": "shouldAllowRequest floor check MUST use <= (not <). At the exact boundary, spending the request would breach the floor.",
-      "fields": [],
-      "institutional_context": "SKP-003 fix. The off-by-one in < allows one request to silently consume the last unit of reserved capacity."
+      "category": "economic",
+      "type_signature": { "saga": "BridgeTransferSaga" }
+    },
+    {
+      "id": "saga-timeout-positive",
+      "description": "Timeout values must be positive",
+      "expression": "timeout.total_seconds > 0 && timeout.per_step_seconds > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "timeout": "object" }
+    },
+    {
+      "id": "saga-participants-include-initiator",
+      "description": "At least one participant must have role initiator",
+      "expression": "participants.length > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "participants": "array" }
+    },
+    {
+      "id": "saga-settled-has-timestamp",
+      "description": "Settled sagas must have settled_at timestamp",
+      "expression": "status != 'settled' || settled_at != null",
+      "severity": "error",
+      "category": "temporal",
+      "type_signature": { "status": "string", "settled_at": "string_or_null" }
     }
   ]
 }
 ```
 
+#### 2.2.8 Evaluator Builtins
+
+**`saga_amount_conserved(saga)`:**
+- Iterates all completed steps
+- Sums `amount_micro` for source-side steps (debits)
+- Sums `amount_micro` for target-side steps (credits), adjusting by exchange rate
+- Returns `true` if `source_total == target_total` (BigInt comparison)
+- Returns `false` if any step has a non-numeric `amount_micro`
+- Resource limit: max 100 steps (fail-closed)
+
+**`saga_steps_sequential(saga)`:**
+- Verifies step_id values are unique
+- Returns `true` if no duplicates, `false` otherwise
+- Resource limit: max 100 steps
+
 ---
 
-### 3.6 FR-6: GovernanceConfig Schema (SPEC-V52-001)
+### 2.3 FR-3: DelegationOutcome (P1)
 
-**File:** `src/schemas/governance-config.ts`
-**Impact:** New schema + new utility file + constraint file.
+**File:** `src/governance/delegation-outcome.ts` (NEW)
 
-#### 3.6.1 Schema Definition
+#### 2.3.1 OutcomeType Vocabulary
 
 ```typescript
-import { Type, type Static } from '@sinclair/typebox';
-import { ConformanceLevelSchema } from './model/conformance-level.js';
-import { ReservationTierSchema } from '../vocabulary/reservation-tier.js';
-
-/**
- * Protocol governance configuration — the beginning of governance-configurable parameters.
- *
- * GovernanceConfig allows protocol parameters to be overridden from their
- * hardcoded defaults. In v5.3.0, this covers reservation tier minimums and
- * advisory warning thresholds. Future versions will add more parameters.
- *
- * This is NOT a runtime configuration file. It is a protocol-level schema
- * that defines the structure of governance parameters. How these parameters
- * are proposed, debated, and adopted is out of scope for v5.3.0.
- *
- * @see SPEC-V52-001 — Bridgebuilder Review III finding
- * @see RESERVATION_TIER_MAP — default values
- * @see ADVISORY_WARNING_THRESHOLD_PERCENT — default advisory threshold
- */
-export const GovernanceConfigSchema = Type.Object(
+export const OutcomeTypeSchema = Type.Union(
+  [
+    Type.Literal('unanimous'),
+    Type.Literal('majority'),
+    Type.Literal('deadlock'),
+    Type.Literal('escalation'),
+  ],
   {
-    governance_version: Type.String({
-      pattern: '^\\d+\\.\\d+\\.\\d+$',
-      description: 'Semver version tracking governance parameter changes independently of protocol version.',
-    }),
-    reservation_tiers: Type.Object(
-      {
-        self_declared: ReservationTierSchema,
-        community_verified: ReservationTierSchema,
-        protocol_certified: ReservationTierSchema,
-      },
-      {
-        additionalProperties: false,
-        description: 'Minimum reservation capacity (bps) per conformance level.',
-      },
-    ),
-    advisory_warning_threshold_percent: Type.Integer({
-      minimum: 0,
-      maximum: 100,
-      description: 'Percentage threshold for advisory near-floor warnings. Default: 20.',
-    }),
-    metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-  },
-  {
-    $id: 'GovernanceConfig',
-    additionalProperties: false,
-    description: 'Protocol governance parameters. Overrides hardcoded defaults when provided.',
+    $id: 'OutcomeType',
+    description: 'How a delegation decision was reached.',
   },
 );
+export type OutcomeType = Static<typeof OutcomeTypeSchema>;
+```
 
-export type GovernanceConfig = Static<typeof GovernanceConfigSchema>;
+#### 2.3.2 DelegationVote Schema
 
-/**
- * Default GovernanceConfig matching current hardcoded values.
- * Used as fallback when no explicit config is provided.
- */
-export const DEFAULT_GOVERNANCE_CONFIG: GovernanceConfig = {
-  governance_version: '1.0.0',
-  reservation_tiers: {
-    self_declared: 300,
-    community_verified: 500,
-    protocol_certified: 1000,
+```typescript
+export const VoteChoiceSchema = Type.Union(
+  [Type.Literal('agree'), Type.Literal('disagree'), Type.Literal('abstain')],
+  { $id: 'VoteChoice' },
+);
+
+export const DelegationVoteSchema = Type.Object(
+  {
+    voter_id: Type.String({ minLength: 1 }),
+    vote: VoteChoiceSchema,
+    result: Type.Unknown({ description: 'This voter\'s proposed result.' }),
+    confidence: Type.Number({ minimum: 0, maximum: 1 }),
+    reasoning: Type.Optional(Type.String()),
   },
-  advisory_warning_threshold_percent: 20,
+  {
+    $id: 'DelegationVote',
+    additionalProperties: false,
+  },
+);
+export type DelegationVote = Static<typeof DelegationVoteSchema>;
+```
+
+#### 2.3.3 DissentRecord Schema
+
+```typescript
+export const DissentTypeSchema = Type.Union(
+  [Type.Literal('minority_report'), Type.Literal('abstention'), Type.Literal('timeout')],
+  { $id: 'DissentType' },
+);
+
+export const DissentSeveritySchema = Type.Union(
+  [Type.Literal('informational'), Type.Literal('warning'), Type.Literal('blocking')],
+  { $id: 'DissentSeverity' },
+);
+
+export const DissentRecordSchema = Type.Object(
+  {
+    dissenter_id: Type.String({ minLength: 1 }),
+    dissent_type: DissentTypeSchema,
+    proposed_alternative: Type.Unknown(),
+    reasoning: Type.String({ minLength: 1 }),
+    severity: DissentSeveritySchema,
+    acknowledged: Type.Boolean(),
+  },
+  {
+    $id: 'DissentRecord',
+    additionalProperties: false,
+    description: 'Record of minority dissent in a delegation decision.',
+  },
+);
+export type DissentRecord = Static<typeof DissentRecordSchema>;
+```
+
+#### 2.3.4 DelegationOutcome Schema
+
+```typescript
+export const DelegationOutcomeSchema = Type.Object(
+  {
+    outcome_id: Type.String({ format: 'uuid' }),
+    tree_node_id: Type.String({ minLength: 1, description: 'References DelegationTreeNode.node_id' }),
+    outcome_type: OutcomeTypeSchema,
+    result: Type.Union([Type.Unknown(), Type.Null()]),
+    votes: Type.Array(DelegationVoteSchema, { minItems: 1 }),
+    consensus_achieved: Type.Boolean(),
+    consensus_threshold: Type.Number({ minimum: 0, maximum: 1 }),
+    dissent_records: Type.Array(DissentRecordSchema),
+    escalated_to: Type.Optional(Type.String({ minLength: 1 })),
+    escalation_reason: Type.Optional(Type.String({ minLength: 1 })),
+    resolved_at: Type.String({ format: 'date-time' }),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'DelegationOutcome',
+    additionalProperties: false,
+    description: 'Recorded outcome of a delegation tree decision, preserving dissent.',
+  },
+);
+export type DelegationOutcome = Static<typeof DelegationOutcomeSchema>;
+```
+
+#### 2.3.5 DelegationTreeNode Extension
+
+**File:** `src/governance/delegation-tree.ts`
+
+Add optional `last_outcome` field:
+
+```typescript
+// Add to DelegationTreeNodeSchema (inside the Recursive callback):
+last_outcome: Type.Optional(DelegationOutcomeSchema),
+```
+
+This is a non-breaking additive change. Existing trees without `last_outcome` remain valid.
+
+#### 2.3.6 Constraints
+
+**File:** `constraints/DelegationOutcome.constraints.json`
+
+```json
+{
+  "schema_id": "DelegationOutcome",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "outcome-consensus-consistent",
+      "description": "Unanimous outcomes must have all votes as agree",
+      "expression": "outcome_type != 'unanimous' || votes.every(v => v.vote == 'agree')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "votes": "array" }
+    },
+    {
+      "id": "outcome-deadlock-no-result",
+      "description": "Deadlocked outcomes must have null result",
+      "expression": "outcome_type != 'deadlock' || result == null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "result": "unknown" }
+    },
+    {
+      "id": "outcome-escalation-has-target",
+      "description": "Escalated outcomes must specify escalation target",
+      "expression": "outcome_type != 'escalation' || escalated_to != null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "outcome_type": "string", "escalated_to": "string_or_null" }
+    },
+    {
+      "id": "outcome-dissent-has-reasoning",
+      "description": "Every dissent record must have non-empty reasoning",
+      "expression": "dissent_records.every(d => d.reasoning != '')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": { "dissent_records": "array" }
+    }
+  ]
+}
+```
+
+#### 2.3.7 Evaluator Builtin
+
+**`outcome_consensus_valid(outcome)`:**
+- Counts agree/disagree/abstain votes
+- For `unanimous`: all votes must be `agree`
+- For `majority`: agree count >= votes.length * consensus_threshold
+- For `deadlock`: agree count < votes.length * consensus_threshold
+- For `escalation`: any configuration valid (escalation can happen regardless)
+- Returns boolean
+- Resource limit: max 1000 votes
+
+---
+
+### 2.4 FR-4: MonetaryPolicy (P1)
+
+**File:** `src/economy/monetary-policy.ts` (NEW)
+
+#### 2.4.1 ReviewTrigger Schema
+
+```typescript
+export const ReviewTriggerTypeSchema = Type.Union(
+  [
+    Type.Literal('epoch_boundary'),
+    Type.Literal('supply_threshold'),
+    Type.Literal('manual'),
+    Type.Literal('governance_vote'),
+  ],
+  { $id: 'ReviewTriggerType' },
+);
+
+export const ReviewTriggerSchema = Type.Object(
+  {
+    trigger_type: ReviewTriggerTypeSchema,
+    threshold_pct: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+    epoch_interval: Type.Optional(Type.Integer({ minimum: 1 })),
+  },
+  {
+    $id: 'ReviewTrigger',
+    additionalProperties: false,
+    description: 'When governance should re-evaluate the monetary policy.',
+  },
+);
+export type ReviewTrigger = Static<typeof ReviewTriggerSchema>;
+```
+
+#### 2.4.2 MonetaryPolicy Schema
+
+```typescript
+export const MonetaryPolicySchema = Type.Object(
+  {
+    policy_id: Type.String({ format: 'uuid' }),
+    registry_id: Type.String({ format: 'uuid', description: 'Conservation registry this governs' }),
+    minting_policy: Type.String({ format: 'uuid', description: 'References MintingPolicyConfig.policy_id' }),
+    conservation_ceiling: Type.String({ pattern: '^[0-9]+$', description: 'BigInt: maximum total supply' }),
+    coupling_invariant: Type.String({ minLength: 1, description: 'Constraint expression binding minting to conservation' }),
+    collateral_ratio_bps: Type.Integer({ minimum: 10000, description: 'Minimum 100% collateralization (10000 bps)' }),
+    review_trigger: ReviewTriggerSchema,
+    last_reviewed_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'MonetaryPolicy',
+    additionalProperties: false,
+    description: 'Coupling between minting policy and conservation invariants.',
+  },
+);
+export type MonetaryPolicy = Static<typeof MonetaryPolicySchema>;
+```
+
+#### 2.4.3 Constraints
+
+**File:** `constraints/MonetaryPolicy.constraints.json`
+
+```json
+{
+  "schema_id": "MonetaryPolicy",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "monetary-policy-ceiling-positive",
+      "description": "Conservation ceiling must be positive",
+      "expression": "bigint_gt(conservation_ceiling, '0')",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": { "conservation_ceiling": "bigint_coercible" }
+    },
+    {
+      "id": "monetary-policy-collateral-minimum",
+      "description": "Collateral ratio must be at least 100% (10000 bps)",
+      "expression": "collateral_ratio_bps >= 10000",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": { "collateral_ratio_bps": "number" }
+    },
+    {
+      "id": "monetary-policy-coupling-non-empty",
+      "description": "Coupling invariant expression must be non-empty",
+      "expression": "coupling_invariant != ''",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": { "coupling_invariant": "string" }
+    }
+  ]
+}
+```
+
+#### 2.4.4 Evaluator Builtin
+
+**`monetary_policy_solvent(policy, current_supply)`:**
+- Parses `policy.conservation_ceiling` and `current_supply` as BigInt
+- Returns `true` if `current_supply <= conservation_ceiling`
+- Returns `false` if `current_supply > conservation_ceiling`
+- Returns `false` for non-numeric inputs (fail-closed)
+
+---
+
+### 2.5 FR-5: PermissionBoundary (P1)
+
+**File:** `src/governance/permission-boundary.ts` (NEW)
+
+#### 2.5.1 ReportingRequirement Schema
+
+```typescript
+export const ReportFrequencySchema = Type.Union(
+  [Type.Literal('per_action'), Type.Literal('per_epoch'), Type.Literal('on_violation')],
+  { $id: 'ReportFrequency' },
+);
+
+export const ReportFormatSchema = Type.Union(
+  [Type.Literal('audit_trail'), Type.Literal('summary'), Type.Literal('detailed')],
+  { $id: 'ReportFormat' },
+);
+
+export const ReportingRequirementSchema = Type.Object(
+  {
+    required: Type.Boolean(),
+    report_to: Type.String({ minLength: 1 }),
+    frequency: ReportFrequencySchema,
+    format: ReportFormatSchema,
+  },
+  {
+    $id: 'ReportingRequirement',
+    additionalProperties: false,
+  },
+);
+export type ReportingRequirement = Static<typeof ReportingRequirementSchema>;
+```
+
+#### 2.5.2 RevocationPolicy Schema
+
+```typescript
+export const RevocationTriggerSchema = Type.Union(
+  [
+    Type.Literal('violation_count'),
+    Type.Literal('governance_vote'),
+    Type.Literal('manual'),
+    Type.Literal('timeout'),
+  ],
+  { $id: 'RevocationTrigger' },
+);
+
+export const RevocationPolicySchema = Type.Object(
+  {
+    trigger: RevocationTriggerSchema,
+    violation_threshold: Type.Optional(Type.Integer({ minimum: 1 })),
+    timeout_seconds: Type.Optional(Type.Integer({ minimum: 1 })),
+  },
+  {
+    $id: 'RevocationPolicy',
+    additionalProperties: false,
+  },
+);
+export type RevocationPolicy = Static<typeof RevocationPolicySchema>;
+```
+
+#### 2.5.3 PermissionBoundary Schema
+
+```typescript
+export const PermissionSeveritySchema = Type.Union(
+  [Type.Literal('advisory'), Type.Literal('monitored')],
+  { $id: 'PermissionSeverity' },
+);
+
+export const PermissionBoundarySchema = Type.Object(
+  {
+    boundary_id: Type.String({ format: 'uuid' }),
+    scope: Type.String({ minLength: 1, description: 'Domain of permitted action' }),
+    permitted_if: Type.String({ minLength: 1, description: 'Constraint expression that ENABLES' }),
+    reporting: ReportingRequirementSchema,
+    revocation: RevocationPolicySchema,
+    severity: PermissionSeveritySchema,
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'PermissionBoundary',
+    additionalProperties: false,
+    description: 'Explicit permission semantic — what is MAY rather than MUST or MUST NOT.',
+  },
+);
+export type PermissionBoundary = Static<typeof PermissionBoundarySchema>;
+```
+
+#### 2.5.4 Constraint File Extension
+
+Add optional `permission_boundaries` array to the constraint file JSON schema. This is additive — existing constraint files without `permission_boundaries` remain valid.
+
+#### 2.5.5 Evaluator Builtins
+
+**`permission_granted(context, boundary_id)`:**
+- Looks up PermissionBoundary by boundary_id in context
+- Evaluates the `permitted_if` expression against context
+- Returns `true` if expression evaluates to truthy
+- Returns `false` if expression evaluates to falsy or boundary not found
+
+**`within_boundary(context, boundary_id)`:**
+- Checks permission_granted AND reporting requirements met
+- Returns `true` if both conditions satisfied
+- Returns `false` otherwise
+
+---
+
+### 2.6 FR-6: GovernanceProposal (P2)
+
+**File:** `src/governance/governance-proposal.ts` (NEW)
+
+#### 2.6.1 ProposalStatus State Machine
+
+```typescript
+export const ProposalStatusSchema = Type.Union(
+  [
+    Type.Literal('proposed'),
+    Type.Literal('voting'),
+    Type.Literal('ratified'),
+    Type.Literal('rejected'),
+    Type.Literal('expired'),
+    Type.Literal('withdrawn'),
+  ],
+  { $id: 'ProposalStatus' },
+);
+
+export const PROPOSAL_TRANSITIONS: Record<string, readonly string[]> = {
+  proposed: ['voting', 'withdrawn'],
+  voting: ['ratified', 'rejected', 'expired'],
+  ratified: [],     // terminal
+  rejected: [],     // terminal
+  expired: [],      // terminal
+  withdrawn: [],    // terminal
 };
 ```
 
-#### 3.6.2 Governance Utility Functions
-
-**File:** `src/utilities/governance.ts`
+#### 2.6.2 ProposedChange Schema
 
 ```typescript
-import { RESERVATION_TIER_MAP, type ReservationTier } from '../vocabulary/reservation-tier.js';
-import { ADVISORY_WARNING_THRESHOLD_PERCENT } from './reservation.js';
-import type { GovernanceConfig } from '../schemas/governance-config.js';
-import type { ConformanceLevel } from '../schemas/model/conformance-level.js';
-
-/**
- * Resolve the minimum reservation tier for a conformance level.
- *
- * Uses GovernanceConfig when provided, falls back to RESERVATION_TIER_MAP.
- */
-export function resolveReservationTier(
-  conformanceLevel: ConformanceLevel,
-  config?: GovernanceConfig,
-): ReservationTier {
-  if (config) {
-    return config.reservation_tiers[conformanceLevel];
-  }
-  return RESERVATION_TIER_MAP[conformanceLevel];
-}
-
-/**
- * Resolve the advisory warning threshold percentage.
- *
- * Uses GovernanceConfig when provided, falls back to ADVISORY_WARNING_THRESHOLD_PERCENT.
- */
-export function resolveAdvisoryThreshold(
-  config?: GovernanceConfig,
-): number {
-  if (config) {
-    return config.advisory_warning_threshold_percent;
-  }
-  return ADVISORY_WARNING_THRESHOLD_PERCENT;
-}
+export const ProposedChangeSchema = Type.Object(
+  {
+    target_field: Type.String({ minLength: 1, description: 'JSON path to field being changed' }),
+    current_value: Type.Unknown(),
+    proposed_value: Type.Unknown(),
+    rationale: Type.String({ minLength: 1 }),
+  },
+  {
+    $id: 'ProposedChange',
+    additionalProperties: false,
+  },
+);
+export type ProposedChange = Static<typeof ProposedChangeSchema>;
 ```
 
-#### 3.6.3 validateReservationTier Update
-
-**File:** `src/utilities/reservation.ts`
+#### 2.6.3 GovernanceVote Schema
 
 ```typescript
-import type { GovernanceConfig } from '../schemas/governance-config.js';
-import { resolveReservationTier } from './governance.js';
+export const GovernanceVoteChoiceSchema = Type.Union(
+  [Type.Literal('approve'), Type.Literal('reject'), Type.Literal('abstain')],
+  { $id: 'GovernanceVoteChoice' },
+);
 
-/**
- * Validate that a reservation's basis points meet the minimum for the
- * agent's conformance level.
- *
- * Accepts optional GovernanceConfig to override default tier minimums.
- *
- * @param conformanceLevel - Agent's earned conformance level
- * @param actualBps - The actual reserved_capacity_bps
- * @param config - Optional governance config overriding default tiers
- * @returns Validation result with minimum requirement
- */
-export function validateReservationTier(
-  conformanceLevel: ConformanceLevel,
-  actualBps: number,
-  config?: GovernanceConfig,
-): TierValidation {
-  const minimumBps = resolveReservationTier(conformanceLevel, config);
-
-  if (actualBps >= minimumBps) {
-    return { valid: true, minimum_bps: minimumBps, actual_bps: actualBps };
-  }
-
-  return {
-    valid: false,
-    minimum_bps: minimumBps,
-    actual_bps: actualBps,
-    reason: `Reservation ${actualBps} bps is below minimum ${minimumBps} bps for ${conformanceLevel}`,
-  };
-}
+export const GovernanceVoteSchema = Type.Object(
+  {
+    voter_id: Type.String({ minLength: 1 }),
+    vote: GovernanceVoteChoiceSchema,
+    weight: Type.Number({ minimum: 0 }),
+    reasoning: Type.Optional(Type.String()),
+    voted_at: Type.String({ format: 'date-time' }),
+  },
+  {
+    $id: 'GovernanceVote',
+    additionalProperties: false,
+  },
+);
+export type GovernanceVote = Static<typeof GovernanceVoteSchema>;
 ```
 
-**Backward compatibility:** The `config` parameter is optional. Existing callers with 2 arguments continue working unchanged.
+#### 2.6.4 VotingRecord Schema
 
-#### 3.6.4 Constraint File
-
-**File:** `constraints/GovernanceConfig.constraints.json`
-
-```json
-{
-  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
-  "schema_id": "GovernanceConfig",
-  "contract_version": "5.3.0",
-  "expression_version": "2.0",
-  "constraints": [
-    {
-      "id": "governance-tier-ordering",
-      "expression": "reservation_tiers.self_declared <= reservation_tiers.community_verified && reservation_tiers.community_verified <= reservation_tiers.protocol_certified",
-      "severity": "error",
-      "message": "Tier minimums must be non-decreasing: self_declared <= community_verified <= protocol_certified",
-      "fields": ["reservation_tiers"]
-    },
-    {
-      "id": "governance-tier-bounds",
-      "expression": "reservation_tiers.self_declared >= 0 && reservation_tiers.protocol_certified <= 10000",
-      "severity": "error",
-      "message": "Tier values must be in [0, 10000] basis points",
-      "fields": ["reservation_tiers"]
-    },
-    {
-      "id": "governance-advisory-bounds",
-      "expression": "advisory_warning_threshold_percent >= 0 && advisory_warning_threshold_percent <= 100",
-      "severity": "error",
-      "message": "Advisory threshold must be in [0, 100] percent",
-      "fields": ["advisory_warning_threshold_percent"]
-    }
-  ],
-  "metadata": {
-    "institutional_context": "GovernanceConfig defines the mutable parameters of the protocol's economic constitution. Changes to these values are governance acts, not implementation details."
-  }
-}
+```typescript
+export const VotingRecordSchema = Type.Object(
+  {
+    total_weight: Type.Number({ minimum: 0 }),
+    participating_weight: Type.Number({ minimum: 0 }),
+    approve_weight: Type.Number({ minimum: 0 }),
+    reject_weight: Type.Number({ minimum: 0 }),
+    abstain_weight: Type.Number({ minimum: 0 }),
+    votes: Type.Array(GovernanceVoteSchema),
+  },
+  {
+    $id: 'VotingRecord',
+    additionalProperties: false,
+  },
+);
+export type VotingRecord = Static<typeof VotingRecordSchema>;
 ```
+
+#### 2.6.5 GovernanceProposal Schema
+
+```typescript
+export const GovernanceProposalSchema = Type.Object(
+  {
+    proposal_id: Type.String({ format: 'uuid' }),
+    proposer_id: Type.String({ minLength: 1 }),
+    registry_id: Type.String({ format: 'uuid' }),
+    proposal_type: Type.Union([
+      Type.Literal('parameter_change'),
+      Type.Literal('policy_change'),
+      Type.Literal('boundary_change'),
+      Type.Literal('emergency'),
+    ]),
+    title: Type.String({ minLength: 1, maxLength: 200 }),
+    description: Type.String({ minLength: 1 }),
+    changes: Type.Array(ProposedChangeSchema, { minItems: 1 }),
+    status: ProposalStatusSchema,
+    voting: VotingRecordSchema,
+    quorum_threshold_bps: Type.Integer({ minimum: 0, maximum: 10000 }),
+    approval_threshold_bps: Type.Integer({ minimum: 0, maximum: 10000 }),
+    voting_period_seconds: Type.Integer({ minimum: 1 }),
+    proposed_at: Type.String({ format: 'date-time' }),
+    resolved_at: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+    contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+  },
+  {
+    $id: 'GovernanceProposal',
+    additionalProperties: false,
+    description: 'Mechanism for governed agents to propose and vote on changes.',
+  },
+);
+export type GovernanceProposal = Static<typeof GovernanceProposalSchema>;
+```
+
+#### 2.6.6 Constraints
+
+**File:** `constraints/GovernanceProposal.constraints.json`
+
+Constraints as specified in PRD section FR-6: quorum-met, approval-met, rejection-consistent, voting-period-positive, changes-non-empty.
 
 ---
 
-### 3.7 FR-7: Constraint Files as Institutional Rules — Ostrom Framing
+## 3. Evaluator Changes
 
-**Impact:** JSDoc and metadata additions. No logic change.
+### 3.1 New Builtins Summary
 
-#### 3.7.1 Constraint Evaluator JSDoc
+| Builtin | FR | Signature | Return |
+|---------|----|-----------|----|
+| `saga_amount_conserved` | FR-2 | `(saga: BridgeTransferSaga)` | boolean |
+| `saga_steps_sequential` | FR-2 | `(saga: BridgeTransferSaga)` | boolean |
+| `outcome_consensus_valid` | FR-3 | `(outcome: DelegationOutcome)` | boolean |
+| `monetary_policy_solvent` | FR-4 | `(policy: MonetaryPolicy, current_supply: string)` | boolean |
+| `permission_granted` | FR-5 | `(context: object, boundary_id: string)` | boolean |
+| `within_boundary` | FR-5 | `(context: object, boundary_id: string)` | boolean |
 
-**File:** `src/constraints/index.ts` — Add to module-level JSDoc:
+**Total builtins after v7.0.0:** 23 + 6 = **29**
 
+### 3.2 Registration Pattern
+
+Follow existing pattern in `evaluator.ts`:
 ```typescript
-/**
- * Constraint expression evaluation system.
- *
- * Constraint files serve as the protocol's institutional rules — in the sense
- * of Elinor Ostrom's Institutional Analysis and Development (IAD) framework.
- * Each constraint defines a rule that governs how protocol participants may
- * interact with a schema. The `expression_version` field enables rule evolution
- * without breaking existing participants — Ostrom's "minimal recognition of
- * rights to organize" principle.
- *
- * @see Ostrom, E. (1990). Governing the Commons.
- * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules
- */
+fns.set('saga_amount_conserved', () => {
+  // ... parse args, validate, compute
+});
 ```
 
-#### 3.7.2 Institutional Context Metadata
+Each builtin gets a corresponding spec in `evaluator-spec.ts` with examples.
 
-New constraint files (FR-4, FR-5, FR-6) include an `institutional_context` field. Additionally, update one existing constraint file as exemplar:
+### 3.3 Resource Limits
 
-**File:** `constraints/AgentCapacityReservation.constraints.json` — Add to the `reservation-tier-minimum` constraint:
-
-```json
-{
-  "id": "reservation-tier-minimum",
-  "expression": "conformance_level == 'self_declared' => reserved_capacity_bps >= 300",
-  "severity": "error",
-  "message": "self_declared conformance requires minimum 300 bps (3%)",
-  "fields": ["conformance_level", "reserved_capacity_bps"],
-  "institutional_context": "Ostrom boundary rule: agents who self-declare conformance receive minimum guaranteed capacity. The 300 bps threshold is a governance parameter (see GovernanceConfig)."
-}
-```
+All new builtins enforce resource limits consistent with existing tree builtins:
+- Max array size: 1000 elements (steps, votes, etc.)
+- Fail-closed on limit breach: return `false`
+- No recursion in new builtins (saga and outcome are flat structures)
 
 ---
 
-### 3.8 FR-8: JSDoc Examples for Discovery API
+## 4. Conformance Vectors
 
-**File:** `src/schemas/discovery.ts:buildDiscoveryDocument`
+### 4.1 New Vector Directories
 
-#### 3.8.1 Options-Object Example (Recommended)
+| Directory | Vectors | Total |
+|-----------|---------|-------|
+| `vectors/conformance/bridge-transfer-saga/` | 4 | vector-NNNN through vector-NNNN+3 |
+| `vectors/conformance/delegation-outcome/` | 4 | vector-NNNN+4 through vector-NNNN+7 |
+| `vectors/conformance/monetary-policy/` | 3 | vector-NNNN+8 through vector-NNNN+10 |
+| `vectors/conformance/permission-boundary/` | 3 | vector-NNNN+11 through vector-NNNN+13 |
+| `vectors/conformance/governance-proposal/` | 4 | vector-NNNN+14 through vector-NNNN+17 |
 
-```typescript
-/**
- * Build a protocol discovery document.
- *
- * @example Options object (recommended):
- * ```typescript
- * const doc = buildDiscoveryDocument(
- *   ['BillingEntry', 'CompletionResult', 'AgentCapacityReservation'],
- *   {
- *     aggregateTypes: ['billing', 'completion'],
- *     capabilitiesUrl: 'https://api.example.com/capabilities',
- *     expressionVersions: ['1.0', '2.0'],
- *     providers: [
- *       { provider: 'openai', model_count: 4, supports_reservations: true },
- *     ],
- *   },
- * );
- * ```
- *
- * @example Legacy positional arguments (deprecated):
- * ```typescript
- * // @deprecated — Use options object overload instead.
- * const doc = buildDiscoveryDocument(
- *   ['BillingEntry', 'CompletionResult'],
- *   ['billing'],
- *   'https://api.example.com/capabilities',
- *   ['1.0'],
- * );
- * ```
- */
-```
+### 4.2 Vector ID Assignment
+
+Vector IDs continue from existing sequence. Exact IDs assigned during implementation.
 
 ---
 
-### 3.9 FR-9: Version Bump to v5.3.0
+## 5. Version Constants
 
 **File:** `src/version.ts`
 
 ```typescript
-export const CONTRACT_VERSION = '5.3.0' as const;
-export const MIN_SUPPORTED_VERSION = '5.0.0' as const;  // unchanged — N-1 support continues
+export const CONTRACT_VERSION = '7.0.0';
+export const MIN_SUPPORTED_VERSION = '7.0.0';
 ```
 
-**package.json:**
+**File:** `schemas/index.json`
 
+Regenerated with all new schemas. Schema count target: 87 + ~16 = ~103.
+
+---
+
+## 6. Migration Guide
+
+### 6.1 Breaking: RegistryBridge.transfer_protocol
+
+**Before (v6.0.0):**
+```json
+{ "bridge_id": "...", "source_registry": "...", ... }
+```
+
+**After (v7.0.0):**
 ```json
 {
-  "version": "5.3.0"
+  "bridge_id": "...",
+  "source_registry": "...",
+  "transfer_protocol": {
+    "saga_type": "atomic",
+    "timeout_seconds": 3600,
+    "max_retries": 3
+  },
+  ...
 }
 ```
 
-**vectors/VERSION:** Update to `5.3.0`.
+All existing RegistryBridge instances must add the `transfer_protocol` field.
 
-**schemas/index.json:** Regenerate with:
-- GovernanceConfig schema added
-- All `$id` URLs updated to v5.3.0 base
-- ReservationDecision type updated (optional warning, post_transaction_available fields)
+### 6.2 Non-Breaking Additions
 
----
-
-## 4. Test Architecture
-
-### 4.1 New Test Files
-
-| File | Tests (est.) | FR | Coverage |
-|------|-------------|-----|----------|
-| `tests/utilities/reservation-v53.test.ts` | ~35 | FR-1, FR-2 | Post-tx floor check, advisory warnings, edge cases |
-| `tests/vectors/reservation-enforcement-v53.test.ts` | ~20 | FR-3 | Advisory + unsupported enforcement vectors |
-| `tests/schemas/governance-config.test.ts` | ~20 | FR-6 | Schema validation, defaults, constraint evaluation |
-| `tests/utilities/governance.test.ts` | ~15 | FR-6 | resolveReservationTier, resolveAdvisoryThreshold |
-| `tests/properties/reservation-floor.test.ts` | ~15 | FR-1, FR-2 | Property-based: arbitrary available/cost/reserved triples |
-| `tests/constraints/epistemic-tristate.test.ts` | ~8 | FR-4 | Constraint file validation |
-| `tests/constraints/governance-config.test.ts` | ~10 | FR-6 | Tier ordering, bounds |
-
-### 4.2 Modified Test Files
-
-| File | Changes | FR |
-|------|---------|-----|
-| `tests/vectors/reservation-enforcement-vectors.test.ts` | Extend for new vectors 0005-0008 | FR-3 |
-| `tests/utilities/reservation.test.ts` | Update for changed behavior + new fields | FR-1 |
-| `tests/vectors/compatibility.test.ts` | Add v5.3.0 compatibility checks | FR-9 |
-| `tests/vectors/version-bump.test.ts` | Update CONTRACT_VERSION to '5.3.0' | FR-9 |
-| `tests/constraints/round-trip.test.ts` | Add new constraint files | FR-4, FR-5, FR-6 |
-| `tests/schemas/schema-index.test.ts` | Verify GovernanceConfig in index.json | FR-6 |
-
-**Estimated new tests:** ~123 (target: ≥120)
-
-### 4.3 Property-Based Testing Strategy
-
-```typescript
-// tests/properties/reservation-floor.test.ts
-import { fc } from 'fast-check';
-
-describe('Post-transaction floor invariant', () => {
-  it('strict mode NEVER allows post-transaction balance below floor', () => {
-    fc.assert(
-      fc.property(
-        fc.bigInt(1n, 10n ** 18n),  // available
-        fc.bigInt(1n, 10n ** 18n),  // cost
-        fc.bigInt(0n, 10n ** 18n),  // reserved
-        (available, cost, reserved) => {
-          const result = shouldAllowRequest(
-            available.toString(), cost.toString(), reserved.toString(), 'strict',
-          );
-          if (result.allowed) {
-            // Post-transaction must be >= reserved
-            expect(available - cost).toBeGreaterThanOrEqual(reserved);
-          }
-        },
-      ),
-    );
-  });
-
-  it('advisory mode always returns warning when post-tx < reserved', () => {
-    fc.assert(
-      fc.property(
-        fc.bigInt(1n, 10n ** 18n),
-        fc.bigInt(1n, 10n ** 18n),
-        fc.bigInt(1n, 10n ** 18n),
-        (available, cost, reserved) => {
-          fc.pre(available >= cost);  // sufficient budget
-          fc.pre(available - cost < reserved);  // would breach floor
-          const result = shouldAllowRequest(
-            available.toString(), cost.toString(), reserved.toString(), 'advisory',
-          );
-          expect(result.allowed).toBe(true);
-          expect(result.warning).toBeDefined();
-        },
-      ),
-    );
-  });
-});
-```
+All other changes are additive:
+- New optional `last_outcome` on DelegationTreeNode
+- New schemas (BridgeTransferSaga, DelegationOutcome, MonetaryPolicy, PermissionBoundary, GovernanceProposal)
+- New evaluator builtins (6 new, 23 existing unchanged)
+- New constraint files (5 new, existing unchanged)
+- Optional `permission_boundaries` in constraint file schema
 
 ---
 
-## 5. Barrel Export Updates
+## 7. Test Strategy
 
-### 5.1 economy/index.ts
+### 7.1 Test Targets
 
-Add exports:
-- `GovernanceConfig`, `GovernanceConfigSchema`, `DEFAULT_GOVERNANCE_CONFIG` from `schemas/governance-config.ts`
-- `resolveReservationTier`, `resolveAdvisoryThreshold` from `utilities/governance.ts`
-- `ROUNDING_BIAS`, `RoundingBias` from `vocabulary/reservation-tier.ts`
-- `ADVISORY_WARNING_THRESHOLD_PERCENT` from `utilities/reservation.ts`
+| Category | Target |
+|----------|--------|
+| Schema validation (new schemas) | ~60 tests |
+| Constraint evaluation (new builtins) | ~40 tests |
+| Constraint file validation (new files) | ~30 tests |
+| Conformance vectors (new) | ~18 tests |
+| F-007, F-008, F-020 fixes | ~15 tests |
+| Property-based tests (fast-check) | ~20 tests |
+| State machine transition tests | ~20 tests |
+| **Total new tests** | **~200** |
 
-### 5.2 Root index.ts
+### 7.2 Property-Based Tests
 
-Add cross-cutting exports:
-- `GovernanceConfig`, `GovernanceConfigSchema`
-
----
-
-## 6. JSON Schema Generation
-
-New schema registered in `schemas/index.json`:
-
-| Schema $id | Source File |
-|-----------|------------|
-| `GovernanceConfig` | `src/schemas/governance-config.ts` |
-
-Existing schemas with modified types:
-- `ReservationDecision` implicit type (no schema, but TypeScript interface has new optional fields)
-
-New constraint files:
-| File | Schema |
-|------|--------|
-| `constraints/EpistemicTristate.constraints.json` | EpistemicTristate (pattern) |
-| `constraints/ReservationArithmetic.constraints.json` | ReservationArithmetic (invariant) |
-| `constraints/GovernanceConfig.constraints.json` | GovernanceConfig |
+Using fast-check for:
+- Saga amount conservation: `forAll(saga, amount_in == amount_out)`
+- Outcome consensus validity: `forAll(outcome, votes_consistent_with_type)`
+- Monetary policy solvency: `forAll(policy, supply <= ceiling)`
+- Vote weight arithmetic: `forAll(votes, sum(approve + reject + abstain) == participating)`
 
 ---
 
-## 7. Security Considerations
-
-### 7.1 Post-Transaction Floor Check (FR-1)
-
-The correctness fix in FR-1 is a security improvement: the v5.2.0 behavior allowed a single large request to silently consume reserved capacity. This is analogous to a time-of-check-to-time-of-use (TOCTOU) vulnerability — the check (Case 1: `available >= cost`) doesn't account for the effect of the operation.
-
-The fix ensures **post-transaction capital adequacy** — the same principle Basel III uses for bank capital requirements.
-
-### 7.2 GovernanceConfig (FR-6)
-
-GovernanceConfig introduces configurable parameters. Security constraints:
-- Tier values are bounded by TypeBox schema (`minimum: 0`, `maximum: 10000`)
-- Tier ordering is enforced by constraint (`self_declared <= community_verified <= protocol_certified`)
-- Advisory threshold is bounded (`0 <= threshold <= 100`)
-- The `DEFAULT_GOVERNANCE_CONFIG` constant provides a safe fallback
-- GovernanceConfig MUST be validated against its constraint file before use
-
-**Attack vector:** A malicious GovernanceConfig could set all tier minimums to 0, effectively disabling reservations. Mitigation: the constraint file enforces `reservation_tiers.self_declared >= 0` but does NOT enforce a nonzero minimum (by design — 0 bps is a valid governance choice meaning "no minimum reservation"). Implementations SHOULD validate that tier values are reasonable for their deployment context.
-
-### 7.3 Advisory Mode (FR-2)
-
-Advisory mode allows requests through floor breaches. This is by design — but it means advisory mode provides weaker guarantees than strict. Implementations MUST NOT use advisory mode for budget-critical operations where floor breaches would cause cascading failures.
-
----
-
-## 8. Migration Notes
-
-### 8.1 For v5.2.0 Consumers
-
-- **shouldAllowRequest behavior change:** The only visible change: when `available >= cost` AND `available - cost < reserved`, strict/unsupported enforcement now returns `allowed: false`. This is a correctness fix — the v5.2.0 behavior violated the protocol's reservation guarantee. See PRD §11.2 for migration details.
-- **New optional fields on ReservationDecision:** `warning?: string` and `post_transaction_available?: string`. Ignored by existing destructuring.
-- **GovernanceConfig:** New optional schema. Existing code unaffected unless it chooses to use governance overrides.
-- **validateReservationTier:** Gains optional 3rd parameter `config?: GovernanceConfig`. Existing 2-argument calls unaffected.
-
-### 8.2 Breaking Changes
-
-None. All changes are additive and backward compatible. The `shouldAllowRequest` behavior change is a correctness fix, not a contract break.
-
----
-
-## 9. Sprint Alignment
-
-| Sprint | SDD Sections | Key Deliverables |
-|--------|-------------|-----------------|
-| Sprint 1 | §3.1, §3.2, §3.5 | Post-tx floor fix (FR-1), advisory warnings (FR-2), rounding bias docs (FR-5) |
-| Sprint 2 | §3.3, §3.4, §3.7, §3.8 | Conformance vectors (FR-3), Epistemic Tristate pattern (FR-4), Ostrom framing (FR-7), JSDoc examples (FR-8) |
-| Sprint 3 | §3.6, §3.9 | GovernanceConfig schema + utilities (FR-6), version bump (FR-9) |
-
-**Sprint 1** focuses on the P0 correctness fix and the enforcement semantics that depend on it.
-**Sprint 2** focuses on conformance completeness and documentation/formalization.
-**Sprint 3** focuses on governance evolution and release finalization.
-
----
-
-## 10. Risks and Mitigations
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| shouldAllowRequest fix breaks existing consumers | Low | Medium | Document as correctness fix; edge case only triggers when `available > cost` but `available - cost < reserved` |
-| GovernanceConfig becomes dead code | Medium | Low | Start minimal (3 params); defer full governance until external implementors exist |
-| Advisory allow-through-floor creates false safety | Low | High | Document clearly that advisory mode provides weaker guarantees; implementations SHOULD validate enforcement mode choice |
-| Constraint expression evaluator doesn't support nested object paths | Medium | Medium | GovernanceConfig constraint uses dotted paths (`reservation_tiers.self_declared`); verify evaluator supports this or flatten |
-
----
-
-## 11. Open Questions
-
-| Question | Status | Resolution |
-|----------|--------|------------|
-| Should `checkAdvisoryWarning` accept configurable threshold? | Resolved | Yes, via GovernanceConfig (FR-6) |
-| Should advisory mode at the floor (Case 2) allow or block? | Resolved | Block — advisory's "allow-through" only applies to would-breach (Case 1), not already-breached (Case 2) |
-| Should EpistemicTristate be a generic type? | Resolved (FL-PRD-006) | No — documentation pattern only. Instances differ too much in shape. |
-| Should marketplace dimensions be in v5.3.0? | Resolved (FL-PRD-007) | Deferred to v5.4.0. No consumer exists. |
-| Does constraint evaluator support dotted paths? | Resolved (FL-SDD-002) | YES — `evaluator.ts:33-40` `resolve()` splits on `.` and traverses nested objects |
+*— Bridgebuilder*
+*SDD v7.0.0 — The Coordination-Aware Protocol*

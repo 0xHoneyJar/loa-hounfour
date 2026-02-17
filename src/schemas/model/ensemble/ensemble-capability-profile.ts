@@ -53,7 +53,8 @@ export const EnsembleCapabilityProfileSchema = Type.Object(
       minLength: 1,
       pattern: '^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)?$',
       description: 'Model identifier (lowercase alphanumeric with hyphens/dots, optional namespace)',
-    }), {
+      'x-references': [{ target_schema: 'ModelProviderSpec', target_field: 'model_id', relationship: 'references' }],
+    } as Record<string, unknown>), {
       minItems: 2,
       description: 'Model identifiers in the ensemble',
     }),

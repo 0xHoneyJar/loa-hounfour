@@ -1,0 +1,47 @@
+{
+  "vector_id": "conformance-registry-bridge-0003",
+  "category": "registry-bridge",
+  "description": "Invalid: bridge contains duplicate invariant IDs",
+  "contract_version": "6.0.0",
+  "input": {
+    "bridge_id": "550e8400-e29b-41d4-a716-446655440300",
+    "source_registry_id": "550e8400-e29b-41d4-a716-446655440301",
+    "target_registry_id": "550e8400-e29b-41d4-a716-446655440302",
+    "bridge_invariants": [
+      {
+        "invariant_id": "B-1",
+        "name": "Cross-registry conservation",
+        "description": "source.debit == target.credit",
+        "ltl_formula": "G(transfer → conserved)",
+        "enforcement": "atomic"
+      },
+      {
+        "invariant_id": "B-1",
+        "name": "Duplicate conservation",
+        "description": "Duplicate of B-1",
+        "ltl_formula": "G(transfer → conserved)",
+        "enforcement": "atomic"
+      }
+    ],
+    "exchange_rate": {
+      "rate_type": "fixed",
+      "value": "1.0",
+      "governance_proposal_required": false,
+      "staleness_threshold_seconds": 3600
+    },
+    "settlement": "immediate",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {
+    "constraint_violated": "registry-bridge-invariant-unique-ids"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["constraint_violated"]
+  },
+  "metadata": {
+    "sdd_section": "§2.5",
+    "fr": "FR-5",
+    "violation": "Two invariants share the same invariant_id B-1"
+  }
+}

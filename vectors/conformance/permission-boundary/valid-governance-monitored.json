@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-permission-boundary-0002",
+  "category": "permission-boundary",
+  "description": "Valid monitored permission boundary for governance scope with timeout revocation",
+  "contract_version": "7.0.0",
+  "input": {
+    "boundary_id": "00000000-0000-0000-0000-000000000302",
+    "scope": "governance",
+    "permitted_if": "trust_scopes.default_level != 'untrusted'",
+    "reporting": {
+      "required": false,
+      "report_to": "governance-council",
+      "frequency": "on_violation",
+      "format": "summary"
+    },
+    "revocation": {
+      "trigger": "timeout",
+      "timeout_seconds": 86400
+    },
+    "severity": "monitored",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.5", "fr": "FR-5" }
+}

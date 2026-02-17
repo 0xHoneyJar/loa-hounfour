@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/monetary-policy",
+  "additionalProperties": false,
+  "description": "Monetary policy regime coupling minting to conservation invariants.",
+  "type": "object",
+  "required": [
+    "policy_id",
+    "registry_id",
+    "minting_policy_id",
+    "conservation_ceiling",
+    "coupling_invariant",
+    "collateral_ratio_bps",
+    "review_trigger",
+    "last_reviewed_at",
+    "contract_version"
+  ],
+  "properties": {
+    "policy_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "minting_policy_id": {
+      "minLength": 1,
+      "description": "References MintingPolicyConfig.policy_id.",
+      "type": "string"
+    },
+    "conservation_ceiling": {
+      "pattern": "^[0-9]+$",
+      "description": "Maximum total supply (string-encoded BigInt).",
+      "type": "string"
+    },
+    "coupling_invariant": {
+      "minLength": 1,
+      "description": "Constraint expression that must hold for minting to proceed.",
+      "type": "string"
+    },
+    "collateral_ratio_bps": {
+      "minimum": 0,
+      "description": "Collateral ratio in basis points (10000 = 100%).",
+      "type": "integer"
+    },
+    "review_trigger": {
+      "$id": "ReviewTrigger",
+      "additionalProperties": false,
+      "description": "Condition that triggers a monetary policy review.",
+      "type": "object",
+      "required": [
+        "trigger_type"
+      ],
+      "properties": {
+        "trigger_type": {
+          "description": "What condition triggers a policy review.",
+          "anyOf": [
+            {
+              "const": "epoch_boundary",
+              "type": "string"
+            },
+            {
+              "const": "supply_threshold",
+              "type": "string"
+            },
+            {
+              "const": "manual",
+              "type": "string"
+            },
+            {
+              "const": "governance_vote",
+              "type": "string"
+            }
+          ]
+        },
+        "threshold_pct": {
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage threshold that triggers review (for supply_threshold).",
+          "type": "number"
+        },
+        "epoch_interval": {
+          "minimum": 1,
+          "description": "Number of epochs between automatic reviews.",
+          "type": "integer"
+        }
+      }
+    },
+    "last_reviewed_at": {
+      "description": "When the policy was last reviewed, or null if never reviewed.",
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}
