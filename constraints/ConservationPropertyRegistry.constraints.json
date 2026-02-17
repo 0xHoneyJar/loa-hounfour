@@ -24,6 +24,13 @@
       "severity": "error",
       "message": "Every property must have a non-empty LTL formula",
       "fields": ["properties"]
+    },
+    {
+      "id": "conservation-registry-coverage-sums-to-total",
+      "description": "Sum of all coverage values must equal total_count",
+      "expression": "bigint_eq(bigint_sum([coverage.single_lot, coverage.account, coverage.platform, coverage.bilateral]), total_count)",
+      "severity": "error",
+      "category": "consistency"
     }
   ]
 }

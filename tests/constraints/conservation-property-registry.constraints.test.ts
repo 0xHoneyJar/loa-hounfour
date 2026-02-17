@@ -64,8 +64,8 @@ describe('ConservationPropertyRegistry constraint file', () => {
     expect(constraintFile.contract_version).toBe('5.5.0');
   });
 
-  it('has 3 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(3);
+  it('has 4 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(4);
   });
 
   describe('conservation-registry-count-matches', () => {

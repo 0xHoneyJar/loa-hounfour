@@ -12,6 +12,8 @@ import {
   AgentTypeSchema,
   TRUST_LEVELS,
   DELEGATION_TRUST_THRESHOLD,
+  trustLevelIndex,
+  meetsThreshold,
   type AgentIdentity,
   type TrustLevel,
 } from '../../src/schemas/agent-identity.js';
@@ -124,5 +126,53 @@ describe('DELEGATION_TRUST_THRESHOLD', () => {
 
   it('is at index 2 in TRUST_LEVELS (middle)', () => {
     expect(TRUST_LEVELS.indexOf(DELEGATION_TRUST_THRESHOLD)).toBe(2);
+  });
+});
+
+describe('trustLevelIndex', () => {
+  it('returns 0 for untrusted', () => {
+    expect(trustLevelIndex('untrusted')).toBe(0);
+  });
+
+  it('returns 1 for basic', () => {
+    expect(trustLevelIndex('basic')).toBe(1);
+  });
+
+  it('returns 2 for verified', () => {
+    expect(trustLevelIndex('verified')).toBe(2);
+  });
+
+  it('returns 3 for trusted', () => {
+    expect(trustLevelIndex('trusted')).toBe(3);
+  });
+
+  it('returns 4 for sovereign', () => {
+    expect(trustLevelIndex('sovereign')).toBe(4);
+  });
+
+  it('throws on unknown level', () => {
+    expect(() => trustLevelIndex('admin' as TrustLevel)).toThrow('Unknown trust level');
+  });
+});
+
+describe('meetsThreshold', () => {
+  it('sovereign meets any threshold', () => {
+    for (const t of TRUST_LEVELS) {
+      expect(meetsThreshold('sovereign', t)).toBe(true);
+    }
+  });
+
+  it('untrusted meets only untrusted', () => {
+    expect(meetsThreshold('untrusted', 'untrusted')).toBe(true);
+    expect(meetsThreshold('untrusted', 'basic')).toBe(false);
+    expect(meetsThreshold('untrusted', 'verified')).toBe(false);
+  });
+
+  it('verified meets DELEGATION_TRUST_THRESHOLD', () => {
+    expect(meetsThreshold('verified', DELEGATION_TRUST_THRESHOLD)).toBe(true);
+  });
+
+  it('basic does not meet DELEGATION_TRUST_THRESHOLD', () => {
+    expect(meetsThreshold('basic', DELEGATION_TRUST_THRESHOLD)).toBe(false);
   });
 });

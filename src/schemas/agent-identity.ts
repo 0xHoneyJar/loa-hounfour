@@ -111,3 +111,20 @@ export const AgentIdentitySchema = Type.Object(
 );
 
 export type AgentIdentity = Static<typeof AgentIdentitySchema>;
+
+/**
+ * Get the ordinal index of a trust level in the hierarchy.
+ * untrusted=0, basic=1, verified=2, trusted=3, sovereign=4.
+ */
+export function trustLevelIndex(level: TrustLevel): number {
+  const idx = TRUST_LEVELS.indexOf(level);
+  if (idx === -1) throw new RangeError(`Unknown trust level: ${level}`);
+  return idx;
+}
+
+/**
+ * Check if a trust level meets or exceeds a required threshold.
+ */
+export function meetsThreshold(level: TrustLevel, threshold: TrustLevel): boolean {
+  return trustLevelIndex(level) >= trustLevelIndex(threshold);
+}

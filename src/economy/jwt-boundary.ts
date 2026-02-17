@@ -41,8 +41,8 @@ export const JwtBoundarySpecSchema = Type.Object(
     boundary_name: Type.String({ minLength: 1, description: 'Human-readable boundary identifier.' }),
     steps: Type.Array(JwtVerificationStepSchema, {
       minItems: 6,
-      maxItems: 6,
-      description: 'Exactly 6 ordered verification steps.',
+      maxItems: 10,
+      description: 'At least 6 ordered verification steps (canonical pipeline has 6, max 10 for forward-compatibility).',
     }),
     algorithm_whitelist: Type.Array(Type.String({ minLength: 1 }), {
       minItems: 1,

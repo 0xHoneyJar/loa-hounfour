@@ -509,7 +509,7 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         expected: true,
       },
     ],
-    edge_cases: ['No _previous returns 0n (not current - 0)', 'Decimal strings use Number fallback', 'Non-numeric returns 0n'],
+    edge_cases: ['No _previous returns 0n immediately (current value is not accessed — short-circuit)', 'Decimal strings use Number fallback', 'Non-numeric returns 0n'],
   }],
 
   ['len', {

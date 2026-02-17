@@ -214,6 +214,8 @@ export {
   AgentTypeSchema,
   TRUST_LEVELS,
   DELEGATION_TRUST_THRESHOLD,
+  trustLevelIndex,
+  meetsThreshold,
   type AgentIdentity,
   type TrustLevel,
   type AgentType,

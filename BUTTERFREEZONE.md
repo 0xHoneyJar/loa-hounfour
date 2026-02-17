@@ -143,7 +143,7 @@ Directory structure:
 <!-- provenance: DERIVED -->
 | Module | Files | Purpose | Documentation |
 |--------|-------|---------|---------------|
-| `constraints/` | 31 | Cross-language constraint expressions (GovernanceConfig, DelegationChain, InterAgentTransactionAudit, EnsembleCapabilityProfile, ConservationPropertyRegistry, JwtBoundarySpec, AgentIdentity) | \u2014 |
+| `constraints/` | 32 | Cross-language constraint expressions (GovernanceConfig, DelegationChain, InterAgentTransactionAudit, EnsembleCapabilityProfile, ConservationPropertyRegistry, JwtBoundarySpec, AgentIdentity) | \u2014 |
 | `docs/` | 9 | Documentation | \u2014 |
 | `evals/` | 122 | Benchmarking and regression framework for the Loa agent development system. Ensures framework changes don't degrade agent behavior through | [evals/README.md](evals/README.md) |
 | `grimoires/` | 45 | Home to all grimoire directories for the Loa | [grimoires/README.md](grimoires/README.md) |

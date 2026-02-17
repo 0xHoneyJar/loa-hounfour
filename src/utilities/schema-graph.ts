@@ -33,6 +33,10 @@ export interface SchemaGraphNode {
  *
  * Walks all properties looking for `x-references` metadata arrays.
  * Each x-reference entry should have: { target_schema, target_field, relationship }.
+ *
+ * NOTE: Only walks one level of nested objects. References on deeply nested
+ * properties (depth > 1) or inside Type.Array/Type.Intersect compositions
+ * are not discovered. See: bridge-20260217-v55 iter1 finding medium-3.
  */
 export function extractReferences(schema: TObject, schemaId: string): SchemaReference[] {
   const refs: SchemaReference[] = [];
