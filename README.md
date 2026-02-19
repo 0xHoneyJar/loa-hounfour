@@ -14,7 +14,7 @@ loa-hounfour is a **schema-only** protocol library. It defines the wire format f
 
 **What it does NOT do**: No runtime, no transport, no HTTP server, no model invocation. Schemas and validation only.
 
-Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (runtime) and [arrakis](https://github.com/0xHoneyJar/arrakis) (gateway). Any service needing typed AI coordination contracts can consume this package independently.
+Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (runtime) and [loa-freeside](https://github.com/0xHoneyJar/loa-freeside) (gateway). Any service needing typed AI coordination contracts can consume this package independently.
 
 ## Why
 
