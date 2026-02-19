@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/inbound-claims",
+  "additionalProperties": false,
+  "description": "JWT claims for inbound economic responses with actual cost data.",
+  "type": "object",
+  "required": [
+    "sub",
+    "iss",
+    "aud",
+    "jti",
+    "iat",
+    "exp",
+    "reservation_id",
+    "budget_remaining_micro",
+    "authority_scope",
+    "actual_cost_micro",
+    "model_used",
+    "tokens_used"
+  ],
+  "properties": {
+    "sub": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "iss": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "aud": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "jti": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "iat": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "exp": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "reservation_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "budget_remaining_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "authority_scope": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "actual_cost_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "model_used": {
+      "minLength": 1,
+      "description": "Which model fulfilled the request.",
+      "type": "string"
+    },
+    "tokens_used": {
+      "minimum": 0,
+      "description": "Total tokens consumed.",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

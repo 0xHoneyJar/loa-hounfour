@@ -1,0 +1,48 @@
+{
+  "vector_id": "conformance-delegation-outcome-0004",
+  "category": "delegation-outcome",
+  "description": "Invalid: unanimous outcome type but one vote is disagree — should fail outcome-consensus-consistent constraint",
+  "contract_version": "7.0.0",
+  "input": {
+    "outcome_id": "00000000-0000-0000-0000-000000000104",
+    "tree_node_id": "budget-review-node",
+    "outcome_type": "unanimous",
+    "result": { "action": "approve_budget_reduction" },
+    "votes": [
+      {
+        "voter_id": "agent-alpha",
+        "vote": "agree",
+        "result": { "action": "approve_budget_reduction" },
+        "confidence": 0.90
+      },
+      {
+        "voter_id": "agent-beta",
+        "vote": "agree",
+        "result": { "action": "approve_budget_reduction" },
+        "confidence": 0.85
+      },
+      {
+        "voter_id": "agent-gamma",
+        "vote": "disagree",
+        "result": { "action": "reject_budget_reduction" },
+        "confidence": 0.70,
+        "reasoning": "Budget reduction will impact operational capacity"
+      }
+    ],
+    "consensus_achieved": true,
+    "consensus_threshold": 0.67,
+    "dissent_records": [],
+    "resolved_at": "2026-02-17T17:00:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.3",
+    "fr": "FR-8",
+    "expected_constraint_violations": ["outcome-consensus-consistent"]
+  }
+}

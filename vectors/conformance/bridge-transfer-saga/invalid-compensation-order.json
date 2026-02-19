@@ -1,0 +1,63 @@
+{
+  "vector_id": "conformance-bridge-transfer-saga-0004",
+  "category": "bridge-transfer-saga",
+  "description": "Invalid saga with empty step_ids in steps — should fail saga-steps-ordered constraint",
+  "contract_version": "7.0.0",
+  "input": {
+    "saga_id": "00000000-0000-0000-0000-000000000004",
+    "bridge_id": "00000000-0000-0000-0000-000000000010",
+    "source_registry": "00000000-0000-0000-0000-000000000020",
+    "target_registry": "00000000-0000-0000-0000-000000000021",
+    "saga_type": "atomic",
+    "status": "reserving",
+    "steps": [
+      {
+        "step_id": "",
+        "step_type": "reserve",
+        "participant": "source-registry-agent",
+        "status": "in_progress",
+        "amount_micro": "250000",
+        "started_at": "2026-02-17T13:00:00Z",
+        "completed_at": null
+      },
+      {
+        "step_id": "",
+        "step_type": "transfer",
+        "participant": "bridge-operator",
+        "status": "pending",
+        "amount_micro": "250000",
+        "started_at": null,
+        "completed_at": null
+      }
+    ],
+    "compensation_steps": [],
+    "timeout": {
+      "total_seconds": 300,
+      "per_step_seconds": 60
+    },
+    "participants": [
+      {
+        "agent_id": "source-registry-agent",
+        "role": "initiator",
+        "registry_id": "00000000-0000-0000-0000-000000000020",
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "basic"
+        }
+      }
+    ],
+    "initiated_at": "2026-02-17T13:00:00Z",
+    "settled_at": null,
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "fr": "FR-7",
+    "expected_constraint_violations": ["saga-steps-ordered"]
+  }
+}

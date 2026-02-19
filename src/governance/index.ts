@@ -1,0 +1,148 @@
+/**
+ * Governance sub-package barrel.
+ *
+ * Re-exports sanctions, disputes, validated outcomes, reputation,
+ * performance, contributions, and governance vocabulary.
+ */
+
+// Schemas — Governance
+export {
+  SanctionSchema,
+  type Sanction,
+} from '../schemas/sanction.js';
+
+export {
+  DisputeRecordSchema,
+  type DisputeRecord,
+} from '../schemas/dispute-record.js';
+
+export {
+  ValidatedOutcomeSchema,
+  type ValidatedOutcome,
+} from '../schemas/validated-outcome.js';
+
+// Schemas — Reputation
+export {
+  ReputationScoreSchema,
+  type ReputationScore,
+} from '../schemas/reputation-score.js';
+
+// Schemas — Performance
+export {
+  PerformanceRecordSchema,
+  PerformanceOutcomeSchema,
+  type PerformanceRecord,
+  type PerformanceOutcome,
+} from '../schemas/performance-record.js';
+
+export {
+  ContributionRecordSchema,
+  type ContributionRecord,
+} from '../schemas/contribution-record.js';
+
+// Vocabulary — Sanctions
+export {
+  SANCTION_SEVERITY_LEVELS,
+  SANCTION_SEVERITY_ORDER,
+  VIOLATION_TYPES,
+  ESCALATION_RULES,
+  type SanctionSeverity,
+  type ViolationType,
+} from '../vocabulary/sanctions.js';
+
+// Vocabulary — Sanction Severity (v5.1.0)
+export {
+  SanctionSeveritySchema,
+  SANCTION_SEVERITY_LADDER,
+  getSeverityEntry,
+  compareSeverity,
+  type SanctionSeverityLevel,
+  type SeverityLadderEntry,
+} from '../vocabulary/sanction-severity.js';
+
+// Vocabulary — Reputation
+export {
+  REPUTATION_WEIGHTS,
+  REPUTATION_DECAY,
+  MIN_REPUTATION_SAMPLE_SIZE,
+  type ReputationComponent,
+} from '../vocabulary/reputation.js';
+
+// Utilities — Reputation
+export { isReliableReputation } from '../utilities/reputation.js';
+
+// Schemas — Governance Config (v5.3.0)
+export {
+  GovernanceConfigSchema,
+  MissionAlignmentSchema,
+  DEFAULT_GOVERNANCE_CONFIG,
+  type GovernanceConfig,
+  type MissionAlignment,
+} from '../schemas/governance-config.js';
+
+// Utilities — Governance Resolution (v5.3.0)
+export {
+  resolveReservationTier,
+  resolveAdvisoryThreshold,
+} from '../utilities/governance.js';
+
+// Schemas — Delegation Tree (v6.0.0, FR-6)
+export {
+  ForkTypeSchema,
+  TreeNodeStatusSchema,
+  TreeStrategySchema,
+  BudgetAllocationSchema,
+  DelegationTreeNodeSchema,
+  DelegationTreeSchema,
+  chainToTree,
+  treeToChain,
+  type ForkType,
+  type TreeNodeStatus,
+  type TreeStrategy,
+  type BudgetAllocation,
+  type DelegationTreeNode,
+  type DelegationTree,
+} from './delegation-tree.js';
+
+// Schemas — Delegation Outcome (v7.0.0)
+export {
+  OutcomeTypeSchema,
+  VoteChoiceSchema,
+  DelegationVoteSchema,
+  DissentTypeSchema,
+  DissentSeveritySchema,
+  DissentRecordSchema,
+  DelegationOutcomeSchema,
+  type OutcomeType,
+  type VoteChoice,
+  type DelegationVote,
+  type DissentType,
+  type DissentSeverity,
+  type DissentRecord,
+  type DelegationOutcome,
+} from './delegation-outcome.js';
+
+// Schemas — Permission Boundary (v7.0.0)
+export {
+  ReportingRequirementSchema,
+  RevocationPolicySchema,
+  PermissionBoundarySchema,
+  type ReportingRequirement,
+  type RevocationPolicy,
+  type PermissionBoundary,
+} from './permission-boundary.js';
+
+// Schemas — Governance Proposal (v7.0.0)
+export {
+  ProposalStatusSchema,
+  PROPOSAL_STATUS_TRANSITIONS,
+  ProposedChangeSchema,
+  GovernanceVoteSchema,
+  VotingRecordSchema,
+  GovernanceProposalSchema,
+  type ProposalStatus,
+  type ProposedChange,
+  type GovernanceVote,
+  type VotingRecord,
+  type GovernanceProposal,
+} from './governance-proposal.js';

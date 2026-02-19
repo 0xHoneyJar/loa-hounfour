@@ -1,35 +1,95 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "Sanction",
-  "contract_version": "4.6.0",
+  "contract_version": "5.1.0",
+  "expression_version": "2.0",
   "constraints": [
     {
       "id": "sanction-terminated-no-expiry",
       "expression": "severity == 'terminated' => expires_at == null",
       "severity": "error",
       "message": "expires_at must not be present when severity is \"terminated\" (termination is permanent)",
-      "fields": ["severity", "expires_at"]
+      "fields": ["severity", "expires_at"],
+      "type_signature": {
+        "severity": "string",
+        "expires_at": "string"
+      }
     },
     {
       "id": "sanction-expiry-after-imposed",
       "expression": "expires_at != null => expires_at > imposed_at",
       "severity": "error",
       "message": "expires_at must be after imposed_at",
-      "fields": ["expires_at", "imposed_at"]
+      "fields": ["expires_at", "imposed_at"],
+      "type_signature": {
+        "expires_at": "string",
+        "imposed_at": "string"
+      }
     },
     {
       "id": "sanction-expiry-recommended",
       "expression": "severity == 'warning' || severity == 'rate_limited' => expires_at != null",
       "severity": "warning",
       "message": "expires_at recommended for warning/rate_limited severity",
-      "fields": ["severity", "expires_at"]
+      "fields": ["severity", "expires_at"],
+      "type_signature": {
+        "severity": "string",
+        "expires_at": "string"
+      }
     },
     {
       "id": "sanction-escalation-check",
       "expression": "trigger.violation_type != null",
       "severity": "warning",
       "message": "trigger must include violation_type for escalation rule evaluation",
-      "fields": ["trigger.violation_type"]
+      "fields": ["trigger.violation_type"],
+      "type_signature": {
+        "trigger": "object"
+      }
+    },
+    {
+      "id": "sanction-revocation-requires-reason",
+      "expression": "severity == 'terminated' => len(trigger.evidence_event_ids) > 0",
+      "severity": "error",
+      "message": "terminated severity requires at least one evidence event",
+      "fields": ["severity", "trigger.evidence_event_ids"],
+      "type_signature": {
+        "severity": "string",
+        "trigger": "object"
+      }
+    },
+    {
+      "id": "sanction-timed-require-duration",
+      "expression": "severity_level != null && severity_level != 'suspended' => duration_seconds != null",
+      "severity": "warning",
+      "message": "severity_level present without duration_seconds — timed sanctions should specify duration",
+      "fields": ["severity_level", "duration_seconds"],
+      "type_signature": {
+        "severity_level": "string",
+        "duration_seconds": "number"
+      }
+    },
+    {
+      "id": "sanction-severity-field-precedence",
+      "expression": "severity_level != null => severity == severity_level",
+      "severity": "warning",
+      "message": "severity differs from severity_level — severity_level takes precedence for enforcement",
+      "fields": ["severity", "severity_level"],
+      "type_signature": {
+        "severity": "string",
+        "severity_level": "string"
+      }
+    },
+    {
+      "id": "sanction-appeal-dispute-consistency",
+      "expression": "appeal_dispute_id != null => appeal_available == true",
+      "severity": "error",
+      "message": "appeal_dispute_id present but appeal_available is false",
+      "fields": ["appeal_dispute_id", "appeal_available"],
+      "type_signature": {
+        "appeal_dispute_id": "string",
+        "appeal_available": "boolean"
+      }
     }
   ]
 }

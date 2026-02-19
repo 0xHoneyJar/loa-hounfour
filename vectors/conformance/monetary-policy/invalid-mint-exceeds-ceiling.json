@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-monetary-policy-0003",
+  "category": "monetary-policy",
+  "description": "Invalid: zero conservation ceiling means no minting allowed",
+  "contract_version": "7.0.0",
+  "input": {
+    "policy_id": "00000000-0000-0000-0000-000000000203",
+    "registry_id": "00000000-0000-0000-0000-000000000020",
+    "minting_policy_id": "mp-treasury-003",
+    "conservation_ceiling": "0",
+    "coupling_invariant": "bigint_gte(collateral, current_supply)",
+    "collateral_ratio_bps": 10000,
+    "review_trigger": {
+      "trigger_type": "supply_threshold",
+      "threshold_pct": 80
+    },
+    "last_reviewed_at": null,
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.4", "fr": "FR-4", "expected_constraint_violations": ["monetary-policy-ceiling-positive"] }
+}

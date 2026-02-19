@@ -1,0 +1,31 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0006",
+  "category": "reservation-enforcement",
+  "description": "Advisory enforcement warns when post-transaction is within 20% of floor",
+  "contract_version": "5.3.0",
+  "input": {
+    "agent_id": "agent-advisory-near",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 500,
+    "budget_limit_micro": "10000",
+    "budget_spent_micro": "0",
+    "request_cost_micro": "9450",
+    "enforcement": "advisory"
+  },
+  "expected_output": {
+    "reserved_micro": "500",
+    "allowed": true,
+    "floor_breached": false,
+    "warning_pattern": "within 20%",
+    "post_transaction_available": "550"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["allowed", "floor_breached"]
+  },
+  "metadata": {
+    "finding": "MEDIUM-V52-002",
+    "enforcement_mode": "advisory",
+    "sdd_section": "§3.3"
+  }
+}

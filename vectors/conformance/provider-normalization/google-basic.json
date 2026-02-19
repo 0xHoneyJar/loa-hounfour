@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-normalization-005",
+  "category": "provider-normalization",
+  "description": "Basic Google Gemini provider normalization — maps Gemini response to unified format",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "google",
+    "model": "gemini-1.5-pro",
+    "candidates": [{
+      "content": { "parts": [{ "text": "Hello from Gemini!" }], "role": "model" },
+      "finishReason": "STOP",
+      "safetyRatings": []
+    }],
+    "usageMetadata": { "promptTokenCount": 12, "candidatesTokenCount": 28, "totalTokenCount": 40 }
+  },
+  "expected_output": {
+    "model_id": "gemini-1.5-pro",
+    "content": "Hello from Gemini!",
+    "finish_reason": "stop",
+    "usage": { "prompt_tokens": 12, "completion_tokens": 28 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["modelVersion"]
+  }
+}

@@ -20,6 +20,7 @@ export const ValidatedOutcomeSchema = Type.Object(
   },
   {
     $id: 'ValidatedOutcome',
+    $comment: 'Financial amounts (validator_stake_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     description: 'Peer-validated outcome with stake commitment and optional dispute resolution',
     additionalProperties: false,
   },

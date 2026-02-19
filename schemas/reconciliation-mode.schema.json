@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/reconciliation-mode",
+  "description": "Billing reconciliation mode — determines cost source of truth.",
+  "anyOf": [
+    {
+      "const": "protocol_authoritative",
+      "type": "string"
+    },
+    {
+      "const": "provider_invoice_authoritative",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

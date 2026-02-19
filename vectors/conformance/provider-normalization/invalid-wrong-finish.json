@@ -1,0 +1,19 @@
+{
+  "vector_id": "conformance-normalization-008",
+  "category": "provider-normalization",
+  "description": "Invalid: unrecognized finish reason — must map to known enum value or fail",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "anthropic",
+    "model": "claude-3-opus-20240229",
+    "content": [{ "type": "text", "text": "Partial response..." }],
+    "stop_reason": "unknown_reason_xyz",
+    "usage": { "input_tokens": 5, "output_tokens": 10 }
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "metadata": {
+    "expected_error": "invalid_finish_reason",
+    "note": "Provider-specific stop reason that has no mapping should fail normalization"
+  }
+}

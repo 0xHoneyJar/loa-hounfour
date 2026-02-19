@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/capability-scope",
+  "description": "Domain within which a trust level applies (v6.0.0).",
+  "anyOf": [
+    {
+      "const": "billing",
+      "type": "string"
+    },
+    {
+      "const": "governance",
+      "type": "string"
+    },
+    {
+      "const": "inference",
+      "type": "string"
+    },
+    {
+      "const": "delegation",
+      "type": "string"
+    },
+    {
+      "const": "audit",
+      "type": "string"
+    },
+    {
+      "const": "composition",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

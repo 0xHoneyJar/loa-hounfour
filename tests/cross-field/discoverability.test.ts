@@ -10,6 +10,16 @@ import { CommonsDividendSchema } from '../../src/schemas/commons-dividend.js';
 import { DisputeRecordSchema } from '../../src/schemas/dispute-record.js';
 import { SanctionSchema } from '../../src/schemas/sanction.js';
 import { ReputationScoreSchema } from '../../src/schemas/reputation-score.js';
+import { CompletionRequestSchema } from '../../src/schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../../src/schemas/model/completion-result.js';
+import { ProviderWireMessageSchema } from '../../src/schemas/model/provider-wire-message.js';
+import { EnsembleRequestSchema } from '../../src/schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../../src/schemas/model/ensemble/ensemble-result.js';
+import { BudgetScopeSchema } from '../../src/schemas/model/routing/budget-scope.js';
+import { ConstraintProposalSchema } from '../../src/schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema } from '../../src/schemas/model/model-provider-spec.js';
+import { AgentCapacityReservationSchema } from '../../src/schemas/model/routing/agent-capacity-reservation.js';
+import { AuditTrailEntrySchema } from '../../src/schemas/audit-trail-entry.js';
 
 describe('getCrossFieldValidatorSchemas()', () => {
   const registeredIds = getCrossFieldValidatorSchemas();
@@ -26,6 +36,24 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'DisputeRecord',
     'Sanction',
     'ReputationScore',
+    // v5.0.0 — ModelPort
+    'CompletionRequest',
+    'CompletionResult',
+    'ProviderWireMessage',
+    // v5.0.0 — Ensemble & Routing
+    'EnsembleRequest',
+    'EnsembleResult',
+    'BudgetScope',
+    // v5.0.0 — Constraint Evolution
+    'ConstraintProposal',
+    // SagaContext
+    'SagaContext',
+    // v5.1.0 — Protocol Constitution
+    'ModelProviderSpec',
+    // v5.2.0 — Agent Capacity Reservation
+    'AgentCapacityReservation',
+    // v5.2.0 — Audit Trail
+    'AuditTrailEntry',
   ];
 
   it('returns an array of strings', () => {
@@ -59,6 +87,22 @@ describe('x-cross-field-validated annotation', () => {
     { name: 'DisputeRecord', schema: DisputeRecordSchema },
     { name: 'Sanction', schema: SanctionSchema },
     { name: 'ReputationScore', schema: ReputationScoreSchema },
+    // v5.0.0 — ModelPort
+    { name: 'CompletionRequest', schema: CompletionRequestSchema },
+    { name: 'CompletionResult', schema: CompletionResultSchema },
+    { name: 'ProviderWireMessage', schema: ProviderWireMessageSchema },
+    // v5.0.0 — Ensemble & Routing
+    { name: 'EnsembleRequest', schema: EnsembleRequestSchema },
+    { name: 'EnsembleResult', schema: EnsembleResultSchema },
+    { name: 'BudgetScope', schema: BudgetScopeSchema },
+    // v5.0.0 — Constraint Evolution
+    { name: 'ConstraintProposal', schema: ConstraintProposalSchema },
+    // v5.1.0 — Protocol Constitution
+    { name: 'ModelProviderSpec', schema: ModelProviderSpecSchema },
+    // v5.2.0 — Agent Capacity Reservation
+    { name: 'AgentCapacityReservation', schema: AgentCapacityReservationSchema },
+    // v5.2.0 — Audit Trail
+    { name: 'AuditTrailEntry', schema: AuditTrailEntrySchema },
   ];
 
   for (const { name, schema } of annotatedSchemas) {

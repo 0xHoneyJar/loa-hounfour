@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/reservation-state",
+  "description": "Current lifecycle state of a capacity reservation.",
+  "anyOf": [
+    {
+      "const": "active",
+      "type": "string"
+    },
+    {
+      "const": "expired",
+      "type": "string"
+    },
+    {
+      "const": "revoked",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

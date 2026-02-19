@@ -1,0 +1,39 @@
+{
+  "vector_id": "conformance-governance-proposal-0001",
+  "category": "governance-proposal",
+  "description": "Valid governance proposal to update a parameter with full voting record",
+  "contract_version": "7.0.0",
+  "input": {
+    "proposal_id": "00000000-0000-0000-0000-000000000401",
+    "registry_id": "00000000-0000-0000-0000-000000000020",
+    "proposer_id": "agent-alpha",
+    "title": "Increase conservation ceiling",
+    "description": "Proposal to raise conservation ceiling from 100B to 150B micro-units.",
+    "changes": [
+      {
+        "change_type": "parameter_update",
+        "target": "MonetaryPolicy.conservation_ceiling",
+        "current_value": "100000000000",
+        "proposed_value": "150000000000",
+        "justification": "Registry growth requires higher ceiling to accommodate demand."
+      }
+    ],
+    "status": "ratified",
+    "voting": {
+      "quorum_required": 0.5,
+      "votes_cast": [
+        { "voter_id": "agent-alpha", "vote": "approve", "weight": 0.3, "reasoning": "Growth is necessary" },
+        { "voter_id": "agent-beta", "vote": "approve", "weight": 0.4 },
+        { "voter_id": "agent-gamma", "vote": "reject", "weight": 0.3, "reasoning": "Risk too high" }
+      ],
+      "voting_opened_at": "2026-01-10T00:00:00Z",
+      "voting_closed_at": "2026-01-15T00:00:00Z"
+    },
+    "ratified_at": "2026-01-15T00:00:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.6", "fr": "FR-6" }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ReservationArithmetic",
+  "contract_version": "5.3.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ceil-division-bias",
+      "expression": "true",
+      "severity": "error",
+      "message": "computeReservedMicro MUST use ceiling division: (limit * bps + 9999) / 10000. Floor division would reduce reserved capacity below the intended percentage, violating the rights-holder bias.",
+      "fields": [],
+      "institutional_context": "Protocol arithmetic invariant. Rounding ALWAYS favors the agent (rights-holder). Changing to floor division is a constitutional amendment, not an optimization.",
+      "type_signature": {}
+    },
+    {
+      "id": "floor-check-inclusive",
+      "expression": "true",
+      "severity": "error",
+      "message": "shouldAllowRequest floor check MUST use <= (not <). At the exact boundary, spending the request would breach the floor.",
+      "fields": [],
+      "institutional_context": "SKP-003 fix. The off-by-one in < allows one request to silently consume the last unit of reserved capacity.",
+      "type_signature": {}
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "vector_id": "conformance-bridge-transfer-saga-0002",
+  "category": "bridge-transfer-saga",
+  "description": "Saga where step 2 (transfer) failed, status is compensating, compensation_steps present to reverse reservation",
+  "contract_version": "7.0.0",
+  "input": {
+    "saga_id": "00000000-0000-0000-0000-000000000002",
+    "bridge_id": "00000000-0000-0000-0000-000000000010",
+    "source_registry": "00000000-0000-0000-0000-000000000020",
+    "target_registry": "00000000-0000-0000-0000-000000000021",
+    "saga_type": "atomic",
+    "status": "compensating",
+    "steps": [
+      {
+        "step_id": "step-reserve-002",
+        "step_type": "reserve",
+        "participant": "source-registry-agent",
+        "status": "completed",
+        "amount_micro": "750000",
+        "started_at": "2026-02-17T11:00:00Z",
+        "completed_at": "2026-02-17T11:00:04Z"
+      },
+      {
+        "step_id": "step-transfer-002",
+        "step_type": "transfer",
+        "participant": "bridge-operator",
+        "status": "failed",
+        "amount_micro": "750000",
+        "exchange_rate": {
+          "rate_type": "oracle",
+          "oracle_endpoint": "https://oracle.example.com/rates",
+          "governance_proposal_required": false,
+          "staleness_threshold_seconds": 300
+        },
+        "started_at": "2026-02-17T11:00:04Z",
+        "completed_at": "2026-02-17T11:00:08Z",
+        "error": "Oracle rate stale: last update 600s ago exceeds threshold 300s"
+      },
+      {
+        "step_id": "step-settle-002",
+        "step_type": "settle",
+        "participant": "target-registry-agent",
+        "status": "pending",
+        "amount_micro": "750000",
+        "started_at": null,
+        "completed_at": null
+      }
+    ],
+    "compensation_steps": [
+      {
+        "step_id": "comp-release-002",
+        "step_type": "reserve",
+        "participant": "source-registry-agent",
+        "status": "in_progress",
+        "amount_micro": "750000",
+        "started_at": "2026-02-17T11:00:09Z",
+        "completed_at": null
+      }
+    ],
+    "timeout": {
+      "total_seconds": 300,
+      "per_step_seconds": 60
+    },
+    "participants": [
+      {
+        "agent_id": "source-registry-agent",
+        "role": "initiator",
+        "registry_id": "00000000-0000-0000-0000-000000000020",
+        "trust_scopes": {
+          "scopes": {
+            "billing": "sovereign"
+          },
+          "default_level": "basic"
+        }
+      },
+      {
+        "agent_id": "bridge-operator",
+        "role": "arbiter",
+        "registry_id": "00000000-0000-0000-0000-000000000020",
+        "trust_scopes": {
+          "scopes": {
+            "composition": "trusted"
+          },
+          "default_level": "verified"
+        }
+      }
+    ],
+    "initiated_at": "2026-02-17T11:00:00Z",
+    "settled_at": null,
+    "error": {
+      "error_code": "ORACLE_RATE_STALE",
+      "message": "Oracle rate stale: last update 600s ago exceeds threshold 300s",
+      "failed_step_id": "step-transfer-002",
+      "recoverable": true
+    },
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "fr": "FR-7"
+  }
+}

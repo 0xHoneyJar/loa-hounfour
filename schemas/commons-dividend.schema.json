@@ -1,9 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/commons-dividend",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/commons-dividend",
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Financial amounts (total_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "description": "Commons dividend declaration and distribution to eligible recipients",
   "additionalProperties": false,
   "x-experimental": true,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
     "dividend_id",
@@ -55,6 +57,14 @@
     "period_end": {
       "format": "date-time",
       "type": "string"
+    },
+    "source_performance_ids": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
     },
     "distribution": {
       "additionalProperties": false,
@@ -130,6 +140,5 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
     }
-  },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  }
 }

@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-toolcall-004",
+  "category": "tool-call-roundtrip",
+  "description": "Tool error response — roundtrip of error result from tool execution",
+  "contract_version": "5.1.0",
+  "input": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "get_weather",
+      "arguments": { "location": "San Francisco" }
+    }],
+    "tool_results": [{
+      "tool_call_id": "call_001",
+      "is_error": true,
+      "content": "Service temporarily unavailable"
+    }]
+  },
+  "expected_output": {
+    "tool_results": [{
+      "tool_call_id": "call_001",
+      "is_error": true,
+      "content": "Service temporarily unavailable"
+    }]
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["tool_results"]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "LivenessProperty",
+  "contract_version": "6.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "liveness-formula-has-eventually",
+      "description": "LTL formula must contain F_t (bounded eventually) operator",
+      "expression": "ltl_formula.includes('F_t')",
+      "severity": "error",
+      "category": "temporal_logic",
+      "type_signature": {
+        "ltl_formula": "string"
+      }
+    }
+  ]
+}

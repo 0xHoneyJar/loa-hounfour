@@ -36,7 +36,7 @@ function makeEconomyEvent(
     occurred_at: new Date().toISOString(),
     actor: 'test',
     payload,
-    contract_version: '4.6.0',
+    contract_version: '5.0.0',
   } as DomainEvent;
 }
 

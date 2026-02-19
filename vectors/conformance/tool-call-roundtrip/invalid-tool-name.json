@@ -1,0 +1,19 @@
+{
+  "vector_id": "conformance-toolcall-005",
+  "category": "tool-call-roundtrip",
+  "description": "Invalid tool name — tool name contains disallowed characters",
+  "contract_version": "5.1.0",
+  "input": {
+    "tool_calls": [{
+      "id": "call_001",
+      "name": "../../../etc/passwd",
+      "arguments": {}
+    }]
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "metadata": {
+    "expected_error": "invalid_tool_name",
+    "note": "Tool name with path traversal should fail validation"
+  }
+}

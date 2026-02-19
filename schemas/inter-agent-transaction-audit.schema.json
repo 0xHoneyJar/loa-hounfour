@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/inter-agent-transaction-audit",
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Financial amounts use string-encoded BigInt (MicroUSD). See vocabulary/currency.ts.",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Protocol-standard audit trail for agent-to-agent economic transactions.",
+  "type": "object",
+  "required": [
+    "audit_id",
+    "transaction_type",
+    "sender",
+    "receiver",
+    "amount_micro",
+    "conservation_check",
+    "idempotency_key",
+    "timestamp",
+    "contract_version"
+  ],
+  "properties": {
+    "audit_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "transaction_type": {
+      "anyOf": [
+        {
+          "const": "peer_transfer",
+          "type": "string"
+        },
+        {
+          "const": "delegation_budget",
+          "type": "string"
+        },
+        {
+          "const": "service_payment",
+          "type": "string"
+        },
+        {
+          "const": "governance_proposal_deposit",
+          "type": "string"
+        }
+      ]
+    },
+    "sender": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "agent_id",
+        "pre_balance_micro",
+        "post_balance_micro"
+      ],
+      "properties": {
+        "agent_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pre_balance_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "post_balance_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        }
+      }
+    },
+    "receiver": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "agent_id",
+        "pre_balance_micro",
+        "post_balance_micro"
+      ],
+      "properties": {
+        "agent_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pre_balance_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        },
+        "post_balance_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+          "type": "string"
+        }
+      }
+    },
+    "amount_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "conservation_check": {
+      "$id": "ConservationStatus",
+      "description": "Tristate result of pricing conservation verification.",
+      "anyOf": [
+        {
+          "const": "conserved",
+          "type": "string"
+        },
+        {
+          "const": "violated",
+          "type": "string"
+        },
+        {
+          "const": "unverifiable",
+          "type": "string"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "description": "FL-SDD-003: Prevents duplicate processing. Uniqueness scope is per-sender agent_id. Consumers MUST reject duplicate keys within retention window.",
+      "type": "string"
+    },
+    "delegation_chain_id": {
+      "format": "uuid",
+      "x-references": [
+        {
+          "target_schema": "DelegationChain",
+          "target_field": "chain_id",
+          "relationship": "references"
+        }
+      ],
+      "type": "string"
+    },
+    "governance_context": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "proposal_id": {
+          "x-references": [
+            {
+              "target_schema": "ConstraintProposal",
+              "target_field": "proposal_id",
+              "relationship": "references"
+            }
+          ],
+          "type": "string"
+        },
+        "governance_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      }
+    },
+    "sequence_number": {
+      "minimum": 0,
+      "description": "FL-SDD-001: Per-agent monotonic counter for ordering audit records during reconstruction",
+      "type": "integer"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  }
+}

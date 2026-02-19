@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/jwt-boundary-spec",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Cross-system JWT boundary verification protocol specification (6-step pipeline).",
+  "type": "object",
+  "required": [
+    "spec_id",
+    "boundary_name",
+    "steps",
+    "algorithm_whitelist",
+    "claims_schema_ref",
+    "replay_window_seconds",
+    "contract_version"
+  ],
+  "properties": {
+    "spec_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "boundary_name": {
+      "minLength": 1,
+      "description": "Human-readable boundary identifier.",
+      "type": "string"
+    },
+    "steps": {
+      "minItems": 6,
+      "maxItems": 10,
+      "description": "At least 6 ordered verification steps (canonical pipeline has 6, max 10 for forward-compatibility).",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "step_number",
+          "name",
+          "description",
+          "error_code",
+          "is_blocking"
+        ],
+        "properties": {
+          "step_number": {
+            "minimum": 1,
+            "maximum": 6,
+            "type": "integer"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "error_code": {
+            "pattern": "^JWT_[A-Z_]+$",
+            "description": "Error code on step failure (JWT_ prefix convention).",
+            "type": "string"
+          },
+          "is_blocking": {
+            "description": "Whether failure at this step halts the entire pipeline.",
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "algorithm_whitelist": {
+      "minItems": 1,
+      "description": "Permitted signing algorithms (e.g., EdDSA).",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "claims_schema_ref": {
+      "minLength": 1,
+      "description": "Registry schema name resolvable via schemas/index.json. FL-PRD-002.",
+      "x-references": [
+        {
+          "target_schema": "schemas/index.json",
+          "target_field": "name",
+          "relationship": "references"
+        }
+      ],
+      "type": "string"
+    },
+    "replay_window_seconds": {
+      "minimum": 1,
+      "maximum": 3600,
+      "description": "JTI replay detection window in seconds.",
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

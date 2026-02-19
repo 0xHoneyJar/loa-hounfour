@@ -1,0 +1,88 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ConservationPropertyRegistry",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "conservation-registry-count-matches",
+      "expression": "total_count == len(properties)",
+      "severity": "error",
+      "message": "total_count must equal properties array length",
+      "fields": [
+        "total_count",
+        "properties"
+      ],
+      "type_signature": {
+        "total_count": "integer",
+        "properties": "ConservationProperty[]"
+      }
+    },
+    {
+      "id": "conservation-property-unique-ids",
+      "expression": "properties.every(p => properties.every(q => !eq(q.invariant_id, p.invariant_id) || eq(q, p)))",
+      "severity": "error",
+      "message": "All invariant_id values must be unique",
+      "fields": [
+        "properties"
+      ],
+      "type_signature": {
+        "properties": "ConservationProperty[]"
+      }
+    },
+    {
+      "id": "conservation-property-ltl-non-empty",
+      "expression": "properties.every(p => p.ltl_formula.length > 0)",
+      "severity": "error",
+      "message": "Every property must have a non-empty LTL formula",
+      "fields": [
+        "properties"
+      ],
+      "type_signature": {
+        "properties": "ConservationProperty[]"
+      }
+    },
+    {
+      "id": "conservation-registry-coverage-sums-to-total",
+      "description": "Sum of all coverage values must equal total_count",
+      "expression": "bigint_eq(bigint_sum([coverage.single_lot, coverage.account, coverage.platform, coverage.bilateral]), total_count)",
+      "severity": "error",
+      "category": "consistency",
+      "type_signature": {
+        "coverage": "Record<string, integer>",
+        "total_count": "integer"
+      }
+    },
+    {
+      "id": "conservation-registry-liveness-count-matches",
+      "description": "liveness_count must equal liveness_properties array length (v6.0.0)",
+      "expression": "liveness_count == len(liveness_properties)",
+      "severity": "error",
+      "category": "consistency",
+      "type_signature": {
+        "liveness_count": "integer",
+        "liveness_properties": "LivenessProperty[]"
+      }
+    },
+    {
+      "id": "conservation-liveness-unique-ids",
+      "description": "All liveness_id values must be unique (v6.0.0)",
+      "expression": "liveness_properties.every(p => liveness_properties.every(q => !eq(q.liveness_id, p.liveness_id) || eq(q, p)))",
+      "severity": "error",
+      "category": "consistency",
+      "type_signature": {
+        "liveness_properties": "LivenessProperty[]"
+      }
+    },
+    {
+      "id": "conservation-registry-coverage-keys-valid",
+      "description": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)",
+      "expression": "object_keys_subset(coverage, ['single_lot', 'account', 'platform', 'bilateral'])",
+      "severity": "error",
+      "category": "type_safety",
+      "type_signature": {
+        "coverage": "Record<InvariantUniverse, integer>"
+      }
+    }
+  ]
+}

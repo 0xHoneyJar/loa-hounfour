@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/delegation-outcome",
+  "additionalProperties": false,
+  "description": "The outcome of a delegated governance decision with vote and dissent tracking.",
+  "type": "object",
+  "required": [
+    "outcome_id",
+    "tree_node_id",
+    "outcome_type",
+    "result",
+    "votes",
+    "consensus_achieved",
+    "consensus_threshold",
+    "dissent_records",
+    "resolved_at",
+    "contract_version"
+  ],
+  "properties": {
+    "outcome_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "tree_node_id": {
+      "minLength": 1,
+      "description": "ID of the delegation tree node this outcome applies to.",
+      "type": "string"
+    },
+    "outcome_type": {
+      "$id": "OutcomeType",
+      "description": "Classification of a delegation outcome.",
+      "anyOf": [
+        {
+          "const": "unanimous",
+          "type": "string"
+        },
+        {
+          "const": "majority",
+          "type": "string"
+        },
+        {
+          "const": "deadlock",
+          "type": "string"
+        },
+        {
+          "const": "escalation",
+          "type": "string"
+        }
+      ]
+    },
+    "result": {
+      "description": "The decided result, or null if deadlocked.",
+      "anyOf": [
+        {},
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "votes": {
+      "minItems": 1,
+      "description": "Votes cast in this decision (at least one required).",
+      "type": "array",
+      "items": {
+        "$id": "DelegationVote",
+        "additionalProperties": false,
+        "description": "A single vote cast in a delegation decision process.",
+        "type": "object",
+        "required": [
+          "voter_id",
+          "vote",
+          "result",
+          "confidence"
+        ],
+        "properties": {
+          "voter_id": {
+            "minLength": 1,
+            "description": "Unique identifier of the voting agent.",
+            "type": "string"
+          },
+          "vote": {
+            "$id": "VoteChoice",
+            "description": "A voter's choice in a delegation decision.",
+            "anyOf": [
+              {
+                "const": "agree",
+                "type": "string"
+              },
+              {
+                "const": "disagree",
+                "type": "string"
+              },
+              {
+                "const": "abstain",
+                "type": "string"
+              }
+            ]
+          },
+          "result": {
+            "description": "The result or proposal this vote pertains to."
+          },
+          "confidence": {
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Confidence level of the vote (0 = no confidence, 1 = full confidence).",
+            "type": "number"
+          },
+          "reasoning": {
+            "description": "Optional explanation of the vote rationale.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "consensus_achieved": {
+      "description": "Whether the consensus threshold was met.",
+      "type": "boolean"
+    },
+    "consensus_threshold": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Required proportion for consensus (0-1).",
+      "type": "number"
+    },
+    "dissent_records": {
+      "description": "Records of dissent from the decision.",
+      "type": "array",
+      "items": {
+        "$id": "DissentRecord",
+        "additionalProperties": false,
+        "description": "A record of dissent in a delegation outcome.",
+        "type": "object",
+        "required": [
+          "dissenter_id",
+          "dissent_type",
+          "proposed_alternative",
+          "reasoning",
+          "severity",
+          "acknowledged"
+        ],
+        "properties": {
+          "dissenter_id": {
+            "minLength": 1,
+            "description": "Unique identifier of the dissenting agent.",
+            "type": "string"
+          },
+          "dissent_type": {
+            "$id": "DissentType",
+            "description": "Classification of dissent in a delegation outcome.",
+            "anyOf": [
+              {
+                "const": "minority_report",
+                "type": "string"
+              },
+              {
+                "const": "abstention",
+                "type": "string"
+              },
+              {
+                "const": "timeout",
+                "type": "string"
+              }
+            ]
+          },
+          "proposed_alternative": {
+            "description": "Alternative result proposed by the dissenter."
+          },
+          "reasoning": {
+            "minLength": 1,
+            "description": "Non-empty explanation of the dissent rationale.",
+            "type": "string"
+          },
+          "severity": {
+            "$id": "DissentSeverity",
+            "description": "Severity level of a dissent record.",
+            "anyOf": [
+              {
+                "const": "informational",
+                "type": "string"
+              },
+              {
+                "const": "warning",
+                "type": "string"
+              },
+              {
+                "const": "blocking",
+                "type": "string"
+              }
+            ]
+          },
+          "acknowledged": {
+            "description": "Whether the dissent has been acknowledged by the decision maker.",
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "escalated_to": {
+      "description": "ID of the agent or node the decision was escalated to.",
+      "type": "string"
+    },
+    "escalation_reason": {
+      "description": "Reason for escalation.",
+      "type": "string"
+    },
+    "resolved_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

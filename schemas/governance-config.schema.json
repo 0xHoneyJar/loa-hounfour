@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/governance-config",
+  "additionalProperties": false,
+  "description": "Protocol governance parameters. Overrides hardcoded defaults when provided.",
+  "type": "object",
+  "required": [
+    "governance_version",
+    "reservation_tiers",
+    "advisory_warning_threshold_percent"
+  ],
+  "properties": {
+    "governance_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version tracking governance parameter changes independently of protocol version.",
+      "type": "string"
+    },
+    "reservation_tiers": {
+      "additionalProperties": false,
+      "description": "Minimum reservation capacity (bps) per conformance level.",
+      "type": "object",
+      "required": [
+        "self_declared",
+        "community_verified",
+        "protocol_certified"
+      ],
+      "properties": {
+        "self_declared": {
+          "$id": "ReservationTier",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
+          "type": "integer"
+        },
+        "community_verified": {
+          "$id": "ReservationTier",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
+          "type": "integer"
+        },
+        "protocol_certified": {
+          "$id": "ReservationTier",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
+          "type": "integer"
+        }
+      }
+    },
+    "advisory_warning_threshold_percent": {
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percentage threshold for advisory near-floor warnings. Default: 20.",
+      "type": "integer"
+    },
+    "sandbox_permeability": {
+      "description": "How tightly the agent economy is sealed from external systems.",
+      "anyOf": [
+        {
+          "const": "impermeable",
+          "type": "string"
+        },
+        {
+          "const": "semi_permeable",
+          "type": "string"
+        },
+        {
+          "const": "permeable",
+          "type": "string"
+        }
+      ]
+    },
+    "sandbox_permeability_rationale": {
+      "description": "Human-readable rationale for permeability setting.",
+      "type": "string"
+    },
+    "mission_alignment": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "statement"
+      ],
+      "properties": {
+        "statement": {
+          "minLength": 1,
+          "description": "Human-readable mission alignment statement.",
+          "type": "string"
+        },
+        "category": {
+          "description": "Broad alignment category for the agent economy.",
+          "anyOf": [
+            {
+              "const": "research",
+              "type": "string"
+            },
+            {
+              "const": "commerce",
+              "type": "string"
+            },
+            {
+              "const": "public_good",
+              "type": "string"
+            },
+            {
+              "const": "education",
+              "type": "string"
+            },
+            {
+              "const": "infrastructure",
+              "type": "string"
+            }
+          ]
+        },
+        "url": {
+          "format": "uri",
+          "description": "Reference URL for the mission.",
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

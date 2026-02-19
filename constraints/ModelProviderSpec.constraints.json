@@ -1,0 +1,70 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ModelProviderSpec",
+  "contract_version": "5.1.0",
+  "expression_version": "2.0",
+  "constraints": [
+    {
+      "id": "certified-requires-vectors",
+      "expression": "conformance_level != 'protocol_certified' || (conformance_vector_results != null && len(conformance_vector_results) > 0 && all(conformance_vector_results, 'passed'))",
+      "severity": "error",
+      "message": "protocol_certified conformance level requires all conformance_vector_results to pass",
+      "fields": ["conformance_level", "conformance_vector_results"],
+      "type_signature": {
+        "conformance_level": "string",
+        "conformance_vector_results": "array"
+      }
+    },
+    {
+      "id": "active-model-required",
+      "expression": "any(models, 'status', 'active')",
+      "severity": "error",
+      "message": "models must include at least one entry with status 'active'",
+      "fields": ["models"],
+      "type_signature": {
+        "models": "array"
+      }
+    },
+    {
+      "id": "metadata-namespace",
+      "expression": "metadata == null || all_keys(metadata, '^x-')",
+      "severity": "warning",
+      "message": "metadata keys should use x-* namespace convention",
+      "fields": ["metadata"],
+      "type_signature": {
+        "metadata": "object"
+      }
+    },
+    {
+      "id": "metadata-size-limit",
+      "expression": "metadata == null || json_size(metadata) <= 10240",
+      "severity": "error",
+      "message": "metadata must not exceed 10KB when JSON-serialized",
+      "fields": ["metadata"],
+      "type_signature": {
+        "metadata": "object"
+      }
+    },
+    {
+      "id": "expires-after-published",
+      "expression": "expires_at == null || date_after(expires_at, published_at)",
+      "severity": "error",
+      "message": "expires_at must be after published_at",
+      "fields": ["expires_at", "published_at"],
+      "type_signature": {
+        "expires_at": "string",
+        "published_at": "string"
+      }
+    },
+    {
+      "id": "endpoints-https-only",
+      "expression": "endpoints == null || all_values(endpoints, '^https://')",
+      "severity": "error",
+      "message": "All endpoint URLs must use https:// scheme",
+      "fields": ["endpoints"],
+      "type_signature": {
+        "endpoints": "object"
+      }
+    }
+  ]
+}

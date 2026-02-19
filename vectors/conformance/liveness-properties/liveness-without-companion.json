@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-liveness-properties-002",
+  "category": "liveness-properties",
+  "description": "Liveness property with invalid companion_safety pattern — should fail schema validation",
+  "contract_version": "6.0.0",
+  "input": {
+    "liveness_id": "L-99",
+    "name": "Invalid companion",
+    "description": "A liveness property with bad companion reference.",
+    "ltl_formula": "G(pending => F_t(3600, done))",
+    "companion_safety": "INVALID-REF",
+    "universe": "single_lot",
+    "timeout_behavior": "reaper",
+    "timeout_seconds": 3600,
+    "error_codes": ["TEST_ERR"],
+    "severity": "error",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "metadata": {
+    "sdd_section": "§2.1",
+    "failure_reason": "companion_safety does not match ^I-\\d{1,2}$ pattern"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-normalization-003",
+  "category": "provider-normalization",
+  "description": "Basic OpenAI provider normalization — maps GPT response to unified format",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "choices": [{
+      "message": { "role": "assistant", "content": "Hello from GPT!" },
+      "finish_reason": "stop",
+      "index": 0
+    }],
+    "usage": { "prompt_tokens": 15, "completion_tokens": 30, "total_tokens": 45 }
+  },
+  "expected_output": {
+    "model_id": "gpt-4-turbo",
+    "content": "Hello from GPT!",
+    "finish_reason": "stop",
+    "usage": { "prompt_tokens": 15, "completion_tokens": 30 }
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "volatile_fields": ["id", "created", "system_fingerprint"]
+  }
+}

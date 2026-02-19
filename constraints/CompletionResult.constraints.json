@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CompletionResult",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "completion-result-tool_calls-required",
+      "expression": "finish_reason != 'tool_calls' || tool_calls != null",
+      "severity": "error",
+      "message": "tool_calls array is required when finish_reason is 'tool_calls'",
+      "fields": ["finish_reason", "tool_calls"],
+      "type_signature": {
+        "finish_reason": "string",
+        "tool_calls": "array"
+      }
+    },
+    {
+      "id": "completion-result-usage-conservation",
+      "expression": "usage == null || usage.total_tokens == bigint_sum([usage.prompt_tokens, usage.completion_tokens, usage.reasoning_tokens])",
+      "severity": "error",
+      "message": "usage.total_tokens must equal prompt_tokens + completion_tokens + reasoning_tokens",
+      "fields": ["usage.total_tokens", "usage.prompt_tokens", "usage.completion_tokens", "usage.reasoning_tokens"],
+      "type_signature": {
+        "usage": "object"
+      }
+    }
+  ]
+}

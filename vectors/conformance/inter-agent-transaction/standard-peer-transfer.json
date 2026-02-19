@@ -1,0 +1,34 @@
+{
+  "vector_id": "conformance-inter-agent-transaction-0001",
+  "category": "inter-agent-transaction",
+  "description": "Valid peer transfer with conservation verified: sender loses 500000, receiver gains 500000",
+  "contract_version": "5.4.0",
+  "input": {
+    "audit_id": "660e8400-e29b-41d4-a716-446655440001",
+    "transaction_type": "peer_transfer",
+    "sender": {
+      "agent_id": "agent-alice",
+      "pre_balance_micro": "2000000",
+      "post_balance_micro": "1500000"
+    },
+    "receiver": {
+      "agent_id": "agent-bob",
+      "pre_balance_micro": "1000000",
+      "post_balance_micro": "1500000"
+    },
+    "amount_micro": "500000",
+    "conservation_check": "conserved",
+    "idempotency_key": "tx-alice-20260217-001",
+    "timestamp": "2026-02-17T10:00:00Z",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "paper": "arXiv:2512.16856"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/exchange-rate-spec",
+  "additionalProperties": false,
+  "description": "Specification for how exchange rates are determined and maintained.",
+  "type": "object",
+  "required": [
+    "rate_type",
+    "governance_proposal_required",
+    "staleness_threshold_seconds"
+  ],
+  "properties": {
+    "rate_type": {
+      "$id": "ExchangeRateType",
+      "description": "How the exchange rate between registries is determined.",
+      "anyOf": [
+        {
+          "const": "fixed",
+          "type": "string"
+        },
+        {
+          "const": "oracle",
+          "type": "string"
+        },
+        {
+          "const": "governance",
+          "type": "string"
+        }
+      ]
+    },
+    "value": {
+      "pattern": "^\\d+(\\.\\d+)?$",
+      "description": "Fixed rate value (required when rate_type is \"fixed\").",
+      "type": "string"
+    },
+    "oracle_endpoint": {
+      "format": "uri",
+      "description": "Oracle endpoint (required when rate_type is \"oracle\").",
+      "type": "string"
+    },
+    "governance_proposal_required": {
+      "default": false,
+      "description": "Whether rate changes require a governance proposal.",
+      "type": "boolean"
+    },
+    "staleness_threshold_seconds": {
+      "minimum": 0,
+      "default": 3600,
+      "description": "Maximum age in seconds before the rate is considered stale.",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

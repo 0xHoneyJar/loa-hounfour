@@ -1,35 +1,50 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "CommonsDividend",
-  "contract_version": "4.6.0",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
       "id": "dividend-temporal",
       "expression": "period_end > period_start",
       "severity": "error",
       "message": "period_end must be after period_start",
-      "fields": ["period_start", "period_end"]
+      "fields": ["period_start", "period_end"],
+      "type_signature": {
+        "period_start": "string",
+        "period_end": "string"
+      }
     },
     {
       "id": "dividend-provenance",
       "expression": "source_performance_ids != null",
       "severity": "warning",
       "message": "dividend should link to source performance records for audit trail",
-      "fields": ["source_performance_ids"]
+      "fields": ["source_performance_ids"],
+      "type_signature": {
+        "source_performance_ids": "array"
+      }
     },
     {
       "id": "dividend-share-sum",
       "expression": "distribution != null => bigint_sum(distribution.recipients, 'share_bps') == 10000",
       "severity": "warning",
       "message": "distribution recipients share_bps must sum to 10000",
-      "fields": ["distribution.recipients"]
+      "fields": ["distribution.recipients"],
+      "type_signature": {
+        "distribution.recipients": "array"
+      }
     },
     {
       "id": "dividend-amount-conservation",
       "expression": "distribution != null && distribution.recipients.every(r => r.amount_micro != null) => bigint_sum(distribution.recipients, 'amount_micro') == total_micro",
       "severity": "error",
       "message": "distribution amount_micro sum must equal total_micro",
-      "fields": ["distribution.recipients", "total_micro"]
+      "fields": ["distribution.recipients", "total_micro"],
+      "type_signature": {
+        "distribution.recipients": "array",
+        "total_micro": "bigint_coercible"
+      }
     }
   ]
 }

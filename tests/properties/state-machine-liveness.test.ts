@@ -173,7 +173,7 @@ describe('L2: Dispute resolution — eventually(state ∈ {resolved, withdrawn})
           occurred_at: new Date().toISOString(),
           actor,
           payload: {},
-          contract_version: '4.6.0',
+          contract_version: '5.0.0',
         } as DomainEvent);
         expect(fileResult.applied).toBe(true);
 
@@ -187,7 +187,7 @@ describe('L2: Dispute resolution — eventually(state ∈ {resolved, withdrawn})
           occurred_at: new Date().toISOString(),
           actor,
           payload: {},
-          contract_version: '4.6.0',
+          contract_version: '5.0.0',
         } as DomainEvent);
         expect(resolveResult.applied).toBe(true);
       }),

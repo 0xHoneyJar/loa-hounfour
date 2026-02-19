@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0002",
+  "category": "reservation-enforcement",
+  "description": "Below-minimum bps for community_verified tier (requires 500, given 200) — expected tier_valid: false",
+  "contract_version": "5.2.0",
+  "input": {
+    "agent_id": "agent-002",
+    "conformance_level": "community_verified",
+    "reserved_capacity_bps": 200,
+    "budget_limit_micro": "2000000",
+    "budget_spent_micro": "0"
+  },
+  "expected_output": {
+    "reserved_micro": "40000",
+    "tier_valid": false,
+    "enforcement": "strict"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["tier_valid"]
+  },
+  "metadata": {
+    "sdd_section": "§3.8",
+    "tier_map": "community_verified → 500 bps, given 200 bps"
+  }
+}

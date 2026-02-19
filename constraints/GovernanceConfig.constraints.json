@@ -1,0 +1,52 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernanceConfig",
+  "contract_version": "5.4.0",
+  "expression_version": "2.0",
+  "constraints": [
+    {
+      "id": "governance-tier-ordering",
+      "expression": "reservation_tiers.self_declared <= reservation_tiers.community_verified && reservation_tiers.community_verified <= reservation_tiers.protocol_certified",
+      "severity": "error",
+      "message": "Tier minimums must be non-decreasing: self_declared <= community_verified <= protocol_certified",
+      "fields": ["reservation_tiers"],
+      "type_signature": {
+        "reservation_tiers": "object"
+      }
+    },
+    {
+      "id": "governance-tier-bounds",
+      "expression": "reservation_tiers.self_declared >= 0 && reservation_tiers.community_verified >= 0 && reservation_tiers.community_verified <= 10000 && reservation_tiers.protocol_certified <= 10000",
+      "severity": "error",
+      "message": "Tier values must be in [0, 10000] basis points",
+      "fields": ["reservation_tiers"],
+      "type_signature": {
+        "reservation_tiers": "object"
+      }
+    },
+    {
+      "id": "governance-advisory-bounds",
+      "expression": "advisory_warning_threshold_percent >= 0 && advisory_warning_threshold_percent <= 100",
+      "severity": "error",
+      "message": "Advisory threshold must be in [0, 100] percent",
+      "fields": ["advisory_warning_threshold_percent"],
+      "type_signature": {
+        "advisory_warning_threshold_percent": "number"
+      }
+    },
+    {
+      "id": "governance-sandbox-consistency",
+      "expression": "sandbox_permeability != 'impermeable' || advisory_warning_threshold_percent == 0",
+      "severity": "warning",
+      "message": "Impermeable sandbox with non-zero advisory threshold may indicate misconfiguration",
+      "fields": ["sandbox_permeability", "advisory_warning_threshold_percent"],
+      "type_signature": {
+        "sandbox_permeability": "string",
+        "advisory_warning_threshold_percent": "number"
+      }
+    }
+  ],
+  "metadata": {
+    "institutional_context": "GovernanceConfig defines the mutable parameters of the protocol's economic constitution. Changes to these values are governance acts, not implementation details."
+  }
+}

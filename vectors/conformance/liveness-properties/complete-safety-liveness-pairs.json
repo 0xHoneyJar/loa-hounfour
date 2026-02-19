@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-liveness-properties-001",
+  "category": "liveness-properties",
+  "description": "Complete safety-liveness pair — valid liveness property with companion safety invariant",
+  "contract_version": "6.0.0",
+  "input": {
+    "liveness_id": "L-1",
+    "name": "Reservation resolution liveness",
+    "description": "A pending reservation must resolve within bounded time.",
+    "ltl_formula": "G(reservation.pending => F_t(3600, reservation.terminal))",
+    "companion_safety": "I-11",
+    "universe": "single_lot",
+    "timeout_behavior": "reaper",
+    "timeout_seconds": 3600,
+    "error_codes": ["RESERVATION_RESOLUTION_TIMEOUT"],
+    "severity": "error",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "sdd_section": "§2.1"
+  }
+}

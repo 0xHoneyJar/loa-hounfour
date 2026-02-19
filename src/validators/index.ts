@@ -19,6 +19,11 @@ if (!FormatRegistry.Has('date-time')) {
 if (!FormatRegistry.Has('uri')) {
   FormatRegistry.Set('uri', (v) => /^https?:\/\/.+/.test(v));
 }
+if (!FormatRegistry.Has('uuid')) {
+  FormatRegistry.Set('uuid', (v) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v),
+  );
+}
 import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
@@ -46,6 +51,23 @@ import { StakePositionSchema } from '../schemas/stake-position.js';
 import { CommonsDividendSchema } from '../schemas/commons-dividend.js';
 import { MutualCreditSchema } from '../schemas/mutual-credit.js';
 import { RoutingConstraintSchema } from '../schemas/routing-constraint.js';
+import { CompletionRequestSchema } from '../schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../schemas/model/completion-result.js';
+import { ModelCapabilitiesSchema } from '../schemas/model/model-capabilities.js';
+import { ProviderWireMessageSchema } from '../schemas/model/provider-wire-message.js';
+import { ToolDefinitionSchema } from '../schemas/model/tool-definition.js';
+import { ToolResultSchema } from '../schemas/model/tool-result.js';
+import { EnsembleRequestSchema } from '../schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../schemas/model/ensemble/ensemble-result.js';
+import { AgentRequirementsSchema } from '../schemas/model/routing/agent-requirements.js';
+import { BudgetScopeSchema } from '../schemas/model/routing/budget-scope.js';
+import { RoutingResolutionSchema } from '../schemas/model/routing/routing-resolution.js';
+import { ConstraintProposalSchema } from '../schemas/model/constraint-proposal.js';
+import { ModelProviderSpecSchema, type ModelProviderSpec } from '../schemas/model/model-provider-spec.js';
+import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
+import { AgentCapacityReservationSchema, type AgentCapacityReservation } from '../schemas/model/routing/agent-capacity-reservation.js';
+import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
+import { AuditTrailEntrySchema, type AuditTrailEntry } from '../schemas/audit-trail-entry.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -116,7 +138,27 @@ registerCrossFieldValidator('BillingEntry', (data) => {
   if (!result.valid) {
     return { valid: false, errors: [result.reason], warnings: [] };
   }
-  return { valid: true, errors: [], warnings: [] };
+
+  // v5.1.0 — Pricing provenance rules (warning severity)
+  const d = data as Record<string, unknown>;
+  const warnings: string[] = [];
+
+  // Provenance: cost > 0 requires source_completion_id
+  if (d.total_cost_micro !== '0' && d.source_completion_id === undefined) {
+    warnings.push('non-zero cost should include source_completion_id for provenance');
+  }
+
+  // Provenance: if completion ref present, pricing snapshot should be too
+  if (d.source_completion_id && !d.pricing_snapshot) {
+    warnings.push('source_completion_id present without pricing_snapshot');
+  }
+
+  // Reconciliation: delta only with provider_invoice_authoritative
+  if (d.reconciliation_delta_micro && d.reconciliation_mode !== 'provider_invoice_authoritative') {
+    warnings.push('reconciliation_delta_micro only applies with provider_invoice_authoritative mode');
+  }
+
+  return { valid: true, errors: [], warnings };
 });
 
 registerCrossFieldValidator('PerformanceRecord', (data) => {
@@ -316,8 +358,10 @@ registerCrossFieldValidator('DisputeRecord', (data) => {
 
 import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 
+import type { Sanction } from '../schemas/sanction.js';
+
 registerCrossFieldValidator('Sanction', (data) => {
-  const sanction = data as { severity: string; expires_at?: string; imposed_at: string; trigger: { violation_type: string; occurrence_count: number } };
+  const sanction = data as Sanction;
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -333,6 +377,11 @@ registerCrossFieldValidator('Sanction', (data) => {
   }
   if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
     warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
+  }
+
+  // Escalation linkage (BB-V4-DEEP-004)
+  if (sanction.escalation_rule_applied !== undefined && sanction.escalation_rule_applied !== sanction.trigger.violation_type) {
+    warnings.push(`escalation_rule_applied ("${sanction.escalation_rule_applied}") should match trigger.violation_type ("${sanction.trigger.violation_type}")`);
   }
 
   // Escalation rules wiring (BB-V4-DEEP-004)
@@ -351,13 +400,43 @@ registerCrossFieldValidator('Sanction', (data) => {
     }
   }
 
+  // v5.1.0 — Graduated sanction rules
+
+  // revocation-requires-reason: terminated severity must have evidence
+  if (sanction.severity === 'terminated' && sanction.trigger.evidence_event_ids?.length === 0) {
+    errors.push('terminated severity requires at least one evidence event');
+  }
+
+  // timed-sanctions-require-duration: if severity_level is present and not suspended, duration should be set
+  if (sanction.severity_level && sanction.severity_level !== 'suspended' && sanction.duration_seconds === undefined) {
+    warnings.push('severity_level present without duration_seconds — timed sanctions should specify duration');
+  }
+
+  // severity-field-precedence: if both severity and severity_level present, they should be consistent
+  if (sanction.severity_level && sanction.severity !== sanction.severity_level) {
+    warnings.push(`severity ("${sanction.severity}") differs from severity_level ("${sanction.severity_level}") — severity_level takes precedence for enforcement`);
+  }
+
+  // appeal_dispute_id requires appeal_available to be true
+  if (sanction.appeal_dispute_id && !sanction.appeal_available) {
+    errors.push('appeal_dispute_id present but appeal_available is false');
+  }
+
+  // v5.2.0 — Reservation floor preservation (S7-T5)
+  // Low-severity sanctions (warning, rate_limited) should preserve the agent's
+  // reservation floor. Higher severities (pool_restricted, suspended, terminated)
+  // CAN breach the floor as they represent serious violations.
+  if (sanction.severity === 'warning' || sanction.severity === 'rate_limited') {
+    warnings.push(`severity "${sanction.severity}" should preserve agent reservation floor — enforcement must not reduce capacity below reserved minimum`);
+  }
+
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
 import { MIN_REPUTATION_SAMPLE_SIZE } from '../vocabulary/reputation.js';
 
 registerCrossFieldValidator('ReputationScore', (data) => {
-  const score = data as { score: number; sample_size: number; decay_applied: boolean };
+  const score = data as { score: number; sample_size: number; decay_applied: boolean; min_unique_validators?: number; validation_graph_hash?: string };
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -367,6 +446,369 @@ registerCrossFieldValidator('ReputationScore', (data) => {
 
   if (score.score === 1.0 && score.sample_size < 10) {
     warnings.push('perfect score with low sample is suspicious');
+  }
+
+  // Sybil resistance (BB-V4-DEEP-001)
+  if (score.min_unique_validators !== undefined && score.sample_size < score.min_unique_validators) {
+    errors.push(`sample_size (${score.sample_size}) must be >= min_unique_validators (${score.min_unique_validators})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.0.0 — ModelPort cross-field validators ---
+
+registerCrossFieldValidator('CompletionRequest', (data) => {
+  const req = data as { tools?: unknown[]; tool_choice?: unknown; execution_mode?: string; provider?: string; budget_limit_micro?: string; session_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // tools present → tool_choice required
+  if (req.tools && req.tools.length > 0 && req.tool_choice === undefined) {
+    errors.push('tool_choice is required when tools are provided');
+  }
+
+  // execution_mode=native_runtime → provider required
+  if (req.execution_mode === 'native_runtime' && !req.provider) {
+    errors.push(`provider is required when execution_mode is "native_runtime", got provider="${req.provider ?? 'undefined'}"`);
+  }
+
+  // execution_mode=native_runtime → session_id required
+  if (req.execution_mode === 'native_runtime' && !req.session_id) {
+    errors.push(`session_id is required when execution_mode is "native_runtime", got session_id="${req.session_id ?? 'undefined'}"`);
+  }
+
+  // budget_limit_micro must be > 0 when present
+  if (req.budget_limit_micro !== undefined && req.budget_limit_micro === '0') {
+    warnings.push('budget_limit_micro is zero — request will be rejected by budget enforcement');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('CompletionResult', (data) => {
+  const result = data as { finish_reason: string; content?: string; tool_calls?: unknown[]; usage: { prompt_tokens: number; completion_tokens: number; reasoning_tokens?: number; total_tokens: number } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // finish_reason=tool_calls → tool_calls must be non-empty
+  if (result.finish_reason === 'tool_calls' && (!result.tool_calls || result.tool_calls.length === 0)) {
+    errors.push('tool_calls must be non-empty when finish_reason is "tool_calls"');
+  }
+
+  // finish_reason=stop → content should be present
+  if (result.finish_reason === 'stop' && !result.content) {
+    warnings.push('content is expected when finish_reason is "stop"');
+  }
+
+  // usage.total_tokens conservation check
+  const expected = result.usage.prompt_tokens + result.usage.completion_tokens + (result.usage.reasoning_tokens ?? 0);
+  if (result.usage.total_tokens !== expected) {
+    errors.push(`usage.total_tokens (${result.usage.total_tokens}) must equal prompt_tokens (${result.usage.prompt_tokens}) + completion_tokens (${result.usage.completion_tokens}) + reasoning_tokens (${result.usage.reasoning_tokens ?? 0}) = ${expected}`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('ProviderWireMessage', (data) => {
+  const msg = data as { role: string; content?: unknown; tool_calls?: unknown[]; tool_call_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // role=tool → tool_call_id required
+  if (msg.role === 'tool' && !msg.tool_call_id) {
+    errors.push('tool_call_id is required when role is "tool"');
+  }
+
+  // role=assistant → content or tool_calls must be present
+  if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
+    warnings.push('assistant message should have content or tool_calls');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// v5.0.0 — Ensemble cross-field validators
+registerCrossFieldValidator('EnsembleRequest', (data) => {
+  const req = data as { strategy: string; consensus_threshold?: number; dialogue_config?: { max_rounds: number; pass_thinking_traces: boolean; termination: string; seed_prompt?: string }; request?: { session_id?: string } };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (req.strategy === 'consensus' && req.consensus_threshold === undefined) {
+    errors.push('consensus_threshold is required when strategy is "consensus"');
+  }
+
+  if (req.strategy === 'dialogue' && req.dialogue_config === undefined) {
+    errors.push('dialogue_config is required when strategy is "dialogue"');
+  }
+
+  // Dialogue strategy benefits from session_id for round correlation
+  if (req.strategy === 'dialogue' && req.request && !req.request.session_id) {
+    warnings.push('session_id is recommended when strategy is "dialogue" for round correlation');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+registerCrossFieldValidator('EnsembleResult', (data) => {
+  const result = data as { strategy: string; consensus_score?: number; total_cost_micro: string; selected: { usage: { cost_micro: string } }; candidates?: Array<{ usage: { cost_micro: string } }>; rounds?: Array<{ round: number; model: string; response: { usage: { cost_micro: string } } }>; termination_reason?: string; rounds_completed?: number; rounds_requested?: number; consensus_method?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (result.strategy === 'consensus' && result.consensus_score === undefined) {
+    errors.push('consensus_score is required when strategy is "consensus"');
+  }
+
+  if (BigInt(result.total_cost_micro) < BigInt(result.selected.usage.cost_micro)) {
+    errors.push('total_cost_micro must be >= selected.usage.cost_micro');
+  }
+
+  // Cost conservation: total_cost_micro == sum of all candidate costs
+  if (result.candidates) {
+    const candidateSum = result.candidates.reduce(
+      (sum, c) => sum + BigInt(c.usage.cost_micro),
+      BigInt(0),
+    );
+    if (BigInt(result.total_cost_micro) !== candidateSum) {
+      errors.push(`total_cost_micro (${result.total_cost_micro}) must equal sum of candidate costs (${candidateSum})`);
+    }
+  }
+
+  // Dialogue strategy requires rounds
+  if (result.strategy === 'dialogue' && (!result.rounds || result.rounds.length === 0)) {
+    errors.push('rounds must be non-empty when strategy is "dialogue"');
+  }
+
+  // Dialogue strategy requires termination_reason
+  if (result.strategy === 'dialogue' && result.termination_reason === undefined) {
+    errors.push('termination_reason is required when strategy is "dialogue"');
+  }
+
+  // Dialogue rounds cost conservation: total_cost_micro >= sum of round costs
+  if (result.strategy === 'dialogue' && result.rounds && result.rounds.length > 0) {
+    const roundCostSum = result.rounds.reduce(
+      (sum, r) => sum + BigInt(r.response.usage.cost_micro),
+      BigInt(0),
+    );
+    if (BigInt(result.total_cost_micro) < roundCostSum) {
+      errors.push(`total_cost_micro (${result.total_cost_micro}) must be >= sum of round costs (${roundCostSum})`);
+    }
+  }
+
+  // rounds_completed consistency: must equal rounds.length when both present
+  if (result.rounds != null && result.rounds_completed != null && result.rounds_completed !== result.rounds.length) {
+    errors.push(`rounds_completed (${result.rounds_completed}) must equal rounds.length (${result.rounds.length})`);
+  }
+
+  // rounds_completed must not exceed rounds_requested
+  if (result.rounds_requested != null && result.rounds_completed != null && result.rounds_completed > result.rounds_requested) {
+    errors.push(`rounds_completed (${result.rounds_completed}) must not exceed rounds_requested (${result.rounds_requested})`);
+  }
+
+  // consensus_method recommended when termination_reason is consensus_reached
+  if (result.termination_reason === 'consensus_reached' && result.consensus_method == null) {
+    warnings.push('consensus_method is recommended when termination_reason is "consensus_reached" for audit trail');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// SagaContext cross-field validator
+registerCrossFieldValidator('SagaContext', (data) => {
+  const ctx = data as { step: number; total_steps?: number; direction: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // step must not exceed total_steps when total_steps is provided
+  if (ctx.total_steps !== undefined && ctx.step > ctx.total_steps) {
+    errors.push(`step (${ctx.step}) must not exceed total_steps (${ctx.total_steps})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// v5.0.0 — BudgetScope cross-field validator
+registerCrossFieldValidator('BudgetScope', (data) => {
+  const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
+    warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// v5.0.0 — ConstraintProposal cross-field validator
+registerCrossFieldValidator('ConstraintProposal', (data) => {
+  const proposal = data as { review_status?: string; consensus_category?: string; expression_version: string; sunset_version?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Accepted proposals must have HIGH_CONSENSUS
+  if (proposal.review_status === 'accepted' && proposal.consensus_category !== 'HIGH_CONSENSUS') {
+    errors.push(`consensus_category must be "HIGH_CONSENSUS" when review_status is "accepted", got "${proposal.consensus_category ?? 'undefined'}"`);
+  }
+
+  // sunset_version must be >= expression_version (semver comparison, not string)
+  if (proposal.sunset_version != null) {
+    const parseSemver = (v: string) => v.split('.').map(Number);
+    const [sunMaj, sunMin = 0] = parseSemver(proposal.sunset_version);
+    const [exprMaj, exprMin = 0] = parseSemver(proposal.expression_version);
+    const sunsetValid = sunMaj > exprMaj || (sunMaj === exprMaj && sunMin >= exprMin);
+    if (!sunsetValid) {
+      errors.push(`sunset_version ("${proposal.sunset_version}") must be >= expression_version ("${proposal.expression_version}")`);
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.1.0 — Protocol Constitution cross-field validators ---
+
+registerCrossFieldValidator('ModelProviderSpec', (data) => {
+  const d = data as ModelProviderSpec;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // certified-requires-vectors: protocol_certified requires all vector results passing
+  if (d.conformance_level === 'protocol_certified') {
+    if (!d.conformance_vector_results?.length) {
+      errors.push('protocol_certified requires conformance_vector_results');
+    } else if (d.conformance_vector_results.some((r) => !r.passed)) {
+      errors.push('protocol_certified requires all vectors to pass');
+    }
+  }
+
+  // community_verified should have vector results (warning)
+  if (d.conformance_level === 'community_verified' && !d.conformance_vector_results?.length) {
+    warnings.push('community_verified should include conformance_vector_results');
+  }
+
+  // active-model-required: at least one active model
+  if (!d.models.some((m) => m.status === 'active')) {
+    errors.push('models must include at least one active entry');
+  }
+
+  // metadata-size: 10KB limit
+  if (d.metadata) {
+    const size = JSON.stringify(d.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
+  }
+
+  // metadata-namespace: x-* prefix enforcement (warning)
+  if (d.metadata) {
+    for (const key of Object.keys(d.metadata)) {
+      if (!key.startsWith('x-')) {
+        warnings.push(`metadata key '${key}' should use x-* namespace`);
+      }
+    }
+  }
+
+  // expires-after-published: temporal ordering
+  if (d.expires_at && d.published_at) {
+    if (new Date(d.expires_at) <= new Date(d.published_at)) {
+      errors.push('expires_at must be after published_at');
+    }
+  }
+
+  // HTTPS endpoints: all endpoint URLs must use https://
+  if (d.endpoints) {
+    for (const [key, url] of Object.entries(d.endpoints)) {
+      if (url && !url.startsWith('https://')) {
+        errors.push(`endpoints.${key} must use https:// scheme`);
+      }
+    }
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — AgentCapacityReservation cross-field validator ---
+
+registerCrossFieldValidator('AgentCapacityReservation', (data) => {
+  const r = data as AgentCapacityReservation;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Temporal ordering: effective_until must be after effective_from
+  if (r.effective_until && r.effective_from) {
+    if (new Date(r.effective_until) <= new Date(r.effective_from)) {
+      errors.push('effective_until must be after effective_from');
+    }
+  }
+
+  // Tier minimum: reserved_capacity_bps should meet the minimum for the conformance level
+  const tierMin = RESERVATION_TIER_MAP[r.conformance_level];
+  if (tierMin !== undefined && r.reserved_capacity_bps < tierMin) {
+    warnings.push(
+      `reserved_capacity_bps (${r.reserved_capacity_bps}) is below minimum for ${r.conformance_level} (${tierMin} bps)`,
+    );
+  }
+
+  // Active reservations should have reasonable capacity
+  if (r.state === 'active' && r.reserved_capacity_bps === 0) {
+    warnings.push('active reservation with 0 bps provides no capacity guarantee');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — BudgetScope reservation cross-field enhancement ---
+
+// Enhance the existing BudgetScope validator to check reservation constraints.
+// The validator was already registered above — we augment it by re-registering.
+// The crossFieldRegistry.set() overwrites the old entry.
+registerCrossFieldValidator('BudgetScope', (data) => {
+  const scope = data as { limit_micro: string; spent_micro: string; action_on_exceed: string; reserved_capacity_bps?: number; reservation_id?: string };
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
+    warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+  }
+
+  // v5.2.0 — Reservation fields cross-check
+  if (scope.reserved_capacity_bps !== undefined && scope.reserved_capacity_bps > 0 && !scope.reservation_id) {
+    warnings.push('reserved_capacity_bps is set but reservation_id is absent');
+  }
+
+  if (scope.reservation_id && (scope.reserved_capacity_bps === undefined || scope.reserved_capacity_bps === 0)) {
+    warnings.push('reservation_id is present but reserved_capacity_bps is 0 or absent');
+  }
+
+  return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+});
+
+// --- v5.2.0 — AuditTrailEntry cross-field validator ---
+
+registerCrossFieldValidator('AuditTrailEntry', (data) => {
+  const entry = data as AuditTrailEntry;
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Distinct IDs: completion_id != billing_entry_id
+  if (entry.completion_id === entry.billing_entry_id) {
+    errors.push('completion_id and billing_entry_id must be different');
+  }
+
+  // entry_id must differ from both
+  if (entry.entry_id === entry.completion_id) {
+    errors.push('entry_id must differ from completion_id');
+  }
+  if (entry.entry_id === entry.billing_entry_id) {
+    errors.push('entry_id must differ from billing_entry_id');
+  }
+
+  // Metadata size limit (10KB)
+  if (entry.metadata) {
+    const size = JSON.stringify(entry.metadata).length;
+    if (size > 10240) {
+      errors.push(`metadata exceeds 10KB limit (${size} bytes)`);
+    }
   }
 
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
@@ -490,4 +932,32 @@ export const validators = {
   stakePosition: () => getOrCompile(StakePositionSchema),
   commonsDividend: () => getOrCompile(CommonsDividendSchema),
   mutualCredit: () => getOrCompile(MutualCreditSchema),
+
+  // v5.0.0 — ModelPort
+  completionRequest: () => getOrCompile(CompletionRequestSchema),
+  completionResult: () => getOrCompile(CompletionResultSchema),
+  modelCapabilities: () => getOrCompile(ModelCapabilitiesSchema),
+  providerWireMessage: () => getOrCompile(ProviderWireMessageSchema),
+  toolDefinition: () => getOrCompile(ToolDefinitionSchema),
+  toolResult: () => getOrCompile(ToolResultSchema),
+
+  // v5.0.0 — Ensemble & Routing
+  ensembleRequest: () => getOrCompile(EnsembleRequestSchema),
+  ensembleResult: () => getOrCompile(EnsembleResultSchema),
+  agentRequirements: () => getOrCompile(AgentRequirementsSchema),
+  budgetScope: () => getOrCompile(BudgetScopeSchema),
+  routingResolution: () => getOrCompile(RoutingResolutionSchema),
+
+  // v5.0.0 — Constraint Evolution
+  constraintProposal: () => getOrCompile(ConstraintProposalSchema),
+
+  // v5.1.0 — Protocol Constitution
+  modelProviderSpec: () => getOrCompile(ModelProviderSpecSchema),
+  conformanceLevel: () => getOrCompile(ConformanceLevelSchema),
+
+  // v5.2.0 — Agent Capacity Reservation
+  agentCapacityReservation: () => getOrCompile(AgentCapacityReservationSchema),
+
+  // v5.2.0 — Audit Trail
+  auditTrailEntry: () => getOrCompile(AuditTrailEntrySchema),
 } as const;

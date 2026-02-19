@@ -1,0 +1,256 @@
+{
+  "description": "Multi-model ensemble cost split vectors for billing reconciliation",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "billing-ensemble-001",
+      "description": "Two-model first_complete ensemble — winner takes billing, total reflects both candidates",
+      "valid": true,
+      "request": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440100",
+        "strategy": "first_complete",
+        "models": ["claude-opus-4-6", "gpt-5.2"],
+        "request": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440101",
+          "agent_id": "agent-001",
+          "tenant_id": "tenant-001",
+          "model": "claude-opus-4-6",
+          "messages": [{ "role": "user", "content": "Summarize this document." }],
+          "contract_version": "5.0.0"
+        },
+        "contract_version": "5.0.0"
+      },
+      "result": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440100",
+        "strategy": "first_complete",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440101",
+          "model": "claude-opus-4-6",
+          "provider": "anthropic",
+          "content": "The document describes...",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 500,
+            "completion_tokens": 200,
+            "total_tokens": 700,
+            "cost_micro": "4500"
+          },
+          "latency_ms": 1800,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440101",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "The document describes...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 500,
+              "completion_tokens": 200,
+              "total_tokens": 700,
+              "cost_micro": "4500"
+            },
+            "latency_ms": 1800,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440101",
+            "model": "gpt-5.2",
+            "provider": "openai",
+            "content": "This document outlines...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 500,
+              "completion_tokens": 180,
+              "total_tokens": 680,
+              "cost_micro": "3800"
+            },
+            "latency_ms": 2200,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "total_cost_micro": "8300",
+        "total_latency_ms": 2200,
+        "contract_version": "5.0.0"
+      },
+      "expected_cross_field": {
+        "request": ["consensus_threshold_not_required"],
+        "result": ["total_cost_gte_selected"]
+      }
+    },
+    {
+      "id": "billing-ensemble-002",
+      "description": "Three-model consensus ensemble with consensus_threshold and score",
+      "valid": true,
+      "request": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440102",
+        "strategy": "consensus",
+        "models": ["claude-opus-4-6", "gpt-5.2", "kimi-k2"],
+        "request": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440103",
+          "agent_id": "agent-002",
+          "tenant_id": "tenant-001",
+          "model": "claude-opus-4-6",
+          "messages": [{ "role": "user", "content": "Is this code safe?" }],
+          "contract_version": "5.0.0"
+        },
+        "consensus_threshold": 0.7,
+        "contract_version": "5.0.0"
+      },
+      "result": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440102",
+        "strategy": "consensus",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440103",
+          "model": "claude-opus-4-6",
+          "provider": "anthropic",
+          "content": "The code has a SQL injection vulnerability on line 42.",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 300,
+            "completion_tokens": 50,
+            "total_tokens": 350,
+            "cost_micro": "2000"
+          },
+          "latency_ms": 1500,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440103",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "The code has a SQL injection vulnerability on line 42.",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 300,
+              "completion_tokens": 50,
+              "total_tokens": 350,
+              "cost_micro": "2000"
+            },
+            "latency_ms": 1500,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440103",
+            "model": "gpt-5.2",
+            "provider": "openai",
+            "content": "There is a SQL injection risk at line 42.",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 300,
+              "completion_tokens": 45,
+              "total_tokens": 345,
+              "cost_micro": "1800"
+            },
+            "latency_ms": 1600,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440103",
+            "model": "kimi-k2",
+            "provider": "moonshot",
+            "content": "Code appears safe overall but line 42 needs parameterized queries.",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 300,
+              "completion_tokens": 55,
+              "total_tokens": 355,
+              "cost_micro": "1500"
+            },
+            "latency_ms": 1400,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "consensus_score": 0.85,
+        "total_cost_micro": "5300",
+        "total_latency_ms": 1600,
+        "contract_version": "5.0.0"
+      },
+      "expected_cross_field": {
+        "request": ["consensus_threshold_required"],
+        "result": ["consensus_score_required", "total_cost_gte_selected"]
+      }
+    },
+    {
+      "id": "billing-ensemble-003",
+      "description": "Two-model best_of_n ensemble — cost aggregation across candidates",
+      "valid": true,
+      "request": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440104",
+        "strategy": "best_of_n",
+        "models": ["claude-opus-4-6", "gpt-5.2"],
+        "request": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440105",
+          "agent_id": "agent-003",
+          "tenant_id": "tenant-002",
+          "model": "claude-opus-4-6",
+          "messages": [{ "role": "user", "content": "Write a unit test for the auth module." }],
+          "contract_version": "5.0.0"
+        },
+        "timeout_ms": 30000,
+        "task_type": "code_generation",
+        "contract_version": "5.0.0"
+      },
+      "result": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440104",
+        "strategy": "best_of_n",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440105",
+          "model": "gpt-5.2",
+          "provider": "openai",
+          "content": "import { describe, it, expect } from 'vitest';\n...",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": 250,
+            "total_tokens": 350,
+            "cost_micro": "3000"
+          },
+          "latency_ms": 2500,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440105",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "describe('auth module', () => { ... });",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 100,
+              "completion_tokens": 200,
+              "total_tokens": 300,
+              "cost_micro": "2500"
+            },
+            "latency_ms": 2000,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440105",
+            "model": "gpt-5.2",
+            "provider": "openai",
+            "content": "import { describe, it, expect } from 'vitest';\n...",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 100,
+              "completion_tokens": 250,
+              "total_tokens": 350,
+              "cost_micro": "3000"
+            },
+            "latency_ms": 2500,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "total_cost_micro": "5500",
+        "total_latency_ms": 2500,
+        "contract_version": "5.0.0"
+      },
+      "expected_cross_field": {
+        "request": ["consensus_threshold_not_required"],
+        "result": ["total_cost_gte_selected"]
+      }
+    }
+  ]
+}

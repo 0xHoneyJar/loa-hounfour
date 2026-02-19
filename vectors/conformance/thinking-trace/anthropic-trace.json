@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-thinking-001",
+  "category": "thinking-trace",
+  "description": "Anthropic extended thinking trace — full chain-of-thought extraction",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "anthropic",
+    "model": "claude-3-opus-20240229",
+    "content": [
+      { "type": "thinking", "thinking": "Step 1: Identify the variables.\nStep 2: Apply the formula.\nStep 3: Compute the result." },
+      { "type": "text", "text": "The answer is 7." }
+    ],
+    "stop_reason": "end_turn",
+    "usage": { "input_tokens": 100, "output_tokens": 250 }
+  },
+  "expected_output": {
+    "thinking_trace": "Step 1: Identify the variables.\nStep 2: Apply the formula.\nStep 3: Compute the result.",
+    "content": "The answer is 7.",
+    "has_thinking": true,
+    "thinking_token_count": 150
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["thinking_trace", "content", "has_thinking"],
+    "volatile_fields": ["thinking_token_count"]
+  }
+}

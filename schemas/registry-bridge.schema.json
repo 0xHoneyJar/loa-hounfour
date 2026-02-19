@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/registry-bridge",
+  "additionalProperties": false,
+  "description": "A bridge enabling value transfer between two economy registries.",
+  "type": "object",
+  "required": [
+    "bridge_id",
+    "source_registry_id",
+    "target_registry_id",
+    "bridge_invariants",
+    "exchange_rate",
+    "settlement",
+    "contract_version"
+  ],
+  "properties": {
+    "bridge_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "source_registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "target_registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "bridge_invariants": {
+      "minItems": 1,
+      "description": "Invariants that must hold for this bridge.",
+      "type": "array",
+      "items": {
+        "$id": "BridgeInvariant",
+        "additionalProperties": false,
+        "description": "A formally specified invariant for a registry bridge.",
+        "type": "object",
+        "required": [
+          "invariant_id",
+          "name",
+          "description",
+          "ltl_formula",
+          "enforcement"
+        ],
+        "properties": {
+          "invariant_id": {
+            "pattern": "^B-\\d{1,4}$",
+            "description": "Unique invariant identifier (e.g., B-1, B-99, B-9999).",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "ltl_formula": {
+            "minLength": 1,
+            "description": "Linear temporal logic formula for the invariant.",
+            "type": "string"
+          },
+          "enforcement": {
+            "$id": "BridgeEnforcement",
+            "description": "How a bridge invariant is enforced: atomically, eventually, or manually.",
+            "anyOf": [
+              {
+                "const": "atomic",
+                "type": "string"
+              },
+              {
+                "const": "eventual",
+                "type": "string"
+              },
+              {
+                "const": "manual",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "exchange_rate": {
+      "$id": "ExchangeRateSpec",
+      "additionalProperties": false,
+      "description": "Specification for how exchange rates are determined and maintained.",
+      "type": "object",
+      "required": [
+        "rate_type",
+        "governance_proposal_required",
+        "staleness_threshold_seconds"
+      ],
+      "properties": {
+        "rate_type": {
+          "$id": "ExchangeRateType",
+          "description": "How the exchange rate between registries is determined.",
+          "anyOf": [
+            {
+              "const": "fixed",
+              "type": "string"
+            },
+            {
+              "const": "oracle",
+              "type": "string"
+            },
+            {
+              "const": "governance",
+              "type": "string"
+            }
+          ]
+        },
+        "value": {
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Fixed rate value (required when rate_type is \"fixed\").",
+          "type": "string"
+        },
+        "oracle_endpoint": {
+          "format": "uri",
+          "description": "Oracle endpoint (required when rate_type is \"oracle\").",
+          "type": "string"
+        },
+        "governance_proposal_required": {
+          "default": false,
+          "description": "Whether rate changes require a governance proposal.",
+          "type": "boolean"
+        },
+        "staleness_threshold_seconds": {
+          "minimum": 0,
+          "default": 3600,
+          "description": "Maximum age in seconds before the rate is considered stale.",
+          "type": "integer"
+        }
+      }
+    },
+    "settlement": {
+      "$id": "SettlementPolicy",
+      "description": "How cross-registry transfers are settled.",
+      "anyOf": [
+        {
+          "const": "immediate",
+          "type": "string"
+        },
+        {
+          "const": "batched",
+          "type": "string"
+        },
+        {
+          "const": "netting",
+          "type": "string"
+        }
+      ]
+    },
+    "transfer_protocol": {
+      "description": "Saga coordination pattern for cross-registry transfers. BREAKING v7.0.0.",
+      "anyOf": [
+        {
+          "const": "atomic",
+          "type": "string"
+        },
+        {
+          "const": "choreography",
+          "type": "string"
+        }
+      ]
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "x-cross-field-validated": true,
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

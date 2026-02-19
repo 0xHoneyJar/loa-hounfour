@@ -266,7 +266,7 @@ describe('S5: Terminal state absorbing — always(terminal_state → no outbound
               occurred_at: new Date().toISOString(),
               actor: actorId,
               payload: { [idKey]: entityId },
-              contract_version: '4.6.0',
+              contract_version: '5.0.0',
             } as DomainEvent);
 
             expect(createResult.applied).toBe(true);
@@ -294,7 +294,7 @@ describe('S5: Terminal state absorbing — always(terminal_state → no outbound
                 occurred_at: new Date().toISOString(),
                 actor: actorId,
                 payload: { [idKey]: entityId },
-                contract_version: '4.6.0',
+                contract_version: '5.0.0',
               } as DomainEvent);
 
               expect(stepResult.applied).toBe(true);

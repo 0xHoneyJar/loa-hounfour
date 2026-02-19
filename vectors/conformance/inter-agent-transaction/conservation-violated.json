@@ -1,0 +1,37 @@
+{
+  "vector_id": "conformance-inter-agent-transaction-0003",
+  "category": "inter-agent-transaction",
+  "description": "Invalid: post-balances don't conserve the amount — sender loses more than receiver gains",
+  "contract_version": "5.4.0",
+  "input": {
+    "audit_id": "660e8400-e29b-41d4-a716-446655440003",
+    "transaction_type": "peer_transfer",
+    "sender": {
+      "agent_id": "agent-alice",
+      "pre_balance_micro": "2000000",
+      "post_balance_micro": "1000000"
+    },
+    "receiver": {
+      "agent_id": "agent-bob",
+      "pre_balance_micro": "1000000",
+      "post_balance_micro": "1200000"
+    },
+    "amount_micro": "500000",
+    "conservation_check": "conserved",
+    "idempotency_key": "tx-alice-20260217-003",
+    "timestamp": "2026-02-17T10:10:00Z",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {
+    "constraint_violated": "transaction-audit-sender-conservation"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["constraint_violated"]
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "paper": "arXiv:2512.16856",
+    "violation": "sender.pre(2000000) - amount(500000) = 1500000, but sender.post = 1000000"
+  }
+}

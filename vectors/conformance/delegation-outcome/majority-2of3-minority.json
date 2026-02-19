@@ -1,0 +1,57 @@
+{
+  "vector_id": "conformance-delegation-outcome-0002",
+  "category": "delegation-outcome",
+  "description": "Majority outcome with 2 agree, 1 disagree with minority_report dissent record",
+  "contract_version": "7.0.0",
+  "input": {
+    "outcome_id": "00000000-0000-0000-0000-000000000102",
+    "tree_node_id": "governance-committee-node",
+    "outcome_type": "majority",
+    "result": { "action": "adopt_new_exchange_rate_policy", "rate_type": "oracle" },
+    "votes": [
+      {
+        "voter_id": "agent-alpha",
+        "vote": "agree",
+        "result": { "action": "adopt_new_exchange_rate_policy", "rate_type": "oracle" },
+        "confidence": 0.85,
+        "reasoning": "Oracle-based rates reduce manual governance overhead"
+      },
+      {
+        "voter_id": "agent-beta",
+        "vote": "agree",
+        "result": { "action": "adopt_new_exchange_rate_policy", "rate_type": "oracle" },
+        "confidence": 0.78
+      },
+      {
+        "voter_id": "agent-gamma",
+        "vote": "disagree",
+        "result": { "action": "keep_fixed_rate_policy" },
+        "confidence": 0.91,
+        "reasoning": "Oracle introduces external dependency risk and potential manipulation vector"
+      }
+    ],
+    "consensus_achieved": true,
+    "consensus_threshold": 0.67,
+    "dissent_records": [
+      {
+        "dissenter_id": "agent-gamma",
+        "dissent_type": "minority_report",
+        "proposed_alternative": { "action": "keep_fixed_rate_policy", "review_period_days": 90 },
+        "reasoning": "Oracle-based rate introduces external dependency risk. Fixed rates with periodic governance review provide better security guarantees.",
+        "severity": "warning",
+        "acknowledged": true
+      }
+    ],
+    "resolved_at": "2026-02-17T15:30:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.3",
+    "fr": "FR-8"
+  }
+}

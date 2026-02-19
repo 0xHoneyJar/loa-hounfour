@@ -1,0 +1,30 @@
+{
+  "vector_id": "conformance-thinking-002",
+  "category": "thinking-trace",
+  "description": "Google Gemini thinking trace — thought=true content parts",
+  "contract_version": "5.1.0",
+  "input": {
+    "provider": "google",
+    "model": "gemini-2.0-flash-thinking-exp",
+    "candidates": [{
+      "content": {
+        "parts": [
+          { "thought": true, "text": "First, let me consider the constraints..." },
+          { "text": "Based on my analysis, the optimal strategy is X." }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP"
+    }],
+    "usageMetadata": { "promptTokenCount": 80, "candidatesTokenCount": 200, "totalTokenCount": 280 }
+  },
+  "expected_output": {
+    "thinking_trace": "First, let me consider the constraints...",
+    "content": "Based on my analysis, the optimal strategy is X.",
+    "has_thinking": true
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["thinking_trace", "content", "has_thinking"]
+  }
+}

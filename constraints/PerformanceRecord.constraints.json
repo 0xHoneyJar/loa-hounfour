@@ -1,21 +1,30 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PerformanceRecord",
-  "contract_version": "4.6.0",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
       "id": "performance-dividend-split",
       "expression": "dividend_target == 'mixed' => dividend_split_bps != null",
       "severity": "error",
       "message": "dividend_split_bps is required when dividend_target is \"mixed\"",
-      "fields": ["dividend_target", "dividend_split_bps"]
+      "fields": ["dividend_target", "dividend_split_bps"],
+      "type_signature": {
+        "dividend_target": "string",
+        "dividend_split_bps": "number"
+      }
     },
     {
       "id": "performance-validated-by",
       "expression": "outcome != null && outcome.outcome_validated == true => outcome.validated_by != null && outcome.validated_by.length > 0",
       "severity": "warning",
       "message": "outcome_validated is true but validated_by is empty or missing",
-      "fields": ["outcome.outcome_validated", "outcome.validated_by"]
+      "fields": ["outcome.outcome_validated", "outcome.validated_by"],
+      "type_signature": {
+        "outcome.outcome_validated": "boolean",
+        "outcome.validated_by": "array"
+      }
     }
   ]
 }
