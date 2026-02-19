@@ -2,6 +2,10 @@
 
 # @0xhoneyjar/loa-hounfour
 
+[![Version](https://img.shields.io/badge/version-7.0.0-blue.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
+[![Schemas](https://img.shields.io/badge/schemas-53-purple.svg)](SCHEMA-CHANGELOG.md)
+
 > Documentation current as of v7.0.0
 
 Typed, validated protocol contracts for AI agent coordination. TypeBox schemas with dual JSON Schema 2020-12 output.
