@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Separation of Concerns
 
 > **Source**: PR #78 - Separation of Concerns Framework

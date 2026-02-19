@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Custody_change Transfer Choreography
 
 > Auto-generated from `TRANSFER_CHOREOGRAPHY.custody_change`. Do not edit manually.

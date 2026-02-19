@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Context Directory
 
 This directory is for user-provided context that feeds into the PRD discovery process (`/plan-and-analyze`).

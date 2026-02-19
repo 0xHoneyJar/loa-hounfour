@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # BUTTERFREEZONE Capability Schema v1.0
 
 > **Defined in**: `0xHoneyJar/loa`

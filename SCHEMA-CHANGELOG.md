@@ -1,8 +1,507 @@
+<!-- docs-version: 7.0.0 -->
+
 # Schema Changelog
 
 Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records what changed, when, and why — enabling consumers to answer "what's different between versions?" at the schema level.
 
 > Inspired by Confluent's Schema Registry for Kafka, which tracks schema evolution across versions and enforces compatibility rules.
+
+---
+
+## v7.0.0
+
+**Theme:** Coordination — saga patterns, conflict resolution, governance proposals, monetary policy coupling.
+
+### New Schemas
+
+#### `BridgeTransferSaga` (composition)
+- Garcia-Molina saga pattern for cross-registry value transfer
+- 8-state machine: `initiated` → `reserving` → `transferring` → `settling` → `settled`, with compensation steps
+- Participant tracking, timeout enforcement, amount conservation invariants
+- `additionalProperties: false`
+
+#### `DelegationOutcome` (governance/composition)
+- Conflict resolution recording with 4 outcome types: `unanimous`, `majority`, `deadlock`, `escalation`
+- First-class `DissentRecord` capturing minority opinion
+- `additionalProperties: false`
+
+#### `MonetaryPolicy` (economy/composition)
+- Coupling invariant binding `MintingPolicyConfig` to `ConservationPropertyRegistry`
+- Governance review triggers for policy changes
+- `additionalProperties: false`
+
+#### `PermissionBoundary` (governance/composition)
+- MAY permission semantics with `ReportingRequirement` and `RevocationPolicy`
+- Enables constrained experimentation alongside MUST/MUST_NOT prohibitions
+- `additionalProperties: false`
+
+#### `GovernanceProposal` (governance/composition)
+- Collective decision mechanism with weighted voting (Ostrom Principle 3)
+- Proposal status state machine and `ProposedChange` descriptors
+- `additionalProperties: false`
+
+### Breaking Changes
+
+#### `RegistryBridge` — required `transfer_protocol` field
+- Existing bridge instances must add `transfer_protocol: { saga_type: 'atomic' }` (or `'choreography'`)
+- See [MIGRATION.md](./MIGRATION.md)
+
+### New Builtins (23 → 31)
+
+| Builtin | Purpose |
+|---------|---------|
+| `saga_amount_conserved` | Validate saga step amounts balance |
+| `saga_steps_sequential` | Validate unique step IDs |
+| `saga_timeout_valid` | Validate step durations within limits |
+| `outcome_consensus_valid` | Validate consensus outcome consistency |
+| `monetary_policy_solvent` | Validate supply within ceiling |
+| `permission_boundary_active` | Validate boundary completeness |
+| `proposal_quorum_met` | Validate weighted vote quorum |
+| `proposal_weights_normalized` | Validate weights sum to 1.0 |
+
+### New Constraints
+- 5 new constraint files: `BridgeTransferSaga.constraints.json`, `DelegationOutcome.constraints.json`, `MonetaryPolicy.constraints.json`, `PermissionBoundary.constraints.json`, `GovernanceProposal.constraints.json`
+
+### Fixes
+- **F-007** — `as any` cast for `x-cross-field-validated` replaced with `withAnnotation<T>()` utility
+- **F-008** — `BridgeInvariant.invariant_id` pattern expanded from `^B-\d{1,2}$` to `^B-\d{1,4}$`
+- **F-020** — `parseExpr()` return type safety restored with `ConstraintASTNode` discriminated union + `asRecord()` utility eliminating 14 `as any` casts
+
+### Version Bump
+- `CONTRACT_VERSION`: `6.0.0` → `7.0.0`
+- `MIN_SUPPORTED_VERSION`: `5.0.0` → `6.0.0`
+
+---
+
+## v6.0.0
+
+**Theme:** Composition — liveness properties, scoped trust, registry bridging, delegation trees, schema graph operations.
+
+### New Schemas
+
+#### `LivenessProperty` (composition)
+- 6 temporal logic properties with bounded LTL formalization
+- Expresses temporal guarantees over schema evolution
+
+#### `CapabilityScopedTrust` (composition)
+- 6 trust dimensions: `data_access`, `financial`, `delegation`, `model_selection`, `governance`, `external_communication`
+- Replaces flat `trust_level` with per-capability trust scoping
+- Trust levels per scope: `restricted`, `provisional`, `verified`, `audited`
+
+#### `RegistryBridge` (composition)
+- Cross-economy bridge treaty with `BridgeInvariant`, `ExchangeRateSpec`, `SettlementPolicy`
+- Connects isolated economic registries for inter-economy operations
+
+#### `DelegationTree` (composition)
+- Recursive tree structure for delegation hierarchies
+- `chainToTree()` / `treeToChain()` converters for chain ↔ tree interop
+
+### Breaking Changes
+
+#### `AgentIdentity.trust_level` replaced by `trust_scopes`
+- Flat `trust_level` field removed in favor of `trust_scopes: CapabilityScopedTrust`
+- 6-dimensional capability-scoped trust replaces single trust value
+- See [MIGRATION.md](./MIGRATION.md) for mapping guide
+
+### New Features
+
+#### Constraint type system
+- `type_signature` field on constraints for static type information
+- CI-time validation via `validateConstraintFile()`
+
+#### Schema graph operations
+- `extractReferences()` — extract cross-schema references from a schema
+- `buildSchemaGraph()` — build dependency graph from schema set
+- Cycle detection, reachability, topological sort
+
+#### Constraint type checker
+- Static validation of constraint expressions against declared type signatures
+
+### New Builtins (18 → 23)
+
+| Builtin | Purpose |
+|---------|---------|
+| `tree_budget_conserved` | Validate delegation tree budget conservation |
+| `tree_authority_narrowing` | Validate authority narrows down the tree |
+| `trust_scopes_valid` | Validate trust scope completeness |
+| `object_keys_subset` | Validate object keys are subset of allowed set |
+| `unique_values` | Validate array contains unique values |
+
+---
+
+## v5.5.0
+
+**Theme:** Conservation — formal safety properties, branded types, JWT boundaries, evaluator specs.
+
+### New Schemas
+
+#### `ConservationPropertyRegistry` (core/composition)
+- 14 conservation invariants with LTL formalization for economic safety properties
+- Tracks invariant coverage across the schema graph
+
+#### `JwtBoundarySpec` (core)
+- JWT verification pipeline specification with canonical 6-step verification
+- Boundary enforcement for authentication tokens
+
+#### `AgentIdentity` (core)
+- Unified agent identity schema with trust levels, capabilities, and registration metadata
+- Foundation for scoped trust introduced in v6.0.0
+
+### New Features
+
+#### Branded arithmetic types
+- `MicroUSD`, `BasisPoints`, `AccountId` with compile-time unit safety via TypeScript branded types
+- Prevents cross-unit arithmetic errors at the type level
+
+#### Evaluator builtin specifications
+- `EVALUATOR_BUILTIN_SPECS` map with signature, description, examples, and edge cases for all builtins
+- Provides self-documenting builtin registry
+
+#### Cross-schema reference graph
+- `x-references` annotations enabling automated dependency tracking between schemas
+
+### New Builtins (10 → 18)
+- Conservation builtins, BigInt builtins, and registry builtins added (8 total)
+
+---
+
+## v5.4.0
+
+**Theme:** Agent Economy — delegation chains, inter-agent audit, ensemble capabilities.
+
+### New Schemas
+
+#### `DelegationChain` (governance)
+- Multi-step delegation with authority narrowing
+- Each link in the chain constrains permissions relative to its parent
+
+#### `InterAgentTransactionAudit` (economy)
+- Cross-agent transaction audit trail
+- Enables tracing of value flow between agents
+
+#### `EnsembleCapabilityProfile` (model)
+- Multi-model ensemble capability declaration
+- Describes what an ensemble of models can jointly achieve
+
+### Schema Modifications
+
+#### `GovernanceConfig` — sandbox mode
+- `sandbox` field for testing governance rules without enforcement
+
+#### `BudgetScope` — preference field
+- `preference` field for agent-level budget preferences
+
+---
+
+## v5.3.0
+
+**Theme:** Epistemic Release — three-valued logic, constraint proposals, conformance surfaces.
+
+### New Schemas / Types
+
+#### `EpistemicTristate` (constraints)
+- Three-valued logic: `affirmed`, `denied`, `unknown`
+- Enables conservation constraints to express uncertainty rather than forcing binary outcomes
+
+#### `ConstraintProposal` (constraints)
+- Agent-authored constraint proposals
+- Allows agents to propose new constraints for governance review
+
+### New Features
+
+#### Conformance surface formalization
+- Formal definition of the conformance surface for schema validation
+- Provides a boundary between "validated" and "unvalidated" data
+
+---
+
+## v5.2.0
+
+**Theme:** Agent Rights — resource reservation, structured audit logging.
+
+### New Schemas
+
+#### `AgentCapacityReservation` (model)
+- Resource reservation for agents
+- Ensures agents can reserve compute capacity before execution
+
+#### `AuditTrailEntry` (governance)
+- Structured audit logging
+- Canonical format for recording agent actions and governance events
+
+---
+
+## v5.1.0
+
+**Theme:** Provider Conformance & Severity Ladders — model provider registry, conformance vectors, graduated sanctions.
+
+### New Schemas
+
+#### `ModelProviderSpec` (model)
+- Provider registry entry with capabilities, pricing, and conformance level
+- Enables multi-provider ecosystems with consistent capability description
+
+#### `ConformanceLevel` (model)
+- Trust vocabulary: `self_declared`, `community_verified`, `protocol_certified`
+- Graduated trust for provider claims
+
+#### `ConformanceVector` (model)
+- Golden test vectors for provider conformance validation
+- Machine-readable test cases for verifying provider behavior
+
+#### `SanctionSeverity` (governance)
+- Graduated severity vocabulary with severity ladder
+- Excludes `terminated` (reserved for lifecycle state)
+
+#### `ReconciliationMode` (economy)
+- Pricing reconciliation mode: `protocol_authoritative`, `provider_invoice_authoritative`
+- Governs how pricing disputes between protocol and provider are resolved
+
+#### `ProviderSummary` (core)
+- Provider summary for discovery documents
+- Embedded in `ProtocolDiscovery.providers` array
+
+### Schema Modifications
+
+#### `BillingEntry` — new optional fields
+- `source_completion_id` — UUID linking to CompletionResult
+- `pricing_snapshot` — Pricing rates used for computation
+- `reconciliation_mode` — How pricing disputes are resolved
+- `reconciliation_delta_micro` — Delta between computed and invoiced cost
+
+#### `CompletionResult` — new optional field
+- `pricing_applied` — Pricing rates actually applied
+
+#### `Sanction` — new optional fields
+- `severity_level` — Graduated severity (excludes `terminated`)
+- `duration_seconds` — Duration (0 = indefinite)
+- `appeal_dispute_id` — UUID linking to DisputeRecord
+- `escalated_from` — Predecessor sanction_id
+
+#### `ProtocolDiscovery` — new optional fields
+- `providers` — Array of ProviderSummary
+- `conformance_suite_version` — Conformance suite version
+
+### New Utilities
+
+| Function | Description |
+|----------|-------------|
+| `computeCostMicro(pricing, usage)` | BigInt-safe pricing computation |
+| `computeCostMicroSafe(pricing, usage)` | Never-throw variant |
+| `verifyPricingConservation(billing, usage)` | Conservation audit |
+| `matchConformanceOutput(expected, actual, rules)` | Conformance matching engine |
+| `getSeverityEntry(severity)` | Severity ladder lookup |
+| `compareSeverity(a, b)` | Severity comparison |
+
+### Version Bump
+- `CONTRACT_VERSION`: `5.0.0` → `5.1.0`
+- `MIN_SUPPORTED_VERSION`: `4.0.0` → `5.0.0`
+
+---
+
+## v5.0.0
+
+**Theme:** Multi-model protocol — completion, ensemble, routing, constraint grammar.
+
+### New Schemas (14)
+
+#### ModelPort Schemas (6)
+
+#### `CompletionRequest` (model)
+- Model completion request envelope with prompt, parameters, and tool definitions
+
+#### `CompletionResult` (model)
+- Model completion result with usage, cost, and finish reason
+
+#### `ModelCapabilities` (model)
+- Model capability descriptor: context window, modalities, tool support
+
+#### `ProviderWireMessage` (model)
+- Provider-agnostic message format for cross-provider communication
+
+#### `ToolDefinition` (model)
+- Tool definition for function calling with JSON Schema parameter specification
+
+#### `ToolResult` (model)
+- Tool execution result with typed output
+
+#### Ensemble Schemas (3)
+
+#### `EnsembleStrategy` (model)
+- Strategy vocabulary: `first_complete`, `best_of_n`, `consensus`
+
+#### `EnsembleRequest` (model)
+- Multi-model ensemble request with strategy and candidate models
+
+#### `EnsembleResult` (model)
+- Multi-model ensemble result with cost aggregation across candidates
+
+#### Routing Schemas (5)
+
+#### `AgentRequirements` (model)
+- Agent model requirement declaration — minimum capabilities needed
+
+#### `BudgetScope` (model)
+- Budget enforcement scope with per-project cost limits
+
+#### `RoutingResolution` (model)
+- Routing decision record — traces why a particular model was selected
+
+#### `ExecutionMode` (model)
+- Execution mode vocabulary: `native`, `remote`
+
+#### `ProviderType` (model)
+- Provider type vocabulary: `openai`, `anthropic`
+
+### New Features
+
+#### Sub-package barrel exports
+- `@0xhoneyjar/loa-hounfour/core` — Agent, Conversation, Transfer, JWT, Health, Discovery
+- `@0xhoneyjar/loa-hounfour/economy` — Billing, Escrow, Stake, Credit, Dividend
+- `@0xhoneyjar/loa-hounfour/model` — Completion, Ensemble, Routing, ModelCapabilities
+- `@0xhoneyjar/loa-hounfour/governance` — Sanction, Dispute, Reputation, Performance
+- `@0xhoneyjar/loa-hounfour/constraints` — Constraint grammar, rule definitions
+
+#### Constraint grammar
+- JSON-serializable constraint rules for expressing schema invariants
+- Imported from `@0xhoneyjar/loa-hounfour/constraints`
+
+#### `billing.*` metadata namespace
+- Reserved namespace for billing metadata keys: `billing.entry_id`, `billing.cost_micro`, `billing.reconciled`, `billing.provider`
+
+### Breaking Changes
+
+#### Barrel decomposition
+- Sub-package barrel exports introduced — direct schema file imports may have moved
+- Root barrel (`@0xhoneyjar/loa-hounfour`) continues to export everything
+
+### Version Bump
+- `CONTRACT_VERSION`: `4.4.0` → `5.0.0`
+- `MIN_SUPPORTED_VERSION`: `3.0.0` → `4.0.0`
+
+---
+
+## v4.4.0
+
+**Theme:** Economy — financial instruments for escrow, staking, dividends, and credit.
+
+### New Schemas
+
+#### `EscrowEntry` (economy)
+- Escrow with 5-state machine: `created` → `funded` → `released` / `refunded` / `expired`
+- `additionalProperties: false`
+
+#### `StakePosition` (economy, experimental)
+- Staking positions with vesting schedules
+- `additionalProperties: false`
+
+#### `CommonsDividend` (economy, experimental)
+- Commons fund dividend distribution
+- `additionalProperties: false`
+
+#### `MutualCredit` (economy, experimental)
+- Mutual credit lines between agents
+- `additionalProperties: false`
+
+### New Vocabulary
+- **Economic choreography vocabulary** (`vocabulary/economic-choreography`): escrow lifecycle, staking, dividend, and credit flow choreographies
+
+---
+
+## v4.3.0
+
+**Theme:** Reputation — agent reputation scoring with decay.
+
+### New Schemas
+
+#### `ReputationScore` (governance)
+- Agent reputation score with temporal decay parameters
+- `additionalProperties: false`
+
+### New Vocabulary
+- **Reputation vocabulary** (`vocabulary/reputation`): reputation scoring constants and decay parameters
+- **`BillingRecipient` role extended**: `agent_performer` and `commons` roles added
+
+---
+
+## v4.2.0
+
+**Theme:** Governance — sanctions, disputes, and validated outcomes.
+
+### New Schemas
+
+#### `Sanction` (governance)
+- Governance sanction against an agent
+- 5 severity levels: `warning`, `rate_limited`, `pool_restricted`, `suspended`, `terminated`
+- 7 violation types: `content_policy`, `rate_abuse`, `billing_fraud`, `identity_spoofing`, `resource_exhaustion`, `community_guideline`, `safety_violation`
+- `additionalProperties: false`
+
+#### `DisputeRecord` (governance)
+- Dispute filed against an agent or outcome
+- `additionalProperties: false`
+
+#### `ValidatedOutcome` (governance)
+- Validated governance outcome record
+- `additionalProperties: false`
+
+### New Vocabulary
+- **Sanctions vocabulary** (`vocabulary/sanctions`): severity levels, violation types, escalation rules
+- **6 sanction lifecycle reason codes**: `sanction_warning_issued`, `sanction_rate_limited`, `sanction_pool_restricted`, `sanction_suspended`, `sanction_terminated`, `sanction_appealed_successfully`
+
+---
+
+## v4.1.0
+
+**Theme:** Performance — agent performance and contribution tracking.
+
+### New Schemas
+
+#### `PerformanceRecord` (governance)
+- Agent performance metrics record
+- `additionalProperties: false`
+
+#### `ContributionRecord` (governance)
+- Contribution assessment for peer review
+- `additionalProperties: false`
+
+---
+
+## v4.0.0
+
+**Theme:** Breaking Foundation — signed currency, envelope relaxation, routing constraints, new aggregate types.
+
+### New Schemas
+
+#### `RoutingConstraint` (constraints)
+- Routing constraint schema for model selection rules
+
+### Breaking Changes
+
+#### `MicroUSD` now signed by default
+- Pattern changed from `^[0-9]+$` to `^-?[0-9]+$`
+- `MicroUSDUnsigned` introduced for non-negative enforcement
+- `MicroUSDSigned` becomes a deprecated alias for `MicroUSD`
+
+#### `DomainEvent` / `DomainEventBatch` envelope relaxation
+- Both schemas changed to `additionalProperties: true`
+- Allows consumer-defined extensions on event envelopes
+
+#### All 6 `StreamEvent` sub-schemas relaxed
+- `StreamStart`, `StreamChunk`, `StreamToolCall`, `StreamUsage`, `StreamEnd`, `StreamError` — all changed to `additionalProperties: true`
+
+### New Utilities
+
+#### Type guards for new aggregates
+| Guard | Aggregate |
+|-------|-----------|
+| `isPerformanceEvent()` | performance |
+| `isGovernanceEvent()` | governance |
+| `isReputationEvent()` | reputation |
+| `isEconomyEvent()` | economy |
+
+### Version Bump
+- `CONTRACT_VERSION`: `3.2.0` → `4.4.0` (after all v4.x releases)
+- `MIN_SUPPORTED_VERSION`: `2.4.0` → `3.0.0`
 
 ---
 

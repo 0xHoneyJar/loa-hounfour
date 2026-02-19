@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision Registry
 
 Speculative insights captured during bridge loop iterations.

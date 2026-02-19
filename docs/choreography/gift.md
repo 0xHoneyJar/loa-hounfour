@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Gift Transfer Choreography
 
 > Auto-generated from `TRANSFER_CHOREOGRAPHY.gift`. Do not edit manually.

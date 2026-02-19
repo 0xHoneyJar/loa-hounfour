@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Schema Evolution Strategy
 
 > Trade-offs and recommended patterns for evolving `@0xhoneyjar/loa-hounfour` schemas

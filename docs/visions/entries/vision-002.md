@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 002: Bash Template Rendering Anti-Pattern
 
 ## Source

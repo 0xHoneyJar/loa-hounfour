@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Jam Geometry — Multi-Model Parallel Review Architecture
 
 > Design document for the Jam collaboration geometry.

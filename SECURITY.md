@@ -1,12 +1,14 @@
+<!-- docs-version: 7.0.0 -->
+
 # Security Policy
 
 ## Supported Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.2.x   | :white_check_mark: |
-| 0.1.x   | :white_check_mark: |
-| < 0.1   | :x:                |
+| 7.x     | :white_check_mark: |
+| 6.x     | :white_check_mark: |
+| < 6.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -104,4 +106,4 @@ Security updates are announced via:
 
 ---
 
-Thank you for helping keep Loa secure!
+Thank you for helping keep loa-hounfour secure!

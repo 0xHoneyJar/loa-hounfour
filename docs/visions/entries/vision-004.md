@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 004: Conditional Constraints for Feature-Flagged Behavior
 
 ## Source

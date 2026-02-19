@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 ### GNU AFFERO GENERAL PUBLIC LICENSE
 
 Version 3, 19 November 2007

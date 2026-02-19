@@ -1,244 +1,154 @@
-# Sprint Plan: v7.0.0 Stabilization — Pre-Merge Hygiene
+<!-- docs-version: 7.0.0 -->
 
-**Status:** Draft
-**Cycle:** cycle-016 (continued)
-**Source:** [PR #14 — Bridgebuilder Reviews I–VIII](https://github.com/0xHoneyJar/loa-hounfour/pull/14)
-**Branch:** `feature/v5.0.0-multi-model`
-**Goal:** Resolve all remaining pre-merge issues to deliver a stable v7.0.0 for downstream consumption. Zero actionable code findings remain — this is build hygiene, consumer documentation, and deferred LOW findings.
+# Sprint Plan — Documentation Overhaul: Grounded Truth for v7.0.0
 
----
-
-## Overview
-
-| Metric | Value |
-|--------|-------|
-| Sprints | 2 |
-| Total Tasks | 13 |
-| Current State | 3,902 tests passing, 153 files, 31 builtins, 3 TypeScript errors |
-| Target State | 0 TypeScript errors, all barrels wired, CHANGELOG + MIGRATION complete |
-| Risk Level | Low — all changes are additive or corrective, no architectural work |
-
-### Issue Source Mapping
-
-| Issue | Source | Severity | Sprint |
-|-------|--------|----------|--------|
-| 3 TypeScript errors in `signature.ts` | Build output | P0 | Sprint 1 |
-| Stale test description strings (26/29 → 31) | Bridge Review VI | P1 | Sprint 1 |
-| Composition barrel not in top-level exports | Bridge Review VIII | P1 | Sprint 1 |
-| Composition barrel missing v7.0.0 types | Code audit | P1 | Sprint 1 |
-| F-009: Property test missing budget assertion | Bridge v6.0.0 iter 1 | LOW | Sprint 1 |
-| CHANGELOG.md stale (stuck at v1.1.0) | Bridge Review VIII | P1 | Sprint 2 |
-| No MIGRATION.md for breaking changes | Bridge Review VIII | P1 | Sprint 2 |
-| No conformance vector consumer docs | Bridge Review VIII | LOW | Sprint 2 |
-| F-010: MintingPolicy single-constraint gap | Bridge v6.0.0 iter 1 | LOW | Sprint 2 |
-
-### Inter-Sprint Gates
-
-| Gate | Condition |
-|------|-----------|
-| **Green Suite** | All 3,902+ tests pass |
-| **Type Check Clean** | `tsc --noEmit` produces 0 errors |
-| **Schema Check** | `npm run schema:check` passes |
-| **Constraint Validation** | `npm run check:constraints` passes |
+**Cycle:** cycle-018
+**PRD:** docs/requirements/prd.md
+**Version:** v7.0.1 (documentation-only, non-breaking)
+**Source:** [#15 — [DOCS] improving documentation](https://github.com/0xHoneyJar/loa-hounfour/issues/15)
+**Date:** 2026-02-19
 
 ---
 
-## Sprint 1: Build Hygiene & Type Safety (P0)
+## Sprint 1: Documentation Overhaul (Global ID: 71)
 
-**Goal:** Achieve a clean `tsc --noEmit` build, fix all stale test metadata, wire all barrels correctly, and close the last deferred property test gap.
+**Goal:** Bring all documentation into alignment with v7.0.0 codebase reality.
 
-**Global Sprint ID:** 68
-**Depends on:** Nothing (all v7.0.0 feature work complete)
-**Estimated New Tests:** ~5
+### Ground Truth (verified 2026-02-19)
 
-### S1-T1: Fix `jose` Import Types in `signature.ts`
-
-**Source:** `tsc --noEmit` errors (lines 43, 113)
-**File:** `src/utilities/signature.ts`
-
-**Description:** The `jose` v6 library restructured its exports. `jose.KeyLike` is no longer accessible as a namespace member. Import `KeyLike` as a named type import instead.
-
-**Acceptance Criteria:**
-- `import type { KeyLike } from 'jose'` (or equivalent correct import) replaces `jose.KeyLike`
-- Both `KeyResolver` type (line 43) and `key` variable (line 113) use the correct type
-- `tsc --noEmit` produces no errors for these two locations
-- Existing signature tests continue to pass
-
-### S1-T2: Fix `canonicalize` Import in `signature.ts`
-
-**Source:** `tsc --noEmit` error (line 56)
-**File:** `src/utilities/signature.ts`
-
-**Description:** The `canonicalize` package's default export doesn't match the expected call signature under the current TypeScript module resolution. Fix the import to use the correct ESM import pattern for the `canonicalize` package.
-
-**Acceptance Criteria:**
-- `canonicalize(rest)` call compiles without error
-- `tsc --noEmit` produces no errors for line 56
-- `canonicalizeProviderSpec()` function continues to work correctly
-- Existing signature tests continue to pass
-
-### S1-T3: Update Stale Test Description Strings
-
-**Source:** Bridge Review VI audit
-**Files:** 5 test files with 9 stale `it('...')` description strings
-
-**Description:** Test assertion values were updated from 26/29 → 31 when builtins were added, but the human-readable `it()` description strings were not updated. Fix all 9 occurrences across 5 files.
-
-**Acceptance Criteria:**
-- `tests/constraints/tree-builtins.test.ts` — 2 descriptions updated (26 → 31)
-- `tests/constraints/coordination-builtins.test.ts` — 2 descriptions updated (26 → 31)
-- `tests/constraints/governance-builtins.test.ts` — 2 descriptions updated (29 → 31)
-- `tests/constraints/evaluator-spec.test.ts` — 1 description updated (26 → 31)
-- `tests/constraints/constraint-ast-node.test.ts` — 2 descriptions updated (26 → 31)
-- All 3,902 tests continue to pass
-
-### S1-T4: Wire Composition Barrel into Top-Level Exports
-
-**Source:** Bridge Review VIII, code audit
-**File:** `src/index.ts`
-
-**Description:** `src/composition/index.ts` exists as a well-structured barrel but is not re-exported from `src/index.ts`. This means `import { RegistryBridgeSchema } from '@0xhoneyjar/loa-hounfour'` works (via economy barrel) but the composition sub-package is invisible from the main entry point. Add the re-export.
-
-**Acceptance Criteria:**
-- `src/index.ts` includes `export * from './composition/index.js'`
-- No duplicate export conflicts (composition barrel re-exports a subset of economy + governance)
-- NOTE: If duplicate exports arise, use explicit named re-export to avoid conflicts
-- `tsc --noEmit` clean after addition
-
-### S1-T5: Extend Composition Barrel with v7.0.0 Types
-
-**Source:** SDD §1.3 — Subpath Exports
-**File:** `src/composition/index.ts`
-
-**Description:** The composition barrel was created in v6.0.0 and includes registry bridges, minting policies, and delegation trees. v7.0.0 added saga, outcome, permission, and proposal types that are cross-domain composition primitives. Extend the barrel.
-
-**Acceptance Criteria:**
-- BridgeTransferSaga types re-exported from economy domain
-- DelegationOutcome types re-exported from governance domain
-- PermissionBoundary types re-exported from governance domain
-- GovernanceProposal types re-exported from governance domain
-- MonetaryPolicy types re-exported from economy domain
-- No import cycle introduced
-- `tsc --noEmit` clean
-
-### S1-T6: F-009 — Property Test Budget Preservation Assertion
-
-**Source:** Bridge v6.0.0 iteration 1, deferred LOW finding
-**File:** `tests/governance/delegation-tree.test.ts` (or nearest property test file)
-
-**Description:** The property test for delegation tree roundtrip (`chainToTree → treeToChain`) validates structural integrity but does not assert budget preservation across the roundtrip. Add a `budget_allocated_micro` conservation check.
-
-**Acceptance Criteria:**
-- Property test asserts that sum of child budgets is preserved through roundtrip
-- At least 1 new test case
-- All existing tests pass
-
-### S1-T7: Verify Clean Build
-
-**Source:** Gate requirement
-**Commands:** `tsc --noEmit`, `vitest run`
-
-**Description:** After all Sprint 1 tasks, verify the build is completely clean.
-
-**Acceptance Criteria:**
-- `tsc --noEmit` exits 0 with no errors
-- All tests pass (3,902+)
-- No new warnings introduced
+| Metric | Value | Source |
+|--------|-------|--------|
+| CONTRACT_VERSION | 7.0.0 | `src/version.ts:13` |
+| MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
+| package.json version | 7.0.0 | `package.json:3` |
+| Schema files | 53 | `ls src/schemas/**/*.ts` |
+| Module barrels | 9 | `ls src/*/index.ts` |
+| Package exports | 10 | `package.json exports field` |
+| Constraint files | 40 | `ls constraints/` (39 .json + 1 GRAMMAR.md) |
+| Tests | 3,908 | `npm run test` |
 
 ---
 
-## Sprint 2: Consumer Documentation & Release Readiness (P1)
+### S1-T1: README Rewrite — Grounded in Truth (FR-1)
 
-**Goal:** Ensure downstream consumers (arrakis, loa-finn) can adopt v7.0.0 with full understanding of breaking changes, migration paths, and how to use conformance vectors. Close the last deferred constraint gap.
-
-**Global Sprint ID:** 69
-**Depends on:** Sprint 1 (clean build)
-**Estimated New Tests:** ~3
-
-### S2-T1: Update CHANGELOG.md
-
-**Source:** Bridge Review VIII
-**File:** `CHANGELOG.md`
-
-**Description:** CHANGELOG.md is stuck at v1.1.0 (from Feb 13). It needs entries for v5.5.0 (Conservation-Aware), v6.0.0 (Composition-Aware), and v7.0.0 (Coordination-Aware). Use conventional changelog format with Added/Changed/Fixed/Breaking sections.
+**What:** Complete rewrite of `README.md` with abstract value proposition, accurate inventory, usage examples, and version tag.
 
 **Acceptance Criteria:**
-- `## [7.0.0]` section with all v7.0.0 additions (16 new schemas, 8 new builtins, saga/outcome/permission/proposal)
-- `## [6.0.0]` section with composition primitives (registry bridges, delegation trees, constraint type system, schema graph)
-- `## [5.5.0]` section with conservation foundation (branded types, JWT boundary, evaluator specs, agent identity)
-- Breaking changes clearly marked in each section
-- Source references to PR #14 and relevant issues
+- [ ] Version tag at top: "Documentation current as of v7.0.0"
+- [ ] Zero references to `1.0.0` as current version
+- [ ] Abstract value prop: what, who, why, competitors, what we DON'T do
+- [ ] Schema count matches source (53 schema files across 9 modules)
+- [ ] Test count matches `npm run test` (3,908)
+- [ ] Constraint count matches `constraints/` (40 files)
+- [ ] Module listing from `src/*/index.ts` (9 modules)
+- [ ] Package exports from `package.json` (10 export paths)
+- [ ] Usage examples: import patterns, validation, constraint evaluation, cross-language JSON Schema
+- [ ] loa-finn and arrakis as reference consumers, not entire framing
+- [ ] "What we don't do" section present
+- [ ] Every numeric claim cites `file:line` or verifiable command
 
-### S2-T2: Create MIGRATION.md
+### S1-T2: Fix Stale Version References (FR-2)
 
-**Source:** Bridge Review VIII, SDD §6
-**File:** `MIGRATION.md`
+**What:** Update MIGRATION.md and SECURITY.md to reflect v7.0.0 reality.
 
-**Description:** No migration guide exists for the v5.5.0 → v7.0.0 breaking changes. Downstream consumers need step-by-step instructions for:
-- `trust_level` → `trust_scopes` migration (v6.0.0)
-- `RegistryBridge` + required `transfer_protocol` field (v7.0.0)
-- New constraint file schema additions
-- Evaluator builtin count changes (23 → 31)
-
-**Acceptance Criteria:**
-- Clear before/after code examples for each breaking change
-- `trust_level` → `trust_scopes` migration with TypeScript code snippet
-- `RegistryBridge.transfer_protocol` addition with minimal valid example
-- Version-by-version migration path (v5.4.0 → v5.5.0 → v6.0.0 → v7.0.0)
-- Links to relevant SDD sections and PR #14 for context
-
-### S2-T3: Add Conformance Vector Consumer README
-
-**Source:** Bridge Review VIII
-**File:** `vectors/conformance/README.md`
-
-**Description:** The `vectors/conformance/` directory contains 21 subdirectories with JSON test vectors but no documentation explaining how to use them. Cross-language consumers (Python, Go, Rust) need to understand the vector format, validation approach, and how to write a conformance runner.
+**Targets:**
+- `MIGRATION.md:110-139` — Duplicate version matrix from v5.1.0 era (stale — v7.0.0 matrix is at top)
+- `SECURITY.md:5-9` — Supported versions show v0.2.x and v0.1.x
 
 **Acceptance Criteria:**
-- Vector format documented (JSON structure, field semantics)
-- Example of running vectors in TypeScript (reference to existing `test:vectors` script)
-- Example schema for a cross-language runner (pseudocode or schema)
-- List of all 21 vector categories with brief description
-- Instructions for adding new vectors
+- [ ] MIGRATION.md stale v5.1.0 version matrix and consumer upgrade matrix removed (v7.0.0 matrix at line 110 is the correct one)
+- [ ] SECURITY.md supported versions: 7.x supported, 6.x supported, <6.0 unsupported
+- [ ] `grep -n '0\.2\|0\.1\.x' SECURITY.md` returns zero hits in version context
 
-### S2-T4: F-010 — MintingPolicy Constraint Strengthening
+### S1-T3: SCHEMA-CHANGELOG Catch-Up (FR-3)
 
-**Source:** Bridge v6.0.0 iteration 1, deferred LOW finding
-**File:** `constraints/MintingPolicy.constraints.json`
+**What:** Add entries for v4.0.0 through v7.0.0 to SCHEMA-CHANGELOG.md following existing per-schema format.
 
-**Description:** MintingPolicy constraints file has only one constraint. MonetaryPolicy (v7.0.0) partially addresses this by coupling minting to conservation, but MintingPolicy itself should validate that `max_supply_micro` is non-negative and that `policy_id` follows the expected pattern.
+**Source material:** MIGRATION.md entries + CHANGELOG.md + actual schema files in `src/`.
 
-**Acceptance Criteria:**
-- At least 1 additional constraint added to `MintingPolicy.constraints.json`
-- Constraint validates `max_supply_micro` is a valid non-negative BigInt string
-- Constraint file passes `check:constraints` validation
-- Tests verify the new constraint evaluates correctly
-
-### S2-T5: Pre-Merge Verification Suite
-
-**Source:** Gate requirement
-**Commands:** All check scripts
-
-**Description:** Run the complete verification suite to confirm merge readiness.
-
-**Acceptance Criteria:**
-- `npm run typecheck` — 0 errors
-- `npm run test` — all pass
-- `npm run schema:check` — all pass
-- `npm run vectors:check` — all pass
-- `npm run check:constraints` — all pass (or document known limitations)
-- `npm run check:all` — clean exit
-
-### S2-T6: Update PR #14 Description for Merge
-
-**Source:** Final step
-**Target:** PR #14 body
-
-**Description:** Update the PR description with a comprehensive summary of everything delivered across v5.5.0 → v7.0.0, including test counts, schema counts, builtin counts, and a link to MIGRATION.md for reviewers.
+**Key additions:**
+- v7.0.0: BridgeTransferSaga, DelegationOutcome, MonetaryPolicy, PermissionBoundary, GovernanceProposal, typed constraint AST
+- v6.0.0: LivenessProperty, CapabilityScopedTrust, RegistryBridge, DelegationTree, SchemaGraph, 23 evaluator builtins
+- v5.5.0: Conservation invariants (14 LTL-formalized), JwsBoundarySpec, branded arithmetic, AgentIdentity with trust levels
+- v5.4.0: DelegationChain, InterAgentTransactionAudit, EnsembleCapabilityProfile, GovernanceConfig sandbox
+- v5.3.0: EpistemicTristate, ConstraintProposal, conformance surface
+- v5.2.0: Agent rights schemas, capacity reservations, audit trail
+- v5.1.0: ModelProviderSpec, ConformanceLevel, ConformanceVector, SanctionSeverity, ReconciliationMode, ProviderSummary
+- v5.0.0: CompletionRequest/Result, ModelCapabilities, Ensemble*, Routing*, ProviderType, constraint grammar
+- v4.4.0: EscrowEntry, StakePosition, CommonsDividend, MutualCredit
+- v4.3.0: ReputationScore
+- v4.2.0: Sanction, DisputeRecord, ValidatedOutcome
+- v4.1.0: PerformanceRecord, ContributionRecord
+- v4.0.0: Signed MicroUSD default, envelope relaxation, routing constraints
 
 **Acceptance Criteria:**
-- PR body includes version summary table (v5.5.0, v6.0.0, v7.0.0)
-- Test count (3,900+), schema count (92+), builtin count (31)
-- Link to MIGRATION.md for breaking change review
-- Bridge iteration summary (flatline achieved at iteration 2)
-- Ready for merge approval
+- [ ] Entries for every version from v4.0.0 through v7.0.0
+- [ ] Every schema in `src/schemas/` represented somewhere in the changelog
+- [ ] Entries include version introduced, breaking changes if any
+
+### S1-T4: Remove/Replace Framework Boilerplate (FR-4)
+
+**What:**
+1. Replace CONTRIBUTING.md with protocol-specific contribution guide
+2. Delete docs/MAINTAINER_GUIDE.md (Loa framework doc, not protocol-related)
+
+**Acceptance Criteria:**
+- [ ] CONTRIBUTING.md references TypeScript, TypeBox, vitest — not Loa skills
+- [ ] CONTRIBUTING.md explains: how to add a schema, how to add constraints, test requirements
+- [ ] No references to "Template Repository" or `.claude/skills/`
+- [ ] docs/MAINTAINER_GUIDE.md removed
+
+### S1-T5: Relocate Obsolete Docs (FR-5)
+
+**What:** `git mv V4-PLANNING.md docs/history/v4-planning.md`
+
+**Acceptance Criteria:**
+- [ ] Top level contains no planning docs from previous versions
+- [ ] V4-PLANNING.md accessible at docs/history/v4-planning.md
+
+### S1-T6: BUTTERFREEZONE Regeneration (FR-6)
+
+**What:** Regenerate BUTTERFREEZONE.md to reflect post-lean-residency structure.
+
+**Acceptance Criteria:**
+- [ ] BUTTERFREEZONE reflects current directory structure
+- [ ] No references to grimoires/loa/ (migrated to docs/)
+- [ ] Module map accurate for v7.0.0 (9 modules, 53 schemas, 40 constraint files)
+- [ ] AGENT-CONTEXT metadata blocks current
+
+### S1-T7: Version-Tag All Docs (FR-7)
+
+**What:** Add `<!-- docs-version: 7.0.0 -->` to every documentation file.
+
+**Targets:** All .md files in docs/ and top-level that are documentation.
+
+**Acceptance Criteria:**
+- [ ] Every .md doc file has version tag
+- [ ] Version tags match the content they describe
+
+### S1-T8: Verify & Commit
+
+**What:** Final verification pass and commit.
+
+**Acceptance Criteria:**
+- [ ] `pnpm run build` passes (no source changes)
+- [ ] `pnpm run test` passes (3,908 tests)
+- [ ] Zero references to `1.0.0` as current version in any .md file
+- [ ] All version tags present
+
+---
+
+## Task Dependencies
+
+```
+S1-T1 (README)           → independent
+S1-T2 (Stale versions)   → independent
+S1-T3 (SCHEMA-CHANGELOG) → independent
+S1-T4 (Boilerplate)      → independent
+S1-T5 (Relocate)         → independent
+S1-T6 (BUTTERFREEZONE)   → depends on T1-T5 (needs final structure)
+S1-T7 (Version tags)     → depends on T1-T6 (tag final content)
+S1-T8 (Verify)           → depends on all
+```
+
+Tasks T1-T5 can run in parallel. T6 needs T1-T5 done. T7 needs T6 done. T8 is the final gate.

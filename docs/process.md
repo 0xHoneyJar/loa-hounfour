@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Development Process
 
 This document outlines the comprehensive agent-driven development workflow. Our process leverages specialized AI agents to guide you from initial concept to production-ready implementation.
