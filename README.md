@@ -32,10 +32,10 @@ Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (
 | Package export paths | 10 | `package.json` exports field |
 | Constraint files | 40 | `constraints/` (39 `.constraints.json` + 1 `GRAMMAR.md`) |
 | Evaluator builtins | 31 | `src/constraints/evaluator.ts:1399-1446` |
-| Tests | 3,908 | `npm run test` |
+| Tests | 3,908 | `pnpm run test` |
 | CONTRACT_VERSION | 7.0.0 | `src/version.ts:13` |
 | MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
-| Golden test vector dirs | 12+ | `vectors/` |
+| Golden test vector dirs | 15 | `vectors/` (excluding VERSION) |
 
 ## Installation
 
@@ -156,6 +156,11 @@ Cross-language conformance vectors live in `vectors/`. Each file contains valid 
 | `vectors/domain-event/` | Domain event batches and events |
 | `vectors/transfer/` | Transfer choreography and specs |
 | `vectors/cross-ecosystem/` | Cross-module vectors (completion, billing-ensemble, event-saga, constraint-proposal) |
+| `vectors/capability/` | Capability schema vectors |
+| `vectors/discovery/` | Protocol discovery vectors |
+| `vectors/health/` | Health status vectors |
+| `vectors/reputation-score/` | Reputation score vectors |
+| `vectors/thinking/` | Thinking trace vectors |
 | `vectors/conformance/` | Provider normalization, pricing calculation, thinking traces, tool call roundtrip, ensemble position, reservation enforcement, delegation chain, inter-agent transaction, conservation properties, JWT boundary, agent identity, capability-scoped trust, liveness properties, registry bridge |
 | `vectors/runners/` | Reference runners for Go, Python, and Rust |
 
@@ -221,7 +226,7 @@ Consumers must support versions N and N-1 minor for a 30-day overlap window.
 | JAM geometry | `docs/architecture/jam-geometry.md` |
 | Runtime contract | `docs/integration/runtime-contract.md` |
 | Product requirements | `docs/requirements/prd.md` |
-| Maintainer guide | `docs/MAINTAINER_GUIDE.md` |
+| Contributing | `CONTRIBUTING.md` |
 
 ## License
 
