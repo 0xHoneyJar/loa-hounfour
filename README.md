@@ -228,6 +228,10 @@ Consumers must support versions N and N-1 minor for a 30-day overlap window.
 | Product requirements | `docs/requirements/prd.md` |
 | Contributing | `CONTRIBUTING.md` |
 
+## Maintainer
+
+[@janitooor](https://github.com/janitooor)
+
 ## License
 
 AGPL-3.0. Commercial licenses are available for organizations that wish to use Loa without AGPL obligations.
