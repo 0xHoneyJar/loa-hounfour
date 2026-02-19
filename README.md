@@ -234,4 +234,10 @@ Consumers must support versions N and N-1 minor for a 30-day overlap window.
 
 ## License
 
-AGPL-3.0. Commercial licenses are available for organizations that wish to use Loa without AGPL obligations.
+[AGPL-3.0](LICENSE.md) — Use, modify, distribute freely. Network service deployments must release source code.
+
+Commercial licenses are available for organizations that wish to use Loa without AGPL obligations.
+
+
+Ridden with [Loa](https://github.com/0xHoneyJar/loa)
+
