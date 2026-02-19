@@ -1,43 +1,70 @@
-@.claude/loa/CLAUDE.loa.md
+# @0xhoneyjar/loa-hounfour
 
-# Project-Specific Instructions
+Shared protocol contracts for the loa-finn <-> arrakis integration layer.
 
-> This file contains project-specific customizations that take precedence over the framework instructions.
-> The framework instructions are loaded via the `@` import above.
+## Project Overview
 
-## Project Configuration
+This is a TypeScript schema library defining the canonical wire format between AI coordination services. It is consumed as an npm package by loa-finn and arrakis.
 
-Add your project-specific Claude Code instructions here. These instructions will take precedence
-over the imported framework defaults.
+- **87+ TypeBox schemas** across 8 modules (core, economy, model, governance, constraints, integrity, utilities, validators)
+- **147 constraint files** with a custom constraint DSL and evaluator
+- **3,908+ tests** with conformance vectors for cross-language validation
+- **JSON Schema 2020-12** generation for Python/Go/Rust consumers
 
-### Example Customizations
+## Key Directories
 
-```markdown
-## Tech Stack
-- Language: TypeScript
-- Framework: Next.js 14
-- Database: PostgreSQL
+| Directory | Purpose |
+|-----------|---------|
+| `src/` | TypeBox schema definitions and validators |
+| `tests/` | Vitest test suites |
+| `schemas/` | Generated JSON Schema files |
+| `vectors/` | Conformance test vectors |
+| `constraints/` | Protocol constraint files |
+| `docs/` | Protocol documentation, architecture, requirements, history |
+| `scripts/` | Build and utility scripts |
 
 ## Coding Standards
-- Use functional components with hooks
-- Prefer named exports
-- Always include unit tests
 
-## Domain Context
-- This is a fintech application
-- Security is paramount
-- All API calls must be authenticated
+- **TypeScript** (ES2022+, ESM modules)
+- **TypeBox** for all schema definitions (runtime + JSON Schema generation)
+- **Vitest** for testing
+- String-encoded micro-USD (`^[0-9]+$`) for financial values — no floating point
+- `@noble/hashes` for cryptographic operations (Keccak-256 for EIP-55)
+- Strict semver: MAJOR for required field additions, MINOR for additive-only
+
+## Package Exports
+
+```typescript
+import { ... } from '@0xhoneyjar/loa-hounfour';           // Everything
+import { ... } from '@0xhoneyjar/loa-hounfour/core';      // Agents, messages
+import { ... } from '@0xhoneyjar/loa-hounfour/economy';   // Billing, JWT, escrow
+import { ... } from '@0xhoneyjar/loa-hounfour/governance'; // Delegation, permissions
+import { ... } from '@0xhoneyjar/loa-hounfour/constraints'; // Constraint DSL
 ```
 
-## How This Works
+## Development
 
-1. Claude Code loads `@.claude/loa/CLAUDE.loa.md` first (framework instructions)
-2. Then loads this file (project-specific instructions)
-3. Instructions in this file **take precedence** over imported content
-4. Framework updates modify `.claude/loa/CLAUDE.loa.md`, not this file
+```bash
+npm run build          # TypeScript compilation
+npm run test           # Run all tests
+npm run schema:generate # Generate JSON Schema files
+```
 
-## Related Documentation
+## Loa Framework (Optional)
 
-- `.claude/loa/CLAUDE.loa.md` - Framework-managed instructions (auto-updated)
-- `.loa.config.yaml` - User configuration file
-- `PROCESS.md` - Detailed workflow documentation
+This project can optionally use the [Loa](https://github.com/0xHoneyJar/loa) development framework for structured planning, review, and deployment workflows.
+
+```bash
+# Mount the framework for a development session
+./scripts/mount-loa.sh
+
+# Update the framework
+./scripts/mount-loa.sh --update
+
+# Remove after session
+./scripts/mount-loa.sh --clean
+```
+
+When Loa is mounted, its instructions load automatically via the import below.
+
+@.claude/loa/CLAUDE.loa.md
