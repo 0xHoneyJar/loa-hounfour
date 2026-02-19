@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/conservation-property-registry",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Registry of conservation invariants with LTL specifications, enforcement classification, and liveness properties (v6.0.0).",
+  "type": "object",
+  "required": [
+    "registry_id",
+    "properties",
+    "total_count",
+    "coverage",
+    "liveness_properties",
+    "liveness_count",
+    "contract_version"
+  ],
+  "properties": {
+    "registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "properties": {
+      "minItems": 1,
+      "description": "All conservation properties in this registry.",
+      "type": "array",
+      "items": {
+        "$id": "ConservationProperty",
+        "additionalProperties": false,
+        "description": "Formalized conservation invariant with LTL temporal logic specification.",
+        "type": "object",
+        "required": [
+          "invariant_id",
+          "name",
+          "description",
+          "ltl_formula",
+          "universe",
+          "enforcement",
+          "error_codes",
+          "severity",
+          "contract_version"
+        ],
+        "properties": {
+          "invariant_id": {
+            "pattern": "^I-\\d{1,2}$",
+            "description": "Canonical identifier (I-1 through I-14). FL-PRD-001.",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "description": "Human-readable invariant name.",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "description": "What this invariant guarantees.",
+            "type": "string"
+          },
+          "ltl_formula": {
+            "minLength": 1,
+            "description": "Linear Temporal Logic specification. G = globally, F = eventually, X = next, U = until.",
+            "type": "string"
+          },
+          "universe": {
+            "$id": "InvariantUniverse",
+            "description": "Scope boundary for conservation property verification.",
+            "anyOf": [
+              {
+                "const": "single_lot",
+                "type": "string"
+              },
+              {
+                "const": "account",
+                "type": "string"
+              },
+              {
+                "const": "platform",
+                "type": "string"
+              },
+              {
+                "const": "bilateral",
+                "type": "string"
+              }
+            ]
+          },
+          "enforcement": {
+            "$id": "EnforcementMechanism",
+            "description": "How a conservation invariant is enforced at runtime.",
+            "anyOf": [
+              {
+                "const": "db_check",
+                "type": "string"
+              },
+              {
+                "const": "application",
+                "type": "string"
+              },
+              {
+                "const": "reconciliation",
+                "type": "string"
+              },
+              {
+                "const": "db_unique",
+                "type": "string"
+              }
+            ]
+          },
+          "error_codes": {
+            "minItems": 1,
+            "description": "Expected error codes when invariant is violated.",
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "reconciliation_failure_codes": {
+            "description": "Error codes for reconciliation-detected violations.",
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "const": "critical",
+                "type": "string"
+              },
+              {
+                "const": "error",
+                "type": "string"
+              },
+              {
+                "const": "warning",
+                "type": "string"
+              }
+            ]
+          },
+          "contract_version": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "total_count": {
+      "minimum": 1,
+      "description": "Must equal properties.length — drift guard.",
+      "type": "integer"
+    },
+    "coverage": {
+      "description": "Count of properties per universe (single_lot, account, platform, bilateral).",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "liveness_properties": {
+      "description": "Liveness properties proving forward progress (v6.0.0, FR-1).",
+      "type": "array",
+      "items": {
+        "$id": "LivenessProperty",
+        "additionalProperties": false,
+        "description": "F_t-bounded liveness property with companion safety invariant reference.",
+        "type": "object",
+        "required": [
+          "liveness_id",
+          "name",
+          "description",
+          "ltl_formula",
+          "companion_safety",
+          "universe",
+          "timeout_behavior",
+          "timeout_seconds",
+          "error_codes",
+          "severity",
+          "contract_version"
+        ],
+        "properties": {
+          "liveness_id": {
+            "pattern": "^L-\\d{1,2}$",
+            "description": "Canonical identifier (L-1 through L-N).",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "description": "Human-readable liveness property name.",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "description": "What forward progress this guarantees.",
+            "type": "string"
+          },
+          "ltl_formula": {
+            "minLength": 1,
+            "description": "LTL specification with F_t operator. F_t(t, P) = P holds within t seconds.",
+            "type": "string"
+          },
+          "companion_safety": {
+            "pattern": "^I-\\d{1,2}$",
+            "description": "The companion safety invariant ID this liveness property complements.",
+            "type": "string"
+          },
+          "universe": {
+            "description": "Scope boundary for liveness property verification.",
+            "anyOf": [
+              {
+                "const": "single_lot",
+                "type": "string"
+              },
+              {
+                "const": "account",
+                "type": "string"
+              },
+              {
+                "const": "platform",
+                "type": "string"
+              },
+              {
+                "const": "bilateral",
+                "type": "string"
+              }
+            ]
+          },
+          "timeout_behavior": {
+            "$id": "TimeoutBehavior",
+            "description": "Action taken when a liveness property timeout expires.",
+            "anyOf": [
+              {
+                "const": "reaper",
+                "type": "string"
+              },
+              {
+                "const": "escalation",
+                "type": "string"
+              },
+              {
+                "const": "reconciliation",
+                "type": "string"
+              },
+              {
+                "const": "manual",
+                "type": "string"
+              }
+            ]
+          },
+          "timeout_seconds": {
+            "minimum": 1,
+            "description": "Maximum seconds before the liveness bound expires and timeout_behavior triggers.",
+            "type": "integer"
+          },
+          "error_codes": {
+            "minItems": 1,
+            "description": "Error codes emitted when the liveness bound is violated.",
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "const": "critical",
+                "type": "string"
+              },
+              {
+                "const": "error",
+                "type": "string"
+              },
+              {
+                "const": "warning",
+                "type": "string"
+              }
+            ]
+          },
+          "contract_version": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "liveness_count": {
+      "minimum": 0,
+      "description": "Must equal liveness_properties.length — drift guard (v6.0.0).",
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

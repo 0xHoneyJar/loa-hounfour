@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/sanction-severity",
+  "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity.",
+  "anyOf": [
+    {
+      "const": "warning",
+      "type": "string"
+    },
+    {
+      "const": "rate_limited",
+      "type": "string"
+    },
+    {
+      "const": "pool_restricted",
+      "type": "string"
+    },
+    {
+      "const": "suspended",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

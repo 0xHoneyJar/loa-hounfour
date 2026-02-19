@@ -107,6 +107,24 @@ describe('buildDiscoveryDocument', () => {
       /capabilities_url must be https/,
     );
   });
+
+  it('builds valid discovery with expression_versions_supported', () => {
+    const doc = buildDiscoveryDocument(
+      ['https://schemas.0xhoneyjar.com/loa-hounfour/5.0.0/completion-request'],
+      ['agent'],
+      undefined,
+      ['1.0', '2.0'],
+    );
+    expect(doc.expression_versions_supported).toEqual(['1.0', '2.0']);
+
+    const result = validate(ProtocolDiscoverySchema, doc);
+    expect(result.valid).toBe(true);
+  });
+
+  it('omits expression_versions_supported when not provided', () => {
+    const doc = buildDiscoveryDocument([]);
+    expect(doc.expression_versions_supported).toBeUndefined();
+  });
 });
 
 describe('Discovery → Capability Integration (BB-POST-003)', () => {

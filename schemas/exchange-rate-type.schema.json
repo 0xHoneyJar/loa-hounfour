@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/exchange-rate-type",
+  "description": "How the exchange rate between registries is determined.",
+  "anyOf": [
+    {
+      "const": "fixed",
+      "type": "string"
+    },
+    {
+      "const": "oracle",
+      "type": "string"
+    },
+    {
+      "const": "governance",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

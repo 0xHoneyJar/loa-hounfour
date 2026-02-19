@@ -12,8 +12,8 @@ describe('Metadata Namespaces (v2.4.0)', () => {
     expect(METADATA_NAMESPACES.CONSUMER).toBe('x-');
   });
 
-  it('has exactly 4 namespaces', () => {
-    expect(Object.keys(METADATA_NAMESPACES)).toHaveLength(4);
+  it('has exactly 5 namespaces', () => {
+    expect(Object.keys(METADATA_NAMESPACES)).toHaveLength(5);
   });
 
   it('all namespace values are non-empty strings', () => {

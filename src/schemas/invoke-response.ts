@@ -7,7 +7,6 @@
  * @see SDD 4.3 — Budget System
  */
 import { Type, type Static } from '@sinclair/typebox';
-import { MicroUSD } from '../vocabulary/currency.js';
 
 /** Token usage breakdown. */
 export const UsageSchema = Type.Object({

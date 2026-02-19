@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/tool-definition",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "type",
+    "function"
+  ],
+  "properties": {
+    "type": {
+      "const": "function",
+      "type": "string"
+    },
+    "function": {
+      "type": "object",
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "parameters": {}
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

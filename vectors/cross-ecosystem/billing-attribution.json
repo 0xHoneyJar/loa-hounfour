@@ -1,0 +1,196 @@
+{
+  "description": "Billing attribution vectors — tracing cost back to ensemble candidates",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "billing-attribution-001",
+      "description": "Attribution: consensus ensemble with missing consensus_threshold in request (invalid)",
+      "valid": false,
+      "schema": "EnsembleRequest",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440200",
+        "strategy": "consensus",
+        "models": ["claude-opus-4-6", "gpt-5.2"],
+        "request": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440201",
+          "agent_id": "agent-001",
+          "tenant_id": "tenant-001",
+          "model": "claude-opus-4-6",
+          "messages": [{ "role": "user", "content": "Review this code" }],
+          "contract_version": "5.0.0"
+        },
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["consensus_threshold is required when strategy is \"consensus\""]
+    },
+    {
+      "id": "billing-attribution-002",
+      "description": "Attribution: consensus result with missing consensus_score (invalid)",
+      "valid": false,
+      "schema": "EnsembleResult",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440202",
+        "strategy": "consensus",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440203",
+          "model": "claude-opus-4-6",
+          "provider": "anthropic",
+          "content": "Code looks good",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 50,
+            "completion_tokens": 10,
+            "total_tokens": 60,
+            "cost_micro": "300"
+          },
+          "latency_ms": 800,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440203",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "Code looks good",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 50,
+              "completion_tokens": 10,
+              "total_tokens": 60,
+              "cost_micro": "300"
+            },
+            "latency_ms": 800,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "total_cost_micro": "300",
+        "total_latency_ms": 800,
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["consensus_score is required when strategy is \"consensus\""]
+    },
+    {
+      "id": "billing-attribution-003",
+      "description": "Attribution: total_cost_micro less than selected candidate cost (invalid)",
+      "valid": false,
+      "schema": "EnsembleResult",
+      "data": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440204",
+        "strategy": "first_complete",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440205",
+          "model": "claude-opus-4-6",
+          "provider": "anthropic",
+          "content": "Result",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": 50,
+            "total_tokens": 150,
+            "cost_micro": "5000"
+          },
+          "latency_ms": 1000,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440205",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "Result",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 100,
+              "completion_tokens": 50,
+              "total_tokens": 150,
+              "cost_micro": "5000"
+            },
+            "latency_ms": 1000,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "total_cost_micro": "3000",
+        "total_latency_ms": 1000,
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["total_cost_micro must be >= selected.usage.cost_micro"]
+    },
+    {
+      "id": "billing-attribution-004",
+      "description": "Attribution: valid first_complete with accurate cost aggregation",
+      "valid": true,
+      "request": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440206",
+        "strategy": "first_complete",
+        "models": ["claude-opus-4-6", "gpt-5.2"],
+        "request": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440207",
+          "agent_id": "agent-010",
+          "tenant_id": "tenant-005",
+          "model": "claude-opus-4-6",
+          "messages": [{ "role": "user", "content": "Translate to French" }],
+          "contract_version": "5.0.0"
+        },
+        "contract_version": "5.0.0"
+      },
+      "result": {
+        "ensemble_id": "550e8400-e29b-41d4-a716-446655440206",
+        "strategy": "first_complete",
+        "selected": {
+          "request_id": "550e8400-e29b-41d4-a716-446655440207",
+          "model": "gpt-5.2",
+          "provider": "openai",
+          "content": "Traduisez en francais",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 15,
+            "completion_tokens": 8,
+            "total_tokens": 23,
+            "cost_micro": "120"
+          },
+          "latency_ms": 400,
+          "contract_version": "5.0.0"
+        },
+        "candidates": [
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440207",
+            "model": "gpt-5.2",
+            "provider": "openai",
+            "content": "Traduisez en francais",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 15,
+              "completion_tokens": 8,
+              "total_tokens": 23,
+              "cost_micro": "120"
+            },
+            "latency_ms": 400,
+            "contract_version": "5.0.0"
+          },
+          {
+            "request_id": "550e8400-e29b-41d4-a716-446655440207",
+            "model": "claude-opus-4-6",
+            "provider": "anthropic",
+            "content": "Traduire en francais",
+            "finish_reason": "stop",
+            "usage": {
+              "prompt_tokens": 15,
+              "completion_tokens": 7,
+              "total_tokens": 22,
+              "cost_micro": "110"
+            },
+            "latency_ms": 500,
+            "contract_version": "5.0.0"
+          }
+        ],
+        "total_cost_micro": "230",
+        "total_latency_ms": 500,
+        "contract_version": "5.0.0"
+      },
+      "expected_cross_field": {
+        "request": ["consensus_threshold_not_required"],
+        "result": ["total_cost_gte_selected"]
+      }
+    }
+  ]
+}

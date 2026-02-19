@@ -30,7 +30,13 @@ export const EscrowEntrySchema = Type.Object(
     dispute_id: Type.Optional(Type.String({ minLength: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'EscrowEntry', description: 'Escrow holding for bilateral agent transactions with state machine lifecycle', additionalProperties: false, 'x-cross-field-validated': true },
+  {
+    $id: 'EscrowEntry',
+    $comment: 'Financial amounts (amount_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
+    description: 'Escrow holding for bilateral agent transactions with state machine lifecycle',
+    additionalProperties: false,
+    'x-cross-field-validated': true,
+  },
 );
 
 export type EscrowEntry = Static<typeof EscrowEntrySchema>;

@@ -1,8 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/reputation-score",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/reputation-score",
   "description": "Composite reputation score for an agent with weighted component sub-scores",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
     "agent_id",
@@ -65,10 +66,36 @@
     "decay_applied": {
       "type": "boolean"
     },
+    "identity_anchor": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "provider",
+        "verified_at"
+      ],
+      "properties": {
+        "provider": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "verified_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "min_unique_validators": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "validation_graph_hash": {
+      "minLength": 1,
+      "type": "string"
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

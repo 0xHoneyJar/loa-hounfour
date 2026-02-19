@@ -1,0 +1,36 @@
+{
+  "vector_id": "conformance-inter-agent-transaction-0002",
+  "category": "inter-agent-transaction",
+  "description": "Valid delegation budget transfer linked to a delegation chain",
+  "contract_version": "5.4.0",
+  "input": {
+    "audit_id": "660e8400-e29b-41d4-a716-446655440002",
+    "transaction_type": "delegation_budget",
+    "sender": {
+      "agent_id": "agent-alice",
+      "pre_balance_micro": "5000000",
+      "post_balance_micro": "3000000"
+    },
+    "receiver": {
+      "agent_id": "agent-bob",
+      "pre_balance_micro": "0",
+      "post_balance_micro": "2000000"
+    },
+    "amount_micro": "2000000",
+    "conservation_check": "conserved",
+    "idempotency_key": "tx-alice-20260217-002",
+    "delegation_chain_id": "550e8400-e29b-41d4-a716-446655440001",
+    "sequence_number": 1,
+    "timestamp": "2026-02-17T10:05:00Z",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "paper": "arXiv:2512.16856"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "BridgeTransferSaga",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "saga-steps-ordered",
+      "description": "Steps must have non-empty step_ids",
+      "expression": "steps.every(s => s.step_id != '')",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "steps": "array"
+      }
+    },
+    {
+      "id": "saga-amount-conserved",
+      "description": "Source debit equals target credit after exchange rate",
+      "expression": "saga_amount_conserved(saga)",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": {
+        "saga": "BridgeTransferSaga"
+      }
+    },
+    {
+      "id": "saga-timeout-positive",
+      "description": "Timeout values must be positive",
+      "expression": "timeout.total_seconds > 0 && timeout.per_step_seconds > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "timeout": "object"
+      }
+    },
+    {
+      "id": "saga-participants-include-initiator",
+      "description": "At least one participant must exist",
+      "expression": "participants.length > 0",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "participants": "array"
+      }
+    },
+    {
+      "id": "saga-settled-has-timestamp",
+      "description": "Settled sagas must have settled_at timestamp",
+      "expression": "status != 'settled' || settled_at != null",
+      "severity": "error",
+      "category": "temporal",
+      "type_signature": {
+        "status": "string",
+        "settled_at": "string"
+      }
+    },
+    {
+      "id": "saga-timeout-valid",
+      "description": "Completed saga steps must complete within per_step_seconds timeout",
+      "expression": "saga_timeout_valid(saga)",
+      "severity": "warning",
+      "category": "temporal",
+      "type_signature": {
+        "saga": "BridgeTransferSaga"
+      }
+    }
+  ]
+}

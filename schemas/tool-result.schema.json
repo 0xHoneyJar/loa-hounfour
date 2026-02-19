@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/tool-result",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "role",
+    "tool_call_id",
+    "content"
+  ],
+  "properties": {
+    "role": {
+      "const": "tool",
+      "type": "string"
+    },
+    "tool_call_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

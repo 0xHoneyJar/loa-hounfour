@@ -1,0 +1,671 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/ensemble-result",
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Financial amounts (total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "ensemble_id",
+    "strategy",
+    "selected",
+    "candidates",
+    "total_cost_micro",
+    "total_latency_ms",
+    "contract_version"
+  ],
+  "properties": {
+    "ensemble_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "strategy": {
+      "$id": "EnsembleStrategy",
+      "$comment": "Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31",
+      "anyOf": [
+        {
+          "const": "first_complete",
+          "type": "string"
+        },
+        {
+          "const": "best_of_n",
+          "type": "string"
+        },
+        {
+          "const": "consensus",
+          "type": "string"
+        },
+        {
+          "const": "sequential",
+          "type": "string"
+        },
+        {
+          "const": "dialogue",
+          "type": "string"
+        }
+      ]
+    },
+    "selected": {
+      "$id": "CompletionResult",
+      "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+      "additionalProperties": false,
+      "x-cross-field-validated": true,
+      "type": "object",
+      "required": [
+        "request_id",
+        "model",
+        "provider",
+        "finish_reason",
+        "usage",
+        "latency_ms",
+        "contract_version"
+      ],
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "thinking": {
+          "type": "string"
+        },
+        "tool_calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "type",
+              "function"
+            ],
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "const": "function",
+                "type": "string"
+              },
+              "function": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "arguments"
+                ],
+                "properties": {
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "arguments": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "const": "stop",
+              "type": "string"
+            },
+            {
+              "const": "tool_calls",
+              "type": "string"
+            },
+            {
+              "const": "length",
+              "type": "string"
+            },
+            {
+              "const": "content_filter",
+              "type": "string"
+            }
+          ]
+        },
+        "usage": {
+          "type": "object",
+          "required": [
+            "prompt_tokens",
+            "completion_tokens",
+            "total_tokens",
+            "cost_micro"
+          ],
+          "properties": {
+            "prompt_tokens": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "completion_tokens": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "reasoning_tokens": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "total_tokens": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "cost_micro": {
+              "pattern": "^[0-9]+$",
+              "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+              "type": "string"
+            }
+          }
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pricing_applied": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "input_per_million_micro",
+            "output_per_million_micro"
+          ],
+          "properties": {
+            "input_per_million_micro": {
+              "pattern": "^[0-9]+$",
+              "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+              "type": "string"
+            },
+            "output_per_million_micro": {
+              "pattern": "^[0-9]+$",
+              "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+              "type": "string"
+            },
+            "thinking_per_million_micro": {
+              "pattern": "^[0-9]+$",
+              "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+              "type": "string"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {}
+          }
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$id": "CompletionResult",
+        "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+        "additionalProperties": false,
+        "x-cross-field-validated": true,
+        "type": "object",
+        "required": [
+          "request_id",
+          "model",
+          "provider",
+          "finish_reason",
+          "usage",
+          "latency_ms",
+          "contract_version"
+        ],
+        "properties": {
+          "request_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "provider": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "string"
+          },
+          "tool_calls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "type",
+                "function"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": {
+                  "const": "function",
+                  "type": "string"
+                },
+                "function": {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "arguments"
+                  ],
+                  "properties": {
+                    "name": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "arguments": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "finish_reason": {
+            "anyOf": [
+              {
+                "const": "stop",
+                "type": "string"
+              },
+              {
+                "const": "tool_calls",
+                "type": "string"
+              },
+              {
+                "const": "length",
+                "type": "string"
+              },
+              {
+                "const": "content_filter",
+                "type": "string"
+              }
+            ]
+          },
+          "usage": {
+            "type": "object",
+            "required": [
+              "prompt_tokens",
+              "completion_tokens",
+              "total_tokens",
+              "cost_micro"
+            ],
+            "properties": {
+              "prompt_tokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "completion_tokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "reasoning_tokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "total_tokens": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "cost_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              }
+            }
+          },
+          "latency_ms": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "pricing_applied": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "input_per_million_micro",
+              "output_per_million_micro"
+            ],
+            "properties": {
+              "input_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              },
+              "output_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              },
+              "thinking_per_million_micro": {
+                "pattern": "^[0-9]+$",
+                "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                "type": "string"
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "contract_version": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "consensus_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "round",
+          "model",
+          "response"
+        ],
+        "properties": {
+          "round": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "response": {
+            "$id": "CompletionResult",
+            "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+            "additionalProperties": false,
+            "x-cross-field-validated": true,
+            "type": "object",
+            "required": [
+              "request_id",
+              "model",
+              "provider",
+              "finish_reason",
+              "usage",
+              "latency_ms",
+              "contract_version"
+            ],
+            "properties": {
+              "request_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "model": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "provider": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "thinking": {
+                "type": "string"
+              },
+              "tool_calls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "type",
+                    "function"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": {
+                      "const": "function",
+                      "type": "string"
+                    },
+                    "function": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "arguments"
+                      ],
+                      "properties": {
+                        "name": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "arguments": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "finish_reason": {
+                "anyOf": [
+                  {
+                    "const": "stop",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tool_calls",
+                    "type": "string"
+                  },
+                  {
+                    "const": "length",
+                    "type": "string"
+                  },
+                  {
+                    "const": "content_filter",
+                    "type": "string"
+                  }
+                ]
+              },
+              "usage": {
+                "type": "object",
+                "required": [
+                  "prompt_tokens",
+                  "completion_tokens",
+                  "total_tokens",
+                  "cost_micro"
+                ],
+                "properties": {
+                  "prompt_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "completion_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "reasoning_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "total_tokens": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "cost_micro": {
+                    "pattern": "^[0-9]+$",
+                    "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                    "type": "string"
+                  }
+                }
+              },
+              "latency_ms": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "pricing_applied": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "input_per_million_micro",
+                  "output_per_million_micro"
+                ],
+                "properties": {
+                  "input_per_million_micro": {
+                    "pattern": "^[0-9]+$",
+                    "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                    "type": "string"
+                  },
+                  "output_per_million_micro": {
+                    "pattern": "^[0-9]+$",
+                    "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                    "type": "string"
+                  },
+                  "thinking_per_million_micro": {
+                    "pattern": "^[0-9]+$",
+                    "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+                    "type": "string"
+                  }
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              },
+              "contract_version": {
+                "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                "type": "string"
+              }
+            }
+          },
+          "thinking_trace": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "termination_reason": {
+      "anyOf": [
+        {
+          "const": "fixed_rounds",
+          "type": "string"
+        },
+        {
+          "const": "consensus_reached",
+          "type": "string"
+        },
+        {
+          "const": "no_new_insights",
+          "type": "string"
+        },
+        {
+          "const": "timeout",
+          "type": "string"
+        },
+        {
+          "const": "budget_exhausted",
+          "type": "string"
+        }
+      ]
+    },
+    "rounds_completed": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "rounds_requested": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "consensus_method": {
+      "anyOf": [
+        {
+          "const": "majority_vote",
+          "type": "string"
+        },
+        {
+          "const": "unanimous",
+          "type": "string"
+        },
+        {
+          "const": "arbiter_decision",
+          "type": "string"
+        },
+        {
+          "const": "score_threshold",
+          "type": "string"
+        }
+      ]
+    },
+    "position_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "round",
+          "model",
+          "from_position",
+          "to_position"
+        ],
+        "properties": {
+          "round": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "from_position": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "to_position": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "total_cost_micro": {
+      "pattern": "^[0-9]+$",
+      "description": "Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)",
+      "type": "string"
+    },
+    "total_latency_ms": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  }
+}

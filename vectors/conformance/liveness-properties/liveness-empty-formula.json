@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-liveness-properties-003",
+  "category": "liveness-properties",
+  "description": "Liveness property with empty LTL formula — should fail schema and constraint validation",
+  "contract_version": "6.0.0",
+  "input": {
+    "liveness_id": "L-99",
+    "name": "Empty formula",
+    "description": "A liveness property with no LTL formula.",
+    "ltl_formula": "",
+    "companion_safety": "I-1",
+    "universe": "single_lot",
+    "timeout_behavior": "reaper",
+    "timeout_seconds": 3600,
+    "error_codes": ["TEST_ERR"],
+    "severity": "error",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "metadata": {
+    "sdd_section": "§2.1",
+    "failure_reason": "ltl_formula is empty (minLength: 1)"
+  }
+}

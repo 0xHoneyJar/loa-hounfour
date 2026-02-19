@@ -1,0 +1,48 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "MonetaryPolicy",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "monetary-policy-ceiling-positive",
+      "description": "Conservation ceiling must be positive",
+      "expression": "bigint_gt(conservation_ceiling, 0)",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": {
+        "conservation_ceiling": "string"
+      }
+    },
+    {
+      "id": "monetary-policy-collateral-minimum",
+      "description": "Collateral ratio must be at least 10000 bps (100%)",
+      "expression": "collateral_ratio_bps >= 10000",
+      "severity": "error",
+      "category": "economic",
+      "type_signature": {
+        "collateral_ratio_bps": "integer"
+      }
+    },
+    {
+      "id": "monetary-policy-coupling-references-both",
+      "description": "Coupling invariant expression must be non-empty",
+      "expression": "coupling_invariant != ''",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "coupling_invariant": "string"
+      }
+    },
+    {
+      "id": "monetary-policy-has-trigger",
+      "description": "Must have a review trigger configured",
+      "expression": "review_trigger != null",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "review_trigger": "ReviewTrigger"
+      }
+    }
+  ]
+}

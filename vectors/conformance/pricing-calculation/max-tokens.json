@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-pricing-005",
+  "category": "pricing-calculation",
+  "description": "MAX_SAFE_INTEGER tokens — tests BigInt arithmetic at scale boundary",
+  "contract_version": "5.1.0",
+  "input": {
+    "model_id": "gpt-4-turbo",
+    "prompt_tokens": 9007199254740991,
+    "completion_tokens": 0,
+    "pricing": {
+      "input_cost_per_million": "30000000",
+      "output_cost_per_million": "60000000"
+    }
+  },
+  "expected_output": {
+    "input_cost_micro": "270215977642229730",
+    "output_cost_micro": "0",
+    "total_cost_micro": "270215977642229730"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["input_cost_micro", "output_cost_micro", "total_cost_micro"]
+  },
+  "metadata": {
+    "formula": "9007199254740991 * 30000000 / 1000000 = 270215977642229730 (BigInt arithmetic required)"
+  }
+}

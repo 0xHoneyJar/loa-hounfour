@@ -1,0 +1,68 @@
+{
+  "vector_id": "conformance-delegation-chain-0004",
+  "category": "delegation-chain",
+  "description": "Invalid: 5 links but max_depth is 3 — depth limit exceeded",
+  "contract_version": "5.4.0",
+  "input": {
+    "chain_id": "550e8400-e29b-41d4-a716-446655440004",
+    "root_delegator": "agent-alice",
+    "links": [
+      {
+        "delegator": "agent-alice",
+        "delegatee": "agent-bob",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend"],
+        "timestamp": "2026-02-17T10:00:00Z",
+        "outcome": "re-delegated"
+      },
+      {
+        "delegator": "agent-bob",
+        "delegatee": "agent-carol",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend"],
+        "timestamp": "2026-02-17T10:01:00Z",
+        "outcome": "re-delegated"
+      },
+      {
+        "delegator": "agent-carol",
+        "delegatee": "agent-dave",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend"],
+        "timestamp": "2026-02-17T10:02:00Z",
+        "outcome": "re-delegated"
+      },
+      {
+        "delegator": "agent-dave",
+        "delegatee": "agent-eve",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend"],
+        "timestamp": "2026-02-17T10:03:00Z",
+        "outcome": "re-delegated"
+      },
+      {
+        "delegator": "agent-eve",
+        "delegatee": "provider-openai",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend"],
+        "timestamp": "2026-02-17T10:04:00Z",
+        "outcome": "pending"
+      }
+    ],
+    "max_depth": 3,
+    "authority_conservation": false,
+    "status": "active",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {
+    "constraint_violated": "delegation-chain-depth-limit"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["constraint_violated"]
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "paper": "arXiv:2602.11865",
+    "violation": "5 links exceeds max_depth of 3"
+  }
+}

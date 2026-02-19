@@ -1,0 +1,37 @@
+{
+  "vector_id": "conformance-toolcall-002",
+  "category": "tool-call-roundtrip",
+  "description": "Parallel tool calls — multiple function invocations in single response",
+  "contract_version": "5.1.0",
+  "input": {
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "get_weather",
+        "arguments": { "location": "San Francisco" }
+      },
+      {
+        "id": "call_002",
+        "name": "get_weather",
+        "arguments": { "location": "New York" }
+      },
+      {
+        "id": "call_003",
+        "name": "get_time",
+        "arguments": { "timezone": "UTC" }
+      }
+    ]
+  },
+  "expected_output": {
+    "tool_calls": [
+      { "id": "call_001", "name": "get_weather", "arguments": { "location": "San Francisco" } },
+      { "id": "call_002", "name": "get_weather", "arguments": { "location": "New York" } },
+      { "id": "call_003", "name": "get_time", "arguments": { "timezone": "UTC" } }
+    ],
+    "tool_call_count": 3
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["tool_calls", "tool_call_count"]
+  }
+}

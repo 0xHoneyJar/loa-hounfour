@@ -35,6 +35,77 @@ import { EscrowEntrySchema } from '../src/schemas/escrow-entry.js';
 import { StakePositionSchema } from '../src/schemas/stake-position.js';
 import { CommonsDividendSchema } from '../src/schemas/commons-dividend.js';
 import { MutualCreditSchema } from '../src/schemas/mutual-credit.js';
+// v5.0.0 — ModelPort
+import { CompletionRequestSchema } from '../src/schemas/model/completion-request.js';
+import { CompletionResultSchema } from '../src/schemas/model/completion-result.js';
+import { ModelCapabilitiesSchema } from '../src/schemas/model/model-capabilities.js';
+import { ProviderWireMessageSchema } from '../src/schemas/model/provider-wire-message.js';
+import { ToolDefinitionSchema } from '../src/schemas/model/tool-definition.js';
+import { ToolResultSchema } from '../src/schemas/model/tool-result.js';
+// v5.0.0 — Ensemble
+import { EnsembleRequestSchema } from '../src/schemas/model/ensemble/ensemble-request.js';
+import { EnsembleResultSchema } from '../src/schemas/model/ensemble/ensemble-result.js';
+// v5.0.0 — Routing
+import { AgentRequirementsSchema } from '../src/schemas/model/routing/agent-requirements.js';
+import { BudgetScopeSchema } from '../src/schemas/model/routing/budget-scope.js';
+import { RoutingResolutionSchema } from '../src/schemas/model/routing/routing-resolution.js';
+// v5.0.0 — Constraint Evolution
+import { ConstraintProposalSchema } from '../src/schemas/model/constraint-proposal.js';
+// v5.1.0 — Protocol Constitution
+import { ModelProviderSpecSchema } from '../src/schemas/model/model-provider-spec.js';
+import { ConformanceLevelSchema } from '../src/schemas/model/conformance-level.js';
+import { ConformanceVectorSchema } from '../src/schemas/model/conformance-vector.js';
+// v5.1.0 — Governance
+import { SanctionSeveritySchema } from '../src/vocabulary/sanction-severity.js';
+// v5.1.0 — Reconciliation
+import { ReconciliationModeSchema } from '../src/vocabulary/reconciliation-mode.js';
+// v5.2.0 — Capacity Reservation
+import { AgentCapacityReservationSchema } from '../src/schemas/model/routing/agent-capacity-reservation.js';
+import { ReservationTierSchema } from '../src/vocabulary/reservation-tier.js';
+import { ReservationEnforcementSchema } from '../src/vocabulary/reservation-enforcement.js';
+import { ReservationStateSchema } from '../src/vocabulary/reservation-state.js';
+// v5.2.0 — Conservation
+import { ConservationStatusSchema } from '../src/vocabulary/conservation-status.js';
+import { AuditTrailEntrySchema } from '../src/schemas/audit-trail-entry.js';
+// v5.3.0 — Governance
+import { GovernanceConfigSchema } from '../src/schemas/governance-config.js';
+// v5.4.0 — Delegation
+import { DelegationChainSchema } from '../src/schemas/model/routing/delegation-chain.js';
+// v5.4.0 — Inter-Agent
+import { InterAgentTransactionAuditSchema } from '../src/schemas/inter-agent-transaction-audit.js';
+// v5.4.0 — Ensemble
+import { EnsembleCapabilityProfileSchema } from '../src/schemas/model/ensemble/ensemble-capability-profile.js';
+// v5.5.0 — Conservation Registry
+import { ConservationPropertyRegistrySchema } from '../src/integrity/conservation-properties.js';
+// v5.5.0 — JWT Boundary
+import { JwtBoundarySpecSchema, OutboundClaimsSchema, InboundClaimsSchema } from '../src/economy/jwt-boundary.js';
+// v5.5.0 — Agent Identity
+import { AgentIdentitySchema, CapabilityScopedTrustSchema, CapabilityScopeSchema } from '../src/schemas/agent-identity.js';
+// v6.0.0 — Liveness
+import { LivenessPropertySchema, TimeoutBehaviorSchema } from '../src/integrity/liveness-properties.js';
+// v6.0.0 — Constraint Type System
+import { ConstraintTypeSchema } from '../src/constraints/constraint-types.js';
+import { ConstraintTypeSignatureSchema } from '../src/constraints/constraint-types.js';
+// v6.0.0 — Registry Bridge + Delegation Tree
+import { BridgeEnforcementSchema } from '../src/economy/registry-composition.js';
+import { BridgeInvariantSchema } from '../src/economy/registry-composition.js';
+import { ExchangeRateTypeSchema } from '../src/economy/registry-composition.js';
+import { ExchangeRateSpecSchema } from '../src/economy/registry-composition.js';
+import { SettlementPolicySchema } from '../src/economy/registry-composition.js';
+import { RegistryBridgeSchema } from '../src/economy/registry-composition.js';
+import { MintingPolicySchema } from '../src/economy/minting-policy.js';
+import { ForkTypeSchema } from '../src/governance/delegation-tree.js';
+import { TreeNodeStatusSchema } from '../src/governance/delegation-tree.js';
+import { TreeStrategySchema } from '../src/governance/delegation-tree.js';
+import { BudgetAllocationSchema } from '../src/governance/delegation-tree.js';
+import { DelegationTreeNodeSchema } from '../src/governance/delegation-tree.js';
+import { DelegationTreeSchema } from '../src/governance/delegation-tree.js';
+// v7.0.0 — Coordination Layer
+import { BridgeTransferSagaSchema } from '../src/economy/bridge-transfer-saga.js';
+import { MonetaryPolicySchema } from '../src/economy/monetary-policy.js';
+import { DelegationOutcomeSchema } from '../src/governance/delegation-outcome.js';
+import { PermissionBoundarySchema } from '../src/governance/permission-boundary.js';
+import { GovernanceProposalSchema } from '../src/governance/governance-proposal.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -87,6 +158,82 @@ const schemas = [
   { name: 'stake-position', schema: StakePositionSchema },
   { name: 'commons-dividend', schema: CommonsDividendSchema },
   { name: 'mutual-credit', schema: MutualCreditSchema },
+  // v5.0.0 — ModelPort
+  { name: 'completion-request', schema: CompletionRequestSchema },
+  { name: 'completion-result', schema: CompletionResultSchema },
+  { name: 'model-capabilities', schema: ModelCapabilitiesSchema },
+  { name: 'provider-wire-message', schema: ProviderWireMessageSchema },
+  { name: 'tool-definition', schema: ToolDefinitionSchema },
+  { name: 'tool-result', schema: ToolResultSchema },
+  // v5.0.0 — Ensemble
+  { name: 'ensemble-request', schema: EnsembleRequestSchema },
+  { name: 'ensemble-result', schema: EnsembleResultSchema },
+  // v5.0.0 — Routing
+  { name: 'agent-requirements', schema: AgentRequirementsSchema },
+  { name: 'budget-scope', schema: BudgetScopeSchema },
+  { name: 'routing-resolution', schema: RoutingResolutionSchema },
+  // v5.0.0 — Constraint Evolution
+  { name: 'constraint-proposal', schema: ConstraintProposalSchema },
+  // v5.1.0 — Protocol Constitution
+  { name: 'model-provider-spec', schema: ModelProviderSpecSchema },
+  { name: 'conformance-level', schema: ConformanceLevelSchema },
+  { name: 'conformance-vector', schema: ConformanceVectorSchema },
+  // v5.1.0 — Governance
+  { name: 'sanction-severity', schema: SanctionSeveritySchema },
+  // v5.1.0 — Reconciliation
+  { name: 'reconciliation-mode', schema: ReconciliationModeSchema },
+  // v5.2.0 — Capacity Reservation
+  { name: 'agent-capacity-reservation', schema: AgentCapacityReservationSchema },
+  { name: 'reservation-tier', schema: ReservationTierSchema },
+  { name: 'reservation-enforcement', schema: ReservationEnforcementSchema },
+  { name: 'reservation-state', schema: ReservationStateSchema },
+  // v5.2.0 — Conservation
+  { name: 'conservation-status', schema: ConservationStatusSchema },
+  { name: 'audit-trail-entry', schema: AuditTrailEntrySchema },
+  // v5.3.0 — Governance
+  { name: 'governance-config', schema: GovernanceConfigSchema },
+  // v5.4.0 — Delegation
+  { name: 'delegation-chain', schema: DelegationChainSchema },
+  // v5.4.0 — Inter-Agent
+  { name: 'inter-agent-transaction-audit', schema: InterAgentTransactionAuditSchema },
+  // v5.4.0 — Ensemble
+  { name: 'ensemble-capability-profile', schema: EnsembleCapabilityProfileSchema },
+  // v5.5.0 — Conservation Registry
+  { name: 'conservation-property-registry', schema: ConservationPropertyRegistrySchema },
+  // v5.5.0 — JWT Boundary
+  { name: 'jwt-boundary-spec', schema: JwtBoundarySpecSchema },
+  { name: 'outbound-claims', schema: OutboundClaimsSchema },
+  { name: 'inbound-claims', schema: InboundClaimsSchema },
+  // v5.5.0 — Agent Identity
+  { name: 'agent-identity', schema: AgentIdentitySchema },
+  // v6.0.0 — Liveness + Capability Trust
+  { name: 'liveness-property', schema: LivenessPropertySchema },
+  { name: 'timeout-behavior', schema: TimeoutBehaviorSchema },
+  { name: 'capability-scope', schema: CapabilityScopeSchema },
+  { name: 'capability-scoped-trust', schema: CapabilityScopedTrustSchema },
+  // v6.0.0 — Constraint Type System
+  { name: 'constraint-type', schema: ConstraintTypeSchema },
+  { name: 'constraint-type-signature', schema: ConstraintTypeSignatureSchema },
+  // v6.0.0 — Registry Bridge + Delegation Tree
+  { name: 'bridge-enforcement', schema: BridgeEnforcementSchema },
+  { name: 'bridge-invariant', schema: BridgeInvariantSchema },
+  { name: 'exchange-rate-type', schema: ExchangeRateTypeSchema },
+  { name: 'exchange-rate-spec', schema: ExchangeRateSpecSchema },
+  { name: 'settlement-policy', schema: SettlementPolicySchema },
+  { name: 'registry-bridge', schema: RegistryBridgeSchema },
+  { name: 'minting-policy', schema: MintingPolicySchema },
+  { name: 'fork-type', schema: ForkTypeSchema },
+  { name: 'tree-node-status', schema: TreeNodeStatusSchema },
+  { name: 'tree-strategy', schema: TreeStrategySchema },
+  { name: 'budget-allocation', schema: BudgetAllocationSchema },
+  { name: 'delegation-tree-node', schema: DelegationTreeNodeSchema },
+  { name: 'delegation-tree', schema: DelegationTreeSchema },
+  // v7.0.0 — Coordination Layer
+  { name: 'bridge-transfer-saga', schema: BridgeTransferSagaSchema },
+  { name: 'monetary-policy', schema: MonetaryPolicySchema },
+  { name: 'delegation-outcome', schema: DelegationOutcomeSchema },
+  { name: 'permission-boundary', schema: PermissionBoundarySchema },
+  { name: 'governance-proposal', schema: GovernanceProposalSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
@@ -97,7 +244,9 @@ for (const { name, schema } of schemas) {
     ...schema,
     // Override TypeBox $id with versioned URI (must come after spread)
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
-    $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
+    $comment: (schema as Record<string, unknown>).$comment
+      ? `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}. ${(schema as Record<string, unknown>).$comment}`
+      : `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
 
   // Apply post-generation transforms (cross-field constraints, etc.)

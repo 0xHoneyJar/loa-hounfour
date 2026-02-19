@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/reservation-enforcement",
+  "description": "How reservation guarantees are enforced by the provider.",
+  "anyOf": [
+    {
+      "const": "strict",
+      "type": "string"
+    },
+    {
+      "const": "advisory",
+      "type": "string"
+    },
+    {
+      "const": "unsupported",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

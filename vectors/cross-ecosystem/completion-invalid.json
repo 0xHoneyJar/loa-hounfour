@@ -1,0 +1,197 @@
+{
+  "description": "Invalid CompletionRequest and CompletionResult cross-ecosystem vectors",
+  "contract_version": "5.0.0",
+  "vectors": [
+    {
+      "id": "completion-invalid-001",
+      "description": "Missing tool_choice when tools are present (cross-field violation)",
+      "valid": false,
+      "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-tools-require-tool_choice", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440010",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Use the tool" }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "search",
+              "description": "Search the web"
+            }
+          }
+        ],
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["tool_choice is required when tools are provided"]
+    },
+    {
+      "id": "completion-invalid-002",
+      "description": "Usage conservation violation: total_tokens != prompt + completion",
+      "valid": false,
+      "schema": "CompletionResult",
+      "expected_evaluation": {
+        "constraint_file": "CompletionResult",
+        "results": [
+          { "constraint_id": "completion-result-usage-conservation", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440011",
+        "model": "gpt-5.2",
+        "provider": "openai",
+        "content": "Hello world",
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 5,
+          "total_tokens": 99,
+          "cost_micro": "100"
+        },
+        "latency_ms": 500,
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["usage.total_tokens"]
+    },
+    {
+      "id": "completion-invalid-003",
+      "description": "Empty messages array (schema violation)",
+      "valid": false,
+      "schema": "CompletionRequest",
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440012",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [],
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["messages"]
+    },
+    {
+      "id": "completion-invalid-004",
+      "description": "finish_reason=tool_calls but tool_calls is empty (cross-field violation)",
+      "valid": false,
+      "schema": "CompletionResult",
+      "expected_evaluation": {
+        "constraint_file": "CompletionResult",
+        "results": [
+          { "constraint_id": "completion-result-tool_calls-required", "expected": "pass" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440013",
+        "model": "claude-opus-4-6",
+        "provider": "anthropic",
+        "content": "I will use a tool",
+        "finish_reason": "tool_calls",
+        "tool_calls": [],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 8,
+          "total_tokens": 18,
+          "cost_micro": "120"
+        },
+        "latency_ms": 800,
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["tool_calls must be non-empty when finish_reason is \"tool_calls\""]
+    },
+    {
+      "id": "completion-invalid-005",
+      "description": "Missing required field request_id (schema violation)",
+      "valid": false,
+      "schema": "CompletionRequest",
+      "data": {
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Hello" }
+        ],
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["request_id"]
+    },
+    {
+      "id": "completion-invalid-006",
+      "description": "Invalid UUID format for request_id",
+      "valid": false,
+      "schema": "CompletionResult",
+      "data": {
+        "request_id": "not-a-valid-uuid",
+        "model": "claude-opus-4-6",
+        "provider": "anthropic",
+        "content": "Hello",
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 5,
+          "completion_tokens": 3,
+          "total_tokens": 8,
+          "cost_micro": "50"
+        },
+        "latency_ms": 300,
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["request_id"]
+    },
+    {
+      "id": "completion-invalid-007",
+      "description": "execution_mode=native_runtime without provider (cross-field violation)",
+      "valid": false,
+      "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-native-runtime-provider", "expected": "fail" },
+          { "constraint_id": "completion-request-native-runtime-session", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440014",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Hello" }
+        ],
+        "execution_mode": "native_runtime",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["provider is required", "session_id is required"]
+    },
+    {
+      "id": "completion-invalid-008",
+      "description": "Zero budget_limit_micro (constraint warning)",
+      "valid": true,
+      "schema": "CompletionRequest",
+      "expected_evaluation": {
+        "constraint_file": "CompletionRequest",
+        "results": [
+          { "constraint_id": "completion-request-zero-budget-warning", "expected": "fail" }
+        ]
+      },
+      "data": {
+        "request_id": "550e8400-e29b-41d4-a716-446655440015",
+        "agent_id": "agent-001",
+        "tenant_id": "tenant-001",
+        "model": "claude-opus-4-6",
+        "messages": [
+          { "role": "user", "content": "Hello" }
+        ],
+        "budget_limit_micro": "0",
+        "contract_version": "5.0.0"
+      },
+      "expected_errors": ["budget_limit_micro is zero"]
+    }
+  ]
+}

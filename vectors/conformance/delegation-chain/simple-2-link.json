@@ -1,0 +1,45 @@
+{
+  "vector_id": "conformance-delegation-chain-0001",
+  "category": "delegation-chain",
+  "description": "Valid 2-link delegation: agent delegates inference to model provider, completed successfully",
+  "contract_version": "5.4.0",
+  "input": {
+    "chain_id": "550e8400-e29b-41d4-a716-446655440001",
+    "root_delegator": "agent-alice",
+    "links": [
+      {
+        "delegator": "agent-alice",
+        "delegatee": "agent-bob",
+        "task_type": "inference",
+        "authority_scope": ["budget_spend", "model_select"],
+        "budget_allocated_micro": "1000000",
+        "timestamp": "2026-02-17T10:00:00Z",
+        "outcome": "completed",
+        "outcome_timestamp": "2026-02-17T10:05:00Z"
+      },
+      {
+        "delegator": "agent-bob",
+        "delegatee": "provider-openai",
+        "task_type": "inference",
+        "authority_scope": ["model_select"],
+        "budget_allocated_micro": "500000",
+        "timestamp": "2026-02-17T10:01:00Z",
+        "outcome": "completed",
+        "outcome_timestamp": "2026-02-17T10:03:00Z"
+      }
+    ],
+    "max_depth": 5,
+    "authority_conservation": true,
+    "status": "completed",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "paper": "arXiv:2602.11865"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "vector_id": "conformance-ensemble-005",
+  "category": "ensemble-position",
+  "description": "Budget exhausted — ensemble halts when cost limit is reached",
+  "contract_version": "5.1.0",
+  "input": {
+    "strategy": "consensus",
+    "budget_limit_micro": "50000",
+    "candidates": [
+      {
+        "model_id": "gpt-4-turbo",
+        "position": "Answer A",
+        "confidence": 0.60,
+        "cost_micro": "30000"
+      },
+      {
+        "model_id": "claude-3-opus",
+        "position": "Answer B",
+        "confidence": 0.55,
+        "cost_micro": "25000"
+      }
+    ]
+  },
+  "expected_output": {
+    "consensus_reached": false,
+    "halt_reason": "budget_exhausted",
+    "total_cost_micro": "55000",
+    "budget_exceeded": true
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["consensus_reached", "halt_reason", "budget_exceeded"]
+  }
+}

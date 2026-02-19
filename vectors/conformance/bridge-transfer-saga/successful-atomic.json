@@ -1,0 +1,91 @@
+{
+  "vector_id": "conformance-bridge-transfer-saga-0001",
+  "category": "bridge-transfer-saga",
+  "description": "Valid atomic saga with 3 completed steps, settled status, and settled_at timestamp",
+  "contract_version": "7.0.0",
+  "input": {
+    "saga_id": "00000000-0000-0000-0000-000000000001",
+    "bridge_id": "00000000-0000-0000-0000-000000000010",
+    "source_registry": "00000000-0000-0000-0000-000000000020",
+    "target_registry": "00000000-0000-0000-0000-000000000021",
+    "saga_type": "atomic",
+    "status": "settled",
+    "steps": [
+      {
+        "step_id": "step-reserve-001",
+        "step_type": "reserve",
+        "participant": "source-registry-agent",
+        "status": "completed",
+        "amount_micro": "500000",
+        "started_at": "2026-02-17T10:00:00Z",
+        "completed_at": "2026-02-17T10:00:05Z"
+      },
+      {
+        "step_id": "step-transfer-001",
+        "step_type": "transfer",
+        "participant": "bridge-operator",
+        "status": "completed",
+        "amount_micro": "500000",
+        "exchange_rate": {
+          "rate_type": "fixed",
+          "value": "1.0",
+          "governance_proposal_required": false,
+          "staleness_threshold_seconds": 3600
+        },
+        "started_at": "2026-02-17T10:00:05Z",
+        "completed_at": "2026-02-17T10:00:12Z"
+      },
+      {
+        "step_id": "step-settle-001",
+        "step_type": "settle",
+        "participant": "target-registry-agent",
+        "status": "completed",
+        "amount_micro": "500000",
+        "started_at": "2026-02-17T10:00:12Z",
+        "completed_at": "2026-02-17T10:00:15Z"
+      }
+    ],
+    "compensation_steps": [],
+    "timeout": {
+      "total_seconds": 300,
+      "per_step_seconds": 60
+    },
+    "participants": [
+      {
+        "agent_id": "source-registry-agent",
+        "role": "initiator",
+        "registry_id": "00000000-0000-0000-0000-000000000020",
+        "trust_scopes": {
+          "scopes": {
+            "billing": "sovereign",
+            "composition": "verified"
+          },
+          "default_level": "basic"
+        }
+      },
+      {
+        "agent_id": "target-registry-agent",
+        "role": "counterparty",
+        "registry_id": "00000000-0000-0000-0000-000000000021",
+        "trust_scopes": {
+          "scopes": {
+            "billing": "trusted"
+          },
+          "default_level": "basic"
+        }
+      }
+    ],
+    "initiated_at": "2026-02-17T10:00:00Z",
+    "settled_at": "2026-02-17T10:00:15Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.2",
+    "fr": "FR-7"
+  }
+}

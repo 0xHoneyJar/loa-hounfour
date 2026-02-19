@@ -1,14 +1,18 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ConversationSealingPolicy",
-  "contract_version": "4.6.0",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
       "id": "sealing-policy-valid",
       "expression": "seal_algorithm != null",
       "severity": "error",
       "message": "ConversationSealingPolicy must have a seal_algorithm",
-      "fields": ["seal_algorithm"]
+      "fields": ["seal_algorithm"],
+      "type_signature": {
+        "seal_algorithm": "string"
+      }
     }
   ]
 }

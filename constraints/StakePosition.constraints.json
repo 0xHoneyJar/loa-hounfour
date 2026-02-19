@@ -1,21 +1,31 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "StakePosition",
-  "contract_version": "4.6.0",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
       "id": "stake-vesting-conservation",
       "expression": "bigint_sum([vesting.vested_micro, vesting.remaining_micro]) == amount_micro",
       "severity": "error",
       "message": "vesting conservation violated: vested + remaining must equal amount",
-      "fields": ["amount_micro", "vesting.vested_micro", "vesting.remaining_micro"]
+      "fields": ["amount_micro", "vesting.vested_micro", "vesting.remaining_micro"],
+      "type_signature": {
+        "amount_micro": "bigint_coercible",
+        "vesting.vested_micro": "bigint_coercible",
+        "vesting.remaining_micro": "bigint_coercible"
+      }
     },
     {
       "id": "stake-immediate-zero-remaining",
       "expression": "vesting.schedule == 'immediate' => vesting.remaining_micro == '0'",
       "severity": "error",
       "message": "remaining_micro must be \"0\" when vesting schedule is \"immediate\"",
-      "fields": ["vesting.schedule", "vesting.remaining_micro"]
+      "fields": ["vesting.schedule", "vesting.remaining_micro"],
+      "type_signature": {
+        "vesting.schedule": "string",
+        "vesting.remaining_micro": "bigint_coercible"
+      }
     }
   ]
 }

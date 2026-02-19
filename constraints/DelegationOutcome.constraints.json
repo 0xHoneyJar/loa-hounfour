@@ -1,0 +1,61 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "DelegationOutcome",
+  "contract_version": "7.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "outcome-votes-match-children",
+      "description": "Number of votes must meet or exceed consensus threshold",
+      "expression": "votes.length >= 1",
+      "severity": "error",
+      "category": "structural",
+      "type_signature": {
+        "votes": "array"
+      }
+    },
+    {
+      "id": "outcome-consensus-consistent",
+      "description": "Unanimous outcome requires all votes to be agree",
+      "expression": "outcome_type != 'unanimous' || votes.every(v => v.vote == 'agree')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": {
+        "outcome_type": "string",
+        "votes": "array"
+      }
+    },
+    {
+      "id": "outcome-deadlock-no-result",
+      "description": "Deadlock outcomes must have null result",
+      "expression": "outcome_type != 'deadlock' || result == null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": {
+        "outcome_type": "string",
+        "result": "unknown"
+      }
+    },
+    {
+      "id": "outcome-escalation-has-target",
+      "description": "Escalation outcomes must specify escalated_to",
+      "expression": "outcome_type != 'escalation' || escalated_to != null",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": {
+        "outcome_type": "string",
+        "escalated_to": "string"
+      }
+    },
+    {
+      "id": "outcome-dissent-has-reasoning",
+      "description": "Every dissent record must have non-empty reasoning",
+      "expression": "dissent_records.every(d => d.reasoning != '')",
+      "severity": "error",
+      "category": "governance",
+      "type_signature": {
+        "dissent_records": "array"
+      }
+    }
+  ]
+}

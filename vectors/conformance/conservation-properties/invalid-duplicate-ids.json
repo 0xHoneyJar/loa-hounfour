@@ -1,0 +1,42 @@
+{
+  "vector_id": "conformance-conservation-properties-003",
+  "category": "conservation-properties",
+  "description": "Invalid registry: duplicate invariant_id values in properties array",
+  "contract_version": "5.5.0",
+  "input": {
+    "total_count": 2,
+    "properties": [
+      {
+        "invariant_id": "I-1",
+        "name": "Budget Conservation",
+        "ltl_formula": "G(budget_post == budget_pre - cost)",
+        "description": "Budget must decrease by exactly the cost of the operation",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["BUDGET_EXCEEDED"],
+        "severity": "critical"
+      },
+      {
+        "invariant_id": "I-1",
+        "name": "Duplicate Budget Conservation",
+        "ltl_formula": "G(budget_post == budget_pre - cost)",
+        "description": "Duplicate entry with same invariant_id",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["BUDGET_EXCEEDED"],
+        "severity": "critical"
+      }
+    ],
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "fr": "FR-1",
+    "expected_constraint_violation": "conservation-property-unique-ids"
+  }
+}

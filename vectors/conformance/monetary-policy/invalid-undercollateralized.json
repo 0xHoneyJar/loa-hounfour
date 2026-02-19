@@ -1,0 +1,23 @@
+{
+  "vector_id": "conformance-monetary-policy-0002",
+  "category": "monetary-policy",
+  "description": "Invalid monetary policy with collateral ratio below 100% (10000 bps minimum)",
+  "contract_version": "7.0.0",
+  "input": {
+    "policy_id": "00000000-0000-0000-0000-000000000202",
+    "registry_id": "00000000-0000-0000-0000-000000000020",
+    "minting_policy_id": "mp-treasury-002",
+    "conservation_ceiling": "50000000000",
+    "coupling_invariant": "bigint_gte(collateral, current_supply)",
+    "collateral_ratio_bps": 5000,
+    "review_trigger": {
+      "trigger_type": "manual"
+    },
+    "last_reviewed_at": null,
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.4", "fr": "FR-4", "expected_constraint_violations": ["monetary-policy-collateral-minimum"] }
+}

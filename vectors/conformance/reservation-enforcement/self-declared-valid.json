@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-reservation-enforcement-0001",
+  "category": "reservation-enforcement",
+  "description": "Valid reservation with self_declared tier at 300 bps minimum — expected to pass",
+  "contract_version": "5.2.0",
+  "input": {
+    "agent_id": "agent-001",
+    "conformance_level": "self_declared",
+    "reserved_capacity_bps": 300,
+    "budget_limit_micro": "1000000",
+    "budget_spent_micro": "500000"
+  },
+  "expected_output": {
+    "reserved_micro": "30000",
+    "tier_valid": true,
+    "enforcement": "strict"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["tier_valid"]
+  },
+  "metadata": {
+    "sdd_section": "§3.8",
+    "tier_map": "self_declared → 300 bps"
+  }
+}

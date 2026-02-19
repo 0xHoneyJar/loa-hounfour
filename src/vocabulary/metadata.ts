@@ -25,6 +25,16 @@ export const METADATA_NAMESPACES = {
    * @see {@link https://github.com/0xHoneyJar/loa-finn/issues/31 | The Hounfour RFC}
    */
   MODEL: 'model.',
+  /**
+   * Billing/economy metadata for cost tracking and reconciliation.
+   *
+   * Reserved for the economy layer. When a domain event or billing entry
+   * carries billing provenance, the producing service annotates with
+   * billing.* keys.
+   *
+   * @see {@link BILLING_METADATA_KEYS} for documented keys
+   */
+  BILLING: 'billing.',
   /** Consumer-defined extensions. */
   CONSUMER: 'x-',
 } as const;
@@ -68,6 +78,50 @@ export const MODEL_METADATA_KEYS = {
 export type ModelMetadataKey = typeof MODEL_METADATA_KEYS[keyof typeof MODEL_METADATA_KEYS];
 
 /**
+ * Documented metadata keys for the `billing.*` namespace.
+ *
+ * These keys are conventions, not enforced by schema validation. Producers
+ * SHOULD populate them when billing provenance matters (e.g., cost reconciliation,
+ * audit trails, multi-model ensemble billing attribution).
+ *
+ * @see BB-C4-ADV-003 — Billing cross-field validation
+ */
+export const BILLING_METADATA_KEYS = {
+  /**
+   * Billing entry identifier (ULID) linking this event to a BillingEntry.
+   * @type string
+   */
+  ENTRY_ID: 'billing.entry_id',
+  /**
+   * Cost in micro-USD associated with this event.
+   * @type string (MicroUSDUnsigned pattern: ^[0-9]+$)
+   */
+  COST_MICRO: 'billing.cost_micro',
+  /**
+   * Whether this billing entry has been reconciled against the ledger.
+   * @type boolean
+   */
+  RECONCILED: 'billing.reconciled',
+  /**
+   * Provider that generated the cost (e.g., 'anthropic', 'openai').
+   * @type string
+   */
+  PROVIDER: 'billing.provider',
+  /**
+   * On-chain payment transaction hash for provenance tracking.
+   * @type string
+   */
+  PAYMENT_TX: 'billing.payment_tx',
+  /**
+   * Credit lot identifier for prepaid billing reconciliation.
+   * @type string
+   */
+  CREDIT_LOT_ID: 'billing.credit_lot_id',
+} as const;
+
+export type BillingMetadataKey = typeof BILLING_METADATA_KEYS[keyof typeof BILLING_METADATA_KEYS];
+
+/**
  * Check whether a metadata key belongs to any known namespace.
  *
  * @returns true if the key starts with a recognized namespace prefix
@@ -85,6 +139,7 @@ export function getNamespaceOwner(key: string): string | undefined {
   if (key.startsWith(METADATA_NAMESPACES.PROTOCOL)) return 'loa-hounfour';
   if (key.startsWith(METADATA_NAMESPACES.TRACE)) return 'infrastructure';
   if (key.startsWith(METADATA_NAMESPACES.MODEL)) return 'model';
+  if (key.startsWith(METADATA_NAMESPACES.BILLING)) return 'economy';
   if (key.startsWith(METADATA_NAMESPACES.CONSUMER)) return 'consumer';
   return undefined;
 }

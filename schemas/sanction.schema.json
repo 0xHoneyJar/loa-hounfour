@@ -1,8 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/4.4.0/sanction",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/sanction",
   "description": "Sanction imposed on an agent for policy violations",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "type": "object",
   "required": [
     "sanction_id",
@@ -128,10 +129,51 @@
       "format": "date-time",
       "type": "string"
     },
+    "escalation_rule_applied": {
+      "minLength": 1,
+      "type": "string"
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"
+    },
+    "severity_level": {
+      "$id": "SanctionSeverity",
+      "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity.",
+      "anyOf": [
+        {
+          "const": "warning",
+          "type": "string"
+        },
+        {
+          "const": "rate_limited",
+          "type": "string"
+        },
+        {
+          "const": "pool_restricted",
+          "type": "string"
+        },
+        {
+          "const": "suspended",
+          "type": "string"
+        }
+      ]
+    },
+    "duration_seconds": {
+      "minimum": 0,
+      "description": "Duration in seconds (0 = indefinite until review)",
+      "type": "integer"
+    },
+    "appeal_dispute_id": {
+      "format": "uuid",
+      "description": "UUID of the linked dispute record if appeal was filed",
+      "type": "string"
+    },
+    "escalated_from": {
+      "minLength": 1,
+      "description": "sanction_id of the predecessor sanction this was escalated from",
+      "type": "string"
     }
   },
-  "$comment": "contract_version=4.4.0, min_supported=3.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

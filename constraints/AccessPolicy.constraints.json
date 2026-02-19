@@ -1,14 +1,18 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "AccessPolicy",
-  "contract_version": "4.6.0",
+  "contract_version": "5.0.0",
+  "expression_version": "1.0",
   "constraints": [
     {
       "id": "access-policy-valid",
       "expression": "visibility != null",
       "severity": "error",
       "message": "AccessPolicy must have a visibility field",
-      "fields": ["visibility"]
+      "fields": ["visibility"],
+      "type_signature": {
+        "visibility": "string"
+      }
     }
   ]
 }

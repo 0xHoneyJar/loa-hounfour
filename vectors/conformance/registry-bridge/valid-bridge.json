@@ -1,0 +1,37 @@
+{
+  "vector_id": "conformance-registry-bridge-0001",
+  "category": "registry-bridge",
+  "description": "Valid bridge between two distinct registries with conservation invariant",
+  "contract_version": "6.0.0",
+  "input": {
+    "bridge_id": "550e8400-e29b-41d4-a716-446655440100",
+    "source_registry_id": "550e8400-e29b-41d4-a716-446655440101",
+    "target_registry_id": "550e8400-e29b-41d4-a716-446655440102",
+    "bridge_invariants": [
+      {
+        "invariant_id": "B-1",
+        "name": "Cross-registry conservation",
+        "description": "source.debit == target.credit",
+        "ltl_formula": "G(transfer → source.debit == target.credit)",
+        "enforcement": "atomic"
+      }
+    ],
+    "exchange_rate": {
+      "rate_type": "fixed",
+      "value": "1.0",
+      "governance_proposal_required": false,
+      "staleness_threshold_seconds": 3600
+    },
+    "settlement": "immediate",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.5",
+    "fr": "FR-5"
+  }
+}

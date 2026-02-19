@@ -225,3 +225,67 @@ describe('Sanction escalation rule wiring cross-field validation', () => {
     expect(result.valid === true && result.warnings?.some((w) => w.includes('does not match escalation rule'))).toBe(true);
   });
 });
+
+// --- v5.2.0 — Reservation floor preservation warnings ---
+
+describe('Sanction reservation floor preservation (v5.2.0)', () => {
+  it('warns for severity "warning" — should preserve reservation floor', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'warning',
+      expires_at: '2026-06-01T00:00:00Z',
+      trigger: { violation_type: 'content_policy', occurrence_count: 1, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(true);
+    expect(result.warnings?.some(w => w.includes('reservation floor'))).toBe(true);
+  });
+
+  it('warns for severity "rate_limited" — should preserve reservation floor', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'rate_limited',
+      expires_at: '2026-06-01T00:00:00Z',
+      trigger: { violation_type: 'content_policy', occurrence_count: 3, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(true);
+    expect(result.warnings?.some(w => w.includes('reservation floor'))).toBe(true);
+  });
+
+  it('no reservation warning for "pool_restricted" — CAN breach floor', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'pool_restricted',
+      trigger: { violation_type: 'rate_abuse', occurrence_count: 5, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(true);
+    const reservationWarnings = result.warnings?.filter(w => w.includes('reservation floor'));
+    expect(reservationWarnings?.length ?? 0).toBe(0);
+  });
+
+  it('no reservation warning for "suspended" — CAN breach floor', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'suspended',
+      trigger: { violation_type: 'safety_violation', occurrence_count: 1, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(true);
+    const reservationWarnings = result.warnings?.filter(w => w.includes('reservation floor'));
+    expect(reservationWarnings?.length ?? 0).toBe(0);
+  });
+
+  it('no reservation warning for "terminated" — CAN breach floor', () => {
+    const doc = {
+      ...VALID_SANCTION,
+      severity: 'terminated',
+      trigger: { violation_type: 'billing_fraud', occurrence_count: 1, evidence_event_ids: ['e1'] },
+    };
+    const result = validate(SanctionSchema, doc);
+    expect(result.valid).toBe(true);
+    const reservationWarnings = result.warnings?.filter(w => w.includes('reservation floor'));
+    expect(reservationWarnings?.length ?? 0).toBe(0);
+  });
+});

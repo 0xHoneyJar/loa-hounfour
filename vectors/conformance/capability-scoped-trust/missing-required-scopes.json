@@ -1,0 +1,36 @@
+{
+  "vector_id": "conformance-capability-scoped-trust-003",
+  "category": "capability-scoped-trust",
+  "description": "Agent missing required billing and inference scopes — should fail scope-coverage constraint",
+  "contract_version": "6.0.0",
+  "input": {
+    "agent_id": "agent-missing-scopes",
+    "display_name": "Missing Scopes Agent",
+    "agent_type": "service",
+    "capabilities": ["logging"],
+    "trust_scopes": {
+      "scopes": {
+        "governance": "basic",
+        "delegation": "untrusted",
+        "audit": "basic",
+        "composition": "untrusted"
+      },
+      "default_level": "basic"
+    },
+    "delegation_authority": [],
+    "max_delegation_depth": 0,
+    "governance_weight": 0,
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "cross_field_validations": [
+    {
+      "rule_id": "agent-identity-scope-coverage",
+      "expected_severity": "error"
+    }
+  ],
+  "metadata": {
+    "sdd_section": "§2.2"
+  }
+}

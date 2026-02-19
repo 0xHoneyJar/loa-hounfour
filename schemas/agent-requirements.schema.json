@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/agent-requirements",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "agent_id",
+    "contract_version"
+  ],
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "requires_native_runtime": {
+      "type": "boolean"
+    },
+    "requires_tool_calling": {
+      "type": "boolean"
+    },
+    "requires_thinking_traces": {
+      "type": "boolean"
+    },
+    "requires_vision": {
+      "type": "boolean"
+    },
+    "preferred_models": {
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "min_context_tokens": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}
