@@ -1012,23 +1012,66 @@
           "global_id": 68,
           "label": "Stabilization — Build Hygiene & Type Safety",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7"],
-          "status": "pending"
+          "status": "completed"
         },
         {
           "local_id": "sprint-6",
           "global_id": 69,
           "label": "Stabilization — Consumer Documentation & Release Readiness",
           "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-17T18:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/14",
+      "archived_at": "2026-02-17T22:00:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-17-coordination-aware-v7.0.0",
+      "archive_note": "6 sprints + 2 bridge iterations completed (FLATLINE at iter 2). v7.0.0 delivered: typed AST + annotation utility (F-007/F-008/F-020), BridgeTransferSaga + DelegationOutcome coordination schemas, MonetaryPolicy + PermissionBoundary + GovernanceProposal governance layer, 31 evaluator builtins, 87+ total schemas, 147 constraints across 40 files, consumer CHANGELOG + MIGRATION guide. +404 new tests (3,504→3,908). PR #14 merged. All deferred findings resolved. Zero unused locals under --noUnusedLocals."
+    }
+  ],
+  "active_cycle": "cycle-018",
+  "active_bugfix": null,
+  "global_sprint_counter": 71,
+  "bugfix_cycles": [],
+  "pending_cycles": [
+    {
+      "id": "cycle-017",
+      "label": "Lean Residency — Hounfour Protocol Separation",
+      "prd": "docs/requirements/prd.md",
+      "sdd": null,
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 70,
+          "label": "Lean Residency Migration",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-19T12:00:00Z",
+      "archived_at": "2026-02-19T13:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/16",
+      "archive_note": "1 sprint completed. Lean Residency: ejected .claude/ (993 files, 11MB), migrated grimoire knowledge to docs/, created mount-loa.sh for ephemeral framework access. 3,908 tests passing, zero source changes."
+    },
+    {
+      "id": "cycle-018",
+      "label": "Documentation Overhaul — Grounded Truth for v7.0.0",
+      "prd": "docs/requirements/prd.md",
+      "sdd": null,
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 71,
+          "label": "Documentation Overhaul — Grounded Truth for v7.0.0",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8"],
           "status": "pending"
         }
       ],
       "status": "active",
-      "created_at": "2026-02-17T18:00:00Z",
-      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/pull/14"
+      "created_at": "2026-02-19T13:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/15"
     }
-  ],
-  "active_cycle": "cycle-016",
-  "active_bugfix": null,
-  "global_sprint_counter": 69,
-  "bugfix_cycles": []
+  ]
 }

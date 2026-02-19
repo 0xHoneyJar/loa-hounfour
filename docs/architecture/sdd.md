@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # SDD: loa-hounfour v7.0.0 — The Coordination-Aware Protocol
 
 **Status:** Draft

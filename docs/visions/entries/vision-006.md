@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 006: Symbiotic Layer — Convergence Detection & Intent Modeling
 
 ## Source

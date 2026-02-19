@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision: Pluggable credential provider registry
 
 **ID**: vision-001

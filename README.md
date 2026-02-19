@@ -1,8 +1,41 @@
+<!-- docs-version: 7.0.0 -->
+
 # @0xhoneyjar/loa-hounfour
 
-Shared protocol contracts for the **loa-finn ↔ arrakis** integration layer.
+> Documentation current as of v7.0.0
 
-This package is the single source of truth for the wire format between [loa-finn](https://github.com/0xHoneyJar/loa-finn) (runtime) and [arrakis](https://github.com/0xHoneyJar/arrakis) (gateway). Both repos import from this package — no cross-repo hope-based coordination.
+Typed, validated protocol contracts for AI agent coordination. TypeBox schemas with dual JSON Schema 2020-12 output.
+
+## What This Is
+
+loa-hounfour is a **schema-only** protocol library. It defines the wire format for services that need typed, validated contracts between AI agents, gateways, and runtimes. Every TypeBox schema compiles to a standalone JSON Schema 2020-12 file, enabling cross-language validation in Python, Go, Rust, or any JSON Schema-compliant environment.
+
+**What it does**: Typed schemas, runtime validation, cross-field invariant checks, constraint DSL with evaluator builtins, formal conservation properties, governance layer.
+
+**What it does NOT do**: No runtime, no transport, no HTTP server, no model invocation. Schemas and validation only.
+
+Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (runtime) and [arrakis](https://github.com/0xHoneyJar/arrakis) (gateway). Any service needing typed AI coordination contracts can consume this package independently.
+
+## Why
+
+- **Schema drift**: Without a shared contract, services diverge silently.
+- **Protocol divergence**: Typed schemas catch incompatibilities at build time, not in production.
+- **Cross-language validation**: JSON Schema 2020-12 output works in any language ecosystem.
+- **Constraint DSL**: Formal rules (conservation laws, temporal ordering, state machine transitions) enforced by an evaluator with 31 builtins.
+
+## Inventory
+
+| Metric | Value | Source |
+|--------|-------|--------|
+| Schema files | 53 | `src/schemas/**/*.ts` |
+| Module barrels | 9 | `src/*/index.ts` (core, economy, model, governance, constraints, integrity, graph, composition, validators) |
+| Package export paths | 10 | `package.json` exports field |
+| Constraint files | 40 | `constraints/` (39 `.constraints.json` + 1 `GRAMMAR.md`) |
+| Evaluator builtins | 31 | `src/constraints/evaluator.ts:1399-1446` |
+| Tests | 3,908 | `pnpm run test` |
+| CONTRACT_VERSION | 7.0.0 | `src/version.ts:13` |
+| MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
+| Golden test vector dirs | 15 | `vectors/` (excluding VERSION) |
 
 ## Installation
 
@@ -12,131 +45,165 @@ npm install @0xhoneyjar/loa-hounfour
 
 # pnpm
 pnpm add @0xhoneyjar/loa-hounfour
-
-# git dependency (if not yet published to npm)
-pnpm add github:0xHoneyJar/loa-hounfour
 ```
 
-## What's Included
+## Module Map
 
-### Schemas (TypeBox → JSON Schema 2020-12)
+All 10 package export paths and what they contain:
 
-| Schema | Export | Description |
-|--------|--------|-------------|
-| JWT Claims | `JwtClaimsSchema`, `S2SJwtClaimsSchema` | Gateway authentication tokens |
-| Invoke Response | `InvokeResponseSchema` | Model invocation response format |
-| Usage Report | `UsageReportSchema` | Token usage and cost attribution |
-| Stream Events | `StreamEventSchema` | SSE discriminated union (6 event types) |
-| Routing Policy | `RoutingPolicySchema` | NFT personality routing shape validation |
+| Export Path | Description | Key Exports |
+|-------------|-------------|-------------|
+| `.` | Root barrel — re-exports all modules | Everything below, plus `CONTRACT_VERSION`, `validate`, `validators`, `validateCompatibility` |
+| `./core` | Agent lifecycle, conversation, transfer, events, discovery | `AgentDescriptorSchema`, `ConversationSchema`, `TransferSpecSchema`, `DomainEventSchema`, `HealthStatusSchema`, `ProtocolDiscoverySchema`, `StreamEventSchema`, `AgentIdentitySchema`, `CapabilitySchema` |
+| `./economy` | Billing, escrow, staking, credit, dividends, conservation | `JwtClaimsSchema`, `InvokeResponseSchema`, `BillingEntrySchema`, `EscrowEntrySchema`, `StakePositionSchema`, `CommonsDividendSchema`, `MutualCreditSchema`, `RegistryBridgeSchema`, `BridgeTransferSagaSchema`, `MonetaryPolicySchema` |
+| `./model` | Completion, ensemble, routing, capabilities, providers | `CompletionRequestSchema`, `CompletionResultSchema`, `ModelCapabilitiesSchema`, `EnsembleRequestSchema`, `RoutingResolutionSchema`, `ModelProviderSpecSchema`, `DelegationChainSchema`, `ConformanceVectorSchema` |
+| `./governance` | Sanctions, disputes, reputation, performance, proposals | `SanctionSchema`, `DisputeRecordSchema`, `ReputationScoreSchema`, `PerformanceRecordSchema`, `GovernanceConfigSchema`, `DelegationTreeSchema`, `DelegationOutcomeSchema`, `PermissionBoundarySchema`, `GovernanceProposalSchema` |
+| `./constraints` | Constraint grammar, rule definitions, evaluator, DDD vocabulary | `evaluateConstraint`, `EVALUATOR_BUILTINS`, `typeCheckConstraintFile`, `STATE_MACHINES`, `AGGREGATE_BOUNDARIES`, `TEMPORAL_PROPERTIES` |
+| `./integrity` | Request hashing, decompression, idempotency, conservation properties | `computeReqHash`, `verifyReqHash`, `decompressBody`, `deriveIdempotencyKey`, `CANONICAL_CONSERVATION_PROPERTIES`, `CANONICAL_LIVENESS_PROPERTIES` |
+| `./graph` | Schema graph operations | `extractReferences`, `buildSchemaGraph` (cycle detection, reachability, impact analysis) |
+| `./composition` | Cross-module composition types (v7.0.0 coordination schemas) | `RegistryBridgeSchema`, `MintingPolicySchema`, `BridgeTransferSagaSchema`, `DelegationTreeSchema`, `DelegationOutcomeSchema`, `PermissionBoundarySchema`, `GovernanceProposalSchema`, `MonetaryPolicySchema` |
+| `./schemas/*` | Pre-generated JSON Schema 2020-12 files | Static `.schema.json` files for cross-language consumption |
 
-### Vocabulary
-
-| Export | Description |
-|--------|-------------|
-| `POOL_IDS` | Canonical pool IDs: `cheap`, `fast-code`, `reviewer`, `reasoning`, `architect` |
-| `TIER_POOL_ACCESS` | Tier → pool access mapping (free, pro, enterprise) |
-| `TIER_DEFAULT_POOL` | Default pool per tier |
-| `ERROR_CODES` | 28 standard error codes across 8 categories |
-| `JTI_POLICY` | JTI requirement matrix by endpoint type |
-
-### Integrity Functions
-
-| Export | Description |
-|--------|-------------|
-| `computeReqHash()` | SHA-256 over logical body bytes (handles gzip/br/deflate) |
-| `verifyReqHash()` | Constant-time req_hash verification |
-| `deriveIdempotencyKey()` | Deterministic `SHA256(tenant:reqHash:provider:model)` |
-| `decompressBody()` | Safe decompression with bomb protection (10MB limit, 100:1 ratio) |
-
-### Validators
-
-| Export | Description |
-|--------|-------------|
-| `validate()` | Generic TypeBox validation with compile cache |
-| `validators` | Pre-compiled validators for all schemas |
-| `validateCompatibility()` | N/N-1 semver version negotiation |
-
-### Version
-
-| Export | Description |
-|--------|-------------|
-| `CONTRACT_VERSION` | Current version (`1.0.0`) |
-| `MIN_SUPPORTED_VERSION` | Minimum supported (`1.0.0`) |
-| `parseSemver()` | Semver parser utility |
+Source: `package.json` exports field, `src/*/index.ts` barrel files.
 
 ## Usage
 
-```typescript
-import {
-  JwtClaimsSchema,
-  InvokeResponseSchema,
-  StreamEventSchema,
-  validate,
-  validators,
-  CONTRACT_VERSION,
-  POOL_IDS,
-  ERROR_CODES,
-  computeReqHash,
-  deriveIdempotencyKey,
-  validateCompatibility,
-} from '@0xhoneyjar/loa-hounfour';
-
-// Validate JWT claims
-const result = validators.jwtClaims(claims);
-if (!result.success) throw new Error('Invalid claims');
-
-// Check version compatibility
-const compat = validateCompatibility('1.0.0', '1.1.0');
-// { compatible: true, warning: 'Minor version mismatch' }
-
-// Compute request hash
-const hash = await computeReqHash(bodyBuffer, 'gzip');
-
-// Derive idempotency key
-const key = await deriveIdempotencyKey(tenantId, reqHash, provider, model);
-```
-
-## JSON Schemas
-
-Pre-generated JSON Schema 2020-12 files are available at `schemas/`:
+### Import from Sub-Packages
 
 ```typescript
-import schema from '@0xhoneyjar/loa-hounfour/schemas/jwt-claims.schema.json';
+// Targeted imports — tree-shakeable
+import { AgentDescriptorSchema, ConversationSchema } from '@0xhoneyjar/loa-hounfour/core';
+import { BillingEntrySchema, EscrowEntrySchema } from '@0xhoneyjar/loa-hounfour/economy';
+import { CompletionRequestSchema, EnsembleRequestSchema } from '@0xhoneyjar/loa-hounfour/model';
+import { SanctionSchema, GovernanceProposalSchema } from '@0xhoneyjar/loa-hounfour/governance';
+import { evaluateConstraint, EVALUATOR_BUILTINS } from '@0xhoneyjar/loa-hounfour/constraints';
+import { computeReqHash, deriveIdempotencyKey } from '@0xhoneyjar/loa-hounfour/integrity';
+import { buildSchemaGraph } from '@0xhoneyjar/loa-hounfour/graph';
+import { BridgeTransferSagaSchema } from '@0xhoneyjar/loa-hounfour/composition';
+
+// Or import everything from the root
+import { validate, validators, CONTRACT_VERSION } from '@0xhoneyjar/loa-hounfour';
 ```
 
-These enable cross-language validation (Python, Go, Rust, etc.).
+### Validation
+
+```typescript
+import { validate } from '@0xhoneyjar/loa-hounfour';
+import { BillingEntrySchema } from '@0xhoneyjar/loa-hounfour/economy';
+
+const result = validate(BillingEntrySchema, data);
+
+if (result.valid) {
+  // result.warnings may contain advisory messages
+  console.log('Valid', result.warnings ?? []);
+} else {
+  // result.errors contains validation failures
+  // Cross-field invariants (e.g., conservation checks) are included automatically
+  console.error('Invalid', result.errors);
+}
+```
+
+### Constraint Evaluation
+
+Constraint files in `constraints/*.constraints.json` define cross-field rules using a PEG-based expression language (see `constraints/GRAMMAR.md`). The evaluator runs these against data objects:
+
+```typescript
+import { evaluateConstraint } from '@0xhoneyjar/loa-hounfour/constraints';
+
+// Evaluate a constraint expression against a data object
+const satisfied = evaluateConstraint(data, 'bigint_gte(limit_micro, spent_micro)');
+// Returns true if the constraint passes, false if violated
+```
+
+The constraint DSL supports 31 evaluator builtins (`src/constraints/evaluator.ts:1399-1446`): BigInt arithmetic (`bigint_sum`, `bigint_add`, `bigint_sub`, `bigint_gte`, `bigint_gt`, `bigint_eq`), delegation chain validation (`all_links_subset_authority`, `delegation_budget_conserved`, `links_temporally_ordered`, `links_form_chain`), ensemble capability checks, temporal operators (`changed`, `previous`, `delta`), type introspection (`type_of`, `is_bigint_coercible`), and v7.0.0 coordination/governance builtins (`saga_amount_conserved`, `saga_steps_sequential`, `outcome_consensus_valid`, `monetary_policy_solvent`, `permission_boundary_active`, `proposal_quorum_met`, `saga_timeout_valid`, `proposal_weights_normalized`).
+
+### Cross-Language JSON Schema Usage
+
+Pre-generated JSON Schema 2020-12 files enable validation from any language:
+
+```typescript
+// TypeScript — import static schema
+import schema from '@0xhoneyjar/loa-hounfour/schemas/billing-entry.schema.json';
+```
+
+```python
+# Python — load the schema file
+import json
+from jsonschema import validate
+
+with open("node_modules/@0xhoneyjar/loa-hounfour/schemas/billing-entry.schema.json") as f:
+    schema = json.load(f)
+
+validate(instance=data, schema=schema)
+```
+
+```go
+// Go — load and validate with any JSON Schema library
+schemaBytes, _ := os.ReadFile("schemas/billing-entry.schema.json")
+```
 
 ## Golden Test Vectors
 
-Cross-language conformance vectors in `vectors/`:
+Cross-language conformance vectors live in `vectors/`. Each file contains valid and/or invalid test cases with expected outcomes.
 
-- `vectors/budget/` — 56 budget calculation scenarios (basic pricing, streaming cancel, extreme tokens, price changes, provider corrections)
-- `vectors/jwt/` — JWT conformance vectors
-- Idempotency and req-hash vectors in test files
+| Directory | Coverage |
+|-----------|----------|
+| `vectors/budget/` | Budget calculation (basic pricing, streaming cancel, extreme tokens, price changes, provider corrections) |
+| `vectors/jwt/` | JWT conformance |
+| `vectors/agent/` | Agent lifecycle transitions, NFT ID parsing |
+| `vectors/billing/` | Billing allocation |
+| `vectors/conversation/` | Conversation schema vectors |
+| `vectors/domain-event/` | Domain event batches and events |
+| `vectors/transfer/` | Transfer choreography and specs |
+| `vectors/cross-ecosystem/` | Cross-module vectors (completion, billing-ensemble, event-saga, constraint-proposal) |
+| `vectors/capability/` | Capability schema vectors |
+| `vectors/discovery/` | Protocol discovery vectors |
+| `vectors/health/` | Health status vectors |
+| `vectors/reputation-score/` | Reputation score vectors |
+| `vectors/thinking/` | Thinking trace vectors |
+| `vectors/conformance/` | Provider normalization, pricing calculation, thinking traces, tool call roundtrip, ensemble position, reservation enforcement, delegation chain, inter-agent transaction, conservation properties, JWT boundary, agent identity, capability-scoped trust, liveness properties, registry bridge |
+| `vectors/runners/` | Reference runners for Go, Python, and Rust |
 
-## Ownership & Versioning
+Vector runners validate that non-TypeScript implementations produce identical results:
 
-### Ownership Model
+- `vectors/runners/go/` — Go test runner
+- `vectors/runners/python/` — Python test runner
+- `vectors/runners/rust/` — Rust test runner
 
-The **loa-finn team** maintains this package. The server owns the contract — schema changes land here first, then consumers update.
+## Scripts
 
-### Versioning Policy
+```bash
+pnpm run build              # Compile TypeScript (tsc)
+pnpm run test               # Run all 3,908 tests (vitest)
+pnpm run typecheck           # Type-only check (tsc --noEmit)
+pnpm run schema:generate     # Regenerate JSON schemas from TypeBox
+pnpm run schema:check        # Validate schema integrity
+pnpm run semver:check        # Check for breaking changes
+pnpm run vectors:check       # Validate golden test vectors
+pnpm run schemas:validate    # Validate all schema files
+pnpm run check:constraints   # Validate constraint files
+pnpm run check:all           # Run all integrity checks
+```
 
-Strict semver with N/N-1 support window:
+## Versioning Policy
 
-| Change Type | Version Bump | Examples |
+Strict semver with N/N-1 support window. Source: `src/version.ts:13-14`.
+
+| Change Type | Version Bump | Example |
 |-------------|-------------|---------|
-| Bug fixes, docs | PATCH | Fix typo in error code description |
+| Bug fixes, documentation | PATCH | Fix typo in error code description |
 | New optional fields, new schemas | MINOR | Add `reasoning_tokens` to usage report |
-| Required field additions, removals | MAJOR | Make `req_hash` mandatory |
+| Required field additions, field removals | MAJOR | Make `req_hash` mandatory, trust_level to trust_scopes |
 
 ### Compatibility
 
-- **Same major+minor**: COMPATIBLE
-- **Same major, minor ±1**: COMPATIBLE_WITH_WARNING (`X-Contract-Version-Warning` header)
-- **Different major**: INCOMPATIBLE (400 `CONTRACT_VERSION_MISMATCH`)
+| Relationship | Result | Action |
+|-------------|--------|--------|
+| Same major + minor | COMPATIBLE | None |
+| Same major, minor +/-1 | COMPATIBLE_WITH_WARNING | `X-Contract-Version-Warning` header |
+| Different major | INCOMPATIBLE | 400 `CONTRACT_VERSION_MISMATCH` |
 
-Both arrakis and loa-finn must support versions N and N-1 minor for a 30-day overlap window.
+Consumers must support versions N and N-1 minor for a 30-day overlap window.
 
 ### Breaking Change Process
 
@@ -146,45 +213,25 @@ Both arrakis and loa-finn must support versions N and N-1 minor for a 30-day ove
 4. CI: `semver:check` validates no accidental breaks
 5. Both consumers update within overlap window
 
-## Consuming from arrakis
+## Further Documentation
 
-Arrakis should replace `tests/e2e/contracts/schema/` fixtures with imports:
+| Topic | Location |
+|-------|----------|
+| Architecture decisions | `docs/architecture/decision-lineage.md` |
+| Separation of concerns | `docs/architecture/separation-of-concerns.md` |
+| System design document | `docs/architecture/sdd.md` |
+| Transfer choreography | `docs/choreography/` |
+| Epistemic tristate pattern | `docs/patterns/epistemic-tristate.md` |
+| Capability schema design | `docs/architecture/capability-schema.md` |
+| JAM geometry | `docs/architecture/jam-geometry.md` |
+| Runtime contract | `docs/integration/runtime-contract.md` |
+| Product requirements | `docs/requirements/prd.md` |
+| Contributing | `CONTRIBUTING.md` |
 
-```typescript
-// Before (fixture-based)
-import schema from '../contracts/schema/jwt-claims.json';
+## Maintainer
 
-// After (shared package)
-import { JwtClaimsSchema } from '@0xhoneyjar/loa-hounfour';
-```
-
-Migration mapping:
-
-| arrakis fixture | loa-hounfour export |
-|----------------|-------------------|
-| `jwt-claims.json` | `JwtClaimsSchema` |
-| `invoke-response.json` | `InvokeResponseSchema` |
-| `usage-report.json` | `UsageReportSchema` |
-| `stream-event.json` | `StreamEventSchema` |
-
-## Scripts
-
-```bash
-pnpm run build          # Compile TypeScript
-pnpm run test           # Run all 90 tests
-pnpm run typecheck      # Type-only check
-pnpm run schema:generate # Regenerate JSON schemas from TypeBox
-pnpm run schema:check   # Validate schema integrity
-pnpm run semver:check   # Check for breaking changes
-```
-
-## References
-
-- [RFC #31 — The Hounfour](https://github.com/0xHoneyJar/loa-finn/issues/31)
-- [Issue #60 — Extract loa-hounfour protocol](https://github.com/0xHoneyJar/loa-finn/issues/60)
+[@janitooor](https://github.com/janitooor)
 
 ## License
 
-[AGPL-3.0](LICENSE.md) — Use, modify, distribute freely. Network service deployments must release source code.
-
-Commercial licenses are available for organizations that wish to use loa-hounfour without AGPL obligations.
+AGPL-3.0. Commercial licenses are available for organizations that wish to use Loa without AGPL obligations.

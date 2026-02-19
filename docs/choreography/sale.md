@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Sale Transfer Choreography
 
 > Auto-generated from `TRANSFER_CHOREOGRAPHY.sale`. Do not edit manually.

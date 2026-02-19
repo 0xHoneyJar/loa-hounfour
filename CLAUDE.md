@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # @0xhoneyjar/loa-hounfour
 
 Shared protocol contracts for the loa-finn <-> arrakis integration layer.

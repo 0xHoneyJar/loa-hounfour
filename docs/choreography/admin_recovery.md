@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Admin_recovery Transfer Choreography
 
 > Auto-generated from `TRANSFER_CHOREOGRAPHY.admin_recovery`. Do not edit manually.

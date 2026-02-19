@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 007: Operator Skill Curve & Progressive Orchestration Disclosure
 
 ## Source

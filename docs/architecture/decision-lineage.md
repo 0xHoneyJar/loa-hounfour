@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Decision Lineage
 
 > **Source**: Team of Rivals pattern (arXiv:2601.14351)

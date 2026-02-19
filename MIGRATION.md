@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
@@ -115,36 +117,6 @@ import { trustLevelIndex, meetsThreshold } from '@0xhoneyjar/loa-hounfour/core';
 | **Minimum Supported** | 6.0.0 |
 
 ---
-
-## Schema Evolution Strategy
-
-### Version Support Policy
-
-| Property | Value |
-|----------|-------|
-| **Current Version** | 5.1.0 |
-| **Minimum Supported** | 5.0.0 |
-| **N/N-1 Guarantee** | Consumers must accept current and previous minor version |
-| **Major Mismatch** | 400 with `CONTRACT_VERSION_MISMATCH` error |
-| **Minor Mismatch** | `X-Contract-Version-Warning` header |
-
-### Consumer Upgrade Matrix
-
-| Consumer | Producer 3.0.0 | Producer 4.0.0–4.6.0 | Producer 5.0.0 | Producer 5.1.0 |
-|----------|----------------|----------------------|----------------|----------------|
-| **2.0.0–2.4.0** | Fwd-compat* | **REJECTED** | **REJECTED** | **REJECTED** |
-| **3.0.0–3.2.0** | Full | Fwd-compat** | Fwd-compat*** | **REJECTED** |
-| **4.0.0–4.6.0** | Full | Full | Fwd-compat*** | **REJECTED** |
-| **5.0.0** | Full | Full | Full | Fwd-compat**** |
-| **5.1.0** | Full | Full | Full | Full |
-
-\*\*\* v5.0.0 introduces barrel decomposition. Consumers using direct schema imports (e.g., `@0xhoneyjar/loa-hounfour/schemas/model/...`) must update import paths. Consumers using the root barrel (`@0xhoneyjar/loa-hounfour`) are unaffected. All new schemas are additive.
-
-\*\*\*\* v5.1.0 is fully backward-compatible with v5.0.0. All new fields are optional. v5.0.0 consumers will ignore unknown fields on strict schemas (strip before validation). MIN_SUPPORTED_VERSION bumped to 5.0.0.
-
-\* Requires validate-then-strip for strict schemas. See below.
-
-\*\* v4.0.0 makes MicroUSD signed by default and relaxes DomainEvent/DomainEventBatch envelopes to `additionalProperties: true`. A v3.x consumer with strict unsigned MicroUSD validation will reject signed amounts containing `-`. Consumers using `MicroUSD` must handle the signed pattern or migrate to `MicroUSDUnsigned`.
 
 ### Schema `additionalProperties` Policy
 

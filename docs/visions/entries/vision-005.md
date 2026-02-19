@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 005: Pre-Swarm Research Planning (`/plan-research`)
 
 ## Source

@@ -1,3 +1,5 @@
+<!-- docs-version: 7.0.0 -->
+
 # Vision 003: Context Isolation as Prompt Injection Defense
 
 ## Source
