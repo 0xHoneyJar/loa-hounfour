@@ -1,0 +1,51 @@
+{
+  "vector_id": "conformance-conservation-properties-001",
+  "category": "conservation-properties",
+  "description": "Valid conservation property registry with 3 properties, correct total_count, unique IDs, and non-empty LTL formulas",
+  "contract_version": "5.5.0",
+  "input": {
+    "total_count": 3,
+    "properties": [
+      {
+        "invariant_id": "I-1",
+        "name": "Budget Conservation",
+        "ltl_formula": "G(budget_post == budget_pre - cost)",
+        "description": "Budget must decrease by exactly the cost of the operation",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["BUDGET_EXCEEDED", "BUDGET_UNDERFLOW"],
+        "severity": "critical"
+      },
+      {
+        "invariant_id": "I-2",
+        "name": "Escrow Atomicity",
+        "ltl_formula": "G(escrow_lock -> F(escrow_release | escrow_refund))",
+        "description": "Every escrow lock must eventually be released or refunded",
+        "universe": "economic",
+        "enforcement": "runtime_reject",
+        "error_codes": ["ESCROW_STUCK", "ESCROW_DOUBLE_RELEASE"],
+        "severity": "critical"
+      },
+      {
+        "invariant_id": "I-3",
+        "name": "Authority Non-Escalation",
+        "ltl_formula": "G(delegated_scope ⊆ parent_scope)",
+        "description": "Delegated authority can never exceed the delegator's authority",
+        "universe": "governance",
+        "enforcement": "compile_time",
+        "error_codes": ["AUTHORITY_ESCALATION"],
+        "severity": "critical"
+      }
+    ],
+    "contract_version": "5.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "fr": "FR-1"
+  }
+}

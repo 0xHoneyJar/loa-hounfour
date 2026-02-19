@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/tree-strategy",
+  "description": "Strategy for combining results from child delegations.",
+  "anyOf": [
+    {
+      "const": "first_complete",
+      "type": "string"
+    },
+    {
+      "const": "best_of_n",
+      "type": "string"
+    },
+    {
+      "const": "consensus",
+      "type": "string"
+    },
+    {
+      "const": "pipeline",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

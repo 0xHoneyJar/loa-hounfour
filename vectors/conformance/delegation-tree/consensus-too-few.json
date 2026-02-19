@@ -1,0 +1,62 @@
+{
+  "vector_id": "conformance-delegation-tree-0003",
+  "category": "delegation-tree",
+  "description": "Invalid: consensus strategy with only 2 children at root (requires >= 3)",
+  "contract_version": "6.0.0",
+  "input": {
+    "tree_id": "550e8400-e29b-41d4-a716-446655440600",
+    "root": {
+      "node_id": "550e8400-e29b-41d4-a716-446655440601",
+      "agent_id": "orchestrator",
+      "authority_scope": ["billing", "inference"],
+      "budget_allocated_micro": "1000000",
+      "children": [
+        {
+          "node_id": "550e8400-e29b-41d4-a716-446655440602",
+          "agent_id": "agent-a",
+          "authority_scope": ["billing"],
+          "budget_allocated_micro": "500000",
+          "children": [],
+          "fork_type": "parallel",
+          "status": "active",
+          "version": 0,
+          "timestamp": "2026-02-17T10:01:00Z"
+        },
+        {
+          "node_id": "550e8400-e29b-41d4-a716-446655440603",
+          "agent_id": "agent-b",
+          "authority_scope": ["inference"],
+          "budget_allocated_micro": "500000",
+          "children": [],
+          "fork_type": "parallel",
+          "status": "active",
+          "version": 0,
+          "timestamp": "2026-02-17T10:01:00Z"
+        }
+      ],
+      "fork_type": "parallel",
+      "status": "active",
+      "version": 0,
+      "timestamp": "2026-02-17T10:00:00Z"
+    },
+    "strategy": "consensus",
+    "total_budget_micro": "1000000",
+    "budget_allocation": "equal_split",
+    "max_depth": 5,
+    "max_total_nodes": 50,
+    "created_at": "2026-02-17T10:00:00Z",
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {
+    "constraint_violated": "delegation-tree-consensus-minimum"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["constraint_violated"]
+  },
+  "metadata": {
+    "sdd_section": "§2.6",
+    "fr": "FR-6",
+    "violation": "consensus strategy requires >= 3 children but root has only 2"
+  }
+}

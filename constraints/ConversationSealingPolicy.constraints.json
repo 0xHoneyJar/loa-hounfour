@@ -9,7 +9,10 @@
       "expression": "seal_algorithm != null",
       "severity": "error",
       "message": "ConversationSealingPolicy must have a seal_algorithm",
-      "fields": ["seal_algorithm"]
+      "fields": ["seal_algorithm"],
+      "type_signature": {
+        "seal_algorithm": "string"
+      }
     }
   ]
 }

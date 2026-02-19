@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/agent-capacity-reservation",
+  "description": "Capacity reservation that guarantees an agent a minimum fraction of budget.",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "type": "object",
+  "required": [
+    "reservation_id",
+    "agent_id",
+    "conformance_level",
+    "reserved_capacity_bps",
+    "state",
+    "effective_from",
+    "budget_scope_id",
+    "contract_version"
+  ],
+  "properties": {
+    "reservation_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "conformance_level": {
+      "$id": "ConformanceLevel",
+      "description": "Trust level assigned to a provider based on conformance verification depth.",
+      "anyOf": [
+        {
+          "const": "self_declared",
+          "type": "string"
+        },
+        {
+          "const": "community_verified",
+          "type": "string"
+        },
+        {
+          "const": "protocol_certified",
+          "type": "string"
+        }
+      ]
+    },
+    "reserved_capacity_bps": {
+      "minimum": 0,
+      "maximum": 10000,
+      "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
+      "type": "integer"
+    },
+    "state": {
+      "$id": "ReservationState",
+      "description": "Current lifecycle state of a capacity reservation.",
+      "anyOf": [
+        {
+          "const": "active",
+          "type": "string"
+        },
+        {
+          "const": "expired",
+          "type": "string"
+        },
+        {
+          "const": "revoked",
+          "type": "string"
+        }
+      ]
+    },
+    "effective_from": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "effective_until": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "budget_scope_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

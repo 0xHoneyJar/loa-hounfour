@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-monetary-policy-0001",
+  "category": "monetary-policy",
+  "description": "Valid monetary policy with 150% collateral ratio and epoch-based review",
+  "contract_version": "7.0.0",
+  "input": {
+    "policy_id": "00000000-0000-0000-0000-000000000201",
+    "registry_id": "00000000-0000-0000-0000-000000000020",
+    "minting_policy_id": "mp-treasury-001",
+    "conservation_ceiling": "100000000000",
+    "coupling_invariant": "bigint_gte(collateral, bigint_sub(conservation_ceiling, current_supply))",
+    "collateral_ratio_bps": 15000,
+    "review_trigger": {
+      "trigger_type": "epoch_boundary",
+      "epoch_interval": 30
+    },
+    "last_reviewed_at": "2026-01-01T00:00:00Z",
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.4", "fr": "FR-4" }
+}

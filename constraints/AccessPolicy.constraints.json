@@ -9,7 +9,10 @@
       "expression": "visibility != null",
       "severity": "error",
       "message": "AccessPolicy must have a visibility field",
-      "fields": ["visibility"]
+      "fields": ["visibility"],
+      "type_signature": {
+        "visibility": "string"
+      }
     }
   ]
 }

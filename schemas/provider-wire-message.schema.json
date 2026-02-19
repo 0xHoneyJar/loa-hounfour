@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/provider-wire-message",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/provider-wire-message",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "type": "object",
@@ -99,5 +99,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

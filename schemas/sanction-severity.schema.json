@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/5.1.0/sanction-severity",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/sanction-severity",
   "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity.",
   "anyOf": [
     {
@@ -20,5 +20,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=5.1.0, min_supported=5.0.0"
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
 }

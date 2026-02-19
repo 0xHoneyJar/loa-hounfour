@@ -1,0 +1,46 @@
+{
+  "vector_id": "conformance-delegation-chain-0003",
+  "category": "delegation-chain",
+  "description": "Invalid: link grants authority_scope not in delegator's received scope (scope escalation)",
+  "contract_version": "5.4.0",
+  "input": {
+    "chain_id": "550e8400-e29b-41d4-a716-446655440003",
+    "root_delegator": "agent-alice",
+    "links": [
+      {
+        "delegator": "agent-alice",
+        "delegatee": "agent-bob",
+        "task_type": "inference",
+        "authority_scope": ["model_select"],
+        "budget_allocated_micro": "1000000",
+        "timestamp": "2026-02-17T10:00:00Z",
+        "outcome": "re-delegated"
+      },
+      {
+        "delegator": "agent-bob",
+        "delegatee": "agent-carol",
+        "task_type": "inference",
+        "authority_scope": ["model_select", "budget_spend"],
+        "budget_allocated_micro": "500000",
+        "timestamp": "2026-02-17T10:01:00Z",
+        "outcome": "pending"
+      }
+    ],
+    "max_depth": 5,
+    "authority_conservation": true,
+    "status": "active",
+    "contract_version": "5.4.0"
+  },
+  "expected_output": {
+    "constraint_violated": "delegation-chain-authority-conservation"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["constraint_violated"]
+  },
+  "metadata": {
+    "sdd_section": "§2.1",
+    "paper": "arXiv:2602.11865",
+    "violation": "agent-bob grants budget_spend to agent-carol but only received model_select from agent-alice"
+  }
+}

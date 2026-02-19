@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/constraint-type-signature",
+  "additionalProperties": false,
+  "description": "Static type signature for a constraint expression (v6.0.0).",
+  "type": "object",
+  "required": [
+    "input_schema",
+    "output_type",
+    "field_types"
+  ],
+  "properties": {
+    "input_schema": {
+      "minLength": 1,
+      "description": "Schema $id that this constraint applies to.",
+      "type": "string"
+    },
+    "output_type": {
+      "$id": "ConstraintType",
+      "description": "Type universe for constraint expression operands (v6.0.0).",
+      "anyOf": [
+        {
+          "const": "boolean",
+          "type": "string"
+        },
+        {
+          "const": "bigint",
+          "type": "string"
+        },
+        {
+          "const": "bigint_coercible",
+          "type": "string"
+        },
+        {
+          "const": "string",
+          "type": "string"
+        },
+        {
+          "const": "number",
+          "type": "string"
+        },
+        {
+          "const": "array",
+          "type": "string"
+        },
+        {
+          "const": "object",
+          "type": "string"
+        },
+        {
+          "const": "unknown",
+          "type": "string"
+        }
+      ]
+    },
+    "field_types": {
+      "description": "Map of field paths to their constraint types.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "$id": "ConstraintType",
+          "description": "Type universe for constraint expression operands (v6.0.0).",
+          "anyOf": [
+            {
+              "const": "boolean",
+              "type": "string"
+            },
+            {
+              "const": "bigint",
+              "type": "string"
+            },
+            {
+              "const": "bigint_coercible",
+              "type": "string"
+            },
+            {
+              "const": "string",
+              "type": "string"
+            },
+            {
+              "const": "number",
+              "type": "string"
+            },
+            {
+              "const": "array",
+              "type": "string"
+            },
+            {
+              "const": "object",
+              "type": "string"
+            },
+            {
+              "const": "unknown",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

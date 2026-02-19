@@ -9,14 +9,22 @@
       "expression": "role != 'tool' || tool_call_id != null",
       "severity": "error",
       "message": "tool_call_id is required when role is 'tool'",
-      "fields": ["role", "tool_call_id"]
+      "fields": ["role", "tool_call_id"],
+      "type_signature": {
+        "role": "string",
+        "tool_call_id": "string"
+      }
     },
     {
       "id": "wire-message-content-presence",
       "expression": "content != null || tool_calls != null",
       "severity": "error",
       "message": "Message must have either content or tool_calls",
-      "fields": ["content", "tool_calls"]
+      "fields": ["content", "tool_calls"],
+      "type_signature": {
+        "content": "string",
+        "tool_calls": "array"
+      }
     }
   ]
 }

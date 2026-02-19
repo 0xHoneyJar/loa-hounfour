@@ -167,6 +167,96 @@ export {
   type AuditTrailEntry,
 } from '../schemas/audit-trail-entry.js';
 
+// Schemas — Inter-Agent Transaction Audit (v5.4.0, FR-2)
+export {
+  InterAgentTransactionAuditSchema,
+  type InterAgentTransactionAudit,
+} from '../schemas/inter-agent-transaction-audit.js';
+
+// Branded Arithmetic Types (v5.5.0, FR-3)
+export {
+  microUSD,
+  basisPoints,
+  accountId,
+  addMicroUSD,
+  subtractMicroUSD,
+  multiplyBPS,
+  bpsShare,
+  serializeMicroUSD,
+  deserializeMicroUSD,
+  serializeBasisPoints,
+  deserializeBasisPoints,
+  type MicroUSD as BrandedMicroUSD,
+  type BasisPoints,
+  type AccountId,
+} from './branded-types.js';
+
+// Schemas — JWT Boundary Verification (v5.5.0, FR-2)
+export {
+  JwtVerificationStepSchema,
+  JwtBoundarySpecSchema,
+  OutboundClaimsSchema,
+  InboundClaimsSchema,
+  CANONICAL_JWT_BOUNDARY_STEPS,
+  type JwtVerificationStep,
+  type JwtBoundarySpec,
+  type OutboundClaims,
+  type InboundClaims,
+} from './jwt-boundary.js';
+
+// Schemas — Registry Composition (v6.0.0, FR-5)
+export {
+  withAnnotation,
+  BridgeEnforcementSchema,
+  BridgeInvariantSchema,
+  SettlementPolicySchema,
+  ExchangeRateTypeSchema,
+  ExchangeRateSpecSchema,
+  RegistryBridgeSchema,
+  CANONICAL_BRIDGE_INVARIANTS,
+  type BridgeEnforcement,
+  type BridgeInvariant,
+  type SettlementPolicy,
+  type ExchangeRateType,
+  type ExchangeRateSpec,
+  type RegistryBridge,
+} from './registry-composition.js';
+
+// Schemas — Minting Policy (v6.0.0, FR-5)
+export {
+  MintingPolicySchema,
+  type MintingPolicy,
+} from './minting-policy.js';
+
+// Schemas — Bridge Transfer Saga (v7.0.0)
+export {
+  SagaStatusSchema,
+  SAGA_TRANSITIONS,
+  StepTypeSchema,
+  StepStatusSchema,
+  BridgeTransferStepSchema,
+  ParticipantRoleSchema,
+  SagaParticipantSchema,
+  SagaErrorSchema,
+  BridgeTransferSagaSchema,
+  type SagaStatus,
+  type StepType,
+  type StepStatus,
+  type BridgeTransferStep,
+  type ParticipantRole,
+  type SagaParticipant,
+  type SagaError,
+  type BridgeTransferSaga,
+} from './bridge-transfer-saga.js';
+
+// Schemas — Monetary Policy (v7.0.0)
+export {
+  ReviewTriggerSchema,
+  MonetaryPolicySchema,
+  type ReviewTrigger,
+  type MonetaryPolicy,
+} from './monetary-policy.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

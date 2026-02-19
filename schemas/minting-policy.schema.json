@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/minting-policy",
+  "additionalProperties": false,
+  "description": "Policy governing token creation within an economy registry.",
+  "type": "object",
+  "required": [
+    "policy_id",
+    "registry_id",
+    "mint_authority",
+    "mint_constraints",
+    "max_mint_per_epoch",
+    "epoch_seconds",
+    "requires_governance_approval",
+    "contract_version"
+  ],
+  "properties": {
+    "policy_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "registry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "mint_authority": {
+      "minLength": 1,
+      "description": "Agent or entity authorized to mint tokens.",
+      "type": "string"
+    },
+    "mint_constraints": {
+      "description": "Constraint IDs that must pass before minting.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "max_mint_per_epoch": {
+      "pattern": "^\\d+$",
+      "description": "Maximum tokens that can be minted per epoch (string-encoded BigInt).",
+      "type": "string"
+    },
+    "epoch_seconds": {
+      "minimum": 1,
+      "description": "Duration of one minting epoch in seconds.",
+      "type": "integer"
+    },
+    "requires_governance_approval": {
+      "default": false,
+      "description": "Whether minting requires governance proposal approval.",
+      "type": "boolean"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

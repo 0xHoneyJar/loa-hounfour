@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-capability-scoped-trust-001",
+  "category": "capability-scoped-trust",
+  "description": "Agent with different trust levels per scope — valid",
+  "contract_version": "6.0.0",
+  "input": {
+    "agent_id": "agent-multi-scope",
+    "display_name": "Multi-Scope Agent",
+    "agent_type": "orchestrator",
+    "capabilities": ["orchestration", "inference"],
+    "trust_scopes": {
+      "scopes": {
+        "billing": "sovereign",
+        "governance": "basic",
+        "inference": "trusted",
+        "delegation": "verified",
+        "audit": "trusted",
+        "composition": "verified"
+      },
+      "default_level": "basic"
+    },
+    "delegation_authority": ["invoke"],
+    "max_delegation_depth": 2,
+    "governance_weight": 0.3,
+    "contract_version": "6.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "sdd_section": "§2.2"
+  }
+}

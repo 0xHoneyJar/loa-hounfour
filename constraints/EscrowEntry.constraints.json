@@ -9,49 +9,77 @@
       "expression": "payer_id != payee_id",
       "severity": "error",
       "message": "payer_id and payee_id must be different (self-escrow not allowed)",
-      "fields": ["payer_id", "payee_id"]
+      "fields": ["payer_id", "payee_id"],
+      "type_signature": {
+        "payer_id": "string",
+        "payee_id": "string"
+      }
     },
     {
       "id": "escrow-released-requires-released_at",
       "expression": "state == 'released' => released_at != null",
       "severity": "error",
       "message": "released_at is required when state is \"released\"",
-      "fields": ["state", "released_at"]
+      "fields": ["state", "released_at"],
+      "type_signature": {
+        "state": "string",
+        "released_at": "string"
+      }
     },
     {
       "id": "escrow-held-no-released_at",
       "expression": "state == 'held' => released_at == null",
       "severity": "error",
       "message": "released_at must not be present when state is \"held\"",
-      "fields": ["state", "released_at"]
+      "fields": ["state", "released_at"],
+      "type_signature": {
+        "state": "string",
+        "released_at": "string"
+      }
     },
     {
       "id": "escrow-disputed-requires-dispute_id",
       "expression": "state == 'disputed' => dispute_id != null",
       "severity": "error",
       "message": "dispute_id is required when state is \"disputed\"",
-      "fields": ["state", "dispute_id"]
+      "fields": ["state", "dispute_id"],
+      "type_signature": {
+        "state": "string",
+        "dispute_id": "string"
+      }
     },
     {
       "id": "escrow-held-ttl",
       "expression": "state == 'held' => expires_at != null",
       "severity": "warning",
       "message": "held escrow should have expires_at for TTL enforcement",
-      "fields": ["state", "expires_at"]
+      "fields": ["state", "expires_at"],
+      "type_signature": {
+        "state": "string",
+        "expires_at": "string"
+      }
     },
     {
       "id": "escrow-expires-after-held",
       "expression": "expires_at != null && held_at != null => expires_at > held_at",
       "severity": "error",
       "message": "expires_at must be after held_at",
-      "fields": ["expires_at", "held_at"]
+      "fields": ["expires_at", "held_at"],
+      "type_signature": {
+        "expires_at": "string",
+        "held_at": "string"
+      }
     },
     {
       "id": "escrow-released-after-held",
       "expression": "released_at != null && held_at != null => released_at >= held_at",
       "severity": "error",
       "message": "released_at must be >= held_at",
-      "fields": ["released_at", "held_at"]
+      "fields": ["released_at", "held_at"],
+      "type_signature": {
+        "released_at": "string",
+        "held_at": "string"
+      }
     }
   ]
 }

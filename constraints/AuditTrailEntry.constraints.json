@@ -9,14 +9,23 @@
       "expression": "!eq(completion_id, billing_entry_id)",
       "severity": "error",
       "message": "completion_id and billing_entry_id must be different",
-      "fields": ["completion_id", "billing_entry_id"]
+      "fields": ["completion_id", "billing_entry_id"],
+      "type_signature": {
+        "completion_id": "string",
+        "billing_entry_id": "string"
+      }
     },
     {
       "id": "audit-trail-entry-id-distinct",
       "expression": "!eq(entry_id, completion_id) && !eq(entry_id, billing_entry_id)",
       "severity": "error",
       "message": "entry_id must differ from both completion_id and billing_entry_id",
-      "fields": ["entry_id", "completion_id", "billing_entry_id"]
+      "fields": ["entry_id", "completion_id", "billing_entry_id"],
+      "type_signature": {
+        "entry_id": "string",
+        "completion_id": "string",
+        "billing_entry_id": "string"
+      }
     }
   ]
 }

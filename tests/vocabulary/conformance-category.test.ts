@@ -14,6 +14,11 @@ describe('ConformanceCategorySchema', () => {
     'tool-call-roundtrip',
     'ensemble-position',
     'reservation-enforcement',
+    'delegation-chain',
+    'inter-agent-transaction',
+    'conservation-properties',
+    'jwt-boundary',
+    'agent-identity',
   ];
 
   for (const category of validCategories) {
@@ -40,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 6 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(6);
+  it('contains exactly 20 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(20);
   });
 
   it('includes all valid categories', () => {
@@ -51,6 +56,10 @@ describe('CONFORMANCE_CATEGORIES', () => {
     expect(CONFORMANCE_CATEGORIES).toContain('tool-call-roundtrip');
     expect(CONFORMANCE_CATEGORIES).toContain('ensemble-position');
     expect(CONFORMANCE_CATEGORIES).toContain('reservation-enforcement');
+    expect(CONFORMANCE_CATEGORIES).toContain('delegation-chain');
+    expect(CONFORMANCE_CATEGORIES).toContain('inter-agent-transaction');
+    expect(CONFORMANCE_CATEGORIES).toContain('conservation-properties');
+    expect(CONFORMANCE_CATEGORIES).toContain('jwt-boundary');
   });
 
   it('is typed as readonly', () => {
@@ -63,6 +72,20 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'tool-call-roundtrip',
       'ensemble-position',
       'reservation-enforcement',
+      'delegation-chain',
+      'inter-agent-transaction',
+      'conservation-properties',
+      'jwt-boundary',
+      'agent-identity',
+      'capability-scoped-trust',
+      'liveness-properties',
+      'registry-bridge',
+      'delegation-tree',
+      'bridge-transfer-saga',
+      'delegation-outcome',
+      'monetary-policy',
+      'permission-boundary',
+      'governance-proposal',
     ]);
   });
 });

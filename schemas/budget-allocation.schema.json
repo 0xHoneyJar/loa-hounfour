@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/budget-allocation",
+  "description": "How budget is distributed among child delegations.",
+  "anyOf": [
+    {
+      "const": "equal_split",
+      "type": "string"
+    },
+    {
+      "const": "weighted",
+      "type": "string"
+    },
+    {
+      "const": "on_demand",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+}

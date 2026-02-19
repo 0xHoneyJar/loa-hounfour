@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-governance-proposal-0002",
+  "category": "governance-proposal",
+  "description": "Invalid proposal with no proposed changes",
+  "contract_version": "7.0.0",
+  "input": {
+    "proposal_id": "00000000-0000-0000-0000-000000000402",
+    "registry_id": "00000000-0000-0000-0000-000000000020",
+    "proposer_id": "agent-beta",
+    "title": "Empty proposal",
+    "description": "This proposal has no changes.",
+    "changes": [],
+    "status": "proposed",
+    "voting": {
+      "quorum_required": 0.5,
+      "votes_cast": [],
+      "voting_opened_at": "2026-01-20T00:00:00Z",
+      "voting_closed_at": null
+    },
+    "contract_version": "7.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": { "select_fields": [] },
+  "metadata": { "sdd_section": "§2.6", "fr": "FR-6", "expected_constraint_violations": ["proposal-has-changes"] }
+}

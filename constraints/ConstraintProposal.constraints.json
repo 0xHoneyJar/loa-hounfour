@@ -9,14 +9,22 @@
       "expression": "review_status != 'accepted' || consensus_category == 'HIGH_CONSENSUS'",
       "severity": "error",
       "message": "consensus_category must be 'HIGH_CONSENSUS' when review_status is 'accepted'",
-      "fields": ["review_status", "consensus_category"]
+      "fields": ["review_status", "consensus_category"],
+      "type_signature": {
+        "review_status": "string",
+        "consensus_category": "string"
+      }
     },
     {
       "id": "constraint-proposal-sunset-after-expression",
       "expression": "sunset_version == null || sunset_version >= expression_version",
       "severity": "error",
       "message": "sunset_version must be >= expression_version (constraint cannot sunset before the grammar it was authored against)",
-      "fields": ["sunset_version", "expression_version"]
+      "fields": ["sunset_version", "expression_version"],
+      "type_signature": {
+        "sunset_version": "string",
+        "expression_version": "string"
+      }
     }
   ]
 }
