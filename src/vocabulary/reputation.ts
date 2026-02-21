@@ -15,3 +15,30 @@ export const REPUTATION_DECAY = {
 } as const;
 
 export const MIN_REPUTATION_SAMPLE_SIZE = 5;
+
+// ---------------------------------------------------------------------------
+// Bayesian Blending Parameters (v7.1.0, FR-5)
+// ---------------------------------------------------------------------------
+
+/** Bayesian blending parameters for reputation score computation. */
+export const BAYESIAN_BLEND = {
+  /** Collection prior strength (k). Higher = more conservative. */
+  pseudo_count_k: 3,
+  /** Minimum observations for 'established' state. */
+  min_sample_count: 5,
+  /** Personal weight threshold for 'authoritative' state. At k=3: n > 27 reaches 0.9. */
+  authoritative_threshold: 0.9,
+} as const;
+
+/** Anti-manipulation defaults for collection score computation. */
+export const ANTI_MANIPULATION = {
+  /** Max unique evaluators per aggregate. */
+  max_contributors: 100,
+  /** Trim top/bottom N% for collection score (trimmed mean). */
+  trimmed_mean_percentile: 10,
+  /** Minimum distinct evaluators for collection score. */
+  min_unique_evaluators: 3,
+} as const;
+
+/** Reputation state machine states in order of progression. */
+export const REPUTATION_STATES = ['cold', 'warming', 'established', 'authoritative'] as const;

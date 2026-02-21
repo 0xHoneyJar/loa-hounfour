@@ -56,6 +56,10 @@ export declare const AgentLifecycleStateSchema: import("@sinclair/typebox").TUni
 export declare const AGENT_LIFECYCLE_TRANSITIONS: Record<AgentLifecycleState, readonly AgentLifecycleState[]>;
 /**
  * Check whether a lifecycle transition is valid.
+ *
+ * @deprecated Planned rename to `isValidAgentLifecycleTransition` in next major version
+ * for consistency with `isValidStateMachineTransition` and `isValidEscrowTransition`.
+ * @see BB-C9-008
  */
 export declare function isValidTransition(from: AgentLifecycleState, to: AgentLifecycleState): boolean;
 //# sourceMappingURL=agent-lifecycle.d.ts.map

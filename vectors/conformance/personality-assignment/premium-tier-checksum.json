@@ -1,0 +1,28 @@
+{
+  "vector_id": "conformance-personality-assignment-004",
+  "category": "personality-assignment",
+  "description": "Premium tier with valid EIP-55 checksummed address in NftId",
+  "contract_version": "7.1.0",
+  "input": {
+    "token_id": "eip155:1/0x5B38Da6a701c568545dCfcB03FcB875f56beddC4/1",
+    "archetype": "oracle",
+    "ancestor": "pythia",
+    "era": "classical",
+    "element": "aether",
+    "tier": "premium",
+    "fingerprint_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "expected_output": {
+    "token_id": "eip155:1/0x5B38Da6a701c568545dCfcB03FcB875f56beddC4/1",
+    "archetype": "oracle",
+    "ancestor": "pythia",
+    "era": "classical",
+    "element": "aether",
+    "tier": "premium",
+    "fingerprint_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["token_id", "tier", "fingerprint_hash"]
+  }
+}

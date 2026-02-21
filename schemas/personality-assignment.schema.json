@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/personality-assignment",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "token_id",
+    "archetype",
+    "ancestor",
+    "era",
+    "element",
+    "tier",
+    "fingerprint_hash"
+  ],
+  "properties": {
+    "token_id": {
+      "$id": "NftId",
+      "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
+      "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
+      "type": "string"
+    },
+    "archetype": {
+      "minLength": 1,
+      "description": "Personality archetype identifier. Values are domain-specific.",
+      "type": "string"
+    },
+    "ancestor": {
+      "minLength": 1,
+      "description": "Ancestor reference for personality lineage.",
+      "type": "string"
+    },
+    "era": {
+      "minLength": 1,
+      "description": "Historical era classification.",
+      "type": "string"
+    },
+    "element": {
+      "minLength": 1,
+      "description": "Elemental affinity classification.",
+      "type": "string"
+    },
+    "tier": {
+      "$id": "PersonalityTier",
+      "anyOf": [
+        {
+          "const": "basic",
+          "type": "string"
+        },
+        {
+          "const": "standard",
+          "type": "string"
+        },
+        {
+          "const": "premium",
+          "type": "string"
+        }
+      ]
+    },
+    "fingerprint_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 fingerprint of personality configuration (lowercase hex).",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+}

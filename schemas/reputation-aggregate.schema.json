@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/reputation-aggregate",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "personality_id",
+    "collection_id",
+    "pool_id",
+    "state",
+    "personal_score",
+    "collection_score",
+    "blended_score",
+    "sample_count",
+    "pseudo_count",
+    "contributor_count",
+    "min_sample_count",
+    "created_at",
+    "last_updated",
+    "transition_history",
+    "contract_version"
+  ],
+  "properties": {
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "personal_score": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "collection_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "blended_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "sample_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pseudo_count": {
+      "minimum": 1,
+      "default": 3,
+      "type": "integer"
+    },
+    "contributor_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "min_sample_count": {
+      "minimum": 1,
+      "default": 5,
+      "type": "integer"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "last_updated": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "transition_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "at",
+          "trigger"
+        ],
+        "properties": {
+          "from": {
+            "$id": "ReputationState",
+            "anyOf": [
+              {
+                "const": "cold",
+                "type": "string"
+              },
+              {
+                "const": "warming",
+                "type": "string"
+              },
+              {
+                "const": "established",
+                "type": "string"
+              },
+              {
+                "const": "authoritative",
+                "type": "string"
+              }
+            ]
+          },
+          "to": {
+            "$id": "ReputationState",
+            "anyOf": [
+              {
+                "const": "cold",
+                "type": "string"
+              },
+              {
+                "const": "warming",
+                "type": "string"
+              },
+              {
+                "const": "established",
+                "type": "string"
+              },
+              {
+                "const": "authoritative",
+                "type": "string"
+              }
+            ]
+          },
+          "at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "trigger": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+}

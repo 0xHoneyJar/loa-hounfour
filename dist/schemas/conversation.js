@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { NftIdSchema } from '../utilities/nft-id.js';
+import { ToolCallSchema } from './tool-call.js';
 /** Conversation lifecycle status. */
 export const ConversationStatusSchema = Type.Union([
     Type.Literal('active'),
@@ -37,7 +38,9 @@ export const AccessPolicySchema = Type.Object({
     })),
     roles: Type.Optional(Type.Array(Type.String({ minLength: 1 }), {
         minItems: 1,
-        description: 'Roles granted access (required for role_based)',
+        description: 'Roles granted access (required for role_based). '
+            + 'Role names are intentionally unconstrained at the protocol level — '
+            + 'domain-specific validation (e.g., valid role enums) is the consumer\'s responsibility.',
     })),
     audit_required: Type.Boolean({
         description: 'Whether access events must be logged to the audit trail',
@@ -48,6 +51,7 @@ export const AccessPolicySchema = Type.Object({
 }, {
     $id: 'AccessPolicy',
     additionalProperties: false,
+    'x-cross-field-validated': true,
     $comment: 'Cross-field invariants: '
         + '(1) time_limited requires duration_hours. '
         + '(2) role_based requires roles array. '
@@ -57,16 +61,43 @@ export const AccessPolicySchema = Type.Object({
  * Validate cross-field invariants for an access policy:
  * - `time_limited` requires `duration_hours`
  * - `role_based` requires `roles` array
+ * - Warns when extraneous fields are present for non-matching types
+ *
+ * @param policy - The access policy to validate
+ * @param options - Validation options. `{ strict: true }` promotes warnings to errors.
  */
-export function validateAccessPolicy(policy) {
+export function validateAccessPolicy(policy, options) {
     const errors = [];
+    const warnings = [];
+    const strict = options?.strict ?? false;
+    // Required field checks
     if (policy.type === 'time_limited' && policy.duration_hours === undefined) {
         errors.push('duration_hours is required when type is "time_limited"');
     }
     if (policy.type === 'role_based' && (!policy.roles || policy.roles.length === 0)) {
         errors.push('roles array is required and must be non-empty when type is "role_based"');
     }
-    return { valid: errors.length === 0, errors };
+    // Extraneous field checks (BB-C5-002/005)
+    // In strict mode, these become errors instead of warnings (BB-C5-Part5-§4)
+    if (policy.type !== 'time_limited' && policy.duration_hours !== undefined) {
+        const msg = `duration_hours is only meaningful when type is "time_limited" (current type: "${policy.type}")`;
+        if (strict) {
+            errors.push(msg);
+        }
+        else {
+            warnings.push(msg);
+        }
+    }
+    if (policy.type !== 'role_based' && policy.roles !== undefined) {
+        const msg = `roles is only meaningful when type is "role_based" (current type: "${policy.type}")`;
+        if (strict) {
+            errors.push(msg);
+        }
+        else {
+            warnings.push(msg);
+        }
+    }
+    return { valid: errors.length === 0, errors, warnings };
 }
 /**
  * Governs conversation data handling during NFT transfers.
@@ -99,6 +130,7 @@ export const ConversationSealingPolicySchema = Type.Object({
 }, {
     $id: 'ConversationSealingPolicy',
     additionalProperties: false,
+    'x-cross-field-validated': true,
     $comment: 'Cross-field invariants: '
         + '(1) When encryption_scheme !== "none", key_derivation must be non-"none" and key_reference must be provided. '
         + '(2) When access_policy.type is "time_limited", duration_hours must be set. '
@@ -114,6 +146,7 @@ export const ConversationSealingPolicySchema = Type.Object({
  */
 export function validateSealingPolicy(policy) {
     const errors = [];
+    const warnings = [];
     if (policy.encryption_scheme !== 'none') {
         if (policy.key_derivation === 'none') {
             errors.push('key_derivation must not be "none" when encryption is enabled');
@@ -125,8 +158,9 @@ export function validateSealingPolicy(policy) {
     if (policy.access_policy) {
         const apResult = validateAccessPolicy(policy.access_policy);
         errors.push(...apResult.errors);
+        warnings.push(...apResult.warnings);
     }
-    return { valid: errors.length === 0, errors };
+    return { valid: errors.length === 0, errors, warnings };
 }
 /**
  * Conversation belonging to an NFT agent.
@@ -149,6 +183,7 @@ export const ConversationSchema = Type.Object({
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
     $id: 'Conversation',
+    description: 'NFT-owned conversation with sealing policy and access control',
     additionalProperties: false,
 });
 /** Message role within a conversation. */
@@ -167,18 +202,12 @@ export const MessageSchema = Type.Object({
     model: Type.Optional(Type.String()),
     pool_id: Type.Optional(Type.String()),
     billing_entry_id: Type.Optional(Type.String()),
-    tool_calls: Type.Optional(Type.Array(Type.Object({
-        id: Type.String(),
-        name: Type.String(),
-        arguments: Type.String(),
-        model_source: Type.Optional(Type.String({
-            description: 'Model that generated this tool call (for multi-model debugging)',
-        })),
-    }, { additionalProperties: false }))),
+    tool_calls: Type.Optional(Type.Array(ToolCallSchema)),
     created_at: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
     $id: 'Message',
+    description: 'Individual message within an NFT-owned conversation',
     additionalProperties: false,
 });
 //# sourceMappingURL=conversation.js.map

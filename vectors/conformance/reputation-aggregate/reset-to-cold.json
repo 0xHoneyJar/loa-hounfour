@@ -1,0 +1,19 @@
+{
+  "vector_id": "conformance-reputation-aggregate-006",
+  "category": "reputation-aggregate",
+  "description": "Reset from authoritative to cold — valid transition from any state",
+  "contract_version": "7.1.0",
+  "input": {
+    "from_state": "authoritative",
+    "to_state": "cold",
+    "transition": "reset"
+  },
+  "expected_output": {
+    "valid_transition": true,
+    "to_state": "cold"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["valid_transition", "to_state"]
+  }
+}

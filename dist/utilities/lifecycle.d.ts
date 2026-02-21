@@ -5,12 +5,30 @@
  * v2.4.0: Structured guard results (BB-C4-ADV-001) and named guard functions (BB-C4-ADV-005).
  */
 /**
+ * Severity of a guard rejection.
+ *
+ * - `client_error`: The caller can fix the issue (e.g., forgot to provide transfer_id).
+ *   Analogous to HTTP 400 / Kubernetes admission response code 400.
+ * - `policy_violation`: The transition is structurally forbidden (e.g., agent is archived).
+ *   Analogous to HTTP 403 / Kubernetes admission response code 403.
+ *   Requires admin intervention rather than caller retry.
+ *
+ * @see BB-C5-Part5-§2 — GuardResult severity field
+ * @since v3.1.0
+ */
+export type GuardSeverity = 'client_error' | 'policy_violation';
+/**
  * Result of a guard predicate evaluation.
  *
  * Structured results replace bare booleans so that consumers can surface
  * meaningful error messages without inspecting transition internals.
  *
+ * The optional `severity` field (v3.1.0) distinguishes recoverable failures
+ * from policy violations, inspired by Kubernetes admission controller
+ * response codes.
+ *
  * @see BB-C4-ADV-001 — Guard predicates return bare boolean — no error message
+ * @see BB-C5-Part5-§2 — Severity field for recoverability
  */
 export type GuardResult = {
     valid: true;
@@ -18,6 +36,7 @@ export type GuardResult = {
     valid: false;
     reason: string;
     guard: string;
+    severity?: GuardSeverity;
 };
 /**
  * Narrow a `GuardResult` to its valid or invalid branch.
@@ -100,6 +119,8 @@ export declare function requiresTransferId(from: string, to: string, context?: R
  *
  * Business rule: archiving an agent while a transfer is in progress would
  * strand the buyer. Archival is only permitted when no transfer_id is set.
+ *
+ * Severity: `policy_violation` — structural impossibility, not a missing field.
  */
 export declare function requiresNoActiveTransfer(from: string, to: string, context?: Record<string, unknown>): GuardResult;
 /**
@@ -108,6 +129,8 @@ export declare function requiresNoActiveTransfer(from: string, to: string, conte
  * Business rule: a suspended agent can only return to active duty when the
  * suspension cause has been addressed. This prevents premature reactivation
  * and ensures accountability for the suspension event.
+ *
+ * Severity: `client_error` — caller can fix by resolving the suspension reason.
  */
 export declare function requiresReasonResolved(from: string, to: string, context?: Record<string, unknown>): GuardResult;
 /**
@@ -116,8 +139,21 @@ export declare function requiresReasonResolved(from: string, to: string, context
  * Business rule: after a transfer completes, the new owner must be
  * authenticated before the agent can be reprovisioned. Both conditions
  * prevent premature provisioning and ensure custody chain integrity.
+ *
+ * Severity: `client_error` — caller needs to provide transfer_completed and new_owner.
  */
 export declare function requiresTransferCompleted(from: string, to: string, context?: Record<string, unknown>): GuardResult;
+/**
+ * Guard: transitions to SUSPENDED or ARCHIVED require sanction evidence.
+ *
+ * Business rule: when a sanction triggers a lifecycle transition to SUSPENDED
+ * or ARCHIVED, the context must include `evidence_event_ids` — a non-empty
+ * array of event IDs linking the transition to the originating violations.
+ * This ensures every punitive state change is auditable.
+ *
+ * Severity: `client_error` — caller can fix by providing evidence_event_ids.
+ */
+export declare function requiresSanctionEvidence(from: string, to: string, context?: Record<string, unknown>): GuardResult;
 /**
  * Default guard predicates for agent lifecycle transitions.
  *

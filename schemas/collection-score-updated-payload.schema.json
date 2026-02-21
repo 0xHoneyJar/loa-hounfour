@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/collection-score-updated-payload",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "collection_id",
+    "pool_id",
+    "new_score",
+    "member_count",
+    "trimmed_count"
+  ],
+  "properties": {
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "new_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "member_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "trimmed_count": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+}

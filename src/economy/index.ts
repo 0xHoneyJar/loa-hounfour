@@ -73,6 +73,7 @@ export {
   MicroUSD,
   MicroUSDUnsigned,
   MicroUSDSigned,
+  MicroUSDCSchema,
   ZERO_MICRO,
   addMicro,
   subtractMicro,
@@ -189,6 +190,17 @@ export {
   type MicroUSD as BrandedMicroUSD,
   type BasisPoints,
   type AccountId,
+} from './branded-types.js';
+
+// MicroUSDC Branded Type (v7.1.0, FR-1)
+export {
+  type MicroUSDC,
+  microUSDC,
+  readMicroUSDC,
+  serializeMicroUSDC,
+  deserializeMicroUSDC,
+  microUSDToUSDC,
+  microUSDCToUSD,
 } from './branded-types.js';
 
 // Schemas — JWT Boundary Verification (v5.5.0, FR-2)

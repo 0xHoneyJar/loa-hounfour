@@ -106,6 +106,13 @@ import { MonetaryPolicySchema } from '../src/economy/monetary-policy.js';
 import { DelegationOutcomeSchema } from '../src/governance/delegation-outcome.js';
 import { PermissionBoundarySchema } from '../src/governance/permission-boundary.js';
 import { GovernanceProposalSchema } from '../src/governance/governance-proposal.js';
+// v7.1.0 — Reputation Protocol
+import { MicroUSDCSchema } from '../src/vocabulary/currency.js';
+import { PersonalityAssignmentSchema, PersonalityTierSchema } from '../src/core/personality-assignment.js';
+import { ReputationAggregateSchema, ReputationStateSchema, ReputationTransitionSchema } from '../src/governance/reputation-aggregate.js';
+import { QualityEventSchema } from '../src/schemas/quality-event.js';
+import { RecordQualityEventCommandSchema, QueryReputationCommandSchema, ResetReputationCommandSchema } from '../src/governance/reputation-commands.js';
+import { ReputationStateChangedPayloadSchema, QualityEventRecordedPayloadSchema, CollectionScoreUpdatedPayloadSchema } from '../src/governance/reputation-events.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -234,6 +241,20 @@ const schemas = [
   { name: 'delegation-outcome', schema: DelegationOutcomeSchema },
   { name: 'permission-boundary', schema: PermissionBoundarySchema },
   { name: 'governance-proposal', schema: GovernanceProposalSchema },
+  // v7.1.0 — Reputation Protocol
+  { name: 'micro-usdc', schema: MicroUSDCSchema },
+  { name: 'personality-tier', schema: PersonalityTierSchema },
+  { name: 'personality-assignment', schema: PersonalityAssignmentSchema },
+  { name: 'reputation-state', schema: ReputationStateSchema },
+  { name: 'reputation-transition', schema: ReputationTransitionSchema },
+  { name: 'reputation-aggregate', schema: ReputationAggregateSchema },
+  { name: 'quality-event', schema: QualityEventSchema },
+  { name: 'record-quality-event-command', schema: RecordQualityEventCommandSchema },
+  { name: 'query-reputation-command', schema: QueryReputationCommandSchema },
+  { name: 'reset-reputation-command', schema: ResetReputationCommandSchema },
+  { name: 'reputation-state-changed-payload', schema: ReputationStateChangedPayloadSchema },
+  { name: 'quality-event-recorded-payload', schema: QualityEventRecordedPayloadSchema },
+  { name: 'collection-score-updated-payload', schema: CollectionScoreUpdatedPayloadSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

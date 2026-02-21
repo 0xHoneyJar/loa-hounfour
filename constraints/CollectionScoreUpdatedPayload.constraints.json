@@ -1,0 +1,24 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CollectionScoreUpdatedPayload",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "collection-score-updated-range",
+      "expression": "new_score >= 0 && new_score <= 1",
+      "severity": "error",
+      "message": "new_score must be in [0, 1]",
+      "fields": ["new_score"],
+      "type_signature": { "new_score": "number" }
+    },
+    {
+      "id": "collection-score-trimmed-lte-members",
+      "expression": "trimmed_count <= member_count",
+      "severity": "error",
+      "message": "trimmed_count cannot exceed member_count",
+      "fields": ["trimmed_count", "member_count"],
+      "type_signature": { "trimmed_count": "integer", "member_count": "integer" }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "QualityEvent",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "quality-satisfaction-bounds",
+      "expression": "satisfaction >= 0.0 && satisfaction <= 1.0",
+      "severity": "error",
+      "message": "satisfaction must be in [0, 1]",
+      "fields": ["satisfaction"],
+      "type_signature": {
+        "satisfaction": "number"
+      }
+    },
+    {
+      "id": "quality-coherence-bounds",
+      "expression": "coherence >= 0.0 && coherence <= 1.0",
+      "severity": "error",
+      "message": "coherence must be in [0, 1]",
+      "fields": ["coherence"],
+      "type_signature": {
+        "coherence": "number"
+      }
+    },
+    {
+      "id": "quality-safety-bounds",
+      "expression": "safety >= 0.0 && safety <= 1.0",
+      "severity": "error",
+      "message": "safety must be in [0, 1]",
+      "fields": ["safety"],
+      "type_signature": {
+        "safety": "number"
+      }
+    },
+    {
+      "id": "quality-composite-bounds",
+      "expression": "composite_score >= 0.0 && composite_score <= 1.0",
+      "severity": "error",
+      "message": "composite_score must be in [0, 1]",
+      "fields": ["composite_score"],
+      "type_signature": {
+        "composite_score": "number"
+      }
+    }
+  ]
+}

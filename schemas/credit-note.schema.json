@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/credit-note",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/credit-note",
   "additionalProperties": false,
   "description": "Billing reversal/refund referencing an original BillingEntry",
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Invariants (service-layer, not schema-enforced): (1) amount_micro <= referenced BillingEntry.total_cost_micro (no over-credit). (2) references_billing_entry must reference a valid, existing BillingEntry.id. (3) Sum of all CreditNote.amount_micro for a single entry <= that entry total_cost_micro. (4) At most one void-type CreditNote per BillingEntry (reason=refund with full amount).",
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0. Invariants (service-layer, not schema-enforced): (1) amount_micro <= referenced BillingEntry.total_cost_micro (no over-credit). (2) references_billing_entry must reference a valid, existing BillingEntry.id. (3) Sum of all CreditNote.amount_micro for a single entry <= that entry total_cost_micro. (4) At most one void-type CreditNote per BillingEntry (reason=refund with full amount).",
   "type": "object",
   "required": [
     "id",

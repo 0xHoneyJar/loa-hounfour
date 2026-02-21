@@ -1,0 +1,62 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ReputationAggregate",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "reputation-cold-null-score",
+      "expression": "!(state == 'cold' && personal_score != null)",
+      "severity": "error",
+      "message": "personal_score must be null when state is cold",
+      "fields": ["state", "personal_score"],
+      "type_signature": {
+        "state": "string",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "reputation-authoritative-weight",
+      "expression": "!(state == 'authoritative' && (sample_count / (pseudo_count + sample_count)) <= 0.9)",
+      "severity": "error",
+      "message": "authoritative state requires personal weight > 0.9",
+      "fields": ["state", "sample_count", "pseudo_count"],
+      "type_signature": {
+        "state": "string",
+        "sample_count": "number",
+        "pseudo_count": "number"
+      }
+    },
+    {
+      "id": "reputation-warming-has-score",
+      "expression": "!(state == 'warming' && personal_score == null)",
+      "severity": "error",
+      "message": "warming state requires personal_score to be set",
+      "fields": ["state", "personal_score"],
+      "type_signature": {
+        "state": "string",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "reputation-blended-bounds",
+      "expression": "blended_score >= 0.0 && blended_score <= 1.0",
+      "severity": "error",
+      "message": "blended_score must be in [0, 1]",
+      "fields": ["blended_score"],
+      "type_signature": {
+        "blended_score": "number"
+      }
+    },
+    {
+      "id": "reputation-sample-nonnegative",
+      "expression": "sample_count >= 0",
+      "severity": "error",
+      "message": "sample_count cannot be negative",
+      "fields": ["sample_count"],
+      "type_signature": {
+        "sample_count": "number"
+      }
+    }
+  ]
+}

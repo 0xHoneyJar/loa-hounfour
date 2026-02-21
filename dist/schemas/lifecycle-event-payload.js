@@ -29,6 +29,7 @@ export const LifecycleTransitionPayloadSchema = Type.Object({
     })),
 }, {
     $id: 'LifecycleTransitionPayload',
+    description: 'Payload for agent lifecycle state transitions',
     additionalProperties: false,
 });
 //# sourceMappingURL=lifecycle-event-payload.js.map

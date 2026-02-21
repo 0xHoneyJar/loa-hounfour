@@ -1,0 +1,37 @@
+{
+  "vector_id": "conformance-reputation-aggregate-004",
+  "category": "reputation-aggregate",
+  "description": "established → authoritative at n=28, k=3 (personal weight = 28/31 ≈ 0.903 > 0.9)",
+  "contract_version": "7.1.0",
+  "input": {
+    "personality_id": "bear-001",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-alpha",
+    "state": "authoritative",
+    "personal_score": 0.85,
+    "collection_score": 0.5,
+    "blended_score": 0.816,
+    "sample_count": 28,
+    "pseudo_count": 3,
+    "contributor_count": 15,
+    "min_sample_count": 5,
+    "created_at": "2026-02-21T00:00:00Z",
+    "last_updated": "2026-02-21T12:00:00Z",
+    "transition_history": [
+      { "from": "cold", "to": "warming", "at": "2026-02-21T00:10:00Z", "trigger": "First QualityEvent recorded" },
+      { "from": "warming", "to": "established", "at": "2026-02-21T01:00:00Z", "trigger": "sample_count >= min_sample_count" },
+      { "from": "established", "to": "authoritative", "at": "2026-02-21T12:00:00Z", "trigger": "personal_weight > AUTHORITATIVE_THRESHOLD" }
+    ],
+    "contract_version": "7.1.0"
+  },
+  "expected_output": {
+    "state": "authoritative",
+    "sample_count": 28,
+    "personal_weight": 0.903
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["state", "sample_count"],
+    "numeric_tolerance": 0.001
+  }
+}

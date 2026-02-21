@@ -25,13 +25,36 @@ export declare const AccessPolicySchema: import("@sinclair/typebox").TObject<{
 }>;
 export type AccessPolicy = Static<typeof AccessPolicySchema>;
 /**
+ * Options for access policy validation.
+ *
+ * @since v3.1.0
+ */
+export interface AccessPolicyValidationOptions {
+    /**
+     * When `true`, warnings are promoted to errors. Use this in production
+     * deployment where extraneous fields should be treated as hard failures.
+     *
+     * For example, `type: 'none'` with `duration_hours: 24` is valid but
+     * suspicious — in strict mode it becomes an error.
+     *
+     * @default false
+     * @see BB-C5-Part5-§4 — Strict mode for production deployment
+     */
+    strict?: boolean;
+}
+/**
  * Validate cross-field invariants for an access policy:
  * - `time_limited` requires `duration_hours`
  * - `role_based` requires `roles` array
+ * - Warns when extraneous fields are present for non-matching types
+ *
+ * @param policy - The access policy to validate
+ * @param options - Validation options. `{ strict: true }` promotes warnings to errors.
  */
-export declare function validateAccessPolicy(policy: AccessPolicy): {
+export declare function validateAccessPolicy(policy: AccessPolicy, options?: AccessPolicyValidationOptions): {
     valid: boolean;
     errors: string[];
+    warnings: string[];
 };
 /**
  * Governs conversation data handling during NFT transfers.
@@ -67,6 +90,7 @@ export type ConversationSealingPolicy = Static<typeof ConversationSealingPolicyS
 export declare function validateSealingPolicy(policy: ConversationSealingPolicy): {
     valid: boolean;
     errors: string[];
+    warnings: string[];
 };
 /**
  * Conversation belonging to an NFT agent.

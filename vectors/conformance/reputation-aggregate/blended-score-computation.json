@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-reputation-aggregate-007",
+  "category": "reputation-aggregate",
+  "description": "Blended score computation: k=3, n=10, personal=0.8, collection=0.5 → (3*0.5 + 10*0.8)/13 ≈ 0.73077",
+  "contract_version": "7.1.0",
+  "input": {
+    "personal_score": 0.8,
+    "collection_score": 0.5,
+    "sample_count": 10,
+    "pseudo_count": 3
+  },
+  "expected_output": {
+    "blended_score": 0.73077,
+    "personal_weight": 0.76923
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["blended_score", "personal_weight"],
+    "numeric_tolerance": 0.0001
+  }
+}

@@ -26,3 +26,10 @@ export { validateBillingEntryFull } from './validators/billing.js';
 
 // Schema Graph (v5.5.0, FR-4)
 export { extractReferences, buildSchemaGraph, type SchemaReference, type SchemaGraphNode } from './utilities/schema-graph.js';
+
+// AccessPolicy Evaluation (v7.1.0, FR-6)
+export {
+  evaluateAccessPolicy,
+  type AccessPolicyContext,
+  type AccessPolicyResult,
+} from './utilities/access-policy.js';

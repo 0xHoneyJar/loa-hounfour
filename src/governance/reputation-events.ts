@@ -1,0 +1,67 @@
+/**
+ * Reputation event payload schemas (v7.1.0, FR-4).
+ *
+ * Event payloads are carried inside the DomainEvent envelope.
+ * These schemas define the payload shape for reputation-specific events.
+ *
+ * @see SDD §2.6 — Reputation Events
+ */
+import { Type, type Static } from '@sinclair/typebox';
+import { ReputationStateSchema } from './reputation-aggregate.js';
+
+// ---------------------------------------------------------------------------
+// ReputationStateChangedPayload
+// ---------------------------------------------------------------------------
+
+/** Payload emitted when the reputation state machine transitions. */
+export const ReputationStateChangedPayloadSchema = Type.Object({
+  personality_id: Type.String({ minLength: 1 }),
+  collection_id: Type.String({ minLength: 1 }),
+  pool_id: Type.String({ minLength: 1 }),
+  from_state: ReputationStateSchema,
+  to_state: ReputationStateSchema,
+  trigger: Type.String({ minLength: 1 }),
+  blended_score: Type.Number({ minimum: 0, maximum: 1 }),
+}, {
+  $id: 'ReputationStateChangedPayload',
+  additionalProperties: false,
+});
+
+export type ReputationStateChangedPayload = Static<typeof ReputationStateChangedPayloadSchema>;
+
+// ---------------------------------------------------------------------------
+// QualityEventRecordedPayload
+// ---------------------------------------------------------------------------
+
+/** Payload emitted when a quality observation is ingested. */
+export const QualityEventRecordedPayloadSchema = Type.Object({
+  personality_id: Type.String({ minLength: 1 }),
+  pool_id: Type.String({ minLength: 1 }),
+  quality_event_id: Type.String({ minLength: 1 }),
+  composite_score: Type.Number({ minimum: 0, maximum: 1 }),
+  new_sample_count: Type.Integer({ minimum: 1 }),
+  new_blended_score: Type.Number({ minimum: 0, maximum: 1 }),
+}, {
+  $id: 'QualityEventRecordedPayload',
+  additionalProperties: false,
+});
+
+export type QualityEventRecordedPayload = Static<typeof QualityEventRecordedPayloadSchema>;
+
+// ---------------------------------------------------------------------------
+// CollectionScoreUpdatedPayload
+// ---------------------------------------------------------------------------
+
+/** Payload emitted when a collection's trimmed mean is recalculated. */
+export const CollectionScoreUpdatedPayloadSchema = Type.Object({
+  collection_id: Type.String({ minLength: 1 }),
+  pool_id: Type.String({ minLength: 1 }),
+  new_score: Type.Number({ minimum: 0, maximum: 1 }),
+  member_count: Type.Integer({ minimum: 0 }),
+  trimmed_count: Type.Integer({ minimum: 0 }),
+}, {
+  $id: 'CollectionScoreUpdatedPayload',
+  additionalProperties: false,
+});
+
+export type CollectionScoreUpdatedPayload = Static<typeof CollectionScoreUpdatedPayloadSchema>;

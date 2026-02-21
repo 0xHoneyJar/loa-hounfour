@@ -30,5 +30,5 @@ export const PersonalityRoutingSchema = Type.Object({
 export const RoutingPolicySchema = Type.Object({
     version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     personalities: Type.Array(PersonalityRoutingSchema),
-}, { $id: 'RoutingPolicy' });
+}, { $id: 'RoutingPolicy', description: 'Policy for routing requests to agent pools' });
 //# sourceMappingURL=routing-policy.js.map

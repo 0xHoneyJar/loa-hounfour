@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-micro-usdc-001",
+  "category": "micro-usdc",
+  "description": "Round-trip serialization: '1000000' → BigInt(1000000) → '1000000'",
+  "contract_version": "7.1.0",
+  "input": {
+    "serialized": "1000000"
+  },
+  "expected_output": {
+    "deserialized_bigint": "1000000",
+    "reserialized": "1000000"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["deserialized_bigint", "reserialized"]
+  }
+}

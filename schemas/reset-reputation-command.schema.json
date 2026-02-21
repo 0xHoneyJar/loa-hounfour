@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/reset-reputation-command",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "command_id",
+    "personality_id",
+    "collection_id",
+    "pool_id",
+    "reason",
+    "actor",
+    "contract_version"
+  ],
+  "properties": {
+    "command_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "actor": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+}

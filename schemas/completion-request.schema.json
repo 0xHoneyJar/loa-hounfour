@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/completion-request",
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Financial amounts (budget_limit_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection — see SCHEMA-EVOLUTION.md for version-skew patterns.",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/completion-request",
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0. Financial amounts (budget_limit_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection — see SCHEMA-EVOLUTION.md for version-skew patterns.",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "type": "object",

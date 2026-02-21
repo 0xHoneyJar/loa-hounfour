@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/bridge-transfer-saga",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/bridge-transfer-saga",
   "additionalProperties": false,
   "description": "A saga orchestrating cross-registry bridge transfer with compensation semantics.",
   "type": "object",
@@ -426,7 +426,9 @@
     },
     "timeout": {
       "additionalProperties": false,
-      "description": "Timeout configuration for the saga.",
+      "description": "Timeout configuration for the saga. Schema-level validation ensures well-formed values; runtime enforcement by implementations is REQUIRED.",
+      "x-runtime-enforcement-required": true,
+      "x-enforcement-note": "Timeout enforcement requires runtime behavior (timers, cancellation). The protocol defines the contract; implementations MUST provide the mechanism. See RFC 7230 §6.5 for the HTTP precedent.",
       "type": "object",
       "required": [
         "total_seconds",
@@ -750,5 +752,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
 }

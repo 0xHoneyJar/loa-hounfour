@@ -207,6 +207,14 @@ export {
   isDeprecated,
 } from '../vocabulary/deprecation.js';
 
+// Schemas — Personality Assignment (v7.1.0, FR-2)
+export {
+  PersonalityTierSchema,
+  type PersonalityTier,
+  PersonalityAssignmentSchema,
+  type PersonalityAssignment,
+} from './personality-assignment.js';
+
 // Schemas — Agent Identity (v6.0.0, FR-2 — BREAKING: trust_level → trust_scopes)
 export {
   AgentIdentitySchema,

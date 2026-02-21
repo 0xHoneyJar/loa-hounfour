@@ -67,6 +67,11 @@ export const EVENT_TYPES = {
   'reputation.score.decayed': 'Reputation score decayed over time',
   'reputation.threshold.breached': 'Reputation dropped below threshold',
 
+  // Reputation aggregate — extended (v7.1.0)
+  'reputation.state.changed': 'Reputation state machine transitioned',
+  'reputation.quality_event.recorded': 'Quality observation ingested',
+  'reputation.collection_score.updated': 'Collection trimmed mean recalculated',
+
   // Economy aggregate (v4.4.0)
   'economy.escrow.created': 'Escrow entry created',
   'economy.escrow.funded': 'Escrow entry funded',

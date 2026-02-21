@@ -19,6 +19,12 @@ export const LIFECYCLE_REASON_CODES = {
     provisioning_failed: 'Agent provisioning encountered an error',
     policy_violation: 'Agent violated platform policy',
     system_maintenance: 'Scheduled system maintenance',
+    sanction_warning_issued: 'Sanction warning issued to agent',
+    sanction_rate_limited: 'Agent rate-limited due to sanction',
+    sanction_pool_restricted: 'Agent pool access restricted due to sanction',
+    sanction_suspended: 'Agent suspended due to sanction',
+    sanction_terminated: 'Agent terminated due to sanction',
+    sanction_appealed_successfully: 'Sanction appeal upheld — restriction lifted',
 };
 /** All valid reason code values. */
 export const LIFECYCLE_REASON_CODE_VALUES = Object.keys(LIFECYCLE_REASON_CODES);

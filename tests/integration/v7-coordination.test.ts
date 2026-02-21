@@ -312,6 +312,6 @@ describe('Integration: governance proposal lifecycle', () => {
 
 describe('v7.0.0 contract version', () => {
   it('CONTRACT_VERSION is 7.0.0', () => {
-    expect(CONTRACT_VERSION).toBe('7.0.0');
+    expect(CONTRACT_VERSION).toBe('7.1.0');
   });
 });

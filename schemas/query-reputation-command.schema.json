@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/query-reputation-command",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "command_id",
+    "personality_id",
+    "pool_id",
+    "contract_version"
+  ],
+  "properties": {
+    "command_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "include_history": {
+      "default": false,
+      "type": "boolean"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+}

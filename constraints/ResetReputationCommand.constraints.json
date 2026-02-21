@@ -1,0 +1,16 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ResetReputationCommand",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "reset-reputation-reason-nonempty",
+      "expression": "reason != '' && actor != ''",
+      "severity": "error",
+      "message": "reason and actor must be non-empty for audit trail",
+      "fields": ["reason", "actor"],
+      "type_signature": { "reason": "string", "actor": "string" }
+    }
+  ]
+}
