@@ -1,7 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "QueryReputationCommand",
-  "contract_version": "7.1.0",
+  "contract_version": "7.2.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -11,6 +11,14 @@
       "message": "personality_id and pool_id must be non-empty",
       "fields": ["personality_id", "pool_id"],
       "type_signature": { "personality_id": "string", "pool_id": "string" }
+    },
+    {
+      "id": "query-reputation-collection-id-nonempty-if-present",
+      "expression": "collection_id == undefined || collection_id != ''",
+      "severity": "error",
+      "message": "collection_id must be non-empty when provided",
+      "fields": ["collection_id"],
+      "type_signature": { "collection_id": "string" }
     }
   ]
 }

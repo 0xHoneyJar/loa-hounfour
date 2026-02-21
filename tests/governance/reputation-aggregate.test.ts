@@ -12,6 +12,7 @@ import {
   isValidReputationTransition,
   computePersonalWeight,
   computeBlendedScore,
+  computeDecayedSampleCount,
   type ReputationAggregate,
   type ReputationState,
 } from '../../src/governance/reputation-aggregate.js';
@@ -35,7 +36,7 @@ const VALID_AGGREGATE: ReputationAggregate = {
   created_at: '2026-02-21T00:00:00Z',
   last_updated: '2026-02-21T00:00:00Z',
   transition_history: [],
-  contract_version: '7.1.0',
+  contract_version: '7.2.0',
 };
 
 const VALID_QUALITY_EVENT: QualityEvent = {
@@ -49,7 +50,7 @@ const VALID_QUALITY_EVENT: QualityEvent = {
   composite_score: 0.88,
   evaluator_id: 'evaluator-1',
   occurred_at: '2026-02-21T01:00:00Z',
-  contract_version: '7.1.0',
+  contract_version: '7.2.0',
 };
 
 // ---------------------------------------------------------------------------
@@ -227,6 +228,52 @@ describe('Bayesian Computation', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Temporal Decay (v7.2.0 — Bridgebuilder Finding F5)
+// ---------------------------------------------------------------------------
+
+describe('computeDecayedSampleCount', () => {
+  it('returns original count when daysSinceLastUpdate is 0', () => {
+    expect(computeDecayedSampleCount(27, 0, 30)).toBe(27);
+  });
+
+  it('returns original count when daysSinceLastUpdate is negative', () => {
+    expect(computeDecayedSampleCount(27, -5, 30)).toBe(27);
+  });
+
+  it('halves at exactly one half-life (30 days)', () => {
+    expect(computeDecayedSampleCount(27, 30, 30)).toBeCloseTo(13.5, 1);
+  });
+
+  it('quarters at two half-lives (60 days)', () => {
+    expect(computeDecayedSampleCount(27, 60, 30)).toBeCloseTo(6.75, 1);
+  });
+
+  it('decays to near-zero after 10 half-lives (300 days)', () => {
+    const result = computeDecayedSampleCount(27, 300, 30);
+    expect(result).toBeGreaterThanOrEqual(0);
+    expect(result).toBeLessThan(0.03);
+  });
+
+  it('returns 0 when halfLifeDays is 0', () => {
+    expect(computeDecayedSampleCount(27, 10, 0)).toBe(0);
+  });
+
+  it('returns 0 when halfLifeDays is negative', () => {
+    expect(computeDecayedSampleCount(27, 10, -5)).toBe(0);
+  });
+
+  it('uses REPUTATION_DECAY.half_life_days (30) as default', () => {
+    const withDefault = computeDecayedSampleCount(27, 30);
+    const withExplicit = computeDecayedSampleCount(27, 30, 30);
+    expect(withDefault).toBeCloseTo(withExplicit, 10);
+  });
+
+  it('never returns negative', () => {
+    expect(computeDecayedSampleCount(1, 10000, 30)).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // QualityEventSchema
 // ---------------------------------------------------------------------------
 
@@ -265,6 +312,21 @@ describe('QualityEventSchema', () => {
     const boundary = { ...VALID_QUALITY_EVENT, satisfaction: 0, coherence: 1, safety: 0, composite_score: 1 };
     expect(Value.Check(QualityEventSchema, boundary)).toBe(true);
   });
+
+  // v7.2.0 — model_id (Bridgebuilder Finding F4)
+  it('validates with optional model_id present', () => {
+    const withModel = { ...VALID_QUALITY_EVENT, model_id: 'native' };
+    expect(Value.Check(QualityEventSchema, withModel)).toBe(true);
+  });
+
+  it('validates without model_id (backwards compatible)', () => {
+    expect(Value.Check(QualityEventSchema, VALID_QUALITY_EVENT)).toBe(true);
+  });
+
+  it('rejects empty model_id', () => {
+    const emptyModel = { ...VALID_QUALITY_EVENT, model_id: '' };
+    expect(Value.Check(QualityEventSchema, emptyModel)).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -290,5 +352,23 @@ describe('Reputation Vocabulary', () => {
     const { REPUTATION_STATES } = await import('../../src/vocabulary/reputation.js');
     expect(REPUTATION_STATES).toHaveLength(4);
     expect(REPUTATION_STATES).toEqual(['cold', 'warming', 'established', 'authoritative']);
+  });
+
+  // v7.2.0 — Deprecated exports still available (Bridgebuilder Finding F3)
+  it('REPUTATION_WEIGHTS still exported (deprecated)', async () => {
+    const { REPUTATION_WEIGHTS } = await import('../../src/vocabulary/reputation.js');
+    expect(REPUTATION_WEIGHTS).toBeDefined();
+    expect(REPUTATION_WEIGHTS.outcome_quality).toBe(0.4);
+  });
+
+  it('REPUTATION_DECAY still exported (deprecated)', async () => {
+    const { REPUTATION_DECAY } = await import('../../src/vocabulary/reputation.js');
+    expect(REPUTATION_DECAY).toBeDefined();
+    expect(REPUTATION_DECAY.half_life_days).toBe(30);
+  });
+
+  it('MIN_REPUTATION_SAMPLE_SIZE still exported (deprecated)', async () => {
+    const { MIN_REPUTATION_SAMPLE_SIZE } = await import('../../src/vocabulary/reputation.js');
+    expect(MIN_REPUTATION_SAMPLE_SIZE).toBe(5);
   });
 });

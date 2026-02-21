@@ -1,8 +1,12 @@
 /**
- * AccessPolicy evaluation helper (v7.1.0, FR-6).
+ * AccessPolicy evaluation helper (v7.2.0, FR-6 + Bridgebuilder F1).
  *
  * Evaluates an AccessPolicy against a runtime context to determine
  * whether an action is permitted.
+ *
+ * v7.2.0: Added opt-in expiry enforcement for `time_limited` policies
+ * via `policy_created_at` context field. When provided alongside
+ * `duration_hours`, the evaluator computes and enforces expiry.
  *
  * @see SDD §2.8 — AccessPolicy Evaluation Helper
  */
@@ -13,6 +17,14 @@ export interface AccessPolicyContext {
   role?: string;
   timestamp: string; // ISO 8601
   action: 'read' | 'write' | 'delete';
+  /**
+   * When the access policy was created (ISO 8601). Enables the evaluator
+   * to enforce `time_limited` expiry when paired with `duration_hours`.
+   * When absent, expiry enforcement falls back to consumer responsibility.
+   *
+   * @since v7.2.0 — Bridgebuilder Finding F1
+   */
+  policy_created_at?: string;
 }
 
 /** Result of evaluating an access policy. */
@@ -25,9 +37,9 @@ export interface AccessPolicyResult {
  * Evaluate an AccessPolicy against a runtime context.
  *
  * Design notes:
- * - `time_limited` does NOT enforce expiry — duration_hours defines the window
- *   but the policy creation timestamp is not stored on the schema. Expiry
- *   enforcement is the consumer's responsibility.
+ * - `time_limited` enforces expiry when `context.policy_created_at` is provided
+ *   and `policy.duration_hours` is defined. When `policy_created_at` is absent,
+ *   expiry enforcement falls back to consumer responsibility (v7.1.0 behavior).
  * - `role_based` checks context.role against policy.roles[] via string inclusion.
  */
 export function evaluateAccessPolicy(
@@ -47,6 +59,29 @@ export function evaluateAccessPolicy(
       if (context.action !== 'read') {
         return { allowed: false, reason: `Action '${context.action}' not permitted under time_limited` };
       }
+
+      // Opt-in expiry enforcement (v7.2.0)
+      if (context.policy_created_at && policy.duration_hours !== undefined) {
+        const createdMs = new Date(context.policy_created_at).getTime();
+        const nowMs = new Date(context.timestamp).getTime();
+        const expiryMs = createdMs + policy.duration_hours * 3600_000;
+
+        if (nowMs >= expiryMs) {
+          return {
+            allowed: false,
+            reason: `Time-limited access expired (created: ${context.policy_created_at}, `
+              + `duration: ${policy.duration_hours}h, checked: ${context.timestamp})`,
+          };
+        }
+
+        const expiresAt = new Date(expiryMs).toISOString();
+        return {
+          allowed: true,
+          reason: `Time-limited read access granted (expires: ${expiresAt})`,
+        };
+      }
+
+      // Fallback: consumer responsibility (v7.1.0 behavior)
       return { allowed: true, reason: 'Time-limited read access (expiry check is consumer responsibility)' };
     }
 

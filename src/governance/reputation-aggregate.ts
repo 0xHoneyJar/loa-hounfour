@@ -1,4 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox';
+import { REPUTATION_DECAY } from '../vocabulary/reputation.js';
 
 /**
  * Reputation state machine — 4 states from cold to authoritative.
@@ -45,7 +46,12 @@ export const ReputationAggregateSchema = Type.Object({
 
   // Bayesian blend components
   personal_score: Type.Union([Type.Number({ minimum: 0, maximum: 1 }), Type.Null()]),
-  collection_score: Type.Number({ minimum: 0, maximum: 1 }),
+  collection_score: Type.Number({
+    minimum: 0, maximum: 1,
+    description: 'Collection-level trimmed mean of member blended scores. '
+      + 'In the Web4 social monies framing, this represents the institutional credibility '
+      + 'of the collection\'s monetary instrument — higher scores indicate more trustworthy social money.',
+  }),
   blended_score: Type.Number({ minimum: 0, maximum: 1 }),
   sample_count: Type.Integer({ minimum: 0 }),
   pseudo_count: Type.Integer({ minimum: 1, default: 3 }),
@@ -166,4 +172,37 @@ export function computeBlendedScore(
   if (personalScore === null) return collectionScore;
   return (pseudoCount * collectionScore + sampleCount * personalScore)
     / (pseudoCount + sampleCount);
+}
+
+// ---------------------------------------------------------------------------
+// Temporal Decay (v7.2.0 — Bridgebuilder Finding F5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute the effective sample count after exponential time decay.
+ *
+ * Formula: n_effective = n * exp(-λ * days)
+ * where λ = ln(2) / half_life_days
+ *
+ * Consumers should apply this before `computeBlendedScore()` to prevent
+ * stale aggregates from retaining artificially high personal weight.
+ * An agent that was `authoritative` 6 months ago should not have the same
+ * blended score as one that earned it last week.
+ *
+ * @param sampleCount - Raw sample count from the aggregate (n)
+ * @param daysSinceLastUpdate - Days since `last_updated` on the aggregate
+ * @param halfLifeDays - Decay half-life in days (default: REPUTATION_DECAY.half_life_days = 30)
+ * @returns Effective sample count after decay, minimum 0
+ *
+ * @since v7.2.0 — Bridgebuilder Finding F5
+ */
+export function computeDecayedSampleCount(
+  sampleCount: number,
+  daysSinceLastUpdate: number,
+  halfLifeDays: number = REPUTATION_DECAY.half_life_days,
+): number {
+  if (daysSinceLastUpdate <= 0) return sampleCount;
+  if (halfLifeDays <= 0) return 0;
+  const lambda = Math.LN2 / halfLifeDays;
+  return Math.max(0, sampleCount * Math.exp(-lambda * daysSinceLastUpdate));
 }

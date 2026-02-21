@@ -24,7 +24,7 @@ const VALID_QUALITY_EVENT = {
   composite_score: 0.88,
   evaluator_id: 'evaluator-1',
   occurred_at: '2026-02-21T01:00:00Z',
-  contract_version: '7.1.0',
+  contract_version: '7.2.0',
 };
 
 // ---------------------------------------------------------------------------
@@ -35,7 +35,7 @@ describe('RecordQualityEventCommandSchema', () => {
   const valid: RecordQualityEventCommand = {
     command_id: 'cmd-001',
     quality_event: VALID_QUALITY_EVENT,
-    contract_version: '7.1.0',
+    contract_version: '7.2.0',
   };
 
   it('has $id = RecordQualityEventCommand', () => {
@@ -73,7 +73,7 @@ describe('QueryReputationCommandSchema', () => {
     command_id: 'cmd-002',
     personality_id: 'bear-001',
     pool_id: 'pool-alpha',
-    contract_version: '7.1.0',
+    contract_version: '7.2.0',
   };
 
   it('has $id = QueryReputationCommand', () => {
@@ -103,6 +103,19 @@ describe('QueryReputationCommandSchema', () => {
   it('rejects empty pool_id', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, pool_id: '' })).toBe(false);
   });
+
+  // v7.2.0 — collection_id (Bridgebuilder Finding F2)
+  it('validates with optional collection_id present', () => {
+    expect(Value.Check(QueryReputationCommandSchema, { ...valid, collection_id: 'honeycomb' })).toBe(true);
+  });
+
+  it('validates without collection_id (backwards compatible)', () => {
+    expect(Value.Check(QueryReputationCommandSchema, valid)).toBe(true);
+  });
+
+  it('rejects empty collection_id', () => {
+    expect(Value.Check(QueryReputationCommandSchema, { ...valid, collection_id: '' })).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -117,7 +130,7 @@ describe('ResetReputationCommandSchema', () => {
     pool_id: 'pool-alpha',
     reason: 'Manual reset by governance',
     actor: 'admin-1',
-    contract_version: '7.1.0',
+    contract_version: '7.2.0',
   };
 
   it('has $id = ResetReputationCommand', () => {

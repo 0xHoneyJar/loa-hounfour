@@ -98,6 +98,80 @@ describe('evaluateAccessPolicy — time_limited', () => {
 });
 
 // ---------------------------------------------------------------------------
+// type: 'time_limited' — Expiry enforcement (v7.2.0 — Bridgebuilder Finding F1)
+// ---------------------------------------------------------------------------
+
+describe('evaluateAccessPolicy — time_limited expiry (v7.2.0)', () => {
+  const policy: AccessPolicy = {
+    type: 'time_limited',
+    duration_hours: 24,
+    audit_required: true,
+    revocable: true,
+  };
+
+  const CREATED = '2026-02-20T12:00:00Z'; // 24h before NOW
+
+  it('allows read when not yet expired', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: '2026-02-21T11:00:00Z', // 23h after creation
+      policy_created_at: CREATED,
+    });
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toContain('expires');
+  });
+
+  it('denies read when expired', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: '2026-02-21T13:00:00Z', // 25h after creation
+      policy_created_at: CREATED,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('expired');
+  });
+
+  it('denies at exact expiry boundary', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: '2026-02-21T12:00:00Z', // exactly 24h
+      policy_created_at: CREATED,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('expired');
+  });
+
+  it('falls back to consumer responsibility when policy_created_at is absent', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+    });
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toContain('consumer responsibility');
+  });
+
+  it('still denies write even with valid expiry context', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'write',
+      timestamp: '2026-02-21T11:00:00Z',
+      policy_created_at: CREATED,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('write');
+  });
+
+  it('still denies delete even with valid expiry context', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'delete',
+      timestamp: '2026-02-21T11:00:00Z',
+      policy_created_at: CREATED,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('delete');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // type: 'role_based'
 // ---------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/quality-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/quality-event",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -57,6 +57,11 @@
       "minLength": 1,
       "type": "string"
     },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias that produced the evaluated output (e.g., native, reasoning, fast-code). Enables model-aware reputation cohorts in multi-model architectures.",
+      "type": "string"
+    },
     "occurred_at": {
       "format": "date-time",
       "type": "string"
@@ -66,5 +71,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.2.0, min_supported=6.0.0"
 }

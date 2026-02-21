@@ -30,10 +30,21 @@ export type RecordQualityEventCommand = Static<typeof RecordQualityEventCommandS
 // QueryReputationCommand
 // ---------------------------------------------------------------------------
 
-/** Command to query the current reputation aggregate for a personality in a pool. */
+/**
+ * Command to query reputation aggregates for a personality in a pool.
+ *
+ * When `collection_id` is provided, queries a single aggregate (DDD identity
+ * lookup by full composite key). When omitted, queries all aggregates for the
+ * personality+pool pair across collections (set query).
+ */
 export const QueryReputationCommandSchema = Type.Object({
   command_id: Type.String({ minLength: 1 }),
   personality_id: Type.String({ minLength: 1 }),
+  collection_id: Type.Optional(Type.String({
+    minLength: 1,
+    description: 'Collection ID for single-aggregate lookup. '
+      + 'When omitted, returns all aggregates for personality+pool across collections.',
+  })),
   pool_id: Type.String({ minLength: 1 }),
   include_history: Type.Optional(Type.Boolean({ default: false })),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),

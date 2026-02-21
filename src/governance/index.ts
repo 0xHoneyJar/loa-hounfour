@@ -83,6 +83,7 @@ export {
   isValidReputationTransition,
   computePersonalWeight,
   computeBlendedScore,
+  computeDecayedSampleCount,
 } from './reputation-aggregate.js';
 
 // Schemas — Quality Event (v7.1.0, FR-3)

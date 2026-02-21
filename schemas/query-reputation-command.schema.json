@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.1.0/query-reputation-command",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/query-reputation-command",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -18,6 +18,11 @@
       "minLength": 1,
       "type": "string"
     },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection ID for single-aggregate lookup. When omitted, returns all aggregates for personality+pool across collections.",
+      "type": "string"
+    },
     "pool_id": {
       "minLength": 1,
       "type": "string"
@@ -31,5 +36,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.1.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.2.0, min_supported=6.0.0"
 }

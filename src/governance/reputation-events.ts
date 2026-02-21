@@ -52,11 +52,23 @@ export type QualityEventRecordedPayload = Static<typeof QualityEventRecordedPayl
 // CollectionScoreUpdatedPayload
 // ---------------------------------------------------------------------------
 
-/** Payload emitted when a collection's trimmed mean is recalculated. */
+/**
+ * Payload emitted when a collection's trimmed mean is recalculated.
+ *
+ * In the Web4 social monies framing, this event functions as a monetary
+ * policy signal — the collection's quality score determines the
+ * trustworthiness of its monetary instrument. A collection where most
+ * members are `authoritative` with high blended scores produces a high
+ * `new_score`, indicating trustworthy social money.
+ */
 export const CollectionScoreUpdatedPayloadSchema = Type.Object({
   collection_id: Type.String({ minLength: 1 }),
   pool_id: Type.String({ minLength: 1 }),
-  new_score: Type.Number({ minimum: 0, maximum: 1 }),
+  new_score: Type.Number({
+    minimum: 0, maximum: 1,
+    description: 'Updated trimmed mean score for the collection. '
+      + 'Serves as a proxy for the collection\'s monetary credibility.',
+  }),
   member_count: Type.Integer({ minimum: 0 }),
   trimmed_count: Type.Integer({ minimum: 0 }),
 }, {

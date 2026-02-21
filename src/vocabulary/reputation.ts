@@ -1,3 +1,9 @@
+/**
+ * @deprecated Since v7.1.0. Superseded by the Bayesian blending model.
+ * Use {@link BAYESIAN_BLEND} for reputation score computation.
+ * The v4.3.0 weighted-component model is retained for backwards
+ * compatibility but should not be used in new code.
+ */
 export const REPUTATION_WEIGHTS = {
   outcome_quality: 0.4,
   performance_consistency: 0.25,
@@ -5,8 +11,14 @@ export const REPUTATION_WEIGHTS = {
   community_standing: 0.15,
 } as const;
 
+/** @deprecated Since v7.1.0. Use `BAYESIAN_BLEND` instead. */
 export type ReputationComponent = keyof typeof REPUTATION_WEIGHTS;
 
+/**
+ * @deprecated Since v7.2.0. For temporal decay with the Bayesian model,
+ * use `computeDecayedSampleCount()` from `@0xhoneyjar/loa-hounfour/governance`.
+ * The `half_life_days` value (30) is still used as the default decay parameter.
+ */
 export const REPUTATION_DECAY = {
   half_life_days: 30,
   floor: 0.1,
@@ -14,6 +26,9 @@ export const REPUTATION_DECAY = {
   neutral: 0.5,
 } as const;
 
+/**
+ * @deprecated Since v7.1.0. Use `BAYESIAN_BLEND.min_sample_count` instead.
+ */
 export const MIN_REPUTATION_SAMPLE_SIZE = 5;
 
 // ---------------------------------------------------------------------------

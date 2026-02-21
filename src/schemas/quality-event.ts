@@ -24,6 +24,11 @@ export const QualityEventSchema = Type.Object({
 
   // Provenance
   evaluator_id: Type.String({ minLength: 1 }),
+  model_id: Type.Optional(Type.String({
+    minLength: 1,
+    description: 'Model alias that produced the evaluated output (e.g., native, reasoning, '
+      + 'fast-code). Enables model-aware reputation cohorts in multi-model architectures.',
+  })),
   occurred_at: Type.String({ format: 'date-time' }),
 
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
