@@ -87,6 +87,51 @@ plan_and_analyze:
     skip_on_ride_error: false
 
 # -----------------------------------------------------------------------------
+# Interview Depth Configuration (v1.41.0)
+# -----------------------------------------------------------------------------
+# Controls question depth, input style, and pacing across planning skills.
+# Default: thorough mode with sequential plain-text discovery questions.
+#
+# Construct override: Schema supports future construct manifest interview
+# overrides gated by trust tier (RFC #379). Not wired yet.
+interview:
+  # Mode: thorough | minimal
+  #   thorough: 3-6 questions/phase, mandatory phase gates, no inference
+  #   minimal: 1-2 questions/phase, skip covered phases, faster throughput
+  mode: thorough
+
+  # Per-skill overrides (optional — mode applies to all if omitted)
+  # per_skill:
+  #   discovering-requirements: thorough
+  #   designing-architecture: minimal
+  #   planning-sprints: thorough
+
+  # Input style — per interaction type
+  input_style:
+    # routing_gates: AskUserQuestion for phase transitions (Continue/Adjust/Stop)
+    routing_gates: structured    # structured | plain
+    # discovery_questions: plain text for domain exploration
+    discovery_questions: plain   # structured | plain
+    # confirmation: AskUserQuestion for understanding checks
+    confirmation: structured     # structured | plain
+
+  # Question pacing
+  #   sequential: one question per turn, wait for response (default for thorough)
+  #   batch: 3-6 numbered questions per turn, user responds freely
+  pacing: sequential   # sequential | batch
+
+  # Phase transition gates
+  phase_gates:
+    between_phases: true       # Require confirmation between discovery phases
+    before_generation: true    # Require confirmation before generating output doc
+
+  # Backpressure controls (anti-rushing for capable models)
+  backpressure:
+    no_infer: true             # Prohibit inferring answers to unasked questions
+    show_work: true            # Cite known vs unknown before asking
+    min_confirmation_questions: 1  # Min questions even for "covered" phases
+
+# -----------------------------------------------------------------------------
 # Autonomous Agent (v1.11.0)
 # -----------------------------------------------------------------------------
 autonomous_agent:
@@ -1085,6 +1130,12 @@ flatline_protocol:
       notebook_id: ""          # Your NotebookLM notebook ID
       timeout_ms: 30000        # Query timeout
 
+  # Inquiry mode (FR-4): Collaborative multi-model architectural inquiry
+  # Runs 3 parallel queries (structural, historical, governance) and synthesizes
+  inquiry:
+    budget_cents: 500            # Cost budget per inquiry invocation
+    # Perspectives use primary/secondary/tertiary models with rotating assignment
+
   # Adversarial cross-model dissent for quality gates (#224)
   # A second model reviews code that Claude already reviewed
   code_review:
@@ -1381,6 +1432,12 @@ run_bridge:
   # Master toggle — must be true to use /run-bridge
   enabled: false
 
+  # ── Quick Start Profiles ──
+  # Minimal (convergence only): enabled: true — all sub-features default false
+  # Standard (+ cross-repo + lore): also set cross_repo_query.enabled: true
+  # Exploration (all features):  also set research_mode.enabled: true,
+  #   research_mode.inquiry_enabled: true, vision_registry.activation_enabled: true
+
   # Default parameters
   defaults:
     # Maximum bridge iterations (1-5)
@@ -1421,6 +1478,8 @@ run_bridge:
     enabled: true
     # Auto-capture VISION findings from Bridgebuilder reviews
     auto_capture: true
+    # FR-3: Activate relevant visions during bridge cycles (scan for tag overlap)
+    activation_enabled: false
 
   # RTFM documentation gate (runs after loop termination)
   rtfm:
@@ -1470,6 +1529,28 @@ run_bridge:
       enabled: true
       # Block posting if secrets remain after redaction
       post_redaction_safety: true
+
+  # Cross-Repository Pattern Query (FR-1, v1.40.0)
+  # Discovers structural parallels across sibling repos before each bridge review.
+  # Resolution: sibling directory → config override → REMOTE: GitHub API fallback.
+  cross_repo_query:
+    enabled: false                  # Enable cross-repo pattern matching
+    # ecosystem:                    # Override auto-discovery of sibling repos
+    #   - /path/to/sibling-repo
+    #   - REMOTE:0xHoneyJar/loa-hounfour
+    budget: 2000                    # Token budget per repo query
+    max_repos: 5                    # Maximum repos to query per iteration
+    per_repo_timeout: 5             # Per-repo timeout (seconds)
+    timeout: 15                     # Total timeout for all queries (seconds)
+
+  # Research Mode (FR-2, v1.40.0) — Divergent Exploration Iterations
+  # After convergence iterations, optionally run a divergent exploration that
+  # produces SPECULATION-only findings excluded from flatline scoring.
+  research_mode:
+    enabled: false                  # Enable research mode
+    trigger_after_iteration: 1      # Fire after N convergent iterations complete
+    max_research_iterations: 1      # Maximum research iterations per bridge run
+    inquiry_enabled: false          # Also trigger multi-model inquiry (FR-4)
 
 # =============================================================================
 # Agent Teams Compatibility (v1.39.0)
@@ -1617,3 +1698,67 @@ bridgebuilder:
   # Path to persona override (project-specific reviewer personality).
   # Falls back to built-in resources/BEAUVOIR.md if file not found.
   persona_path: "grimoires/bridgebuilder/BEAUVOIR.md"
+
+# =============================================================================
+# QMD Context Query — Unified context retrieval with three-tier fallback
+# =============================================================================
+# Controls the qmd-context-query.sh script that provides semantic search
+# across grimoires, skills, notes, and reality files.
+# Three-tier fallback: QMD (semantic) → CK (code knowledge) → grep (text)
+
+qmd_context:
+  # Master switch — set to false to disable all context injection
+  enabled: true
+
+  # Default token budget for context results (word_count × 1.3)
+  default_budget: 2000
+
+  # Timeout in seconds for each search tier
+  timeout_seconds: 5
+
+  # Scope definitions — map scope names to backend-specific paths
+  scopes:
+    grimoires:
+      qmd_collection: "loa-grimoire"
+      ck_path: ".ck/loa-grimoire/"
+      grep_paths:
+        - "grimoires/loa/"
+    skills:
+      qmd_collection: "loa-skills"
+      ck_path: ".ck/skills/"
+      grep_paths:
+        - ".claude/skills/"
+    notes:
+      qmd_collection: "loa-grimoire"
+      ck_path: ".ck/loa-grimoire/"
+      grep_paths:
+        - "grimoires/loa/NOTES.md"
+    reality:
+      qmd_collection: "loa-reality"
+      ck_path: ".ck/reality/"
+      grep_paths:
+        - "grimoires/loa/reality/"
+
+  # Per-skill budget and scope overrides
+  # Keys match the --skill argument passed by each SKILL.md integration:
+  #   implement      → /implement (implementing-tasks/SKILL.md)
+  #   review_sprint  → /review-sprint (reviewing-code/SKILL.md)
+  #   ride           → /ride (riding-codebase/SKILL.md)
+  #   run_bridge     → /run-bridge (bridge-orchestrator.sh)
+  #   gate0          → preflight.sh run_integrity_checks()
+  skill_overrides:
+    implement:
+      budget: 2000
+      scope: grimoires
+    review_sprint:
+      budget: 1500
+      scope: grimoires
+    ride:
+      budget: 2000
+      scope: reality
+    run_bridge:
+      budget: 2500
+      scope: grimoires
+    gate0:
+      budget: 1000
+      scope: notes
