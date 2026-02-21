@@ -13,8 +13,8 @@ import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..', '..');
 
-describe('v7.0.0 version bump (S4-T1)', () => {
-  it('CONTRACT_VERSION is 7.0.0', () => {
+describe('version bump', () => {
+  it('CONTRACT_VERSION matches current version', () => {
     expect(CONTRACT_VERSION).toBe('7.2.0');
   });
 
