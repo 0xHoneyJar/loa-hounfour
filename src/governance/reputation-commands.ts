@@ -46,6 +46,11 @@ export const QueryReputationCommandSchema = Type.Object({
       + 'When omitted, returns all aggregates for personality+pool across collections.',
   })),
   pool_id: Type.String({ minLength: 1 }),
+  model_id: Type.Optional(Type.String({
+    minLength: 1,
+    description: 'Model alias filter. When present, queries reputation for a specific model '
+      + 'context (returns model cohort data). When absent, returns the cross-model aggregate.',
+  })),
   include_history: Type.Optional(Type.Boolean({ default: false })),
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {

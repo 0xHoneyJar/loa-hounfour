@@ -28,6 +28,30 @@ export const ReputationTransitionSchema = Type.Object({
 export type ReputationTransition = Static<typeof ReputationTransitionSchema>;
 
 /**
+ * Per-model reputation state within a ReputationAggregate.
+ *
+ * Netflix doesn't have one quality score per show — they have per-context
+ * scores with a meta-score that blends across contexts. Similarly, a
+ * multi-model agent shouldn't have one reputation score when different
+ * models produce measurably different quality.
+ *
+ * @since v7.3.0 — Bridgebuilder C5 + Spec I
+ */
+export const ModelCohortSchema = Type.Object({
+  model_id: Type.String({ minLength: 1, description: 'Model alias (e.g. "native", "gpt-4o")' }),
+  personal_score: Type.Union([Type.Number({ minimum: 0, maximum: 1 }), Type.Null()], {
+    description: 'Per-model personal score. Null when this model cohort is cold (no observations yet).',
+  }),
+  sample_count: Type.Integer({ minimum: 0, description: 'Number of quality observations for this model' }),
+  last_updated: Type.String({ format: 'date-time', description: 'Timestamp of most recent observation for this model' }),
+}, {
+  $id: 'ModelCohort',
+  additionalProperties: false,
+});
+
+export type ModelCohort = Static<typeof ModelCohortSchema>;
+
+/**
  * Reputation aggregate — DDD aggregate with formal state machine and
  * Bayesian blending semantics.
  *
@@ -64,6 +88,14 @@ export const ReputationAggregateSchema = Type.Object({
   created_at: Type.String({ format: 'date-time' }),
   last_updated: Type.String({ format: 'date-time' }),
   transition_history: Type.Array(ReputationTransitionSchema),
+
+  // Model-aware cohorts (v7.3.0 — Bridgebuilder C5 + Spec I)
+  model_cohorts: Type.Optional(Type.Array(ModelCohortSchema, {
+    description: 'Per-model reputation cohorts. When present, each entry tracks quality '
+      + 'observations for a specific model alias. The top-level personal_score and '
+      + 'sample_count represent the cross-model aggregation. Enables model-aware routing '
+      + 'decisions per Hounfour RFC #31.',
+  })),
 
   // Protocol versioning
   contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
@@ -205,4 +237,41 @@ export function computeDecayedSampleCount(
   if (halfLifeDays <= 0) return 0;
   const lambda = Math.LN2 / halfLifeDays;
   return Math.max(0, sampleCount * Math.exp(-lambda * daysSinceLastUpdate));
+}
+
+// ---------------------------------------------------------------------------
+// Cross-Model Meta-Scoring (v7.3.0 — Bridgebuilder C5 + Spec I)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute cross-model meta-score from per-model cohorts.
+ *
+ * Each cohort's contribution is weighted by its effective sample count
+ * (after temporal decay). Models with more observations have more influence.
+ *
+ * Returns null when all cohorts are cold (no personal scores).
+ * Composes with computeDecayedSampleCount() — apply decay first.
+ *
+ * Formula: Σ(score_i * n_i) / Σ(n_i)
+ *
+ * @see Netflix parallel: per-user-context scores with meta-score blending
+ * @since v7.3.0 — Deep Bridgebuilder Review C5 + Spec I
+ */
+export function computeCrossModelScore(
+  cohorts: ReadonlyArray<{
+    personal_score: number | null;
+    sample_count: number;
+  }>,
+): number | null {
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  for (const cohort of cohorts) {
+    if (cohort.personal_score === null) continue;
+    weightedSum += cohort.personal_score * cohort.sample_count;
+    totalWeight += cohort.sample_count;
+  }
+
+  if (totalWeight === 0) return null;
+  return weightedSum / totalWeight;
 }

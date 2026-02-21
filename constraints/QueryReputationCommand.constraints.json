@@ -19,6 +19,14 @@
       "message": "collection_id must be non-empty when provided",
       "fields": ["collection_id"],
       "type_signature": { "collection_id": "string" }
+    },
+    {
+      "id": "query-reputation-model-id-nonempty-if-present",
+      "expression": "model_id == undefined || model_id != ''",
+      "severity": "error",
+      "message": "model_id must be non-empty when provided",
+      "fields": ["model_id"],
+      "type_signature": { "model_id": "string" }
     }
   ]
 }

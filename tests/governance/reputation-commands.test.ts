@@ -116,6 +116,19 @@ describe('QueryReputationCommandSchema', () => {
   it('rejects empty collection_id', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, collection_id: '' })).toBe(false);
   });
+
+  // v7.3.0 — model_id (Bridgebuilder C5 + Spec I)
+  it('validates with optional model_id present', () => {
+    expect(Value.Check(QueryReputationCommandSchema, { ...valid, model_id: 'native' })).toBe(true);
+  });
+
+  it('validates without model_id (backwards compatible)', () => {
+    expect(Value.Check(QueryReputationCommandSchema, valid)).toBe(true);
+  });
+
+  it('rejects empty model_id', () => {
+    expect(Value.Check(QueryReputationCommandSchema, { ...valid, model_id: '' })).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------

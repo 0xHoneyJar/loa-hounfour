@@ -7,14 +7,17 @@ import '../../src/validators/index.js'; // Register format validators (date-time
 import {
   ReputationStateSchema,
   ReputationTransitionSchema,
+  ModelCohortSchema,
   ReputationAggregateSchema,
   REPUTATION_TRANSITIONS,
   isValidReputationTransition,
   computePersonalWeight,
   computeBlendedScore,
   computeDecayedSampleCount,
+  computeCrossModelScore,
   type ReputationAggregate,
   type ReputationState,
+  type ModelCohort,
 } from '../../src/governance/reputation-aggregate.js';
 import {
   QualityEventSchema,
@@ -370,5 +373,164 @@ describe('Reputation Vocabulary', () => {
   it('MIN_REPUTATION_SAMPLE_SIZE still exported (deprecated)', async () => {
     const { MIN_REPUTATION_SAMPLE_SIZE } = await import('../../src/vocabulary/reputation.js');
     expect(MIN_REPUTATION_SAMPLE_SIZE).toBe(5);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ModelCohortSchema (v7.3.0 — Bridgebuilder C5 + Spec I)
+// ---------------------------------------------------------------------------
+
+describe('ModelCohortSchema', () => {
+  const VALID_COHORT: ModelCohort = {
+    model_id: 'native',
+    personal_score: 0.85,
+    sample_count: 45,
+    last_updated: '2026-02-21T10:00:00Z',
+  };
+
+  it('has $id = ModelCohort', () => {
+    expect(ModelCohortSchema.$id).toBe('ModelCohort');
+  });
+
+  it('validates a correct model cohort', () => {
+    expect(Value.Check(ModelCohortSchema, VALID_COHORT)).toBe(true);
+  });
+
+  it('accepts personal_score as null (cold cohort)', () => {
+    const cold = { ...VALID_COHORT, personal_score: null, sample_count: 0 };
+    expect(Value.Check(ModelCohortSchema, cold)).toBe(true);
+  });
+
+  it('rejects personal_score > 1', () => {
+    const invalid = { ...VALID_COHORT, personal_score: 1.5 };
+    expect(Value.Check(ModelCohortSchema, invalid)).toBe(false);
+  });
+
+  it('rejects personal_score < 0', () => {
+    const invalid = { ...VALID_COHORT, personal_score: -0.1 };
+    expect(Value.Check(ModelCohortSchema, invalid)).toBe(false);
+  });
+
+  it('rejects empty model_id', () => {
+    const invalid = { ...VALID_COHORT, model_id: '' };
+    expect(Value.Check(ModelCohortSchema, invalid)).toBe(false);
+  });
+
+  it('rejects negative sample_count', () => {
+    const invalid = { ...VALID_COHORT, sample_count: -1 };
+    expect(Value.Check(ModelCohortSchema, invalid)).toBe(false);
+  });
+
+  it('rejects additional properties', () => {
+    const invalid = { ...VALID_COHORT, extra: true };
+    expect(Value.Check(ModelCohortSchema, invalid)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ReputationAggregate with model_cohorts (v7.3.0)
+// ---------------------------------------------------------------------------
+
+describe('ReputationAggregateSchema — model_cohorts', () => {
+  it('validates aggregate without model_cohorts (backwards compatible)', () => {
+    expect(Value.Check(ReputationAggregateSchema, VALID_AGGREGATE)).toBe(true);
+  });
+
+  it('validates aggregate with populated model_cohorts', () => {
+    const withCohorts = {
+      ...VALID_AGGREGATE,
+      state: 'established' as const,
+      personal_score: 0.85,
+      sample_count: 55,
+      model_cohorts: [
+        { model_id: 'native', personal_score: 0.9, sample_count: 45, last_updated: '2026-02-21T10:00:00Z' },
+        { model_id: 'gpt-4o', personal_score: 0.7, sample_count: 10, last_updated: '2026-02-20T15:00:00Z' },
+      ],
+    };
+    expect(Value.Check(ReputationAggregateSchema, withCohorts)).toBe(true);
+  });
+
+  it('validates aggregate with empty model_cohorts array', () => {
+    const withEmpty = { ...VALID_AGGREGATE, model_cohorts: [] };
+    expect(Value.Check(ReputationAggregateSchema, withEmpty)).toBe(true);
+  });
+
+  it('rejects aggregate with invalid model cohort entry', () => {
+    const withBadCohort = {
+      ...VALID_AGGREGATE,
+      model_cohorts: [
+        { model_id: 'native', personal_score: 2.0, sample_count: 5, last_updated: '2026-02-21T00:00:00Z' },
+      ],
+    };
+    expect(Value.Check(ReputationAggregateSchema, withBadCohort)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Cross-Model Meta-Scoring (v7.3.0 — Bridgebuilder C5 + Spec I)
+// ---------------------------------------------------------------------------
+
+describe('computeCrossModelScore', () => {
+  it('returns null when all cohorts are cold (personal_score === null)', () => {
+    expect(computeCrossModelScore([
+      { personal_score: null, sample_count: 0 },
+      { personal_score: null, sample_count: 0 },
+    ])).toBeNull();
+  });
+
+  it('returns null for empty cohorts array', () => {
+    expect(computeCrossModelScore([])).toBeNull();
+  });
+
+  it('returns the single model score when only one cohort has data', () => {
+    expect(computeCrossModelScore([
+      { personal_score: 0.8, sample_count: 20 },
+    ])).toBeCloseTo(0.8, 5);
+  });
+
+  it('weights by sample count for multiple cohorts', () => {
+    // (0.9 * 45 + 0.7 * 10) / (45 + 10) = (40.5 + 7) / 55 = 47.5 / 55 ≈ 0.8636
+    const result = computeCrossModelScore([
+      { personal_score: 0.9, sample_count: 45 },
+      { personal_score: 0.7, sample_count: 10 },
+    ]);
+    expect(result).toBeCloseTo(47.5 / 55, 3);
+  });
+
+  it('skips null-score cohorts', () => {
+    const result = computeCrossModelScore([
+      { personal_score: null, sample_count: 0 },
+      { personal_score: 0.8, sample_count: 20 },
+    ]);
+    expect(result).toBeCloseTo(0.8, 5);
+  });
+
+  it('returns null when all non-null cohorts have sample_count 0', () => {
+    expect(computeCrossModelScore([
+      { personal_score: 0.9, sample_count: 0 },
+      { personal_score: 0.7, sample_count: 0 },
+    ])).toBeNull();
+  });
+
+  it('handles equal weights correctly', () => {
+    // (0.6 * 10 + 0.8 * 10) / 20 = 14 / 20 = 0.7
+    expect(computeCrossModelScore([
+      { personal_score: 0.6, sample_count: 10 },
+      { personal_score: 0.8, sample_count: 10 },
+    ])).toBeCloseTo(0.7, 5);
+  });
+
+  it('composes with computeDecayedSampleCount', () => {
+    // Apply decay first, then cross-model score
+    const decayed45 = computeDecayedSampleCount(45, 1, 30); // ~44
+    const decayed10 = computeDecayedSampleCount(10, 30, 30); // ~5
+    const result = computeCrossModelScore([
+      { personal_score: 0.9, sample_count: decayed45 },
+      { personal_score: 0.7, sample_count: decayed10 },
+    ]);
+    expect(result).toBeDefined();
+    expect(result).not.toBeNull();
+    // Recent model (native) should dominate due to less decay
+    expect(result!).toBeGreaterThan(0.8);
   });
 });

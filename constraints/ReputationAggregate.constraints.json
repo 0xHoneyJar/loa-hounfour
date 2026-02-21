@@ -57,6 +57,37 @@
       "type_signature": {
         "sample_count": "number"
       }
+    },
+    {
+      "id": "reputation-model-cohort-score-bounds",
+      "expression": "model_cohorts == undefined || model_cohorts.every(c => c.personal_score == null || (c.personal_score >= 0.0 && c.personal_score <= 1.0))",
+      "severity": "error",
+      "message": "model cohort personal_score must be in [0, 1] when not null",
+      "fields": ["model_cohorts"],
+      "type_signature": {
+        "model_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-model-cohort-sample-nonneg",
+      "expression": "model_cohorts == undefined || model_cohorts.every(c => c.sample_count >= 0)",
+      "severity": "error",
+      "message": "model cohort sample_count must be >= 0",
+      "fields": ["model_cohorts"],
+      "type_signature": {
+        "model_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-cross-model-consistency",
+      "expression": "model_cohorts == undefined || model_cohorts.length == 0 || personal_score == null || true",
+      "severity": "warning",
+      "message": "When model_cohorts and personal_score are both present, the top-level personal_score should be derivable from model cohorts via sample-count-weighted mean (trust assumption — not enforced at wire level)",
+      "fields": ["model_cohorts", "personal_score"],
+      "type_signature": {
+        "model_cohorts": "array",
+        "personal_score": "number | null"
+      }
     }
   ]
 }

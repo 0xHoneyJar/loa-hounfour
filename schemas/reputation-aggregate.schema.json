@@ -167,6 +167,51 @@
         }
       }
     },
+    "model_cohorts": {
+      "description": "Per-model reputation cohorts. When present, each entry tracks quality observations for a specific model alias. The top-level personal_score and sample_count represent the cross-model aggregation. Enables model-aware routing decisions per Hounfour RFC #31.",
+      "type": "array",
+      "items": {
+        "$id": "ModelCohort",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_id",
+          "personal_score",
+          "sample_count",
+          "last_updated"
+        ],
+        "properties": {
+          "model_id": {
+            "minLength": 1,
+            "description": "Model alias (e.g. \"native\", \"gpt-4o\")",
+            "type": "string"
+          },
+          "personal_score": {
+            "description": "Per-model personal score. Null when this model cohort is cold (no observations yet).",
+            "anyOf": [
+              {
+                "minimum": 0,
+                "maximum": 1,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sample_count": {
+            "minimum": 0,
+            "description": "Number of quality observations for this model",
+            "type": "integer"
+          },
+          "last_updated": {
+            "format": "date-time",
+            "description": "Timestamp of most recent observation for this model",
+            "type": "string"
+          }
+        }
+      }
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "type": "string"

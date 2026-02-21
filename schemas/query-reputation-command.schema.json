@@ -27,6 +27,11 @@
       "minLength": 1,
       "type": "string"
     },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias filter. When present, queries reputation for a specific model context (returns model cohort data). When absent, returns the cross-model aggregate.",
+      "type": "string"
+    },
     "include_history": {
       "default": false,
       "type": "boolean"

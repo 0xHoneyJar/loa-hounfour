@@ -71,12 +71,14 @@ export {
   REPUTATION_STATES,
 } from '../vocabulary/reputation.js';
 
-// Schemas — Reputation Aggregate (v7.1.0, FR-3)
+// Schemas — Reputation Aggregate (v7.1.0, FR-3; v7.3.0, C5+Spec I)
 export {
   ReputationStateSchema,
   type ReputationState,
   ReputationTransitionSchema,
   type ReputationTransition,
+  ModelCohortSchema,
+  type ModelCohort,
   ReputationAggregateSchema,
   type ReputationAggregate,
   REPUTATION_TRANSITIONS,
@@ -84,6 +86,7 @@ export {
   computePersonalWeight,
   computeBlendedScore,
   computeDecayedSampleCount,
+  computeCrossModelScore,
 } from './reputation-aggregate.js';
 
 // Schemas — Quality Event (v7.1.0, FR-3)
