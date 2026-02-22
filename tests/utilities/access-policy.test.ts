@@ -212,3 +212,211 @@ describe('evaluateAccessPolicy — role_based', () => {
     expect(result.allowed).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// type: 'reputation_gated' — Hysteresis (v7.4.0 — Bridgebuilder Vision B-V1)
+// ---------------------------------------------------------------------------
+
+describe('evaluateAccessPolicy — reputation_gated hysteresis', () => {
+  const policy: AccessPolicy = {
+    type: 'reputation_gated',
+    min_reputation_score: 0.7,
+    revoke_below_score: 0.5,
+    audit_required: true,
+    revocable: true,
+  };
+
+  it('grants at the grant threshold (first access)', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_score: 0.7,
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it('denies below grant threshold (first access)', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_score: 0.6,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('below minimum 0.7');
+  });
+
+  it('still grants between revoke and grant threshold (previously granted)', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_score: 0.6,
+      previously_granted: true,
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it('revokes below revoke threshold even if previously granted', () => {
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_score: 0.4,
+      previously_granted: true,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('revoke threshold');
+  });
+
+  it('falls back to grant threshold when no revoke fields set', () => {
+    const noHysteresisPolicy: AccessPolicy = {
+      type: 'reputation_gated',
+      min_reputation_score: 0.7,
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(noHysteresisPolicy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_score: 0.6,
+      previously_granted: true,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('below minimum 0.7');
+  });
+
+  it('handles state-based hysteresis with revoke_below_state', () => {
+    const statePolicy: AccessPolicy = {
+      type: 'reputation_gated',
+      min_reputation_state: 'established',
+      revoke_below_state: 'warming',
+      audit_required: true,
+      revocable: true,
+    };
+    // warming is below established grant threshold but above warming revoke threshold
+    const result = evaluateAccessPolicy(statePolicy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_state: 'warming',
+      previously_granted: true,
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it('revokes when state drops below revoke_below_state', () => {
+    const statePolicy: AccessPolicy = {
+      type: 'reputation_gated',
+      min_reputation_state: 'established',
+      revoke_below_state: 'warming',
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(statePolicy, {
+      action: 'read',
+      timestamp: NOW,
+      reputation_state: 'cold',
+      previously_granted: true,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('revoke threshold');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// type: 'compound' — AND/OR composition (v7.4.0 — Bridgebuilder Vision B-V2)
+// ---------------------------------------------------------------------------
+
+describe('evaluateAccessPolicy — compound', () => {
+  it('AND: grants when all sub-policies grant', () => {
+    const policy: AccessPolicy = {
+      type: 'compound',
+      operator: 'AND',
+      policies: [
+        { type: 'role_based', roles: ['admin'], audit_required: true, revocable: true },
+        { type: 'reputation_gated', min_reputation_score: 0.5, audit_required: true, revocable: true },
+      ],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      role: 'admin',
+      reputation_score: 0.8,
+    });
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toContain('AND');
+  });
+
+  it('AND: denies when any sub-policy denies', () => {
+    const policy: AccessPolicy = {
+      type: 'compound',
+      operator: 'AND',
+      policies: [
+        { type: 'role_based', roles: ['admin'], audit_required: true, revocable: true },
+        { type: 'reputation_gated', min_reputation_score: 0.5, audit_required: true, revocable: true },
+      ],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      role: 'viewer',
+      reputation_score: 0.8,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('AND denied');
+  });
+
+  it('OR: grants when any sub-policy grants', () => {
+    const policy: AccessPolicy = {
+      type: 'compound',
+      operator: 'OR',
+      policies: [
+        { type: 'role_based', roles: ['admin'], audit_required: true, revocable: true },
+        { type: 'read_only', audit_required: true, revocable: true },
+      ],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      role: 'viewer',
+    });
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toContain('OR granted');
+  });
+
+  it('OR: denies when all sub-policies deny', () => {
+    const policy: AccessPolicy = {
+      type: 'compound',
+      operator: 'OR',
+      policies: [
+        { type: 'none', audit_required: true, revocable: true },
+        { type: 'role_based', roles: ['admin'], audit_required: true, revocable: true },
+      ],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy, {
+      action: 'read',
+      timestamp: NOW,
+      role: 'viewer',
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('OR denied');
+  });
+
+  it('denies when policies array is empty', () => {
+    const policy: AccessPolicy = {
+      type: 'compound',
+      operator: 'AND',
+      policies: [],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy, { action: 'read', timestamp: NOW });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('no sub-policies');
+  });
+});

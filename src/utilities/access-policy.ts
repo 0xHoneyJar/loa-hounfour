@@ -8,6 +8,9 @@
  * via `policy_created_at` context field. When provided alongside
  * `duration_hours`, the evaluator computes and enforces expiry.
  *
+ * v7.4.0: Added hysteresis for `reputation_gated` (dead-band control),
+ * and `compound` policy type with AND/OR composition.
+ *
  * @see SDD §2.8 — AccessPolicy Evaluation Helper
  */
 import { type AccessPolicy } from '../schemas/conversation.js';
@@ -31,6 +34,15 @@ export interface AccessPolicyContext {
   reputation_state?: ReputationState;
   /** Current blended reputation score of the requesting personality (v7.3.0). */
   reputation_score?: number;
+  /**
+   * Whether the requesting personality was previously granted access
+   * under this policy. When true and the policy has `revoke_below_score`
+   * or `revoke_below_state`, the evaluator uses the lower revoke threshold
+   * instead of the grant threshold — preventing oscillation (hysteresis).
+   *
+   * @since v7.4.0 — Bridgebuilder Vision B-V1
+   */
+  previously_granted?: boolean;
 }
 
 /** Result of evaluating an access policy. */
@@ -47,6 +59,8 @@ export interface AccessPolicyResult {
  *   and `policy.duration_hours` is defined. When `policy_created_at` is absent,
  *   expiry enforcement falls back to consumer responsibility (v7.1.0 behavior).
  * - `role_based` checks context.role against policy.roles[] via string inclusion.
+ * - `reputation_gated` supports hysteresis via `revoke_below_score`/`revoke_below_state` (v7.4.0).
+ * - `compound` evaluates sub-policies with AND/OR semantics (v7.4.0).
  */
 export function evaluateAccessPolicy(
   policy: AccessPolicy,
@@ -106,6 +120,9 @@ export function evaluateAccessPolicy(
         return { allowed: false, reason: 'No reputation context provided for reputation_gated policy' };
       }
 
+      // Hysteresis: when previously granted, use lower revoke thresholds (v7.4.0)
+      const useRevokeThresholds = context.previously_granted === true;
+
       // Check min_reputation_score — deny if policy requires it but context lacks it
       if (policy.min_reputation_score !== undefined) {
         if (context.reputation_score === undefined) {
@@ -114,10 +131,17 @@ export function evaluateAccessPolicy(
             reason: 'Policy requires reputation_score but context does not provide it',
           };
         }
-        if (context.reputation_score < policy.min_reputation_score) {
+
+        const effectiveThreshold = (useRevokeThresholds && policy.revoke_below_score !== undefined)
+          ? policy.revoke_below_score
+          : policy.min_reputation_score;
+
+        if (context.reputation_score < effectiveThreshold) {
           return {
             allowed: false,
-            reason: `Reputation score ${context.reputation_score} below minimum ${policy.min_reputation_score}`,
+            reason: useRevokeThresholds && policy.revoke_below_score !== undefined
+              ? `Reputation score ${context.reputation_score} below revoke threshold ${effectiveThreshold}`
+              : `Reputation score ${context.reputation_score} below minimum ${policy.min_reputation_score}`,
           };
         }
       }
@@ -130,17 +154,60 @@ export function evaluateAccessPolicy(
             reason: 'Policy requires reputation_state but context does not provide it',
           };
         }
+
+        const effectiveState = (useRevokeThresholds && policy.revoke_below_state !== undefined)
+          ? policy.revoke_below_state
+          : policy.min_reputation_state;
+
         const contextOrder = REPUTATION_STATE_ORDER[context.reputation_state] ?? 0;
-        const requiredOrder = REPUTATION_STATE_ORDER[policy.min_reputation_state] ?? 0;
+        const requiredOrder = REPUTATION_STATE_ORDER[effectiveState] ?? 0;
         if (contextOrder < requiredOrder) {
           return {
             allowed: false,
-            reason: `Reputation state '${context.reputation_state}' below minimum '${policy.min_reputation_state}'`,
+            reason: useRevokeThresholds && policy.revoke_below_state !== undefined
+              ? `Reputation state '${context.reputation_state}' below revoke threshold '${effectiveState}'`
+              : `Reputation state '${context.reputation_state}' below minimum '${policy.min_reputation_state}'`,
           };
         }
       }
 
       return { allowed: true, reason: 'Reputation-gated access granted' };
+    }
+
+    case 'compound': {
+      if (!policy.policies || policy.policies.length === 0) {
+        return { allowed: false, reason: 'Compound policy has no sub-policies' };
+      }
+
+      const results = policy.policies.map(sub => evaluateAccessPolicy(sub, context));
+
+      if (policy.operator === 'AND') {
+        const denied = results.find(r => !r.allowed);
+        if (denied) {
+          return {
+            allowed: false,
+            reason: `Compound AND denied: ${denied.reason}`,
+          };
+        }
+        return {
+          allowed: true,
+          reason: `Compound AND: all ${results.length} sub-policies granted`,
+        };
+      }
+
+      // OR (default for compound)
+      const granted = results.find(r => r.allowed);
+      if (granted) {
+        return {
+          allowed: true,
+          reason: `Compound OR granted: ${granted.reason}`,
+        };
+      }
+      const reasons = results.map(r => r.reason).join('; ');
+      return {
+        allowed: false,
+        reason: `Compound OR denied: none of ${results.length} sub-policies granted (${reasons})`,
+      };
     }
   }
 }
