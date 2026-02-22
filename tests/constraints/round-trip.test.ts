@@ -683,16 +683,40 @@ describe('ConversationSealingPolicy round-trip', () => {
 describe('AccessPolicy round-trip', () => {
   const file = loadConstraints('AccessPolicy');
 
-  it('has visibility: valid', () => {
-    const data = { visibility: 'public' };
+  it('has type: valid', () => {
+    const data = { type: 'read_only' };
     const constraintResult = evalById(file, 'access-policy-valid', data);
     expect(constraintResult).toBe(true);
   });
 
-  it('missing visibility: violation', () => {
+  it('missing type: violation', () => {
     const data = {};
     const constraintResult = evalById(file, 'access-policy-valid', data);
     expect(constraintResult).toBe(false);
+  });
+
+  it('reputation_gated with score: valid', () => {
+    const data = { type: 'reputation_gated', min_reputation_score: 0.5 };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('reputation_gated with state: valid', () => {
+    const data = { type: 'reputation_gated', min_reputation_state: 'established' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('reputation_gated without score or state: violation', () => {
+    const data = { type: 'reputation_gated' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('non-reputation_gated: constraint vacuously passes', () => {
+    const data = { type: 'read_only' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
   });
 });
 

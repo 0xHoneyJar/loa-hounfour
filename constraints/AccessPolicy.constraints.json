@@ -6,12 +6,12 @@
   "constraints": [
     {
       "id": "access-policy-valid",
-      "expression": "visibility != null",
+      "expression": "type != null",
       "severity": "error",
-      "message": "AccessPolicy must have a visibility field",
-      "fields": ["visibility"],
+      "message": "AccessPolicy must have a type field",
+      "fields": ["type"],
       "type_signature": {
-        "visibility": "string"
+        "type": "string"
       }
     },
     {

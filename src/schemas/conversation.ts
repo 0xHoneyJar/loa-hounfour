@@ -66,6 +66,7 @@ export const AccessPolicySchema = Type.Object({
   $comment: 'Cross-field invariants: '
     + '(1) time_limited requires duration_hours. '
     + '(2) role_based requires roles array. '
+    + '(3) reputation_gated requires at least one of min_reputation_score or min_reputation_state. '
     + 'Enforced by validateAccessPolicy() in TypeScript.',
 });
 

@@ -9,7 +9,11 @@ import {
   ReputationCredentialSchema,
   type ReputationCredential,
 } from '../../src/governance/reputation-credential.js';
-import { computeCredentialPrior } from '../../src/utilities/reputation-credential.js';
+import {
+  computeCredentialPrior,
+  isCredentialExpired,
+  CREDENTIAL_CONFIDENCE_THRESHOLD,
+} from '../../src/utilities/reputation-credential.js';
 import {
   AccessPolicySchema,
   validateAccessPolicy,
@@ -381,5 +385,100 @@ describe('evaluateAccessPolicy — reputation_gated', () => {
       reputation_state: 'established',
     });
     expect(result.allowed).toBe(true);
+  });
+
+  // F1/F3: reputation_gated allows all action types (meritocratic access, not read-only)
+  it('allows write action when reputation meets threshold', () => {
+    const result = evaluateAccessPolicy(POLICY, {
+      ...BASE_CONTEXT,
+      action: 'write',
+      reputation_score: 0.8,
+      reputation_state: 'authoritative',
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it('allows delete action when reputation meets threshold', () => {
+    const result = evaluateAccessPolicy(POLICY, {
+      ...BASE_CONTEXT,
+      action: 'delete',
+      reputation_score: 0.8,
+      reputation_state: 'authoritative',
+    });
+    expect(result.allowed).toBe(true);
+  });
+
+  it('denies write action when score below minimum', () => {
+    const result = evaluateAccessPolicy(POLICY, {
+      ...BASE_CONTEXT,
+      action: 'write',
+      reputation_score: 0.3,
+      reputation_state: 'authoritative',
+    });
+    expect(result.allowed).toBe(false);
+  });
+
+  // F4: Partial context strict AND semantics
+  it('denies when policy requires score but context only provides state', () => {
+    const result = evaluateAccessPolicy(POLICY, {
+      ...BASE_CONTEXT,
+      reputation_state: 'authoritative',
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('reputation_score');
+  });
+
+  it('denies when policy requires state but context only provides score', () => {
+    const result = evaluateAccessPolicy(POLICY, {
+      ...BASE_CONTEXT,
+      reputation_score: 0.9,
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('reputation_state');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// isCredentialExpired (F2)
+// ---------------------------------------------------------------------------
+
+describe('isCredentialExpired', () => {
+  it('returns false when no expires_at', () => {
+    const { expires_at, ...noExpiry } = VALID_CREDENTIAL;
+    expect(isCredentialExpired(noExpiry as ReputationCredential)).toBe(false);
+  });
+
+  it('returns true when credential has expired', () => {
+    const expired: ReputationCredential = {
+      ...VALID_CREDENTIAL,
+      expires_at: '2025-01-01T00:00:00Z', // in the past
+    };
+    expect(isCredentialExpired(expired, '2026-02-22T00:00:00Z')).toBe(true);
+  });
+
+  it('returns false when credential has not expired', () => {
+    const fresh: ReputationCredential = {
+      ...VALID_CREDENTIAL,
+      expires_at: '2027-01-01T00:00:00Z', // in the future
+    };
+    expect(isCredentialExpired(fresh, '2026-02-22T00:00:00Z')).toBe(false);
+  });
+
+  it('returns true at exact expiry boundary', () => {
+    const atBoundary: ReputationCredential = {
+      ...VALID_CREDENTIAL,
+      expires_at: '2026-02-22T00:00:00Z',
+    };
+    expect(isCredentialExpired(atBoundary, '2026-02-22T00:00:00Z')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CREDENTIAL_CONFIDENCE_THRESHOLD (F7)
+// ---------------------------------------------------------------------------
+
+describe('CREDENTIAL_CONFIDENCE_THRESHOLD', () => {
+  it('is 30', () => {
+    expect(CREDENTIAL_CONFIDENCE_THRESHOLD).toBe(30);
   });
 });

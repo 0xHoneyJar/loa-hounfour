@@ -14,6 +14,35 @@
 import type { ReputationCredential } from '../governance/reputation-credential.js';
 
 /**
+ * Sample count at which credential confidence saturates.
+ * At this threshold, the credential's sample_count contributes full
+ * confidence to the weight calculation. Below this, confidence scales
+ * linearly (min(1, source_sample_count / CREDENTIAL_CONFIDENCE_THRESHOLD)).
+ *
+ * @since v7.3.0
+ */
+export const CREDENTIAL_CONFIDENCE_THRESHOLD = 30;
+
+/**
+ * Check if a reputation credential has expired.
+ *
+ * @param credential - The credential to check
+ * @param now - Current time as ISO 8601 string (default: Date.now())
+ * @returns true if the credential has expired
+ *
+ * @since v7.3.0
+ */
+export function isCredentialExpired(
+  credential: ReputationCredential,
+  now?: string,
+): boolean {
+  if (!credential.expires_at) return false;
+  const expiresMs = new Date(credential.expires_at).getTime();
+  const nowMs = now ? new Date(now).getTime() : Date.now();
+  return nowMs >= expiresMs;
+}
+
+/**
  * Compute an informed Bayesian prior from a portable reputation credential.
  *
  * When a personality with a credential joins a new collection, the
@@ -46,8 +75,8 @@ export function computeCredentialPrior(
     };
   }
 
-  // Sample confidence: how much data backs this credential (saturates at 30)
-  const sampleConfidence = Math.min(1, credential.source_sample_count / 30);
+  // Sample confidence: how much data backs this credential (saturates at CREDENTIAL_CONFIDENCE_THRESHOLD)
+  const sampleConfidence = Math.min(1, credential.source_sample_count / CREDENTIAL_CONFIDENCE_THRESHOLD);
 
   // Raw weight: source credibility * sample confidence
   const rawWeight = credential.source_collection_score * sampleConfidence;

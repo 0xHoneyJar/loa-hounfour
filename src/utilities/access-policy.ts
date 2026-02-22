@@ -113,8 +113,14 @@ export function evaluateAccessPolicy(
         return { allowed: false, reason: 'No reputation context provided for reputation_gated policy' };
       }
 
-      // Check min_reputation_score
-      if (policy.min_reputation_score !== undefined && context.reputation_score !== undefined) {
+      // Check min_reputation_score — deny if policy requires it but context lacks it
+      if (policy.min_reputation_score !== undefined) {
+        if (context.reputation_score === undefined) {
+          return {
+            allowed: false,
+            reason: 'Policy requires reputation_score but context does not provide it',
+          };
+        }
         if (context.reputation_score < policy.min_reputation_score) {
           return {
             allowed: false,
@@ -123,8 +129,14 @@ export function evaluateAccessPolicy(
         }
       }
 
-      // Check min_reputation_state
-      if (policy.min_reputation_state !== undefined && context.reputation_state !== undefined) {
+      // Check min_reputation_state — deny if policy requires it but context lacks it
+      if (policy.min_reputation_state !== undefined) {
+        if (context.reputation_state === undefined) {
+          return {
+            allowed: false,
+            reason: 'Policy requires reputation_state but context does not provide it',
+          };
+        }
         const contextOrder = STATE_ORDER[context.reputation_state] ?? 0;
         const requiredOrder = STATE_ORDER[policy.min_reputation_state] ?? 0;
         if (contextOrder < requiredOrder) {
