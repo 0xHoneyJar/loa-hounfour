@@ -33,3 +33,12 @@ export {
   type AccessPolicyContext,
   type AccessPolicyResult,
 } from './utilities/access-policy.js';
+
+// Reputation Event Sourcing (v7.3.0, C2 + Spec V)
+export {
+  reconstructAggregateFromEvents,
+  verifyAggregateConsistency,
+  computeEventStreamHash,
+  type ReconstructedAggregate,
+  type ConsistencyReport,
+} from './utilities/reputation-replay.js';

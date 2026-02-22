@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/aggregate-snapshot",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "aggregate",
+    "snapshot_at",
+    "event_count",
+    "contract_version"
+  ],
+  "properties": {
+    "aggregate": {
+      "$id": "ReputationAggregate",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "personality_id",
+        "collection_id",
+        "pool_id",
+        "state",
+        "personal_score",
+        "collection_score",
+        "blended_score",
+        "sample_count",
+        "pseudo_count",
+        "contributor_count",
+        "min_sample_count",
+        "created_at",
+        "last_updated",
+        "transition_history",
+        "contract_version"
+      ],
+      "properties": {
+        "personality_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "collection_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pool_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "state": {
+          "$id": "ReputationState",
+          "anyOf": [
+            {
+              "const": "cold",
+              "type": "string"
+            },
+            {
+              "const": "warming",
+              "type": "string"
+            },
+            {
+              "const": "established",
+              "type": "string"
+            },
+            {
+              "const": "authoritative",
+              "type": "string"
+            }
+          ]
+        },
+        "personal_score": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "collection_score": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Collection-level trimmed mean of member blended scores. In the Web4 social monies framing, this represents the institutional credibility of the collection's monetary instrument — higher scores indicate more trustworthy social money.",
+          "type": "number"
+        },
+        "blended_score": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "sample_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pseudo_count": {
+          "minimum": 1,
+          "default": 3,
+          "type": "integer"
+        },
+        "contributor_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_sample_count": {
+          "minimum": 1,
+          "default": 5,
+          "type": "integer"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "last_updated": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "transition_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "at",
+              "trigger"
+            ],
+            "properties": {
+              "from": {
+                "$id": "ReputationState",
+                "anyOf": [
+                  {
+                    "const": "cold",
+                    "type": "string"
+                  },
+                  {
+                    "const": "warming",
+                    "type": "string"
+                  },
+                  {
+                    "const": "established",
+                    "type": "string"
+                  },
+                  {
+                    "const": "authoritative",
+                    "type": "string"
+                  }
+                ]
+              },
+              "to": {
+                "$id": "ReputationState",
+                "anyOf": [
+                  {
+                    "const": "cold",
+                    "type": "string"
+                  },
+                  {
+                    "const": "warming",
+                    "type": "string"
+                  },
+                  {
+                    "const": "established",
+                    "type": "string"
+                  },
+                  {
+                    "const": "authoritative",
+                    "type": "string"
+                  }
+                ]
+              },
+              "at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "trigger": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "model_cohorts": {
+          "description": "Per-model reputation cohorts. When present, each entry tracks quality observations for a specific model alias. The top-level personal_score and sample_count represent the cross-model aggregation. Enables model-aware routing decisions per Hounfour RFC #31.",
+          "type": "array",
+          "items": {
+            "$id": "ModelCohort",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "model_id",
+              "personal_score",
+              "sample_count",
+              "last_updated"
+            ],
+            "properties": {
+              "model_id": {
+                "minLength": 1,
+                "description": "Model alias (e.g. \"native\", \"gpt-4o\")",
+                "type": "string"
+              },
+              "personal_score": {
+                "description": "Per-model personal score. Null when this model cohort is cold (no observations yet).",
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "maximum": 1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sample_count": {
+                "minimum": 0,
+                "description": "Number of quality observations for this model",
+                "type": "integer"
+              },
+              "last_updated": {
+                "format": "date-time",
+                "description": "Timestamp of most recent observation for this model",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      }
+    },
+    "snapshot_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "event_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "event_stream_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the ordered event stream. Enables verification without full replay.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.2.0, min_supported=6.0.0"
+}

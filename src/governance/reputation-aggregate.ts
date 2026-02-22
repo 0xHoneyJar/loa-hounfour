@@ -275,3 +275,33 @@ export function computeCrossModelScore(
   if (totalWeight === 0) return null;
   return weightedSum / totalWeight;
 }
+
+// ---------------------------------------------------------------------------
+// Aggregate Snapshot (v7.3.0 — Bridgebuilder C2 + Spec V)
+// ---------------------------------------------------------------------------
+
+/**
+ * Point-in-time snapshot of a ReputationAggregate with event provenance.
+ *
+ * Used for Oracle attestation and cross-collection credential issuance.
+ * The event_stream_hash allows verification without replaying all events.
+ *
+ * @see Bridgebuilder Spec V — Dixie Oracle verifiable reputation
+ * @since v7.3.0
+ */
+export const AggregateSnapshotSchema = Type.Object({
+  aggregate: ReputationAggregateSchema,
+  snapshot_at: Type.String({ format: 'date-time' }),
+  event_count: Type.Integer({ minimum: 0 }),
+  event_stream_hash: Type.Optional(Type.String({
+    pattern: '^[a-f0-9]{64}$',
+    description: 'SHA-256 hash of the ordered event stream. '
+      + 'Enables verification without full replay.',
+  })),
+  contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
+}, {
+  $id: 'AggregateSnapshot',
+  additionalProperties: false,
+});
+
+export type AggregateSnapshot = Static<typeof AggregateSnapshotSchema>;

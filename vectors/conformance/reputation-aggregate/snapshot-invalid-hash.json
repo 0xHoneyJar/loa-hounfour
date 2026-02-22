@@ -1,0 +1,36 @@
+{
+  "vector_id": "conformance-reputation-aggregate-014",
+  "category": "reputation-aggregate",
+  "description": "Invalid aggregate snapshot — event_stream_hash wrong length (v7.3.0 C2)",
+  "contract_version": "7.3.0",
+  "input": {
+    "aggregate": {
+      "personality_id": "bear-001",
+      "collection_id": "honeycomb",
+      "pool_id": "pool-alpha",
+      "state": "cold",
+      "personal_score": null,
+      "collection_score": 0.5,
+      "blended_score": 0.5,
+      "sample_count": 0,
+      "pseudo_count": 3,
+      "contributor_count": 0,
+      "min_sample_count": 5,
+      "created_at": "2026-01-01T00:00:00Z",
+      "last_updated": "2026-01-01T00:00:00Z",
+      "transition_history": [],
+      "contract_version": "7.3.0"
+    },
+    "snapshot_at": "2026-02-22T00:00:00Z",
+    "event_count": 0,
+    "event_stream_hash": "tooshort",
+    "contract_version": "7.3.0"
+  },
+  "expected_output": {
+    "event_stream_hash": "tooshort"
+  },
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": ["event_stream_hash"]
+  }
+}

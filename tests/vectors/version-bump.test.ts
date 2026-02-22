@@ -126,8 +126,8 @@ describe('version bump', () => {
     }
   });
 
-  it('schemas/index.json has 105 schemas', () => {
+  it('schemas/index.json has 106 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(105);
+    expect(index.schemas).toHaveLength(106);
   });
 });

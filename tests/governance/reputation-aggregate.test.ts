@@ -9,6 +9,7 @@ import {
   ReputationTransitionSchema,
   ModelCohortSchema,
   ReputationAggregateSchema,
+  AggregateSnapshotSchema,
   REPUTATION_TRANSITIONS,
   isValidReputationTransition,
   computePersonalWeight,
@@ -18,6 +19,7 @@ import {
   type ReputationAggregate,
   type ReputationState,
   type ModelCohort,
+  type AggregateSnapshot,
 } from '../../src/governance/reputation-aggregate.js';
 import {
   QualityEventSchema,
@@ -532,5 +534,38 @@ describe('computeCrossModelScore', () => {
     expect(result).not.toBeNull();
     // Recent model (native) should dominate due to less decay
     expect(result!).toBeGreaterThan(0.8);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// AggregateSnapshot (v7.3.0 — C2 + Spec V)
+// ---------------------------------------------------------------------------
+
+describe('AggregateSnapshotSchema (v7.3.0)', () => {
+  const validSnapshot: AggregateSnapshot = {
+    aggregate: VALID_AGGREGATE,
+    snapshot_at: '2026-02-22T00:00:00Z',
+    event_count: 10,
+    event_stream_hash: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+    contract_version: '7.3.0',
+  };
+
+  it('validates snapshot with event_stream_hash', () => {
+    expect(Value.Check(AggregateSnapshotSchema, validSnapshot)).toBe(true);
+  });
+
+  it('validates snapshot without event_stream_hash (optional)', () => {
+    const { event_stream_hash: _, ...withoutHash } = validSnapshot;
+    expect(Value.Check(AggregateSnapshotSchema, withoutHash)).toBe(true);
+  });
+
+  it('rejects snapshot with invalid hash length', () => {
+    const invalid = { ...validSnapshot, event_stream_hash: 'tooshort' };
+    expect(Value.Check(AggregateSnapshotSchema, invalid)).toBe(false);
+  });
+
+  it('rejects snapshot with negative event_count', () => {
+    const invalid = { ...validSnapshot, event_count: -1 };
+    expect(Value.Check(AggregateSnapshotSchema, invalid)).toBe(false);
   });
 });

@@ -87,6 +87,8 @@ export {
   computeBlendedScore,
   computeDecayedSampleCount,
   computeCrossModelScore,
+  AggregateSnapshotSchema,
+  type AggregateSnapshot,
 } from './reputation-aggregate.js';
 
 // Schemas — Quality Event (v7.1.0, FR-3)

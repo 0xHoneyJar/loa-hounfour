@@ -88,6 +88,40 @@
         "model_cohorts": "array",
         "personal_score": "number | null"
       }
+    },
+    {
+      "id": "reputation-temporal-decay-expectation",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD apply computeDecayedSampleCount() before reading blended_score. An aggregate with last_updated > 60 days ago should be treated as effectively cold regardless of stored state.",
+      "fields": ["last_updated", "blended_score"],
+      "type_signature": {
+        "last_updated": "string",
+        "blended_score": "number"
+      }
+    },
+    {
+      "id": "reputation-transition-rate-limit",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD NOT permit more than one state transition per evaluation cycle. The progression cold→warming→established→authoritative should reflect genuine observation accumulation, not batch ingestion.",
+      "fields": ["state", "transition_history"],
+      "type_signature": {
+        "state": "string",
+        "transition_history": "array"
+      }
+    },
+    {
+      "id": "reputation-authoritative-duration",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD track time-in-state for authoritative aggregates. An aggregate that has been authoritative for > 90 days with continued quality events represents stable excellence and should contribute proportionally more to collection_score.",
+      "fields": ["state", "last_updated", "transition_history"],
+      "type_signature": {
+        "state": "string",
+        "last_updated": "string",
+        "transition_history": "array"
+      }
     }
   ]
 }

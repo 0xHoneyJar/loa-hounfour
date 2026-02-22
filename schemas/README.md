@@ -2,7 +2,7 @@
 
 **Contract version:** 7.2.0
 **Min supported:** 6.0.0
-**Schemas:** 105
+**Schemas:** 106
 
 ## Schemas
 
@@ -106,6 +106,7 @@
 | reputation-state | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/reputation-state` | [reputation-state.schema.json](reputation-state.schema.json) |
 | reputation-transition | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/reputation-transition` | [reputation-transition.schema.json](reputation-transition.schema.json) |
 | reputation-aggregate | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/reputation-aggregate` | [reputation-aggregate.schema.json](reputation-aggregate.schema.json) |
+| aggregate-snapshot | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/aggregate-snapshot` | [aggregate-snapshot.schema.json](aggregate-snapshot.schema.json) |
 | quality-event | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/quality-event` | [quality-event.schema.json](quality-event.schema.json) |
 | record-quality-event-command | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/record-quality-event-command` | [record-quality-event-command.schema.json](record-quality-event-command.schema.json) |
 | query-reputation-command | `https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/query-reputation-command` | [query-reputation-command.schema.json](query-reputation-command.schema.json) |
