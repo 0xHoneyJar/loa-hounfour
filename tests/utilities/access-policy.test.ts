@@ -419,4 +419,28 @@ describe('evaluateAccessPolicy — compound', () => {
     expect(result.allowed).toBe(false);
     expect(result.reason).toContain('no sub-policies');
   });
+
+  it('denies nested compound at runtime (recursion guard)', () => {
+    // Construct a policy that bypasses validation — nested compound
+    const policy = {
+      type: 'compound' as const,
+      operator: 'AND' as const,
+      policies: [
+        {
+          type: 'compound' as const,
+          operator: 'OR' as const,
+          policies: [
+            { type: 'read_only' as const, audit_required: false, revocable: false },
+          ],
+          audit_required: false,
+          revocable: false,
+        },
+      ],
+      audit_required: true,
+      revocable: true,
+    };
+    const result = evaluateAccessPolicy(policy as AccessPolicy, { action: 'read', timestamp: NOW });
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('Nested compound policies are not allowed');
+  });
 });

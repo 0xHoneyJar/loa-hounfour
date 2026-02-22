@@ -114,6 +114,14 @@
         {
           "const": "reputation-aggregate",
           "type": "string"
+        },
+        {
+          "const": "reputation-credential",
+          "type": "string"
+        },
+        {
+          "const": "access-policy",
+          "type": "string"
         }
       ]
     },

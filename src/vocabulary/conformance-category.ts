@@ -32,6 +32,7 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('personality-assignment'),
     Type.Literal('reputation-aggregate'),
     Type.Literal('reputation-credential'),
+    Type.Literal('access-policy'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -67,4 +68,5 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'personality-assignment',
   'reputation-aggregate',
   'reputation-credential',
+  'access-policy',
 ] as const;

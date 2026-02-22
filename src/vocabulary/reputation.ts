@@ -67,8 +67,11 @@ export const ANTI_MANIPULATION = {
 /** Reputation state machine states in order of progression. */
 export const REPUTATION_STATES = ['cold', 'warming', 'established', 'authoritative'] as const;
 
+/** Reputation state type derived from the canonical state list. */
+export type ReputationStateName = typeof REPUTATION_STATES[number];
+
 /** Ordered mapping from reputation state to numeric rank for comparisons. */
-export const REPUTATION_STATE_ORDER: Record<string, number> = {
+export const REPUTATION_STATE_ORDER: Record<ReputationStateName, number> = {
   cold: 0,
   warming: 1,
   established: 2,

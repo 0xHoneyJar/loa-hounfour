@@ -36,6 +36,19 @@ describe('is_after builtin', () => {
       'is_after(a, b)',
     )).toBe(false);
   });
+
+  it('returns false for non-ISO-8601 date formats (cross-language safety)', () => {
+    // These formats parse in JS but would fail in Go/Python/Rust
+    expect(evaluateConstraint(
+      { a: 'June 1, 2026', b: '2026-02-01T00:00:00Z' },
+      'is_after(a, b)',
+    )).toBe(false);
+
+    expect(evaluateConstraint(
+      { a: '2026/06/01', b: '2026-02-01T00:00:00Z' },
+      'is_after(a, b)',
+    )).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -108,6 +121,13 @@ describe('is_between builtin', () => {
   it('returns false for invalid dates', () => {
     expect(evaluateConstraint(
       { d: 'invalid', lo: '2026-01-01T00:00:00Z', hi: '2026-12-31T00:00:00Z' },
+      'is_between(d, lo, hi)',
+    )).toBe(false);
+  });
+
+  it('returns false for non-ISO-8601 date formats (cross-language safety)', () => {
+    expect(evaluateConstraint(
+      { d: 'March 15, 2026', lo: '2026-01-01T00:00:00Z', hi: '2026-12-31T00:00:00Z' },
       'is_between(d, lo, hi)',
     )).toBe(false);
   });

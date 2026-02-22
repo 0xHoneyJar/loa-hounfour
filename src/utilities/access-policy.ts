@@ -179,6 +179,11 @@ export function evaluateAccessPolicy(
         return { allowed: false, reason: 'Compound policy has no sub-policies' };
       }
 
+      // Runtime recursion guard: compound cannot contain compound (max depth 1)
+      if (policy.policies.some(sub => sub.type === 'compound')) {
+        return { allowed: false, reason: 'Nested compound policies are not allowed (max depth 1)' };
+      }
+
       const results = policy.policies.map(sub => evaluateAccessPolicy(sub, context));
 
       if (policy.operator === 'AND') {

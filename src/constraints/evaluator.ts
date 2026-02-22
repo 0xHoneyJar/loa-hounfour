@@ -1398,6 +1398,16 @@ class Parser {
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
 
+  /** ISO 8601 date-time prefix pattern for cross-language consistency. */
+  private static readonly ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+  /** Parse an ISO 8601 string to epoch ms. Returns NaN for non-conforming input. */
+  private parseIso8601Ms(value: unknown): number {
+    const s = String(value);
+    if (!Parser.ISO_8601_RE.test(s)) return NaN;
+    return new Date(s).getTime();
+  }
+
   /**
    * Parse is_after(a, b) or is_before(a, b).
    * Compares two ISO 8601 date strings.
@@ -1412,8 +1422,8 @@ class Parser {
     const right = this.parseExpr();
     this.expect('paren', ')');
 
-    const leftMs = new Date(String(left)).getTime();
-    const rightMs = new Date(String(right)).getTime();
+    const leftMs = this.parseIso8601Ms(left);
+    const rightMs = this.parseIso8601Ms(right);
 
     if (isNaN(leftMs) || isNaN(rightMs)) return false;
 
@@ -1436,9 +1446,9 @@ class Parser {
     const upper = this.parseExpr();
     this.expect('paren', ')');
 
-    const valueMs = new Date(String(value)).getTime();
-    const lowerMs = new Date(String(lower)).getTime();
-    const upperMs = new Date(String(upper)).getTime();
+    const valueMs = this.parseIso8601Ms(value);
+    const lowerMs = this.parseIso8601Ms(lower);
+    const upperMs = this.parseIso8601Ms(upper);
 
     if (isNaN(valueMs) || isNaN(lowerMs) || isNaN(upperMs)) return false;
 
