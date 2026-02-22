@@ -2,7 +2,7 @@
   "name": "@0xhoneyjar/loa-hounfour",
   "version": "7.4.0",
   "type": "module",
-  "description": "Shared protocol contracts for the loa-finn ↔ arrakis integration layer",
+  "description": "Constitutional protocol contracts for an AI agent economy — loa-finn ↔ arrakis integration layer",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,16 +1,16 @@
-<!-- docs-version: 7.0.0 -->
+<!-- docs-version: 7.5.0 -->
 
 # @0xhoneyjar/loa-hounfour
 
-Shared protocol contracts for the loa-finn <-> arrakis integration layer.
+Constitutional protocol contracts for an AI agent economy — loa-finn <-> arrakis integration layer.
 
 ## Project Overview
 
 This is a TypeScript schema library defining the canonical wire format between AI coordination services. It is consumed as an npm package by loa-finn and arrakis.
 
-- **87+ TypeBox schemas** across 8 modules (core, economy, model, governance, constraints, integrity, utilities, validators)
-- **147 constraint files** with a custom constraint DSL and evaluator
-- **3,908+ tests** with conformance vectors for cross-language validation
+- **87+ TypeBox schemas** across 9 modules (core, economy, model, governance, constraints, integrity, graph, composition, validators)
+- **51+ constraint files** with a custom constraint DSL and 36 evaluator builtins
+- **4,500+ tests** with conformance vectors for cross-language validation
 - **JSON Schema 2020-12** generation for Python/Go/Rust consumers
 
 ## Key Directories

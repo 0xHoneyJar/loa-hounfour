@@ -1,18 +1,18 @@
-<!-- docs-version: 7.0.0 -->
+<!-- docs-version: 7.5.0 -->
 
 # @0xhoneyjar/loa-hounfour
 
-[![Version](https://img.shields.io/badge/version-7.0.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-7.5.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
-[![Schemas](https://img.shields.io/badge/schemas-53-purple.svg)](SCHEMA-CHANGELOG.md)
+[![Schemas](https://img.shields.io/badge/schemas-87+-purple.svg)](SCHEMA-CHANGELOG.md)
 
-> Documentation current as of v7.0.0
+> Documentation current as of v7.5.0
 
-Typed, validated protocol contracts for AI agent coordination. TypeBox schemas with dual JSON Schema 2020-12 output.
+Constitutional protocol contracts for an AI agent economy. TypeBox schemas with dual JSON Schema 2020-12 output.
 
 ## What This Is
 
-loa-hounfour is a **schema-only** protocol library. It defines the wire format for services that need typed, validated contracts between AI agents, gateways, and runtimes. Every TypeBox schema compiles to a standalone JSON Schema 2020-12 file, enabling cross-language validation in Python, Go, Rust, or any JSON Schema-compliant environment.
+loa-hounfour is a **constitutional protocol library** for an AI agent economy. It defines the wire format, governance rules, and economic constraints for services coordinating AI agents, gateways, and runtimes. Every TypeBox schema compiles to a standalone JSON Schema 2020-12 file, enabling cross-language validation in Python, Go, Rust, or any JSON Schema-compliant environment.
 
 **What it does**: Typed schemas, runtime validation, cross-field invariant checks, constraint DSL with evaluator builtins, formal conservation properties, governance layer.
 
@@ -25,21 +25,21 @@ Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (
 - **Schema drift**: Without a shared contract, services diverge silently.
 - **Protocol divergence**: Typed schemas catch incompatibilities at build time, not in production.
 - **Cross-language validation**: JSON Schema 2020-12 output works in any language ecosystem.
-- **Constraint DSL**: Formal rules (conservation laws, temporal ordering, state machine transitions) enforced by an evaluator with 31 builtins.
+- **Constraint DSL**: Formal rules (conservation laws, temporal ordering, state machine transitions) enforced by an evaluator with 36 builtins.
 
 ## Inventory
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| Schema files | 53 | `src/schemas/**/*.ts` |
+| Schema files | 87+ | `src/schemas/**/*.ts` |
 | Module barrels | 9 | `src/*/index.ts` (core, economy, model, governance, constraints, integrity, graph, composition, validators) |
 | Package export paths | 10 | `package.json` exports field |
-| Constraint files | 40 | `constraints/` (39 `.constraints.json` + 1 `GRAMMAR.md`) |
-| Evaluator builtins | 31 | `src/constraints/evaluator.ts:1399-1446` |
-| Tests | 3,908 | `pnpm run test` |
-| CONTRACT_VERSION | 7.0.0 | `src/version.ts:13` |
+| Constraint files | 51+ | `constraints/` (`.constraints.json` + `GRAMMAR.md`) |
+| Evaluator builtins | 36 | `src/constraints/evaluator.ts` |
+| Tests | 4,500+ | `pnpm run test` |
+| CONTRACT_VERSION | 7.5.0 | `src/version.ts:13` |
 | MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
-| Golden test vector dirs | 15 | `vectors/` (excluding VERSION) |
+| Golden test vector dirs | 28+ | `vectors/` (excluding VERSION) |
 
 ## Installation
 
@@ -119,7 +119,7 @@ const satisfied = evaluateConstraint(data, 'bigint_gte(limit_micro, spent_micro)
 // Returns true if the constraint passes, false if violated
 ```
 
-The constraint DSL supports 31 evaluator builtins (`src/constraints/evaluator.ts:1399-1446`): BigInt arithmetic (`bigint_sum`, `bigint_add`, `bigint_sub`, `bigint_gte`, `bigint_gt`, `bigint_eq`), delegation chain validation (`all_links_subset_authority`, `delegation_budget_conserved`, `links_temporally_ordered`, `links_form_chain`), ensemble capability checks, temporal operators (`changed`, `previous`, `delta`), type introspection (`type_of`, `is_bigint_coercible`), and v7.0.0 coordination/governance builtins (`saga_amount_conserved`, `saga_steps_sequential`, `outcome_consensus_valid`, `monetary_policy_solvent`, `permission_boundary_active`, `proposal_quorum_met`, `saga_timeout_valid`, `proposal_weights_normalized`).
+The constraint DSL supports 36 evaluator builtins (`src/constraints/evaluator.ts`): BigInt arithmetic (`bigint_sum`, `bigint_add`, `bigint_sub`, `bigint_gte`, `bigint_gt`, `bigint_eq`), delegation chain validation (`all_links_subset_authority`, `delegation_budget_conserved`, `links_temporally_ordered`, `links_form_chain`), ensemble capability checks, temporal operators (`changed`, `previous`, `delta`), type introspection (`type_of`, `is_bigint_coercible`), v7.0.0 coordination/governance builtins (`saga_amount_conserved`, `saga_steps_sequential`, `outcome_consensus_valid`, `monetary_policy_solvent`, `permission_boundary_active`, `proposal_quorum_met`, `saga_timeout_valid`, `proposal_weights_normalized`), timestamp comparison (`is_after`, `is_before`, `is_between`), and temporal governance (`is_stale`, `is_within`).
 
 ### Cross-Language JSON Schema Usage
 

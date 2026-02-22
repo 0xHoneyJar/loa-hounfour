@@ -150,6 +150,10 @@ class Parser {
       ['is_after', () => this.parseTimestampCmp('after')],
       ['is_before', () => this.parseTimestampCmp('before')],
       ['is_between', () => this.parseTimestampBetween()],
+
+      // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+      ['is_stale', () => this.parseTimestampStaleness('stale')],
+      ['is_within', () => this.parseTimestampStaleness('within')],
     ]);
   }
 
@@ -1454,6 +1458,44 @@ class Parser {
 
     return lowerMs <= valueMs && valueMs <= upperMs;
   }
+
+  // ---------------------------------------------------------------------------
+  // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Parse is_stale(timestamp, max_age_seconds, reference_timestamp) or
+   * is_within(timestamp, max_age_seconds, reference_timestamp).
+   *
+   * Deterministic — uses an explicit reference timestamp instead of Date.now().
+   *
+   * - is_stale: (referenceMs - timestampMs) / 1000 > maxAge  (strict >)
+   * - is_within: (referenceMs - timestampMs) / 1000 <= maxAge (inclusive <=)
+   *
+   * Returns false for invalid timestamps or negative max_age.
+   *
+   * @since v7.5.0
+   */
+  private parseTimestampStaleness(op: 'stale' | 'within'): boolean {
+    this.advance(); // consume 'is_stale' or 'is_within'
+    this.expect('paren', '(');
+    const timestamp = this.parseExpr();
+    this.expect('comma');
+    const maxAgeExpr = this.parseExpr();
+    this.expect('comma');
+    const referenceTimestamp = this.parseExpr();
+    this.expect('paren', ')');
+
+    const timestampMs = this.parseIso8601Ms(timestamp);
+    const referenceMs = this.parseIso8601Ms(referenceTimestamp);
+    const maxAge = Number(maxAgeExpr);
+
+    if (isNaN(timestampMs) || isNaN(referenceMs) || isNaN(maxAge) || maxAge < 0) return false;
+
+    const elapsedSeconds = (referenceMs - timestampMs) / 1000;
+
+    return op === 'stale' ? elapsedSeconds > maxAge : elapsedSeconds <= maxAge;
+  }
 }
 
 /**
@@ -1513,6 +1555,9 @@ export const EVALUATOR_BUILTINS = [
   'is_after',
   'is_before',
   'is_between',
+  // Temporal governance (v7.5.0)
+  'is_stale',
+  'is_within',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

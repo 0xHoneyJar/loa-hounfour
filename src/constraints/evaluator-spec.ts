@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 34 evaluator builtins. Each spec includes
+ * Canonical specifications for all 36 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 34 evaluator builtin specifications.
+ * Canonical registry of all 36 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -1174,5 +1174,75 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Invalid date strings return false', 'Inclusive on both bounds (lower <= value <= upper)'],
+  }],
+
+  // -- Temporal governance builtins (v7.5.0) ----------------------------------
+
+  ['is_stale', {
+    name: 'is_stale',
+    signature: 'is_stale(timestamp, max_age_seconds, reference_timestamp) → boolean',
+    description: 'Returns true if the elapsed time between timestamp and reference_timestamp exceeds max_age_seconds (strict >). Deterministic — no Date.now().',
+    arguments: [
+      { name: 'timestamp', type: 'string', description: 'ISO 8601 date string to test for staleness' },
+      { name: 'max_age_seconds', type: 'number', description: 'Maximum acceptable age in seconds' },
+      { name: 'reference_timestamp', type: 'string', description: 'ISO 8601 reference point (e.g., "now")' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Timestamp older than max age is stale',
+        context: { ts: '2026-01-01T00:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: true,
+      },
+      {
+        description: 'Timestamp within max age is not stale',
+        context: { ts: '2026-01-01T23:30:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: false,
+      },
+      {
+        description: 'Timestamp exactly at max age is not stale (strict >)',
+        context: { ts: '2026-01-01T23:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for invalid timestamps', 'Returns false for negative max_age', 'Uses strict > (exactly at max_age is not stale)', 'Complement of is_within'],
+  }],
+
+  ['is_within', {
+    name: 'is_within',
+    signature: 'is_within(timestamp, max_age_seconds, reference_timestamp) → boolean',
+    description: 'Returns true if the elapsed time between timestamp and reference_timestamp is at most max_age_seconds (<=). Deterministic — no Date.now().',
+    arguments: [
+      { name: 'timestamp', type: 'string', description: 'ISO 8601 date string to test for freshness' },
+      { name: 'max_age_seconds', type: 'number', description: 'Maximum acceptable age in seconds' },
+      { name: 'reference_timestamp', type: 'string', description: 'ISO 8601 reference point (e.g., "now")' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Timestamp within max age returns true',
+        context: { ts: '2026-01-01T23:30:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: true,
+      },
+      {
+        description: 'Timestamp older than max age returns false',
+        context: { ts: '2026-01-01T00:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: false,
+      },
+      {
+        description: 'Timestamp exactly at max age returns true (<=)',
+        context: { ts: '2026-01-01T23:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Returns false for invalid timestamps', 'Returns false for negative max_age', 'Uses <= (exactly at max_age is within)', 'Complement of is_stale'],
   }],
 ]);
