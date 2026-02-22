@@ -89,6 +89,7 @@ export {
   computeBlendedScore,
   computeDecayedSampleCount,
   computeCrossModelScore,
+  getModelCohort,
   AggregateSnapshotSchema,
   type AggregateSnapshot,
 } from './reputation-aggregate.js';

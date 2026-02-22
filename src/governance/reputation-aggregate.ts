@@ -277,6 +277,29 @@ export function computeCrossModelScore(
 }
 
 // ---------------------------------------------------------------------------
+// Model Cohort Lookup (v7.4.0 — Bridgebuilder Vision B-V3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Look up a specific model's cohort within a reputation aggregate.
+ *
+ * Extracts the repetitive pattern of finding a model's contribution
+ * record from the aggregate's model_cohorts array.
+ *
+ * @param aggregate - The reputation aggregate to search
+ * @param modelId - The model alias to look up (e.g. "native", "gpt-4o")
+ * @returns The matching ModelCohort, or undefined if not found
+ *
+ * @since v7.4.0 — Bridgebuilder Vision B-V3
+ */
+export function getModelCohort(
+  aggregate: ReputationAggregate,
+  modelId: string,
+): ModelCohort | undefined {
+  return aggregate.model_cohorts?.find(c => c.model_id === modelId);
+}
+
+// ---------------------------------------------------------------------------
 // Aggregate Snapshot (v7.3.0 — Bridgebuilder C2 + Spec V)
 // ---------------------------------------------------------------------------
 

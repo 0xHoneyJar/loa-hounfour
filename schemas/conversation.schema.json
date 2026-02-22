@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.3.0/conversation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.4.0/conversation",
   "description": "NFT-owned conversation with sealing policy and access control",
   "additionalProperties": false,
   "type": "object",
@@ -147,7 +147,7 @@
             "min_reputation_score": {
               "minimum": 0,
               "maximum": 1,
-              "description": "Minimum reputation blended_score for reputation_gated access (v7.3.0)",
+              "description": "Minimum reputation blended_score for reputation_gated access (v7.4.0)",
               "type": "number"
             },
             "min_reputation_state": {
@@ -233,5 +233,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.3.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.4.0, min_supported=6.0.0"
 }

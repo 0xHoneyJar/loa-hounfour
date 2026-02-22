@@ -16,6 +16,7 @@ import {
   computeBlendedScore,
   computeDecayedSampleCount,
   computeCrossModelScore,
+  getModelCohort,
   type ReputationAggregate,
   type ReputationState,
   type ModelCohort,
@@ -534,6 +535,50 @@ describe('computeCrossModelScore', () => {
     expect(result).not.toBeNull();
     // Recent model (native) should dominate due to less decay
     expect(result!).toBeGreaterThan(0.8);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getModelCohort (v7.4.0 — Bridgebuilder Vision B-V3)
+// ---------------------------------------------------------------------------
+
+describe('getModelCohort', () => {
+  it('returns the matching cohort when found', () => {
+    const aggregate: ReputationAggregate = {
+      ...VALID_AGGREGATE,
+      model_cohorts: [
+        { model_id: 'native', personal_score: 0.8, sample_count: 10, last_updated: '2026-02-01T00:00:00Z' },
+        { model_id: 'gpt-4o', personal_score: 0.9, sample_count: 5, last_updated: '2026-02-01T00:00:00Z' },
+      ],
+    };
+    const result = getModelCohort(aggregate, 'gpt-4o');
+    expect(result).toBeDefined();
+    expect(result!.model_id).toBe('gpt-4o');
+    expect(result!.personal_score).toBe(0.9);
+  });
+
+  it('returns undefined when model not found', () => {
+    const aggregate: ReputationAggregate = {
+      ...VALID_AGGREGATE,
+      model_cohorts: [
+        { model_id: 'native', personal_score: 0.8, sample_count: 10, last_updated: '2026-02-01T00:00:00Z' },
+      ],
+    };
+    expect(getModelCohort(aggregate, 'gpt-4o')).toBeUndefined();
+  });
+
+  it('returns undefined when model_cohorts is undefined', () => {
+    const aggregate: ReputationAggregate = { ...VALID_AGGREGATE };
+    delete (aggregate as { model_cohorts?: unknown }).model_cohorts;
+    expect(getModelCohort(aggregate, 'native')).toBeUndefined();
+  });
+
+  it('returns undefined when model_cohorts is empty', () => {
+    const aggregate: ReputationAggregate = {
+      ...VALID_AGGREGATE,
+      model_cohorts: [],
+    };
+    expect(getModelCohort(aggregate, 'native')).toBeUndefined();
   });
 });
 
