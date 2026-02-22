@@ -27,7 +27,7 @@ import {
   computeBlendedScore,
   computePersonalWeight,
 } from '../governance/reputation-aggregate.js';
-import { BAYESIAN_BLEND } from '../vocabulary/reputation.js';
+import { BAYESIAN_BLEND, REPUTATION_STATE_ORDER } from '../vocabulary/reputation.js';
 import { CONTRACT_VERSION } from '../version.js';
 
 const canonicalize = _canonicalize as unknown as (input: unknown) => string | undefined;
@@ -70,16 +70,7 @@ export interface ConsistencyReport {
   reconstructed_state: ReputationState;
 }
 
-// ---------------------------------------------------------------------------
-// State ordering for comparisons
-// ---------------------------------------------------------------------------
-
-const STATE_ORDER: Record<ReputationState, number> = {
-  cold: 0,
-  warming: 1,
-  established: 2,
-  authoritative: 3,
-};
+// State ordering imported from vocabulary/reputation.ts as REPUTATION_STATE_ORDER
 
 // ---------------------------------------------------------------------------
 // S2-T1: reconstructAggregateFromEvents
@@ -376,8 +367,7 @@ export function computeEventStreamHash(
 ): string {
   const canonical = canonicalize(events);
   if (canonical === undefined) {
-    // canonicalize returns undefined for non-serializable inputs
-    return bytesToHex(sha256(new TextEncoder().encode('[]')));
+    throw new Error('Failed to canonicalize event stream: input contains non-serializable values');
   }
   return bytesToHex(sha256(new TextEncoder().encode(canonical)));
 }

@@ -15,9 +15,16 @@ import type { ReputationCredential } from '../governance/reputation-credential.j
 
 /**
  * Sample count at which credential confidence saturates.
+ *
+ * Chosen as 30 based on the Central Limit Theorem heuristic: for n >= 30,
+ * the sampling distribution of the mean is approximately normal regardless
+ * of the underlying distribution, making the credential's blended_score a
+ * statistically reliable estimator of the source reputation.
+ *
  * At this threshold, the credential's sample_count contributes full
  * confidence to the weight calculation. Below this, confidence scales
- * linearly (min(1, source_sample_count / CREDENTIAL_CONFIDENCE_THRESHOLD)).
+ * linearly (min(1, source_sample_count / CREDENTIAL_CONFIDENCE_THRESHOLD)),
+ * proportionally discounting credentials backed by fewer observations.
  *
  * @since v7.3.0
  */

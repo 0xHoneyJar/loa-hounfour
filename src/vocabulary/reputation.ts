@@ -31,6 +31,15 @@ export const REPUTATION_DECAY = {
  */
 export const MIN_REPUTATION_SAMPLE_SIZE = 5;
 
+/**
+ * Default temporal decay half-life in days for reputation sample counts.
+ * Extracted from the deprecated `REPUTATION_DECAY.half_life_days` to break
+ * the circular deprecation (active code importing deprecated constant).
+ *
+ * @since v7.3.1
+ */
+export const DEFAULT_HALF_LIFE_DAYS = 30;
+
 // ---------------------------------------------------------------------------
 // Bayesian Blending Parameters (v7.1.0, FR-5)
 // ---------------------------------------------------------------------------
@@ -57,3 +66,11 @@ export const ANTI_MANIPULATION = {
 
 /** Reputation state machine states in order of progression. */
 export const REPUTATION_STATES = ['cold', 'warming', 'established', 'authoritative'] as const;
+
+/** Ordered mapping from reputation state to numeric rank for comparisons. */
+export const REPUTATION_STATE_ORDER: Record<string, number> = {
+  cold: 0,
+  warming: 1,
+  established: 2,
+  authoritative: 3,
+} as const;

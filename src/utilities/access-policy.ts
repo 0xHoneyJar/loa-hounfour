@@ -12,14 +12,7 @@
  */
 import { type AccessPolicy } from '../schemas/conversation.js';
 import { type ReputationState } from '../governance/reputation-aggregate.js';
-
-/** Ordered reputation states for comparison. */
-const STATE_ORDER: Record<string, number> = {
-  cold: 0,
-  warming: 1,
-  established: 2,
-  authoritative: 3,
-};
+import { REPUTATION_STATE_ORDER } from '../vocabulary/reputation.js';
 
 /** Runtime context for evaluating an access policy. */
 export interface AccessPolicyContext {
@@ -137,8 +130,8 @@ export function evaluateAccessPolicy(
             reason: 'Policy requires reputation_state but context does not provide it',
           };
         }
-        const contextOrder = STATE_ORDER[context.reputation_state] ?? 0;
-        const requiredOrder = STATE_ORDER[policy.min_reputation_state] ?? 0;
+        const contextOrder = REPUTATION_STATE_ORDER[context.reputation_state] ?? 0;
+        const requiredOrder = REPUTATION_STATE_ORDER[policy.min_reputation_state] ?? 0;
         if (contextOrder < requiredOrder) {
           return {
             allowed: false,

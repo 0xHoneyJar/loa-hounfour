@@ -69,6 +69,8 @@ export {
   BAYESIAN_BLEND,
   ANTI_MANIPULATION,
   REPUTATION_STATES,
+  REPUTATION_STATE_ORDER,
+  DEFAULT_HALF_LIFE_DAYS,
 } from '../vocabulary/reputation.js';
 
 // Schemas — Reputation Aggregate (v7.1.0, FR-3; v7.3.0, C5+Spec I)

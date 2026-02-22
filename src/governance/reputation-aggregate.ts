@@ -1,5 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox';
-import { REPUTATION_DECAY } from '../vocabulary/reputation.js';
+import { DEFAULT_HALF_LIFE_DAYS } from '../vocabulary/reputation.js';
 
 /**
  * Reputation state machine — 4 states from cold to authoritative.
@@ -231,7 +231,7 @@ export function computeBlendedScore(
 export function computeDecayedSampleCount(
   sampleCount: number,
   daysSinceLastUpdate: number,
-  halfLifeDays: number = REPUTATION_DECAY.half_life_days,
+  halfLifeDays: number = DEFAULT_HALF_LIFE_DAYS,
 ): number {
   if (daysSinceLastUpdate <= 0) return sampleCount;
   if (halfLifeDays <= 0) return 0;
