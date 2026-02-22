@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/event-filter",
+  "additionalProperties": false,
+  "description": "Filter criteria for event subscription. All filters are AND-combined.",
+  "type": "object",
+  "properties": {
+    "personality_ids": {
+      "description": "Filter to events for specific personality IDs.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "collection_ids": {
+      "description": "Filter to events within specific collections.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "state_transitions": {
+      "description": "Filter to specific state transitions (e.g., \"cold→warming\").",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "score_thresholds": {
+      "description": "Filter to events where score crosses threshold boundaries.",
+      "type": "object",
+      "properties": {
+        "min": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "max": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    },
+    "event_types": {
+      "description": "Filter to specific event types (e.g., \"quality_recorded\", \"state_changed\").",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+}

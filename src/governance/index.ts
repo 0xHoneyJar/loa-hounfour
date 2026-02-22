@@ -226,3 +226,15 @@ export {
   type ReputationPortabilityRequest,
   type PortabilityResponse,
 } from './reputation-portability.js';
+
+// Schemas — Delegation Quality (v7.5.0, DR-S3)
+export {
+  QualitySignalLevelSchema,
+  OutcomeQualityMappingSchema,
+  DEFAULT_OUTCOME_QUALITY_MAPPING,
+  QUALITY_SIGNAL_SCORES,
+  DelegationQualityEventSchema,
+  type QualitySignalLevel,
+  type OutcomeQualityMapping,
+  type DelegationQualityEvent,
+} from './delegation-quality.js';

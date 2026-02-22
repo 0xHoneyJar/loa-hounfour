@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/portability-response",
+  "additionalProperties": false,
+  "description": "Response to a reputation portability request.",
+  "type": "object",
+  "required": [
+    "response_id",
+    "request_id",
+    "responder_collection_id",
+    "decision",
+    "responded_at",
+    "contract_version"
+  ],
+  "properties": {
+    "response_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "request_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "responder_collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "decision": {
+      "description": "The decision on the portability request.",
+      "anyOf": [
+        {
+          "const": "accepted",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        },
+        {
+          "const": "pending_governance",
+          "type": "string"
+        }
+      ]
+    },
+    "credential_id": {
+      "format": "uuid",
+      "description": "Credential ID issued when accepted. Required when decision is accepted.",
+      "type": "string"
+    },
+    "rejection_reason": {
+      "minLength": 1,
+      "description": "Reason for rejection. Required when decision is rejected.",
+      "type": "string"
+    },
+    "governance_proposal_id": {
+      "format": "uuid",
+      "description": "Governance proposal ID. Required when decision is pending_governance.",
+      "type": "string"
+    },
+    "responded_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+}

@@ -117,6 +117,8 @@ import { ReputationCredentialSchema } from '../src/governance/reputation-credent
 // v7.5.0 — Event Subscription + Reputation Portability
 import { EventFilterSchema, DeliveryMethodSchema, EventCursorSchema, EventSubscriptionSchema } from '../src/governance/event-subscription.js';
 import { PortabilityScopeSchema, ReputationPortabilityRequestSchema, PortabilityResponseSchema } from '../src/governance/reputation-portability.js';
+// v7.5.0 — Delegation Quality
+import { QualitySignalLevelSchema, OutcomeQualityMappingSchema, DelegationQualityEventSchema } from '../src/governance/delegation-quality.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -270,6 +272,10 @@ const schemas = [
   { name: 'portability-scope', schema: PortabilityScopeSchema },
   { name: 'reputation-portability-request', schema: ReputationPortabilityRequestSchema },
   { name: 'portability-response', schema: PortabilityResponseSchema },
+  // v7.5.0 — Delegation Quality
+  { name: 'quality-signal-level', schema: QualitySignalLevelSchema },
+  { name: 'outcome-quality-mapping', schema: OutcomeQualityMappingSchema },
+  { name: 'delegation-quality-event', schema: DelegationQualityEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

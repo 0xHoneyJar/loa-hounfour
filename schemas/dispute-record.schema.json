@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.4.0/dispute-record",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/dispute-record",
   "description": "Dispute filed against an agent or outcome with evidence and resolution tracking",
   "additionalProperties": false,
   "x-cross-field-validated": true,
@@ -120,5 +120,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.4.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
 }

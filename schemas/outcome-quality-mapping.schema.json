@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/outcome-quality-mapping",
+  "additionalProperties": false,
+  "description": "Maps each OutcomeType to a QualitySignalLevel. Collections may override defaults.",
+  "type": "object",
+  "required": [
+    "unanimous",
+    "majority",
+    "deadlock",
+    "escalation"
+  ],
+  "properties": {
+    "unanimous": {
+      "$id": "QualitySignalLevel",
+      "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+      "anyOf": [
+        {
+          "const": "high",
+          "type": "string"
+        },
+        {
+          "const": "moderate",
+          "type": "string"
+        },
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        }
+      ]
+    },
+    "majority": {
+      "$id": "QualitySignalLevel",
+      "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+      "anyOf": [
+        {
+          "const": "high",
+          "type": "string"
+        },
+        {
+          "const": "moderate",
+          "type": "string"
+        },
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        }
+      ]
+    },
+    "deadlock": {
+      "$id": "QualitySignalLevel",
+      "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+      "anyOf": [
+        {
+          "const": "high",
+          "type": "string"
+        },
+        {
+          "const": "moderate",
+          "type": "string"
+        },
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        }
+      ]
+    },
+    "escalation": {
+      "$id": "QualitySignalLevel",
+      "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+      "anyOf": [
+        {
+          "const": "high",
+          "type": "string"
+        },
+        {
+          "const": "moderate",
+          "type": "string"
+        },
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.4.0/ensemble-capability-profile",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/ensemble-capability-profile",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Collective capability declaration for model ensembles (patchwork AGI hypothesis).",
@@ -172,5 +172,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.4.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
 }
