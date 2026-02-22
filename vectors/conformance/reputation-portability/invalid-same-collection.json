@@ -1,0 +1,27 @@
+{
+  "vector_id": "conformance-reputation-portability-003",
+  "category": "reputation-portability",
+  "description": "Invalid: source and target collections are the same (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "request_id": "bb0e8400-e29b-41d4-a716-446655440040",
+    "personality_id": "personality-xyz",
+    "source_collection_id": "collection-A",
+    "source_pool_id": "pool-1",
+    "target_collection_id": "collection-A",
+    "target_pool_id": "pool-2",
+    "scope": "score_only",
+    "justification": "Attempting same-collection transfer.",
+    "requested_at": "2026-02-20T00:00:00Z",
+    "expires_at": "2026-03-20T00:00:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "Schema-valid but violates constraint: source and target collections must differ."
+  }
+}

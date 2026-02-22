@@ -114,6 +114,9 @@ import { QualityEventSchema } from '../src/schemas/quality-event.js';
 import { RecordQualityEventCommandSchema, QueryReputationCommandSchema, ResetReputationCommandSchema } from '../src/governance/reputation-commands.js';
 import { ReputationStateChangedPayloadSchema, QualityEventRecordedPayloadSchema, CollectionScoreUpdatedPayloadSchema } from '../src/governance/reputation-events.js';
 import { ReputationCredentialSchema } from '../src/governance/reputation-credential.js';
+// v7.5.0 — Event Subscription + Reputation Portability
+import { EventFilterSchema, DeliveryMethodSchema, EventCursorSchema, EventSubscriptionSchema } from '../src/governance/event-subscription.js';
+import { PortabilityScopeSchema, ReputationPortabilityRequestSchema, PortabilityResponseSchema } from '../src/governance/reputation-portability.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -258,6 +261,15 @@ const schemas = [
   { name: 'quality-event-recorded-payload', schema: QualityEventRecordedPayloadSchema },
   { name: 'collection-score-updated-payload', schema: CollectionScoreUpdatedPayloadSchema },
   { name: 'reputation-credential', schema: ReputationCredentialSchema },
+  // v7.5.0 — Event Subscription
+  { name: 'event-filter', schema: EventFilterSchema },
+  { name: 'delivery-method', schema: DeliveryMethodSchema },
+  { name: 'event-cursor', schema: EventCursorSchema },
+  { name: 'event-subscription', schema: EventSubscriptionSchema },
+  // v7.5.0 — Reputation Portability
+  { name: 'portability-scope', schema: PortabilityScopeSchema },
+  { name: 'reputation-portability-request', schema: ReputationPortabilityRequestSchema },
+  { name: 'portability-response', schema: PortabilityResponseSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -1,0 +1,23 @@
+{
+  "vector_id": "conformance-reputation-portability-002",
+  "category": "reputation-portability",
+  "description": "Valid accepted portability response with credential (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "response_id": "990e8400-e29b-41d4-a716-446655440020",
+    "request_id": "880e8400-e29b-41d4-a716-446655440010",
+    "responder_collection_id": "collection-B",
+    "decision": "accepted",
+    "credential_id": "aa0e8400-e29b-41d4-a716-446655440030",
+    "responded_at": "2026-02-21T00:00:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "Accepted response includes credential_id as required by constraint."
+  }
+}

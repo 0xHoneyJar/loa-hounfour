@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 25 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(25);
+  it('contains exactly 27 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(27);
   });
 
   it('includes all valid categories', () => {
@@ -91,6 +91,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'reputation-aggregate',
       'reputation-credential',
       'access-policy',
+      'event-subscription',
+      'reputation-portability',
     ]);
   });
 });

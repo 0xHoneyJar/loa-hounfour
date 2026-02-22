@@ -1,0 +1,33 @@
+{
+  "vector_id": "conformance-event-subscription-002",
+  "category": "event-subscription",
+  "description": "Valid SSE subscription with cursor (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "subscription_id": "660e8400-e29b-41d4-a716-446655440001",
+    "subscriber_id": "svc-dashboard",
+    "pool_id": "pool-beta",
+    "filter": {
+      "personality_ids": ["personality-abc"],
+      "score_thresholds": { "min": 0.3, "max": 0.9 }
+    },
+    "delivery": {
+      "method": "sse"
+    },
+    "cursor": {
+      "after_timestamp": "2026-02-20T00:00:00Z",
+      "limit": 50
+    },
+    "active": true,
+    "created_at": "2026-02-23T00:00:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "SSE delivery with cursor-based pagination and score threshold filter."
+  }
+}

@@ -204,3 +204,25 @@ export {
   type VotingRecord,
   type GovernanceProposal,
 } from './governance-proposal.js';
+
+// Schemas — Event Subscription (v7.5.0, DR-S1)
+export {
+  EventFilterSchema,
+  DeliveryMethodSchema,
+  EventCursorSchema,
+  EventSubscriptionSchema,
+  type EventFilter,
+  type DeliveryMethod,
+  type EventCursor,
+  type EventSubscription,
+} from './event-subscription.js';
+
+// Schemas — Reputation Portability (v7.5.0, DR-S2)
+export {
+  PortabilityScopeSchema,
+  ReputationPortabilityRequestSchema,
+  PortabilityResponseSchema,
+  type PortabilityScope,
+  type ReputationPortabilityRequest,
+  type PortabilityResponse,
+} from './reputation-portability.js';
