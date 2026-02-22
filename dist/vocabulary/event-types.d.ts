@@ -51,6 +51,11 @@ export declare const EVENT_TYPES: {
     readonly 'reputation.state.changed': "Reputation state machine transitioned";
     readonly 'reputation.quality_event.recorded': "Quality observation ingested";
     readonly 'reputation.collection_score.updated': "Collection trimmed mean recalculated";
+    readonly 'reputation.aggregate.snapshot_created': "Point-in-time aggregate snapshot created";
+    readonly 'reputation.aggregate.consistency_verified': "Aggregate consistency verification completed";
+    readonly 'reputation.credential.issued': "Portable reputation credential issued for cross-collection use";
+    readonly 'reputation.credential.accepted': "Portable reputation credential accepted by destination collection";
+    readonly 'reputation.credential.rejected': "Portable reputation credential rejected by destination collection";
     readonly 'economy.escrow.created': "Escrow entry created";
     readonly 'economy.escrow.funded': "Escrow entry funded";
     readonly 'economy.escrow.released': "Escrow funds released to payee";

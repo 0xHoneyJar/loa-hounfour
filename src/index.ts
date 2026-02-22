@@ -42,3 +42,6 @@ export {
   type ReconstructedAggregate,
   type ConsistencyReport,
 } from './utilities/reputation-replay.js';
+
+// Reputation Credential Prior (v7.3.0, C1 + Spec IV)
+export { computeCredentialPrior } from './utilities/reputation-credential.js';

@@ -113,6 +113,7 @@ import { ReputationAggregateSchema, ReputationStateSchema, ReputationTransitionS
 import { QualityEventSchema } from '../src/schemas/quality-event.js';
 import { RecordQualityEventCommandSchema, QueryReputationCommandSchema, ResetReputationCommandSchema } from '../src/governance/reputation-commands.js';
 import { ReputationStateChangedPayloadSchema, QualityEventRecordedPayloadSchema, CollectionScoreUpdatedPayloadSchema } from '../src/governance/reputation-events.js';
+import { ReputationCredentialSchema } from '../src/governance/reputation-credential.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -256,6 +257,7 @@ const schemas = [
   { name: 'reputation-state-changed-payload', schema: ReputationStateChangedPayloadSchema },
   { name: 'quality-event-recorded-payload', schema: QualityEventRecordedPayloadSchema },
   { name: 'collection-score-updated-payload', schema: CollectionScoreUpdatedPayloadSchema },
+  { name: 'reputation-credential', schema: ReputationCredentialSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -120,6 +120,12 @@ export {
 // Utilities — Reputation
 export { isReliableReputation } from '../utilities/reputation.js';
 
+// Schemas — Reputation Credential (v7.3.0, C1 + Spec IV)
+export {
+  ReputationCredentialSchema,
+  type ReputationCredential,
+} from './reputation-credential.js';
+
 // Schemas — Governance Config (v5.3.0)
 export {
   GovernanceConfigSchema,

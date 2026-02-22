@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { NftIdSchema } from '../utilities/nft-id.js';
 import { ToolCallSchema } from './tool-call.js';
+import { ReputationStateSchema } from '../governance/reputation-aggregate.js';
 
 /** Conversation lifecycle status. */
 export const ConversationStatusSchema = Type.Union([
@@ -32,6 +33,7 @@ export const AccessPolicySchema = Type.Object({
     Type.Literal('read_only'),
     Type.Literal('time_limited'),
     Type.Literal('role_based'),
+    Type.Literal('reputation_gated'),
   ], {
     description: 'Access type governing previous owner data visibility',
   }),
@@ -46,6 +48,11 @@ export const AccessPolicySchema = Type.Object({
       + 'Role names are intentionally unconstrained at the protocol level — '
       + 'domain-specific validation (e.g., valid role enums) is the consumer\'s responsibility.',
   })),
+  min_reputation_score: Type.Optional(Type.Number({
+    minimum: 0, maximum: 1,
+    description: 'Minimum reputation blended_score for reputation_gated access (v7.3.0)',
+  })),
+  min_reputation_state: Type.Optional(ReputationStateSchema),
   audit_required: Type.Boolean({
     description: 'Whether access events must be logged to the audit trail',
   }),
@@ -107,6 +114,11 @@ export function validateAccessPolicy(
   if (policy.type === 'role_based' && (!policy.roles || policy.roles.length === 0)) {
     errors.push('roles array is required and must be non-empty when type is "role_based"');
   }
+  if (policy.type === 'reputation_gated'
+    && policy.min_reputation_score === undefined
+    && policy.min_reputation_state === undefined) {
+    errors.push('reputation_gated requires at least one of min_reputation_score or min_reputation_state');
+  }
 
   // Extraneous field checks (BB-C5-002/005)
   // In strict mode, these become errors instead of warnings (BB-C5-Part5-§4)
@@ -120,6 +132,15 @@ export function validateAccessPolicy(
   }
   if (policy.type !== 'role_based' && policy.roles !== undefined) {
     const msg = `roles is only meaningful when type is "role_based" (current type: "${policy.type}")`;
+    if (strict) {
+      errors.push(msg);
+    } else {
+      warnings.push(msg);
+    }
+  }
+  if (policy.type !== 'reputation_gated'
+    && (policy.min_reputation_score !== undefined || policy.min_reputation_state !== undefined)) {
+    const msg = `min_reputation_score/min_reputation_state are only meaningful when type is "reputation_gated" (current type: "${policy.type}")`;
     if (strict) {
       errors.push(msg);
     } else {

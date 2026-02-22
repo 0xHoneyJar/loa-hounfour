@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.2.0/transfer-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.3.0/transfer-event",
   "description": "Record of a completed NFT ownership transfer",
   "additionalProperties": false,
   "type": "object",
@@ -147,6 +147,10 @@
                 {
                   "const": "role_based",
                   "type": "string"
+                },
+                {
+                  "const": "reputation_gated",
+                  "type": "string"
                 }
               ]
             },
@@ -164,6 +168,33 @@
                 "minLength": 1,
                 "type": "string"
               }
+            },
+            "min_reputation_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum reputation blended_score for reputation_gated access (v7.3.0)",
+              "type": "number"
+            },
+            "min_reputation_state": {
+              "$id": "ReputationState",
+              "anyOf": [
+                {
+                  "const": "cold",
+                  "type": "string"
+                },
+                {
+                  "const": "warming",
+                  "type": "string"
+                },
+                {
+                  "const": "established",
+                  "type": "string"
+                },
+                {
+                  "const": "authoritative",
+                  "type": "string"
+                }
+              ]
             },
             "audit_required": {
               "description": "Whether access events must be logged to the audit trail",
@@ -198,5 +229,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.2.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.3.0, min_supported=6.0.0"
 }

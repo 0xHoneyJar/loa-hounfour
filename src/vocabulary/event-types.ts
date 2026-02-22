@@ -76,6 +76,11 @@ export const EVENT_TYPES = {
   'reputation.aggregate.snapshot_created': 'Point-in-time aggregate snapshot created',
   'reputation.aggregate.consistency_verified': 'Aggregate consistency verification completed',
 
+  // Reputation credentials — cross-collection trust (v7.3.0)
+  'reputation.credential.issued': 'Portable reputation credential issued for cross-collection use',
+  'reputation.credential.accepted': 'Portable reputation credential accepted by destination collection',
+  'reputation.credential.rejected': 'Portable reputation credential rejected by destination collection',
+
   // Economy aggregate (v4.4.0)
   'economy.escrow.created': 'Escrow entry created',
   'economy.escrow.funded': 'Escrow entry funded',

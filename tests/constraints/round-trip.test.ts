@@ -1749,7 +1749,7 @@ describe('Constraint file structure', () => {
   const v4SchemaIds = [
     'EscrowEntry', 'StakePosition', 'MutualCredit', 'CommonsDividend',
     'DisputeRecord', 'ReputationScore', 'BillingEntry',
-    'PerformanceRecord', 'ConversationSealingPolicy', 'AccessPolicy',
+    'PerformanceRecord', 'ConversationSealingPolicy',
   ];
 
   const v5SchemaIds = [
@@ -1807,6 +1807,28 @@ describe('Constraint file structure', () => {
       expect(file.schema_id).toBe(schemaId);
       expect(file.contract_version).toBe('5.1.0');
       expect(file.expression_version).toBe('2.0');
+      expect(file.constraints.length).toBeGreaterThan(0);
+
+      for (const constraint of file.constraints) {
+        expect(constraint.id).toBeTruthy();
+        expect(constraint.expression).toBeTruthy();
+        expect(['error', 'warning']).toContain(constraint.severity);
+        expect(constraint.message).toBeTruthy();
+        expect(constraint.fields.length).toBeGreaterThan(0);
+      }
+    });
+  }
+
+  // v7.3.0 constraint files — AccessPolicy upgraded, ReputationCredential new
+  const v73SchemaIds = ['AccessPolicy', 'ReputationCredential'];
+
+  for (const schemaId of v73SchemaIds) {
+    it(`${schemaId} constraint file has valid v7.3.0 structure`, () => {
+      const file = loadConstraints(schemaId);
+      expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
+      expect(file.schema_id).toBe(schemaId);
+      expect(file.contract_version).toBe('7.3.0');
+      expect(file.expression_version).toBe('1.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 
       for (const constraint of file.constraints) {

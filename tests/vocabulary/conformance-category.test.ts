@@ -46,7 +46,7 @@ describe('ConformanceCategorySchema', () => {
 
 describe('CONFORMANCE_CATEGORIES', () => {
   it('contains exactly 23 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(23);
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(24);
   });
 
   it('includes all valid categories', () => {
@@ -89,6 +89,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'micro-usdc',
       'personality-assignment',
       'reputation-aggregate',
+      'reputation-credential',
     ]);
   });
 });

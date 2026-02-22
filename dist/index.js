@@ -25,4 +25,8 @@ export { validateBillingEntryFull } from './validators/billing.js';
 export { extractReferences, buildSchemaGraph } from './utilities/schema-graph.js';
 // AccessPolicy Evaluation (v7.1.0, FR-6)
 export { evaluateAccessPolicy, } from './utilities/access-policy.js';
+// Reputation Event Sourcing (v7.3.0, C2 + Spec V)
+export { reconstructAggregateFromEvents, verifyAggregateConsistency, computeEventStreamHash, } from './utilities/reputation-replay.js';
+// Reputation Credential Prior (v7.3.0, C1 + Spec IV)
+export { computeCredentialPrior } from './utilities/reputation-credential.js';
 //# sourceMappingURL=index.js.map

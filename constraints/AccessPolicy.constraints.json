@@ -1,7 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "AccessPolicy",
-  "contract_version": "5.0.0",
+  "contract_version": "7.3.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -12,6 +12,18 @@
       "fields": ["visibility"],
       "type_signature": {
         "visibility": "string"
+      }
+    },
+    {
+      "id": "access-reputation-gated-condition",
+      "expression": "type != 'reputation_gated' || min_reputation_score != undefined || min_reputation_state != undefined",
+      "severity": "error",
+      "message": "reputation_gated type requires at least one of min_reputation_score or min_reputation_state",
+      "fields": ["type", "min_reputation_score", "min_reputation_state"],
+      "type_signature": {
+        "type": "string",
+        "min_reputation_score": "number | undefined",
+        "min_reputation_state": "string | undefined"
       }
     }
   ]

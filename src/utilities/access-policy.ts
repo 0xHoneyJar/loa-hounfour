@@ -11,6 +11,15 @@
  * @see SDD §2.8 — AccessPolicy Evaluation Helper
  */
 import { type AccessPolicy } from '../schemas/conversation.js';
+import { type ReputationState } from '../governance/reputation-aggregate.js';
+
+/** Ordered reputation states for comparison. */
+const STATE_ORDER: Record<string, number> = {
+  cold: 0,
+  warming: 1,
+  established: 2,
+  authoritative: 3,
+};
 
 /** Runtime context for evaluating an access policy. */
 export interface AccessPolicyContext {
@@ -25,6 +34,10 @@ export interface AccessPolicyContext {
    * @since v7.2.0 — Bridgebuilder Finding F1
    */
   policy_created_at?: string;
+  /** Current reputation state of the requesting personality (v7.3.0). */
+  reputation_state?: ReputationState;
+  /** Current blended reputation score of the requesting personality (v7.3.0). */
+  reputation_score?: number;
 }
 
 /** Result of evaluating an access policy. */
@@ -93,6 +106,36 @@ export function evaluateAccessPolicy(
       return hasRole
         ? { allowed: true, reason: `Role '${context.role}' matched` }
         : { allowed: false, reason: `Role '${context.role}' not in permitted roles` };
+    }
+
+    case 'reputation_gated': {
+      if (context.reputation_state === undefined && context.reputation_score === undefined) {
+        return { allowed: false, reason: 'No reputation context provided for reputation_gated policy' };
+      }
+
+      // Check min_reputation_score
+      if (policy.min_reputation_score !== undefined && context.reputation_score !== undefined) {
+        if (context.reputation_score < policy.min_reputation_score) {
+          return {
+            allowed: false,
+            reason: `Reputation score ${context.reputation_score} below minimum ${policy.min_reputation_score}`,
+          };
+        }
+      }
+
+      // Check min_reputation_state
+      if (policy.min_reputation_state !== undefined && context.reputation_state !== undefined) {
+        const contextOrder = STATE_ORDER[context.reputation_state] ?? 0;
+        const requiredOrder = STATE_ORDER[policy.min_reputation_state] ?? 0;
+        if (contextOrder < requiredOrder) {
+          return {
+            allowed: false,
+            reason: `Reputation state '${context.reputation_state}' below minimum '${policy.min_reputation_state}'`,
+          };
+        }
+      }
+
+      return { allowed: true, reason: 'Reputation-gated access granted' };
     }
   }
 }
