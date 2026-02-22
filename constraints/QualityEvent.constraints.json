@@ -1,0 +1,84 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "QualityEvent",
+  "contract_version": "7.2.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "quality-satisfaction-bounds",
+      "expression": "satisfaction >= 0.0 && satisfaction <= 1.0",
+      "severity": "error",
+      "message": "satisfaction must be in [0, 1]",
+      "fields": ["satisfaction"],
+      "type_signature": {
+        "satisfaction": "number"
+      }
+    },
+    {
+      "id": "quality-coherence-bounds",
+      "expression": "coherence >= 0.0 && coherence <= 1.0",
+      "severity": "error",
+      "message": "coherence must be in [0, 1]",
+      "fields": ["coherence"],
+      "type_signature": {
+        "coherence": "number"
+      }
+    },
+    {
+      "id": "quality-safety-bounds",
+      "expression": "safety >= 0.0 && safety <= 1.0",
+      "severity": "error",
+      "message": "safety must be in [0, 1]",
+      "fields": ["safety"],
+      "type_signature": {
+        "safety": "number"
+      }
+    },
+    {
+      "id": "quality-composite-bounds",
+      "expression": "composite_score >= 0.0 && composite_score <= 1.0",
+      "severity": "error",
+      "message": "composite_score must be in [0, 1]",
+      "fields": ["composite_score"],
+      "type_signature": {
+        "composite_score": "number"
+      }
+    },
+    {
+      "id": "quality-composite-lower-bound",
+      "expression": "!(composite_score < satisfaction && composite_score < coherence && composite_score < safety)",
+      "severity": "warning",
+      "message": "composite_score should not be below all quality dimensions (expected weighted average)",
+      "fields": ["composite_score", "satisfaction", "coherence", "safety"],
+      "type_signature": {
+        "composite_score": "number",
+        "satisfaction": "number",
+        "coherence": "number",
+        "safety": "number"
+      }
+    },
+    {
+      "id": "quality-composite-upper-bound",
+      "expression": "!(composite_score > satisfaction && composite_score > coherence && composite_score > safety)",
+      "severity": "warning",
+      "message": "composite_score should not exceed all quality dimensions (expected weighted average)",
+      "fields": ["composite_score", "satisfaction", "coherence", "safety"],
+      "type_signature": {
+        "composite_score": "number",
+        "satisfaction": "number",
+        "coherence": "number",
+        "safety": "number"
+      }
+    },
+    {
+      "id": "quality-composite-derivation-trust",
+      "expression": "true",
+      "severity": "info",
+      "message": "composite_score derivation is a trust assumption — producers compute the weighted average, consumers cannot verify the weights. See Bridgebuilder Finding F6.",
+      "fields": ["composite_score"],
+      "type_signature": {
+        "composite_score": "number"
+      }
+    }
+  ]
+}

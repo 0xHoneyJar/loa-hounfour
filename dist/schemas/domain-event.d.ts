@@ -11,7 +11,7 @@ import { type Static } from '@sinclair/typebox';
 export declare const DomainEventSchema: import("@sinclair/typebox").TObject<{
     event_id: import("@sinclair/typebox").TString;
     aggregate_id: import("@sinclair/typebox").TString;
-    aggregate_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">]>;
+    aggregate_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">, import("@sinclair/typebox").TLiteral<"performance">, import("@sinclair/typebox").TLiteral<"governance">, import("@sinclair/typebox").TLiteral<"reputation">, import("@sinclair/typebox").TLiteral<"economy">]>;
     type: import("@sinclair/typebox").TString;
     version: import("@sinclair/typebox").TInteger;
     occurred_at: import("@sinclair/typebox").TString;
@@ -58,6 +58,26 @@ export type MessageEvent = DomainEvent<{
     message_id: string;
     [k: string]: unknown;
 }>;
+/** Performance aggregate events — payload must include performance_record_id. */
+export type PerformanceEvent = DomainEvent<{
+    performance_record_id: string;
+    [k: string]: unknown;
+}>;
+/** Governance aggregate events — payload must include governance_action_id. */
+export type GovernanceEvent = DomainEvent<{
+    governance_action_id: string;
+    [k: string]: unknown;
+}>;
+/** Reputation aggregate events — payload must include agent_id. */
+export type ReputationEvent = DomainEvent<{
+    agent_id: string;
+    [k: string]: unknown;
+}>;
+/** Economy aggregate events — payload must include transaction_id. */
+export type EconomyEvent = DomainEvent<{
+    transaction_id: string;
+    [k: string]: unknown;
+}>;
 /** Minimum payload contract for agent aggregate events. */
 export declare const AgentEventPayloadSchema: import("@sinclair/typebox").TObject<{
     agent_id: import("@sinclair/typebox").TString;
@@ -83,6 +103,22 @@ export declare const ToolEventPayloadSchema: import("@sinclair/typebox").TObject
 /** Minimum payload contract for message aggregate events. */
 export declare const MessageEventPayloadSchema: import("@sinclair/typebox").TObject<{
     message_id: import("@sinclair/typebox").TString;
+}>;
+/** Minimum payload contract for performance aggregate events. */
+export declare const PerformanceEventPayloadSchema: import("@sinclair/typebox").TObject<{
+    performance_record_id: import("@sinclair/typebox").TString;
+}>;
+/** Minimum payload contract for governance aggregate events. */
+export declare const GovernanceEventPayloadSchema: import("@sinclair/typebox").TObject<{
+    governance_action_id: import("@sinclair/typebox").TString;
+}>;
+/** Minimum payload contract for reputation aggregate events. */
+export declare const ReputationEventPayloadSchema: import("@sinclair/typebox").TObject<{
+    agent_id: import("@sinclair/typebox").TString;
+}>;
+/** Minimum payload contract for economy aggregate events. */
+export declare const EconomyEventPayloadSchema: import("@sinclair/typebox").TObject<{
+    transaction_id: import("@sinclair/typebox").TString;
 }>;
 /**
  * Runtime type guard: narrows a DomainEvent to AgentEvent.
@@ -114,6 +150,10 @@ export declare function isToolEvent(event: DomainEvent): event is ToolEvent;
  * Validates both aggregate_type and minimum payload contract.
  */
 export declare function isMessageEvent(event: DomainEvent): event is MessageEvent;
+export declare function isPerformanceEvent(event: DomainEvent): event is PerformanceEvent;
+export declare function isGovernanceEvent(event: DomainEvent): event is GovernanceEvent;
+export declare function isReputationEvent(event: DomainEvent): event is ReputationEvent;
+export declare function isEconomyEvent(event: DomainEvent): event is EconomyEvent;
 /**
  * Batch envelope for atomic multi-event delivery.
  *
@@ -130,7 +170,7 @@ export declare const DomainEventBatchSchema: import("@sinclair/typebox").TObject
     events: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
         event_id: import("@sinclair/typebox").TString;
         aggregate_id: import("@sinclair/typebox").TString;
-        aggregate_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">]>;
+        aggregate_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">, import("@sinclair/typebox").TLiteral<"performance">, import("@sinclair/typebox").TLiteral<"governance">, import("@sinclair/typebox").TLiteral<"reputation">, import("@sinclair/typebox").TLiteral<"economy">]>;
         type: import("@sinclair/typebox").TString;
         version: import("@sinclair/typebox").TInteger;
         occurred_at: import("@sinclair/typebox").TString;
@@ -147,7 +187,7 @@ export declare const DomainEventBatchSchema: import("@sinclair/typebox").TObject
     context: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
         transfer_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         aggregate_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-        aggregate_type: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">]>>;
+        aggregate_type: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agent">, import("@sinclair/typebox").TLiteral<"conversation">, import("@sinclair/typebox").TLiteral<"billing">, import("@sinclair/typebox").TLiteral<"tool">, import("@sinclair/typebox").TLiteral<"transfer">, import("@sinclair/typebox").TLiteral<"message">, import("@sinclair/typebox").TLiteral<"performance">, import("@sinclair/typebox").TLiteral<"governance">, import("@sinclair/typebox").TLiteral<"reputation">, import("@sinclair/typebox").TLiteral<"economy">]>>;
     }>>;
     saga: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
         saga_id: import("@sinclair/typebox").TString;

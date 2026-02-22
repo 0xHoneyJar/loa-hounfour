@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-reputation-credential-004",
+  "category": "reputation-credential",
+  "description": "Invalid credential — attestation_hash not a valid 64-char hex string",
+  "contract_version": "7.3.0",
+  "input": {
+    "credential_id": "cred-004",
+    "personality_id": "bear-004",
+    "source_collection_id": "honeycomb",
+    "source_pool_id": "pool-alpha",
+    "source_state": "warming",
+    "source_blended_score": 0.6,
+    "source_sample_count": 5,
+    "source_collection_score": 0.5,
+    "issued_at": "2026-02-22T00:00:00Z",
+    "attestation_hash": "not-a-valid-hash",
+    "contract_version": "7.3.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  }
+}

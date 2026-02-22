@@ -9,6 +9,10 @@ const AggregateTypeSchema = Type.Union([
     Type.Literal('tool'),
     Type.Literal('transfer'),
     Type.Literal('message'),
+    Type.Literal('performance'),
+    Type.Literal('governance'),
+    Type.Literal('reputation'),
+    Type.Literal('economy'),
 ]);
 /**
  * Domain event envelope — wraps any domain payload with standard metadata.
@@ -48,7 +52,8 @@ export const DomainEventSchema = Type.Object({
     })),
 }, {
     $id: 'DomainEvent',
-    additionalProperties: false,
+    description: 'Cross-cutting event envelope for aggregate state changes',
+    additionalProperties: true,
 });
 // ---------------------------------------------------------------------------
 // Minimal payload schemas for runtime type guards.
@@ -81,6 +86,22 @@ export const ToolEventPayloadSchema = Type.Object({
 export const MessageEventPayloadSchema = Type.Object({
     message_id: Type.String({ minLength: 1 }),
 }, { $id: 'MessageEventPayload', additionalProperties: true });
+/** Minimum payload contract for performance aggregate events. */
+export const PerformanceEventPayloadSchema = Type.Object({
+    performance_record_id: Type.String({ minLength: 1 }),
+}, { $id: 'PerformanceEventPayload', additionalProperties: true });
+/** Minimum payload contract for governance aggregate events. */
+export const GovernanceEventPayloadSchema = Type.Object({
+    governance_action_id: Type.String({ minLength: 1 }),
+}, { $id: 'GovernanceEventPayload', additionalProperties: true });
+/** Minimum payload contract for reputation aggregate events. */
+export const ReputationEventPayloadSchema = Type.Object({
+    agent_id: Type.String({ minLength: 1 }),
+}, { $id: 'ReputationEventPayload', additionalProperties: true });
+/** Minimum payload contract for economy aggregate events. */
+export const EconomyEventPayloadSchema = Type.Object({
+    transaction_id: Type.String({ minLength: 1 }),
+}, { $id: 'EconomyEventPayload', additionalProperties: true });
 // Lazily compiled payload validators
 const payloadValidators = new Map();
 function checkPayload(schema, payload) {
@@ -142,6 +163,22 @@ export function isMessageEvent(event) {
     return event.aggregate_type === 'message'
         && checkPayload(MessageEventPayloadSchema, event.payload);
 }
+export function isPerformanceEvent(event) {
+    return event.aggregate_type === 'performance'
+        && checkPayload(PerformanceEventPayloadSchema, event.payload);
+}
+export function isGovernanceEvent(event) {
+    return event.aggregate_type === 'governance'
+        && checkPayload(GovernanceEventPayloadSchema, event.payload);
+}
+export function isReputationEvent(event) {
+    return event.aggregate_type === 'reputation'
+        && checkPayload(ReputationEventPayloadSchema, event.payload);
+}
+export function isEconomyEvent(event) {
+    return event.aggregate_type === 'economy'
+        && checkPayload(EconomyEventPayloadSchema, event.payload);
+}
 // SagaContextSchema re-exported from ./saga-context.ts (BB-V3-F004)
 /**
  * Batch envelope for atomic multi-event delivery.
@@ -171,6 +208,7 @@ export const DomainEventBatchSchema = Type.Object({
     saga: Type.Optional(SagaContextSchema),
 }, {
     $id: 'DomainEventBatch',
-    additionalProperties: false,
+    description: 'Atomic multi-event delivery with shared correlation',
+    additionalProperties: true,
 });
 //# sourceMappingURL=domain-event.js.map

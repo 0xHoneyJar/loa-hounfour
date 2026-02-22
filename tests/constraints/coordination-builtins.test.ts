@@ -13,13 +13,13 @@ import { EVALUATOR_BUILTIN_SPECS } from '../../src/constraints/evaluator-spec.js
 // Builtin count (Sprint 2: 23 → 26)
 // ---------------------------------------------------------------------------
 
-describe('EVALUATOR_BUILTINS count (31 builtins — v7.0.0)', () => {
-  it('EVALUATOR_BUILTINS contains 31 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(31);
+describe('EVALUATOR_BUILTINS count (34 builtins — v7.4.0)', () => {
+  it('EVALUATOR_BUILTINS contains 34 functions', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(34);
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 31 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(31);
+  it('EVALUATOR_BUILTIN_SPECS has 34 entries', () => {
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(34);
   });
 
   it('new builtins are registered', () => {
@@ -302,10 +302,10 @@ describe('saga_timeout_valid', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Spec examples cross-check (all 31 builtins)
+// Spec examples cross-check (all 34 builtins)
 // ---------------------------------------------------------------------------
 
-describe('All 31 builtin spec examples evaluate correctly', () => {
+describe('All 34 builtin spec examples evaluate correctly', () => {
   it('every spec example matches expected result', () => {
     for (const [name, spec] of EVALUATOR_BUILTIN_SPECS) {
       for (const example of spec.examples) {

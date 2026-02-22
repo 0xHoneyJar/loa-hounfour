@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 31 evaluator builtins. Each spec includes
+ * Canonical specifications for all 34 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 31 evaluator builtin specifications.
+ * Canonical registry of all 34 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -1072,5 +1072,107 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Empty votes returns true', 'Tolerance is 0.001', 'Max 100 votes (resource limit)'],
+  }],
+
+  // -- Timestamp comparison builtins (v7.4.0) ---------------------------------
+
+  ['is_after', {
+    name: 'is_after',
+    signature: 'is_after(a, b) → boolean',
+    description: 'Returns true if ISO 8601 timestamp a is strictly after timestamp b.',
+    arguments: [
+      { name: 'a', type: 'string', description: 'ISO 8601 date string (left operand)' },
+      { name: 'b', type: 'string', description: 'ISO 8601 date string (right operand)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Later timestamp is after earlier',
+        context: { a: '2026-02-01T00:00:00Z', b: '2026-01-01T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: true,
+      },
+      {
+        description: 'Earlier timestamp is not after later',
+        context: { a: '2026-01-01T00:00:00Z', b: '2026-02-01T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: false,
+      },
+      {
+        description: 'Equal timestamps are not after',
+        context: { a: '2026-01-15T00:00:00Z', b: '2026-01-15T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Uses strict greater-than (not >=)'],
+  }],
+
+  ['is_before', {
+    name: 'is_before',
+    signature: 'is_before(a, b) → boolean',
+    description: 'Returns true if ISO 8601 timestamp a is strictly before timestamp b.',
+    arguments: [
+      { name: 'a', type: 'string', description: 'ISO 8601 date string (left operand)' },
+      { name: 'b', type: 'string', description: 'ISO 8601 date string (right operand)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Earlier timestamp is before later',
+        context: { a: '2026-01-01T00:00:00Z', b: '2026-02-01T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: true,
+      },
+      {
+        description: 'Later timestamp is not before earlier',
+        context: { a: '2026-02-01T00:00:00Z', b: '2026-01-01T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: false,
+      },
+      {
+        description: 'Equal timestamps are not before',
+        context: { a: '2026-01-15T00:00:00Z', b: '2026-01-15T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Uses strict less-than (not <=)'],
+  }],
+
+  ['is_between', {
+    name: 'is_between',
+    signature: 'is_between(value, lower, upper) → boolean',
+    description: 'Returns true if lower <= value <= upper for ISO 8601 date strings (inclusive on both bounds).',
+    arguments: [
+      { name: 'value', type: 'string', description: 'ISO 8601 date string to test' },
+      { name: 'lower', type: 'string', description: 'ISO 8601 lower bound (inclusive)' },
+      { name: 'upper', type: 'string', description: 'ISO 8601 upper bound (inclusive)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Value within range',
+        context: { ts: '2026-01-15T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: true,
+      },
+      {
+        description: 'Value outside range (before lower)',
+        context: { ts: '2025-12-01T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: false,
+      },
+      {
+        description: 'Value at lower bound (inclusive)',
+        context: { ts: '2026-01-01T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Inclusive on both bounds (lower <= value <= upper)'],
   }],
 ]);

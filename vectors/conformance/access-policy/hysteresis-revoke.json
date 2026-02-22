@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-access-policy-hysteresis-002",
+  "category": "access-policy",
+  "description": "Hysteresis: previously granted personality revoked below revoke threshold (v7.4.0)",
+  "contract_version": "7.4.0",
+  "input": {
+    "policy": {
+      "type": "reputation_gated",
+      "min_reputation_score": 0.7,
+      "revoke_below_score": 0.5,
+      "audit_required": true,
+      "revocable": false
+    },
+    "context": {
+      "timestamp": "2026-02-22T12:00:00Z",
+      "action": "read",
+      "reputation_score": 0.4,
+      "previously_granted": true
+    }
+  },
+  "expected_output": {
+    "allowed": false,
+    "reason": "Reputation score 0.4 below revoke threshold 0.5"
+  },
+  "expected_valid": true,
+  "metadata": {
+    "notes": "Score 0.4 is below both grant (0.7) and revoke (0.5) thresholds. Even with previously_granted=true, access is revoked."
+  }
+}

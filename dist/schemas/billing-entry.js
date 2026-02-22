@@ -2,6 +2,8 @@ import { Type } from '@sinclair/typebox';
 import { UsageSchema } from './invoke-response.js';
 import { MicroUSD } from '../vocabulary/currency.js';
 import { NftIdSchema } from '../utilities/nft-id.js';
+import { ModelPricingSchema } from './model/model-provider-spec.js';
+import { ReconciliationModeSchema } from '../vocabulary/reconciliation-mode.js';
 export const CostTypeSchema = Type.Union([
     Type.Literal('model_inference'),
     Type.Literal('tool_call'),
@@ -16,6 +18,8 @@ export const BillingRecipientSchema = Type.Object({
         Type.Literal('platform'),
         Type.Literal('producer'),
         Type.Literal('agent_tba'),
+        Type.Literal('agent_performer'),
+        Type.Literal('commons'),
     ]),
     share_bps: Type.Integer({
         minimum: 0,
@@ -34,6 +38,20 @@ export const BillingEntrySchema = Type.Object({
     model: Type.Optional(Type.String({ description: 'Model ID (model_inference only)' })),
     pool_id: Type.Optional(Type.String({ description: 'Pool ID (model_inference only)' })),
     tool_id: Type.Optional(Type.String({ description: 'Tool ID (tool_call only)' })),
+    // v3.1.0 — Per-model cost attribution (BB-HFR-004)
+    model_id: Type.Optional(Type.String({
+        description: 'Model that generated this cost (for per-model attribution in budget dashboards)',
+    })),
+    cost_provider: Type.Optional(Type.String({
+        description: 'Provider name for cost attribution (maps to Hounfour config key)',
+    })),
+    pricing_model: Type.Optional(Type.Union([
+        Type.Literal('per_token'),
+        Type.Literal('gpu_hourly'),
+        Type.Literal('flat_rate'),
+    ], {
+        description: 'Cost structure for this billing entry (per_token, gpu_hourly, flat_rate)',
+    })),
     currency: Type.Literal('USD', { description: 'ISO 4217 currency code' }),
     precision: Type.Literal(6, { description: 'Micro-USD = 6 decimal places' }),
     raw_cost_micro: MicroUSD,
@@ -57,6 +75,15 @@ export const BillingEntrySchema = Type.Object({
     timestamp: Type.String({ format: 'date-time' }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
     usage: Type.Optional(UsageSchema),
+    // FR-3: Pricing provenance (v5.1.0)
+    source_completion_id: Type.Optional(Type.String({
+        format: 'uuid',
+        description: 'CompletionResult.request_id that generated this billing entry',
+    })),
+    pricing_snapshot: Type.Optional(ModelPricingSchema),
+    // SKP-003: Reconciliation (v5.1.0)
+    reconciliation_mode: Type.Optional(ReconciliationModeSchema),
+    reconciliation_delta_micro: Type.Optional(MicroUSD),
     metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
         description: 'Consumer-extensible metadata. Namespace conventions: '
             + 'loa.* reserved for protocol-level metadata, '
@@ -66,7 +93,9 @@ export const BillingEntrySchema = Type.Object({
     })),
 }, {
     $id: 'BillingEntry',
+    $comment: 'Financial amounts (raw_cost_micro, total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection in financial documents — see SCHEMA-EVOLUTION.md for version-skew patterns.',
     additionalProperties: false,
+    'x-cross-field-validated': true,
     description: 'Multi-party billing entry replacing CostBreakdown',
 });
 /**

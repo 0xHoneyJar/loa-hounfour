@@ -1030,7 +1030,7 @@
       "archive_note": "6 sprints + 2 bridge iterations completed (FLATLINE at iter 2). v7.0.0 delivered: typed AST + annotation utility (F-007/F-008/F-020), BridgeTransferSaga + DelegationOutcome coordination schemas, MonetaryPolicy + PermissionBoundary + GovernanceProposal governance layer, 31 evaluator builtins, 87+ total schemas, 147 constraints across 40 files, consumer CHANGELOG + MIGRATION guide. +404 new tests (3,504→3,908). PR #14 merged. All deferred findings resolved. Zero unused locals under --noUnusedLocals."
     }
   ],
-  "active_cycle": "cycle-018",
+  "active_cycle": "cycle-019",
   "active_bugfix": null,
   "global_sprint_counter": 71,
   "bugfix_cycles": [],
@@ -1066,12 +1066,48 @@
           "global_id": 71,
           "label": "Documentation Overhaul — Grounded Truth for v7.0.0",
           "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8"],
+          "status": "completed"
+        }
+      ],
+      "status": "archived",
+      "created_at": "2026-02-19T13:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/15",
+      "archived_at": "2026-02-21T00:00:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-21-v7.0.0-release",
+      "archive_note": "1 sprint completed. Documentation overhaul for v7.0.0: grounded truth README, architecture docs, consumer guides. 3,908 tests passing."
+    },
+    {
+      "id": "cycle-019",
+      "label": "The Reputation Protocol — v7.1.0",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": "sprint-1",
+          "global_id": 72,
+          "label": "Launch Types — MicroUSDC + PersonalityAssignment",
+          "tasks": ["S1-T1", "S1-T2", "S1-T3", "S1-T4", "S1-T5", "S1-T6", "S1-T7", "S1-T8", "S1-T9"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-2",
+          "global_id": 73,
+          "label": "Reputation Aggregate — State Machine + Bayesian Blending",
+          "tasks": ["S2-T1", "S2-T2", "S2-T3", "S2-T4", "S2-T5", "S2-T6", "S2-T7", "S2-T8", "S2-T9", "S2-T10"],
+          "status": "pending"
+        },
+        {
+          "local_id": "sprint-3",
+          "global_id": 74,
+          "label": "Reputation Protocol Surface + AccessPolicy Evaluator",
+          "tasks": ["S3-T1", "S3-T2", "S3-T3", "S3-T4", "S3-T5", "S3-T6", "S3-T7", "S3-T8", "S3-T9", "S3-T10"],
           "status": "pending"
         }
       ],
       "status": "active",
-      "created_at": "2026-02-19T13:00:00Z",
-      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/15"
+      "created_at": "2026-02-21T00:00:00Z",
+      "source_issue": "https://github.com/0xHoneyJar/loa-hounfour/issues/20"
     }
-  ]
+  ],
+  "global_sprint_counter": 74
 }

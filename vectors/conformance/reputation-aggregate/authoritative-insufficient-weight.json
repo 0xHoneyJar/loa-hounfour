@@ -1,0 +1,28 @@
+{
+  "vector_id": "conformance-reputation-aggregate-005",
+  "category": "reputation-aggregate",
+  "description": "established → authoritative at n=26, k=3 (personal weight = 26/29 ≈ 0.897 < 0.9) — violates constraint",
+  "contract_version": "7.1.0",
+  "input": {
+    "personality_id": "bear-001",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-alpha",
+    "state": "authoritative",
+    "personal_score": 0.85,
+    "collection_score": 0.5,
+    "blended_score": 0.814,
+    "sample_count": 26,
+    "pseudo_count": 3,
+    "contributor_count": 14,
+    "min_sample_count": 5,
+    "created_at": "2026-02-21T00:00:00Z",
+    "last_updated": "2026-02-21T12:00:00Z",
+    "transition_history": [],
+    "contract_version": "7.1.0"
+  },
+  "expected_output": {
+    "constraint_violation": "reputation-authoritative-weight",
+    "reason": "personal weight 0.897 does not exceed 0.9 threshold"
+  },
+  "expected_valid": false
+}

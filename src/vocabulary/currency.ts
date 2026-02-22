@@ -12,6 +12,13 @@ export const MicroUSDUnsigned = Type.String({
   description: 'Unsigned micro-USD amount as string (1 USD = 1,000,000 micro-USD)',
 });
 
+/** String-encoded micro-USDC integer. On-chain USDC in micro-units (6 decimal places). Always unsigned. */
+export const MicroUSDCSchema = Type.String({
+  $id: 'MicroUSDC',
+  pattern: '^[0-9]+$',
+  description: 'On-chain USDC amount in micro-units (6 decimal places). String-encoded unsigned bigint.',
+});
+
 // ---------------------------------------------------------------------------
 // Centralized MicroUSD Arithmetic (v2.4.0, BB-C4-ADV-006)
 //

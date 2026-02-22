@@ -40,6 +40,49 @@ export const EVENT_TYPES = {
     'message.content.created': 'Message content created',
     'message.content.moderated': 'Message content moderated',
     'message.content.redacted': 'Message content redacted for compliance',
+    // Performance aggregate (v4.1.0)
+    'performance.record.created': 'Performance record created',
+    'performance.record.validated': 'Performance record validated by peer',
+    'performance.contribution.submitted': 'Contribution submitted for assessment',
+    'performance.contribution.assessed': 'Contribution assessment completed',
+    // Governance aggregate (v4.2.0)
+    'governance.sanction.imposed': 'Sanction imposed on agent',
+    'governance.sanction.appealed': 'Sanction appeal submitted',
+    'governance.sanction.lifted': 'Sanction lifted or expired',
+    'governance.dispute.filed': 'Dispute filed against agent or outcome',
+    'governance.dispute.resolved': 'Dispute resolution completed',
+    'governance.vote.started': 'Governance vote initiated',
+    'governance.vote.concluded': 'Governance vote concluded',
+    // Reputation aggregate (v4.3.0)
+    'reputation.score.calculated': 'Reputation score recalculated',
+    'reputation.score.decayed': 'Reputation score decayed over time',
+    'reputation.threshold.breached': 'Reputation dropped below threshold',
+    // Reputation aggregate — extended (v7.1.0)
+    'reputation.state.changed': 'Reputation state machine transitioned',
+    'reputation.quality_event.recorded': 'Quality observation ingested',
+    'reputation.collection_score.updated': 'Collection trimmed mean recalculated',
+    // Reputation aggregate — event sourcing (v7.3.0)
+    'reputation.aggregate.snapshot_created': 'Point-in-time aggregate snapshot created',
+    'reputation.aggregate.consistency_verified': 'Aggregate consistency verification completed',
+    // Reputation credentials — cross-collection trust (v7.3.0)
+    'reputation.credential.issued': 'Portable reputation credential issued for cross-collection use',
+    'reputation.credential.accepted': 'Portable reputation credential accepted by destination collection',
+    'reputation.credential.rejected': 'Portable reputation credential rejected by destination collection',
+    // Economy aggregate (v4.4.0)
+    'economy.escrow.created': 'Escrow entry created',
+    'economy.escrow.funded': 'Escrow entry funded',
+    'economy.escrow.released': 'Escrow funds released to payee',
+    'economy.escrow.disputed': 'Escrow entry disputed',
+    'economy.escrow.refunded': 'Escrow funds refunded to payer',
+    'economy.escrow.expired': 'Escrow expired without release',
+    'economy.stake.created': 'Stake position created',
+    'economy.stake.slashed': 'Stake position slashed',
+    'economy.stake.vested': 'Stake vesting milestone reached',
+    'economy.stake.withdrawn': 'Stake position withdrawn',
+    'economy.dividend.declared': 'Commons dividend declared',
+    'economy.dividend.distributed': 'Commons dividend distributed',
+    'economy.credit.extended': 'Mutual credit line extended',
+    'economy.credit.settled': 'Mutual credit settled',
 };
 /** All registered event type values. */
 export const EVENT_TYPE_VALUES = Object.keys(EVENT_TYPES);

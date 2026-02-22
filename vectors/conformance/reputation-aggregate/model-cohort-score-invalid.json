@@ -1,0 +1,36 @@
+{
+  "vector_id": "conformance-reputation-aggregate-010",
+  "category": "reputation-aggregate",
+  "description": "Invalid — model cohort with personal_score > 1 (out of bounds)",
+  "contract_version": "7.3.0",
+  "input": {
+    "personality_id": "bear-003",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-gamma",
+    "state": "warming",
+    "personal_score": 0.8,
+    "collection_score": 0.5,
+    "blended_score": 0.61,
+    "sample_count": 5,
+    "pseudo_count": 3,
+    "contributor_count": 3,
+    "min_sample_count": 5,
+    "model_cohorts": [
+      {
+        "model_id": "native",
+        "personal_score": 1.5,
+        "sample_count": 5,
+        "last_updated": "2026-02-21T00:00:00Z"
+      }
+    ],
+    "created_at": "2026-02-20T00:00:00Z",
+    "last_updated": "2026-02-21T00:00:00Z",
+    "transition_history": [],
+    "contract_version": "7.3.0"
+  },
+  "expected_output": {
+    "constraint_violation": "reputation-model-cohort-score-bounds",
+    "reason": "model cohort personal_score must be in [0, 1] when not null"
+  },
+  "expected_valid": false
+}

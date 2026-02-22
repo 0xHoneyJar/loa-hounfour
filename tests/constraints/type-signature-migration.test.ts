@@ -28,6 +28,11 @@ const validTypeSet = new Set<string>([
   // Compound types from Sprint 1 migration
   'string[]',
   'integer',
+  // Nullable types (v7.1.0 — ReputationAggregate)
+  'number | null',
+  // Optional types (v7.3.0 — ReputationCredential, AccessPolicy)
+  'string | undefined',
+  'number | undefined',
 ]);
 
 function isValidType(t: string): boolean {
@@ -39,7 +44,7 @@ function isValidType(t: string): boolean {
 
 describe('type_signature migration (S2-T5)', () => {
   it('found 32 constraint files', () => {
-    expect(allFiles.length).toBe(40);
+    expect(allFiles.length).toBe(51);
   });
 
   for (const { filename, data } of allFiles) {

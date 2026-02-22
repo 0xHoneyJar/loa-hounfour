@@ -1,0 +1,14 @@
+{
+  "vector_id": "conformance-micro-usdc-004",
+  "category": "micro-usdc",
+  "description": "Non-numeric string rejected — deserializeMicroUSDC throws on invalid format",
+  "contract_version": "7.1.0",
+  "input": {
+    "serialized": "abc123"
+  },
+  "expected_output": {
+    "error": "RangeError",
+    "message_pattern": "Invalid MicroUSDC"
+  },
+  "expected_valid": false
+}

@@ -62,7 +62,9 @@ for (const { name, schema } of schemas) {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     ...schema,
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
-    $comment: `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
+    $comment: (schema as Record<string, unknown>).$comment
+      ? `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}. ${(schema as Record<string, unknown>).$comment}`
+      : `contract_version=${CONTRACT_VERSION}, min_supported=${MIN_SUPPORTED_VERSION}`,
   };
 
   // Apply same post-generation transforms as generate-schemas.ts

@@ -32,6 +32,7 @@ export const TransferSpecSchema = Type.Object({
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
     $id: 'TransferSpec',
+    description: 'Specification for NFT ownership transfers between parties',
     additionalProperties: false,
 });
 /**
@@ -55,6 +56,7 @@ export const TransferEventSchema = Type.Object({
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
     $id: 'TransferEventRecord',
+    description: 'Record of a completed NFT ownership transfer',
     additionalProperties: false,
 });
 //# sourceMappingURL=transfer-spec.js.map

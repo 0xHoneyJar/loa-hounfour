@@ -99,20 +99,22 @@ export function requiresTransferId(from, to, context) {
     if (context !== undefined && typeof context.transfer_id === 'string' && context.transfer_id.length > 0) {
         return { valid: true };
     }
-    return { valid: false, reason: `${key} requires context.transfer_id`, guard: key };
+    return { valid: false, reason: `${key} requires context.transfer_id`, guard: key, severity: 'client_error' };
 }
 /**
  * Guard: ACTIVE → ARCHIVED requires no active transfer.
  *
  * Business rule: archiving an agent while a transfer is in progress would
  * strand the buyer. Archival is only permitted when no transfer_id is set.
+ *
+ * Severity: `policy_violation` — structural impossibility, not a missing field.
  */
 export function requiresNoActiveTransfer(from, to, context) {
     const key = guardKey(from, to);
     if (context === undefined || !context.transfer_id) {
         return { valid: true };
     }
-    return { valid: false, reason: `${key} requires no active transfer_id`, guard: key };
+    return { valid: false, reason: `${key} requires no active transfer_id`, guard: key, severity: 'policy_violation' };
 }
 /**
  * Guard: SUSPENDED → ACTIVE requires `reason_resolved` to be true.
@@ -120,13 +122,15 @@ export function requiresNoActiveTransfer(from, to, context) {
  * Business rule: a suspended agent can only return to active duty when the
  * suspension cause has been addressed. This prevents premature reactivation
  * and ensures accountability for the suspension event.
+ *
+ * Severity: `client_error` — caller can fix by resolving the suspension reason.
  */
 export function requiresReasonResolved(from, to, context) {
     const key = guardKey(from, to);
     if (context !== undefined && context.reason_resolved === true) {
         return { valid: true };
     }
-    return { valid: false, reason: `${key} requires context.reason_resolved === true`, guard: key };
+    return { valid: false, reason: `${key} requires context.reason_resolved === true`, guard: key, severity: 'client_error' };
 }
 /**
  * Guard: TRANSFERRED → PROVISIONING requires `transfer_completed` and `new_owner`.
@@ -134,6 +138,8 @@ export function requiresReasonResolved(from, to, context) {
  * Business rule: after a transfer completes, the new owner must be
  * authenticated before the agent can be reprovisioned. Both conditions
  * prevent premature provisioning and ensure custody chain integrity.
+ *
+ * Severity: `client_error` — caller needs to provide transfer_completed and new_owner.
  */
 export function requiresTransferCompleted(from, to, context) {
     const key = guardKey(from, to);
@@ -147,6 +153,32 @@ export function requiresTransferCompleted(from, to, context) {
         valid: false,
         reason: `${key} requires context.transfer_completed === true and context.new_owner`,
         guard: key,
+        severity: 'client_error',
+    };
+}
+/**
+ * Guard: transitions to SUSPENDED or ARCHIVED require sanction evidence.
+ *
+ * Business rule: when a sanction triggers a lifecycle transition to SUSPENDED
+ * or ARCHIVED, the context must include `evidence_event_ids` — a non-empty
+ * array of event IDs linking the transition to the originating violations.
+ * This ensures every punitive state change is auditable.
+ *
+ * Severity: `client_error` — caller can fix by providing evidence_event_ids.
+ */
+export function requiresSanctionEvidence(from, to, context) {
+    const key = guardKey(from, to);
+    if (context !== undefined
+        && Array.isArray(context.evidence_event_ids)
+        && context.evidence_event_ids.length > 0
+        && context.evidence_event_ids.every((id) => typeof id === 'string' && id.length > 0)) {
+        return { valid: true };
+    }
+    return {
+        valid: false,
+        reason: `${key} requires context.evidence_event_ids (non-empty string array)`,
+        guard: key,
+        severity: 'client_error',
     };
 }
 /**

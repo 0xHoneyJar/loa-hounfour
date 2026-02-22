@@ -66,10 +66,68 @@ export {
   REPUTATION_DECAY,
   MIN_REPUTATION_SAMPLE_SIZE,
   type ReputationComponent,
+  BAYESIAN_BLEND,
+  ANTI_MANIPULATION,
+  REPUTATION_STATES,
+  REPUTATION_STATE_ORDER,
+  DEFAULT_HALF_LIFE_DAYS,
 } from '../vocabulary/reputation.js';
+
+// Schemas — Reputation Aggregate (v7.1.0, FR-3; v7.3.0, C5+Spec I)
+export {
+  ReputationStateSchema,
+  type ReputationState,
+  ReputationTransitionSchema,
+  type ReputationTransition,
+  ModelCohortSchema,
+  type ModelCohort,
+  ReputationAggregateSchema,
+  type ReputationAggregate,
+  REPUTATION_TRANSITIONS,
+  isValidReputationTransition,
+  computePersonalWeight,
+  computeBlendedScore,
+  computeDecayedSampleCount,
+  computeCrossModelScore,
+  getModelCohort,
+  AggregateSnapshotSchema,
+  type AggregateSnapshot,
+} from './reputation-aggregate.js';
+
+// Schemas — Quality Event (v7.1.0, FR-3)
+export {
+  QualityEventSchema,
+  type QualityEvent,
+} from '../schemas/quality-event.js';
+
+// Schemas — Reputation Commands (v7.1.0, FR-4)
+export {
+  RecordQualityEventCommandSchema,
+  type RecordQualityEventCommand,
+  QueryReputationCommandSchema,
+  type QueryReputationCommand,
+  ResetReputationCommandSchema,
+  type ResetReputationCommand,
+} from './reputation-commands.js';
+
+// Schemas — Reputation Events (v7.1.0, FR-4)
+export {
+  ReputationStateChangedPayloadSchema,
+  type ReputationStateChangedPayload,
+  QualityEventRecordedPayloadSchema,
+  type QualityEventRecordedPayload,
+  CollectionScoreUpdatedPayloadSchema,
+  type CollectionScoreUpdatedPayload,
+} from './reputation-events.js';
 
 // Utilities — Reputation
 export { isReliableReputation } from '../utilities/reputation.js';
+
+// Schemas — Reputation Credential (v7.3.0, C1 + Spec IV)
+export {
+  ReputationCredentialSchema,
+  type ReputationCredential,
+} from './reputation-credential.js';
 
 // Schemas — Governance Config (v5.3.0)
 export {

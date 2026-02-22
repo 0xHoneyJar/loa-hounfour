@@ -1,0 +1,40 @@
+{
+  "vector_id": "conformance-access-policy-compound-003",
+  "category": "access-policy",
+  "description": "Compound OR: one sub-policy grants — access allowed (v7.4.0)",
+  "contract_version": "7.4.0",
+  "input": {
+    "policy": {
+      "type": "compound",
+      "operator": "OR",
+      "policies": [
+        {
+          "type": "none",
+          "audit_required": false,
+          "revocable": false
+        },
+        {
+          "type": "role_based",
+          "roles": ["curator"],
+          "audit_required": true,
+          "revocable": false
+        }
+      ],
+      "audit_required": true,
+      "revocable": false
+    },
+    "context": {
+      "timestamp": "2026-02-22T12:00:00Z",
+      "action": "read",
+      "role": "curator"
+    }
+  },
+  "expected_output": {
+    "allowed": true,
+    "reason": "Compound OR granted: Role 'curator' matched"
+  },
+  "expected_valid": true,
+  "metadata": {
+    "notes": "none denies, but role_based grants (curator in [curator]). OR requires any to grant."
+  }
+}

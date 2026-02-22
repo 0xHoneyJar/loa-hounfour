@@ -1,0 +1,16 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RecordQualityEventCommand",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "record-quality-event-command-id-nonempty",
+      "expression": "command_id != ''",
+      "severity": "error",
+      "message": "command_id must be non-empty",
+      "fields": ["command_id"],
+      "type_signature": { "command_id": "string" }
+    }
+  ]
+}

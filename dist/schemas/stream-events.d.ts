@@ -20,6 +20,7 @@ export declare const StreamStartSchema: import("@sinclair/typebox").TObject<{
     trace_id: import("@sinclair/typebox").TString;
     contract_version: import("@sinclair/typebox").TString;
     sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    execution_mode: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"native">, import("@sinclair/typebox").TLiteral<"remote">]>>;
 }>;
 /** Content chunk — incremental text delta. */
 export declare const StreamChunkSchema: import("@sinclair/typebox").TObject<{
@@ -81,6 +82,7 @@ export declare const StreamEventSchema: import("@sinclair/typebox").TUnion<[impo
     trace_id: import("@sinclair/typebox").TString;
     contract_version: import("@sinclair/typebox").TString;
     sequence: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+    execution_mode: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"native">, import("@sinclair/typebox").TLiteral<"remote">]>>;
 }>, import("@sinclair/typebox").TObject<{
     type: import("@sinclair/typebox").TLiteral<"chunk">;
     delta: import("@sinclair/typebox").TString;

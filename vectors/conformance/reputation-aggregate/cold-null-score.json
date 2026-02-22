@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-reputation-aggregate-001",
+  "category": "reputation-aggregate",
+  "description": "Cold state with null personal_score — valid initial state",
+  "contract_version": "7.1.0",
+  "input": {
+    "personality_id": "bear-001",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-alpha",
+    "state": "cold",
+    "personal_score": null,
+    "collection_score": 0.5,
+    "blended_score": 0.5,
+    "sample_count": 0,
+    "pseudo_count": 3,
+    "contributor_count": 0,
+    "min_sample_count": 5,
+    "created_at": "2026-02-21T00:00:00Z",
+    "last_updated": "2026-02-21T00:00:00Z",
+    "transition_history": [],
+    "contract_version": "7.1.0"
+  },
+  "expected_output": {
+    "state": "cold",
+    "personal_score": null,
+    "blended_score": 0.5
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["state", "personal_score", "blended_score"]
+  }
+}

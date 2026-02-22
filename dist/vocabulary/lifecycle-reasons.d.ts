@@ -19,6 +19,12 @@ export declare const LIFECYCLE_REASON_CODES: {
     readonly provisioning_failed: "Agent provisioning encountered an error";
     readonly policy_violation: "Agent violated platform policy";
     readonly system_maintenance: "Scheduled system maintenance";
+    readonly sanction_warning_issued: "Sanction warning issued to agent";
+    readonly sanction_rate_limited: "Agent rate-limited due to sanction";
+    readonly sanction_pool_restricted: "Agent pool access restricted due to sanction";
+    readonly sanction_suspended: "Agent suspended due to sanction";
+    readonly sanction_terminated: "Agent terminated due to sanction";
+    readonly sanction_appealed_successfully: "Sanction appeal upheld — restriction lifted";
 };
 /** Machine-readable lifecycle transition reason code. */
 export type LifecycleReasonCode = keyof typeof LIFECYCLE_REASON_CODES;

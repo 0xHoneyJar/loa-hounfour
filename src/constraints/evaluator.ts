@@ -145,6 +145,11 @@ class Parser {
       // Bridge iteration 2 builtins (v7.0.0)
       ['saga_timeout_valid', () => this.parseSagaTimeoutValid()],
       ['proposal_weights_normalized', () => this.parseProposalWeightsNormalized()],
+
+      // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+      ['is_after', () => this.parseTimestampCmp('after')],
+      ['is_before', () => this.parseTimestampCmp('before')],
+      ['is_between', () => this.parseTimestampBetween()],
     ]);
   }
 
@@ -1388,6 +1393,67 @@ class Parser {
     // Check within tolerance of 1.0
     return Math.abs(totalWeight - 1.0) <= 0.001;
   }
+
+  // ---------------------------------------------------------------------------
+  // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+  // ---------------------------------------------------------------------------
+
+  /** ISO 8601 date-time prefix pattern for cross-language consistency. */
+  private static readonly ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+  /** Parse an ISO 8601 string to epoch ms. Returns NaN for non-conforming input. */
+  private parseIso8601Ms(value: unknown): number {
+    const s = String(value);
+    if (!Parser.ISO_8601_RE.test(s)) return NaN;
+    return new Date(s).getTime();
+  }
+
+  /**
+   * Parse is_after(a, b) or is_before(a, b).
+   * Compares two ISO 8601 date strings.
+   *
+   * @since v7.4.0
+   */
+  private parseTimestampCmp(op: 'after' | 'before'): boolean {
+    this.advance(); // consume 'is_after' or 'is_before'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+
+    const leftMs = this.parseIso8601Ms(left);
+    const rightMs = this.parseIso8601Ms(right);
+
+    if (isNaN(leftMs) || isNaN(rightMs)) return false;
+
+    return op === 'after' ? leftMs > rightMs : leftMs < rightMs;
+  }
+
+  /**
+   * Parse is_between(value, lower, upper).
+   * Checks that lower <= value <= upper for ISO 8601 date strings.
+   *
+   * @since v7.4.0
+   */
+  private parseTimestampBetween(): boolean {
+    this.advance(); // consume 'is_between'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('comma');
+    const lower = this.parseExpr();
+    this.expect('comma');
+    const upper = this.parseExpr();
+    this.expect('paren', ')');
+
+    const valueMs = this.parseIso8601Ms(value);
+    const lowerMs = this.parseIso8601Ms(lower);
+    const upperMs = this.parseIso8601Ms(upper);
+
+    if (isNaN(valueMs) || isNaN(lowerMs) || isNaN(upperMs)) return false;
+
+    return lowerMs <= valueMs && valueMs <= upperMs;
+  }
 }
 
 /**
@@ -1443,6 +1509,10 @@ export const EVALUATOR_BUILTINS = [
   // Bridge iteration 2 builtins (v7.0.0)
   'saga_timeout_valid',
   'proposal_weights_normalized',
+  // Timestamp comparison (v7.4.0)
+  'is_after',
+  'is_before',
+  'is_between',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

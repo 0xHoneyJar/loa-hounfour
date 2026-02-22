@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 20 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(20);
+  it('contains exactly 25 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(25);
   });
 
   it('includes all valid categories', () => {
@@ -86,6 +86,11 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'monetary-policy',
       'permission-boundary',
       'governance-proposal',
+      'micro-usdc',
+      'personality-assignment',
+      'reputation-aggregate',
+      'reputation-credential',
+      'access-policy',
     ]);
   });
 });
