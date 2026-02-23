@@ -249,3 +249,14 @@ export {
   type ReputationDecayPolicy,
   type CollectionGovernanceConfig,
 } from './collection-governance-config.js';
+
+// Schemas — Constraint Lifecycle (v7.6.0, DR-S4)
+export {
+  ConstraintLifecycleStatusSchema,
+  CONSTRAINT_LIFECYCLE_TRANSITIONS,
+  ConstraintCandidateSchema,
+  ConstraintLifecycleEventSchema,
+  type ConstraintLifecycleStatus,
+  type ConstraintCandidate,
+  type ConstraintLifecycleEvent,
+} from './constraint-lifecycle.js';

@@ -6,7 +6,7 @@
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 36 evaluator builtin specifications.
+ * Canonical registry of all 37 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -1244,5 +1244,54 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Returns false for invalid timestamps', 'Returns false for negative max_age', 'Uses <= (exactly at max_age is within)', 'Complement of is_stale'],
+  }],
+
+  // ---------------------------------------------------------------------------
+  // Constraint lifecycle governance (v7.6.0 — DR-S4)
+  // ---------------------------------------------------------------------------
+
+  ['constraint_lifecycle_valid', {
+    name: 'constraint_lifecycle_valid',
+    signature: 'constraint_lifecycle_valid(event) → boolean',
+    description: 'Validates that a constraint lifecycle event follows valid state transitions. '
+      + 'Checks from_status → to_status against CONSTRAINT_LIFECYCLE_TRANSITIONS.',
+    arguments: [
+      { name: 'event', type: 'object', description: 'ConstraintLifecycleEvent with from_status and to_status fields' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'proposed → under_review is valid',
+        context: { event: { from_status: 'proposed', to_status: 'under_review' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'under_review → enacted is valid',
+        context: { event: { from_status: 'under_review', to_status: 'enacted' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'enacted → deprecated is valid',
+        context: { event: { from_status: 'enacted', to_status: 'deprecated' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'rejected is terminal — no transitions allowed',
+        context: { event: { from_status: 'rejected', to_status: 'proposed' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: false,
+      },
+      {
+        description: 'same-status transition is invalid',
+        context: { event: { from_status: 'enacted', to_status: 'enacted' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for same-status transitions', 'Returns false for unknown statuses', 'Terminal states (rejected, deprecated) have no valid transitions'],
   }],
 ]);

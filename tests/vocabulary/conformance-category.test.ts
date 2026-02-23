@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 29 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(29);
+  it('contains exactly 30 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(30);
   });
 
   it('includes all valid categories', () => {
@@ -95,6 +95,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'reputation-portability',
       'delegation-quality',
       'collection-governance-config',
+      'constraint-lifecycle',
     ]);
   });
 });

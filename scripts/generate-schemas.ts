@@ -121,6 +121,8 @@ import { PortabilityScopeSchema, ReputationPortabilityRequestSchema, Portability
 import { QualitySignalLevelSchema, OutcomeQualityMappingSchema, DelegationQualityEventSchema } from '../src/governance/delegation-quality.js';
 // v7.6.0 — Collection Governance Config
 import { DemotionRuleSchema, ReputationDecayPolicySchema, CollectionGovernanceConfigSchema } from '../src/governance/collection-governance-config.js';
+// v7.6.0 — Constraint Lifecycle
+import { ConstraintLifecycleStatusSchema, ConstraintCandidateSchema, ConstraintLifecycleEventSchema } from '../src/governance/constraint-lifecycle.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -282,6 +284,10 @@ const schemas = [
   { name: 'demotion-rule', schema: DemotionRuleSchema },
   { name: 'reputation-decay-policy', schema: ReputationDecayPolicySchema },
   { name: 'collection-governance-config', schema: CollectionGovernanceConfigSchema },
+  // v7.6.0 — Constraint Lifecycle
+  { name: 'constraint-lifecycle-status', schema: ConstraintLifecycleStatusSchema },
+  { name: 'constraint-candidate', schema: ConstraintCandidateSchema },
+  { name: 'constraint-lifecycle-event', schema: ConstraintLifecycleEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

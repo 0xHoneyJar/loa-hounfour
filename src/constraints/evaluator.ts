@@ -154,6 +154,9 @@ class Parser {
       // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
       ['is_stale', () => this.parseTimestampStaleness('stale')],
       ['is_within', () => this.parseTimestampStaleness('within')],
+
+      // Constraint lifecycle governance (v7.6.0 — DR-S4)
+      ['constraint_lifecycle_valid', () => this.parseConstraintLifecycleValid()],
     ]);
   }
 
@@ -1399,6 +1402,49 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
+  // Constraint lifecycle governance (v7.6.0 — DR-S4)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Validate constraint_lifecycle_valid(event).
+   *
+   * Checks that from_status → to_status follows CONSTRAINT_LIFECYCLE_TRANSITIONS.
+   *
+   * Valid transitions:
+   *   proposed → under_review, rejected
+   *   under_review → enacted, rejected
+   *   enacted → deprecated
+   *   rejected → (none)
+   *   deprecated → (none)
+   */
+  private parseConstraintLifecycleValid(): boolean {
+    this.advance(); // consume 'constraint_lifecycle_valid'
+    this.expect('paren', '(');
+    const event = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const fromStatus = event.from_status;
+    const toStatus = event.to_status;
+    if (typeof fromStatus !== 'string' || typeof toStatus !== 'string') return false;
+
+    // Same-status transition is never valid
+    if (fromStatus === toStatus) return false;
+
+    const transitions: Record<string, readonly string[]> = {
+      proposed: ['under_review', 'rejected'],
+      under_review: ['enacted', 'rejected'],
+      enacted: ['deprecated'],
+      rejected: [],
+      deprecated: [],
+    };
+
+    const allowed = transitions[fromStatus];
+    if (!allowed) return false;
+
+    return allowed.includes(toStatus);
+  }
+
+  // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
 
@@ -1558,6 +1604,8 @@ export const EVALUATOR_BUILTINS = [
   // Temporal governance (v7.5.0)
   'is_stale',
   'is_within',
+  // Constraint lifecycle (v7.6.0)
+  'constraint_lifecycle_valid',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
