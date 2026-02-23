@@ -1294,4 +1294,47 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
     ],
     edge_cases: ['Returns false for same-status transitions', 'Returns false for unknown statuses', 'Terminal states (rejected, deprecated) have no valid transitions'],
   }],
+
+  // ---------------------------------------------------------------------------
+  // Proposal execution builtins (v7.7.0 — DR-S9)
+  // ---------------------------------------------------------------------------
+
+  ['proposal_execution_valid', {
+    name: 'proposal_execution_valid',
+    signature: 'proposal_execution_valid(execution) → boolean',
+    description: 'Validates that a proposal execution completed successfully: '
+      + 'status is "completed" and all changes_applied have result "success".',
+    arguments: [
+      { name: 'execution', type: 'object', description: 'ProposalExecution with status and changes_applied fields' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Completed execution with all successes',
+        context: { execution: { status: 'completed', changes_applied: [{ result: 'success' }, { result: 'success' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: true,
+      },
+      {
+        description: 'Failed execution returns false',
+        context: { execution: { status: 'failed', changes_applied: [{ result: 'success' }, { result: 'failed' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+      {
+        description: 'Completed but with a failed change returns false',
+        context: { execution: { status: 'completed', changes_applied: [{ result: 'success' }, { result: 'failed' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+      {
+        description: 'Empty changes_applied returns false',
+        context: { execution: { status: 'completed', changes_applied: [] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for non-completed status', 'Returns false for empty changes_applied array', 'Returns false if any change result is not "success"'],
+  }],
 ]);

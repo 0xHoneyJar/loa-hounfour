@@ -150,6 +150,10 @@
         {
           "const": "policy-version",
           "type": "string"
+        },
+        {
+          "const": "proposal-execution",
+          "type": "string"
         }
       ]
     },

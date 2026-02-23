@@ -124,12 +124,12 @@ describe('Evaluator correctness after F-020 typing', () => {
 // Builtin count integrity
 // ---------------------------------------------------------------------------
 
-describe('EVALUATOR_BUILTINS count (37 builtins — v7.6.0)', () => {
-  it('EVALUATOR_BUILTINS contains 37 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(37);
+describe('EVALUATOR_BUILTINS count (38 builtins — v7.7.0)', () => {
+  it('EVALUATOR_BUILTINS contains 38 functions', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(38);
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 37 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(37);
+  it('EVALUATOR_BUILTIN_SPECS has 38 entries', () => {
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(38);
   });
 });

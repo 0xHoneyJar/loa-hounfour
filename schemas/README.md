@@ -2,7 +2,7 @@
 
 **Contract version:** 7.6.0
 **Min supported:** 6.0.0
-**Schemas:** 127
+**Schemas:** 132
 
 ## Schemas
 
@@ -135,6 +135,11 @@
 | reputation-routing-signal | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-routing-signal` | [reputation-routing-signal.schema.json](reputation-routing-signal.schema.json) |
 | policy-type | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/policy-type` | [policy-type.schema.json](policy-type.schema.json) |
 | policy-version | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/policy-version` | [policy-version.schema.json](policy-version.schema.json) |
+| execution-status | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/execution-status` | [execution-status.schema.json](execution-status.schema.json) |
+| change-application-result | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/change-application-result` | [change-application-result.schema.json](change-application-result.schema.json) |
+| proposal-execution | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-execution` | [proposal-execution.schema.json](proposal-execution.schema.json) |
+| proposal-event-type | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-event-type` | [proposal-event-type.schema.json](proposal-event-type.schema.json) |
+| proposal-outcome-event | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-outcome-event` | [proposal-outcome-event.schema.json](proposal-outcome-event.schema.json) |
 
 ## Usage
 

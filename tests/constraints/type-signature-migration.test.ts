@@ -28,8 +28,9 @@ const validTypeSet = new Set<string>([
   // Compound types from Sprint 1 migration
   'string[]',
   'integer',
-  // Nullable types (v7.1.0 — ReputationAggregate)
+  // Nullable types (v7.1.0 — ReputationAggregate, v7.7.0 — ProposalExecution)
   'number | null',
+  'string | null',
   // Optional types (v7.3.0 — ReputationCredential, AccessPolicy)
   'string | undefined',
   'number | undefined',
@@ -44,7 +45,7 @@ function isValidType(t: string): boolean {
 
 describe('type_signature migration (S2-T5)', () => {
   it('found constraint files', () => {
-    expect(allFiles.length).toBe(60);
+    expect(allFiles.length).toBe(62);
   });
 
   for (const { filename, data } of allFiles) {

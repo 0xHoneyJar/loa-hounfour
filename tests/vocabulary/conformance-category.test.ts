@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 32 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(32);
+  it('contains exactly 33 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(33);
   });
 
   it('includes all valid categories', () => {
@@ -98,6 +98,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'constraint-lifecycle',
       'reputation-routing',
       'policy-version',
+      'proposal-execution',
     ]);
   });
 });

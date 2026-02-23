@@ -157,6 +157,8 @@ class Parser {
 
       // Constraint lifecycle governance (v7.6.0 — DR-S4)
       ['constraint_lifecycle_valid', () => this.parseConstraintLifecycleValid()],
+      // Proposal execution (v7.7.0 — DR-S9)
+      ['proposal_execution_valid', () => this.parseProposalExecutionValid()],
     ]);
   }
 
@@ -1444,6 +1446,35 @@ class Parser {
     return allowed.includes(toStatus);
   }
 
+  /**
+   * Validate proposal_execution_valid(execution).
+   *
+   * Checks that a ProposalExecution is internally consistent:
+   * - All changes_applied have result 'success'
+   * - Status is 'completed'
+   *
+   * @since v7.7.0 — DR-S9
+   */
+  private parseProposalExecutionValid(): boolean {
+    this.advance(); // consume 'proposal_execution_valid'
+    this.expect('paren', '(');
+    const execution = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const status = execution.status;
+    if (typeof status !== 'string' || status !== 'completed') return false;
+
+    const changesApplied = execution.changes_applied;
+    if (!Array.isArray(changesApplied) || changesApplied.length === 0) return false;
+
+    for (const change of changesApplied) {
+      const rec = asRecord(change);
+      if (rec.result !== 'success') return false;
+    }
+
+    return true;
+  }
+
   // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
@@ -1606,6 +1637,8 @@ export const EVALUATOR_BUILTINS = [
   'is_within',
   // Constraint lifecycle (v7.6.0)
   'constraint_lifecycle_valid',
+  // Proposal execution (v7.7.0)
+  'proposal_execution_valid',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

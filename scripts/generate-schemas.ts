@@ -126,6 +126,9 @@ import { ConstraintLifecycleStatusSchema, ConstraintCandidateSchema, ConstraintL
 // v7.6.0 — Reputation Routing + Policy Version
 import { RoutingSignalTypeSchema, ReputationRoutingSignalSchema } from '../src/governance/reputation-routing.js';
 import { PolicyTypeSchema, PolicyVersionSchema } from '../src/governance/policy-version.js';
+// v7.7.0 — Proposal Execution + Outcome Events
+import { ExecutionStatusSchema, ChangeApplicationResultSchema, ProposalExecutionSchema } from '../src/governance/proposal-execution.js';
+import { ProposalEventTypeSchema, ProposalOutcomeEventSchema } from '../src/governance/proposal-outcome-event.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -297,6 +300,13 @@ const schemas = [
   // v7.6.0 — Policy Version
   { name: 'policy-type', schema: PolicyTypeSchema },
   { name: 'policy-version', schema: PolicyVersionSchema },
+  // v7.7.0 — Proposal Execution
+  { name: 'execution-status', schema: ExecutionStatusSchema },
+  { name: 'change-application-result', schema: ChangeApplicationResultSchema },
+  { name: 'proposal-execution', schema: ProposalExecutionSchema },
+  // v7.7.0 — Proposal Outcome Events
+  { name: 'proposal-event-type', schema: ProposalEventTypeSchema },
+  { name: 'proposal-outcome-event', schema: ProposalOutcomeEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

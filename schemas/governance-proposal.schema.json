@@ -211,6 +211,16 @@
       "format": "date-time",
       "type": "string"
     },
+    "execution_id": {
+      "format": "uuid",
+      "description": "Reference to ProposalExecution, set after ratification.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection this proposal targets.",
+      "type": "string"
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Protocol contract version.",

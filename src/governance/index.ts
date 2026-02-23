@@ -276,3 +276,22 @@ export {
   type PolicyType,
   type PolicyVersion,
 } from './policy-version.js';
+
+// Schemas — Proposal Execution (v7.7.0, DR-S9)
+export {
+  ExecutionStatusSchema,
+  EXECUTION_STATUS_TRANSITIONS,
+  ChangeApplicationResultSchema,
+  ProposalExecutionSchema,
+  type ExecutionStatus,
+  type ChangeApplicationResult,
+  type ProposalExecution,
+} from './proposal-execution.js';
+
+// Schemas — Proposal Outcome Event (v7.7.0, DR-S9)
+export {
+  ProposalEventTypeSchema,
+  ProposalOutcomeEventSchema,
+  type ProposalEventType,
+  type ProposalOutcomeEvent,
+} from './proposal-outcome-event.js';

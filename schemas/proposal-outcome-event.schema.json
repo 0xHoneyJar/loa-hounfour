@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-outcome-event",
+  "additionalProperties": false,
+  "description": "Lifecycle event for a governance proposal.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "proposal_id",
+    "event_type",
+    "actor_id",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "proposal_id": {
+      "format": "uuid",
+      "description": "The governance proposal this event belongs to.",
+      "type": "string"
+    },
+    "event_type": {
+      "$id": "ProposalEventType",
+      "description": "Type of governance proposal lifecycle event.",
+      "anyOf": [
+        {
+          "const": "proposed",
+          "type": "string"
+        },
+        {
+          "const": "voting_opened",
+          "type": "string"
+        },
+        {
+          "const": "vote_cast",
+          "type": "string"
+        },
+        {
+          "const": "ratified",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        },
+        {
+          "const": "withdrawn",
+          "type": "string"
+        },
+        {
+          "const": "execution_started",
+          "type": "string"
+        },
+        {
+          "const": "execution_completed",
+          "type": "string"
+        },
+        {
+          "const": "execution_failed",
+          "type": "string"
+        }
+      ]
+    },
+    "actor_id": {
+      "minLength": 1,
+      "description": "Agent who performed the action.",
+      "type": "string"
+    },
+    "details": {
+      "description": "Event-specific metadata (e.g., vote choice, execution result).",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

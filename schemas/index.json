@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "7.6.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-02-23T00:42:19.315Z",
+  "generated_at": "2026-02-23T01:36:27.398Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -765,6 +765,36 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/policy-version",
       "file": "policy-version.schema.json",
       "description": "Versioned policy record with migration support."
+    },
+    {
+      "name": "execution-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/execution-status",
+      "file": "execution-status.schema.json",
+      "description": "Lifecycle status of a governance proposal execution."
+    },
+    {
+      "name": "change-application-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/change-application-result",
+      "file": "change-application-result.schema.json",
+      "description": "Result of applying a single proposed change during execution."
+    },
+    {
+      "name": "proposal-execution",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-execution",
+      "file": "proposal-execution.schema.json",
+      "description": "Execution record for a ratified governance proposal."
+    },
+    {
+      "name": "proposal-event-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-event-type",
+      "file": "proposal-event-type.schema.json",
+      "description": "Type of governance proposal lifecycle event."
+    },
+    {
+      "name": "proposal-outcome-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-outcome-event",
+      "file": "proposal-outcome-event.schema.json",
+      "description": "Lifecycle event for a governance proposal."
     }
   ]
 }
