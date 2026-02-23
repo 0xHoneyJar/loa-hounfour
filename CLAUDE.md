@@ -6,11 +6,11 @@ Constitutional protocol contracts for an AI agent economy — loa-finn <-> arrak
 
 ## Project Overview
 
-This is a TypeScript schema library defining the canonical wire format between AI coordination services. It is consumed as an npm package by loa-finn and arrakis.
+Constitutional protocol framework for multi-agent economic coordination. Defines schemas, constraints, governance structures, and economic primitives that form the foundational law of the loa ecosystem. Consumed as an npm package by loa-finn and arrakis.
 
-- **87+ TypeBox schemas** across 9 modules (core, economy, model, governance, constraints, integrity, graph, composition, validators)
-- **51+ constraint files** with a custom constraint DSL and 36 evaluator builtins
-- **4,500+ tests** with conformance vectors for cross-language validation
+- **157 TypeBox schemas** across 9 modules (core, economy, model, governance, constraints, integrity, graph, composition, validators)
+- **72 constraint files** with a custom constraint DSL and 42 evaluator builtins
+- **5,000+ tests** with conformance vectors for cross-language validation
 - **JSON Schema 2020-12** generation for Python/Go/Rust consumers
 
 ## Key Directories

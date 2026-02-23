@@ -123,6 +123,20 @@ export const ProposalExecutionSchema = Type.Object(
       minLength: 1,
       description: 'Agent or system that performed the execution.',
     }),
+    execution_strategy: Type.Optional(Type.Union([
+      Type.Literal('atomic'),
+      Type.Literal('progressive'),
+      Type.Literal('canary'),
+    ], {
+      description: 'Execution strategy. Defaults to atomic if omitted.',
+    })),
+    checkpoints: Type.Optional(Type.Array(Type.String({ format: 'uuid' }), {
+      description: 'ExecutionCheckpoint IDs recorded during progressive/canary execution.',
+    })),
+    rollback_scope_id: Type.Optional(Type.String({
+      format: 'uuid',
+      description: 'Reference to RollbackScope if rollback occurred.',
+    })),
     contract_version: Type.String({
       pattern: '^\\d+\\.\\d+\\.\\d+$',
       description: 'Protocol contract version.',
@@ -136,3 +150,31 @@ export const ProposalExecutionSchema = Type.Object(
 );
 
 export type ProposalExecution = Static<typeof ProposalExecutionSchema>;
+
+// ---------------------------------------------------------------------------
+// Execution Strategy (v7.8.0, DR-F5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Strategy for executing governance proposal changes.
+ *
+ * - `atomic`: all changes applied or none (default, current behavior)
+ * - `progressive`: changes applied in order with checkpoints between
+ * - `canary`: changes applied to a subset first, then expanded on success
+ *
+ * @see DR-F5 — Progressive governance execution
+ * @since v7.8.0
+ */
+export const ExecutionStrategySchema = Type.Union(
+  [
+    Type.Literal('atomic'),
+    Type.Literal('progressive'),
+    Type.Literal('canary'),
+  ],
+  {
+    $id: 'ExecutionStrategy',
+    description: 'Strategy for executing governance proposal changes.',
+  },
+);
+
+export type ExecutionStrategy = Static<typeof ExecutionStrategySchema>;

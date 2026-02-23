@@ -183,6 +183,8 @@ class Parser {
       ['model_routing_eligible', () => this.parseModelRoutingEligible()],
       // Basket weight normalization (v7.8.0 — DR-F2)
       ['basket_weights_normalized', () => this.parseBasketWeightsNormalized()],
+      // Execution checkpoint validation (v7.8.0 — DR-F5)
+      ['execution_checkpoint_valid', () => this.parseExecutionCheckpointValid()],
     ]);
   }
 
@@ -1586,6 +1588,36 @@ class Parser {
     return Math.abs(totalWeight - 1.0) <= 0.001;
   }
 
+  /**
+   * execution_checkpoint_valid(checkpoint) — validates that health_status and
+   * proceed_decision are consistent:
+   *   healthy → must be continue
+   *   degraded → may be continue or pause
+   *   failing → must be rollback
+   */
+  private parseExecutionCheckpointValid(): boolean {
+    this.advance(); // consume 'execution_checkpoint_valid'
+    this.expect('paren', '(');
+    const checkpoint = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const health = checkpoint.health_status;
+    const decision = checkpoint.proceed_decision;
+
+    if (typeof health !== 'string' || typeof decision !== 'string') return false;
+
+    switch (health) {
+      case 'healthy':
+        return decision === 'continue';
+      case 'degraded':
+        return decision === 'continue' || decision === 'pause';
+      case 'failing':
+        return decision === 'rollback';
+      default:
+        return false;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
@@ -1756,6 +1788,8 @@ export const EVALUATOR_BUILTINS = [
   'model_routing_eligible',
   // Basket composition (v7.8.0)
   'basket_weights_normalized',
+  // Execution checkpoint (v7.8.0)
+  'execution_checkpoint_valid',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

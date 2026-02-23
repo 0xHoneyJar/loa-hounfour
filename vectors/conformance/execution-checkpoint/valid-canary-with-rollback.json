@@ -1,0 +1,20 @@
+{
+  "vector_id": "conformance-execution-checkpoint-002",
+  "category": "execution-checkpoint",
+  "description": "Canary execution with failing checkpoint that triggers rollback.",
+  "contract_version": "7.8.0",
+  "input": {
+    "checkpoint_id": "550e8400-e29b-41d4-a716-446655440210",
+    "execution_id": "550e8400-e29b-41d4-a716-446655440211",
+    "checkpoint_index": 1,
+    "changes_applied_count": 2,
+    "changes_remaining_count": 6,
+    "health_status": "failing",
+    "proceed_decision": "rollback",
+    "health_details": "Canary subset showed elevated error rate.",
+    "checkpoint_at": "2026-03-15T12:05:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

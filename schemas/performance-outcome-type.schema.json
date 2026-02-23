@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/performance-outcome-type",
+  "description": "Classification of how a model invocation performed against expectations.",
+  "anyOf": [
+    {
+      "const": "cost_within_budget",
+      "type": "string"
+    },
+    {
+      "const": "cost_exceeded",
+      "type": "string"
+    },
+    {
+      "const": "quality_met",
+      "type": "string"
+    },
+    {
+      "const": "quality_below_threshold",
+      "type": "string"
+    },
+    {
+      "const": "timeout",
+      "type": "string"
+    },
+    {
+      "const": "error",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

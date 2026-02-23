@@ -277,16 +277,34 @@ export {
   type PolicyVersion,
 } from './policy-version.js';
 
-// Schemas — Proposal Execution (v7.7.0, DR-S9)
+// Schemas — Proposal Execution (v7.7.0, DR-S9; v7.8.0, DR-F5)
 export {
   ExecutionStatusSchema,
   EXECUTION_STATUS_TRANSITIONS,
   ChangeApplicationResultSchema,
   ProposalExecutionSchema,
+  ExecutionStrategySchema,
   type ExecutionStatus,
   type ChangeApplicationResult,
   type ProposalExecution,
+  type ExecutionStrategy,
 } from './proposal-execution.js';
+
+// Schemas — Execution Checkpoint (v7.8.0, DR-F5)
+export {
+  CheckpointHealthSchema,
+  ProceedDecisionSchema,
+  ExecutionCheckpointSchema,
+  type CheckpointHealth,
+  type ProceedDecision,
+  type ExecutionCheckpoint,
+} from './execution-checkpoint.js';
+
+// Schemas — Rollback Scope (v7.8.0, DR-F5)
+export {
+  RollbackScopeSchema,
+  type RollbackScope,
+} from './rollback-scope.js';
 
 // Schemas — Proposal Outcome Event (v7.7.0, DR-S9)
 export {

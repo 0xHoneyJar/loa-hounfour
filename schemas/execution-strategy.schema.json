@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/execution-strategy",
+  "description": "Strategy for executing governance proposal changes.",
+  "anyOf": [
+    {
+      "const": "atomic",
+      "type": "string"
+    },
+    {
+      "const": "progressive",
+      "type": "string"
+    },
+    {
+      "const": "canary",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

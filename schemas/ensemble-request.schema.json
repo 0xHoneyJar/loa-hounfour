@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.7.0/ensemble-request",
-  "$comment": "contract_version=7.7.0, min_supported=6.0.0. Contains embedded CompletionRequest with MicroUSD financial fields (budget_limit_micro). See vocabulary/currency.ts for arithmetic utilities.",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/ensemble-request",
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0. Contains embedded CompletionRequest with MicroUSD financial fields (budget_limit_micro). See vocabulary/currency.ts for arithmetic utilities.",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "type": "object",

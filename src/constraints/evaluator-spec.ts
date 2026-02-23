@@ -1421,4 +1421,42 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
     ],
     edge_cases: ['Empty entries returns false', 'Single entry with weight 1.0 returns true'],
   }],
+  // Execution checkpoint validation (v7.8.0 — DR-F5)
+  ['execution_checkpoint_valid', {
+    name: 'execution_checkpoint_valid',
+    signature: 'execution_checkpoint_valid(checkpoint) → boolean',
+    description: 'Validates that a checkpoint health_status and proceed_decision are consistent: healthy→continue, degraded→continue|pause, failing→rollback.',
+    arguments: [
+      { name: 'checkpoint', type: 'object', description: 'Object with health_status and proceed_decision fields.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Healthy checkpoint with continue decision',
+        context: { cp: { health_status: 'healthy', proceed_decision: 'continue' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Degraded checkpoint with pause decision',
+        context: { cp: { health_status: 'degraded', proceed_decision: 'pause' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Failing checkpoint with rollback decision',
+        context: { cp: { health_status: 'failing', proceed_decision: 'rollback' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Invalid: failing checkpoint with continue decision',
+        context: { cp: { health_status: 'failing', proceed_decision: 'continue' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Healthy with pause returns false', 'Unknown health_status returns false', 'Missing fields return false'],
+  }],
 ]);

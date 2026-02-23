@@ -137,6 +137,9 @@ import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../
 import { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBridgeDirectionSchema, PerformanceQualityBridgeSchema } from '../src/economy/economic-performance.js';
 import { BasketCompositionEntrySchema, BasketCompositionSchema } from '../src/economy/basket-composition.js';
 import { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema } from '../src/economy/routing-rebalance.js';
+import { ExecutionStrategySchema } from '../src/governance/proposal-execution.js';
+import { CheckpointHealthSchema, ProceedDecisionSchema, ExecutionCheckpointSchema } from '../src/governance/execution-checkpoint.js';
+import { RollbackScopeSchema } from '../src/governance/rollback-scope.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -339,6 +342,12 @@ const schemas = [
   { name: 'basket-composition', schema: BasketCompositionSchema },
   { name: 'rebalance-trigger-type', schema: RebalanceTriggerTypeSchema },
   { name: 'routing-rebalance-event', schema: RoutingRebalanceEventSchema },
+  // v7.8.0 — Progressive Governance Execution (DR-F5)
+  { name: 'execution-strategy', schema: ExecutionStrategySchema },
+  { name: 'checkpoint-health', schema: CheckpointHealthSchema },
+  { name: 'proceed-decision', schema: ProceedDecisionSchema },
+  { name: 'execution-checkpoint', schema: ExecutionCheckpointSchema },
+  { name: 'rollback-scope', schema: RollbackScopeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

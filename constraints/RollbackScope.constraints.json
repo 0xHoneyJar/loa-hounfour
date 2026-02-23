@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/constraint-schema",
+  "schema_id": "RollbackScope",
+  "constraints": [
+    {
+      "id": "rollback-changes-nonempty",
+      "expression": "scope.changes_to_rollback.length > 0",
+      "severity": "error",
+      "description": "Rollback scope must specify at least one change to roll back.",
+      "type_signature": {
+        "scope": "RollbackScope"
+      },
+      "fields": ["changes_to_rollback"]
+    },
+    {
+      "id": "rollback-reason-nonempty",
+      "expression": "scope.reason.length > 0",
+      "severity": "error",
+      "description": "Rollback reason must be non-empty.",
+      "type_signature": {
+        "scope": "RollbackScope"
+      },
+      "fields": ["reason"]
+    }
+  ]
+}

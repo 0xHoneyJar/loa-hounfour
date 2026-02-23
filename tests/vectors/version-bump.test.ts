@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('7.7.0');
+    expect(CONTRACT_VERSION).toBe('7.8.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('7.7.0');
+    expect(pkg.version).toBe('7.8.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('7.7.0');
+    expect(index.version).toBe('7.8.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('7.7.0');
+    expect(version).toBe('7.8.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,7 +129,7 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use 7.7.0', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/7\.7\.0\//);
+      expect(schema.$id).toMatch(/\/7\.8\.0\//);
     }
   });
 
@@ -168,8 +168,29 @@ describe('version bump', () => {
     expect(names).toContain('community-engagement-signal');
   });
 
-  it('schemas/index.json has 144 schemas', () => {
+  it('schemas/index.json includes v7.8.0 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(144);
+    const names = index.schemas.map((s: { name: string }) => s.name);
+    // Sprint 2: Feedback Loop
+    expect(names).toContain('performance-outcome-type');
+    expect(names).toContain('economic-performance-event');
+    expect(names).toContain('quality-bridge-direction');
+    expect(names).toContain('performance-quality-bridge');
+    // Sprint 3: Dynamic Rebalancing
+    expect(names).toContain('basket-composition-entry');
+    expect(names).toContain('basket-composition');
+    expect(names).toContain('rebalance-trigger-type');
+    expect(names).toContain('routing-rebalance-event');
+    // Sprint 4: Progressive Execution
+    expect(names).toContain('execution-strategy');
+    expect(names).toContain('checkpoint-health');
+    expect(names).toContain('proceed-decision');
+    expect(names).toContain('execution-checkpoint');
+    expect(names).toContain('rollback-scope');
+  });
+
+  it('schemas/index.json has 157 schemas', () => {
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    expect(index.schemas).toHaveLength(157);
   });
 });

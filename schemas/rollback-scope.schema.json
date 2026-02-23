@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/rollback-scope",
+  "additionalProperties": false,
+  "description": "Scope and audit trail for a governance execution rollback.",
+  "type": "object",
+  "required": [
+    "scope_id",
+    "execution_id",
+    "changes_to_rollback",
+    "reason",
+    "initiated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "scope_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "description": "The ProposalExecution being rolled back.",
+      "type": "string"
+    },
+    "changes_to_rollback": {
+      "minItems": 1,
+      "description": "Indices into changes_applied[] that must be reversed.",
+      "type": "array",
+      "items": {
+        "minimum": 0,
+        "type": "integer"
+      }
+    },
+    "reason": {
+      "minLength": 1,
+      "description": "Why the rollback was triggered.",
+      "type": "string"
+    },
+    "triggered_by_checkpoint_id": {
+      "format": "uuid",
+      "description": "The ExecutionCheckpoint that triggered this rollback.",
+      "type": "string"
+    },
+    "initiated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "description": "When the rollback finished. Absent if still in progress.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

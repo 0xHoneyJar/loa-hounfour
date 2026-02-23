@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/economic-performance-event",
+  "additionalProperties": false,
+  "description": "Captures the outcome of a model invocation following an EconomicBoundary access decision. This is the return signal that closes the unidirectional membrane gap.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "boundary_id",
+    "model_id",
+    "outcome_type",
+    "actual_cost",
+    "budgeted_cost",
+    "actual_quality",
+    "expected_quality",
+    "tokens_used",
+    "duration_ms",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "description": "Unique identifier for this performance event.",
+      "type": "string"
+    },
+    "boundary_id": {
+      "format": "uuid",
+      "description": "References the EconomicBoundary that granted access.",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Which model was invoked.",
+      "type": "string"
+    },
+    "outcome_type": {
+      "$id": "PerformanceOutcomeType",
+      "description": "Classification of how a model invocation performed against expectations.",
+      "anyOf": [
+        {
+          "const": "cost_within_budget",
+          "type": "string"
+        },
+        {
+          "const": "cost_exceeded",
+          "type": "string"
+        },
+        {
+          "const": "quality_met",
+          "type": "string"
+        },
+        {
+          "const": "quality_below_threshold",
+          "type": "string"
+        },
+        {
+          "const": "timeout",
+          "type": "string"
+        },
+        {
+          "const": "error",
+          "type": "string"
+        }
+      ]
+    },
+    "actual_cost": {
+      "pattern": "^[0-9]+$",
+      "description": "Actual cost of the invocation in micro-USD.",
+      "type": "string"
+    },
+    "budgeted_cost": {
+      "pattern": "^[0-9]+$",
+      "description": "Budgeted/reserved cost in micro-USD.",
+      "type": "string"
+    },
+    "actual_quality": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Observed quality of the invocation (0-1).",
+      "type": "number"
+    },
+    "expected_quality": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Expected quality from ModelEconomicProfile.quality_yield.",
+      "type": "number"
+    },
+    "tokens_used": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "input",
+        "output"
+      ],
+      "properties": {
+        "input": {
+          "minimum": 0,
+          "description": "Input tokens consumed.",
+          "type": "integer"
+        },
+        "output": {
+          "minimum": 0,
+          "description": "Output tokens generated.",
+          "type": "integer"
+        }
+      }
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "description": "Invocation duration in milliseconds.",
+      "type": "integer"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "description": "When the invocation completed.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}
