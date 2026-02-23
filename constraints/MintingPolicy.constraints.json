@@ -1,39 +1,40 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "MintingPolicy",
+  "origin": "genesis",
   "contract_version": "7.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "minting-policy-max-positive",
-      "description": "Maximum mint per epoch must be positive",
       "expression": "bigint_gt(max_mint_per_epoch, '0')",
       "severity": "error",
       "category": "economic",
       "type_signature": {
         "max_mint_per_epoch": "bigint_coercible"
-      }
+      },
+      "message": "Maximum mint per epoch must be positive"
     },
     {
       "id": "minting-policy-governance-requires-constraints",
-      "description": "Governance-approved minting must have at least one mint constraint",
       "expression": "requires_governance_approval != true || mint_constraints.length > 0",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "requires_governance_approval": "boolean",
         "mint_constraints": "array"
-      }
+      },
+      "message": "Governance-approved minting must have at least one mint constraint"
     },
     {
       "id": "minting-policy-epoch-minimum",
-      "description": "Minting epoch must be at least 60 seconds to prevent governance approval flooding",
       "expression": "epoch_seconds >= 60",
       "severity": "warning",
       "category": "economic",
       "type_signature": {
         "epoch_seconds": "number"
-      }
+      },
+      "message": "Minting epoch must be at least 60 seconds to prevent governance approval flooding"
     }
   ]
 }

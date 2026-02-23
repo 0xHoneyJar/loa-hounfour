@@ -130,7 +130,7 @@ import { PolicyTypeSchema, PolicyVersionSchema } from '../src/governance/policy-
 import { ExecutionStatusSchema, ChangeApplicationResultSchema, ProposalExecutionSchema } from '../src/governance/proposal-execution.js';
 import { ProposalEventTypeSchema, ProposalOutcomeEventSchema } from '../src/governance/proposal-outcome-event.js';
 // v7.7.0 — Economic Membrane
-import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSchema, EconomicBoundarySchema } from '../src/economy/economic-boundary.js';
+import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSchema, EconomicBoundarySchema, DenialCodeSchema, EvaluationGapSchema, EconomicBoundaryEvaluationEventSchema } from '../src/economy/economic-boundary.js';
 import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactEntrySchema, ReputationEconomicImpactSchema } from '../src/economy/reputation-economic-impact.js';
 import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
 import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../src/governance/community-engagement.js';
@@ -348,6 +348,10 @@ const schemas = [
   { name: 'proceed-decision', schema: ProceedDecisionSchema },
   { name: 'execution-checkpoint', schema: ExecutionCheckpointSchema },
   { name: 'rollback-scope', schema: RollbackScopeSchema },
+  // v7.9.1 — Decision Engine Improvements (DR-F4, DR-F7, Q1, Q4)
+  { name: 'denial-code', schema: DenialCodeSchema },
+  { name: 'evaluation-gap', schema: EvaluationGapSchema },
+  { name: 'economic-boundary-evaluation-event', schema: EconomicBoundaryEvaluationEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

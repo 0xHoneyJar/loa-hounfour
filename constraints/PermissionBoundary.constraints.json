@@ -1,38 +1,39 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PermissionBoundary",
+  "origin": "genesis",
   "contract_version": "7.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "permission-boundary-has-reporting",
-      "description": "Permission boundary must specify reporting requirements",
       "expression": "reporting != null",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "reporting": "ReportingRequirement"
-      }
+      },
+      "message": "Permission boundary must specify reporting requirements"
     },
     {
       "id": "permission-boundary-has-revocation",
-      "description": "Permission boundary must specify a revocation policy",
       "expression": "revocation != null",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "revocation": "RevocationPolicy"
-      }
+      },
+      "message": "Permission boundary must specify a revocation policy"
     },
     {
       "id": "permission-scope-unique",
-      "description": "Permission boundary scope must be non-empty",
       "expression": "scope != ''",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "scope": "string"
-      }
+      },
+      "message": "Permission boundary scope must be non-empty"
     }
   ]
 }

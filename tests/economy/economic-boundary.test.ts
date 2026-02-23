@@ -12,6 +12,10 @@ import {
   CapitalLayerSnapshotSchema,
   AccessDecisionSchema,
   EconomicBoundarySchema,
+  QualificationCriteriaSchema,
+  TrustEvaluationSchema,
+  CapitalEvaluationSchema,
+  EconomicBoundaryEvaluationResultSchema,
 } from '../../src/economy/economic-boundary.js';
 
 // ---------------------------------------------------------------------------
@@ -244,5 +248,186 @@ describe('EconomicBoundarySchema', () => {
       };
       expect(Value.Check(EconomicBoundarySchema, modified)).toBe(true);
     }
+  });
+
+  it('accepts optional qualification_criteria', () => {
+    const withCriteria = {
+      ...valid,
+      qualification_criteria: {
+        min_trust_score: 0.5,
+        min_reputation_state: 'warming',
+        min_available_budget: '10000000',
+      },
+    };
+    expect(Value.Check(EconomicBoundarySchema, withCriteria)).toBe(true);
+  });
+
+  it('accepts without qualification_criteria (backward compat)', () => {
+    expect(Value.Check(EconomicBoundarySchema, valid)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// QualificationCriteria (v7.9.0)
+// ---------------------------------------------------------------------------
+
+describe('QualificationCriteriaSchema', () => {
+  const valid = {
+    min_trust_score: 0.5,
+    min_reputation_state: 'warming',
+    min_available_budget: '10000000',
+  };
+
+  it('accepts valid criteria', () => {
+    expect(Value.Check(QualificationCriteriaSchema, valid)).toBe(true);
+  });
+
+  it('has correct $id', () => {
+    expect(QualificationCriteriaSchema.$id).toBe('QualificationCriteria');
+  });
+
+  it('accepts boundary score 0', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_trust_score: 0 })).toBe(true);
+  });
+
+  it('accepts boundary score 1', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_trust_score: 1 })).toBe(true);
+  });
+
+  it('rejects score > 1', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_trust_score: 1.5 })).toBe(false);
+  });
+
+  it('rejects score < 0', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_trust_score: -0.1 })).toBe(false);
+  });
+
+  it('accepts budget "0"', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_available_budget: '0' })).toBe(true);
+  });
+
+  it('rejects non-numeric budget', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_available_budget: 'abc' })).toBe(false);
+  });
+
+  it('rejects invalid reputation state', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, min_reputation_state: 'legendary' })).toBe(false);
+  });
+
+  it('rejects additional properties', () => {
+    expect(Value.Check(QualificationCriteriaSchema, { ...valid, extra: true })).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// TrustEvaluation (v7.9.0)
+// ---------------------------------------------------------------------------
+
+describe('TrustEvaluationSchema', () => {
+  const valid = {
+    passed: true,
+    actual_score: 0.82,
+    required_score: 0.5,
+    actual_state: 'established',
+    required_state: 'warming',
+  };
+
+  it('accepts valid trust evaluation', () => {
+    expect(Value.Check(TrustEvaluationSchema, valid)).toBe(true);
+  });
+
+  it('has correct $id', () => {
+    expect(TrustEvaluationSchema.$id).toBe('TrustEvaluation');
+  });
+
+  it('rejects additional properties', () => {
+    expect(Value.Check(TrustEvaluationSchema, { ...valid, extra: true })).toBe(false);
+  });
+
+  it('accepts boundary scores', () => {
+    expect(Value.Check(TrustEvaluationSchema, { ...valid, actual_score: 0, required_score: 0 })).toBe(true);
+    expect(Value.Check(TrustEvaluationSchema, { ...valid, actual_score: 1, required_score: 1 })).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CapitalEvaluation (v7.9.0)
+// ---------------------------------------------------------------------------
+
+describe('CapitalEvaluationSchema', () => {
+  const valid = {
+    passed: true,
+    actual_budget: '50000000',
+    required_budget: '10000000',
+  };
+
+  it('accepts valid capital evaluation', () => {
+    expect(Value.Check(CapitalEvaluationSchema, valid)).toBe(true);
+  });
+
+  it('has correct $id', () => {
+    expect(CapitalEvaluationSchema.$id).toBe('CapitalEvaluation');
+  });
+
+  it('rejects non-numeric budget', () => {
+    expect(Value.Check(CapitalEvaluationSchema, { ...valid, actual_budget: 'abc' })).toBe(false);
+  });
+
+  it('rejects additional properties', () => {
+    expect(Value.Check(CapitalEvaluationSchema, { ...valid, extra: true })).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// EconomicBoundaryEvaluationResult (v7.9.0)
+// ---------------------------------------------------------------------------
+
+describe('EconomicBoundaryEvaluationResultSchema', () => {
+  const valid = {
+    access_decision: { granted: true },
+    trust_evaluation: {
+      passed: true,
+      actual_score: 0.82,
+      required_score: 0.5,
+      actual_state: 'established',
+      required_state: 'warming',
+    },
+    capital_evaluation: {
+      passed: true,
+      actual_budget: '50000000',
+      required_budget: '10000000',
+    },
+    criteria_used: {
+      min_trust_score: 0.5,
+      min_reputation_state: 'warming',
+      min_available_budget: '10000000',
+    },
+    evaluated_at: '2026-02-23T10:00:01Z',
+  };
+
+  it('accepts valid evaluation result', () => {
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, valid)).toBe(true);
+  });
+
+  it('has correct $id', () => {
+    expect(EconomicBoundaryEvaluationResultSchema.$id).toBe('EconomicBoundaryEvaluationResult');
+  });
+
+  it('accepts denied result with reason', () => {
+    const denied = {
+      ...valid,
+      access_decision: { granted: false, denial_reason: 'trust score too low' },
+      trust_evaluation: { ...valid.trust_evaluation, passed: false },
+    };
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, denied)).toBe(true);
+  });
+
+  it('rejects additional properties', () => {
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, { ...valid, extra: true })).toBe(false);
+  });
+
+  it('rejects missing evaluated_at', () => {
+    const { evaluated_at, ...rest } = valid;
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, rest)).toBe(false);
   });
 });

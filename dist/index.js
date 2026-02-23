@@ -31,4 +31,8 @@ export { reconstructAggregateFromEvents, verifyAggregateConsistency, computeEven
 export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRESHOLD } from './utilities/reputation-credential.js';
 // Constraint Namespace Validation (v7.8.0, DR-F4)
 export { detectReservedNameCollisions } from './utilities/constraint-validation.js';
+// Economic Boundary Decision Engine (v7.9.0, FR-1; extended v7.9.1)
+export { evaluateEconomicBoundary, evaluateFromBoundary, parseMicroUsd, } from './utilities/economic-boundary.js';
+// Reputation Vocabulary (v7.9.0 — root barrel export; v7.9.1 type guard)
+export { REPUTATION_STATE_ORDER, REPUTATION_STATES, isKnownReputationState, } from './vocabulary/reputation.js';
 //# sourceMappingURL=index.js.map

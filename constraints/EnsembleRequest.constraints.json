@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EnsembleRequest",
+  "origin": "genesis",
   "contract_version": "5.0.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,10 @@
       "expression": "strategy != 'consensus' || consensus_threshold != null",
       "severity": "error",
       "message": "consensus_threshold is required when strategy is 'consensus'",
-      "fields": ["strategy", "consensus_threshold"],
+      "fields": [
+        "strategy",
+        "consensus_threshold"
+      ],
       "type_signature": {
         "strategy": "string",
         "consensus_threshold": "number"
@@ -20,7 +24,10 @@
       "expression": "strategy != 'dialogue' || dialogue_config != null",
       "severity": "error",
       "message": "dialogue_config is required when strategy is 'dialogue'",
-      "fields": ["strategy", "dialogue_config"],
+      "fields": [
+        "strategy",
+        "dialogue_config"
+      ],
       "type_signature": {
         "strategy": "string",
         "dialogue_config": "object"
@@ -31,7 +38,10 @@
       "expression": "strategy != 'dialogue' || request.session_id != null",
       "severity": "warning",
       "message": "session_id is recommended when strategy is 'dialogue' for round correlation",
-      "fields": ["strategy", "request.session_id"],
+      "fields": [
+        "strategy",
+        "request.session_id"
+      ],
       "type_signature": {
         "strategy": "string",
         "request": "object"

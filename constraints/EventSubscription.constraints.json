@@ -1,28 +1,29 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EventSubscription",
+  "origin": "genesis",
   "contract_version": "7.5.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "subscription-webhook-needs-endpoint",
-      "description": "Webhook delivery requires a non-null endpoint URL",
       "expression": "delivery.method != 'webhook' || delivery.endpoint != null",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "delivery": "object"
-      }
+      },
+      "message": "Webhook delivery requires a non-null endpoint URL"
     },
     {
       "id": "subscription-cursor-exclusive",
-      "description": "Cursor must not specify both after_event_id and after_timestamp",
       "expression": "cursor == null || cursor.after_event_id == null || cursor.after_timestamp == null",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "cursor": "object"
-      }
+      },
+      "message": "Cursor must not specify both after_event_id and after_timestamp"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/micro-usdc",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/micro-usdc",
   "pattern": "^[0-9]+$",
   "description": "On-chain USDC amount in micro-units (6 decimal places). String-encoded unsigned bigint.",
   "type": "string",
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
 }

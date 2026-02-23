@@ -1,25 +1,31 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "CommunityEngagementSignal",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "engagement-weight-bounded",
       "expression": "weight >= 0 && weight <= 1",
-      "description": "Engagement signal weight must be between 0 and 1.",
       "severity": "error",
       "type_signature": {
         "weight": "number"
       },
-      "fields": ["weight"]
+      "fields": [
+        "weight"
+      ],
+      "message": "Engagement signal weight must be between 0 and 1."
     },
     {
       "id": "engagement-personality-nonempty",
       "expression": "len(personality_id) >= 1",
-      "description": "Engagement signal must reference a non-empty personality_id.",
       "severity": "error",
       "type_signature": {
         "personality_id": "string"
       },
-      "fields": ["personality_id"]
+      "fields": [
+        "personality_id"
+      ],
+      "message": "Engagement signal must reference a non-empty personality_id."
     }
   ]
 }

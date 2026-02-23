@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/evaluation-gap",
+  "additionalProperties": false,
+  "description": "Structured gap information for denied evaluations — actionable feedback for agents.",
+  "type": "object",
+  "properties": {
+    "trust_score_gap": {
+      "minimum": 0,
+      "description": "How far below the required trust score (0 if passed).",
+      "type": "number"
+    },
+    "reputation_state_gap": {
+      "minimum": 0,
+      "description": "Ordinal states below required (0 if passed).",
+      "type": "integer"
+    },
+    "budget_gap": {
+      "pattern": "^[0-9]+$",
+      "description": "Micro-USD shortfall (\"0\" if passed).",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+}

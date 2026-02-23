@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/economic-boundary",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/economic-boundary",
   "additionalProperties": false,
   "description": "Economic membrane: trust × capital → access decision.",
   "type": "object",
@@ -133,7 +133,52 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Protocol contract version.",
       "type": "string"
+    },
+    "qualification_criteria": {
+      "$id": "QualificationCriteria",
+      "additionalProperties": false,
+      "description": "Threshold criteria for evaluating economic boundary access.",
+      "type": "object",
+      "required": [
+        "min_trust_score",
+        "min_reputation_state",
+        "min_available_budget"
+      ],
+      "properties": {
+        "min_trust_score": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum blended reputation score required for access.",
+          "type": "number"
+        },
+        "min_reputation_state": {
+          "$id": "ReputationState",
+          "anyOf": [
+            {
+              "const": "cold",
+              "type": "string"
+            },
+            {
+              "const": "warming",
+              "type": "string"
+            },
+            {
+              "const": "established",
+              "type": "string"
+            },
+            {
+              "const": "authoritative",
+              "type": "string"
+            }
+          ]
+        },
+        "min_available_budget": {
+          "pattern": "^[0-9]+$",
+          "description": "Minimum remaining budget in micro-USD.",
+          "type": "string"
+        }
+      }
     }
   },
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
 }

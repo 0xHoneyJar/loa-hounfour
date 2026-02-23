@@ -1,50 +1,51 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "DelegationTree",
+  "origin": "genesis",
   "contract_version": "6.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "delegation-tree-budget-conservation",
-      "description": "At every node in the tree, children budget sum must not exceed parent budget",
       "expression": "tree_budget_conserved(root)",
       "severity": "error",
       "category": "economic",
       "type_signature": {
         "root": "DelegationTreeNode"
-      }
+      },
+      "message": "At every node in the tree, children budget sum must not exceed parent budget"
     },
     {
       "id": "delegation-tree-authority-narrowing",
-      "description": "At every node in the tree, children authority scopes must be subsets of parent scope",
       "expression": "tree_authority_narrowing(root)",
       "severity": "error",
       "category": "authorization",
       "type_signature": {
         "root": "DelegationTreeNode"
-      }
+      },
+      "message": "At every node in the tree, children authority scopes must be subsets of parent scope"
     },
     {
       "id": "delegation-tree-consensus-minimum",
-      "description": "Consensus strategy requires at least 3 children at root",
       "expression": "strategy != 'consensus' || root.children.length >= 3",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "strategy": "string",
         "root": "DelegationTreeNode"
-      }
+      },
+      "message": "Consensus strategy requires at least 3 children at root"
     },
     {
       "id": "delegation-tree-root-budget-match",
-      "description": "Root node budget must equal tree total budget",
       "expression": "bigint_eq(root.budget_allocated_micro, total_budget_micro)",
       "severity": "error",
       "category": "economic",
       "type_signature": {
         "root": "DelegationTreeNode",
         "total_budget_micro": "bigint_coercible"
-      }
+      },
+      "message": "Root node budget must equal tree total budget"
     }
   ]
 }

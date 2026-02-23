@@ -269,16 +269,30 @@ export {
   type MonetaryPolicy,
 } from './monetary-policy.js';
 
-// Schemas — Economic Boundary (v7.7.0)
+// Schemas — Economic Boundary (v7.7.0, extended v7.9.0, v7.9.1)
 export {
   TrustLayerSnapshotSchema,
   CapitalLayerSnapshotSchema,
   AccessDecisionSchema,
   EconomicBoundarySchema,
+  QualificationCriteriaSchema,
+  TrustEvaluationSchema,
+  CapitalEvaluationSchema,
+  DenialCodeSchema,
+  EvaluationGapSchema,
+  EconomicBoundaryEvaluationResultSchema,
+  EconomicBoundaryEvaluationEventSchema,
   type TrustLayerSnapshot,
   type CapitalLayerSnapshot,
   type AccessDecision,
   type EconomicBoundary,
+  type QualificationCriteria,
+  type TrustEvaluation,
+  type CapitalEvaluation,
+  type DenialCode,
+  type EvaluationGap,
+  type EconomicBoundaryEvaluationResult,
+  type EconomicBoundaryEvaluationEvent,
 } from './economic-boundary.js';
 
 // Schemas — Reputation Economic Impact (v7.7.0)

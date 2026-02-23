@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ReputationScore",
+  "origin": "genesis",
   "contract_version": "5.0.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,9 @@
       "expression": "sample_size >= 5",
       "severity": "warning",
       "message": "sample_size is below minimum threshold (5)",
-      "fields": ["sample_size"],
+      "fields": [
+        "sample_size"
+      ],
       "type_signature": {
         "sample_size": "number"
       }
@@ -19,7 +22,10 @@
       "expression": "!(score == 1.0 && sample_size < 10)",
       "severity": "warning",
       "message": "perfect score with low sample is suspicious",
-      "fields": ["score", "sample_size"],
+      "fields": [
+        "score",
+        "sample_size"
+      ],
       "type_signature": {
         "score": "number",
         "sample_size": "number"

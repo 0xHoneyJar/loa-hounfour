@@ -1,27 +1,35 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EconomicPerformanceEvent",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "performance-quality-bounded",
       "expression": "actual_quality >= 0 && actual_quality <= 1 && expected_quality >= 0 && expected_quality <= 1",
-      "description": "Quality scores must be between 0 and 1.",
       "severity": "error",
       "type_signature": {
         "actual_quality": "number",
         "expected_quality": "number"
       },
-      "fields": ["actual_quality", "expected_quality"]
+      "fields": [
+        "actual_quality",
+        "expected_quality"
+      ],
+      "message": "Quality scores must be between 0 and 1."
     },
     {
       "id": "performance-tokens-nonnegative",
       "expression": "tokens_used.input >= 0 && tokens_used.output >= 0",
-      "description": "Token counts must be non-negative.",
       "severity": "error",
       "type_signature": {
         "tokens_used.input": "integer",
         "tokens_used.output": "integer"
       },
-      "fields": ["tokens_used.input", "tokens_used.output"]
+      "fields": [
+        "tokens_used.input",
+        "tokens_used.output"
+      ],
+      "message": "Token counts must be non-negative."
     }
   ]
 }

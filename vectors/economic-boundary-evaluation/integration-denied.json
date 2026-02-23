@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "description": "Integration vector: full EconomicBoundary with qualification_criteria — denied with codes and evaluation gap.",
+  "input": {
+    "boundary": {
+      "boundary_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "personality_id": "agent-bob",
+      "collection_id": "community-dao",
+      "trust_layer": {
+        "reputation_state": "warming",
+        "blended_score": 0.3,
+        "snapshot_at": "2026-02-23T12:00:00Z"
+      },
+      "capital_layer": {
+        "budget_remaining": "5000000",
+        "billing_tier": "basic",
+        "budget_period_end": "2026-03-01T00:00:00Z"
+      },
+      "access_decision": {
+        "granted": false,
+        "denial_reason": "insufficient trust and capital"
+      },
+      "evaluated_at": "2026-02-23T12:00:01Z",
+      "contract_version": "7.9.1",
+      "qualification_criteria": {
+        "min_trust_score": 0.7,
+        "min_reputation_state": "established",
+        "min_available_budget": "10000000"
+      }
+    },
+    "evaluated_at": "2026-02-23T12:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": false
+    },
+    "trust_evaluation": {
+      "passed": false,
+      "actual_score": 0.3,
+      "required_score": 0.7,
+      "actual_state": "warming",
+      "required_state": "established"
+    },
+    "capital_evaluation": {
+      "passed": false,
+      "actual_budget": "5000000",
+      "required_budget": "10000000"
+    },
+    "boundary_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "denial_codes": ["TRUST_SCORE_BELOW_THRESHOLD", "TRUST_STATE_BELOW_THRESHOLD", "CAPITAL_BELOW_THRESHOLD"],
+    "evaluation_gap": {
+      "trust_score_gap": 0.4,
+      "reputation_state_gap": 1,
+      "budget_gap": "5000000"
+    }
+  }
+}

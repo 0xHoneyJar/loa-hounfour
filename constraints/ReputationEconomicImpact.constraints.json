@@ -1,25 +1,31 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ReputationEconomicImpact",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "impact-has-trigger",
       "expression": "len(trigger_event.event_type) >= 1",
-      "description": "Trigger event must have a non-empty event_type.",
       "severity": "error",
       "type_signature": {
         "trigger_event.event_type": "string"
       },
-      "fields": ["trigger_event.event_type"]
+      "fields": [
+        "trigger_event.event_type"
+      ],
+      "message": "Trigger event must have a non-empty event_type."
     },
     {
       "id": "impact-impacts-nonempty",
       "expression": "len(impacts) >= 1",
-      "description": "Impacts array must have at least one entry.",
       "severity": "error",
       "type_signature": {
         "impacts": "array"
       },
-      "fields": ["impacts"]
+      "fields": [
+        "impacts"
+      ],
+      "message": "Impacts array must have at least one entry."
     }
   ]
 }

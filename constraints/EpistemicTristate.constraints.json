@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EpistemicTristate",
+  "origin": "genesis",
   "contract_version": "5.3.0",
   "expression_version": "1.0",
   "constraints": [
@@ -16,7 +17,15 @@
   ],
   "metadata": {
     "pattern": "epistemic-tristate",
-    "instances": ["ConservationStatus", "SignatureVerificationResult", "conformance-matching"],
-    "references": ["Lukasiewicz 1920", "Kubernetes conditions", "Protobuf field presence"]
+    "instances": [
+      "ConservationStatus",
+      "SignatureVerificationResult",
+      "conformance-matching"
+    ],
+    "references": [
+      "Lukasiewicz 1920",
+      "Kubernetes conditions",
+      "Protobuf field presence"
+    ]
   }
 }

@@ -1,69 +1,70 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "GovernanceProposal",
+  "origin": "genesis",
   "contract_version": "7.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "proposal-has-changes",
-      "description": "Proposal must include at least one change",
       "expression": "changes.length > 0",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "changes": "array"
-      }
+      },
+      "message": "Proposal must include at least one change"
     },
     {
       "id": "proposal-ratified-has-timestamp",
-      "description": "Ratified proposals must have ratified_at timestamp",
       "expression": "status != 'ratified' || ratified_at != null",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "status": "string",
         "ratified_at": "string"
-      }
+      },
+      "message": "Ratified proposals must have ratified_at timestamp"
     },
     {
       "id": "proposal-voting-has-quorum",
-      "description": "Voting record must specify a quorum requirement",
       "expression": "voting.quorum_required > 0",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "voting": "VotingRecord"
-      }
+      },
+      "message": "Voting record must specify a quorum requirement"
     },
     {
       "id": "proposal-changes-have-justification",
-      "description": "Every proposed change must include justification",
       "expression": "changes.every(c => c.justification != '')",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "changes": "array"
-      }
+      },
+      "message": "Every proposed change must include justification"
     },
     {
       "id": "proposal-proposer-non-empty",
-      "description": "Proposer ID must be non-empty",
       "expression": "proposer_id != ''",
       "severity": "error",
       "category": "structural",
       "type_signature": {
         "proposer_id": "string"
-      }
+      },
+      "message": "Proposer ID must be non-empty"
     },
     {
       "id": "proposal-weights-normalized",
-      "description": "Vote weights must sum to 1.0 (within floating-point tolerance)",
       "expression": "proposal_weights_normalized(proposal)",
       "severity": "warning",
       "category": "governance",
       "type_signature": {
         "proposal": "GovernanceProposal"
-      }
+      },
+      "message": "Vote weights must sum to 1.0 (within floating-point tolerance)"
     }
   ]
 }

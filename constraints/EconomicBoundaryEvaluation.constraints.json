@@ -1,0 +1,63 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EconomicBoundaryEvaluationResult",
+  "origin": "genesis",
+  "contract_version": "7.9.1",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "eval-granted-iff-both-pass",
+      "expression": "access_decision.granted == (trust_evaluation.passed && capital_evaluation.passed)",
+      "message": "Access is granted if and only if both trust and capital evaluations pass.",
+      "severity": "error",
+      "type_signature": {
+        "access_decision.granted": "boolean",
+        "trust_evaluation.passed": "boolean",
+        "capital_evaluation.passed": "boolean"
+      },
+      "fields": ["access_decision.granted", "trust_evaluation.passed", "capital_evaluation.passed"]
+    },
+    {
+      "id": "eval-denied-needs-reason",
+      "expression": "access_decision.granted == true || len(access_decision.denial_reason) >= 1",
+      "message": "Denied evaluations must include a denial reason.",
+      "severity": "error",
+      "type_signature": {
+        "access_decision.granted": "boolean",
+        "access_decision.denial_reason": "string | undefined"
+      },
+      "fields": ["access_decision.granted", "access_decision.denial_reason"]
+    },
+    {
+      "id": "eval-trust-score-bounded",
+      "expression": "trust_evaluation.actual_score >= 0 && trust_evaluation.actual_score <= 1",
+      "message": "Trust evaluation actual score must be between 0 and 1.",
+      "severity": "error",
+      "type_signature": {
+        "trust_evaluation.actual_score": "number"
+      },
+      "fields": ["trust_evaluation.actual_score"]
+    },
+    {
+      "id": "eval-criteria-score-bounded",
+      "expression": "trust_evaluation.required_score >= 0 && trust_evaluation.required_score <= 1",
+      "message": "Trust evaluation required score must be between 0 and 1.",
+      "severity": "error",
+      "type_signature": {
+        "trust_evaluation.required_score": "number"
+      },
+      "fields": ["trust_evaluation.required_score"]
+    },
+    {
+      "id": "eval-denied-needs-codes",
+      "expression": "access_decision.granted == true || len(denial_codes) >= 1",
+      "message": "Denied evaluations must include at least one machine-parseable denial code.",
+      "severity": "error",
+      "type_signature": {
+        "access_decision.granted": "boolean",
+        "denial_codes": "DenialCode[] | undefined"
+      },
+      "fields": ["access_decision.granted", "denial_codes"]
+    }
+  ]
+}

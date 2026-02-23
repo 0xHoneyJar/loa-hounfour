@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/denial-code",
+  "description": "Machine-parseable denial codes for agent consumers.",
+  "anyOf": [
+    {
+      "const": "TRUST_SCORE_BELOW_THRESHOLD",
+      "type": "string"
+    },
+    {
+      "const": "TRUST_STATE_BELOW_THRESHOLD",
+      "type": "string"
+    },
+    {
+      "const": "CAPITAL_BELOW_THRESHOLD",
+      "type": "string"
+    },
+    {
+      "const": "UNKNOWN_REPUTATION_STATE",
+      "type": "string"
+    },
+    {
+      "const": "INVALID_BUDGET_FORMAT",
+      "type": "string"
+    },
+    {
+      "const": "MISSING_QUALIFICATION_CRITERIA",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+}

@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/economic-boundary-evaluation-event",
+  "additionalProperties": false,
+  "description": "Event recording an economic boundary evaluation for the feedback loop.",
+  "type": "object",
+  "required": [
+    "event_type",
+    "boundary_id",
+    "personality_id",
+    "collection_id",
+    "evaluation_result",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_type": {
+      "const": "economic_boundary_evaluation",
+      "type": "string"
+    },
+    "boundary_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "Agent personality being evaluated.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection context for the evaluation.",
+      "type": "string"
+    },
+    "evaluation_result": {
+      "$id": "EconomicBoundaryEvaluationResult",
+      "additionalProperties": false,
+      "description": "Complete result of evaluating an economic boundary access decision.",
+      "type": "object",
+      "required": [
+        "access_decision",
+        "trust_evaluation",
+        "capital_evaluation",
+        "criteria_used",
+        "evaluated_at"
+      ],
+      "properties": {
+        "access_decision": {
+          "$id": "AccessDecision",
+          "additionalProperties": false,
+          "description": "Result of an access evaluation at the economic boundary.",
+          "type": "object",
+          "required": [
+            "granted"
+          ],
+          "properties": {
+            "granted": {
+              "description": "Whether access was granted.",
+              "type": "boolean"
+            },
+            "policy_id": {
+              "description": "Which access policy evaluated the request.",
+              "type": "string"
+            },
+            "denial_reason": {
+              "description": "Why access was denied, populated when granted is false.",
+              "type": "string"
+            }
+          }
+        },
+        "trust_evaluation": {
+          "$id": "TrustEvaluation",
+          "additionalProperties": false,
+          "description": "Result of trust layer evaluation within the economic boundary.",
+          "type": "object",
+          "required": [
+            "passed",
+            "actual_score",
+            "required_score",
+            "actual_state",
+            "required_state"
+          ],
+          "properties": {
+            "passed": {
+              "description": "Whether the trust layer passed.",
+              "type": "boolean"
+            },
+            "actual_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Actual blended score from the trust snapshot.",
+              "type": "number"
+            },
+            "required_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Required minimum score from criteria.",
+              "type": "number"
+            },
+            "actual_state": {
+              "description": "Actual reputation state.",
+              "type": "string"
+            },
+            "required_state": {
+              "description": "Required minimum reputation state.",
+              "type": "string"
+            }
+          }
+        },
+        "capital_evaluation": {
+          "$id": "CapitalEvaluation",
+          "additionalProperties": false,
+          "description": "Result of capital layer evaluation within the economic boundary.",
+          "type": "object",
+          "required": [
+            "passed",
+            "actual_budget",
+            "required_budget"
+          ],
+          "properties": {
+            "passed": {
+              "description": "Whether the capital layer passed.",
+              "type": "boolean"
+            },
+            "actual_budget": {
+              "pattern": "^[0-9]+$",
+              "description": "Actual remaining budget in micro-USD.",
+              "type": "string"
+            },
+            "required_budget": {
+              "pattern": "^[0-9]+$",
+              "description": "Required minimum budget in micro-USD.",
+              "type": "string"
+            }
+          }
+        },
+        "criteria_used": {
+          "$id": "QualificationCriteria",
+          "additionalProperties": false,
+          "description": "Threshold criteria for evaluating economic boundary access.",
+          "type": "object",
+          "required": [
+            "min_trust_score",
+            "min_reputation_state",
+            "min_available_budget"
+          ],
+          "properties": {
+            "min_trust_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum blended reputation score required for access.",
+              "type": "number"
+            },
+            "min_reputation_state": {
+              "$id": "ReputationState",
+              "anyOf": [
+                {
+                  "const": "cold",
+                  "type": "string"
+                },
+                {
+                  "const": "warming",
+                  "type": "string"
+                },
+                {
+                  "const": "established",
+                  "type": "string"
+                },
+                {
+                  "const": "authoritative",
+                  "type": "string"
+                }
+              ]
+            },
+            "min_available_budget": {
+              "pattern": "^[0-9]+$",
+              "description": "Minimum remaining budget in micro-USD.",
+              "type": "string"
+            }
+          }
+        },
+        "evaluated_at": {
+          "format": "date-time",
+          "description": "When the evaluation was performed (caller-provided, not wall-clock).",
+          "type": "string"
+        },
+        "boundary_id": {
+          "format": "uuid",
+          "description": "The boundary_id this evaluation was performed against, for audit correlation.",
+          "type": "string"
+        },
+        "denial_codes": {
+          "description": "Machine-parseable denial codes. Present only on denied evaluations.",
+          "type": "array",
+          "items": {
+            "$id": "DenialCode",
+            "description": "Machine-parseable denial codes for agent consumers.",
+            "anyOf": [
+              {
+                "const": "TRUST_SCORE_BELOW_THRESHOLD",
+                "type": "string"
+              },
+              {
+                "const": "TRUST_STATE_BELOW_THRESHOLD",
+                "type": "string"
+              },
+              {
+                "const": "CAPITAL_BELOW_THRESHOLD",
+                "type": "string"
+              },
+              {
+                "const": "UNKNOWN_REPUTATION_STATE",
+                "type": "string"
+              },
+              {
+                "const": "INVALID_BUDGET_FORMAT",
+                "type": "string"
+              },
+              {
+                "const": "MISSING_QUALIFICATION_CRITERIA",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "evaluation_gap": {
+          "$id": "EvaluationGap",
+          "additionalProperties": false,
+          "description": "Structured gap information for denied evaluations — actionable feedback for agents.",
+          "type": "object",
+          "properties": {
+            "trust_score_gap": {
+              "minimum": 0,
+              "description": "How far below the required trust score (0 if passed).",
+              "type": "number"
+            },
+            "reputation_state_gap": {
+              "minimum": 0,
+              "description": "Ordinal states below required (0 if passed).",
+              "type": "integer"
+            },
+            "budget_gap": {
+              "pattern": "^[0-9]+$",
+              "description": "Micro-USD shortfall (\"0\" if passed).",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+}

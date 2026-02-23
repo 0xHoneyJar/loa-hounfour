@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/reputation-decay-policy",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/reputation-decay-policy",
   "additionalProperties": false,
   "description": "Temporal decay and demotion policy for collection reputation.",
   "type": "object",
@@ -92,5 +92,5 @@
       "type": "boolean"
     }
   },
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
 }

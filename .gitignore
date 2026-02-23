@@ -44,3 +44,13 @@ yarn-error.log*
 tmp/
 temp/
 *.tmp
+
+# Loa Framework (submodule at .loa/, symlinked to .claude)
+.claude
+.run/
+.beads/
+grimoires/
+.loa.config.yaml
+.loa-version.json
+.loa-setup-complete
+.ck/

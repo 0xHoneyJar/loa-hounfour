@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/routing-constraint",
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0. Financial amounts (max_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/routing-constraint",
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0. Financial amounts (max_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "additionalProperties": false,
   "description": "Agent routing constraint for task dispatch — all present fields AND-combined",
   "type": "object",

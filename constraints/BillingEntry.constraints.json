@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "BillingEntry",
+  "origin": "genesis",
   "contract_version": "5.0.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,11 @@
       "expression": "id != null && trace_id != null && tenant_id != null",
       "severity": "error",
       "message": "BillingEntry must have id, trace_id, and tenant_id",
-      "fields": ["id", "trace_id", "tenant_id"],
+      "fields": [
+        "id",
+        "trace_id",
+        "tenant_id"
+      ],
       "type_signature": {
         "id": "string",
         "trace_id": "string",

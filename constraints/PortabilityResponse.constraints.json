@@ -1,41 +1,42 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PortabilityResponse",
+  "origin": "genesis",
   "contract_version": "7.5.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "portability-accepted-needs-credential",
-      "description": "Accepted responses must include a credential_id",
       "expression": "decision != 'accepted' || credential_id != null",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "decision": "string",
         "credential_id": "string"
-      }
+      },
+      "message": "Accepted responses must include a credential_id"
     },
     {
       "id": "portability-rejected-needs-reason",
-      "description": "Rejected responses must include a rejection_reason",
       "expression": "decision != 'rejected' || rejection_reason != null",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "decision": "string",
         "rejection_reason": "string"
-      }
+      },
+      "message": "Rejected responses must include a rejection_reason"
     },
     {
       "id": "portability-governance-needs-proposal",
-      "description": "Pending governance responses must include a governance_proposal_id",
       "expression": "decision != 'pending_governance' || governance_proposal_id != null",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "decision": "string",
         "governance_proposal_id": "string"
-      }
+      },
+      "message": "Pending governance responses must include a governance_proposal_id"
     }
   ]
 }

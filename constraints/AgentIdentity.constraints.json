@@ -1,50 +1,51 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "AgentIdentity",
+  "origin": "genesis",
   "contract_version": "6.0.0",
   "expression_version": "1.0",
   "constraints": [
     {
       "id": "agent-identity-delegation-requires-trust",
-      "description": "Agents with delegation authority must have delegation scope trust >= verified",
       "expression": "delegation_authority.length == 0 || trust_scopes.scopes.delegation == 'verified' || trust_scopes.scopes.delegation == 'trusted' || trust_scopes.scopes.delegation == 'sovereign'",
       "severity": "error",
       "category": "authorization",
       "type_signature": {
         "delegation_authority": "string[]",
         "trust_scopes": "CapabilityScopedTrust"
-      }
+      },
+      "message": "Agents with delegation authority must have delegation scope trust >= verified"
     },
     {
       "id": "agent-identity-sovereign-max-depth",
-      "description": "Agents with sovereign delegation scope must have max_delegation_depth >= 1",
       "expression": "trust_scopes.scopes.delegation != 'sovereign' || max_delegation_depth >= 1",
       "severity": "error",
       "category": "authorization",
       "type_signature": {
         "trust_scopes": "CapabilityScopedTrust",
         "max_delegation_depth": "integer"
-      }
+      },
+      "message": "Agents with sovereign delegation scope must have max_delegation_depth >= 1"
     },
     {
       "id": "agent-identity-capabilities-non-empty",
-      "description": "Capabilities array must be non-empty",
       "expression": "capabilities.length >= 1",
       "severity": "error",
       "category": "completeness",
       "type_signature": {
         "capabilities": "string[]"
-      }
+      },
+      "message": "Capabilities array must be non-empty"
     },
     {
       "id": "agent-identity-scope-coverage",
-      "description": "Billing and inference scopes must be explicitly specified",
       "expression": "trust_scopes.scopes.billing != undefined && trust_scopes.scopes.inference != undefined",
       "severity": "error",
       "category": "completeness",
       "type_signature": {
         "trust_scopes": "CapabilityScopedTrust"
-      }
+      },
+      "message": "Billing and inference scopes must be explicitly specified"
     }
   ]
 }

@@ -1,15 +1,19 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ProposalOutcomeEvent",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "outcome-event-actor-required",
       "expression": "len(actor_id) >= 1",
-      "description": "Outcome events must have a non-empty actor ID.",
       "severity": "error",
       "type_signature": {
         "actor_id": "string"
       },
-      "fields": ["actor_id"]
+      "fields": [
+        "actor_id"
+      ],
+      "message": "Outcome events must have a non-empty actor ID."
     }
   ]
 }

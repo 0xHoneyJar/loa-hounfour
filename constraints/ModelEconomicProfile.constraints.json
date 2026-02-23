@@ -1,25 +1,31 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ModelEconomicProfile",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "profile-routing-weight-bounded",
       "expression": "routing_weight >= 0 && routing_weight <= 1",
-      "description": "Routing weight must be between 0 and 1.",
       "severity": "error",
       "type_signature": {
         "routing_weight": "number"
       },
-      "fields": ["routing_weight"]
+      "fields": [
+        "routing_weight"
+      ],
+      "message": "Routing weight must be between 0 and 1."
     },
     {
       "id": "profile-quality-yield-bounded",
       "expression": "quality_yield >= 0 && quality_yield <= 1",
-      "description": "Quality yield must be between 0 and 1.",
       "severity": "error",
       "type_signature": {
         "quality_yield": "number"
       },
-      "fields": ["quality_yield"]
+      "fields": [
+        "quality_yield"
+      ],
+      "message": "Quality yield must be between 0 and 1."
     }
   ]
 }
