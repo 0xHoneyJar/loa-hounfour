@@ -1,5 +1,3 @@
-<!-- docs-version: 7.0.0 -->
-
 # v4.0.0 Planning Document
 
 > Synthesizes all forward-looking suggestions from Bridgebuilder reviews (cycles 001–006)

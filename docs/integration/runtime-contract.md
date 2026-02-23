@@ -1,5 +1,3 @@
-<!-- docs-version: 7.0.0 -->
-
 # Runtime Contract
 
 > **Source**: PR #78 - Separation of Concerns Framework

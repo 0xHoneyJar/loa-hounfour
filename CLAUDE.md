@@ -1,5 +1,3 @@
-<!-- docs-version: 7.5.0 -->
-
 # @0xhoneyjar/loa-hounfour
 
 Constitutional protocol contracts for an AI agent economy — loa-finn <-> arrakis integration layer.
@@ -51,22 +49,3 @@ npm run build          # TypeScript compilation
 npm run test           # Run all tests
 npm run schema:generate # Generate JSON Schema files
 ```
-
-## Loa Framework (Optional)
-
-This project uses [Loa](https://github.com/0xHoneyJar/loa) as a git submodule at `.loa/` for structured planning, review, and deployment workflows.
-
-```bash
-# Initialize the submodule (first time)
-git submodule init && git submodule update
-
-# Create the symlink Claude Code expects
-ln -s .loa/.claude .claude
-
-# Update to latest Loa
-git submodule update --remote .loa
-```
-
-When mounted, Loa instructions load automatically via the import below.
-
-@.claude/loa/CLAUDE.loa.md

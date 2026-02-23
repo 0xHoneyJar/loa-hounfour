@@ -1,9 +1,70 @@
-<!-- docs-version: 7.0.0 -->
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [7.9.2] — 2026-02-23
+
+### Removed
+
+- **Loa framework** — Ejected development framework for protocol hygiene. Removed `.loa/` git submodule, `.claude` symlink, `evals/` framework test suite (110 files), 86 `.bats` framework shell tests, Loa-specific docs (`process.md`, `visions/`, `context/`, `ledger.json`), and all `<!-- docs-version -->` markers. Protocol source, schemas, constraints, vectors, and tests are unchanged.
+
+### Changed
+
+- **BUTTERFREEZONE.md** — Rewritten to reflect protocol library (removed Loa skill commands, three-zone model, adapter references).
+- **CLAUDE.md** — Stripped Loa framework import and submodule instructions.
+- **`.gitignore`** — Removed Loa-specific entries, added `.claude/` for Claude Code session state.
+
+### Source
+
+Eject from Loa framework v1.39.0. No protocol schema, constraint, or API changes.
+
+---
+
+## [7.9.1] — 2026-02-23
+
+### Added
+
+- **`isKnownReputationState()` type guard** — Runtime validation replacing `as ReputationStateName` casts. Narrows type for TypeScript compiler. (`src/vocabulary/reputation.ts`)
+- **`DenialCode` union type** — 6 machine-parseable denial codes (`TRUST_SCORE_BELOW_THRESHOLD`, `TRUST_STATE_BELOW_THRESHOLD`, `CAPITAL_BELOW_THRESHOLD`, `UNKNOWN_REPUTATION_STATE`, `INVALID_BUDGET_FORMAT`, `MISSING_QUALIFICATION_CRITERIA`).
+- **`EvaluationGap` schema** — Structured gap information for denied evaluations: `trust_score_gap`, `reputation_state_gap`, `budget_gap`. Actionable feedback for agents.
+- **`evaluateFromBoundary()` convenience overload** — Extracts `qualification_criteria` from the boundary itself, preventing Confused Deputy Problem.
+- **`EconomicBoundaryEvaluationEvent` schema** — Event recording for feedback loop. Consumers can aggregate to inform governance decisions about criteria thresholds.
+- **`eval-denied-needs-codes` constraint** — 5th constitutional constraint: denied evaluations must include at least one machine-parseable denial code. Discovered through peer review (Part 9.1).
+- **`buildValidationDenial()` partial evaluator** — Replaces `makeDenied()` with symmetry-preserving partial evaluation. Valid layers get accurate `passed` boolean; only invalid layers are marked `false`.
+- **`tryEvaluateTrust()` / `tryEvaluateCapital()` helpers** — Independent layer evaluators with `T | null` (Option) return semantics.
+- **15 new tests** — 5 constraint tests for `eval-denied-needs-codes`, 8 symmetry fix tests, 2 vector updates.
+
+### Fixed
+
+- **`makeDenied()` symmetry gap** — Both layers were marked `passed: false` on input validation failures even when only one layer had a problem. Now uses partial evaluation: valid layers reflect actual evaluation results.
+- **Conformance vectors** — `unknown-state.json` and `invalid-budget.json` updated to match partial evaluation semantics.
+
+### Source
+
+[PR #29](https://github.com/0xHoneyJar/loa-hounfour/pull/29) — Sprints 2–3, Bridgebuilder Deep Review Parts 8.1–10.3.
+
+---
+
+## [7.9.0] — 2026-02-23
+
+### Added
+
+- **`evaluateEconomicBoundary()`** — Pure decision engine function. Total (never throws for valid TypeBox inputs), deterministic (caller-provided `evaluatedAt`), fail-closed (unknown states → denied). Trust × capital → access decision with structured denial reasons.
+- **`parseMicroUsd()`** — Strict micro-USD string parser. Grammar: `^[0-9]+$`, no leading zeros, max 30 digits. Returns discriminated union, never throws. BigInt arithmetic prevents floating-point errors.
+- **`QualificationCriteria` schema** — Threshold inputs for boundary evaluation: `min_trust_score`, `min_reputation_state`, `min_available_budget`.
+- **`TrustEvaluation` / `CapitalEvaluation` schemas** — Sub-results with actual vs required values.
+- **`EconomicBoundaryEvaluationResult` schema** — Complete evaluation output with access decision, layer evaluations, criteria used, and evaluated_at.
+- **`ConstraintOrigin` type** — `'genesis' | 'enacted' | 'migrated'` provenance for all constraint files. Makes constitutional bootstrapping asymmetry explicit. All 73 existing constraints annotated with `origin: "genesis"`.
+- **4 genesis constraints** — `eval-granted-iff-both-pass`, `eval-denied-needs-reason`, `eval-trust-score-bounded`, `eval-criteria-score-bounded`.
+- **9 conformance vectors** — Happy path, denied (trust, capital, both), boundary values, unknown state, invalid budget, missing criteria, full boundary.
+- **Version bump** 7.8.0 → 7.9.0, 160 JSON schemas regenerated.
+
+### Source
+
+[PR #29](https://github.com/0xHoneyJar/loa-hounfour/pull/29) — Sprint 1, Issues [#24](https://github.com/0xHoneyJar/loa-hounfour/issues/24) and [#28](https://github.com/0xHoneyJar/loa-hounfour/issues/28).
+
+---
 
 ## [7.0.0] — 2026-02-17
 
