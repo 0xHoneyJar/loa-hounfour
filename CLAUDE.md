@@ -51,22 +51,3 @@ npm run build          # TypeScript compilation
 npm run test           # Run all tests
 npm run schema:generate # Generate JSON Schema files
 ```
-
-## Loa Framework (Optional)
-
-This project can optionally use the [Loa](https://github.com/0xHoneyJar/loa) development framework for structured planning, review, and deployment workflows.
-
-```bash
-# Mount the framework for a development session
-./scripts/mount-loa.sh
-
-# Update the framework
-./scripts/mount-loa.sh --update
-
-# Remove after session
-./scripts/mount-loa.sh --clean
-```
-
-When Loa is mounted, its instructions load automatically via the import below.
-
-@.claude/loa/CLAUDE.loa.md

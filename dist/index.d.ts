@@ -20,5 +20,6 @@ export { validateBillingEntryFull } from './validators/billing.js';
 export { extractReferences, buildSchemaGraph, type SchemaReference, type SchemaGraphNode } from './utilities/schema-graph.js';
 export { evaluateAccessPolicy, type AccessPolicyContext, type AccessPolicyResult, } from './utilities/access-policy.js';
 export { reconstructAggregateFromEvents, verifyAggregateConsistency, computeEventStreamHash, type ReconstructedAggregate, type ConsistencyReport, } from './utilities/reputation-replay.js';
-export { computeCredentialPrior } from './utilities/reputation-credential.js';
+export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRESHOLD } from './utilities/reputation-credential.js';
+export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';
 //# sourceMappingURL=index.d.ts.map

@@ -278,15 +278,19 @@ export declare const validators: {
             key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
             key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             access_audit: import("@sinclair/typebox").TBoolean;
-            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
-                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">]>;
+            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecursive<import("@sinclair/typebox").TObject<{
+                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">, import("@sinclair/typebox").TLiteral<"compound">]>;
                 duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
                 roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
                 min_reputation_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
                 min_reputation_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                revoke_below_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+                revoke_below_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                operator: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"AND">, import("@sinclair/typebox").TLiteral<"OR">]>>;
+                policies: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TThis>>;
                 audit_required: import("@sinclair/typebox").TBoolean;
                 revocable: import("@sinclair/typebox").TBoolean;
-            }>>;
+            }>>>;
         }>>;
         message_count: import("@sinclair/typebox").TInteger;
         created_at: import("@sinclair/typebox").TString;
@@ -317,15 +321,19 @@ export declare const validators: {
         key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
         key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         access_audit: import("@sinclair/typebox").TBoolean;
-        access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
-            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">]>;
+        access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecursive<import("@sinclair/typebox").TObject<{
+            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">, import("@sinclair/typebox").TLiteral<"compound">]>;
             duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
             roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
             min_reputation_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
             min_reputation_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+            revoke_below_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+            revoke_below_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+            operator: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"AND">, import("@sinclair/typebox").TLiteral<"OR">]>>;
+            policies: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TThis>>;
             audit_required: import("@sinclair/typebox").TBoolean;
             revocable: import("@sinclair/typebox").TBoolean;
-        }>>;
+        }>>>;
     }>>;
     readonly transferSpec: () => TypeCheck<import("@sinclair/typebox").TObject<{
         transfer_id: import("@sinclair/typebox").TString;
@@ -338,15 +346,19 @@ export declare const validators: {
             key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
             key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             access_audit: import("@sinclair/typebox").TBoolean;
-            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
-                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">]>;
+            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecursive<import("@sinclair/typebox").TObject<{
+                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">, import("@sinclair/typebox").TLiteral<"compound">]>;
                 duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
                 roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
                 min_reputation_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
                 min_reputation_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                revoke_below_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+                revoke_below_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                operator: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"AND">, import("@sinclair/typebox").TLiteral<"OR">]>>;
+                policies: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TThis>>;
                 audit_required: import("@sinclair/typebox").TBoolean;
                 revocable: import("@sinclair/typebox").TBoolean;
-            }>>;
+            }>>>;
         }>;
         initiated_at: import("@sinclair/typebox").TString;
         initiated_by: import("@sinclair/typebox").TString;
@@ -364,15 +376,19 @@ export declare const validators: {
             key_derivation: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"hkdf-sha256">, import("@sinclair/typebox").TLiteral<"none">]>;
             key_reference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             access_audit: import("@sinclair/typebox").TBoolean;
-            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
-                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">]>;
+            access_policy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecursive<import("@sinclair/typebox").TObject<{
+                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">, import("@sinclair/typebox").TLiteral<"compound">]>;
                 duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
                 roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
                 min_reputation_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
                 min_reputation_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                revoke_below_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+                revoke_below_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+                operator: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"AND">, import("@sinclair/typebox").TLiteral<"OR">]>>;
+                policies: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TThis>>;
                 audit_required: import("@sinclair/typebox").TBoolean;
                 revocable: import("@sinclair/typebox").TBoolean;
-            }>>;
+            }>>>;
         }>;
         conversations_sealed: import("@sinclair/typebox").TInteger;
         conversations_migrated: import("@sinclair/typebox").TInteger;
@@ -486,15 +502,19 @@ export declare const validators: {
         total_steps: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
         direction: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"forward">, import("@sinclair/typebox").TLiteral<"compensation">]>;
     }>>;
-    readonly accessPolicy: () => TypeCheck<import("@sinclair/typebox").TObject<{
-        type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">]>;
+    readonly accessPolicy: () => TypeCheck<import("@sinclair/typebox").TRecursive<import("@sinclair/typebox").TObject<{
+        type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"none">, import("@sinclair/typebox").TLiteral<"read_only">, import("@sinclair/typebox").TLiteral<"time_limited">, import("@sinclair/typebox").TLiteral<"role_based">, import("@sinclair/typebox").TLiteral<"reputation_gated">, import("@sinclair/typebox").TLiteral<"compound">]>;
         duration_hours: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
         roles: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
         min_reputation_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
         min_reputation_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+        revoke_below_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+        revoke_below_state: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"cold">, import("@sinclair/typebox").TLiteral<"warming">, import("@sinclair/typebox").TLiteral<"established">, import("@sinclair/typebox").TLiteral<"authoritative">]>>;
+        operator: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"AND">, import("@sinclair/typebox").TLiteral<"OR">]>>;
+        policies: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TThis>>;
         audit_required: import("@sinclair/typebox").TBoolean;
         revocable: import("@sinclair/typebox").TBoolean;
-    }>>;
+    }>>>;
     readonly healthStatus: () => TypeCheck<import("@sinclair/typebox").TObject<{
         healthy: import("@sinclair/typebox").TBoolean;
         latency_ms: import("@sinclair/typebox").TInteger;

@@ -23,13 +23,14 @@ export const ConversationStatusSchema = Type.Union([
  * @see BB-V3-004 — previous_owner_access deprecated, needs replacement
  * @since v3.0.0
  */
-export const AccessPolicySchema = Type.Object({
+export const AccessPolicySchema = Type.Recursive((Self) => Type.Object({
     type: Type.Union([
         Type.Literal('none'),
         Type.Literal('read_only'),
         Type.Literal('time_limited'),
         Type.Literal('role_based'),
         Type.Literal('reputation_gated'),
+        Type.Literal('compound'),
     ], {
         description: 'Access type governing previous owner data visibility',
     }),
@@ -49,6 +50,23 @@ export const AccessPolicySchema = Type.Object({
         description: 'Minimum reputation blended_score for reputation_gated access (v7.3.0)',
     })),
     min_reputation_state: Type.Optional(ReputationStateSchema),
+    revoke_below_score: Type.Optional(Type.Number({
+        minimum: 0, maximum: 1,
+        description: 'Score threshold for revoking previously-granted reputation_gated access. '
+            + 'Must be <= min_reputation_score. Enables hysteresis (dead-band) to prevent '
+            + 'oscillation when reputation hovers near the grant threshold. (v7.4.0)',
+    })),
+    revoke_below_state: Type.Optional(ReputationStateSchema),
+    operator: Type.Optional(Type.Union([
+        Type.Literal('AND'),
+        Type.Literal('OR'),
+    ], {
+        description: 'Logical operator for compound policies (required for compound type). (v7.4.0)',
+    })),
+    policies: Type.Optional(Type.Array(Self, {
+        minItems: 1,
+        description: 'Sub-policies for compound type. Max depth 1 — compound cannot contain compound. (v7.4.0)',
+    })),
     audit_required: Type.Boolean({
         description: 'Whether access events must be logged to the audit trail',
     }),
@@ -62,8 +80,11 @@ export const AccessPolicySchema = Type.Object({
     $comment: 'Cross-field invariants: '
         + '(1) time_limited requires duration_hours. '
         + '(2) role_based requires roles array. '
+        + '(3) reputation_gated requires at least one of min_reputation_score or min_reputation_state. '
+        + '(4) compound requires operator and non-empty policies array (no nested compound). '
+        + '(5) revoke_below_score must be <= min_reputation_score when both present. '
         + 'Enforced by validateAccessPolicy() in TypeScript.',
-});
+}));
 /**
  * Validate cross-field invariants for an access policy:
  * - `time_limited` requires `duration_hours`
@@ -89,6 +110,27 @@ export function validateAccessPolicy(policy, options) {
         && policy.min_reputation_state === undefined) {
         errors.push('reputation_gated requires at least one of min_reputation_score or min_reputation_state');
     }
+    if (policy.type === 'compound') {
+        if (policy.operator === undefined) {
+            errors.push('operator is required when type is "compound"');
+        }
+        if (!policy.policies || policy.policies.length === 0) {
+            errors.push('policies array is required and must be non-empty when type is "compound"');
+        }
+        if (policy.policies) {
+            for (const sub of policy.policies) {
+                if (sub.type === 'compound') {
+                    errors.push('Nested compound policies are not allowed (max depth 1)');
+                    break;
+                }
+            }
+        }
+    }
+    if (policy.revoke_below_score !== undefined && policy.min_reputation_score !== undefined) {
+        if (policy.revoke_below_score > policy.min_reputation_score) {
+            errors.push('revoke_below_score must be <= min_reputation_score');
+        }
+    }
     // Extraneous field checks (BB-C5-002/005)
     // In strict mode, these become errors instead of warnings (BB-C5-Part5-§4)
     if (policy.type !== 'time_limited' && policy.duration_hours !== undefined) {
@@ -112,6 +154,26 @@ export function validateAccessPolicy(policy, options) {
     if (policy.type !== 'reputation_gated'
         && (policy.min_reputation_score !== undefined || policy.min_reputation_state !== undefined)) {
         const msg = `min_reputation_score/min_reputation_state are only meaningful when type is "reputation_gated" (current type: "${policy.type}")`;
+        if (strict) {
+            errors.push(msg);
+        }
+        else {
+            warnings.push(msg);
+        }
+    }
+    if (policy.type !== 'reputation_gated'
+        && (policy.revoke_below_score !== undefined || policy.revoke_below_state !== undefined)) {
+        const msg = `revoke_below_score/revoke_below_state are only meaningful when type is "reputation_gated" (current type: "${policy.type}")`;
+        if (strict) {
+            errors.push(msg);
+        }
+        else {
+            warnings.push(msg);
+        }
+    }
+    if (policy.type !== 'compound'
+        && (policy.operator !== undefined || policy.policies !== undefined)) {
+        const msg = `operator/policies are only meaningful when type is "compound" (current type: "${policy.type}")`;
         if (strict) {
             errors.push(msg);
         }
