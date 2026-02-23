@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 36 evaluator builtins. Each spec includes
+ * Canonical specifications for all 39 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle), v7.7.0 (39 builtins — proposal execution + now)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 37 evaluator builtin specifications.
+ * Canonical registry of all 39 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -1336,5 +1336,29 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Returns false for non-completed status', 'Returns false for empty changes_applied array', 'Returns false if any change result is not "success"'],
+  }],
+  ['now', {
+    name: 'now',
+    signature: 'now() → string',
+    description: 'Returns the current time as an ISO 8601 timestamp string. '
+      + 'Evaluated once per constraint evaluation. Useful with is_after/is_within for expiry checks.',
+    arguments: [],
+    return_type: 'string',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'now() returns an ISO 8601 string usable with is_after',
+        context: { expires_at: '2099-12-31T23:59:59Z' },
+        expression: 'is_after(expires_at, now())',
+        expected: true,
+      },
+      {
+        description: 'now() with is_within for recency checks',
+        context: { last_updated: new Date().toISOString() },
+        expression: 'is_within(last_updated, 86400, now())',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Returns current wall-clock time — not deterministic across evaluations', 'ISO 8601 format includes milliseconds and Z suffix'],
   }],
 ]);

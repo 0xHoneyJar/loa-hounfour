@@ -159,6 +159,8 @@ class Parser {
       ['constraint_lifecycle_valid', () => this.parseConstraintLifecycleValid()],
       // Proposal execution (v7.7.0 — DR-S9)
       ['proposal_execution_valid', () => this.parseProposalExecutionValid()],
+      // Temporal utility (v7.7.0 — DR-S10)
+      ['now', () => this.parseNow()],
     ]);
   }
 
@@ -1476,6 +1478,21 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
+  // Temporal utility builtins (v7.7.0 — DR-S10)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * now() → current ISO 8601 timestamp string.
+   * Evaluated once per constraint evaluation. Zero-argument function.
+   */
+  private parseNow(): string {
+    this.advance(); // consume 'now'
+    this.expect('paren', '(');
+    this.expect('paren', ')');
+    return new Date().toISOString();
+  }
+
+  // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
 
@@ -1639,6 +1656,8 @@ export const EVALUATOR_BUILTINS = [
   'constraint_lifecycle_valid',
   // Proposal execution (v7.7.0)
   'proposal_execution_valid',
+  // Temporal utility (v7.7.0)
+  'now',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

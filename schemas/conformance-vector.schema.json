@@ -166,6 +166,10 @@
         {
           "const": "model-economic-profile",
           "type": "string"
+        },
+        {
+          "const": "community-engagement",
+          "type": "string"
         }
       ]
     },

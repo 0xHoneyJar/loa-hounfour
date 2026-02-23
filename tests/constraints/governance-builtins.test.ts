@@ -271,9 +271,9 @@ describe('proposal_weights_normalized', () => {
 // Registry and specs
 // ---------------------------------------------------------------------------
 
-describe('All 38 builtins in registry (v7.7.0)', () => {
-  it('EVALUATOR_BUILTINS contains 38 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(38);
+describe('All 39 builtins in registry (v7.7.0)', () => {
+  it('EVALUATOR_BUILTINS contains 39 functions', () => {
+    expect(EVALUATOR_BUILTINS).toHaveLength(39);
   });
 
   it('includes monetary_policy_solvent', () => {
@@ -288,8 +288,8 @@ describe('All 38 builtins in registry (v7.7.0)', () => {
     expect(EVALUATOR_BUILTINS).toContain('proposal_quorum_met');
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 38 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(38);
+  it('EVALUATOR_BUILTIN_SPECS has 39 entries', () => {
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(39);
   });
 
   it('spec examples execute correctly for monetary_policy_solvent', () => {

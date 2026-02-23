@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/engagement-signal-type",
+  "description": "Category of community engagement signal.",
+  "anyOf": [
+    {
+      "const": "participation",
+      "type": "string"
+    },
+    {
+      "const": "endorsement",
+      "type": "string"
+    },
+    {
+      "const": "contribution",
+      "type": "string"
+    },
+    {
+      "const": "cultural_resonance",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

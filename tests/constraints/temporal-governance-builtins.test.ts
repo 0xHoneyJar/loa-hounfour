@@ -128,29 +128,29 @@ describe('temporal governance integration', () => {
     // With a 30-day half-life, the max acceptable age is 2,592,000 seconds (30 days).
     const data = {
       last_updated: '2026-01-01T00:00:00Z',
-      now: '2026-02-15T00:00:00Z', // ~45 days later
+      reference_time: '2026-02-15T00:00:00Z', // ~45 days later
     };
     // 30 days = 2_592_000 seconds
-    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, now)')).toBe(true);
-    expect(evaluateConstraint(data, 'is_within(last_updated, 2592000, now)')).toBe(false);
+    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, reference_time)')).toBe(true);
+    expect(evaluateConstraint(data, 'is_within(last_updated, 2592000, reference_time)')).toBe(false);
   });
 
   it('reputation freshness: 10 days elapsed with 30-day max_age', () => {
     const data = {
       last_updated: '2026-02-10T00:00:00Z',
-      now: '2026-02-20T00:00:00Z',
+      reference_time: '2026-02-20T00:00:00Z',
     };
-    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, now)')).toBe(false);
-    expect(evaluateConstraint(data, 'is_within(last_updated, 2592000, now)')).toBe(true);
+    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, reference_time)')).toBe(false);
+    expect(evaluateConstraint(data, 'is_within(last_updated, 2592000, reference_time)')).toBe(true);
   });
 
   it('can be used in implication constraints', () => {
     // Pattern: "if reputation is stale, score should be discounted"
     const data = {
       last_updated: '2026-01-01T00:00:00Z',
-      now: '2026-02-15T00:00:00Z',
+      reference_time: '2026-02-15T00:00:00Z',
       discounted: true,
     };
-    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, now) => discounted == true')).toBe(true);
+    expect(evaluateConstraint(data, 'is_stale(last_updated, 2592000, reference_time) => discounted == true')).toBe(true);
   });
 });

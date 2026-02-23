@@ -2,7 +2,7 @@
 
 **Contract version:** 7.6.0
 **Min supported:** 6.0.0
-**Schemas:** 142
+**Schemas:** 144
 
 ## Schemas
 
@@ -150,6 +150,8 @@
 | reputation-economic-impact | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-economic-impact` | [reputation-economic-impact.schema.json](reputation-economic-impact.schema.json) |
 | cost-per-token | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/cost-per-token` | [cost-per-token.schema.json](cost-per-token.schema.json) |
 | model-economic-profile | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/model-economic-profile` | [model-economic-profile.schema.json](model-economic-profile.schema.json) |
+| engagement-signal-type | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/engagement-signal-type` | [engagement-signal-type.schema.json](engagement-signal-type.schema.json) |
+| community-engagement-signal | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/community-engagement-signal` | [community-engagement-signal.schema.json](community-engagement-signal.schema.json) |
 
 ## Usage
 

@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-community-engagement-003",
+  "category": "community-engagement",
+  "description": "Invalid: negative weight violates minimum: 0 constraint.",
+  "contract_version": "7.7.0",
+  "input": {
+    "signal_id": "550e8400-e29b-41d4-a716-446655440093",
+    "personality_id": "agent-alpha",
+    "collection_id": "collection-alpha",
+    "signal_type": "contribution",
+    "weight": -0.5,
+    "recorded_at": "2026-02-20T10:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

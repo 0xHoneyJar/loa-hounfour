@@ -295,3 +295,19 @@ export {
   type ProposalEventType,
   type ProposalOutcomeEvent,
 } from './proposal-outcome-event.js';
+
+// Schemas — Community Engagement (v7.7.0, DR-S10)
+export {
+  EngagementSignalTypeSchema,
+  CommunityEngagementSignalSchema,
+  type EngagementSignalType,
+  type CommunityEngagementSignal,
+} from './community-engagement.js';
+
+// Utilities — Governance (v7.7.0, DR-S10)
+export {
+  isProposalActionable,
+  computeVotingResult,
+  isConstraintEnactable,
+  computeGovernanceWeight,
+} from '../utilities/governance-utils.js';

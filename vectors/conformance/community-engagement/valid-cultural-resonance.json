@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-community-engagement-002",
+  "category": "community-engagement",
+  "description": "Valid community engagement signal: cultural resonance with high weight and no source event.",
+  "contract_version": "7.7.0",
+  "input": {
+    "signal_id": "550e8400-e29b-41d4-a716-446655440092",
+    "personality_id": "agent-community-leader",
+    "collection_id": "collection-beta",
+    "signal_type": "cultural_resonance",
+    "weight": 0.95,
+    "recorded_at": "2026-02-20T12:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

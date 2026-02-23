@@ -151,8 +151,8 @@ describe('version bump', () => {
     expect(names).toContain('policy-version');
   });
 
-  it('schemas/index.json has 142 schemas', () => {
+  it('schemas/index.json has 144 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(142);
+    expect(index.schemas).toHaveLength(144);
   });
 });

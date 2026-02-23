@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "7.6.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-02-23T01:43:16.011Z",
+  "generated_at": "2026-02-23T01:53:58.898Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -855,6 +855,18 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/model-economic-profile",
       "file": "model-economic-profile.schema.json",
       "description": "Per-model economic profile for the SDR routing basket."
+    },
+    {
+      "name": "engagement-signal-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/engagement-signal-type",
+      "file": "engagement-signal-type.schema.json",
+      "description": "Category of community engagement signal."
+    },
+    {
+      "name": "community-engagement-signal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/community-engagement-signal",
+      "file": "community-engagement-signal.schema.json",
+      "description": "Community engagement signal for reputation and governance weighting."
     }
   ]
 }

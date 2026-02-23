@@ -133,6 +133,7 @@ import { ProposalEventTypeSchema, ProposalOutcomeEventSchema } from '../src/gove
 import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSchema, EconomicBoundarySchema } from '../src/economy/economic-boundary.js';
 import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactEntrySchema, ReputationEconomicImpactSchema } from '../src/economy/reputation-economic-impact.js';
 import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
+import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../src/governance/community-engagement.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -322,6 +323,9 @@ const schemas = [
   { name: 'reputation-economic-impact', schema: ReputationEconomicImpactSchema },
   { name: 'cost-per-token', schema: CostPerTokenSchema },
   { name: 'model-economic-profile', schema: ModelEconomicProfileSchema },
+  // Community Engagement (v7.7.0 Sprint 3)
+  { name: 'engagement-signal-type', schema: EngagementSignalTypeSchema },
+  { name: 'community-engagement-signal', schema: CommunityEngagementSignalSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
