@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-economic-performance-002",
+  "category": "economic-performance",
+  "description": "Valid performance event: model quality fell below expectations, triggering negative feedback.",
+  "contract_version": "7.8.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440071",
+    "boundary_id": "550e8400-e29b-41d4-a716-446655440060",
+    "model_id": "claude-opus-4",
+    "outcome_type": "quality_below_threshold",
+    "actual_cost": "2000000",
+    "budgeted_cost": "2500000",
+    "actual_quality": 0.35,
+    "expected_quality": 0.75,
+    "tokens_used": {
+      "input": 3000,
+      "output": 1200
+    },
+    "duration_ms": 4500,
+    "occurred_at": "2026-02-23T16:05:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

@@ -134,6 +134,7 @@ import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSch
 import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactEntrySchema, ReputationEconomicImpactSchema } from '../src/economy/reputation-economic-impact.js';
 import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
 import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../src/governance/community-engagement.js';
+import { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBridgeDirectionSchema, PerformanceQualityBridgeSchema } from '../src/economy/economic-performance.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -326,6 +327,11 @@ const schemas = [
   // Community Engagement (v7.7.0 Sprint 3)
   { name: 'engagement-signal-type', schema: EngagementSignalTypeSchema },
   { name: 'community-engagement-signal', schema: CommunityEngagementSignalSchema },
+  // v7.8.0 — Economic Performance (DR-F1 feedback loop)
+  { name: 'performance-outcome-type', schema: PerformanceOutcomeTypeSchema },
+  { name: 'economic-performance-event', schema: EconomicPerformanceEventSchema },
+  { name: 'quality-bridge-direction', schema: QualityBridgeDirectionSchema },
+  { name: 'performance-quality-bridge', schema: PerformanceQualityBridgeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

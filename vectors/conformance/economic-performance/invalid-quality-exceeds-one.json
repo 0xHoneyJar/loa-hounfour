@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-economic-performance-003",
+  "category": "economic-performance",
+  "description": "Invalid: actual_quality exceeds 1.0 bound.",
+  "contract_version": "7.8.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440072",
+    "boundary_id": "550e8400-e29b-41d4-a716-446655440060",
+    "model_id": "gpt-5.2",
+    "outcome_type": "quality_met",
+    "actual_cost": "1000000",
+    "budgeted_cost": "1500000",
+    "actual_quality": 1.5,
+    "expected_quality": 0.80,
+    "tokens_used": {
+      "input": 1000,
+      "output": 500
+    },
+    "duration_ms": 1200,
+    "occurred_at": "2026-02-23T16:10:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

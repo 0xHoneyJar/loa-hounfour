@@ -301,6 +301,18 @@ export {
   type ModelEconomicProfile,
 } from './model-economic-profile.js';
 
+// Schemas — Economic Performance Events (v7.8.0 — DR-F1 feedback loop)
+export {
+  PerformanceOutcomeTypeSchema,
+  EconomicPerformanceEventSchema,
+  QualityBridgeDirectionSchema,
+  PerformanceQualityBridgeSchema,
+  type PerformanceOutcomeType,
+  type EconomicPerformanceEvent,
+  type QualityBridgeDirection,
+  type PerformanceQualityBridge,
+} from './economic-performance.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,
