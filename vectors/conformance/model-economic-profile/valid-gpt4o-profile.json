@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-model-economic-profile-001",
+  "category": "model-economic-profile",
+  "description": "Valid model economic profile for GPT-4o with moderate routing weight.",
+  "contract_version": "7.7.0",
+  "input": {
+    "profile_id": "550e8400-e29b-41d4-a716-446655440080",
+    "model_id": "gpt-4o",
+    "cost_per_token": {
+      "input": "250",
+      "output": "1000"
+    },
+    "quality_yield": 0.87,
+    "routing_weight": 0.4,
+    "sample_count": 15000,
+    "effective_at": "2026-02-01T00:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

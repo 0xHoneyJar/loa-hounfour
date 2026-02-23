@@ -2,7 +2,7 @@
 
 **Contract version:** 7.6.0
 **Min supported:** 6.0.0
-**Schemas:** 132
+**Schemas:** 142
 
 ## Schemas
 
@@ -140,6 +140,16 @@
 | proposal-execution | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-execution` | [proposal-execution.schema.json](proposal-execution.schema.json) |
 | proposal-event-type | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-event-type` | [proposal-event-type.schema.json](proposal-event-type.schema.json) |
 | proposal-outcome-event | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-outcome-event` | [proposal-outcome-event.schema.json](proposal-outcome-event.schema.json) |
+| trust-layer-snapshot | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/trust-layer-snapshot` | [trust-layer-snapshot.schema.json](trust-layer-snapshot.schema.json) |
+| capital-layer-snapshot | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/capital-layer-snapshot` | [capital-layer-snapshot.schema.json](capital-layer-snapshot.schema.json) |
+| access-decision | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/access-decision` | [access-decision.schema.json](access-decision.schema.json) |
+| economic-boundary | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-boundary` | [economic-boundary.schema.json](economic-boundary.schema.json) |
+| economic-impact-type | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-impact-type` | [economic-impact-type.schema.json](economic-impact-type.schema.json) |
+| reputation-trigger-event | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-trigger-event` | [reputation-trigger-event.schema.json](reputation-trigger-event.schema.json) |
+| economic-impact-entry | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-impact-entry` | [economic-impact-entry.schema.json](economic-impact-entry.schema.json) |
+| reputation-economic-impact | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-economic-impact` | [reputation-economic-impact.schema.json](reputation-economic-impact.schema.json) |
+| cost-per-token | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/cost-per-token` | [cost-per-token.schema.json](cost-per-token.schema.json) |
+| model-economic-profile | `https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/model-economic-profile` | [model-economic-profile.schema.json](model-economic-profile.schema.json) |
 
 ## Usage
 

@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 33 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(33);
+  it('contains exactly 36 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(36);
   });
 
   it('includes all valid categories', () => {
@@ -99,6 +99,9 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'reputation-routing',
       'policy-version',
       'proposal-execution',
+      'economic-boundary',
+      'reputation-economic-impact',
+      'model-economic-profile',
     ]);
   });
 });

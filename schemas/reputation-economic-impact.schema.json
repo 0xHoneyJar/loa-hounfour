@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-economic-impact",
+  "additionalProperties": false,
+  "description": "Economic consequences of a reputation change.",
+  "type": "object",
+  "required": [
+    "impact_id",
+    "personality_id",
+    "collection_id",
+    "trigger_event",
+    "impacts",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "impact_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "Agent whose reputation changed.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection context.",
+      "type": "string"
+    },
+    "trigger_event": {
+      "$id": "ReputationTriggerEvent",
+      "additionalProperties": false,
+      "description": "The reputation event that triggered economic consequences.",
+      "type": "object",
+      "required": [
+        "event_type"
+      ],
+      "properties": {
+        "event_type": {
+          "description": "What kind of reputation change triggered the economic impact.",
+          "anyOf": [
+            {
+              "const": "state_transition",
+              "type": "string"
+            },
+            {
+              "const": "score_change",
+              "type": "string"
+            },
+            {
+              "const": "demotion",
+              "type": "string"
+            },
+            {
+              "const": "decay",
+              "type": "string"
+            }
+          ]
+        },
+        "from_state": {
+          "$id": "ReputationState",
+          "anyOf": [
+            {
+              "const": "cold",
+              "type": "string"
+            },
+            {
+              "const": "warming",
+              "type": "string"
+            },
+            {
+              "const": "established",
+              "type": "string"
+            },
+            {
+              "const": "authoritative",
+              "type": "string"
+            }
+          ]
+        },
+        "to_state": {
+          "$id": "ReputationState",
+          "anyOf": [
+            {
+              "const": "cold",
+              "type": "string"
+            },
+            {
+              "const": "warming",
+              "type": "string"
+            },
+            {
+              "const": "established",
+              "type": "string"
+            },
+            {
+              "const": "authoritative",
+              "type": "string"
+            }
+          ]
+        },
+        "score_delta": {
+          "description": "Change in blended score (positive = improvement).",
+          "type": "number"
+        }
+      }
+    },
+    "impacts": {
+      "minItems": 1,
+      "description": "Economic consequences (at least one required).",
+      "type": "array",
+      "items": {
+        "$id": "EconomicImpactEntry",
+        "additionalProperties": false,
+        "description": "A single economic consequence of a reputation change.",
+        "type": "object",
+        "required": [
+          "impact_type",
+          "description"
+        ],
+        "properties": {
+          "impact_type": {
+            "$id": "EconomicImpactType",
+            "description": "Category of economic consequence from a reputation change.",
+            "anyOf": [
+              {
+                "const": "tier_upgrade",
+                "type": "string"
+              },
+              {
+                "const": "tier_downgrade",
+                "type": "string"
+              },
+              {
+                "const": "access_granted",
+                "type": "string"
+              },
+              {
+                "const": "access_revoked",
+                "type": "string"
+              },
+              {
+                "const": "budget_adjusted",
+                "type": "string"
+              },
+              {
+                "const": "routing_changed",
+                "type": "string"
+              }
+            ]
+          },
+          "description": {
+            "minLength": 1,
+            "description": "Human-readable description of the economic impact.",
+            "type": "string"
+          },
+          "policy_version_id": {
+            "format": "uuid",
+            "description": "Which PolicyVersion governed this impact.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

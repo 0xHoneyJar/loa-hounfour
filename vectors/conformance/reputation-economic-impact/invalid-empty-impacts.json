@@ -1,0 +1,20 @@
+{
+  "vector_id": "conformance-reputation-economic-impact-003",
+  "category": "reputation-economic-impact",
+  "description": "Invalid: empty impacts array violates minItems: 1. A reputation change must have at least one economic consequence.",
+  "contract_version": "7.7.0",
+  "input": {
+    "impact_id": "550e8400-e29b-41d4-a716-446655440073",
+    "personality_id": "agent-alpha",
+    "collection_id": "collection-alpha",
+    "trigger_event": {
+      "event_type": "score_change",
+      "score_delta": 0.01
+    },
+    "impacts": [],
+    "occurred_at": "2026-02-20T12:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

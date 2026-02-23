@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-reputation-economic-impact-001",
+  "category": "reputation-economic-impact",
+  "description": "Valid reputation economic impact: state transition triggers tier upgrade and budget adjustment.",
+  "contract_version": "7.7.0",
+  "input": {
+    "impact_id": "550e8400-e29b-41d4-a716-446655440070",
+    "personality_id": "agent-alpha",
+    "collection_id": "collection-alpha",
+    "trigger_event": {
+      "event_type": "state_transition",
+      "from_state": "warming",
+      "to_state": "established",
+      "score_delta": 0.15
+    },
+    "impacts": [
+      {
+        "impact_type": "tier_upgrade",
+        "description": "Agent promoted to standard billing tier.",
+        "policy_version_id": "550e8400-e29b-41d4-a716-446655440071"
+      },
+      {
+        "impact_type": "budget_adjusted",
+        "description": "Budget ceiling increased to 100M micro-USD per epoch."
+      }
+    ],
+    "occurred_at": "2026-02-20T10:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-trigger-event",
+  "additionalProperties": false,
+  "description": "The reputation event that triggered economic consequences.",
+  "type": "object",
+  "required": [
+    "event_type"
+  ],
+  "properties": {
+    "event_type": {
+      "description": "What kind of reputation change triggered the economic impact.",
+      "anyOf": [
+        {
+          "const": "state_transition",
+          "type": "string"
+        },
+        {
+          "const": "score_change",
+          "type": "string"
+        },
+        {
+          "const": "demotion",
+          "type": "string"
+        },
+        {
+          "const": "decay",
+          "type": "string"
+        }
+      ]
+    },
+    "from_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "to_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "score_delta": {
+      "description": "Change in blended score (positive = improvement).",
+      "type": "number"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

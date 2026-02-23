@@ -269,6 +269,38 @@ export {
   type MonetaryPolicy,
 } from './monetary-policy.js';
 
+// Schemas — Economic Boundary (v7.7.0)
+export {
+  TrustLayerSnapshotSchema,
+  CapitalLayerSnapshotSchema,
+  AccessDecisionSchema,
+  EconomicBoundarySchema,
+  type TrustLayerSnapshot,
+  type CapitalLayerSnapshot,
+  type AccessDecision,
+  type EconomicBoundary,
+} from './economic-boundary.js';
+
+// Schemas — Reputation Economic Impact (v7.7.0)
+export {
+  EconomicImpactTypeSchema,
+  ReputationTriggerEventSchema,
+  EconomicImpactEntrySchema,
+  ReputationEconomicImpactSchema,
+  type EconomicImpactType,
+  type ReputationTriggerEvent,
+  type EconomicImpactEntry,
+  type ReputationEconomicImpact,
+} from './reputation-economic-impact.js';
+
+// Schemas — Model Economic Profile (v7.7.0)
+export {
+  CostPerTokenSchema,
+  ModelEconomicProfileSchema,
+  type CostPerToken,
+  type ModelEconomicProfile,
+} from './model-economic-profile.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

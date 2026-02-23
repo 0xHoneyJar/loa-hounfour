@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/model-economic-profile",
+  "additionalProperties": false,
+  "description": "Per-model economic profile for the SDR routing basket.",
+  "type": "object",
+  "required": [
+    "profile_id",
+    "model_id",
+    "cost_per_token",
+    "quality_yield",
+    "routing_weight",
+    "sample_count",
+    "effective_at",
+    "contract_version"
+  ],
+  "properties": {
+    "profile_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias (e.g., \"native\", \"gpt-4o\").",
+      "type": "string"
+    },
+    "cost_per_token": {
+      "$id": "CostPerToken",
+      "additionalProperties": false,
+      "description": "Token-level pricing for a model.",
+      "type": "object",
+      "required": [
+        "input",
+        "output"
+      ],
+      "properties": {
+        "input": {
+          "pattern": "^[0-9]+$",
+          "description": "Cost per input token in micro-USD.",
+          "type": "string"
+        },
+        "output": {
+          "pattern": "^[0-9]+$",
+          "description": "Cost per output token in micro-USD.",
+          "type": "string"
+        }
+      }
+    },
+    "quality_yield": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Average quality score across all personalities for this model.",
+      "type": "number"
+    },
+    "routing_weight": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Current share in the composite routing basket.",
+      "type": "number"
+    },
+    "sample_count": {
+      "minimum": 0,
+      "description": "Total observations backing quality_yield.",
+      "type": "integer"
+    },
+    "effective_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

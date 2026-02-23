@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "7.6.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-02-23T01:36:27.398Z",
+  "generated_at": "2026-02-23T01:43:16.011Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -795,6 +795,66 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/proposal-outcome-event",
       "file": "proposal-outcome-event.schema.json",
       "description": "Lifecycle event for a governance proposal."
+    },
+    {
+      "name": "trust-layer-snapshot",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/trust-layer-snapshot",
+      "file": "trust-layer-snapshot.schema.json",
+      "description": "Point-in-time snapshot of the trust layer for access evaluation."
+    },
+    {
+      "name": "capital-layer-snapshot",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/capital-layer-snapshot",
+      "file": "capital-layer-snapshot.schema.json",
+      "description": "Point-in-time snapshot of the capital layer for access evaluation."
+    },
+    {
+      "name": "access-decision",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/access-decision",
+      "file": "access-decision.schema.json",
+      "description": "Result of an access evaluation at the economic boundary."
+    },
+    {
+      "name": "economic-boundary",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-boundary",
+      "file": "economic-boundary.schema.json",
+      "description": "Economic membrane: trust × capital → access decision."
+    },
+    {
+      "name": "economic-impact-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-impact-type",
+      "file": "economic-impact-type.schema.json",
+      "description": "Category of economic consequence from a reputation change."
+    },
+    {
+      "name": "reputation-trigger-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-trigger-event",
+      "file": "reputation-trigger-event.schema.json",
+      "description": "The reputation event that triggered economic consequences."
+    },
+    {
+      "name": "economic-impact-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-impact-entry",
+      "file": "economic-impact-entry.schema.json",
+      "description": "A single economic consequence of a reputation change."
+    },
+    {
+      "name": "reputation-economic-impact",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-economic-impact",
+      "file": "reputation-economic-impact.schema.json",
+      "description": "Economic consequences of a reputation change."
+    },
+    {
+      "name": "cost-per-token",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/cost-per-token",
+      "file": "cost-per-token.schema.json",
+      "description": "Token-level pricing for a model."
+    },
+    {
+      "name": "model-economic-profile",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/model-economic-profile",
+      "file": "model-economic-profile.schema.json",
+      "description": "Per-model economic profile for the SDR routing basket."
     }
   ]
 }

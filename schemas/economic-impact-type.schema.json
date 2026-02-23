@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/economic-impact-type",
+  "description": "Category of economic consequence from a reputation change.",
+  "anyOf": [
+    {
+      "const": "tier_upgrade",
+      "type": "string"
+    },
+    {
+      "const": "tier_downgrade",
+      "type": "string"
+    },
+    {
+      "const": "access_granted",
+      "type": "string"
+    },
+    {
+      "const": "access_revoked",
+      "type": "string"
+    },
+    {
+      "const": "budget_adjusted",
+      "type": "string"
+    },
+    {
+      "const": "routing_changed",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

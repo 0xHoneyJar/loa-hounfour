@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-economic-boundary-001",
+  "category": "economic-boundary",
+  "description": "Valid economic boundary evaluation: access granted to agent with established reputation and sufficient budget.",
+  "contract_version": "7.7.0",
+  "input": {
+    "boundary_id": "550e8400-e29b-41d4-a716-446655440060",
+    "personality_id": "agent-alpha",
+    "collection_id": "collection-alpha",
+    "trust_layer": {
+      "reputation_state": "established",
+      "blended_score": 0.82,
+      "snapshot_at": "2026-02-20T10:00:00Z"
+    },
+    "capital_layer": {
+      "budget_remaining": "50000000",
+      "billing_tier": "standard",
+      "budget_period_end": "2026-03-01T00:00:00Z"
+    },
+    "access_decision": {
+      "granted": true,
+      "policy_id": "policy-default-access"
+    },
+    "evaluated_at": "2026-02-20T10:00:01Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

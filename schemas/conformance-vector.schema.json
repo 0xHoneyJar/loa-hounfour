@@ -154,6 +154,18 @@
         {
           "const": "proposal-execution",
           "type": "string"
+        },
+        {
+          "const": "economic-boundary",
+          "type": "string"
+        },
+        {
+          "const": "reputation-economic-impact",
+          "type": "string"
+        },
+        {
+          "const": "model-economic-profile",
+          "type": "string"
         }
       ]
     },

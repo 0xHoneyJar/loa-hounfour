@@ -129,6 +129,10 @@ import { PolicyTypeSchema, PolicyVersionSchema } from '../src/governance/policy-
 // v7.7.0 — Proposal Execution + Outcome Events
 import { ExecutionStatusSchema, ChangeApplicationResultSchema, ProposalExecutionSchema } from '../src/governance/proposal-execution.js';
 import { ProposalEventTypeSchema, ProposalOutcomeEventSchema } from '../src/governance/proposal-outcome-event.js';
+// v7.7.0 — Economic Membrane
+import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSchema, EconomicBoundarySchema } from '../src/economy/economic-boundary.js';
+import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactEntrySchema, ReputationEconomicImpactSchema } from '../src/economy/reputation-economic-impact.js';
+import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -307,6 +311,17 @@ const schemas = [
   // v7.7.0 — Proposal Outcome Events
   { name: 'proposal-event-type', schema: ProposalEventTypeSchema },
   { name: 'proposal-outcome-event', schema: ProposalOutcomeEventSchema },
+  // v7.7.0 — Economic Membrane
+  { name: 'trust-layer-snapshot', schema: TrustLayerSnapshotSchema },
+  { name: 'capital-layer-snapshot', schema: CapitalLayerSnapshotSchema },
+  { name: 'access-decision', schema: AccessDecisionSchema },
+  { name: 'economic-boundary', schema: EconomicBoundarySchema },
+  { name: 'economic-impact-type', schema: EconomicImpactTypeSchema },
+  { name: 'reputation-trigger-event', schema: ReputationTriggerEventSchema },
+  { name: 'economic-impact-entry', schema: EconomicImpactEntrySchema },
+  { name: 'reputation-economic-impact', schema: ReputationEconomicImpactSchema },
+  { name: 'cost-per-token', schema: CostPerTokenSchema },
+  { name: 'model-economic-profile', schema: ModelEconomicProfileSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

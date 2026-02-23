@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-model-economic-profile-003",
+  "category": "model-economic-profile",
+  "description": "Invalid: quality_yield is negative, violating minimum: 0 constraint.",
+  "contract_version": "7.7.0",
+  "input": {
+    "profile_id": "550e8400-e29b-41d4-a716-446655440082",
+    "model_id": "broken-model",
+    "cost_per_token": {
+      "input": "100",
+      "output": "500"
+    },
+    "quality_yield": -0.5,
+    "routing_weight": 0.3,
+    "sample_count": 100,
+    "effective_at": "2026-02-01T00:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}
