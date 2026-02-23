@@ -45,3 +45,6 @@ export {
 
 // Reputation Credential Prior (v7.3.0, C1 + Spec IV)
 export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRESHOLD } from './utilities/reputation-credential.js';
+
+// Constraint Namespace Validation (v7.8.0, DR-F4)
+export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';

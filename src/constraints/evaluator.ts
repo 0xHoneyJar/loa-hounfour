@@ -27,6 +27,22 @@ import { tokenize, type Token } from './tokenizer.js';
 export const MAX_EXPRESSION_DEPTH = 32;
 
 /**
+ * Optional context for constraint evaluation.
+ *
+ * Enables deterministic replay by providing a frozen evaluation timestamp
+ * that `now()` will use instead of the real clock. Without this, constraints
+ * containing `now()` cannot be replayed faithfully — evaluating the same
+ * expression tomorrow produces a different result.
+ *
+ * @see DR-F3 — now() replay non-determinism
+ * @since v7.8.0
+ */
+export interface EvaluationContext {
+  /** ISO 8601 timestamp to use for now(). Enables deterministic replay. */
+  evaluation_timestamp?: string;
+}
+
+/**
  * Resolve a dotted field path on a data object.
  * Returns undefined for missing paths.
  */
@@ -73,12 +89,14 @@ class Parser {
   private pos = 0;
   private data: Record<string, unknown>;
   private depth: number;
+  private context?: EvaluationContext;
   private readonly functions: ReadonlyMap<string, FunctionHandler>;
 
-  constructor(tokens: Token[], data: Record<string, unknown>, depth = 0) {
+  constructor(tokens: Token[], data: Record<string, unknown>, depth = 0, context?: EvaluationContext) {
     this.tokens = tokens;
     this.data = data;
     this.depth = depth;
+    this.context = context;
 
     // Function registry — maps function names to parse handlers.
     // Each handler consumes the function name token and its arguments
@@ -492,7 +510,7 @@ class Parser {
         return arr.every((item) => {
           // Create a scoped data object: the lambda parameter resolves to the item
           const scopedData = { ...this.data, [paramName]: item };
-          const innerParser = new Parser([...innerTokens], scopedData, this.depth);
+          const innerParser = new Parser([...innerTokens], scopedData, this.depth, this.context);
           return !!innerParser.parseExpr();
         });
       }
@@ -1485,12 +1503,17 @@ class Parser {
 
   /**
    * now() → current ISO 8601 timestamp string.
-   * Evaluated once per constraint evaluation. Zero-argument function.
+   * If an EvaluationContext with evaluation_timestamp is provided,
+   * returns the frozen timestamp for deterministic replay (DR-F3).
+   * Otherwise falls back to the real clock.
    */
   private parseNow(): string {
     this.advance(); // consume 'now'
     this.expect('paren', '(');
     this.expect('paren', ')');
+    if (this.context?.evaluation_timestamp && Parser.ISO_8601_RE.test(this.context.evaluation_timestamp)) {
+      return this.context.evaluation_timestamp;
+    }
     return new Date().toISOString();
   }
 
@@ -1699,6 +1722,27 @@ export const EVALUATOR_BUILTINS = [
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
 
 /**
+ * Reserved names in the evaluator namespace.
+ *
+ * Includes all builtin function names plus language keywords that cannot be
+ * used as constraint field names without risking collision. Consumer schemas
+ * should validate that their field names do not appear in this set.
+ *
+ * @see DR-F4 — Namespace collision surface
+ * @since v7.8.0
+ */
+export const RESERVED_EVALUATOR_NAMES: ReadonlySet<string> = new Set([
+  ...EVALUATOR_BUILTINS,
+  // Language keywords used by the constraint expression parser
+  'true',
+  'false',
+  'null',
+  'undefined',
+  'every',
+  'length',
+]);
+
+/**
  * Evaluate a constraint expression against a data object.
  *
  * Returns `true` when the constraint is satisfied (no violation),
@@ -1706,11 +1750,16 @@ export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
  *
  * @param data - The document to evaluate against
  * @param expression - Constraint expression string
+ * @param context - Optional evaluation context for deterministic replay (DR-F3)
  * @returns Whether the constraint passes
  */
-export function evaluateConstraint(data: Record<string, unknown>, expression: string): boolean {
+export function evaluateConstraint(
+  data: Record<string, unknown>,
+  expression: string,
+  context?: EvaluationContext,
+): boolean {
   const tokens = tokenize(expression);
-  const parser = new Parser(tokens, data);
+  const parser = new Parser(tokens, data, 0, context);
   const result = parser.parseExpr();
   return !!result;
 }
