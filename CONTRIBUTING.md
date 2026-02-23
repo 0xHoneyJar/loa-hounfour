@@ -1,5 +1,3 @@
-<!-- docs-version: 7.0.0 -->
-
 # Contributing to @0xhoneyjar/loa-hounfour
 
 Thank you for your interest in contributing to `loa-hounfour`, a TypeScript protocol schema library that uses [TypeBox](https://github.com/sinclairzx81/typebox) to produce JSON Schema 2020-12 definitions with cross-field constraint validation.

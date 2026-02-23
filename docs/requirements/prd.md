@@ -1,5 +1,3 @@
-<!-- docs-version: 7.0.0 -->
-
 # PRD: Documentation Overhaul — Grounded Truth for v7.0.0
 
 **Status:** Draft

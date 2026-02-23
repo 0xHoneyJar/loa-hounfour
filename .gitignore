@@ -1,4 +1,4 @@
-# Key material — prevent accidental commits (cycle-028 FR-1)
+# Key material — prevent accidental commits
 tests/fixtures/*.pem
 tests/fixtures/*.key
 
@@ -45,12 +45,5 @@ tmp/
 temp/
 *.tmp
 
-# Loa Framework (submodule at .loa/, symlinked to .claude)
-.claude
-.run/
-.beads/
-grimoires/
-.loa.config.yaml
-.loa-version.json
-.loa-setup-complete
-.ck/
+# Claude Code session state
+.claude/
