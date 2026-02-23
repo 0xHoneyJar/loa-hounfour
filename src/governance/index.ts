@@ -311,3 +311,12 @@ export {
   isConstraintEnactable,
   computeGovernanceWeight,
 } from '../utilities/governance-utils.js';
+
+// Utilities — Model Routing (v7.7.0, DR-S10)
+export {
+  computeModelRoutingScores,
+  selectModel,
+  computeCompositeBasketWeights,
+  isModelEligible,
+  type ModelRoutingScore,
+} from '../utilities/model-routing.js';

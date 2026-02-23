@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/delegation-quality-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.7.0/delegation-quality-event",
   "additionalProperties": false,
   "description": "Event recording a quality signal derived from a delegation outcome, feeding into reputation.",
   "type": "object",
@@ -212,5 +212,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.7.0, min_supported=6.0.0"
 }

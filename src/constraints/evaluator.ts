@@ -161,6 +161,8 @@ class Parser {
       ['proposal_execution_valid', () => this.parseProposalExecutionValid()],
       // Temporal utility (v7.7.0 — DR-S10)
       ['now', () => this.parseNow()],
+      // Model routing eligibility (v7.7.0 — DR-S10)
+      ['model_routing_eligible', () => this.parseModelRoutingEligible()],
     ]);
   }
 
@@ -1492,6 +1494,38 @@ class Parser {
     return new Date().toISOString();
   }
 
+  /**
+   * model_routing_eligible(qualifying_state, qualifying_score, current_state, current_score)
+   * Evaluates whether current reputation meets routing signal requirements
+   * using REPUTATION_STATE_ORDER comparison.
+   */
+  private parseModelRoutingEligible(): boolean {
+    this.advance(); // consume 'model_routing_eligible'
+    this.expect('paren', '(');
+    const qualifyingState = this.parseExpr();
+    this.expect('comma', ',');
+    const qualifyingScore = this.parseExpr();
+    this.expect('comma', ',');
+    const currentState = this.parseExpr();
+    this.expect('comma', ',');
+    const currentScore = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof qualifyingState !== 'string' || typeof currentState !== 'string') return false;
+    if (typeof qualifyingScore !== 'number' || typeof currentScore !== 'number') return false;
+
+    // State ordering: cold=0, warming=1, established=2, authoritative=3
+    const stateOrder: Record<string, number> = {
+      cold: 0, warming: 1, established: 2, authoritative: 3,
+    };
+
+    const currentOrder = stateOrder[currentState] ?? -1;
+    const requiredOrder = stateOrder[qualifyingState] ?? -1;
+
+    if (currentOrder < requiredOrder) return false;
+    return currentScore >= qualifyingScore;
+  }
+
   // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
@@ -1658,6 +1692,8 @@ export const EVALUATOR_BUILTINS = [
   'proposal_execution_valid',
   // Temporal utility (v7.7.0)
   'now',
+  // Model routing (v7.7.0)
+  'model_routing_eligible',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

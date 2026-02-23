@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 39 evaluator builtins. Each spec includes
+ * Canonical specifications for all 40 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle), v7.7.0 (39 builtins — proposal execution + now)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle), v7.7.0 (40 builtins — proposal execution + now + model routing)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -1360,5 +1360,40 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Returns current wall-clock time — not deterministic across evaluations', 'ISO 8601 format includes milliseconds and Z suffix'],
+  }],
+  ['model_routing_eligible', {
+    name: 'model_routing_eligible',
+    signature: 'model_routing_eligible(qualifying_state, qualifying_score, current_state, current_score) → boolean',
+    description: 'Evaluates whether current reputation meets routing signal requirements. '
+      + 'Checks both state ordering (cold < warming < established < authoritative) and score threshold.',
+    arguments: [
+      { name: 'qualifying_state', type: 'string', description: 'Minimum required reputation state' },
+      { name: 'qualifying_score', type: 'number', description: 'Minimum required blended score (0-1)' },
+      { name: 'current_state', type: 'string', description: 'Agent current reputation state' },
+      { name: 'current_score', type: 'number', description: 'Agent current blended score' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Established agent meets warming requirement',
+        context: { q_state: 'warming', q_score: 0.5, c_state: 'established', c_score: 0.8 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: true,
+      },
+      {
+        description: 'Cold agent fails established requirement',
+        context: { q_state: 'established', q_score: 0.7, c_state: 'cold', c_score: 0.1 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: false,
+      },
+      {
+        description: 'Meets state but not score requirement',
+        context: { q_state: 'warming', q_score: 0.8, c_state: 'established', c_score: 0.5 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Unknown states return false', 'Exact state/score match returns true'],
   }],
 ]);
