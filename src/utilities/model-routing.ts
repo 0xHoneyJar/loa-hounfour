@@ -13,6 +13,7 @@
 import type { ReputationAggregate } from '../governance/reputation-aggregate.js';
 import type { ModelCohort } from '../governance/reputation-aggregate.js';
 import type { ModelEconomicProfile } from '../economy/model-economic-profile.js';
+import type { EconomicPerformanceEvent } from '../economy/economic-performance.js';
 import type { ReputationRoutingSignal } from '../governance/reputation-routing.js';
 import { REPUTATION_STATE_ORDER } from '../vocabulary/reputation.js';
 
@@ -110,4 +111,71 @@ export function isModelEligible(
   const meetsScore = cohort.personal_score >= signal.qualifying_score;
 
   return meetsScore;
+}
+
+/**
+ * Compute rebalanced basket weights from performance data.
+ *
+ * Adjusts routing weights based on observed quality vs expected quality.
+ * Models that consistently outperform expectations gain weight; models
+ * that underperform lose weight. Weights are clamped to [0, 1] and
+ * normalized to sum to 1.0.
+ *
+ * @param currentProfiles - Current ModelEconomicProfile entries
+ * @param performanceEvents - Recent EconomicPerformanceEvent entries
+ * @param dampingFactor - How aggressively to rebalance (0 = no change, 1 = fully reactive). Default 0.1.
+ * @returns New basket entries with rebalanced weights
+ *
+ * @see DR-F2 — Static routing weights (no rebalancing event)
+ * @since v7.8.0 (Sprint 3)
+ */
+export function computeRebalancedWeights(
+  currentProfiles: ModelEconomicProfile[],
+  performanceEvents: EconomicPerformanceEvent[],
+  dampingFactor = 0.1,
+): Array<{ model_id: string; weight: number }> {
+  if (currentProfiles.length === 0) return [];
+
+  // Group performance events by model_id
+  const eventsByModel = new Map<string, EconomicPerformanceEvent[]>();
+  for (const event of performanceEvents) {
+    const existing = eventsByModel.get(event.model_id) ?? [];
+    existing.push(event);
+    eventsByModel.set(event.model_id, existing);
+  }
+
+  // Compute adjusted weights
+  const adjusted = currentProfiles.map(profile => {
+    const events = eventsByModel.get(profile.model_id) ?? [];
+    let newWeight = profile.routing_weight;
+
+    if (events.length > 0) {
+      // Average quality delta: actual - expected
+      const totalDelta = events.reduce(
+        (sum, e) => sum + (e.actual_quality - e.expected_quality),
+        0,
+      );
+      const avgDelta = totalDelta / events.length;
+
+      // Adjust weight by delta * damping
+      newWeight = profile.routing_weight + avgDelta * dampingFactor;
+    }
+
+    // Clamp to [0, 1]
+    newWeight = Math.max(0, Math.min(1, newWeight));
+    return { model_id: profile.model_id, weight: newWeight };
+  });
+
+  // Normalize to sum to 1.0
+  const total = adjusted.reduce((sum, e) => sum + e.weight, 0);
+  if (total === 0) {
+    // All weights zeroed — equal distribution
+    const equal = 1 / adjusted.length;
+    return adjusted.map(e => ({ ...e, weight: equal }));
+  }
+
+  return adjusted.map(e => ({
+    model_id: e.model_id,
+    weight: e.weight / total,
+  }));
 }

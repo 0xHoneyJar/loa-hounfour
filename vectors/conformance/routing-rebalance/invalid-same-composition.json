@@ -1,0 +1,16 @@
+{
+  "vector_id": "conformance-routing-rebalance-003",
+  "category": "routing-rebalance",
+  "description": "Invalid: before and after composition IDs are identical (no change).",
+  "contract_version": "7.8.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440106",
+    "trigger_type": "manual",
+    "before_composition_id": "550e8400-e29b-41d4-a716-446655440101",
+    "after_composition_id": "550e8400-e29b-41d4-a716-446655440101",
+    "occurred_at": "2026-02-23T18:00:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

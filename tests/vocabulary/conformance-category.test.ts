@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 38 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(38);
+  it('contains exactly 39 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(39);
   });
 
   it('includes all valid categories', () => {
@@ -104,6 +104,7 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'model-economic-profile',
       'community-engagement',
       'economic-performance',
+      'routing-rebalance',
     ]);
   });
 });

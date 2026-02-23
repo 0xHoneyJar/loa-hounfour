@@ -318,5 +318,6 @@ export {
   selectModel,
   computeCompositeBasketWeights,
   isModelEligible,
+  computeRebalancedWeights,
   type ModelRoutingScore,
 } from '../utilities/model-routing.js';

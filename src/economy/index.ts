@@ -313,6 +313,22 @@ export {
   type PerformanceQualityBridge,
 } from './economic-performance.js';
 
+// Schemas — Basket Composition (v7.8.0 — DR-F2 dynamic rebalancing)
+export {
+  BasketCompositionEntrySchema,
+  BasketCompositionSchema,
+  type BasketCompositionEntry,
+  type BasketComposition,
+} from './basket-composition.js';
+
+// Schemas — Routing Rebalance Event (v7.8.0 — DR-F2)
+export {
+  RebalanceTriggerTypeSchema,
+  RoutingRebalanceEventSchema,
+  type RebalanceTriggerType,
+  type RoutingRebalanceEvent,
+} from './routing-rebalance.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

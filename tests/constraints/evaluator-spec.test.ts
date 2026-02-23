@@ -20,8 +20,8 @@ describe('EvaluatorBuiltinSpec registry', () => {
     expect(specKeys).toEqual(builtinKeys);
   });
 
-  it('has 40 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(40);
+  it('has 41 entries', () => {
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(41);
   });
 
   for (const builtin of EVALUATOR_BUILTINS) {

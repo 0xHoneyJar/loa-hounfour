@@ -1,0 +1,25 @@
+{
+  "schema_id": "BasketComposition",
+  "constraints": [
+    {
+      "id": "basket-entries-nonempty",
+      "expression": "len(entries) >= 1",
+      "description": "Basket must contain at least one model entry.",
+      "severity": "error",
+      "type_signature": {
+        "entries": "array"
+      },
+      "fields": ["entries"]
+    },
+    {
+      "id": "basket-weights-sum-valid",
+      "expression": "basket_weights_normalized(this)",
+      "description": "Sum of entry weights must be approximately 1.0 (within 0.001 tolerance).",
+      "severity": "error",
+      "type_signature": {
+        "entries": "array"
+      },
+      "fields": ["entries"]
+    }
+  ]
+}

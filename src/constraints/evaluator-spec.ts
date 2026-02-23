@@ -1396,4 +1396,29 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
     ],
     edge_cases: ['Unknown states return false', 'Exact state/score match returns true'],
   }],
+  ['basket_weights_normalized', {
+    name: 'basket_weights_normalized',
+    signature: 'basket_weights_normalized(composition) → boolean',
+    description: 'Validates that a BasketComposition entries weights sum to approximately 1.0 (within 0.001 tolerance).',
+    arguments: [
+      { name: 'composition', type: 'object', description: 'Object with entries array containing {weight: number} objects.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Normalized basket',
+        context: { comp: { entries: [{ weight: 0.6 }, { weight: 0.4 }] } },
+        expression: 'basket_weights_normalized(comp)',
+        expected: true,
+      },
+      {
+        description: 'Non-normalized basket',
+        context: { comp: { entries: [{ weight: 0.6 }, { weight: 0.6 }] } },
+        expression: 'basket_weights_normalized(comp)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Empty entries returns false', 'Single entry with weight 1.0 returns true'],
+  }],
 ]);

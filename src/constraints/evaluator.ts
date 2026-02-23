@@ -181,6 +181,8 @@ class Parser {
       ['now', () => this.parseNow()],
       // Model routing eligibility (v7.7.0 — DR-S10)
       ['model_routing_eligible', () => this.parseModelRoutingEligible()],
+      // Basket weight normalization (v7.8.0 — DR-F2)
+      ['basket_weights_normalized', () => this.parseBasketWeightsNormalized()],
     ]);
   }
 
@@ -1550,6 +1552,41 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
+  // Basket weight normalization (v7.8.0 — DR-F2)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * basket_weights_normalized(composition) — checks that a BasketComposition's
+   * entries weights sum to approximately 1.0 (within 0.001 tolerance).
+   */
+  private parseBasketWeightsNormalized(): boolean {
+    this.advance(); // consume 'basket_weights_normalized'
+    this.expect('paren', '(');
+    const composition = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const entries = composition.entries;
+    if (!Array.isArray(entries)) return false;
+
+    // Resource limit: max 100 entries
+    if (entries.length > 100) return false;
+
+    // Empty basket is not normalized (must have at least one entry)
+    if (entries.length === 0) return false;
+
+    let totalWeight = 0;
+    for (const entry of entries) {
+      if (entry == null || typeof entry !== 'object') continue;
+      const e = entry as Record<string, unknown>;
+      if (typeof e.weight === 'number') {
+        totalWeight += e.weight;
+      }
+    }
+
+    return Math.abs(totalWeight - 1.0) <= 0.001;
+  }
+
+  // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
 
@@ -1717,6 +1754,8 @@ export const EVALUATOR_BUILTINS = [
   'now',
   // Model routing (v7.7.0)
   'model_routing_eligible',
+  // Basket composition (v7.8.0)
+  'basket_weights_normalized',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

@@ -135,6 +135,8 @@ import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactE
 import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
 import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../src/governance/community-engagement.js';
 import { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBridgeDirectionSchema, PerformanceQualityBridgeSchema } from '../src/economy/economic-performance.js';
+import { BasketCompositionEntrySchema, BasketCompositionSchema } from '../src/economy/basket-composition.js';
+import { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema } from '../src/economy/routing-rebalance.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -332,6 +334,11 @@ const schemas = [
   { name: 'economic-performance-event', schema: EconomicPerformanceEventSchema },
   { name: 'quality-bridge-direction', schema: QualityBridgeDirectionSchema },
   { name: 'performance-quality-bridge', schema: PerformanceQualityBridgeSchema },
+  // v7.8.0 — Basket Composition + Routing Rebalance (DR-F2)
+  { name: 'basket-composition-entry', schema: BasketCompositionEntrySchema },
+  { name: 'basket-composition', schema: BasketCompositionSchema },
+  { name: 'rebalance-trigger-type', schema: RebalanceTriggerTypeSchema },
+  { name: 'routing-rebalance-event', schema: RoutingRebalanceEventSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
