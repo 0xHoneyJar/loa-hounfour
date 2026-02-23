@@ -1,5 +1,6 @@
 {
   "schema_id": "PerformanceQualityBridge",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "bridge-weight-upper-bound",
@@ -9,7 +10,9 @@
       "type_signature": {
         "weight_adjustment_suggested": "number"
       },
-      "fields": ["weight_adjustment_suggested"]
+      "fields": [
+        "weight_adjustment_suggested"
+      ]
     }
   ]
 }

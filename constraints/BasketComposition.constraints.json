@@ -1,5 +1,6 @@
 {
   "schema_id": "BasketComposition",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "basket-entries-nonempty",
@@ -9,7 +10,9 @@
       "type_signature": {
         "entries": "array"
       },
-      "fields": ["entries"]
+      "fields": [
+        "entries"
+      ]
     },
     {
       "id": "basket-weights-sum-valid",
@@ -19,7 +22,9 @@
       "type_signature": {
         "entries": "array"
       },
-      "fields": ["entries"]
+      "fields": [
+        "entries"
+      ]
     }
   ]
 }

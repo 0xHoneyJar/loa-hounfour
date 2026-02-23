@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PersonalityAssignment",
+  "origin": "genesis",
   "contract_version": "7.1.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,9 @@
       "expression": "fingerprint_hash != null",
       "severity": "error",
       "message": "fingerprint_hash is required for personality verification",
-      "fields": ["fingerprint_hash"],
+      "fields": [
+        "fingerprint_hash"
+      ],
       "type_signature": {
         "fingerprint_hash": "string"
       }

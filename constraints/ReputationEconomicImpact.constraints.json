@@ -1,5 +1,6 @@
 {
   "schema_id": "ReputationEconomicImpact",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "impact-has-trigger",
@@ -9,7 +10,9 @@
       "type_signature": {
         "trigger_event.event_type": "string"
       },
-      "fields": ["trigger_event.event_type"]
+      "fields": [
+        "trigger_event.event_type"
+      ]
     },
     {
       "id": "impact-impacts-nonempty",
@@ -19,7 +22,9 @@
       "type_signature": {
         "impacts": "array"
       },
-      "fields": ["impacts"]
+      "fields": [
+        "impacts"
+      ]
     }
   ]
 }

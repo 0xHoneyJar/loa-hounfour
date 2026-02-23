@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "DelegationTree",
+  "origin": "genesis",
   "contract_version": "6.0.0",
   "expression_version": "1.0",
   "constraints": [

@@ -91,7 +91,115 @@ export const AccessDecisionSchema = Type.Object(
 export type AccessDecision = Static<typeof AccessDecisionSchema>;
 
 // ---------------------------------------------------------------------------
-// Economic Boundary
+// Qualification Criteria — inputs to evaluateEconomicBoundary()
+// ---------------------------------------------------------------------------
+
+/**
+ * Threshold criteria for evaluating economic boundary access.
+ * @since v7.9.0 — FR-1 Decision Engine
+ */
+export const QualificationCriteriaSchema = Type.Object(
+  {
+    min_trust_score: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description: 'Minimum blended reputation score required for access.',
+    }),
+    min_reputation_state: ReputationStateSchema,
+    min_available_budget: Type.String({
+      pattern: '^[0-9]+$',
+      description: 'Minimum remaining budget in micro-USD.',
+    }),
+  },
+  {
+    $id: 'QualificationCriteria',
+    additionalProperties: false,
+    description: 'Threshold criteria for evaluating economic boundary access.',
+  },
+);
+
+export type QualificationCriteria = Static<typeof QualificationCriteriaSchema>;
+
+// ---------------------------------------------------------------------------
+// Trust Evaluation — sub-result of the trust layer check
+// ---------------------------------------------------------------------------
+
+export const TrustEvaluationSchema = Type.Object(
+  {
+    passed: Type.Boolean({ description: 'Whether the trust layer passed.' }),
+    actual_score: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description: 'Actual blended score from the trust snapshot.',
+    }),
+    required_score: Type.Number({
+      minimum: 0,
+      maximum: 1,
+      description: 'Required minimum score from criteria.',
+    }),
+    actual_state: Type.String({ description: 'Actual reputation state.' }),
+    required_state: Type.String({ description: 'Required minimum reputation state.' }),
+  },
+  {
+    $id: 'TrustEvaluation',
+    additionalProperties: false,
+    description: 'Result of trust layer evaluation within the economic boundary.',
+  },
+);
+
+export type TrustEvaluation = Static<typeof TrustEvaluationSchema>;
+
+// ---------------------------------------------------------------------------
+// Capital Evaluation — sub-result of the capital layer check
+// ---------------------------------------------------------------------------
+
+export const CapitalEvaluationSchema = Type.Object(
+  {
+    passed: Type.Boolean({ description: 'Whether the capital layer passed.' }),
+    actual_budget: Type.String({
+      pattern: '^[0-9]+$',
+      description: 'Actual remaining budget in micro-USD.',
+    }),
+    required_budget: Type.String({
+      pattern: '^[0-9]+$',
+      description: 'Required minimum budget in micro-USD.',
+    }),
+  },
+  {
+    $id: 'CapitalEvaluation',
+    additionalProperties: false,
+    description: 'Result of capital layer evaluation within the economic boundary.',
+  },
+);
+
+export type CapitalEvaluation = Static<typeof CapitalEvaluationSchema>;
+
+// ---------------------------------------------------------------------------
+// Economic Boundary Evaluation Result — output of evaluateEconomicBoundary()
+// ---------------------------------------------------------------------------
+
+export const EconomicBoundaryEvaluationResultSchema = Type.Object(
+  {
+    access_decision: AccessDecisionSchema,
+    trust_evaluation: TrustEvaluationSchema,
+    capital_evaluation: CapitalEvaluationSchema,
+    criteria_used: QualificationCriteriaSchema,
+    evaluated_at: Type.String({
+      format: 'date-time',
+      description: 'When the evaluation was performed (caller-provided, not wall-clock).',
+    }),
+  },
+  {
+    $id: 'EconomicBoundaryEvaluationResult',
+    additionalProperties: false,
+    description: 'Complete result of evaluating an economic boundary access decision.',
+  },
+);
+
+export type EconomicBoundaryEvaluationResult = Static<typeof EconomicBoundaryEvaluationResultSchema>;
+
+// ---------------------------------------------------------------------------
+// Economic Boundary (v7.7.0, extended v7.9.0)
 // ---------------------------------------------------------------------------
 
 /**
@@ -119,6 +227,7 @@ export const EconomicBoundarySchema = Type.Object(
       pattern: '^\\d+\\.\\d+\\.\\d+$',
       description: 'Protocol contract version.',
     }),
+    qualification_criteria: Type.Optional(QualificationCriteriaSchema),
   },
   {
     $id: 'EconomicBoundary',

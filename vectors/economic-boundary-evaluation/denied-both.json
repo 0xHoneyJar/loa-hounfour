@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "description": "Both trust and capital fail — denied.",
+  "input": {
+    "trust_snapshot": {
+      "reputation_state": "cold",
+      "blended_score": 0.1,
+      "snapshot_at": "2026-02-23T10:00:00Z"
+    },
+    "capital_snapshot": {
+      "budget_remaining": "1000",
+      "billing_tier": "free",
+      "budget_period_end": "2026-03-01T00:00:00Z"
+    },
+    "criteria": {
+      "min_trust_score": 0.5,
+      "min_reputation_state": "established",
+      "min_available_budget": "10000000"
+    },
+    "evaluated_at": "2026-02-23T10:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": false,
+      "denial_reason": "trust score 0.1 < required 0.5; reputation state 'cold' below required 'established'; budget 1000 < required 10000000"
+    },
+    "trust_evaluation": {
+      "passed": false,
+      "actual_score": 0.1,
+      "required_score": 0.5,
+      "actual_state": "cold",
+      "required_state": "established"
+    },
+    "capital_evaluation": {
+      "passed": false,
+      "actual_budget": "1000",
+      "required_budget": "10000000"
+    }
+  }
+}

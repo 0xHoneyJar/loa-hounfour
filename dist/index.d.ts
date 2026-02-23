@@ -22,4 +22,6 @@ export { evaluateAccessPolicy, type AccessPolicyContext, type AccessPolicyResult
 export { reconstructAggregateFromEvents, verifyAggregateConsistency, computeEventStreamHash, type ReconstructedAggregate, type ConsistencyReport, } from './utilities/reputation-replay.js';
 export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRESHOLD } from './utilities/reputation-credential.js';
 export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';
+export { evaluateEconomicBoundary, parseMicroUsd, type ParseMicroUsdResult, } from './utilities/economic-boundary.js';
+export { REPUTATION_STATE_ORDER, REPUTATION_STATES, type ReputationStateName, } from './vocabulary/reputation.js';
 //# sourceMappingURL=index.d.ts.map

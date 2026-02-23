@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "MutualCredit",
+  "origin": "genesis",
   "contract_version": "5.0.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,10 @@
       "expression": "creditor_id != debtor_id",
       "severity": "error",
       "message": "creditor_id and debtor_id must be different (self-credit not allowed)",
-      "fields": ["creditor_id", "debtor_id"],
+      "fields": [
+        "creditor_id",
+        "debtor_id"
+      ],
       "type_signature": {
         "creditor_id": "string",
         "debtor_id": "string"
@@ -20,7 +24,10 @@
       "expression": "settled == true => settled_at != null",
       "severity": "error",
       "message": "settled_at is required when settled is true",
-      "fields": ["settled", "settled_at"],
+      "fields": [
+        "settled",
+        "settled_at"
+      ],
       "type_signature": {
         "settled": "boolean",
         "settled_at": "string"
@@ -31,7 +38,10 @@
       "expression": "settled == true => settlement != null",
       "severity": "error",
       "message": "settlement is required when settled is true",
-      "fields": ["settled", "settlement"],
+      "fields": [
+        "settled",
+        "settlement"
+      ],
       "type_signature": {
         "settled": "boolean",
         "settlement": "object"
@@ -42,7 +52,10 @@
       "expression": "settled == false => settled_at == null",
       "severity": "error",
       "message": "settled_at must not be present when settled is false",
-      "fields": ["settled", "settled_at"],
+      "fields": [
+        "settled",
+        "settled_at"
+      ],
       "type_signature": {
         "settled": "boolean",
         "settled_at": "string"
@@ -53,7 +66,10 @@
       "expression": "settled_at != null && issued_at != null => settled_at >= issued_at",
       "severity": "error",
       "message": "settled_at must be >= issued_at",
-      "fields": ["settled_at", "issued_at"],
+      "fields": [
+        "settled_at",
+        "issued_at"
+      ],
       "type_signature": {
         "settled_at": "string",
         "issued_at": "string"

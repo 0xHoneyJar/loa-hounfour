@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "DelegationChain",
+  "origin": "genesis",
   "contract_version": "5.4.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,10 @@
       "expression": "links.length <= max_depth",
       "severity": "error",
       "message": "Delegation chain exceeds max_depth",
-      "fields": ["links", "max_depth"],
+      "fields": [
+        "links",
+        "max_depth"
+      ],
       "type_signature": {
         "links": "array",
         "max_depth": "number"
@@ -20,7 +24,10 @@
       "expression": "!authority_conservation || all_links_subset_authority(links)",
       "severity": "error",
       "message": "Link authority_scope contains items not in delegator's received scope",
-      "fields": ["authority_conservation", "links"],
+      "fields": [
+        "authority_conservation",
+        "links"
+      ],
       "type_signature": {
         "authority_conservation": "boolean",
         "links": "array"
@@ -31,7 +38,9 @@
       "expression": "!authority_conservation || delegation_budget_conserved(links)",
       "severity": "error",
       "message": "Sub-delegated budgets exceed delegator's allocated budget",
-      "fields": ["links"],
+      "fields": [
+        "links"
+      ],
       "type_signature": {
         "links": "array"
       }
@@ -41,7 +50,9 @@
       "expression": "links_temporally_ordered(links)",
       "severity": "error",
       "message": "Each link's timestamp must be >= previous link's timestamp",
-      "fields": ["links"],
+      "fields": [
+        "links"
+      ],
       "type_signature": {
         "links": "array"
       }
@@ -51,7 +62,10 @@
       "expression": "links.length == 0 || links[0].delegator == root_delegator",
       "severity": "error",
       "message": "First link's delegator must match root_delegator",
-      "fields": ["root_delegator", "links"],
+      "fields": [
+        "root_delegator",
+        "links"
+      ],
       "type_signature": {
         "root_delegator": "string",
         "links": "array"
@@ -62,7 +76,9 @@
       "expression": "links_form_chain(links)",
       "severity": "error",
       "message": "Each link's delegator must be the previous link's delegatee",
-      "fields": ["links"],
+      "fields": [
+        "links"
+      ],
       "type_signature": {
         "links": "array"
       }
@@ -72,7 +88,10 @@
       "expression": "status != 'revoked' || revocation_policy != null",
       "severity": "error",
       "message": "Revoked chain must declare a revocation_policy",
-      "fields": ["status", "revocation_policy"],
+      "fields": [
+        "status",
+        "revocation_policy"
+      ],
       "type_signature": {
         "status": "string",
         "revocation_policy": "object"

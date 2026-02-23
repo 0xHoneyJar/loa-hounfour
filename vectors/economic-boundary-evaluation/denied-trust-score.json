@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "description": "Trust score below threshold — denied.",
+  "input": {
+    "trust_snapshot": {
+      "reputation_state": "established",
+      "blended_score": 0.3,
+      "snapshot_at": "2026-02-23T10:00:00Z"
+    },
+    "capital_snapshot": {
+      "budget_remaining": "50000000",
+      "billing_tier": "standard",
+      "budget_period_end": "2026-03-01T00:00:00Z"
+    },
+    "criteria": {
+      "min_trust_score": 0.5,
+      "min_reputation_state": "warming",
+      "min_available_budget": "10000000"
+    },
+    "evaluated_at": "2026-02-23T10:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": false,
+      "denial_reason": "trust score 0.3 < required 0.5"
+    },
+    "trust_evaluation": {
+      "passed": false,
+      "actual_score": 0.3,
+      "required_score": 0.5,
+      "actual_state": "established",
+      "required_state": "warming"
+    },
+    "capital_evaluation": {
+      "passed": true,
+      "actual_budget": "50000000",
+      "required_budget": "10000000"
+    }
+  }
+}

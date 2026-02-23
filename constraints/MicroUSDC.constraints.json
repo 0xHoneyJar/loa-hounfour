@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "MicroUSDC",
+  "origin": "genesis",
   "contract_version": "7.1.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,9 @@
       "expression": "value >= 0",
       "severity": "error",
       "message": "MicroUSDC amounts must be non-negative (on-chain amounts are never negative)",
-      "fields": ["value"],
+      "fields": [
+        "value"
+      ],
       "type_signature": {
         "value": "bigint"
       }
@@ -19,7 +22,9 @@
       "expression": "matches(value, '^[0-9]+$')",
       "severity": "error",
       "message": "MicroUSDC wire format must be a string of digits only",
-      "fields": ["value"],
+      "fields": [
+        "value"
+      ],
       "type_signature": {
         "value": "string"
       }

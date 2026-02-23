@@ -1,5 +1,6 @@
 {
   "schema_id": "CollectionGovernanceConfig",
+  "origin": "genesis",
   "contract_version": "7.6.0",
   "expression_version": "1.0",
   "constraints": [
@@ -8,7 +9,9 @@
       "description": "pseudo_count must be a positive integer (>= 1).",
       "expression": "pseudo_count >= 1",
       "severity": "error",
-      "fields": ["pseudo_count"],
+      "fields": [
+        "pseudo_count"
+      ],
       "type_signature": {
         "pseudo_count": "number"
       }
@@ -18,7 +21,9 @@
       "description": "State thresholds must be ordered: warming < established < authoritative.",
       "expression": "state_thresholds.warming_min_events <= state_thresholds.established_min_samples",
       "severity": "warning",
-      "fields": ["state_thresholds"],
+      "fields": [
+        "state_thresholds"
+      ],
       "type_signature": {
         "state_thresholds": "object"
       }
@@ -28,7 +33,9 @@
       "description": "Demotion rules must only demote backward in the state machine (authoritative→established, established→warming, warming→cold).",
       "expression": "decay_policy.demotion_rules.every(r => r.from_state != r.to_state)",
       "severity": "error",
-      "fields": ["decay_policy"],
+      "fields": [
+        "decay_policy"
+      ],
       "type_signature": {
         "decay_policy": "object"
       }

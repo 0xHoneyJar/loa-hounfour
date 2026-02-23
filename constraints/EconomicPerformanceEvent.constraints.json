@@ -1,5 +1,6 @@
 {
   "schema_id": "EconomicPerformanceEvent",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "performance-quality-bounded",
@@ -10,7 +11,10 @@
         "actual_quality": "number",
         "expected_quality": "number"
       },
-      "fields": ["actual_quality", "expected_quality"]
+      "fields": [
+        "actual_quality",
+        "expected_quality"
+      ]
     },
     {
       "id": "performance-tokens-nonnegative",
@@ -21,7 +25,10 @@
         "tokens_used.input": "integer",
         "tokens_used.output": "integer"
       },
-      "fields": ["tokens_used.input", "tokens_used.output"]
+      "fields": [
+        "tokens_used.input",
+        "tokens_used.output"
+      ]
     }
   ]
 }

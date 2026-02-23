@@ -48,3 +48,17 @@ export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRE
 
 // Constraint Namespace Validation (v7.8.0, DR-F4)
 export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';
+
+// Economic Boundary Decision Engine (v7.9.0, FR-1)
+export {
+  evaluateEconomicBoundary,
+  parseMicroUsd,
+  type ParseMicroUsdResult,
+} from './utilities/economic-boundary.js';
+
+// Reputation Vocabulary (v7.9.0 — root barrel export)
+export {
+  REPUTATION_STATE_ORDER,
+  REPUTATION_STATES,
+  type ReputationStateName,
+} from './vocabulary/reputation.js';

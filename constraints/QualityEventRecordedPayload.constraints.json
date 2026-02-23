@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "QualityEventRecordedPayload",
+  "origin": "genesis",
   "contract_version": "7.1.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,16 +10,26 @@
       "expression": "new_sample_count >= 1",
       "severity": "error",
       "message": "new_sample_count must be at least 1 after recording",
-      "fields": ["new_sample_count"],
-      "type_signature": { "new_sample_count": "integer" }
+      "fields": [
+        "new_sample_count"
+      ],
+      "type_signature": {
+        "new_sample_count": "integer"
+      }
     },
     {
       "id": "quality-event-recorded-scores-range",
       "expression": "composite_score >= 0 && composite_score <= 1 && new_blended_score >= 0 && new_blended_score <= 1",
       "severity": "error",
       "message": "Scores must be in [0, 1]",
-      "fields": ["composite_score", "new_blended_score"],
-      "type_signature": { "composite_score": "number", "new_blended_score": "number" }
+      "fields": [
+        "composite_score",
+        "new_blended_score"
+      ],
+      "type_signature": {
+        "composite_score": "number",
+        "new_blended_score": "number"
+      }
     }
   ]
 }

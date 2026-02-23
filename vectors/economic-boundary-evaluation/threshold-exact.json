@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "description": "All values exactly at threshold — access granted (>= semantics).",
+  "input": {
+    "trust_snapshot": {
+      "reputation_state": "warming",
+      "blended_score": 0.5,
+      "snapshot_at": "2026-02-23T10:00:00Z"
+    },
+    "capital_snapshot": {
+      "budget_remaining": "10000000",
+      "billing_tier": "standard",
+      "budget_period_end": "2026-03-01T00:00:00Z"
+    },
+    "criteria": {
+      "min_trust_score": 0.5,
+      "min_reputation_state": "warming",
+      "min_available_budget": "10000000"
+    },
+    "evaluated_at": "2026-02-23T10:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": true
+    },
+    "trust_evaluation": {
+      "passed": true,
+      "actual_score": 0.5,
+      "required_score": 0.5,
+      "actual_state": "warming",
+      "required_state": "warming"
+    },
+    "capital_evaluation": {
+      "passed": true,
+      "actual_budget": "10000000",
+      "required_budget": "10000000"
+    }
+  }
+}

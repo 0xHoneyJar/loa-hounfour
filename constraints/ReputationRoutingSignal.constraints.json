@@ -1,5 +1,6 @@
 {
   "schema_id": "ReputationRoutingSignal",
+  "origin": "genesis",
   "description": "Constraints for reputation-based routing signals.",
   "contract_version": "7.6.0",
   "constraints": [
@@ -8,7 +9,9 @@
       "description": "qualifying_score must be between 0 and 1 inclusive.",
       "expression": "qualifying_score >= 0 && qualifying_score <= 1",
       "severity": "error",
-      "fields": ["qualifying_score"],
+      "fields": [
+        "qualifying_score"
+      ],
       "type_signature": {
         "qualifying_score": "number"
       }
@@ -18,7 +21,10 @@
       "description": "expires_at must be after effective_at when both are present.",
       "expression": "expires_at == undefined || is_after(expires_at, effective_at)",
       "severity": "error",
-      "fields": ["effective_at", "expires_at"],
+      "fields": [
+        "effective_at",
+        "expires_at"
+      ],
       "type_signature": {
         "effective_at": "string",
         "expires_at": "string | undefined"

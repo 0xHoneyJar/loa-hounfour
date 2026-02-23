@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/capability-scope",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.0/capability-scope",
   "description": "Domain within which a trust level applies (v6.0.0).",
   "anyOf": [
     {
@@ -28,5 +28,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.0, min_supported=6.0.0"
 }

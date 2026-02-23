@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/registry-bridge",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.0/registry-bridge",
   "additionalProperties": false,
   "description": "A bridge enabling value transfer between two economy registries.",
   "type": "object",
@@ -171,5 +171,5 @@
     }
   },
   "x-cross-field-validated": true,
-  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.0, min_supported=6.0.0"
 }

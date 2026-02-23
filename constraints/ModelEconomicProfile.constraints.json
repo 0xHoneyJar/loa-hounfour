@@ -1,5 +1,6 @@
 {
   "schema_id": "ModelEconomicProfile",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "profile-routing-weight-bounded",
@@ -9,7 +10,9 @@
       "type_signature": {
         "routing_weight": "number"
       },
-      "fields": ["routing_weight"]
+      "fields": [
+        "routing_weight"
+      ]
     },
     {
       "id": "profile-quality-yield-bounded",
@@ -19,7 +22,9 @@
       "type_signature": {
         "quality_yield": "number"
       },
-      "fields": ["quality_yield"]
+      "fields": [
+        "quality_yield"
+      ]
     }
   ]
 }

@@ -1,6 +1,7 @@
 {
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/constraint-schema",
   "schema_id": "RollbackScope",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "rollback-changes-nonempty",
@@ -10,7 +11,9 @@
       "type_signature": {
         "scope": "RollbackScope"
       },
-      "fields": ["changes_to_rollback"]
+      "fields": [
+        "changes_to_rollback"
+      ]
     },
     {
       "id": "rollback-reason-nonempty",
@@ -20,7 +23,9 @@
       "type_signature": {
         "scope": "RollbackScope"
       },
-      "fields": ["reason"]
+      "fields": [
+        "reason"
+      ]
     }
   ]
 }

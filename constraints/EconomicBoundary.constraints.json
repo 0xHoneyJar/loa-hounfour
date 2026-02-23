@@ -1,5 +1,6 @@
 {
   "schema_id": "EconomicBoundary",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "boundary-denial-needs-reason",
@@ -10,7 +11,10 @@
         "access_decision.granted": "boolean",
         "access_decision.denial_reason": "string | undefined"
       },
-      "fields": ["access_decision.granted", "access_decision.denial_reason"]
+      "fields": [
+        "access_decision.granted",
+        "access_decision.denial_reason"
+      ]
     },
     {
       "id": "boundary-trust-score-bounded",
@@ -20,7 +24,9 @@
       "type_signature": {
         "trust_layer.blended_score": "number"
       },
-      "fields": ["trust_layer.blended_score"]
+      "fields": [
+        "trust_layer.blended_score"
+      ]
     }
   ]
 }

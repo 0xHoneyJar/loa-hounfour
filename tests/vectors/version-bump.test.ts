@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('7.8.0');
+    expect(CONTRACT_VERSION).toBe('7.9.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('7.8.0');
+    expect(pkg.version).toBe('7.9.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('7.8.0');
+    expect(index.version).toBe('7.9.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('7.8.0');
+    expect(version).toBe('7.9.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -126,10 +126,10 @@ describe('version bump', () => {
     expect(names).toContain('reputation-credential');
   });
 
-  it('schemas/index.json schema $ids all use 7.7.0', () => {
+  it('schemas/index.json schema $ids all use 7.9.0', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/7\.8\.0\//);
+      expect(schema.$id).toMatch(/\/7\.9\.0\//);
     }
   });
 
@@ -168,7 +168,7 @@ describe('version bump', () => {
     expect(names).toContain('community-engagement-signal');
   });
 
-  it('schemas/index.json includes v7.8.0 schemas', () => {
+  it('schemas/index.json includes v7.9.0 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     const names = index.schemas.map((s: { name: string }) => s.name);
     // Sprint 2: Feedback Loop

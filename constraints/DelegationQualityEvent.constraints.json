@@ -1,5 +1,6 @@
 {
   "schema_id": "DelegationQualityEvent",
+  "origin": "genesis",
   "contract_version": "7.5.0",
   "expression_version": "1.0",
   "constraints": [
@@ -8,7 +9,9 @@
       "description": "quality_score must be in [0, 1].",
       "expression": "is_between(quality_score, 0, 1)",
       "severity": "error",
-      "fields": ["quality_score"],
+      "fields": [
+        "quality_score"
+      ],
       "type_signature": {
         "quality_score": "number"
       }
@@ -18,7 +21,9 @@
       "description": "quality_signal and quality_score should be consistent with QUALITY_SIGNAL_SCORES defaults.",
       "expression": "quality_signal != null",
       "severity": "info",
-      "fields": ["quality_signal"],
+      "fields": [
+        "quality_signal"
+      ],
       "type_signature": {
         "quality_signal": "string"
       }

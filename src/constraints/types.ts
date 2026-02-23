@@ -25,6 +25,18 @@ export interface Constraint {
 }
 
 /**
+ * Constitutional provenance of a constraint file.
+ * - `genesis`: present since the protocol's founding (bootstrapped)
+ * - `enacted`: added through a formal governance proposal
+ * - `migrated`: imported from another protocol or system
+ *
+ * Files without an explicit `origin` default to `'genesis'` interpretation.
+ *
+ * @since v7.9.0 — FR-6 ConstraintOrigin
+ */
+export type ConstraintOrigin = 'genesis' | 'enacted' | 'migrated';
+
+/**
  * Top-level constraint file structure.
  */
 export interface ConstraintFile {
@@ -32,6 +44,8 @@ export interface ConstraintFile {
   $schema: string;
   /** Schema $id this constraint file applies to. */
   schema_id: string;
+  /** Constitutional provenance of this constraint file. Defaults to 'genesis'. */
+  origin?: ConstraintOrigin;
   /** Protocol contract version these constraints were authored against. */
   contract_version: string;
   /** Grammar version for constraint expressions (e.g. '1.0'). */

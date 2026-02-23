@@ -1,6 +1,7 @@
 {
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EnsembleCapabilityProfile",
+  "origin": "genesis",
   "contract_version": "5.4.0",
   "expression_version": "1.0",
   "constraints": [
@@ -9,7 +10,9 @@
       "expression": "models.length >= 2",
       "severity": "error",
       "message": "Ensemble requires at least 2 models",
-      "fields": ["models"],
+      "fields": [
+        "models"
+      ],
       "type_signature": {
         "models": "array"
       }
@@ -19,7 +22,10 @@
       "expression": "no_emergent_in_individual(emergent_capabilities, individual_capabilities)",
       "severity": "error",
       "message": "Emergent capability must not appear in any individual model's capability set",
-      "fields": ["emergent_capabilities", "individual_capabilities"],
+      "fields": [
+        "emergent_capabilities",
+        "individual_capabilities"
+      ],
       "type_signature": {
         "emergent_capabilities": "array",
         "individual_capabilities": "object"
@@ -30,7 +36,10 @@
       "expression": "all_emergent_have_evidence(emergent_capabilities, capability_evidence)",
       "severity": "error",
       "message": "Every emergent capability must have at least one evidence entry",
-      "fields": ["emergent_capabilities", "capability_evidence"],
+      "fields": [
+        "emergent_capabilities",
+        "capability_evidence"
+      ],
       "type_signature": {
         "emergent_capabilities": "array",
         "capability_evidence": "array"
@@ -41,7 +50,10 @@
       "expression": "object_keys_subset(individual_capabilities, models)",
       "severity": "warning",
       "message": "individual_capabilities keys should match models array",
-      "fields": ["individual_capabilities", "models"],
+      "fields": [
+        "individual_capabilities",
+        "models"
+      ],
       "type_signature": {
         "individual_capabilities": "object",
         "models": "array"

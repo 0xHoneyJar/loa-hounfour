@@ -1,5 +1,6 @@
 {
   "schema_id": "CommunityEngagementSignal",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "engagement-weight-bounded",
@@ -9,7 +10,9 @@
       "type_signature": {
         "weight": "number"
       },
-      "fields": ["weight"]
+      "fields": [
+        "weight"
+      ]
     },
     {
       "id": "engagement-personality-nonempty",
@@ -19,7 +22,9 @@
       "type_signature": {
         "personality_id": "string"
       },
-      "fields": ["personality_id"]
+      "fields": [
+        "personality_id"
+      ]
     }
   ]
 }

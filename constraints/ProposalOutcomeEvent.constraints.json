@@ -1,5 +1,6 @@
 {
   "schema_id": "ProposalOutcomeEvent",
+  "origin": "genesis",
   "constraints": [
     {
       "id": "outcome-event-actor-required",
@@ -9,7 +10,9 @@
       "type_signature": {
         "actor_id": "string"
       },
-      "fields": ["actor_id"]
+      "fields": [
+        "actor_id"
+      ]
     }
   ]
 }
