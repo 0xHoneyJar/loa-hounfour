@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/performance-quality-bridge",
+  "additionalProperties": false,
+  "description": "Connects economic performance outcomes to reputation quality events. This is the return path through the membrane — economic outcomes become trust signals.",
+  "type": "object",
+  "required": [
+    "bridge_id",
+    "performance_event_id",
+    "quality_event_id",
+    "model_id",
+    "direction",
+    "quality_delta",
+    "weight_adjustment_suggested",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "bridge_id": {
+      "format": "uuid",
+      "description": "Unique identifier for this bridge event.",
+      "type": "string"
+    },
+    "performance_event_id": {
+      "format": "uuid",
+      "description": "References the EconomicPerformanceEvent.",
+      "type": "string"
+    },
+    "quality_event_id": {
+      "format": "uuid",
+      "description": "References the QualityEvent that was generated.",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Which model this bridge applies to.",
+      "type": "string"
+    },
+    "direction": {
+      "$id": "QualityBridgeDirection",
+      "description": "Whether the economic outcome helped or hurt the model reputation.",
+      "anyOf": [
+        {
+          "const": "positive",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        },
+        {
+          "const": "neutral",
+          "type": "string"
+        }
+      ]
+    },
+    "quality_delta": {
+      "description": "Change in quality score attributable to this event.",
+      "type": "number"
+    },
+    "weight_adjustment_suggested": {
+      "minimum": -1,
+      "maximum": 1,
+      "description": "Recommended routing weight adjustment (-1 to 1).",
+      "type": "number"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "description": "When the bridge event was created.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

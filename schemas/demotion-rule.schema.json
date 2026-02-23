@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/demotion-rule",
+  "additionalProperties": false,
+  "description": "Rule for time-based reputation state demotion due to inactivity.",
+  "type": "object",
+  "required": [
+    "from_state",
+    "to_state",
+    "inactivity_days"
+  ],
+  "properties": {
+    "from_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "to_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "inactivity_days": {
+      "minimum": 1,
+      "description": "Demote after this many days without quality events.",
+      "type": "integer"
+    },
+    "require_decayed_below": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Also require decayed personal weight below this threshold. Prevents demotion of agents whose decayed scores are still strong.",
+      "type": "number"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

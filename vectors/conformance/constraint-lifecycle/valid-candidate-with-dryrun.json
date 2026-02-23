@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-constraint-lifecycle-002",
+  "category": "constraint-lifecycle",
+  "description": "Valid constraint candidate with successful dry-run validation.",
+  "contract_version": "7.6.0",
+  "input": {
+    "candidate_id": "550e8400-e29b-41d4-a716-446655440062",
+    "constraint_id": "custom-balance-positive",
+    "schema_id": "BillingEntry",
+    "expression": "amount_micro > 0",
+    "severity": "error",
+    "type_signature": {
+      "amount_micro": "string"
+    },
+    "fields": ["amount_micro"],
+    "description": "Billing entry amount must be positive.",
+    "dry_run_result": {
+      "valid": true,
+      "errors": []
+    }
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

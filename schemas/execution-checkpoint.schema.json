@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/execution-checkpoint",
+  "additionalProperties": false,
+  "description": "Health check recorded during progressive or canary governance execution.",
+  "type": "object",
+  "required": [
+    "checkpoint_id",
+    "execution_id",
+    "checkpoint_index",
+    "changes_applied_count",
+    "changes_remaining_count",
+    "health_status",
+    "proceed_decision",
+    "checkpoint_at",
+    "contract_version"
+  ],
+  "properties": {
+    "checkpoint_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "description": "The ProposalExecution this checkpoint belongs to.",
+      "type": "string"
+    },
+    "checkpoint_index": {
+      "minimum": 0,
+      "description": "Order in the checkpoint sequence (0-based).",
+      "type": "integer"
+    },
+    "changes_applied_count": {
+      "minimum": 0,
+      "description": "Number of changes applied so far.",
+      "type": "integer"
+    },
+    "changes_remaining_count": {
+      "minimum": 0,
+      "description": "Number of changes remaining.",
+      "type": "integer"
+    },
+    "health_status": {
+      "$id": "CheckpointHealth",
+      "description": "Health assessment at a governance execution checkpoint.",
+      "anyOf": [
+        {
+          "const": "healthy",
+          "type": "string"
+        },
+        {
+          "const": "degraded",
+          "type": "string"
+        },
+        {
+          "const": "failing",
+          "type": "string"
+        }
+      ]
+    },
+    "proceed_decision": {
+      "$id": "ProceedDecision",
+      "description": "Decision made at a governance execution checkpoint.",
+      "anyOf": [
+        {
+          "const": "continue",
+          "type": "string"
+        },
+        {
+          "const": "pause",
+          "type": "string"
+        },
+        {
+          "const": "rollback",
+          "type": "string"
+        }
+      ]
+    },
+    "health_details": {
+      "description": "Human-readable description of health observation.",
+      "type": "string"
+    },
+    "checkpoint_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

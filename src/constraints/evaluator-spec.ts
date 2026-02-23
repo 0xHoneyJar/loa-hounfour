@@ -1,12 +1,12 @@
 /**
  * Evaluator Builtin Specification Registry.
  *
- * Canonical specifications for all 31 evaluator builtins. Each spec includes
+ * Canonical specifications for all 40 evaluator builtins. Each spec includes
  * signature, description, argument types, return type, and executable examples
  * that serve as the cross-language test harness.
  *
  * @see SDD §2.5 — Evaluator Specification (FR-5)
- * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2)
+ * @since v5.5.0 (18 builtins), v6.0.0 (23 builtins), v7.0.0 (31 builtins — coordination + governance + bridge iteration 2), v7.4.0 (34 builtins — timestamp comparison), v7.5.0 (36 builtins — temporal governance), v7.6.0 (37 builtins — constraint lifecycle), v7.7.0 (40 builtins — proposal execution + now + model routing)
  */
 import { type EvaluatorBuiltin } from './evaluator.js';
 
@@ -45,7 +45,7 @@ export interface EvaluatorBuiltinSpec {
 }
 
 /**
- * Canonical registry of all 31 evaluator builtin specifications.
+ * Canonical registry of all 39 evaluator builtin specifications.
  */
 export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBuiltinSpec> = new Map<EvaluatorBuiltin, EvaluatorBuiltinSpec>([
   ['bigint_sum', {
@@ -1072,5 +1072,391 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       },
     ],
     edge_cases: ['Empty votes returns true', 'Tolerance is 0.001', 'Max 100 votes (resource limit)'],
+  }],
+
+  // -- Timestamp comparison builtins (v7.4.0) ---------------------------------
+
+  ['is_after', {
+    name: 'is_after',
+    signature: 'is_after(a, b) → boolean',
+    description: 'Returns true if ISO 8601 timestamp a is strictly after timestamp b.',
+    arguments: [
+      { name: 'a', type: 'string', description: 'ISO 8601 date string (left operand)' },
+      { name: 'b', type: 'string', description: 'ISO 8601 date string (right operand)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Later timestamp is after earlier',
+        context: { a: '2026-02-01T00:00:00Z', b: '2026-01-01T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: true,
+      },
+      {
+        description: 'Earlier timestamp is not after later',
+        context: { a: '2026-01-01T00:00:00Z', b: '2026-02-01T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: false,
+      },
+      {
+        description: 'Equal timestamps are not after',
+        context: { a: '2026-01-15T00:00:00Z', b: '2026-01-15T00:00:00Z' },
+        expression: 'is_after(a, b)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Uses strict greater-than (not >=)'],
+  }],
+
+  ['is_before', {
+    name: 'is_before',
+    signature: 'is_before(a, b) → boolean',
+    description: 'Returns true if ISO 8601 timestamp a is strictly before timestamp b.',
+    arguments: [
+      { name: 'a', type: 'string', description: 'ISO 8601 date string (left operand)' },
+      { name: 'b', type: 'string', description: 'ISO 8601 date string (right operand)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Earlier timestamp is before later',
+        context: { a: '2026-01-01T00:00:00Z', b: '2026-02-01T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: true,
+      },
+      {
+        description: 'Later timestamp is not before earlier',
+        context: { a: '2026-02-01T00:00:00Z', b: '2026-01-01T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: false,
+      },
+      {
+        description: 'Equal timestamps are not before',
+        context: { a: '2026-01-15T00:00:00Z', b: '2026-01-15T00:00:00Z' },
+        expression: 'is_before(a, b)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Uses strict less-than (not <=)'],
+  }],
+
+  ['is_between', {
+    name: 'is_between',
+    signature: 'is_between(value, lower, upper) → boolean',
+    description: 'Returns true if lower <= value <= upper for ISO 8601 date strings (inclusive on both bounds).',
+    arguments: [
+      { name: 'value', type: 'string', description: 'ISO 8601 date string to test' },
+      { name: 'lower', type: 'string', description: 'ISO 8601 lower bound (inclusive)' },
+      { name: 'upper', type: 'string', description: 'ISO 8601 upper bound (inclusive)' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Value within range',
+        context: { ts: '2026-01-15T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: true,
+      },
+      {
+        description: 'Value outside range (before lower)',
+        context: { ts: '2025-12-01T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: false,
+      },
+      {
+        description: 'Value at lower bound (inclusive)',
+        context: { ts: '2026-01-01T00:00:00Z', lo: '2026-01-01T00:00:00Z', hi: '2026-02-01T00:00:00Z' },
+        expression: 'is_between(ts, lo, hi)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Invalid date strings return false', 'Inclusive on both bounds (lower <= value <= upper)'],
+  }],
+
+  // -- Temporal governance builtins (v7.5.0) ----------------------------------
+
+  ['is_stale', {
+    name: 'is_stale',
+    signature: 'is_stale(timestamp, max_age_seconds, reference_timestamp) → boolean',
+    description: 'Returns true if the elapsed time between timestamp and reference_timestamp exceeds max_age_seconds (strict >). Deterministic — no Date.now().',
+    arguments: [
+      { name: 'timestamp', type: 'string', description: 'ISO 8601 date string to test for staleness' },
+      { name: 'max_age_seconds', type: 'number', description: 'Maximum acceptable age in seconds' },
+      { name: 'reference_timestamp', type: 'string', description: 'ISO 8601 reference point (e.g., "now")' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Timestamp older than max age is stale',
+        context: { ts: '2026-01-01T00:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: true,
+      },
+      {
+        description: 'Timestamp within max age is not stale',
+        context: { ts: '2026-01-01T23:30:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: false,
+      },
+      {
+        description: 'Timestamp exactly at max age is not stale (strict >)',
+        context: { ts: '2026-01-01T23:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_stale(ts, 3600, ref)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for invalid timestamps', 'Returns false for negative max_age', 'Uses strict > (exactly at max_age is not stale)', 'Complement of is_within'],
+  }],
+
+  ['is_within', {
+    name: 'is_within',
+    signature: 'is_within(timestamp, max_age_seconds, reference_timestamp) → boolean',
+    description: 'Returns true if the elapsed time between timestamp and reference_timestamp is at most max_age_seconds (<=). Deterministic — no Date.now().',
+    arguments: [
+      { name: 'timestamp', type: 'string', description: 'ISO 8601 date string to test for freshness' },
+      { name: 'max_age_seconds', type: 'number', description: 'Maximum acceptable age in seconds' },
+      { name: 'reference_timestamp', type: 'string', description: 'ISO 8601 reference point (e.g., "now")' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Timestamp within max age returns true',
+        context: { ts: '2026-01-01T23:30:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: true,
+      },
+      {
+        description: 'Timestamp older than max age returns false',
+        context: { ts: '2026-01-01T00:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: false,
+      },
+      {
+        description: 'Timestamp exactly at max age returns true (<=)',
+        context: { ts: '2026-01-01T23:00:00Z', ref: '2026-01-02T00:00:00Z' },
+        expression: 'is_within(ts, 3600, ref)',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Returns false for invalid timestamps', 'Returns false for negative max_age', 'Uses <= (exactly at max_age is within)', 'Complement of is_stale'],
+  }],
+
+  // ---------------------------------------------------------------------------
+  // Constraint lifecycle governance (v7.6.0 — DR-S4)
+  // ---------------------------------------------------------------------------
+
+  ['constraint_lifecycle_valid', {
+    name: 'constraint_lifecycle_valid',
+    signature: 'constraint_lifecycle_valid(event) → boolean',
+    description: 'Validates that a constraint lifecycle event follows valid state transitions. '
+      + 'Checks from_status → to_status against CONSTRAINT_LIFECYCLE_TRANSITIONS.',
+    arguments: [
+      { name: 'event', type: 'object', description: 'ConstraintLifecycleEvent with from_status and to_status fields' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'proposed → under_review is valid',
+        context: { event: { from_status: 'proposed', to_status: 'under_review' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'under_review → enacted is valid',
+        context: { event: { from_status: 'under_review', to_status: 'enacted' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'enacted → deprecated is valid',
+        context: { event: { from_status: 'enacted', to_status: 'deprecated' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: true,
+      },
+      {
+        description: 'rejected is terminal — no transitions allowed',
+        context: { event: { from_status: 'rejected', to_status: 'proposed' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: false,
+      },
+      {
+        description: 'same-status transition is invalid',
+        context: { event: { from_status: 'enacted', to_status: 'enacted' } },
+        expression: 'constraint_lifecycle_valid(event)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for same-status transitions', 'Returns false for unknown statuses', 'Terminal states (rejected, deprecated) have no valid transitions'],
+  }],
+
+  // ---------------------------------------------------------------------------
+  // Proposal execution builtins (v7.7.0 — DR-S9)
+  // ---------------------------------------------------------------------------
+
+  ['proposal_execution_valid', {
+    name: 'proposal_execution_valid',
+    signature: 'proposal_execution_valid(execution) → boolean',
+    description: 'Validates that a proposal execution completed successfully: '
+      + 'status is "completed" and all changes_applied have result "success".',
+    arguments: [
+      { name: 'execution', type: 'object', description: 'ProposalExecution with status and changes_applied fields' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Completed execution with all successes',
+        context: { execution: { status: 'completed', changes_applied: [{ result: 'success' }, { result: 'success' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: true,
+      },
+      {
+        description: 'Failed execution returns false',
+        context: { execution: { status: 'failed', changes_applied: [{ result: 'success' }, { result: 'failed' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+      {
+        description: 'Completed but with a failed change returns false',
+        context: { execution: { status: 'completed', changes_applied: [{ result: 'success' }, { result: 'failed' }] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+      {
+        description: 'Empty changes_applied returns false',
+        context: { execution: { status: 'completed', changes_applied: [] } },
+        expression: 'proposal_execution_valid(execution)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Returns false for non-completed status', 'Returns false for empty changes_applied array', 'Returns false if any change result is not "success"'],
+  }],
+  ['now', {
+    name: 'now',
+    signature: 'now() → string',
+    description: 'Returns the current time as an ISO 8601 timestamp string. '
+      + 'Evaluated once per constraint evaluation. Useful with is_after/is_within for expiry checks.',
+    arguments: [],
+    return_type: 'string',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'now() returns an ISO 8601 string usable with is_after',
+        context: { expires_at: '2099-12-31T23:59:59Z' },
+        expression: 'is_after(expires_at, now())',
+        expected: true,
+      },
+      {
+        description: 'now() with is_within for recency checks',
+        context: { last_updated: new Date().toISOString() },
+        expression: 'is_within(last_updated, 86400, now())',
+        expected: true,
+      },
+    ],
+    edge_cases: ['Returns current wall-clock time — not deterministic across evaluations', 'ISO 8601 format includes milliseconds and Z suffix'],
+  }],
+  ['model_routing_eligible', {
+    name: 'model_routing_eligible',
+    signature: 'model_routing_eligible(qualifying_state, qualifying_score, current_state, current_score) → boolean',
+    description: 'Evaluates whether current reputation meets routing signal requirements. '
+      + 'Checks both state ordering (cold < warming < established < authoritative) and score threshold.',
+    arguments: [
+      { name: 'qualifying_state', type: 'string', description: 'Minimum required reputation state' },
+      { name: 'qualifying_score', type: 'number', description: 'Minimum required blended score (0-1)' },
+      { name: 'current_state', type: 'string', description: 'Agent current reputation state' },
+      { name: 'current_score', type: 'number', description: 'Agent current blended score' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Established agent meets warming requirement',
+        context: { q_state: 'warming', q_score: 0.5, c_state: 'established', c_score: 0.8 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: true,
+      },
+      {
+        description: 'Cold agent fails established requirement',
+        context: { q_state: 'established', q_score: 0.7, c_state: 'cold', c_score: 0.1 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: false,
+      },
+      {
+        description: 'Meets state but not score requirement',
+        context: { q_state: 'warming', q_score: 0.8, c_state: 'established', c_score: 0.5 },
+        expression: 'model_routing_eligible(q_state, q_score, c_state, c_score)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Unknown states return false', 'Exact state/score match returns true'],
+  }],
+  ['basket_weights_normalized', {
+    name: 'basket_weights_normalized',
+    signature: 'basket_weights_normalized(composition) → boolean',
+    description: 'Validates that a BasketComposition entries weights sum to approximately 1.0 (within 0.001 tolerance).',
+    arguments: [
+      { name: 'composition', type: 'object', description: 'Object with entries array containing {weight: number} objects.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Normalized basket',
+        context: { comp: { entries: [{ weight: 0.6 }, { weight: 0.4 }] } },
+        expression: 'basket_weights_normalized(comp)',
+        expected: true,
+      },
+      {
+        description: 'Non-normalized basket',
+        context: { comp: { entries: [{ weight: 0.6 }, { weight: 0.6 }] } },
+        expression: 'basket_weights_normalized(comp)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Empty entries returns false', 'Single entry with weight 1.0 returns true'],
+  }],
+  // Execution checkpoint validation (v7.8.0 — DR-F5)
+  ['execution_checkpoint_valid', {
+    name: 'execution_checkpoint_valid',
+    signature: 'execution_checkpoint_valid(checkpoint) → boolean',
+    description: 'Validates that a checkpoint health_status and proceed_decision are consistent: healthy→continue, degraded→continue|pause, failing→rollback.',
+    arguments: [
+      { name: 'checkpoint', type: 'object', description: 'Object with health_status and proceed_decision fields.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Healthy checkpoint with continue decision',
+        context: { cp: { health_status: 'healthy', proceed_decision: 'continue' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Degraded checkpoint with pause decision',
+        context: { cp: { health_status: 'degraded', proceed_decision: 'pause' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Failing checkpoint with rollback decision',
+        context: { cp: { health_status: 'failing', proceed_decision: 'rollback' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: true,
+      },
+      {
+        description: 'Invalid: failing checkpoint with continue decision',
+        context: { cp: { health_status: 'failing', proceed_decision: 'continue' } },
+        expression: 'execution_checkpoint_valid(cp)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Healthy with pause returns false', 'Unknown health_status returns false', 'Missing fields return false'],
   }],
 ]);

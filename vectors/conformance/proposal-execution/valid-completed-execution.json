@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-proposal-execution-001",
+  "category": "proposal-execution",
+  "description": "Valid completed proposal execution with all changes successful.",
+  "contract_version": "7.7.0",
+  "input": {
+    "execution_id": "550e8400-e29b-41d4-a716-446655440080",
+    "proposal_id": "550e8400-e29b-41d4-a716-446655440081",
+    "status": "completed",
+    "changes_applied": [
+      {
+        "change_index": 0,
+        "target": "pseudo_count",
+        "applied_at": "2026-03-01T00:00:00Z",
+        "result": "success"
+      }
+    ],
+    "started_at": "2026-03-01T00:00:00Z",
+    "completed_at": "2026-03-01T00:01:00Z",
+    "executed_by": "governance-executor-agent",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

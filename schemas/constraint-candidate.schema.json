@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/constraint-candidate",
+  "additionalProperties": false,
+  "description": "A constraint candidate proposed for governance enactment.",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "constraint_id",
+    "schema_id",
+    "expression",
+    "severity",
+    "type_signature",
+    "fields",
+    "description"
+  ],
+  "properties": {
+    "candidate_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "constraint_id": {
+      "minLength": 1,
+      "description": "Proposed constraint ID (e.g., \"my-custom-check\").",
+      "type": "string"
+    },
+    "schema_id": {
+      "minLength": 1,
+      "description": "Target schema this constraint applies to.",
+      "type": "string"
+    },
+    "expression": {
+      "minLength": 1,
+      "description": "Constraint expression in the DSL.",
+      "type": "string"
+    },
+    "severity": {
+      "description": "Severity of constraint violation.",
+      "anyOf": [
+        {
+          "const": "error",
+          "type": "string"
+        },
+        {
+          "const": "warning",
+          "type": "string"
+        },
+        {
+          "const": "info",
+          "type": "string"
+        }
+      ]
+    },
+    "type_signature": {
+      "description": "Type signature mapping field names to types.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "type": "string"
+        }
+      }
+    },
+    "fields": {
+      "minItems": 1,
+      "description": "Fields this constraint references.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "description": {
+      "minLength": 1,
+      "description": "Human-readable description of the constraint.",
+      "type": "string"
+    },
+    "dry_run_result": {
+      "additionalProperties": false,
+      "description": "Result of dry-run validation against type signatures.",
+      "type": "object",
+      "required": [
+        "valid",
+        "errors"
+      ],
+      "properties": {
+        "valid": {
+          "description": "Whether the expression parsed and type-checked.",
+          "type": "boolean"
+        },
+        "errors": {
+          "description": "Validation errors encountered during dry-run.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

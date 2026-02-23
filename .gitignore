@@ -1,3 +1,7 @@
+# Key material — prevent accidental commits (cycle-028 FR-1)
+tests/fixtures/*.pem
+tests/fixtures/*.key
+
 # Dependencies
 node_modules/
 .pnp
@@ -40,39 +44,3 @@ yarn-error.log*
 tmp/
 temp/
 *.tmp
-
-# =============================================================================
-# Loa Framework — Ephemeral Development Tooling
-# =============================================================================
-# The Loa framework mounts on demand via scripts/mount-loa.sh
-# and leaves no trace in the repository when not in use.
-
-# System Zone — framework skills, hooks, scripts, protocols
-.claude/
-
-# Runtime State — sprint execution, audit logs, simstim
-.run/
-
-# Task Tracking — beads SQLite database
-.beads/
-
-# Grimoire State — framework memory, analytics, a2a comms
-# (Protocol knowledge migrated to docs/)
-grimoires/
-
-# Framework Config — session state, not project config
-.loa.config.yaml
-.loa-version.json
-.loa-setup-complete
-.loa/
-
-# Semantic search state
-.ck/
-
-# =============================================================================
-# Eval Framework
-# =============================================================================
-evals/results/*
-!evals/results/.gitkeep
-# Track config files inside eval fixtures (needed for CI)
-!evals/fixtures/**/.loa.config.yaml

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/conformance-vector",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/conformance-vector",
   "description": "Cross-language conformance test vector for adapter verification.",
   "additionalProperties": false,
   "type": "object",
@@ -101,6 +101,86 @@
         },
         {
           "const": "governance-proposal",
+          "type": "string"
+        },
+        {
+          "const": "micro-usdc",
+          "type": "string"
+        },
+        {
+          "const": "personality-assignment",
+          "type": "string"
+        },
+        {
+          "const": "reputation-aggregate",
+          "type": "string"
+        },
+        {
+          "const": "reputation-credential",
+          "type": "string"
+        },
+        {
+          "const": "access-policy",
+          "type": "string"
+        },
+        {
+          "const": "event-subscription",
+          "type": "string"
+        },
+        {
+          "const": "reputation-portability",
+          "type": "string"
+        },
+        {
+          "const": "delegation-quality",
+          "type": "string"
+        },
+        {
+          "const": "collection-governance-config",
+          "type": "string"
+        },
+        {
+          "const": "constraint-lifecycle",
+          "type": "string"
+        },
+        {
+          "const": "reputation-routing",
+          "type": "string"
+        },
+        {
+          "const": "policy-version",
+          "type": "string"
+        },
+        {
+          "const": "proposal-execution",
+          "type": "string"
+        },
+        {
+          "const": "economic-boundary",
+          "type": "string"
+        },
+        {
+          "const": "reputation-economic-impact",
+          "type": "string"
+        },
+        {
+          "const": "model-economic-profile",
+          "type": "string"
+        },
+        {
+          "const": "community-engagement",
+          "type": "string"
+        },
+        {
+          "const": "economic-performance",
+          "type": "string"
+        },
+        {
+          "const": "routing-rebalance",
+          "type": "string"
+        },
+        {
+          "const": "execution-checkpoint",
           "type": "string"
         }
       ]
@@ -209,5 +289,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
 }

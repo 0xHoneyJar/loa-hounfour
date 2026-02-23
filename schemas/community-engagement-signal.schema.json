@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/community-engagement-signal",
+  "additionalProperties": false,
+  "description": "Community engagement signal for reputation and governance weighting.",
+  "type": "object",
+  "required": [
+    "signal_id",
+    "personality_id",
+    "collection_id",
+    "signal_type",
+    "weight",
+    "recorded_at",
+    "contract_version"
+  ],
+  "properties": {
+    "signal_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "Agent personality emitting the signal.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection context for the engagement.",
+      "type": "string"
+    },
+    "signal_type": {
+      "$id": "EngagementSignalType",
+      "description": "Category of community engagement signal.",
+      "anyOf": [
+        {
+          "const": "participation",
+          "type": "string"
+        },
+        {
+          "const": "endorsement",
+          "type": "string"
+        },
+        {
+          "const": "contribution",
+          "type": "string"
+        },
+        {
+          "const": "cultural_resonance",
+          "type": "string"
+        }
+      ]
+    },
+    "weight": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Signal strength, from 0 (minimal) to 1 (maximum engagement).",
+      "type": "number"
+    },
+    "context": {
+      "description": "Human-readable context for the engagement signal.",
+      "type": "string"
+    },
+    "source_event_id": {
+      "format": "uuid",
+      "description": "Optional reference to the event that generated this signal.",
+      "type": "string"
+    },
+    "recorded_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

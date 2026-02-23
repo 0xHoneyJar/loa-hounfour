@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/constraint-proposal",
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0. Agent-authored constraint proposals for Flatline Protocol review. See RFC #31: https://github.com/0xHoneyJar/loa-finn/issues/31",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/constraint-proposal",
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0. Agent-authored constraint proposals for Flatline Protocol review. See RFC #31: https://github.com/0xHoneyJar/loa-finn/issues/31",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "type": "object",

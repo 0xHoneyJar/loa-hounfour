@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/governance-proposal",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/governance-proposal",
   "additionalProperties": false,
   "description": "A formal governance proposal with voting lifecycle.",
   "type": "object",
@@ -211,11 +211,21 @@
       "format": "date-time",
       "type": "string"
     },
+    "execution_id": {
+      "format": "uuid",
+      "description": "Reference to ProposalExecution, set after ratification.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection this proposal targets.",
+      "type": "string"
+    },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Protocol contract version.",
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
 }

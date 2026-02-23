@@ -1,0 +1,55 @@
+{
+  "vector_id": "conformance-reputation-aggregate-008",
+  "category": "reputation-aggregate",
+  "description": "Valid aggregate with model_cohorts array — 3 models, mixed states (v7.3.0 C5)",
+  "contract_version": "7.3.0",
+  "input": {
+    "personality_id": "bear-001",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-alpha",
+    "state": "established",
+    "personal_score": 0.85,
+    "collection_score": 0.5,
+    "blended_score": 0.77,
+    "sample_count": 55,
+    "pseudo_count": 3,
+    "contributor_count": 12,
+    "min_sample_count": 5,
+    "model_cohorts": [
+      {
+        "model_id": "native",
+        "personal_score": 0.9,
+        "sample_count": 45,
+        "last_updated": "2026-02-21T10:00:00Z"
+      },
+      {
+        "model_id": "gpt-4o",
+        "personal_score": 0.7,
+        "sample_count": 10,
+        "last_updated": "2026-02-20T15:00:00Z"
+      },
+      {
+        "model_id": "llama-3.1",
+        "personal_score": null,
+        "sample_count": 0,
+        "last_updated": "2026-02-19T08:00:00Z"
+      }
+    ],
+    "created_at": "2026-01-01T00:00:00Z",
+    "last_updated": "2026-02-21T10:00:00Z",
+    "transition_history": [
+      { "from": "cold", "to": "warming", "at": "2026-01-01T01:00:00Z", "trigger": "First QualityEvent recorded" },
+      { "from": "warming", "to": "established", "at": "2026-01-05T00:00:00Z", "trigger": "sample_count >= min_sample_count" }
+    ],
+    "contract_version": "7.3.0"
+  },
+  "expected_output": {
+    "state": "established",
+    "personal_score": 0.85,
+    "blended_score": 0.77
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["state", "personal_score", "blended_score"]
+  }
+}

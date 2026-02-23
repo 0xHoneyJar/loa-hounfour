@@ -1,0 +1,33 @@
+{
+  "vector_id": "conformance-delegation-quality-001",
+  "category": "delegation-quality",
+  "description": "Valid quality event: unanimous outcome maps to high signal (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "event_id": "aa0e8400-e29b-41d4-a716-446655440100",
+    "outcome_id": "bb0e8400-e29b-41d4-a716-446655440200",
+    "tree_node_id": "node-root",
+    "personality_id": "personality-alice",
+    "collection_id": "collection-alpha",
+    "pool_id": "pool-1",
+    "outcome_type": "unanimous",
+    "quality_signal": "high",
+    "quality_score": 0.95,
+    "mapping_used": {
+      "unanimous": "high",
+      "majority": "moderate",
+      "deadlock": "low",
+      "escalation": "negative"
+    },
+    "occurred_at": "2026-02-23T12:00:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "Default mapping: unanimous → high with score 0.95."
+  }
+}

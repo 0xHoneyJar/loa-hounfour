@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/policy-type",
+  "description": "Category of versioned policy.",
+  "anyOf": [
+    {
+      "const": "monetary",
+      "type": "string"
+    },
+    {
+      "const": "access",
+      "type": "string"
+    },
+    {
+      "const": "governance",
+      "type": "string"
+    },
+    {
+      "const": "constraint",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

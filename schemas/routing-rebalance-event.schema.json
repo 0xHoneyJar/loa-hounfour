@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/routing-rebalance-event",
+  "additionalProperties": false,
+  "description": "Records a basket rebalancing — what triggered it, what changed, and the before/after composition state.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "trigger_type",
+    "before_composition_id",
+    "after_composition_id",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "description": "Unique identifier for this rebalance event.",
+      "type": "string"
+    },
+    "trigger_type": {
+      "$id": "RebalanceTriggerType",
+      "description": "What triggered a basket rebalancing event.",
+      "anyOf": [
+        {
+          "const": "periodic",
+          "type": "string"
+        },
+        {
+          "const": "threshold_breach",
+          "type": "string"
+        },
+        {
+          "const": "manual",
+          "type": "string"
+        },
+        {
+          "const": "performance_driven",
+          "type": "string"
+        }
+      ]
+    },
+    "before_composition_id": {
+      "format": "uuid",
+      "description": "BasketComposition before rebalance.",
+      "type": "string"
+    },
+    "after_composition_id": {
+      "format": "uuid",
+      "description": "BasketComposition after rebalance.",
+      "type": "string"
+    },
+    "trigger_details": {
+      "description": "Human-readable description of what triggered the rebalance.",
+      "type": "string"
+    },
+    "performance_window_start": {
+      "format": "date-time",
+      "description": "Start of performance observation period.",
+      "type": "string"
+    },
+    "performance_window_end": {
+      "format": "date-time",
+      "description": "End of performance observation period.",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "description": "When the rebalance occurred.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

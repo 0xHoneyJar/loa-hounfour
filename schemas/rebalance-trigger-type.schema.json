@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/rebalance-trigger-type",
+  "description": "What triggered a basket rebalancing event.",
+  "anyOf": [
+    {
+      "const": "periodic",
+      "type": "string"
+    },
+    {
+      "const": "threshold_breach",
+      "type": "string"
+    },
+    {
+      "const": "manual",
+      "type": "string"
+    },
+    {
+      "const": "performance_driven",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

@@ -1,0 +1,30 @@
+{
+  "vector_id": "conformance-reputation-economic-impact-002",
+  "category": "reputation-economic-impact",
+  "description": "Valid reputation economic impact: demotion triggers access revocation and routing change.",
+  "contract_version": "7.7.0",
+  "input": {
+    "impact_id": "550e8400-e29b-41d4-a716-446655440072",
+    "personality_id": "agent-declining",
+    "collection_id": "collection-beta",
+    "trigger_event": {
+      "event_type": "demotion",
+      "from_state": "established",
+      "to_state": "warming"
+    },
+    "impacts": [
+      {
+        "impact_type": "access_revoked",
+        "description": "Premium collection access revoked due to reputation demotion."
+      },
+      {
+        "impact_type": "routing_changed",
+        "description": "Routing weight reduced from 0.8 to 0.3 for premium models."
+      }
+    ],
+    "occurred_at": "2026-02-20T11:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-proposal-execution-003",
+  "category": "proposal-execution",
+  "description": "Invalid: completed execution without completed_at timestamp.",
+  "contract_version": "7.7.0",
+  "input": {
+    "execution_id": "550e8400-e29b-41d4-a716-446655440084",
+    "proposal_id": "550e8400-e29b-41d4-a716-446655440085",
+    "status": "completed",
+    "changes_applied": [
+      {
+        "change_index": 0,
+        "target": "pseudo_count",
+        "applied_at": "2026-03-01T00:00:00Z",
+        "result": "success"
+      }
+    ],
+    "started_at": "2026-03-01T00:00:00Z",
+    "executed_by": "governance-executor-agent",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

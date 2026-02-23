@@ -1,0 +1,19 @@
+{
+  "vector_id": "conformance-reputation-routing-002",
+  "category": "reputation-routing",
+  "description": "Valid task eligibility signal with expiry date.",
+  "contract_version": "7.6.0",
+  "input": {
+    "signal_id": "550e8400-e29b-41d4-a716-446655440061",
+    "personality_id": "personality-beta",
+    "signal_type": "task_eligibility",
+    "qualifying_state": "authoritative",
+    "qualifying_score": 0.9,
+    "routing_weight": 0.8,
+    "effective_at": "2026-01-15T00:00:00Z",
+    "expires_at": "2026-07-15T00:00:00Z",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

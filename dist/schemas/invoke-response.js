@@ -48,6 +48,7 @@ export const InvokeResponseSchema = Type.Object({
     })),
 }, {
     $id: 'InvokeResponse',
+    description: 'Response from an AI agent invocation with billing reference',
     additionalProperties: false,
 });
 /**
@@ -77,6 +78,7 @@ export const UsageReportSchema = Type.Object({
     ensemble_id: Type.Optional(Type.String()),
 }, {
     $id: 'UsageReport',
+    description: 'Token usage report for billing and rate limiting',
     additionalProperties: false,
 });
 //# sourceMappingURL=invoke-response.js.map

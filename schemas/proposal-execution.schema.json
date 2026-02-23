@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/proposal-execution",
+  "additionalProperties": false,
+  "description": "Execution record for a ratified governance proposal.",
+  "type": "object",
+  "required": [
+    "execution_id",
+    "proposal_id",
+    "status",
+    "changes_applied",
+    "started_at",
+    "executed_by",
+    "contract_version"
+  ],
+  "properties": {
+    "execution_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "proposal_id": {
+      "format": "uuid",
+      "description": "The ratified GovernanceProposal being executed.",
+      "type": "string"
+    },
+    "status": {
+      "$id": "ExecutionStatus",
+      "description": "Lifecycle status of a governance proposal execution.",
+      "anyOf": [
+        {
+          "const": "pending",
+          "type": "string"
+        },
+        {
+          "const": "executing",
+          "type": "string"
+        },
+        {
+          "const": "completed",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        },
+        {
+          "const": "rolled_back",
+          "type": "string"
+        }
+      ]
+    },
+    "changes_applied": {
+      "minItems": 1,
+      "description": "Results of applying each proposed change.",
+      "type": "array",
+      "items": {
+        "$id": "ChangeApplicationResult",
+        "additionalProperties": false,
+        "description": "Result of applying a single proposed change during execution.",
+        "type": "object",
+        "required": [
+          "change_index",
+          "target",
+          "applied_at",
+          "result"
+        ],
+        "properties": {
+          "change_index": {
+            "minimum": 0,
+            "description": "Index into GovernanceProposal.changes[] array.",
+            "type": "integer"
+          },
+          "target": {
+            "minLength": 1,
+            "description": "What was changed (field path or constraint ID).",
+            "type": "string"
+          },
+          "applied_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "result": {
+            "description": "Outcome of applying this change.",
+            "anyOf": [
+              {
+                "const": "success",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "skipped",
+                "type": "string"
+              }
+            ]
+          },
+          "error": {
+            "description": "Failure reason, populated when result is \"failed\".",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "constraint_lifecycle_events": {
+      "description": "ConstraintLifecycleEvent IDs created during execution.",
+      "type": "array",
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "description": "When execution finished. Required when status is completed or rolled_back.",
+      "type": "string"
+    },
+    "executed_by": {
+      "minLength": 1,
+      "description": "Agent or system that performed the execution.",
+      "type": "string"
+    },
+    "execution_strategy": {
+      "description": "Execution strategy. Defaults to atomic if omitted.",
+      "anyOf": [
+        {
+          "const": "atomic",
+          "type": "string"
+        },
+        {
+          "const": "progressive",
+          "type": "string"
+        },
+        {
+          "const": "canary",
+          "type": "string"
+        }
+      ]
+    },
+    "checkpoints": {
+      "description": "ExecutionCheckpoint IDs recorded during progressive/canary execution.",
+      "type": "array",
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      }
+    },
+    "rollback_scope_id": {
+      "format": "uuid",
+      "description": "Reference to RollbackScope if rollback occurred.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

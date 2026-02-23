@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/trust-layer-snapshot",
+  "additionalProperties": false,
+  "description": "Point-in-time snapshot of the trust layer for access evaluation.",
+  "type": "object",
+  "required": [
+    "reputation_state",
+    "blended_score",
+    "snapshot_at"
+  ],
+  "properties": {
+    "reputation_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "blended_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Blended reputation score at time of evaluation.",
+      "type": "number"
+    },
+    "snapshot_at": {
+      "format": "date-time",
+      "description": "When the trust layer was evaluated.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

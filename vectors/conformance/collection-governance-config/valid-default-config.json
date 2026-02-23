@@ -1,0 +1,37 @@
+{
+  "vector_id": "conformance-collection-governance-config-001",
+  "category": "collection-governance-config",
+  "description": "Default collection governance configuration with k=3 and standard thresholds.",
+  "contract_version": "7.6.0",
+  "input": {
+    "config_id": "550e8400-e29b-41d4-a716-446655440050",
+    "collection_id": "collection-alpha",
+    "pseudo_count": 3,
+    "state_thresholds": {
+      "warming_min_events": 1,
+      "established_min_samples": 5,
+      "authoritative_min_weight": 0.9
+    },
+    "decay_policy": {
+      "half_life_days": 30,
+      "demotion_rules": [
+        {
+          "from_state": "authoritative",
+          "to_state": "established",
+          "inactivity_days": 90,
+          "require_decayed_below": 0.7
+        },
+        {
+          "from_state": "established",
+          "to_state": "warming",
+          "inactivity_days": 180
+        }
+      ],
+      "enable_auto_demotion": false
+    },
+    "updated_at": "2026-01-15T10:00:00Z",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

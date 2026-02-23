@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/capital-layer-snapshot",
+  "additionalProperties": false,
+  "description": "Point-in-time snapshot of the capital layer for access evaluation.",
+  "type": "object",
+  "required": [
+    "budget_remaining",
+    "billing_tier",
+    "budget_period_end"
+  ],
+  "properties": {
+    "budget_remaining": {
+      "pattern": "^[0-9]+$",
+      "description": "Remaining budget in micro-USD.",
+      "type": "string"
+    },
+    "billing_tier": {
+      "minLength": 1,
+      "description": "Current billing tier of the agent.",
+      "type": "string"
+    },
+    "budget_period_end": {
+      "format": "date-time",
+      "description": "When the current budget period expires.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

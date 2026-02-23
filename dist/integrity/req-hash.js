@@ -39,28 +39,32 @@ export class DecompressionError extends Error {
 }
 /**
  * Parse and validate Content-Encoding header.
- * Returns encodings in unwrap order for decompression.
+ * Returns encodings in unwrap order (outermost-first) for decompression.
  *
  * HTTP Content-Encoding semantics (RFC 9110 §8.4):
  *
  *   Content-Encoding: gzip, br
  *
- * means the body was first compressed with brotli, then gzip was applied
+ * means the body was first compressed with gzip, then brotli was applied
  * on top. The header lists encodings in the order they were applied
- * (innermost-last). To decompress, we must unwrap in reverse:
+ * (innermost-first, outermost-last). To decompress, we must unwrap
+ * outermost-first — the reverse of the header order:
  *
- *   1. gunzip  (outermost layer — listed first in header)
- *   2. brotli  (innermost layer — listed last in header)
+ *   1. brotli-decompress  (outermost layer — listed last in header)
+ *   2. gunzip             (innermost layer — listed first in header)
  *
  * This function reverses the header order so callers can iterate
  * left-to-right to peel layers from outside in.
  *
- * Example:
- *   parseEncodings("gzip, br") → ["br", "gzip"]
- *   // Step 1: brotli-decompress (outermost layer)
- *   // Step 2: gunzip (innermost layer) → original body
+ * @example
+ * ```
+ * parseEncodings("gzip, br") → ["br", "gzip"]
+ * // Step 1: brotli-decompress (outermost — applied last, listed last)
+ * // Step 2: gunzip (innermost — applied first, listed first) → original body
+ * ```
  *
  * @see PR #61 BridgeBuilder review — Finding 7
+ * @see BB-V3-007 — Comment drift fix (v3.1.0)
  */
 function parseEncodings(contentEncoding) {
     if (!contentEncoding || contentEncoding === 'identity')
@@ -77,8 +81,8 @@ function parseEncodings(contentEncoding) {
             throw new DecompressionError(`Unsupported encoding: "${enc}". Allowed: ${[...ALLOWED_ENCODINGS].join(', ')}`, 'ENCODING_UNSUPPORTED', 415);
         }
     }
-    // Reverse: header lists innermost-last, we unwrap outermost-first.
-    // "gzip, br" → reversed to ["br", "gzip"] (brotli first, then gunzip).
+    // Reverse: header lists innermost-first (application order), we need
+    // outermost-first (decompression order). "gzip, br" → ["br", "gzip"].
     return encodings.reverse();
 }
 /**

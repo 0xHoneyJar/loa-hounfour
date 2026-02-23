@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-personality-assignment-002",
+  "category": "personality-assignment",
+  "description": "Invalid fingerprint hash — too short (32 chars instead of 64)",
+  "contract_version": "7.1.0",
+  "input": {
+    "token_id": "eip155:1/0xbEeFbeEfbeEfbeEFbeEfbeEfBEeFBEEfBeEfBeef/42",
+    "archetype": "sage",
+    "ancestor": "merlin",
+    "era": "medieval",
+    "element": "fire",
+    "tier": "standard",
+    "fingerprint_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4"
+  },
+  "expected_output": {
+    "error": "schema_validation",
+    "field": "fingerprint_hash",
+    "reason": "pattern mismatch — expected 64 lowercase hex chars"
+  },
+  "expected_valid": false
+}

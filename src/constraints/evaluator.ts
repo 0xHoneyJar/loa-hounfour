@@ -27,6 +27,22 @@ import { tokenize, type Token } from './tokenizer.js';
 export const MAX_EXPRESSION_DEPTH = 32;
 
 /**
+ * Optional context for constraint evaluation.
+ *
+ * Enables deterministic replay by providing a frozen evaluation timestamp
+ * that `now()` will use instead of the real clock. Without this, constraints
+ * containing `now()` cannot be replayed faithfully — evaluating the same
+ * expression tomorrow produces a different result.
+ *
+ * @see DR-F3 — now() replay non-determinism
+ * @since v7.8.0
+ */
+export interface EvaluationContext {
+  /** ISO 8601 timestamp to use for now(). Enables deterministic replay. */
+  evaluation_timestamp?: string;
+}
+
+/**
  * Resolve a dotted field path on a data object.
  * Returns undefined for missing paths.
  */
@@ -73,12 +89,14 @@ class Parser {
   private pos = 0;
   private data: Record<string, unknown>;
   private depth: number;
+  private context?: EvaluationContext;
   private readonly functions: ReadonlyMap<string, FunctionHandler>;
 
-  constructor(tokens: Token[], data: Record<string, unknown>, depth = 0) {
+  constructor(tokens: Token[], data: Record<string, unknown>, depth = 0, context?: EvaluationContext) {
     this.tokens = tokens;
     this.data = data;
     this.depth = depth;
+    this.context = context;
 
     // Function registry — maps function names to parse handlers.
     // Each handler consumes the function name token and its arguments
@@ -145,6 +163,28 @@ class Parser {
       // Bridge iteration 2 builtins (v7.0.0)
       ['saga_timeout_valid', () => this.parseSagaTimeoutValid()],
       ['proposal_weights_normalized', () => this.parseProposalWeightsNormalized()],
+
+      // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+      ['is_after', () => this.parseTimestampCmp('after')],
+      ['is_before', () => this.parseTimestampCmp('before')],
+      ['is_between', () => this.parseTimestampBetween()],
+
+      // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+      ['is_stale', () => this.parseTimestampStaleness('stale')],
+      ['is_within', () => this.parseTimestampStaleness('within')],
+
+      // Constraint lifecycle governance (v7.6.0 — DR-S4)
+      ['constraint_lifecycle_valid', () => this.parseConstraintLifecycleValid()],
+      // Proposal execution (v7.7.0 — DR-S9)
+      ['proposal_execution_valid', () => this.parseProposalExecutionValid()],
+      // Temporal utility (v7.7.0 — DR-S10)
+      ['now', () => this.parseNow()],
+      // Model routing eligibility (v7.7.0 — DR-S10)
+      ['model_routing_eligible', () => this.parseModelRoutingEligible()],
+      // Basket weight normalization (v7.8.0 — DR-F2)
+      ['basket_weights_normalized', () => this.parseBasketWeightsNormalized()],
+      // Execution checkpoint validation (v7.8.0 — DR-F5)
+      ['execution_checkpoint_valid', () => this.parseExecutionCheckpointValid()],
     ]);
   }
 
@@ -474,7 +514,7 @@ class Parser {
         return arr.every((item) => {
           // Create a scoped data object: the lambda parameter resolves to the item
           const scopedData = { ...this.data, [paramName]: item };
-          const innerParser = new Parser([...innerTokens], scopedData, this.depth);
+          const innerParser = new Parser([...innerTokens], scopedData, this.depth, this.context);
           return !!innerParser.parseExpr();
         });
       }
@@ -1388,6 +1428,294 @@ class Parser {
     // Check within tolerance of 1.0
     return Math.abs(totalWeight - 1.0) <= 0.001;
   }
+
+  // ---------------------------------------------------------------------------
+  // Constraint lifecycle governance (v7.6.0 — DR-S4)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Validate constraint_lifecycle_valid(event).
+   *
+   * Checks that from_status → to_status follows CONSTRAINT_LIFECYCLE_TRANSITIONS.
+   *
+   * Valid transitions:
+   *   proposed → under_review, rejected
+   *   under_review → enacted, rejected
+   *   enacted → deprecated
+   *   rejected → (none)
+   *   deprecated → (none)
+   */
+  private parseConstraintLifecycleValid(): boolean {
+    this.advance(); // consume 'constraint_lifecycle_valid'
+    this.expect('paren', '(');
+    const event = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const fromStatus = event.from_status;
+    const toStatus = event.to_status;
+    if (typeof fromStatus !== 'string' || typeof toStatus !== 'string') return false;
+
+    // Same-status transition is never valid
+    if (fromStatus === toStatus) return false;
+
+    const transitions: Record<string, readonly string[]> = {
+      proposed: ['under_review', 'rejected'],
+      under_review: ['enacted', 'rejected'],
+      enacted: ['deprecated'],
+      rejected: [],
+      deprecated: [],
+    };
+
+    const allowed = transitions[fromStatus];
+    if (!allowed) return false;
+
+    return allowed.includes(toStatus);
+  }
+
+  /**
+   * Validate proposal_execution_valid(execution).
+   *
+   * Checks that a ProposalExecution is internally consistent:
+   * - All changes_applied have result 'success'
+   * - Status is 'completed'
+   *
+   * @since v7.7.0 — DR-S9
+   */
+  private parseProposalExecutionValid(): boolean {
+    this.advance(); // consume 'proposal_execution_valid'
+    this.expect('paren', '(');
+    const execution = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const status = execution.status;
+    if (typeof status !== 'string' || status !== 'completed') return false;
+
+    const changesApplied = execution.changes_applied;
+    if (!Array.isArray(changesApplied) || changesApplied.length === 0) return false;
+
+    for (const change of changesApplied) {
+      const rec = asRecord(change);
+      if (rec.result !== 'success') return false;
+    }
+
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Temporal utility builtins (v7.7.0 — DR-S10)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * now() → current ISO 8601 timestamp string.
+   * If an EvaluationContext with evaluation_timestamp is provided,
+   * returns the frozen timestamp for deterministic replay (DR-F3).
+   * Otherwise falls back to the real clock.
+   */
+  private parseNow(): string {
+    this.advance(); // consume 'now'
+    this.expect('paren', '(');
+    this.expect('paren', ')');
+    if (this.context?.evaluation_timestamp && Parser.ISO_8601_RE.test(this.context.evaluation_timestamp)) {
+      return this.context.evaluation_timestamp;
+    }
+    return new Date().toISOString();
+  }
+
+  /**
+   * model_routing_eligible(qualifying_state, qualifying_score, current_state, current_score)
+   * Evaluates whether current reputation meets routing signal requirements
+   * using REPUTATION_STATE_ORDER comparison.
+   */
+  private parseModelRoutingEligible(): boolean {
+    this.advance(); // consume 'model_routing_eligible'
+    this.expect('paren', '(');
+    const qualifyingState = this.parseExpr();
+    this.expect('comma', ',');
+    const qualifyingScore = this.parseExpr();
+    this.expect('comma', ',');
+    const currentState = this.parseExpr();
+    this.expect('comma', ',');
+    const currentScore = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof qualifyingState !== 'string' || typeof currentState !== 'string') return false;
+    if (typeof qualifyingScore !== 'number' || typeof currentScore !== 'number') return false;
+
+    // State ordering: cold=0, warming=1, established=2, authoritative=3
+    const stateOrder: Record<string, number> = {
+      cold: 0, warming: 1, established: 2, authoritative: 3,
+    };
+
+    const currentOrder = stateOrder[currentState] ?? -1;
+    const requiredOrder = stateOrder[qualifyingState] ?? -1;
+
+    if (currentOrder < requiredOrder) return false;
+    return currentScore >= qualifyingScore;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Basket weight normalization (v7.8.0 — DR-F2)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * basket_weights_normalized(composition) — checks that a BasketComposition's
+   * entries weights sum to approximately 1.0 (within 0.001 tolerance).
+   */
+  private parseBasketWeightsNormalized(): boolean {
+    this.advance(); // consume 'basket_weights_normalized'
+    this.expect('paren', '(');
+    const composition = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const entries = composition.entries;
+    if (!Array.isArray(entries)) return false;
+
+    // Resource limit: max 100 entries
+    if (entries.length > 100) return false;
+
+    // Empty basket is not normalized (must have at least one entry)
+    if (entries.length === 0) return false;
+
+    let totalWeight = 0;
+    for (const entry of entries) {
+      if (entry == null || typeof entry !== 'object') continue;
+      const e = entry as Record<string, unknown>;
+      if (typeof e.weight === 'number') {
+        totalWeight += e.weight;
+      }
+    }
+
+    return Math.abs(totalWeight - 1.0) <= 0.001;
+  }
+
+  /**
+   * execution_checkpoint_valid(checkpoint) — validates that health_status and
+   * proceed_decision are consistent:
+   *   healthy → must be continue
+   *   degraded → may be continue or pause
+   *   failing → must be rollback
+   */
+  private parseExecutionCheckpointValid(): boolean {
+    this.advance(); // consume 'execution_checkpoint_valid'
+    this.expect('paren', '(');
+    const checkpoint = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const health = checkpoint.health_status;
+    const decision = checkpoint.proceed_decision;
+
+    if (typeof health !== 'string' || typeof decision !== 'string') return false;
+
+    switch (health) {
+      case 'healthy':
+        return decision === 'continue';
+      case 'degraded':
+        return decision === 'continue' || decision === 'pause';
+      case 'failing':
+        return decision === 'rollback';
+      default:
+        return false;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+  // ---------------------------------------------------------------------------
+
+  /** ISO 8601 date-time prefix pattern for cross-language consistency. */
+  private static readonly ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+  /** Parse an ISO 8601 string to epoch ms. Returns NaN for non-conforming input. */
+  private parseIso8601Ms(value: unknown): number {
+    const s = String(value);
+    if (!Parser.ISO_8601_RE.test(s)) return NaN;
+    return new Date(s).getTime();
+  }
+
+  /**
+   * Parse is_after(a, b) or is_before(a, b).
+   * Compares two ISO 8601 date strings.
+   *
+   * @since v7.4.0
+   */
+  private parseTimestampCmp(op: 'after' | 'before'): boolean {
+    this.advance(); // consume 'is_after' or 'is_before'
+    this.expect('paren', '(');
+    const left = this.parseExpr();
+    this.expect('comma');
+    const right = this.parseExpr();
+    this.expect('paren', ')');
+
+    const leftMs = this.parseIso8601Ms(left);
+    const rightMs = this.parseIso8601Ms(right);
+
+    if (isNaN(leftMs) || isNaN(rightMs)) return false;
+
+    return op === 'after' ? leftMs > rightMs : leftMs < rightMs;
+  }
+
+  /**
+   * Parse is_between(value, lower, upper).
+   * Checks that lower <= value <= upper for ISO 8601 date strings.
+   *
+   * @since v7.4.0
+   */
+  private parseTimestampBetween(): boolean {
+    this.advance(); // consume 'is_between'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('comma');
+    const lower = this.parseExpr();
+    this.expect('comma');
+    const upper = this.parseExpr();
+    this.expect('paren', ')');
+
+    const valueMs = this.parseIso8601Ms(value);
+    const lowerMs = this.parseIso8601Ms(lower);
+    const upperMs = this.parseIso8601Ms(upper);
+
+    if (isNaN(valueMs) || isNaN(lowerMs) || isNaN(upperMs)) return false;
+
+    return lowerMs <= valueMs && valueMs <= upperMs;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Parse is_stale(timestamp, max_age_seconds, reference_timestamp) or
+   * is_within(timestamp, max_age_seconds, reference_timestamp).
+   *
+   * Deterministic — uses an explicit reference timestamp instead of Date.now().
+   *
+   * - is_stale: (referenceMs - timestampMs) / 1000 > maxAge  (strict >)
+   * - is_within: (referenceMs - timestampMs) / 1000 <= maxAge (inclusive <=)
+   *
+   * Returns false for invalid timestamps or negative max_age.
+   *
+   * @since v7.5.0
+   */
+  private parseTimestampStaleness(op: 'stale' | 'within'): boolean {
+    this.advance(); // consume 'is_stale' or 'is_within'
+    this.expect('paren', '(');
+    const timestamp = this.parseExpr();
+    this.expect('comma');
+    const maxAgeExpr = this.parseExpr();
+    this.expect('comma');
+    const referenceTimestamp = this.parseExpr();
+    this.expect('paren', ')');
+
+    const timestampMs = this.parseIso8601Ms(timestamp);
+    const referenceMs = this.parseIso8601Ms(referenceTimestamp);
+    const maxAge = Number(maxAgeExpr);
+
+    if (isNaN(timestampMs) || isNaN(referenceMs) || isNaN(maxAge) || maxAge < 0) return false;
+
+    const elapsedSeconds = (referenceMs - timestampMs) / 1000;
+
+    return op === 'stale' ? elapsedSeconds > maxAge : elapsedSeconds <= maxAge;
+  }
 }
 
 /**
@@ -1443,9 +1771,49 @@ export const EVALUATOR_BUILTINS = [
   // Bridge iteration 2 builtins (v7.0.0)
   'saga_timeout_valid',
   'proposal_weights_normalized',
+  // Timestamp comparison (v7.4.0)
+  'is_after',
+  'is_before',
+  'is_between',
+  // Temporal governance (v7.5.0)
+  'is_stale',
+  'is_within',
+  // Constraint lifecycle (v7.6.0)
+  'constraint_lifecycle_valid',
+  // Proposal execution (v7.7.0)
+  'proposal_execution_valid',
+  // Temporal utility (v7.7.0)
+  'now',
+  // Model routing (v7.7.0)
+  'model_routing_eligible',
+  // Basket composition (v7.8.0)
+  'basket_weights_normalized',
+  // Execution checkpoint (v7.8.0)
+  'execution_checkpoint_valid',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
+
+/**
+ * Reserved names in the evaluator namespace.
+ *
+ * Includes all builtin function names plus language keywords that cannot be
+ * used as constraint field names without risking collision. Consumer schemas
+ * should validate that their field names do not appear in this set.
+ *
+ * @see DR-F4 — Namespace collision surface
+ * @since v7.8.0
+ */
+export const RESERVED_EVALUATOR_NAMES: ReadonlySet<string> = new Set([
+  ...EVALUATOR_BUILTINS,
+  // Language keywords used by the constraint expression parser
+  'true',
+  'false',
+  'null',
+  'undefined',
+  'every',
+  'length',
+]);
 
 /**
  * Evaluate a constraint expression against a data object.
@@ -1455,11 +1823,16 @@ export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
  *
  * @param data - The document to evaluate against
  * @param expression - Constraint expression string
+ * @param context - Optional evaluation context for deterministic replay (DR-F3)
  * @returns Whether the constraint passes
  */
-export function evaluateConstraint(data: Record<string, unknown>, expression: string): boolean {
+export function evaluateConstraint(
+  data: Record<string, unknown>,
+  expression: string,
+  context?: EvaluationContext,
+): boolean {
   const tokens = tokenize(expression);
-  const parser = new Parser(tokens, data);
+  const parser = new Parser(tokens, data, 0, context);
   const result = parser.parseExpr();
   return !!result;
 }

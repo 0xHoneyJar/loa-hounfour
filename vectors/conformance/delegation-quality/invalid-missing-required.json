@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-delegation-quality-003",
+  "category": "delegation-quality",
+  "description": "Invalid: missing required personality_id field (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "event_id": "ee0e8400-e29b-41d4-a716-446655440500",
+    "outcome_id": "ff0e8400-e29b-41d4-a716-446655440600",
+    "tree_node_id": "node-root",
+    "collection_id": "collection-alpha",
+    "pool_id": "pool-1",
+    "outcome_type": "majority",
+    "quality_signal": "moderate",
+    "quality_score": 0.70,
+    "mapping_used": {
+      "unanimous": "high",
+      "majority": "moderate",
+      "deadlock": "low",
+      "escalation": "negative"
+    },
+    "occurred_at": "2026-02-23T15:00:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "Missing personality_id — required field."
+  }
+}

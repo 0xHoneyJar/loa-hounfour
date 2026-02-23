@@ -118,6 +118,14 @@ export const GovernanceProposalSchema = Type.Object(
     status: ProposalStatusSchema,
     voting: VotingRecordSchema,
     ratified_at: Type.Optional(Type.String({ format: 'date-time' })),
+    execution_id: Type.Optional(Type.String({
+      format: 'uuid',
+      description: 'Reference to ProposalExecution, set after ratification.',
+    })),
+    collection_id: Type.Optional(Type.String({
+      minLength: 1,
+      description: 'Collection this proposal targets.',
+    })),
     contract_version: Type.String({
       pattern: '^\\d+\\.\\d+\\.\\d+$',
       description: 'Protocol contract version.',

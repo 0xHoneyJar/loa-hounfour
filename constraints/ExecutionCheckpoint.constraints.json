@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/constraint-schema",
+  "schema_id": "ExecutionCheckpoint",
+  "constraints": [
+    {
+      "id": "checkpoint-health-decision-consistent",
+      "expression": "execution_checkpoint_valid(checkpoint)",
+      "severity": "error",
+      "description": "Health status and proceed decision must be consistent: healthy→continue, degraded→continue|pause, failing→rollback.",
+      "type_signature": {
+        "checkpoint": "ExecutionCheckpoint"
+      },
+      "fields": ["health_status", "proceed_decision"]
+    },
+    {
+      "id": "checkpoint-counts-nonnegative",
+      "expression": "checkpoint.changes_applied_count >= 0 && checkpoint.changes_remaining_count >= 0",
+      "severity": "error",
+      "description": "Applied and remaining counts must be non-negative.",
+      "type_signature": {
+        "checkpoint": "ExecutionCheckpoint"
+      },
+      "fields": ["changes_applied_count", "changes_remaining_count"]
+    }
+  ]
+}

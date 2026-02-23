@@ -124,6 +124,45 @@ describe('DissentRecordSchema', () => {
   it('rejects empty dissenter_id', () => {
     expect(Value.Check(DissentRecordSchema, { ...validDissent, dissenter_id: '' })).toBe(false);
   });
+
+  it('accepts dissent with acknowledgment fields (v7.6.0)', () => {
+    const acknowledged = {
+      ...validDissent,
+      acknowledged: true,
+      acknowledged_at: '2026-01-16T10:00:00Z',
+      acknowledged_by: 'admin-agent',
+      acknowledgment_response: 'Dissent noted; risk mitigation measures added.',
+    };
+    expect(Value.Check(DissentRecordSchema, acknowledged)).toBe(true);
+  });
+
+  it('accepts dissent with partial acknowledgment fields', () => {
+    expect(Value.Check(DissentRecordSchema, {
+      ...validDissent,
+      acknowledged_at: '2026-01-16T10:00:00Z',
+    })).toBe(true);
+  });
+
+  it('rejects invalid acknowledged_at format', () => {
+    expect(Value.Check(DissentRecordSchema, {
+      ...validDissent,
+      acknowledged_at: 'not-a-date',
+    })).toBe(false);
+  });
+
+  it('rejects empty acknowledged_by', () => {
+    expect(Value.Check(DissentRecordSchema, {
+      ...validDissent,
+      acknowledged_by: '',
+    })).toBe(false);
+  });
+
+  it('rejects empty acknowledgment_response', () => {
+    expect(Value.Check(DissentRecordSchema, {
+      ...validDissent,
+      acknowledgment_response: '',
+    })).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------

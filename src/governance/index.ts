@@ -66,10 +66,68 @@ export {
   REPUTATION_DECAY,
   MIN_REPUTATION_SAMPLE_SIZE,
   type ReputationComponent,
+  BAYESIAN_BLEND,
+  ANTI_MANIPULATION,
+  REPUTATION_STATES,
+  REPUTATION_STATE_ORDER,
+  DEFAULT_HALF_LIFE_DAYS,
 } from '../vocabulary/reputation.js';
+
+// Schemas — Reputation Aggregate (v7.1.0, FR-3; v7.3.0, C5+Spec I)
+export {
+  ReputationStateSchema,
+  type ReputationState,
+  ReputationTransitionSchema,
+  type ReputationTransition,
+  ModelCohortSchema,
+  type ModelCohort,
+  ReputationAggregateSchema,
+  type ReputationAggregate,
+  REPUTATION_TRANSITIONS,
+  isValidReputationTransition,
+  computePersonalWeight,
+  computeBlendedScore,
+  computeDecayedSampleCount,
+  computeCrossModelScore,
+  getModelCohort,
+  AggregateSnapshotSchema,
+  type AggregateSnapshot,
+} from './reputation-aggregate.js';
+
+// Schemas — Quality Event (v7.1.0, FR-3)
+export {
+  QualityEventSchema,
+  type QualityEvent,
+} from '../schemas/quality-event.js';
+
+// Schemas — Reputation Commands (v7.1.0, FR-4)
+export {
+  RecordQualityEventCommandSchema,
+  type RecordQualityEventCommand,
+  QueryReputationCommandSchema,
+  type QueryReputationCommand,
+  ResetReputationCommandSchema,
+  type ResetReputationCommand,
+} from './reputation-commands.js';
+
+// Schemas — Reputation Events (v7.1.0, FR-4)
+export {
+  ReputationStateChangedPayloadSchema,
+  type ReputationStateChangedPayload,
+  QualityEventRecordedPayloadSchema,
+  type QualityEventRecordedPayload,
+  CollectionScoreUpdatedPayloadSchema,
+  type CollectionScoreUpdatedPayload,
+} from './reputation-events.js';
 
 // Utilities — Reputation
 export { isReliableReputation } from '../utilities/reputation.js';
+
+// Schemas — Reputation Credential (v7.3.0, C1 + Spec IV)
+export {
+  ReputationCredentialSchema,
+  type ReputationCredential,
+} from './reputation-credential.js';
 
 // Schemas — Governance Config (v5.3.0)
 export {
@@ -146,3 +204,138 @@ export {
   type VotingRecord,
   type GovernanceProposal,
 } from './governance-proposal.js';
+
+// Schemas — Event Subscription (v7.5.0, DR-S1)
+export {
+  EventFilterSchema,
+  DeliveryMethodSchema,
+  EventCursorSchema,
+  EventSubscriptionSchema,
+  type EventFilter,
+  type DeliveryMethod,
+  type EventCursor,
+  type EventSubscription,
+} from './event-subscription.js';
+
+// Schemas — Reputation Portability (v7.5.0, DR-S2)
+export {
+  PortabilityScopeSchema,
+  ReputationPortabilityRequestSchema,
+  PortabilityResponseSchema,
+  type PortabilityScope,
+  type ReputationPortabilityRequest,
+  type PortabilityResponse,
+} from './reputation-portability.js';
+
+// Schemas — Delegation Quality (v7.5.0, DR-S3)
+export {
+  QualitySignalLevelSchema,
+  OutcomeQualityMappingSchema,
+  DEFAULT_OUTCOME_QUALITY_MAPPING,
+  QUALITY_SIGNAL_SCORES,
+  DelegationQualityEventSchema,
+  type QualitySignalLevel,
+  type OutcomeQualityMapping,
+  type DelegationQualityEvent,
+} from './delegation-quality.js';
+
+// Schemas — Collection Governance Config (v7.6.0, DR-S5 + DR-S6)
+export {
+  DemotionRuleSchema,
+  ReputationDecayPolicySchema,
+  CollectionGovernanceConfigSchema,
+  DEFAULT_DEMOTION_RULES,
+  type DemotionRule,
+  type ReputationDecayPolicy,
+  type CollectionGovernanceConfig,
+} from './collection-governance-config.js';
+
+// Schemas — Constraint Lifecycle (v7.6.0, DR-S4)
+export {
+  ConstraintLifecycleStatusSchema,
+  CONSTRAINT_LIFECYCLE_TRANSITIONS,
+  ConstraintCandidateSchema,
+  ConstraintLifecycleEventSchema,
+  type ConstraintLifecycleStatus,
+  type ConstraintCandidate,
+  type ConstraintLifecycleEvent,
+} from './constraint-lifecycle.js';
+
+// Schemas — Reputation Routing (v7.6.0, DR-S7)
+export {
+  RoutingSignalTypeSchema,
+  ReputationRoutingSignalSchema,
+  type RoutingSignalType,
+  type ReputationRoutingSignal,
+} from './reputation-routing.js';
+
+// Schemas — Policy Version (v7.6.0, DR-S8)
+export {
+  PolicyTypeSchema,
+  PolicyVersionSchema,
+  type PolicyType,
+  type PolicyVersion,
+} from './policy-version.js';
+
+// Schemas — Proposal Execution (v7.7.0, DR-S9; v7.8.0, DR-F5)
+export {
+  ExecutionStatusSchema,
+  EXECUTION_STATUS_TRANSITIONS,
+  ChangeApplicationResultSchema,
+  ProposalExecutionSchema,
+  ExecutionStrategySchema,
+  type ExecutionStatus,
+  type ChangeApplicationResult,
+  type ProposalExecution,
+  type ExecutionStrategy,
+} from './proposal-execution.js';
+
+// Schemas — Execution Checkpoint (v7.8.0, DR-F5)
+export {
+  CheckpointHealthSchema,
+  ProceedDecisionSchema,
+  ExecutionCheckpointSchema,
+  type CheckpointHealth,
+  type ProceedDecision,
+  type ExecutionCheckpoint,
+} from './execution-checkpoint.js';
+
+// Schemas — Rollback Scope (v7.8.0, DR-F5)
+export {
+  RollbackScopeSchema,
+  type RollbackScope,
+} from './rollback-scope.js';
+
+// Schemas — Proposal Outcome Event (v7.7.0, DR-S9)
+export {
+  ProposalEventTypeSchema,
+  ProposalOutcomeEventSchema,
+  type ProposalEventType,
+  type ProposalOutcomeEvent,
+} from './proposal-outcome-event.js';
+
+// Schemas — Community Engagement (v7.7.0, DR-S10)
+export {
+  EngagementSignalTypeSchema,
+  CommunityEngagementSignalSchema,
+  type EngagementSignalType,
+  type CommunityEngagementSignal,
+} from './community-engagement.js';
+
+// Utilities — Governance (v7.7.0, DR-S10)
+export {
+  isProposalActionable,
+  computeVotingResult,
+  isConstraintEnactable,
+  computeGovernanceWeight,
+} from '../utilities/governance-utils.js';
+
+// Utilities — Model Routing (v7.7.0, DR-S10)
+export {
+  computeModelRoutingScores,
+  selectModel,
+  computeCompositeBasketWeights,
+  isModelEligible,
+  computeRebalancedWeights,
+  type ModelRoutingScore,
+} from '../utilities/model-routing.js';

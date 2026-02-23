@@ -1,0 +1,18 @@
+{
+  "vector_id": "conformance-policy-version-001",
+  "category": "policy-version",
+  "description": "Valid monetary policy version upgrade with supersession.",
+  "contract_version": "7.6.0",
+  "input": {
+    "version_id": "550e8400-e29b-41d4-a716-446655440070",
+    "policy_type": "monetary",
+    "policy_id": "conservation-ceiling-policy",
+    "version": "2.0.0",
+    "effective_at": "2026-02-01T00:00:00Z",
+    "supersedes": "550e8400-e29b-41d4-a716-446655440071",
+    "enacted_by_proposal": "550e8400-e29b-41d4-a716-446655440072",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

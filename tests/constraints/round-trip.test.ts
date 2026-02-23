@@ -683,16 +683,40 @@ describe('ConversationSealingPolicy round-trip', () => {
 describe('AccessPolicy round-trip', () => {
   const file = loadConstraints('AccessPolicy');
 
-  it('has visibility: valid', () => {
-    const data = { visibility: 'public' };
+  it('has type: valid', () => {
+    const data = { type: 'read_only' };
     const constraintResult = evalById(file, 'access-policy-valid', data);
     expect(constraintResult).toBe(true);
   });
 
-  it('missing visibility: violation', () => {
+  it('missing type: violation', () => {
     const data = {};
     const constraintResult = evalById(file, 'access-policy-valid', data);
     expect(constraintResult).toBe(false);
+  });
+
+  it('reputation_gated with score: valid', () => {
+    const data = { type: 'reputation_gated', min_reputation_score: 0.5 };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('reputation_gated with state: valid', () => {
+    const data = { type: 'reputation_gated', min_reputation_state: 'established' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
+  });
+
+  it('reputation_gated without score or state: violation', () => {
+    const data = { type: 'reputation_gated' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(false);
+  });
+
+  it('non-reputation_gated: constraint vacuously passes', () => {
+    const data = { type: 'read_only' };
+    const constraintResult = evalById(file, 'access-reputation-gated-condition', data);
+    expect(constraintResult).toBe(true);
   });
 });
 
@@ -1749,7 +1773,7 @@ describe('Constraint file structure', () => {
   const v4SchemaIds = [
     'EscrowEntry', 'StakePosition', 'MutualCredit', 'CommonsDividend',
     'DisputeRecord', 'ReputationScore', 'BillingEntry',
-    'PerformanceRecord', 'ConversationSealingPolicy', 'AccessPolicy',
+    'PerformanceRecord', 'ConversationSealingPolicy',
   ];
 
   const v5SchemaIds = [
@@ -1806,6 +1830,50 @@ describe('Constraint file structure', () => {
       expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
       expect(file.schema_id).toBe(schemaId);
       expect(file.contract_version).toBe('5.1.0');
+      expect(file.expression_version).toBe('2.0');
+      expect(file.constraints.length).toBeGreaterThan(0);
+
+      for (const constraint of file.constraints) {
+        expect(constraint.id).toBeTruthy();
+        expect(constraint.expression).toBeTruthy();
+        expect(['error', 'warning']).toContain(constraint.severity);
+        expect(constraint.message).toBeTruthy();
+        expect(constraint.fields.length).toBeGreaterThan(0);
+      }
+    });
+  }
+
+  // v7.3.0 constraint files — AccessPolicy upgraded
+  const v73SchemaIds = ['AccessPolicy'];
+
+  for (const schemaId of v73SchemaIds) {
+    it(`${schemaId} constraint file has valid v7.3.0 structure`, () => {
+      const file = loadConstraints(schemaId);
+      expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
+      expect(file.schema_id).toBe(schemaId);
+      expect(file.contract_version).toBe('7.3.0');
+      expect(file.expression_version).toBe('1.0');
+      expect(file.constraints.length).toBeGreaterThan(0);
+
+      for (const constraint of file.constraints) {
+        expect(constraint.id).toBeTruthy();
+        expect(constraint.expression).toBeTruthy();
+        expect(['error', 'warning']).toContain(constraint.severity);
+        expect(constraint.message).toBeTruthy();
+        expect(constraint.fields.length).toBeGreaterThan(0);
+      }
+    });
+  }
+
+  // v7.4.0 constraint files — ReputationCredential upgraded with temporal builtins
+  const v74SchemaIds = ['ReputationCredential'];
+
+  for (const schemaId of v74SchemaIds) {
+    it(`${schemaId} constraint file has valid v7.4.0 structure`, () => {
+      const file = loadConstraints(schemaId);
+      expect(file.$schema).toBe('https://loa-hounfour.dev/schemas/constraint-file.json');
+      expect(file.schema_id).toBe(schemaId);
+      expect(file.contract_version).toBe('7.4.0');
       expect(file.expression_version).toBe('2.0');
       expect(file.constraints.length).toBeGreaterThan(0);
 

@@ -127,6 +127,18 @@ export const DissentRecordSchema = Type.Object(
     acknowledged: Type.Boolean({
       description: 'Whether the dissent has been acknowledged by the decision maker.',
     }),
+    acknowledged_at: Type.Optional(Type.String({
+      format: 'date-time',
+      description: 'When the dissent was acknowledged.',
+    })),
+    acknowledged_by: Type.Optional(Type.String({
+      minLength: 1,
+      description: 'ID of the agent who acknowledged the dissent.',
+    })),
+    acknowledgment_response: Type.Optional(Type.String({
+      minLength: 1,
+      description: 'Response or explanation provided when acknowledging the dissent.',
+    })),
   },
   {
     $id: 'DissentRecord',

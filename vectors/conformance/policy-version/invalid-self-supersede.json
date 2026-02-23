@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-policy-version-003",
+  "category": "policy-version",
+  "description": "Invalid: policy version supersedes itself.",
+  "contract_version": "7.6.0",
+  "input": {
+    "version_id": "550e8400-e29b-41d4-a716-446655440074",
+    "policy_type": "access",
+    "policy_id": "tier-access-policy",
+    "version": "1.0.0",
+    "effective_at": "2026-01-15T00:00:00Z",
+    "supersedes": "550e8400-e29b-41d4-a716-446655440074",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": false,
+  "expected_output": {}
+}

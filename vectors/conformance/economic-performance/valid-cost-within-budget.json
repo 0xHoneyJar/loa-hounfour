@@ -1,0 +1,25 @@
+{
+  "vector_id": "conformance-economic-performance-001",
+  "category": "economic-performance",
+  "description": "Valid performance event: model invocation came in under budget with quality met.",
+  "contract_version": "7.8.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440070",
+    "boundary_id": "550e8400-e29b-41d4-a716-446655440060",
+    "model_id": "gpt-5.2",
+    "outcome_type": "cost_within_budget",
+    "actual_cost": "1200000",
+    "budgeted_cost": "1500000",
+    "actual_quality": 0.85,
+    "expected_quality": 0.80,
+    "tokens_used": {
+      "input": 1500,
+      "output": 800
+    },
+    "duration_ms": 2340,
+    "occurred_at": "2026-02-23T16:00:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

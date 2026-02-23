@@ -1,0 +1,26 @@
+{
+  "schema_id": "ProposalExecution",
+  "constraints": [
+    {
+      "id": "execution-completed-needs-timestamp",
+      "expression": "status != 'completed' || completed_at != null",
+      "description": "Completed executions must have a completed_at timestamp.",
+      "severity": "error",
+      "type_signature": {
+        "status": "string",
+        "completed_at": "string | null"
+      },
+      "fields": ["status", "completed_at"]
+    },
+    {
+      "id": "execution-changes-nonempty",
+      "expression": "len(changes_applied) >= 1",
+      "description": "Execution must have at least one change application result.",
+      "severity": "error",
+      "type_signature": {
+        "changes_applied": "array"
+      },
+      "fields": ["changes_applied"]
+    }
+  ]
+}

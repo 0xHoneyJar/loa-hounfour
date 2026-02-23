@@ -1,0 +1,15 @@
+{
+  "schema_id": "ProposalOutcomeEvent",
+  "constraints": [
+    {
+      "id": "outcome-event-actor-required",
+      "expression": "len(actor_id) >= 1",
+      "description": "Outcome events must have a non-empty actor ID.",
+      "severity": "error",
+      "type_signature": {
+        "actor_id": "string"
+      },
+      "fields": ["actor_id"]
+    }
+  ]
+}

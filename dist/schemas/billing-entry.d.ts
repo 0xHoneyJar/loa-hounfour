@@ -3,7 +3,7 @@ export declare const CostTypeSchema: import("@sinclair/typebox").TUnion<[import(
 export type CostType = Static<typeof CostTypeSchema>;
 export declare const BillingRecipientSchema: import("@sinclair/typebox").TObject<{
     address: import("@sinclair/typebox").TString;
-    role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">]>;
+    role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">, import("@sinclair/typebox").TLiteral<"agent_performer">, import("@sinclair/typebox").TLiteral<"commons">]>;
     share_bps: import("@sinclair/typebox").TInteger;
     amount_micro: import("@sinclair/typebox").TString;
 }>;
@@ -18,6 +18,9 @@ export declare const BillingEntrySchema: import("@sinclair/typebox").TObject<{
     model: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     pool_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     tool_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    model_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    cost_provider: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    pricing_model: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"per_token">, import("@sinclair/typebox").TLiteral<"gpu_hourly">, import("@sinclair/typebox").TLiteral<"flat_rate">]>>;
     currency: import("@sinclair/typebox").TLiteral<"USD">;
     precision: import("@sinclair/typebox").TLiteral<6>;
     raw_cost_micro: import("@sinclair/typebox").TString;
@@ -26,7 +29,7 @@ export declare const BillingEntrySchema: import("@sinclair/typebox").TObject<{
     rounding_policy: import("@sinclair/typebox").TLiteral<"largest_remainder">;
     recipients: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
         address: import("@sinclair/typebox").TString;
-        role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">]>;
+        role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">, import("@sinclair/typebox").TLiteral<"agent_performer">, import("@sinclair/typebox").TLiteral<"commons">]>;
         share_bps: import("@sinclair/typebox").TInteger;
         amount_micro: import("@sinclair/typebox").TString;
     }>>;
@@ -38,6 +41,14 @@ export declare const BillingEntrySchema: import("@sinclair/typebox").TObject<{
         completion_tokens: import("@sinclair/typebox").TInteger;
         reasoning_tokens: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
     }>>;
+    source_completion_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    pricing_snapshot: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+        input_per_million_micro: import("@sinclair/typebox").TString;
+        output_per_million_micro: import("@sinclair/typebox").TString;
+        thinking_per_million_micro: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    }>>;
+    reconciliation_mode: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"protocol_authoritative">, import("@sinclair/typebox").TLiteral<"provider_invoice_authoritative">]>>;
+    reconciliation_delta_micro: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
 }>;
 export type BillingEntry = Static<typeof BillingEntrySchema>;
@@ -59,7 +70,7 @@ export declare const CreditNoteSchema: import("@sinclair/typebox").TObject<{
     amount_micro: import("@sinclair/typebox").TIntersect<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TString]>;
     recipients: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
         address: import("@sinclair/typebox").TString;
-        role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">]>;
+        role: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"provider">, import("@sinclair/typebox").TLiteral<"platform">, import("@sinclair/typebox").TLiteral<"producer">, import("@sinclair/typebox").TLiteral<"agent_tba">, import("@sinclair/typebox").TLiteral<"agent_performer">, import("@sinclair/typebox").TLiteral<"commons">]>;
         share_bps: import("@sinclair/typebox").TInteger;
         amount_micro: import("@sinclair/typebox").TString;
     }>>;

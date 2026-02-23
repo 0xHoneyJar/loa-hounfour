@@ -1,0 +1,22 @@
+{
+  "vector_id": "conformance-reputation-routing-001",
+  "category": "reputation-routing",
+  "description": "Valid model preference routing signal with per-model cohort scores.",
+  "contract_version": "7.6.0",
+  "input": {
+    "signal_id": "550e8400-e29b-41d4-a716-446655440060",
+    "personality_id": "personality-alpha",
+    "signal_type": "model_preference",
+    "qualifying_state": "established",
+    "qualifying_score": 0.75,
+    "model_preferences": [
+      { "model_id": "claude-opus", "min_cohort_score": 0.8 },
+      { "model_id": "gpt-4o", "min_cohort_score": 0.7 }
+    ],
+    "routing_weight": 0.6,
+    "effective_at": "2026-01-15T00:00:00Z",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

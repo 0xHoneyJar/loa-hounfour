@@ -1,0 +1,30 @@
+{
+  "vector_id": "conformance-economic-boundary-002",
+  "category": "economic-boundary",
+  "description": "Valid economic boundary evaluation: access denied due to cold reputation state with denial reason.",
+  "contract_version": "7.7.0",
+  "input": {
+    "boundary_id": "550e8400-e29b-41d4-a716-446655440061",
+    "personality_id": "agent-untrusted",
+    "collection_id": "collection-alpha",
+    "trust_layer": {
+      "reputation_state": "cold",
+      "blended_score": 0.1,
+      "snapshot_at": "2026-02-20T10:00:00Z"
+    },
+    "capital_layer": {
+      "budget_remaining": "100000000",
+      "billing_tier": "premium",
+      "budget_period_end": "2026-03-01T00:00:00Z"
+    },
+    "access_decision": {
+      "granted": false,
+      "policy_id": "policy-reputation-gated",
+      "denial_reason": "Reputation state 'cold' does not meet minimum 'warming' for this collection."
+    },
+    "evaluated_at": "2026-02-20T10:00:01Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

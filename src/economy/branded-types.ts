@@ -98,3 +98,46 @@ export function deserializeBasisPoints(value: string): BasisPoints {
   if (val > 10000n) throw new RangeError(`BasisPoints must be 0–10000, got ${value}`);
   return val as BasisPoints;
 }
+
+// ---------------------------------------------------------------------------
+// MicroUSDC — on-chain USDC micro-units (v7.1.0)
+// ---------------------------------------------------------------------------
+
+/** Branded micro-USDC amount. 1 USDC = 1,000,000 micro-USDC. Non-negative (on-chain amounts are never negative). */
+export type MicroUSDC = bigint & { readonly __brand: 'micro_usdc' };
+
+/** Create a branded MicroUSDC value. Throws RangeError if negative. */
+export function microUSDC(value: bigint): MicroUSDC {
+  if (value < 0n) throw new RangeError(`MicroUSDC must be non-negative, got ${value}`);
+  return value as MicroUSDC;
+}
+
+/** Lenient reader — returns undefined on invalid input instead of throwing. */
+export function readMicroUSDC(value: unknown): MicroUSDC | undefined {
+  if (typeof value === 'bigint' && value >= 0n) return value as MicroUSDC;
+  if (typeof value === 'string' && /^[0-9]+$/.test(value)) {
+    return BigInt(value) as MicroUSDC;
+  }
+  return undefined;
+}
+
+/** Serialize MicroUSDC to string (for protocol wire format). */
+export function serializeMicroUSDC(value: MicroUSDC): string {
+  return String(value);
+}
+
+/** Deserialize string to MicroUSDC. Throws on invalid format. */
+export function deserializeMicroUSDC(value: string): MicroUSDC {
+  if (!/^[0-9]+$/.test(value)) throw new RangeError(`Invalid MicroUSDC string: "${value}"`);
+  return BigInt(value) as MicroUSDC;
+}
+
+/** Convert MicroUSD to MicroUSDC (same numeric scale, different semantic brand). */
+export function microUSDToUSDC(value: MicroUSD): MicroUSDC {
+  return value as unknown as MicroUSDC;
+}
+
+/** Convert MicroUSDC to MicroUSD (same numeric scale, different semantic brand). */
+export function microUSDCToUSD(value: MicroUSDC): MicroUSD {
+  return value as unknown as MicroUSD;
+}

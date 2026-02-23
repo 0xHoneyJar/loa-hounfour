@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/change-application-result",
+  "additionalProperties": false,
+  "description": "Result of applying a single proposed change during execution.",
+  "type": "object",
+  "required": [
+    "change_index",
+    "target",
+    "applied_at",
+    "result"
+  ],
+  "properties": {
+    "change_index": {
+      "minimum": 0,
+      "description": "Index into GovernanceProposal.changes[] array.",
+      "type": "integer"
+    },
+    "target": {
+      "minLength": 1,
+      "description": "What was changed (field path or constraint ID).",
+      "type": "string"
+    },
+    "applied_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "result": {
+      "description": "Outcome of applying this change.",
+      "anyOf": [
+        {
+          "const": "success",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        },
+        {
+          "const": "skipped",
+          "type": "string"
+        }
+      ]
+    },
+    "error": {
+      "description": "Failure reason, populated when result is \"failed\".",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-policy-version-002",
+  "category": "policy-version",
+  "description": "Valid governance policy version with migration validation expression.",
+  "contract_version": "7.6.0",
+  "input": {
+    "version_id": "550e8400-e29b-41d4-a716-446655440073",
+    "policy_type": "governance",
+    "policy_id": "quorum-threshold-policy",
+    "version": "1.1.0",
+    "effective_at": "2026-03-01T00:00:00Z",
+    "migration_validation": "new_quorum >= old_quorum * 0.5",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

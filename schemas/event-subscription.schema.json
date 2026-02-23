@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/event-subscription",
+  "additionalProperties": false,
+  "description": "A subscription to reputation events with filter, delivery, and cursor configuration.",
+  "type": "object",
+  "required": [
+    "subscription_id",
+    "subscriber_id",
+    "pool_id",
+    "filter",
+    "delivery",
+    "active",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "subscription_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "subscriber_id": {
+      "minLength": 1,
+      "description": "Identity of the subscribing service.",
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "description": "Pool scope for the subscription.",
+      "type": "string"
+    },
+    "filter": {
+      "$id": "EventFilter",
+      "additionalProperties": false,
+      "description": "Filter criteria for event subscription. All filters are AND-combined.",
+      "type": "object",
+      "properties": {
+        "personality_ids": {
+          "description": "Filter to events for specific personality IDs.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "collection_ids": {
+          "description": "Filter to events within specific collections.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "state_transitions": {
+          "description": "Filter to specific state transitions (e.g., \"cold→warming\").",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "score_thresholds": {
+          "description": "Filter to events where score crosses threshold boundaries.",
+          "type": "object",
+          "properties": {
+            "min": {
+              "minimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            "max": {
+              "minimum": 0,
+              "maximum": 1,
+              "type": "number"
+            }
+          }
+        },
+        "event_types": {
+          "description": "Filter to specific event types (e.g., \"quality_recorded\", \"state_changed\").",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "delivery": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "method"
+      ],
+      "properties": {
+        "method": {
+          "$id": "DeliveryMethod",
+          "description": "Delivery mechanism for subscribed events.",
+          "anyOf": [
+            {
+              "const": "webhook",
+              "type": "string"
+            },
+            {
+              "const": "sse",
+              "type": "string"
+            }
+          ]
+        },
+        "endpoint": {
+          "format": "uri",
+          "description": "Webhook URL or SSE endpoint. Required for webhook delivery.",
+          "type": "string"
+        },
+        "retry_policy": {
+          "type": "object",
+          "required": [
+            "max_retries",
+            "backoff_seconds"
+          ],
+          "properties": {
+            "max_retries": {
+              "minimum": 0,
+              "default": 3,
+              "type": "integer"
+            },
+            "backoff_seconds": {
+              "minimum": 1,
+              "default": 5,
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "cursor": {
+      "$id": "EventCursor",
+      "additionalProperties": false,
+      "description": "Cursor for event replay and pagination. Specify at most one of after_event_id or after_timestamp.",
+      "type": "object",
+      "properties": {
+        "after_event_id": {
+          "format": "uuid",
+          "description": "Resume from after this event ID (exclusive).",
+          "type": "string"
+        },
+        "after_timestamp": {
+          "format": "date-time",
+          "description": "Resume from after this timestamp (exclusive).",
+          "type": "string"
+        },
+        "limit": {
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 100,
+          "description": "Maximum events per delivery batch.",
+          "type": "integer"
+        }
+      }
+    },
+    "active": {
+      "description": "Whether the subscription is currently active.",
+      "type": "boolean"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/reputation-portability-request",
+  "additionalProperties": false,
+  "description": "A request to transfer reputation data between collections.",
+  "type": "object",
+  "required": [
+    "request_id",
+    "personality_id",
+    "source_collection_id",
+    "source_pool_id",
+    "target_collection_id",
+    "target_pool_id",
+    "scope",
+    "justification",
+    "requested_at",
+    "expires_at",
+    "contract_version"
+  ],
+  "properties": {
+    "request_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "source_pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "scope": {
+      "$id": "PortabilityScope",
+      "description": "Scope of reputation data to transfer: full (score + state + history), score_only, or state_only.",
+      "anyOf": [
+        {
+          "const": "full",
+          "type": "string"
+        },
+        {
+          "const": "score_only",
+          "type": "string"
+        },
+        {
+          "const": "state_only",
+          "type": "string"
+        }
+      ]
+    },
+    "justification": {
+      "minLength": 1,
+      "description": "Reason for requesting reputation portability.",
+      "type": "string"
+    },
+    "requested_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

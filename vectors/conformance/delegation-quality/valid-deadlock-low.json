@@ -1,0 +1,34 @@
+{
+  "vector_id": "conformance-delegation-quality-002",
+  "category": "delegation-quality",
+  "description": "Valid quality event: deadlock outcome maps to low signal (v7.5.0)",
+  "contract_version": "7.5.0",
+  "input": {
+    "event_id": "cc0e8400-e29b-41d4-a716-446655440300",
+    "outcome_id": "dd0e8400-e29b-41d4-a716-446655440400",
+    "tree_node_id": "node-leaf-2",
+    "personality_id": "personality-bob",
+    "collection_id": "collection-beta",
+    "pool_id": "pool-2",
+    "outcome_type": "deadlock",
+    "quality_signal": "low",
+    "quality_score": 0.35,
+    "mapping_used": {
+      "unanimous": "high",
+      "majority": "moderate",
+      "deadlock": "low",
+      "escalation": "negative"
+    },
+    "model_id": "gpt-4o",
+    "occurred_at": "2026-02-23T14:30:00Z",
+    "contract_version": "7.5.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": []
+  },
+  "metadata": {
+    "notes": "Default mapping: deadlock → low with score 0.35. Includes optional model_id."
+  }
+}

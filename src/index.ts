@@ -26,3 +26,25 @@ export { validateBillingEntryFull } from './validators/billing.js';
 
 // Schema Graph (v5.5.0, FR-4)
 export { extractReferences, buildSchemaGraph, type SchemaReference, type SchemaGraphNode } from './utilities/schema-graph.js';
+
+// AccessPolicy Evaluation (v7.1.0, FR-6)
+export {
+  evaluateAccessPolicy,
+  type AccessPolicyContext,
+  type AccessPolicyResult,
+} from './utilities/access-policy.js';
+
+// Reputation Event Sourcing (v7.3.0, C2 + Spec V)
+export {
+  reconstructAggregateFromEvents,
+  verifyAggregateConsistency,
+  computeEventStreamHash,
+  type ReconstructedAggregate,
+  type ConsistencyReport,
+} from './utilities/reputation-replay.js';
+
+// Reputation Credential Prior (v7.3.0, C1 + Spec IV)
+export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRESHOLD } from './utilities/reputation-credential.js';
+
+// Constraint Namespace Validation (v7.8.0, DR-F4)
+export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';

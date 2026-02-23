@@ -1,0 +1,127 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ReputationAggregate",
+  "contract_version": "7.1.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "reputation-cold-null-score",
+      "expression": "!(state == 'cold' && personal_score != null)",
+      "severity": "error",
+      "message": "personal_score must be null when state is cold",
+      "fields": ["state", "personal_score"],
+      "type_signature": {
+        "state": "string",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "reputation-authoritative-weight",
+      "expression": "!(state == 'authoritative' && (sample_count / (pseudo_count + sample_count)) <= 0.9)",
+      "severity": "error",
+      "message": "authoritative state requires personal weight > 0.9",
+      "fields": ["state", "sample_count", "pseudo_count"],
+      "type_signature": {
+        "state": "string",
+        "sample_count": "number",
+        "pseudo_count": "number"
+      }
+    },
+    {
+      "id": "reputation-warming-has-score",
+      "expression": "!(state == 'warming' && personal_score == null)",
+      "severity": "error",
+      "message": "warming state requires personal_score to be set",
+      "fields": ["state", "personal_score"],
+      "type_signature": {
+        "state": "string",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "reputation-blended-bounds",
+      "expression": "blended_score >= 0.0 && blended_score <= 1.0",
+      "severity": "error",
+      "message": "blended_score must be in [0, 1]",
+      "fields": ["blended_score"],
+      "type_signature": {
+        "blended_score": "number"
+      }
+    },
+    {
+      "id": "reputation-sample-nonnegative",
+      "expression": "sample_count >= 0",
+      "severity": "error",
+      "message": "sample_count cannot be negative",
+      "fields": ["sample_count"],
+      "type_signature": {
+        "sample_count": "number"
+      }
+    },
+    {
+      "id": "reputation-model-cohort-score-bounds",
+      "expression": "model_cohorts == undefined || model_cohorts.every(c => c.personal_score == null || (c.personal_score >= 0.0 && c.personal_score <= 1.0))",
+      "severity": "error",
+      "message": "model cohort personal_score must be in [0, 1] when not null",
+      "fields": ["model_cohorts"],
+      "type_signature": {
+        "model_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-model-cohort-sample-nonneg",
+      "expression": "model_cohorts == undefined || model_cohorts.every(c => c.sample_count >= 0)",
+      "severity": "error",
+      "message": "model cohort sample_count must be >= 0",
+      "fields": ["model_cohorts"],
+      "type_signature": {
+        "model_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-cross-model-consistency",
+      "expression": "model_cohorts == undefined || model_cohorts.length == 0 || personal_score == null || true",
+      "severity": "warning",
+      "message": "When model_cohorts and personal_score are both present, the top-level personal_score should be derivable from model cohorts via sample-count-weighted mean (trust assumption — not enforced at wire level)",
+      "fields": ["model_cohorts", "personal_score"],
+      "type_signature": {
+        "model_cohorts": "array",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "reputation-temporal-decay-expectation",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD apply computeDecayedSampleCount() before reading blended_score. An aggregate with last_updated > 60 days ago should be treated as effectively cold regardless of stored state.",
+      "fields": ["last_updated", "blended_score"],
+      "type_signature": {
+        "last_updated": "string",
+        "blended_score": "number"
+      }
+    },
+    {
+      "id": "reputation-transition-rate-limit",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD NOT permit more than one state transition per evaluation cycle. The progression cold→warming→established→authoritative should reflect genuine observation accumulation, not batch ingestion.",
+      "fields": ["state", "transition_history"],
+      "type_signature": {
+        "state": "string",
+        "transition_history": "array"
+      }
+    },
+    {
+      "id": "reputation-authoritative-duration",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD track time-in-state for authoritative aggregates. An aggregate that has been authoritative for > 90 days with continued quality events represents stable excellence and should contribute proportionally more to collection_score.",
+      "fields": ["state", "last_updated", "transition_history"],
+      "type_signature": {
+        "state": "string",
+        "last_updated": "string",
+        "transition_history": "array"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/portability-scope",
+  "description": "Scope of reputation data to transfer: full (score + state + history), score_only, or state_only.",
+  "anyOf": [
+    {
+      "const": "full",
+      "type": "string"
+    },
+    {
+      "const": "score_only",
+      "type": "string"
+    },
+    {
+      "const": "state_only",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

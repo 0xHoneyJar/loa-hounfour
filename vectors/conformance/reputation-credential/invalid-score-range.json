@@ -1,0 +1,23 @@
+{
+  "vector_id": "conformance-reputation-credential-003",
+  "category": "reputation-credential",
+  "description": "Invalid credential — source_blended_score exceeds [0,1] range",
+  "contract_version": "7.3.0",
+  "input": {
+    "credential_id": "cred-003",
+    "personality_id": "bear-003",
+    "source_collection_id": "honeycomb",
+    "source_pool_id": "pool-alpha",
+    "source_state": "established",
+    "source_blended_score": 1.5,
+    "source_sample_count": 10,
+    "source_collection_score": 0.7,
+    "issued_at": "2026-02-22T00:00:00Z",
+    "contract_version": "7.3.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "matching_rules": {
+    "select_fields": []
+  }
+}

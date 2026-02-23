@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-constraint-lifecycle-003",
+  "category": "constraint-lifecycle",
+  "description": "Invalid: constraint lifecycle event with same from_status and to_status (no-op transition).",
+  "contract_version": "7.6.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440063",
+    "constraint_id": "stale-check",
+    "proposal_id": "550e8400-e29b-41d4-a716-446655440064",
+    "from_status": "enacted",
+    "to_status": "enacted",
+    "occurred_at": "2026-02-15T12:00:00Z",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

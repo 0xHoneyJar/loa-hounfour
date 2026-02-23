@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 20 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(20);
+  it('contains exactly 40 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(40);
   });
 
   it('includes all valid categories', () => {
@@ -86,6 +86,26 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'monetary-policy',
       'permission-boundary',
       'governance-proposal',
+      'micro-usdc',
+      'personality-assignment',
+      'reputation-aggregate',
+      'reputation-credential',
+      'access-policy',
+      'event-subscription',
+      'reputation-portability',
+      'delegation-quality',
+      'collection-governance-config',
+      'constraint-lifecycle',
+      'reputation-routing',
+      'policy-version',
+      'proposal-execution',
+      'economic-boundary',
+      'reputation-economic-impact',
+      'model-economic-profile',
+      'community-engagement',
+      'economic-performance',
+      'routing-rebalance',
+      'execution-checkpoint',
     ]);
   });
 });

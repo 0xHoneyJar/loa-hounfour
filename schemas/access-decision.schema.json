@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/access-decision",
+  "additionalProperties": false,
+  "description": "Result of an access evaluation at the economic boundary.",
+  "type": "object",
+  "required": [
+    "granted"
+  ],
+  "properties": {
+    "granted": {
+      "description": "Whether access was granted.",
+      "type": "boolean"
+    },
+    "policy_id": {
+      "description": "Which access policy evaluated the request.",
+      "type": "string"
+    },
+    "denial_reason": {
+      "description": "Why access was denied, populated when granted is false.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

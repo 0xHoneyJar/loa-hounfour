@@ -1,0 +1,29 @@
+{
+  "schema_id": "ConstraintLifecycleEvent",
+  "contract_version": "7.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "lifecycle-valid-transition",
+      "description": "from_status → to_status must follow CONSTRAINT_LIFECYCLE_TRANSITIONS.",
+      "expression": "from_status != to_status",
+      "severity": "error",
+      "fields": ["from_status", "to_status"],
+      "type_signature": {
+        "from_status": "string",
+        "to_status": "string"
+      }
+    },
+    {
+      "id": "lifecycle-enacted-needs-proposal",
+      "description": "Transition to enacted status requires a valid proposal_id.",
+      "expression": "to_status != 'enacted' || proposal_id != null",
+      "severity": "error",
+      "fields": ["to_status", "proposal_id"],
+      "type_signature": {
+        "to_status": "string",
+        "proposal_id": "string"
+      }
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/economic-boundary",
+  "additionalProperties": false,
+  "description": "Economic membrane: trust × capital → access decision.",
+  "type": "object",
+  "required": [
+    "boundary_id",
+    "personality_id",
+    "collection_id",
+    "trust_layer",
+    "capital_layer",
+    "access_decision",
+    "evaluated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "boundary_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "Agent personality being evaluated.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "description": "Collection context for the evaluation.",
+      "type": "string"
+    },
+    "trust_layer": {
+      "$id": "TrustLayerSnapshot",
+      "additionalProperties": false,
+      "description": "Point-in-time snapshot of the trust layer for access evaluation.",
+      "type": "object",
+      "required": [
+        "reputation_state",
+        "blended_score",
+        "snapshot_at"
+      ],
+      "properties": {
+        "reputation_state": {
+          "$id": "ReputationState",
+          "anyOf": [
+            {
+              "const": "cold",
+              "type": "string"
+            },
+            {
+              "const": "warming",
+              "type": "string"
+            },
+            {
+              "const": "established",
+              "type": "string"
+            },
+            {
+              "const": "authoritative",
+              "type": "string"
+            }
+          ]
+        },
+        "blended_score": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Blended reputation score at time of evaluation.",
+          "type": "number"
+        },
+        "snapshot_at": {
+          "format": "date-time",
+          "description": "When the trust layer was evaluated.",
+          "type": "string"
+        }
+      }
+    },
+    "capital_layer": {
+      "$id": "CapitalLayerSnapshot",
+      "additionalProperties": false,
+      "description": "Point-in-time snapshot of the capital layer for access evaluation.",
+      "type": "object",
+      "required": [
+        "budget_remaining",
+        "billing_tier",
+        "budget_period_end"
+      ],
+      "properties": {
+        "budget_remaining": {
+          "pattern": "^[0-9]+$",
+          "description": "Remaining budget in micro-USD.",
+          "type": "string"
+        },
+        "billing_tier": {
+          "minLength": 1,
+          "description": "Current billing tier of the agent.",
+          "type": "string"
+        },
+        "budget_period_end": {
+          "format": "date-time",
+          "description": "When the current budget period expires.",
+          "type": "string"
+        }
+      }
+    },
+    "access_decision": {
+      "$id": "AccessDecision",
+      "additionalProperties": false,
+      "description": "Result of an access evaluation at the economic boundary.",
+      "type": "object",
+      "required": [
+        "granted"
+      ],
+      "properties": {
+        "granted": {
+          "description": "Whether access was granted.",
+          "type": "boolean"
+        },
+        "policy_id": {
+          "description": "Which access policy evaluated the request.",
+          "type": "string"
+        },
+        "denial_reason": {
+          "description": "Why access was denied, populated when granted is false.",
+          "type": "string"
+        }
+      }
+    },
+    "evaluated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

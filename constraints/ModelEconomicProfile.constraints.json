@@ -1,0 +1,25 @@
+{
+  "schema_id": "ModelEconomicProfile",
+  "constraints": [
+    {
+      "id": "profile-routing-weight-bounded",
+      "expression": "routing_weight >= 0 && routing_weight <= 1",
+      "description": "Routing weight must be between 0 and 1.",
+      "severity": "error",
+      "type_signature": {
+        "routing_weight": "number"
+      },
+      "fields": ["routing_weight"]
+    },
+    {
+      "id": "profile-quality-yield-bounded",
+      "expression": "quality_yield >= 0 && quality_yield <= 1",
+      "description": "Quality yield must be between 0 and 1.",
+      "severity": "error",
+      "type_signature": {
+        "quality_yield": "number"
+      },
+      "fields": ["quality_yield"]
+    }
+  ]
+}

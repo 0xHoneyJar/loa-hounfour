@@ -1,0 +1,18 @@
+{
+  "vector_id": "conformance-routing-rebalance-001",
+  "category": "routing-rebalance",
+  "description": "Valid periodic rebalancing event with performance window.",
+  "contract_version": "7.8.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440100",
+    "trigger_type": "periodic",
+    "before_composition_id": "550e8400-e29b-41d4-a716-446655440101",
+    "after_composition_id": "550e8400-e29b-41d4-a716-446655440102",
+    "performance_window_start": "2026-02-01T00:00:00Z",
+    "performance_window_end": "2026-02-23T00:00:00Z",
+    "occurred_at": "2026-02-23T16:00:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

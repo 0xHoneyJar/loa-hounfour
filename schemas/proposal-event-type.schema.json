@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/proposal-event-type",
+  "description": "Type of governance proposal lifecycle event.",
+  "anyOf": [
+    {
+      "const": "proposed",
+      "type": "string"
+    },
+    {
+      "const": "voting_opened",
+      "type": "string"
+    },
+    {
+      "const": "vote_cast",
+      "type": "string"
+    },
+    {
+      "const": "ratified",
+      "type": "string"
+    },
+    {
+      "const": "rejected",
+      "type": "string"
+    },
+    {
+      "const": "withdrawn",
+      "type": "string"
+    },
+    {
+      "const": "execution_started",
+      "type": "string"
+    },
+    {
+      "const": "execution_completed",
+      "type": "string"
+    },
+    {
+      "const": "execution_failed",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

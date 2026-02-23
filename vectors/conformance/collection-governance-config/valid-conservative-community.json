@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-collection-governance-config-002",
+  "category": "collection-governance-config",
+  "description": "Conservative community with high pseudo_count (k=10) and long decay half-life.",
+  "contract_version": "7.6.0",
+  "input": {
+    "config_id": "550e8400-e29b-41d4-a716-446655440051",
+    "collection_id": "high-stakes-finance-pool",
+    "pseudo_count": 10,
+    "state_thresholds": {
+      "warming_min_events": 3,
+      "established_min_samples": 15,
+      "authoritative_min_weight": 0.95
+    },
+    "decay_policy": {
+      "half_life_days": 90,
+      "demotion_rules": [
+        {
+          "from_state": "authoritative",
+          "to_state": "established",
+          "inactivity_days": 180,
+          "require_decayed_below": 0.5
+        }
+      ],
+      "enable_auto_demotion": true
+    },
+    "updated_at": "2026-02-01T00:00:00Z",
+    "contract_version": "7.6.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/cost-per-token",
+  "additionalProperties": false,
+  "description": "Token-level pricing for a model.",
+  "type": "object",
+  "required": [
+    "input",
+    "output"
+  ],
+  "properties": {
+    "input": {
+      "pattern": "^[0-9]+$",
+      "description": "Cost per input token in micro-USD.",
+      "type": "string"
+    },
+    "output": {
+      "pattern": "^[0-9]+$",
+      "description": "Cost per output token in micro-USD.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

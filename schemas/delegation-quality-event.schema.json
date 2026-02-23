@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/delegation-quality-event",
+  "additionalProperties": false,
+  "description": "Event recording a quality signal derived from a delegation outcome, feeding into reputation.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "outcome_id",
+    "tree_node_id",
+    "personality_id",
+    "collection_id",
+    "pool_id",
+    "outcome_type",
+    "quality_signal",
+    "quality_score",
+    "mapping_used",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "outcome_id": {
+      "format": "uuid",
+      "description": "The DelegationOutcome that triggered this quality event.",
+      "type": "string"
+    },
+    "tree_node_id": {
+      "minLength": 1,
+      "description": "Node in the delegation tree where the outcome occurred.",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "The personality whose reputation is being updated.",
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "outcome_type": {
+      "$id": "OutcomeType",
+      "description": "Classification of a delegation outcome.",
+      "anyOf": [
+        {
+          "const": "unanimous",
+          "type": "string"
+        },
+        {
+          "const": "majority",
+          "type": "string"
+        },
+        {
+          "const": "deadlock",
+          "type": "string"
+        },
+        {
+          "const": "escalation",
+          "type": "string"
+        }
+      ]
+    },
+    "quality_signal": {
+      "$id": "QualitySignalLevel",
+      "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+      "anyOf": [
+        {
+          "const": "high",
+          "type": "string"
+        },
+        {
+          "const": "moderate",
+          "type": "string"
+        },
+        {
+          "const": "low",
+          "type": "string"
+        },
+        {
+          "const": "negative",
+          "type": "string"
+        }
+      ]
+    },
+    "quality_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Numeric quality score in [0,1] derived from the quality signal.",
+      "type": "number"
+    },
+    "mapping_used": {
+      "$id": "OutcomeQualityMapping",
+      "additionalProperties": false,
+      "description": "Maps each OutcomeType to a QualitySignalLevel. Collections may override defaults.",
+      "type": "object",
+      "required": [
+        "unanimous",
+        "majority",
+        "deadlock",
+        "escalation"
+      ],
+      "properties": {
+        "unanimous": {
+          "$id": "QualitySignalLevel",
+          "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+          "anyOf": [
+            {
+              "const": "high",
+              "type": "string"
+            },
+            {
+              "const": "moderate",
+              "type": "string"
+            },
+            {
+              "const": "low",
+              "type": "string"
+            },
+            {
+              "const": "negative",
+              "type": "string"
+            }
+          ]
+        },
+        "majority": {
+          "$id": "QualitySignalLevel",
+          "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+          "anyOf": [
+            {
+              "const": "high",
+              "type": "string"
+            },
+            {
+              "const": "moderate",
+              "type": "string"
+            },
+            {
+              "const": "low",
+              "type": "string"
+            },
+            {
+              "const": "negative",
+              "type": "string"
+            }
+          ]
+        },
+        "deadlock": {
+          "$id": "QualitySignalLevel",
+          "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+          "anyOf": [
+            {
+              "const": "high",
+              "type": "string"
+            },
+            {
+              "const": "moderate",
+              "type": "string"
+            },
+            {
+              "const": "low",
+              "type": "string"
+            },
+            {
+              "const": "negative",
+              "type": "string"
+            }
+          ]
+        },
+        "escalation": {
+          "$id": "QualitySignalLevel",
+          "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
+          "anyOf": [
+            {
+              "const": "high",
+              "type": "string"
+            },
+            {
+              "const": "moderate",
+              "type": "string"
+            },
+            {
+              "const": "low",
+              "type": "string"
+            },
+            {
+              "const": "negative",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model that produced this outcome, if applicable.",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

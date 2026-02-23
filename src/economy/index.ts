@@ -73,6 +73,7 @@ export {
   MicroUSD,
   MicroUSDUnsigned,
   MicroUSDSigned,
+  MicroUSDCSchema,
   ZERO_MICRO,
   addMicro,
   subtractMicro,
@@ -191,6 +192,17 @@ export {
   type AccountId,
 } from './branded-types.js';
 
+// MicroUSDC Branded Type (v7.1.0, FR-1)
+export {
+  type MicroUSDC,
+  microUSDC,
+  readMicroUSDC,
+  serializeMicroUSDC,
+  deserializeMicroUSDC,
+  microUSDToUSDC,
+  microUSDCToUSD,
+} from './branded-types.js';
+
 // Schemas — JWT Boundary Verification (v5.5.0, FR-2)
 export {
   JwtVerificationStepSchema,
@@ -256,6 +268,66 @@ export {
   type ReviewTrigger,
   type MonetaryPolicy,
 } from './monetary-policy.js';
+
+// Schemas — Economic Boundary (v7.7.0)
+export {
+  TrustLayerSnapshotSchema,
+  CapitalLayerSnapshotSchema,
+  AccessDecisionSchema,
+  EconomicBoundarySchema,
+  type TrustLayerSnapshot,
+  type CapitalLayerSnapshot,
+  type AccessDecision,
+  type EconomicBoundary,
+} from './economic-boundary.js';
+
+// Schemas — Reputation Economic Impact (v7.7.0)
+export {
+  EconomicImpactTypeSchema,
+  ReputationTriggerEventSchema,
+  EconomicImpactEntrySchema,
+  ReputationEconomicImpactSchema,
+  type EconomicImpactType,
+  type ReputationTriggerEvent,
+  type EconomicImpactEntry,
+  type ReputationEconomicImpact,
+} from './reputation-economic-impact.js';
+
+// Schemas — Model Economic Profile (v7.7.0)
+export {
+  CostPerTokenSchema,
+  ModelEconomicProfileSchema,
+  type CostPerToken,
+  type ModelEconomicProfile,
+} from './model-economic-profile.js';
+
+// Schemas — Economic Performance Events (v7.8.0 — DR-F1 feedback loop)
+export {
+  PerformanceOutcomeTypeSchema,
+  EconomicPerformanceEventSchema,
+  QualityBridgeDirectionSchema,
+  PerformanceQualityBridgeSchema,
+  type PerformanceOutcomeType,
+  type EconomicPerformanceEvent,
+  type QualityBridgeDirection,
+  type PerformanceQualityBridge,
+} from './economic-performance.js';
+
+// Schemas — Basket Composition (v7.8.0 — DR-F2 dynamic rebalancing)
+export {
+  BasketCompositionEntrySchema,
+  BasketCompositionSchema,
+  type BasketCompositionEntry,
+  type BasketComposition,
+} from './basket-composition.js';
+
+// Schemas — Routing Rebalance Event (v7.8.0 — DR-F2)
+export {
+  RebalanceTriggerTypeSchema,
+  RoutingRebalanceEventSchema,
+  type RebalanceTriggerType,
+  type RoutingRebalanceEvent,
+} from './routing-rebalance.js';
 
 // Utilities — Lifecycle (transition guards)
 export {

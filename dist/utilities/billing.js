@@ -47,6 +47,44 @@ export function validateBillingEntry(entry) {
     return { valid: true };
 }
 /**
+ * Validate cross-field invariants for a CreditNote.
+ *
+ * Invariants (BB-ADV-003):
+ * 1. `amount_micro` must not be zero
+ * 2. `issued_at` must be a valid date-time string
+ * 3. Recipient `share_bps` must sum to 10000
+ * 4. Recipient `amount_micro` must sum to `amount_micro`
+ *
+ * Service-layer invariants NOT checked here (require external state):
+ * - `amount_micro <= referenced BillingEntry.total_cost_micro`
+ * - `references_billing_entry` must reference a valid, existing entry
+ * - Sum of all CreditNotes for a single entry must not exceed that entry's total
+ *
+ * @see BB-ADV-003 — CreditNote invariant documentation
+ * @since v3.2.0
+ */
+export function validateCreditNote(note, options) {
+    const errors = [];
+    // Check amount is non-zero
+    if (BigInt(note.amount_micro) === 0n) {
+        errors.push('amount_micro must not be zero');
+    }
+    // Over-credit check: credit cannot exceed original charge (BB-C6-004)
+    if (options?.originalEntry) {
+        const creditAmount = BigInt(note.amount_micro);
+        const originalAmount = BigInt(options.originalEntry.total_cost_micro);
+        if (creditAmount > originalAmount) {
+            errors.push(`over-credit: credit amount ${note.amount_micro} exceeds original charge ${options.originalEntry.total_cost_micro}`);
+        }
+    }
+    // Check recipient invariants
+    const recipientResult = validateBillingRecipients(note.recipients, note.amount_micro);
+    if (!recipientResult.valid) {
+        errors.push(...recipientResult.errors);
+    }
+    return { valid: errors.length === 0, errors };
+}
+/**
  * Deterministic largest-remainder allocation.
  *
  * Input convention: callers provide share_bps only. This function computes

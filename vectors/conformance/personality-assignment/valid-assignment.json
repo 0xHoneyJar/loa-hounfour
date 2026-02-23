@@ -1,0 +1,28 @@
+{
+  "vector_id": "conformance-personality-assignment-001",
+  "category": "personality-assignment",
+  "description": "Valid assignment with all required fields and correct formats",
+  "contract_version": "7.1.0",
+  "input": {
+    "token_id": "eip155:1/0xbEeFbeEfbeEfbeEFbeEfbeEfBEeFBEEfBeEfBeef/42",
+    "archetype": "sage",
+    "ancestor": "merlin",
+    "era": "medieval",
+    "element": "fire",
+    "tier": "standard",
+    "fingerprint_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+  },
+  "expected_output": {
+    "token_id": "eip155:1/0xbEeFbeEfbeEfbeEFbeEfbeEfBEeFBEEfBeEfBeef/42",
+    "archetype": "sage",
+    "ancestor": "merlin",
+    "era": "medieval",
+    "element": "fire",
+    "tier": "standard",
+    "fingerprint_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+  },
+  "expected_valid": true,
+  "matching_rules": {
+    "select_fields": ["token_id", "archetype", "ancestor", "era", "element", "tier", "fingerprint_hash"]
+  }
+}

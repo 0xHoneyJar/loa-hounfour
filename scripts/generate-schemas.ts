@@ -106,6 +106,40 @@ import { MonetaryPolicySchema } from '../src/economy/monetary-policy.js';
 import { DelegationOutcomeSchema } from '../src/governance/delegation-outcome.js';
 import { PermissionBoundarySchema } from '../src/governance/permission-boundary.js';
 import { GovernanceProposalSchema } from '../src/governance/governance-proposal.js';
+// v7.1.0 — Reputation Protocol
+import { MicroUSDCSchema } from '../src/vocabulary/currency.js';
+import { PersonalityAssignmentSchema, PersonalityTierSchema } from '../src/core/personality-assignment.js';
+import { ReputationAggregateSchema, ReputationStateSchema, ReputationTransitionSchema, AggregateSnapshotSchema } from '../src/governance/reputation-aggregate.js';
+import { QualityEventSchema } from '../src/schemas/quality-event.js';
+import { RecordQualityEventCommandSchema, QueryReputationCommandSchema, ResetReputationCommandSchema } from '../src/governance/reputation-commands.js';
+import { ReputationStateChangedPayloadSchema, QualityEventRecordedPayloadSchema, CollectionScoreUpdatedPayloadSchema } from '../src/governance/reputation-events.js';
+import { ReputationCredentialSchema } from '../src/governance/reputation-credential.js';
+// v7.5.0 — Event Subscription + Reputation Portability
+import { EventFilterSchema, DeliveryMethodSchema, EventCursorSchema, EventSubscriptionSchema } from '../src/governance/event-subscription.js';
+import { PortabilityScopeSchema, ReputationPortabilityRequestSchema, PortabilityResponseSchema } from '../src/governance/reputation-portability.js';
+// v7.5.0 — Delegation Quality
+import { QualitySignalLevelSchema, OutcomeQualityMappingSchema, DelegationQualityEventSchema } from '../src/governance/delegation-quality.js';
+// v7.6.0 — Collection Governance Config
+import { DemotionRuleSchema, ReputationDecayPolicySchema, CollectionGovernanceConfigSchema } from '../src/governance/collection-governance-config.js';
+// v7.6.0 — Constraint Lifecycle
+import { ConstraintLifecycleStatusSchema, ConstraintCandidateSchema, ConstraintLifecycleEventSchema } from '../src/governance/constraint-lifecycle.js';
+// v7.6.0 — Reputation Routing + Policy Version
+import { RoutingSignalTypeSchema, ReputationRoutingSignalSchema } from '../src/governance/reputation-routing.js';
+import { PolicyTypeSchema, PolicyVersionSchema } from '../src/governance/policy-version.js';
+// v7.7.0 — Proposal Execution + Outcome Events
+import { ExecutionStatusSchema, ChangeApplicationResultSchema, ProposalExecutionSchema } from '../src/governance/proposal-execution.js';
+import { ProposalEventTypeSchema, ProposalOutcomeEventSchema } from '../src/governance/proposal-outcome-event.js';
+// v7.7.0 — Economic Membrane
+import { TrustLayerSnapshotSchema, CapitalLayerSnapshotSchema, AccessDecisionSchema, EconomicBoundarySchema } from '../src/economy/economic-boundary.js';
+import { EconomicImpactTypeSchema, ReputationTriggerEventSchema, EconomicImpactEntrySchema, ReputationEconomicImpactSchema } from '../src/economy/reputation-economic-impact.js';
+import { CostPerTokenSchema, ModelEconomicProfileSchema } from '../src/economy/model-economic-profile.js';
+import { EngagementSignalTypeSchema, CommunityEngagementSignalSchema } from '../src/governance/community-engagement.js';
+import { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBridgeDirectionSchema, PerformanceQualityBridgeSchema } from '../src/economy/economic-performance.js';
+import { BasketCompositionEntrySchema, BasketCompositionSchema } from '../src/economy/basket-composition.js';
+import { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema } from '../src/economy/routing-rebalance.js';
+import { ExecutionStrategySchema } from '../src/governance/proposal-execution.js';
+import { CheckpointHealthSchema, ProceedDecisionSchema, ExecutionCheckpointSchema } from '../src/governance/execution-checkpoint.js';
+import { RollbackScopeSchema } from '../src/governance/rollback-scope.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -234,6 +268,86 @@ const schemas = [
   { name: 'delegation-outcome', schema: DelegationOutcomeSchema },
   { name: 'permission-boundary', schema: PermissionBoundarySchema },
   { name: 'governance-proposal', schema: GovernanceProposalSchema },
+  // v7.1.0 — Reputation Protocol
+  { name: 'micro-usdc', schema: MicroUSDCSchema },
+  { name: 'personality-tier', schema: PersonalityTierSchema },
+  { name: 'personality-assignment', schema: PersonalityAssignmentSchema },
+  { name: 'reputation-state', schema: ReputationStateSchema },
+  { name: 'reputation-transition', schema: ReputationTransitionSchema },
+  { name: 'reputation-aggregate', schema: ReputationAggregateSchema },
+  { name: 'aggregate-snapshot', schema: AggregateSnapshotSchema },
+  { name: 'quality-event', schema: QualityEventSchema },
+  { name: 'record-quality-event-command', schema: RecordQualityEventCommandSchema },
+  { name: 'query-reputation-command', schema: QueryReputationCommandSchema },
+  { name: 'reset-reputation-command', schema: ResetReputationCommandSchema },
+  { name: 'reputation-state-changed-payload', schema: ReputationStateChangedPayloadSchema },
+  { name: 'quality-event-recorded-payload', schema: QualityEventRecordedPayloadSchema },
+  { name: 'collection-score-updated-payload', schema: CollectionScoreUpdatedPayloadSchema },
+  { name: 'reputation-credential', schema: ReputationCredentialSchema },
+  // v7.5.0 — Event Subscription
+  { name: 'event-filter', schema: EventFilterSchema },
+  { name: 'delivery-method', schema: DeliveryMethodSchema },
+  { name: 'event-cursor', schema: EventCursorSchema },
+  { name: 'event-subscription', schema: EventSubscriptionSchema },
+  // v7.5.0 — Reputation Portability
+  { name: 'portability-scope', schema: PortabilityScopeSchema },
+  { name: 'reputation-portability-request', schema: ReputationPortabilityRequestSchema },
+  { name: 'portability-response', schema: PortabilityResponseSchema },
+  // v7.5.0 — Delegation Quality
+  { name: 'quality-signal-level', schema: QualitySignalLevelSchema },
+  { name: 'outcome-quality-mapping', schema: OutcomeQualityMappingSchema },
+  { name: 'delegation-quality-event', schema: DelegationQualityEventSchema },
+  // v7.6.0 — Collection Governance Config
+  { name: 'demotion-rule', schema: DemotionRuleSchema },
+  { name: 'reputation-decay-policy', schema: ReputationDecayPolicySchema },
+  { name: 'collection-governance-config', schema: CollectionGovernanceConfigSchema },
+  // v7.6.0 — Constraint Lifecycle
+  { name: 'constraint-lifecycle-status', schema: ConstraintLifecycleStatusSchema },
+  { name: 'constraint-candidate', schema: ConstraintCandidateSchema },
+  { name: 'constraint-lifecycle-event', schema: ConstraintLifecycleEventSchema },
+  // v7.6.0 — Reputation Routing
+  { name: 'routing-signal-type', schema: RoutingSignalTypeSchema },
+  { name: 'reputation-routing-signal', schema: ReputationRoutingSignalSchema },
+  // v7.6.0 — Policy Version
+  { name: 'policy-type', schema: PolicyTypeSchema },
+  { name: 'policy-version', schema: PolicyVersionSchema },
+  // v7.7.0 — Proposal Execution
+  { name: 'execution-status', schema: ExecutionStatusSchema },
+  { name: 'change-application-result', schema: ChangeApplicationResultSchema },
+  { name: 'proposal-execution', schema: ProposalExecutionSchema },
+  // v7.7.0 — Proposal Outcome Events
+  { name: 'proposal-event-type', schema: ProposalEventTypeSchema },
+  { name: 'proposal-outcome-event', schema: ProposalOutcomeEventSchema },
+  // v7.7.0 — Economic Membrane
+  { name: 'trust-layer-snapshot', schema: TrustLayerSnapshotSchema },
+  { name: 'capital-layer-snapshot', schema: CapitalLayerSnapshotSchema },
+  { name: 'access-decision', schema: AccessDecisionSchema },
+  { name: 'economic-boundary', schema: EconomicBoundarySchema },
+  { name: 'economic-impact-type', schema: EconomicImpactTypeSchema },
+  { name: 'reputation-trigger-event', schema: ReputationTriggerEventSchema },
+  { name: 'economic-impact-entry', schema: EconomicImpactEntrySchema },
+  { name: 'reputation-economic-impact', schema: ReputationEconomicImpactSchema },
+  { name: 'cost-per-token', schema: CostPerTokenSchema },
+  { name: 'model-economic-profile', schema: ModelEconomicProfileSchema },
+  // Community Engagement (v7.7.0 Sprint 3)
+  { name: 'engagement-signal-type', schema: EngagementSignalTypeSchema },
+  { name: 'community-engagement-signal', schema: CommunityEngagementSignalSchema },
+  // v7.8.0 — Economic Performance (DR-F1 feedback loop)
+  { name: 'performance-outcome-type', schema: PerformanceOutcomeTypeSchema },
+  { name: 'economic-performance-event', schema: EconomicPerformanceEventSchema },
+  { name: 'quality-bridge-direction', schema: QualityBridgeDirectionSchema },
+  { name: 'performance-quality-bridge', schema: PerformanceQualityBridgeSchema },
+  // v7.8.0 — Basket Composition + Routing Rebalance (DR-F2)
+  { name: 'basket-composition-entry', schema: BasketCompositionEntrySchema },
+  { name: 'basket-composition', schema: BasketCompositionSchema },
+  { name: 'rebalance-trigger-type', schema: RebalanceTriggerTypeSchema },
+  { name: 'routing-rebalance-event', schema: RoutingRebalanceEventSchema },
+  // v7.8.0 — Progressive Governance Execution (DR-F5)
+  { name: 'execution-strategy', schema: ExecutionStrategySchema },
+  { name: 'checkpoint-health', schema: CheckpointHealthSchema },
+  { name: 'proceed-decision', schema: ProceedDecisionSchema },
+  { name: 'execution-checkpoint', schema: ExecutionCheckpointSchema },
+  { name: 'rollback-scope', schema: RollbackScopeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

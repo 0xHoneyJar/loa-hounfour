@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/quality-event",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "event_id",
+    "personality_id",
+    "collection_id",
+    "pool_id",
+    "satisfaction",
+    "coherence",
+    "safety",
+    "composite_score",
+    "evaluator_id",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "satisfaction": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "coherence": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "safety": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "composite_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "evaluator_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias that produced the evaluated output (e.g., native, reasoning, fast-code). Enables model-aware reputation cohorts in multi-model architectures.",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
+}

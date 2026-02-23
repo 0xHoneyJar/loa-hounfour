@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-model-economic-profile-002",
+  "category": "model-economic-profile",
+  "description": "Valid model economic profile for native Opus model with high quality yield and dominant routing weight.",
+  "contract_version": "7.7.0",
+  "input": {
+    "profile_id": "550e8400-e29b-41d4-a716-446655440081",
+    "model_id": "native",
+    "cost_per_token": {
+      "input": "1500",
+      "output": "7500"
+    },
+    "quality_yield": 0.95,
+    "routing_weight": 0.6,
+    "sample_count": 42000,
+    "effective_at": "2026-02-01T00:00:00Z",
+    "contract_version": "7.7.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}

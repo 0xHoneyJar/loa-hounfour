@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.0.0/conversation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.8.0/conversation",
   "description": "NFT-owned conversation with sealing policy and access control",
   "additionalProperties": false,
   "type": "object",
@@ -93,10 +93,10 @@
           "type": "boolean"
         },
         "access_policy": {
-          "$id": "AccessPolicy",
+          "$id": "T0",
           "additionalProperties": false,
           "x-cross-field-validated": true,
-          "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. Enforced by validateAccessPolicy() in TypeScript.",
+          "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. (3) reputation_gated requires at least one of min_reputation_score or min_reputation_state. (4) compound requires operator and non-empty policies array (no nested compound). (5) revoke_below_score must be <= min_reputation_score when both present. Enforced by validateAccessPolicy() in TypeScript.",
           "type": "object",
           "required": [
             "type",
@@ -122,6 +122,14 @@
                 {
                   "const": "role_based",
                   "type": "string"
+                },
+                {
+                  "const": "reputation_gated",
+                  "type": "string"
+                },
+                {
+                  "const": "compound",
+                  "type": "string"
                 }
               ]
             },
@@ -138,6 +146,81 @@
               "items": {
                 "minLength": 1,
                 "type": "string"
+              }
+            },
+            "min_reputation_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum reputation blended_score for reputation_gated access (v7.3.0)",
+              "type": "number"
+            },
+            "min_reputation_state": {
+              "$id": "ReputationState",
+              "anyOf": [
+                {
+                  "const": "cold",
+                  "type": "string"
+                },
+                {
+                  "const": "warming",
+                  "type": "string"
+                },
+                {
+                  "const": "established",
+                  "type": "string"
+                },
+                {
+                  "const": "authoritative",
+                  "type": "string"
+                }
+              ]
+            },
+            "revoke_below_score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Score threshold for revoking previously-granted reputation_gated access. Must be <= min_reputation_score. Enables hysteresis (dead-band) to prevent oscillation when reputation hovers near the grant threshold. (v7.4.0)",
+              "type": "number"
+            },
+            "revoke_below_state": {
+              "$id": "ReputationState",
+              "anyOf": [
+                {
+                  "const": "cold",
+                  "type": "string"
+                },
+                {
+                  "const": "warming",
+                  "type": "string"
+                },
+                {
+                  "const": "established",
+                  "type": "string"
+                },
+                {
+                  "const": "authoritative",
+                  "type": "string"
+                }
+              ]
+            },
+            "operator": {
+              "description": "Logical operator for compound policies (required for compound type). (v7.4.0)",
+              "anyOf": [
+                {
+                  "const": "AND",
+                  "type": "string"
+                },
+                {
+                  "const": "OR",
+                  "type": "string"
+                }
+              ]
+            },
+            "policies": {
+              "minItems": 1,
+              "description": "Sub-policies for compound type. Max depth 1 — compound cannot contain compound. (v7.4.0)",
+              "type": "array",
+              "items": {
+                "$ref": "T0"
               }
             },
             "audit_required": {
@@ -202,5 +285,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.8.0, min_supported=6.0.0"
 }

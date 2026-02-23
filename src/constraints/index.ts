@@ -17,7 +17,7 @@
 
 // Constraint types and evaluator
 export { type ConstraintFile, type Constraint, expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from './types.js';
-export { evaluateConstraint, MAX_EXPRESSION_DEPTH, EVALUATOR_BUILTINS, type EvaluatorBuiltin } from './evaluator.js';
+export { evaluateConstraint, MAX_EXPRESSION_DEPTH, EVALUATOR_BUILTINS, RESERVED_EVALUATOR_NAMES, type EvaluatorBuiltin, type EvaluationContext } from './evaluator.js';
 export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';

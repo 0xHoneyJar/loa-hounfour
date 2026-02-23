@@ -1,0 +1,20 @@
+{
+  "vector_id": "conformance-execution-checkpoint-001",
+  "category": "execution-checkpoint",
+  "description": "Progressive execution with healthy checkpoint that continues.",
+  "contract_version": "7.8.0",
+  "input": {
+    "checkpoint_id": "550e8400-e29b-41d4-a716-446655440200",
+    "execution_id": "550e8400-e29b-41d4-a716-446655440201",
+    "checkpoint_index": 0,
+    "changes_applied_count": 3,
+    "changes_remaining_count": 5,
+    "health_status": "healthy",
+    "proceed_decision": "continue",
+    "health_details": "All applied changes verified successfully.",
+    "checkpoint_at": "2026-03-15T12:00:00Z",
+    "contract_version": "7.8.0"
+  },
+  "expected_valid": true,
+  "expected_output": {}
+}
