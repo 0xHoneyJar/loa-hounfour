@@ -119,6 +119,8 @@ import { EventFilterSchema, DeliveryMethodSchema, EventCursorSchema, EventSubscr
 import { PortabilityScopeSchema, ReputationPortabilityRequestSchema, PortabilityResponseSchema } from '../src/governance/reputation-portability.js';
 // v7.5.0 — Delegation Quality
 import { QualitySignalLevelSchema, OutcomeQualityMappingSchema, DelegationQualityEventSchema } from '../src/governance/delegation-quality.js';
+// v7.6.0 — Collection Governance Config
+import { DemotionRuleSchema, ReputationDecayPolicySchema, CollectionGovernanceConfigSchema } from '../src/governance/collection-governance-config.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -276,6 +278,10 @@ const schemas = [
   { name: 'quality-signal-level', schema: QualitySignalLevelSchema },
   { name: 'outcome-quality-mapping', schema: OutcomeQualityMappingSchema },
   { name: 'delegation-quality-event', schema: DelegationQualityEventSchema },
+  // v7.6.0 — Collection Governance Config
+  { name: 'demotion-rule', schema: DemotionRuleSchema },
+  { name: 'reputation-decay-policy', schema: ReputationDecayPolicySchema },
+  { name: 'collection-governance-config', schema: CollectionGovernanceConfigSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

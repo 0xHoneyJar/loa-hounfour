@@ -238,3 +238,14 @@ export {
   type OutcomeQualityMapping,
   type DelegationQualityEvent,
 } from './delegation-quality.js';
+
+// Schemas — Collection Governance Config (v7.6.0, DR-S5 + DR-S6)
+export {
+  DemotionRuleSchema,
+  ReputationDecayPolicySchema,
+  CollectionGovernanceConfigSchema,
+  DEFAULT_DEMOTION_RULES,
+  type DemotionRule,
+  type ReputationDecayPolicy,
+  type CollectionGovernanceConfig,
+} from './collection-governance-config.js';
