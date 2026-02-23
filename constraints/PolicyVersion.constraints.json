@@ -1,4 +1,5 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PolicyVersion",
   "origin": "genesis",
   "description": "Constraints for versioned policy records.",
@@ -6,7 +7,6 @@
   "constraints": [
     {
       "id": "policy-version-semver",
-      "description": "version must match semantic versioning pattern.",
       "expression": "matches(version, '^\\d+\\.\\d+\\.\\d+$')",
       "severity": "error",
       "fields": [
@@ -14,11 +14,11 @@
       ],
       "type_signature": {
         "version": "string"
-      }
+      },
+      "message": "version must match semantic versioning pattern."
     },
     {
       "id": "policy-version-supersedes-different",
-      "description": "supersedes must differ from version_id when present.",
       "expression": "supersedes == undefined || supersedes != version_id",
       "severity": "error",
       "fields": [
@@ -28,7 +28,8 @@
       "type_signature": {
         "version_id": "string",
         "supersedes": "string | undefined"
-      }
+      },
+      "message": "supersedes must differ from version_id when present."
     }
   ]
 }

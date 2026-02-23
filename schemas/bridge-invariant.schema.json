@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.0/bridge-invariant",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/bridge-invariant",
   "additionalProperties": false,
   "description": "A formally specified invariant for a registry bridge.",
   "type": "object",
@@ -49,5 +49,5 @@
       ]
     }
   },
-  "$comment": "contract_version=7.9.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
 }

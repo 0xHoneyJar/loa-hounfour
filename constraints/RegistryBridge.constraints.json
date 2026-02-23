@@ -7,44 +7,44 @@
   "constraints": [
     {
       "id": "registry-bridge-distinct-registries",
-      "description": "Source and target registry must be different",
       "expression": "source_registry_id != target_registry_id",
       "severity": "error",
       "category": "integrity",
       "type_signature": {
         "source_registry_id": "string",
         "target_registry_id": "string"
-      }
+      },
+      "message": "Source and target registry must be different"
     },
     {
       "id": "registry-bridge-invariant-unique-ids",
-      "description": "Bridge invariant IDs must be unique within a bridge",
       "expression": "unique_values(bridge_invariants, 'invariant_id')",
       "severity": "error",
       "category": "integrity",
       "type_signature": {
         "bridge_invariants": "array"
-      }
+      },
+      "message": "Bridge invariant IDs must be unique within a bridge"
     },
     {
       "id": "registry-bridge-fixed-rate-requires-value",
-      "description": "Fixed exchange rate must specify a value",
       "expression": "exchange_rate.rate_type != 'fixed' || exchange_rate.value != null",
       "severity": "error",
       "category": "integrity",
       "type_signature": {
         "exchange_rate": "object"
-      }
+      },
+      "message": "Fixed exchange rate must specify a value"
     },
     {
       "id": "registry-bridge-oracle-rate-requires-endpoint",
-      "description": "Oracle exchange rate must specify an oracle endpoint",
       "expression": "exchange_rate.rate_type != 'oracle' || exchange_rate.oracle_endpoint != null",
       "severity": "error",
       "category": "integrity",
       "type_signature": {
         "exchange_rate": "object"
-      }
+      },
+      "message": "Oracle exchange rate must specify an oracle endpoint"
     }
   ]
 }

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "description": "Integration vector: full EconomicBoundary with qualification_criteria — access granted via evaluateFromBoundary().",
+  "input": {
+    "boundary": {
+      "boundary_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "personality_id": "agent-alice",
+      "collection_id": "community-dao",
+      "trust_layer": {
+        "reputation_state": "established",
+        "blended_score": 0.85,
+        "snapshot_at": "2026-02-23T12:00:00Z"
+      },
+      "capital_layer": {
+        "budget_remaining": "75000000",
+        "billing_tier": "premium",
+        "budget_period_end": "2026-03-01T00:00:00Z"
+      },
+      "access_decision": {
+        "granted": true
+      },
+      "evaluated_at": "2026-02-23T12:00:01Z",
+      "contract_version": "7.9.1",
+      "qualification_criteria": {
+        "min_trust_score": 0.5,
+        "min_reputation_state": "warming",
+        "min_available_budget": "10000000"
+      }
+    },
+    "evaluated_at": "2026-02-23T12:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": true
+    },
+    "trust_evaluation": {
+      "passed": true,
+      "actual_score": 0.85,
+      "required_score": 0.5,
+      "actual_state": "established",
+      "required_state": "warming"
+    },
+    "capital_evaluation": {
+      "passed": true,
+      "actual_budget": "75000000",
+      "required_budget": "10000000"
+    },
+    "boundary_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }
+}

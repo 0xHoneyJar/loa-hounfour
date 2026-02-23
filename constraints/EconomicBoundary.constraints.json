@@ -1,11 +1,11 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EconomicBoundary",
   "origin": "genesis",
   "constraints": [
     {
       "id": "boundary-denial-needs-reason",
       "expression": "access_decision.granted == true || len(access_decision.denial_reason) >= 1",
-      "description": "Denied access decisions must provide a denial reason.",
       "severity": "error",
       "type_signature": {
         "access_decision.granted": "boolean",
@@ -14,19 +14,20 @@
       "fields": [
         "access_decision.granted",
         "access_decision.denial_reason"
-      ]
+      ],
+      "message": "Denied access decisions must provide a denial reason."
     },
     {
       "id": "boundary-trust-score-bounded",
       "expression": "trust_layer.blended_score >= 0 && trust_layer.blended_score <= 1",
-      "description": "Trust layer blended score must be between 0 and 1.",
       "severity": "error",
       "type_signature": {
         "trust_layer.blended_score": "number"
       },
       "fields": [
         "trust_layer.blended_score"
-      ]
+      ],
+      "message": "Trust layer blended score must be between 0 and 1."
     }
   ]
 }

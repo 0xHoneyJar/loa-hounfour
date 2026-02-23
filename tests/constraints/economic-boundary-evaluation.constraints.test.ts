@@ -77,8 +77,8 @@ describe('EconomicBoundaryEvaluation constraints', () => {
     expect(constraintFile.origin).toBe('genesis');
   });
 
-  it('has contract_version 7.9.0', () => {
-    expect(constraintFile.contract_version).toBe('7.9.0');
+  it('has contract_version 7.9.1', () => {
+    expect(constraintFile.contract_version).toBe('7.9.1');
   });
 
   describe('eval-granted-iff-both-pass', () => {

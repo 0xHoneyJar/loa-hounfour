@@ -8,7 +8,6 @@
     {
       "id": "billing-pricing-provenance",
       "expression": "source_completion_id == null || pricing_snapshot != null",
-      "description": "If billing references a completion, pricing snapshot must be present",
       "severity": "warning",
       "category": "economic",
       "fields": [
@@ -18,12 +17,12 @@
       "type_signature": {
         "source_completion_id": "string",
         "pricing_snapshot": "object"
-      }
+      },
+      "message": "If billing references a completion, pricing snapshot must be present"
     },
     {
       "id": "billing-reconciliation-delta",
       "expression": "reconciliation_delta_micro == null || reconciliation_mode == 'provider_invoice_authoritative'",
-      "description": "Reconciliation delta only valid with provider_invoice_authoritative mode",
       "severity": "warning",
       "category": "economic",
       "fields": [
@@ -33,7 +32,8 @@
       "type_signature": {
         "reconciliation_delta_micro": "bigint_coercible",
         "reconciliation_mode": "string"
-      }
+      },
+      "message": "Reconciliation delta only valid with provider_invoice_authoritative mode"
     }
   ]
 }

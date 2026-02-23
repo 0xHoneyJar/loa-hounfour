@@ -45,45 +45,45 @@
     },
     {
       "id": "conservation-registry-coverage-sums-to-total",
-      "description": "Sum of all coverage values must equal total_count",
       "expression": "bigint_eq(bigint_sum([coverage.single_lot, coverage.account, coverage.platform, coverage.bilateral]), total_count)",
       "severity": "error",
       "category": "consistency",
       "type_signature": {
         "coverage": "Record<string, integer>",
         "total_count": "integer"
-      }
+      },
+      "message": "Sum of all coverage values must equal total_count"
     },
     {
       "id": "conservation-registry-liveness-count-matches",
-      "description": "liveness_count must equal liveness_properties array length (v6.0.0)",
       "expression": "liveness_count == len(liveness_properties)",
       "severity": "error",
       "category": "consistency",
       "type_signature": {
         "liveness_count": "integer",
         "liveness_properties": "LivenessProperty[]"
-      }
+      },
+      "message": "liveness_count must equal liveness_properties array length (v6.0.0)"
     },
     {
       "id": "conservation-liveness-unique-ids",
-      "description": "All liveness_id values must be unique (v6.0.0)",
       "expression": "liveness_properties.every(p => liveness_properties.every(q => !eq(q.liveness_id, p.liveness_id) || eq(q, p)))",
       "severity": "error",
       "category": "consistency",
       "type_signature": {
         "liveness_properties": "LivenessProperty[]"
-      }
+      },
+      "message": "All liveness_id values must be unique (v6.0.0)"
     },
     {
       "id": "conservation-registry-coverage-keys-valid",
-      "description": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)",
       "expression": "object_keys_subset(coverage, ['single_lot', 'account', 'platform', 'bilateral'])",
       "severity": "error",
       "category": "type_safety",
       "type_signature": {
         "coverage": "Record<InvariantUniverse, integer>"
-      }
+      },
+      "message": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)"
     }
   ]
 }

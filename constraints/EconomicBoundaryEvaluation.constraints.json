@@ -2,7 +2,7 @@
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "EconomicBoundaryEvaluationResult",
   "origin": "genesis",
-  "contract_version": "7.9.0",
+  "contract_version": "7.9.1",
   "expression_version": "1.0",
   "constraints": [
     {

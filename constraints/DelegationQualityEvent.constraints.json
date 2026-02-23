@@ -1,4 +1,5 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "DelegationQualityEvent",
   "origin": "genesis",
   "contract_version": "7.5.0",
@@ -6,7 +7,6 @@
   "constraints": [
     {
       "id": "delegation-quality-score-range",
-      "description": "quality_score must be in [0, 1].",
       "expression": "is_between(quality_score, 0, 1)",
       "severity": "error",
       "fields": [
@@ -14,11 +14,11 @@
       ],
       "type_signature": {
         "quality_score": "number"
-      }
+      },
+      "message": "quality_score must be in [0, 1]."
     },
     {
       "id": "delegation-quality-signal-score-consistency",
-      "description": "quality_signal and quality_score should be consistent with QUALITY_SIGNAL_SCORES defaults.",
       "expression": "quality_signal != null",
       "severity": "info",
       "fields": [
@@ -26,7 +26,8 @@
       ],
       "type_signature": {
         "quality_signal": "string"
-      }
+      },
+      "message": "quality_signal and quality_score should be consistent with QUALITY_SIGNAL_SCORES defaults."
     }
   ]
 }

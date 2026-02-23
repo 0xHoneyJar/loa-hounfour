@@ -9,12 +9,15 @@
  * @see FR-3a v7.9.0 — parseMicroUsd()
  * @since v7.9.0
  */
-import { REPUTATION_STATE_ORDER, type ReputationStateName } from '../vocabulary/reputation.js';
+import { REPUTATION_STATE_ORDER, isKnownReputationState } from '../vocabulary/reputation.js';
 import type {
   TrustLayerSnapshot,
   CapitalLayerSnapshot,
   QualificationCriteria,
   EconomicBoundaryEvaluationResult,
+  EconomicBoundary,
+  DenialCode,
+  EvaluationGap,
 } from '../economy/economic-boundary.js';
 
 // ---------------------------------------------------------------------------
@@ -69,7 +72,7 @@ export function parseMicroUsd(value: string): ParseMicroUsdResult {
  * 0. VALIDATE INPUTS — unknown reputation states or invalid budgets → denied
  * 1. EVALUATE TRUST LAYER — score >= comparison + ordinal state comparison
  * 2. EVALUATE CAPITAL LAYER — BigInt comparison via parseMicroUsd()
- * 3. COMPOSE DECISION — both must pass, structured denial_reason for failures
+ * 3. COMPOSE DECISION — both must pass, structured denial_reason + denial_codes for failures
  * 4. RETURN with caller-provided evaluatedAt
  */
 export function evaluateEconomicBoundary(
@@ -77,38 +80,44 @@ export function evaluateEconomicBoundary(
   capitalSnapshot: CapitalLayerSnapshot,
   criteria: QualificationCriteria,
   evaluatedAt: string,
+  boundaryId?: string,
 ): EconomicBoundaryEvaluationResult {
   // Step 0: Validate inputs — fail-closed for unknown states/invalid budgets
-  const actualStateRank = REPUTATION_STATE_ORDER[trustSnapshot.reputation_state as ReputationStateName];
-  const requiredStateRank = REPUTATION_STATE_ORDER[criteria.min_reputation_state as ReputationStateName];
-
-  if (actualStateRank === undefined) {
+  // Uses isKnownReputationState type guard (F1) instead of `as` casts
+  if (!isKnownReputationState(trustSnapshot.reputation_state)) {
     return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt,
+      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
       `unknown reputation state: ${trustSnapshot.reputation_state}`,
+      ['UNKNOWN_REPUTATION_STATE'],
     );
   }
 
-  if (requiredStateRank === undefined) {
+  if (!isKnownReputationState(criteria.min_reputation_state)) {
     return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt,
+      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
       `unknown required reputation state: ${criteria.min_reputation_state}`,
+      ['UNKNOWN_REPUTATION_STATE'],
     );
   }
+
+  const actualStateRank = REPUTATION_STATE_ORDER[trustSnapshot.reputation_state];
+  const requiredStateRank = REPUTATION_STATE_ORDER[criteria.min_reputation_state];
 
   const actualBudget = parseMicroUsd(capitalSnapshot.budget_remaining);
   if (!actualBudget.valid) {
     return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt,
+      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
       `invalid budget format: ${actualBudget.reason}`,
+      ['INVALID_BUDGET_FORMAT'],
     );
   }
 
   const requiredBudget = parseMicroUsd(criteria.min_available_budget);
   if (!requiredBudget.valid) {
     return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt,
+      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
       `invalid required budget format: ${requiredBudget.reason}`,
+      ['INVALID_BUDGET_FORMAT'],
     );
   }
 
@@ -138,18 +147,32 @@ export function evaluateEconomicBoundary(
   const granted = trustPassed && capitalPassed;
 
   let denialReason: string | undefined;
+  const denialCodes: DenialCode[] = [];
+  let evaluationGap: EvaluationGap | undefined;
+
   if (!granted) {
     const reasons: string[] = [];
+    const gap: EvaluationGap = {};
+
     if (!scorePassed) {
       reasons.push(`trust score ${trustSnapshot.blended_score} < required ${criteria.min_trust_score}`);
+      denialCodes.push('TRUST_SCORE_BELOW_THRESHOLD');
+      gap.trust_score_gap = Math.max(0, criteria.min_trust_score - trustSnapshot.blended_score);
     }
     if (!statePassed) {
       reasons.push(`reputation state '${trustSnapshot.reputation_state}' below required '${criteria.min_reputation_state}'`);
+      denialCodes.push('TRUST_STATE_BELOW_THRESHOLD');
+      gap.reputation_state_gap = Math.max(0, requiredStateRank - actualStateRank);
     }
     if (!capitalPassed) {
       reasons.push(`budget ${capitalSnapshot.budget_remaining} < required ${criteria.min_available_budget}`);
+      denialCodes.push('CAPITAL_BELOW_THRESHOLD');
+      const budgetShortfall = requiredBudget.amount - actualBudget.amount;
+      gap.budget_gap = (budgetShortfall > 0n ? budgetShortfall : 0n).toString();
     }
+
     denialReason = reasons.join('; ');
+    evaluationGap = gap;
   }
 
   const accessDecision: { granted: boolean; denial_reason?: string } = { granted };
@@ -157,13 +180,62 @@ export function evaluateEconomicBoundary(
     accessDecision.denial_reason = denialReason;
   }
 
-  return {
+  const result: EconomicBoundaryEvaluationResult = {
     access_decision: accessDecision,
     trust_evaluation: trustEvaluation,
     capital_evaluation: capitalEvaluation,
     criteria_used: criteria,
     evaluated_at: evaluatedAt,
   };
+
+  if (boundaryId !== undefined) {
+    result.boundary_id = boundaryId;
+  }
+
+  if (denialCodes.length > 0) {
+    result.denial_codes = denialCodes;
+  }
+
+  if (evaluationGap !== undefined) {
+    result.evaluation_gap = evaluationGap;
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// evaluateFromBoundary — convenience overload (v7.9.1, F2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Evaluate an economic boundary using criteria stored ON the boundary itself.
+ *
+ * Convenience overload that extracts qualification_criteria from the boundary,
+ * preventing the Confused Deputy Problem where caller-provided criteria
+ * could diverge from boundary-stored criteria.
+ *
+ * @since v7.9.1 — F2 deep review improvement
+ */
+export function evaluateFromBoundary(
+  boundary: EconomicBoundary,
+  evaluatedAt: string,
+): EconomicBoundaryEvaluationResult {
+  if (!boundary.qualification_criteria) {
+    return makeDenied(
+      boundary.trust_layer, boundary.capital_layer,
+      { min_trust_score: 0, min_reputation_state: 'cold', min_available_budget: '0' },
+      evaluatedAt, boundary.boundary_id,
+      'no qualification criteria on boundary',
+      ['MISSING_QUALIFICATION_CRITERIA'],
+    );
+  }
+  return evaluateEconomicBoundary(
+    boundary.trust_layer,
+    boundary.capital_layer,
+    boundary.qualification_criteria,
+    evaluatedAt,
+    boundary.boundary_id,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -175,9 +247,11 @@ function makeDenied(
   capitalSnapshot: CapitalLayerSnapshot,
   criteria: QualificationCriteria,
   evaluatedAt: string,
+  boundaryId: string | undefined,
   reason: string,
+  codes: DenialCode[],
 ): EconomicBoundaryEvaluationResult {
-  return {
+  const result: EconomicBoundaryEvaluationResult = {
     access_decision: {
       granted: false,
       denial_reason: reason,
@@ -197,4 +271,14 @@ function makeDenied(
     criteria_used: criteria,
     evaluated_at: evaluatedAt,
   };
+
+  if (boundaryId !== undefined) {
+    result.boundary_id = boundaryId;
+  }
+
+  if (codes.length > 0) {
+    result.denial_codes = codes;
+  }
+
+  return result;
 }

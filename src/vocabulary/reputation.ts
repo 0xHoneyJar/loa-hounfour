@@ -77,3 +77,16 @@ export const REPUTATION_STATE_ORDER: Record<ReputationStateName, number> = {
   established: 2,
   authoritative: 3,
 } as const;
+
+/**
+ * Type-narrowing guard for reputation states.
+ *
+ * Validates that a string is a known reputation state and narrows the type
+ * for the TypeScript compiler. Prefer this over `as ReputationStateName` casts
+ * to make runtime validation explicit rather than hidden behind assertions.
+ *
+ * @since v7.9.1 — F1 deep review improvement
+ */
+export function isKnownReputationState(state: string): state is ReputationStateName {
+  return state in REPUTATION_STATE_ORDER;
+}

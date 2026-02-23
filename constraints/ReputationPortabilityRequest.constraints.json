@@ -7,25 +7,25 @@
   "constraints": [
     {
       "id": "portability-different-collections",
-      "description": "Source and target collections must differ",
       "expression": "source_collection_id != target_collection_id",
       "severity": "error",
       "category": "governance",
       "type_signature": {
         "source_collection_id": "string",
         "target_collection_id": "string"
-      }
+      },
+      "message": "Source and target collections must differ"
     },
     {
       "id": "portability-expiry-after-request",
-      "description": "Expiry timestamp must be after request timestamp",
       "expression": "is_after(expires_at, requested_at)",
       "severity": "error",
       "category": "temporal",
       "type_signature": {
         "expires_at": "string",
         "requested_at": "string"
-      }
+      },
+      "message": "Expiry timestamp must be after request timestamp"
     }
   ]
 }

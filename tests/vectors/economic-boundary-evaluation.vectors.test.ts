@@ -1,16 +1,17 @@
 /**
- * Conformance vector tests for evaluateEconomicBoundary().
+ * Conformance vector tests for evaluateEconomicBoundary() and evaluateFromBoundary().
  *
  * Dynamically loads all vectors from vectors/economic-boundary-evaluation/
  * and verifies the decision engine produces expected results.
  *
  * @see FR-1 v7.9.0 — Decision Engine
+ * @see F5 v7.9.1 — Integration conformance vectors
  * @since v7.9.0
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { evaluateEconomicBoundary } from '../../src/utilities/economic-boundary.js';
+import { evaluateEconomicBoundary, evaluateFromBoundary } from '../../src/utilities/economic-boundary.js';
 
 const VECTORS_DIR = join(__dirname, '../../vectors/economic-boundary-evaluation');
 
@@ -23,21 +24,33 @@ const index = loadVector('index.json');
 describe('Economic Boundary Evaluation Vectors', () => {
   it('index manifest exists and lists vectors', () => {
     expect(index.schema_version).toBe(1);
-    expect(index.vectors.length).toBeGreaterThanOrEqual(9);
+    expect(index.vectors.length).toBeGreaterThanOrEqual(12);
   });
 
   // Dynamically test all vectors listed in the index
   for (const entry of index.vectors as Array<{ file: string; description: string }>) {
+    // Integration vectors use evaluateFromBoundary()
+    const isIntegration = entry.file.startsWith('integration-');
+
     describe(entry.description, () => {
       const vector = loadVector(entry.file);
 
       it(`${entry.file}: produces expected result`, () => {
-        const result = evaluateEconomicBoundary(
-          vector.input.trust_snapshot,
-          vector.input.capital_snapshot,
-          vector.input.criteria,
-          vector.input.evaluated_at,
-        );
+        let result;
+        if (isIntegration) {
+          // Integration vectors pass a full boundary object
+          result = evaluateFromBoundary(
+            vector.input.boundary,
+            vector.input.evaluated_at,
+          );
+        } else {
+          result = evaluateEconomicBoundary(
+            vector.input.trust_snapshot,
+            vector.input.capital_snapshot,
+            vector.input.criteria,
+            vector.input.evaluated_at,
+          );
+        }
 
         // Check granted status
         expect(result.access_decision.granted).toBe(vector.expected.access_decision.granted);
@@ -52,20 +65,54 @@ describe('Economic Boundary Evaluation Vectors', () => {
         }
 
         // Check trust evaluation if fully specified
-        if (vector.expected.trust_evaluation.actual_score !== undefined) {
+        if (vector.expected.trust_evaluation?.actual_score !== undefined) {
           expect(result.trust_evaluation.actual_score).toBe(vector.expected.trust_evaluation.actual_score);
           expect(result.trust_evaluation.required_score).toBe(vector.expected.trust_evaluation.required_score);
           expect(result.trust_evaluation.actual_state).toBe(vector.expected.trust_evaluation.actual_state);
           expect(result.trust_evaluation.required_state).toBe(vector.expected.trust_evaluation.required_state);
         }
-        expect(result.trust_evaluation.passed).toBe(vector.expected.trust_evaluation.passed);
+        if (vector.expected.trust_evaluation?.passed !== undefined) {
+          expect(result.trust_evaluation.passed).toBe(vector.expected.trust_evaluation.passed);
+        }
 
         // Check capital evaluation if fully specified
-        if (vector.expected.capital_evaluation.actual_budget !== undefined) {
+        if (vector.expected.capital_evaluation?.actual_budget !== undefined) {
           expect(result.capital_evaluation.actual_budget).toBe(vector.expected.capital_evaluation.actual_budget);
           expect(result.capital_evaluation.required_budget).toBe(vector.expected.capital_evaluation.required_budget);
         }
-        expect(result.capital_evaluation.passed).toBe(vector.expected.capital_evaluation.passed);
+        if (vector.expected.capital_evaluation?.passed !== undefined) {
+          expect(result.capital_evaluation.passed).toBe(vector.expected.capital_evaluation.passed);
+        }
+
+        // Check boundary_id if specified (v7.9.1 F3)
+        if (vector.expected.boundary_id !== undefined) {
+          expect(result.boundary_id).toBe(vector.expected.boundary_id);
+        }
+
+        // Check denial_codes if specified (v7.9.1 F4)
+        if (vector.expected.denial_codes !== undefined) {
+          expect(result.denial_codes).toEqual(vector.expected.denial_codes);
+        }
+
+        // Check evaluation_gap if specified (v7.9.1 Q4)
+        if (vector.expected.evaluation_gap !== undefined) {
+          expect(result.evaluation_gap).toBeDefined();
+          if (vector.expected.evaluation_gap.trust_score_gap !== undefined) {
+            expect(result.evaluation_gap!.trust_score_gap).toBeCloseTo(
+              vector.expected.evaluation_gap.trust_score_gap, 10,
+            );
+          }
+          if (vector.expected.evaluation_gap.reputation_state_gap !== undefined) {
+            expect(result.evaluation_gap!.reputation_state_gap).toBe(
+              vector.expected.evaluation_gap.reputation_state_gap,
+            );
+          }
+          if (vector.expected.evaluation_gap.budget_gap !== undefined) {
+            expect(result.evaluation_gap!.budget_gap).toBe(
+              vector.expected.evaluation_gap.budget_gap,
+            );
+          }
+        }
       });
     });
   }

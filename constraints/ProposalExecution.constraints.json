@@ -1,11 +1,11 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ProposalExecution",
   "origin": "genesis",
   "constraints": [
     {
       "id": "execution-completed-needs-timestamp",
       "expression": "status != 'completed' || completed_at != null",
-      "description": "Completed executions must have a completed_at timestamp.",
       "severity": "error",
       "type_signature": {
         "status": "string",
@@ -14,19 +14,20 @@
       "fields": [
         "status",
         "completed_at"
-      ]
+      ],
+      "message": "Completed executions must have a completed_at timestamp."
     },
     {
       "id": "execution-changes-nonempty",
       "expression": "len(changes_applied) >= 1",
-      "description": "Execution must have at least one change application result.",
       "severity": "error",
       "type_signature": {
         "changes_applied": "array"
       },
       "fields": [
         "changes_applied"
-      ]
+      ],
+      "message": "Execution must have at least one change application result."
     }
   ]
 }

@@ -11,6 +11,9 @@
     { "file": "threshold-exact.json", "description": "All values exactly at threshold — granted" },
     { "file": "invalid-budget.json", "description": "Malformed micro-USD string — denied (fail-closed)" },
     { "file": "unknown-state.json", "description": "Unrecognized reputation state — denied (fail-closed)" },
-    { "file": "large-budget.json", "description": "Budget values exceeding Number.MAX_SAFE_INTEGER — BigInt comparison" }
+    { "file": "large-budget.json", "description": "Budget values exceeding Number.MAX_SAFE_INTEGER — BigInt comparison" },
+    { "file": "integration-granted.json", "description": "Integration: full EconomicBoundary with criteria — granted via evaluateFromBoundary()" },
+    { "file": "integration-denied.json", "description": "Integration: full EconomicBoundary with criteria — denied with codes and gap" },
+    { "file": "integration-no-criteria.json", "description": "Integration: EconomicBoundary without criteria — denied via evaluateFromBoundary()" }
   ]
 }

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ReputationRoutingSignal",
   "origin": "genesis",
   "description": "Constraints for reputation-based routing signals.",
@@ -6,7 +7,6 @@
   "constraints": [
     {
       "id": "routing-score-consistency",
-      "description": "qualifying_score must be between 0 and 1 inclusive.",
       "expression": "qualifying_score >= 0 && qualifying_score <= 1",
       "severity": "error",
       "fields": [
@@ -14,11 +14,11 @@
       ],
       "type_signature": {
         "qualifying_score": "number"
-      }
+      },
+      "message": "qualifying_score must be between 0 and 1 inclusive."
     },
     {
       "id": "routing-expiry-after-effective",
-      "description": "expires_at must be after effective_at when both are present.",
       "expression": "expires_at == undefined || is_after(expires_at, effective_at)",
       "severity": "error",
       "fields": [
@@ -28,7 +28,8 @@
       "type_signature": {
         "effective_at": "string",
         "expires_at": "string | undefined"
-      }
+      },
+      "message": "expires_at must be after effective_at when both are present."
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "description": "Integration vector: EconomicBoundary without qualification_criteria — denied via evaluateFromBoundary().",
+  "input": {
+    "boundary": {
+      "boundary_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "personality_id": "agent-charlie",
+      "collection_id": "community-dao",
+      "trust_layer": {
+        "reputation_state": "authoritative",
+        "blended_score": 0.95,
+        "snapshot_at": "2026-02-23T12:00:00Z"
+      },
+      "capital_layer": {
+        "budget_remaining": "100000000",
+        "billing_tier": "enterprise",
+        "budget_period_end": "2026-03-01T00:00:00Z"
+      },
+      "access_decision": {
+        "granted": true
+      },
+      "evaluated_at": "2026-02-23T12:00:01Z",
+      "contract_version": "7.9.1"
+    },
+    "evaluated_at": "2026-02-23T12:00:01Z"
+  },
+  "expected": {
+    "access_decision": {
+      "granted": false,
+      "denial_reason": "no qualification criteria on boundary"
+    },
+    "boundary_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "denial_codes": ["MISSING_QUALIFICATION_CRITERIA"]
+  }
+}

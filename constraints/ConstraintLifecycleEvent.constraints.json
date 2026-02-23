@@ -1,4 +1,5 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ConstraintLifecycleEvent",
   "origin": "genesis",
   "contract_version": "7.6.0",
@@ -6,7 +7,6 @@
   "constraints": [
     {
       "id": "lifecycle-valid-transition",
-      "description": "from_status → to_status must follow CONSTRAINT_LIFECYCLE_TRANSITIONS.",
       "expression": "from_status != to_status",
       "severity": "error",
       "fields": [
@@ -16,11 +16,11 @@
       "type_signature": {
         "from_status": "string",
         "to_status": "string"
-      }
+      },
+      "message": "from_status \u2192 to_status must follow CONSTRAINT_LIFECYCLE_TRANSITIONS."
     },
     {
       "id": "lifecycle-enacted-needs-proposal",
-      "description": "Transition to enacted status requires a valid proposal_id.",
       "expression": "to_status != 'enacted' || proposal_id != null",
       "severity": "error",
       "fields": [
@@ -30,7 +30,8 @@
       "type_signature": {
         "to_status": "string",
         "proposal_id": "string"
-      }
+      },
+      "message": "Transition to enacted status requires a valid proposal_id."
     }
   ]
 }

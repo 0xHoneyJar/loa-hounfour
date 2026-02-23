@@ -1,11 +1,11 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "RoutingRebalanceEvent",
   "origin": "genesis",
   "constraints": [
     {
       "id": "rebalance-compositions-differ",
       "expression": "before_composition_id != after_composition_id",
-      "description": "Before and after composition must differ (a rebalance should change something).",
       "severity": "error",
       "type_signature": {
         "before_composition_id": "string",
@@ -14,12 +14,12 @@
       "fields": [
         "before_composition_id",
         "after_composition_id"
-      ]
+      ],
+      "message": "Before and after composition must differ (a rebalance should change something)."
     },
     {
       "id": "rebalance-window-ordered",
       "expression": "performance_window_start == null || performance_window_end == null || is_after(performance_window_end, performance_window_start)",
-      "description": "If both window dates are present, end must be after start.",
       "severity": "error",
       "type_signature": {
         "performance_window_start": "string | undefined",
@@ -28,7 +28,8 @@
       "fields": [
         "performance_window_start",
         "performance_window_end"
-      ]
+      ],
+      "message": "If both window dates are present, end must be after start."
     }
   ]
 }

@@ -1,18 +1,19 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "PerformanceQualityBridge",
   "origin": "genesis",
   "constraints": [
     {
       "id": "bridge-weight-upper-bound",
       "expression": "weight_adjustment_suggested <= 1",
-      "description": "Weight adjustment suggestion must not exceed 1. Lower bound (-1) enforced by schema minimum.",
       "severity": "error",
       "type_signature": {
         "weight_adjustment_suggested": "number"
       },
       "fields": [
         "weight_adjustment_suggested"
-      ]
+      ],
+      "message": "Weight adjustment suggestion must not exceed 1. Lower bound (-1) enforced by schema minimum."
     }
   ]
 }

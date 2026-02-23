@@ -7,13 +7,13 @@
   "constraints": [
     {
       "id": "liveness-formula-has-eventually",
-      "description": "LTL formula must contain F_t (bounded eventually) operator",
       "expression": "ltl_formula.includes('F_t')",
       "severity": "error",
       "category": "temporal_logic",
       "type_signature": {
         "ltl_formula": "string"
-      }
+      },
+      "message": "LTL formula must contain F_t (bounded eventually) operator"
     }
   ]
 }

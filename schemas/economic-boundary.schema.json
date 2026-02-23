@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.0/economic-boundary",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/economic-boundary",
   "additionalProperties": false,
   "description": "Economic membrane: trust × capital → access decision.",
   "type": "object",
@@ -180,5 +180,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.9.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
 }

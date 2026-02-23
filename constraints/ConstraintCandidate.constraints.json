@@ -1,4 +1,5 @@
 {
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ConstraintCandidate",
   "origin": "genesis",
   "contract_version": "7.6.0",
@@ -6,7 +7,6 @@
   "constraints": [
     {
       "id": "candidate-expression-nonempty",
-      "description": "Constraint expression must be non-empty.",
       "expression": "expression != ''",
       "severity": "error",
       "fields": [
@@ -14,11 +14,11 @@
       ],
       "type_signature": {
         "expression": "string"
-      }
+      },
+      "message": "Constraint expression must be non-empty."
     },
     {
       "id": "candidate-fields-nonempty",
-      "description": "Fields array must have at least one entry.",
       "expression": "fields.length > 0",
       "severity": "error",
       "fields": [
@@ -26,7 +26,8 @@
       ],
       "type_signature": {
         "fields": "string[]"
-      }
+      },
+      "message": "Fields array must have at least one entry."
     }
   ]
 }

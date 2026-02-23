@@ -1,20 +1,33 @@
 /**
- * Tests for evaluateEconomicBoundary() and parseMicroUsd() — the decision engine.
+ * Tests for evaluateEconomicBoundary(), evaluateFromBoundary(), and parseMicroUsd().
  *
  * @see FR-1 v7.9.0 — evaluateEconomicBoundary()
  * @see FR-3a v7.9.0 — parseMicroUsd()
+ * @see F1-F5, Q1, Q4 v7.9.1 — Deep review improvements
  * @since v7.9.0
  */
 import { describe, it, expect } from 'vitest';
+import { Value } from '@sinclair/typebox/value';
 import {
   parseMicroUsd,
   evaluateEconomicBoundary,
+  evaluateFromBoundary,
 } from '../../src/utilities/economic-boundary.js';
+import {
+  DenialCodeSchema,
+  EvaluationGapSchema,
+  EconomicBoundaryEvaluationEventSchema,
+  EconomicBoundaryEvaluationResultSchema,
+} from '../../src/economy/economic-boundary.js';
 import type {
   TrustLayerSnapshot,
   CapitalLayerSnapshot,
   QualificationCriteria,
+  EconomicBoundary,
 } from '../../src/economy/economic-boundary.js';
+import { isKnownReputationState } from '../../src/vocabulary/reputation.js';
+// Side-effect import: registers date-time, uuid, uri format validators for Value.Check
+import '../../src/validators/index.js';
 
 // ---------------------------------------------------------------------------
 // Factory helpers
@@ -262,5 +275,269 @@ describe('evaluateEconomicBoundary', () => {
     );
     expect(result.access_decision.granted).toBe(true);
     expect(result.capital_evaluation.passed).toBe(true);
+  });
+
+  // v7.9.1 — F3: boundary_id passthrough
+  it('includes boundary_id when provided', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+      'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    );
+    expect(result.boundary_id).toBe('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+  });
+
+  it('omits boundary_id when not provided', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.boundary_id).toBeUndefined();
+  });
+
+  // v7.9.1 — F4: denial_codes
+  it('includes denial_codes on denied results', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.3 }),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.denial_codes).toBeDefined();
+    expect(result.denial_codes).toContain('TRUST_SCORE_BELOW_THRESHOLD');
+  });
+
+  it('includes multiple denial_codes when multiple criteria fail', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.1, reputation_state: 'cold' }),
+      makeCapitalSnapshot({ budget_remaining: '1000' }),
+      makeCriteria({ min_reputation_state: 'established' }),
+      EVALUATED_AT,
+    );
+    expect(result.denial_codes).toContain('TRUST_SCORE_BELOW_THRESHOLD');
+    expect(result.denial_codes).toContain('TRUST_STATE_BELOW_THRESHOLD');
+    expect(result.denial_codes).toContain('CAPITAL_BELOW_THRESHOLD');
+    expect(result.denial_codes!.length).toBe(3);
+  });
+
+  it('omits denial_codes on granted results', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.denial_codes).toBeUndefined();
+  });
+
+  it('uses UNKNOWN_REPUTATION_STATE code for unknown states', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'legendary' as any }),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.denial_codes).toEqual(['UNKNOWN_REPUTATION_STATE']);
+  });
+
+  it('uses INVALID_BUDGET_FORMAT code for invalid budgets', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot({ budget_remaining: 'abc' }),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.denial_codes).toEqual(['INVALID_BUDGET_FORMAT']);
+  });
+
+  // v7.9.1 — Q4: evaluation_gap
+  it('includes evaluation_gap with score gap on denied results', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.3 }),
+      makeCapitalSnapshot(),
+      makeCriteria({ min_trust_score: 0.7 }),
+      EVALUATED_AT,
+    );
+    expect(result.evaluation_gap).toBeDefined();
+    expect(result.evaluation_gap!.trust_score_gap).toBeCloseTo(0.4, 10);
+  });
+
+  it('includes evaluation_gap with state gap', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'warming' }),
+      makeCapitalSnapshot(),
+      makeCriteria({ min_reputation_state: 'authoritative' }),
+      EVALUATED_AT,
+    );
+    expect(result.evaluation_gap).toBeDefined();
+    expect(result.evaluation_gap!.reputation_state_gap).toBe(2); // warming(1) to authoritative(3)
+  });
+
+  it('includes evaluation_gap with budget gap', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot({ budget_remaining: '3000000' }),
+      makeCriteria({ min_available_budget: '10000000' }),
+      EVALUATED_AT,
+    );
+    expect(result.evaluation_gap).toBeDefined();
+    expect(result.evaluation_gap!.budget_gap).toBe('7000000');
+  });
+
+  it('omits evaluation_gap on granted results', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    expect(result.evaluation_gap).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// isKnownReputationState — v7.9.1 F1
+// ---------------------------------------------------------------------------
+
+describe('isKnownReputationState', () => {
+  it('returns true for all 4 valid states', () => {
+    expect(isKnownReputationState('cold')).toBe(true);
+    expect(isKnownReputationState('warming')).toBe(true);
+    expect(isKnownReputationState('established')).toBe(true);
+    expect(isKnownReputationState('authoritative')).toBe(true);
+  });
+
+  it('returns false for unknown strings', () => {
+    expect(isKnownReputationState('legendary')).toBe(false);
+    expect(isKnownReputationState('')).toBe(false);
+    expect(isKnownReputationState('COLD')).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// evaluateFromBoundary — v7.9.1 F2
+// ---------------------------------------------------------------------------
+
+describe('evaluateFromBoundary', () => {
+  function makeBoundary(overrides: Partial<EconomicBoundary> = {}): EconomicBoundary {
+    return {
+      boundary_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      personality_id: 'agent-alice',
+      collection_id: 'community-dao',
+      trust_layer: makeTrustSnapshot(),
+      capital_layer: makeCapitalSnapshot(),
+      access_decision: { granted: true },
+      evaluated_at: EVALUATED_AT,
+      contract_version: '7.9.1',
+      qualification_criteria: makeCriteria(),
+      ...overrides,
+    };
+  }
+
+  it('evaluates using boundary criteria when present', () => {
+    const result = evaluateFromBoundary(makeBoundary(), EVALUATED_AT);
+    expect(result.access_decision.granted).toBe(true);
+    expect(result.boundary_id).toBe('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+  });
+
+  it('returns denied when qualification_criteria is absent', () => {
+    const boundary = makeBoundary();
+    delete (boundary as any).qualification_criteria;
+    const result = evaluateFromBoundary(boundary, EVALUATED_AT);
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.access_decision.denial_reason).toBe('no qualification criteria on boundary');
+    expect(result.denial_codes).toEqual(['MISSING_QUALIFICATION_CRITERIA']);
+  });
+
+  it('passes boundary_id through to result', () => {
+    const result = evaluateFromBoundary(makeBoundary(), EVALUATED_AT);
+    expect(result.boundary_id).toBe('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+  });
+
+  it('is total (never throws)', () => {
+    // Even with missing criteria, returns denied
+    const boundary = makeBoundary();
+    delete (boundary as any).qualification_criteria;
+    expect(() => evaluateFromBoundary(boundary, EVALUATED_AT)).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// New schema validation — v7.9.1
+// ---------------------------------------------------------------------------
+
+describe('v7.9.1 schemas', () => {
+  it('DenialCodeSchema has $id', () => {
+    expect(DenialCodeSchema.$id).toBe('DenialCode');
+  });
+
+  it('DenialCodeSchema accepts valid codes', () => {
+    expect(Value.Check(DenialCodeSchema, 'TRUST_SCORE_BELOW_THRESHOLD')).toBe(true);
+    expect(Value.Check(DenialCodeSchema, 'CAPITAL_BELOW_THRESHOLD')).toBe(true);
+    expect(Value.Check(DenialCodeSchema, 'UNKNOWN_REPUTATION_STATE')).toBe(true);
+    expect(Value.Check(DenialCodeSchema, 'INVALID_BUDGET_FORMAT')).toBe(true);
+    expect(Value.Check(DenialCodeSchema, 'MISSING_QUALIFICATION_CRITERIA')).toBe(true);
+  });
+
+  it('DenialCodeSchema rejects invalid codes', () => {
+    expect(Value.Check(DenialCodeSchema, 'NOT_A_CODE')).toBe(false);
+  });
+
+  it('EvaluationGapSchema has $id', () => {
+    expect(EvaluationGapSchema.$id).toBe('EvaluationGap');
+  });
+
+  it('EvaluationGapSchema accepts valid gap', () => {
+    expect(Value.Check(EvaluationGapSchema, {
+      trust_score_gap: 0.4,
+      reputation_state_gap: 2,
+      budget_gap: '5000000',
+    })).toBe(true);
+  });
+
+  it('EvaluationGapSchema accepts partial gap', () => {
+    expect(Value.Check(EvaluationGapSchema, { trust_score_gap: 0.2 })).toBe(true);
+    expect(Value.Check(EvaluationGapSchema, {})).toBe(true);
+  });
+
+  it('EconomicBoundaryEvaluationEventSchema has $id', () => {
+    expect(EconomicBoundaryEvaluationEventSchema.$id).toBe('EconomicBoundaryEvaluationEvent');
+  });
+
+  it('EconomicBoundaryEvaluationEventSchema accepts valid event', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot(),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+    );
+    const event = {
+      event_type: 'economic_boundary_evaluation',
+      boundary_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      personality_id: 'agent-alice',
+      collection_id: 'community-dao',
+      evaluation_result: result,
+      occurred_at: EVALUATED_AT,
+      contract_version: '7.9.1',
+    };
+    expect(Value.Check(EconomicBoundaryEvaluationEventSchema, event)).toBe(true);
+  });
+
+  it('EconomicBoundaryEvaluationResultSchema accepts results with new optional fields', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.3 }),
+      makeCapitalSnapshot({ budget_remaining: '5000000' }),
+      makeCriteria({ min_trust_score: 0.7 }),
+      EVALUATED_AT,
+      'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    );
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, result)).toBe(true);
+    expect(result.boundary_id).toBeDefined();
+    expect(result.denial_codes).toBeDefined();
+    expect(result.evaluation_gap).toBeDefined();
   });
 });
