@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/policy-version",
+  "additionalProperties": false,
+  "description": "Versioned policy record with migration support.",
+  "type": "object",
+  "required": [
+    "version_id",
+    "policy_type",
+    "policy_id",
+    "version",
+    "effective_at",
+    "contract_version"
+  ],
+  "properties": {
+    "version_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "policy_type": {
+      "$id": "PolicyType",
+      "description": "Category of versioned policy.",
+      "anyOf": [
+        {
+          "const": "monetary",
+          "type": "string"
+        },
+        {
+          "const": "access",
+          "type": "string"
+        },
+        {
+          "const": "governance",
+          "type": "string"
+        },
+        {
+          "const": "constraint",
+          "type": "string"
+        }
+      ]
+    },
+    "policy_id": {
+      "minLength": 1,
+      "description": "Identifier of the policy being versioned.",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the policy.",
+      "type": "string"
+    },
+    "effective_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "supersedes": {
+      "format": "uuid",
+      "description": "version_id of the previous policy version this supersedes.",
+      "type": "string"
+    },
+    "migration_validation": {
+      "minLength": 1,
+      "description": "Constraint expression that must hold during transition from old to new policy.",
+      "type": "string"
+    },
+    "enacted_by_proposal": {
+      "format": "uuid",
+      "description": "GovernanceProposal that enacted this version.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

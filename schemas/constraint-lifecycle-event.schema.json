@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/constraint-lifecycle-event",
+  "additionalProperties": false,
+  "description": "State transition event in a constraint lifecycle.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "constraint_id",
+    "proposal_id",
+    "from_status",
+    "to_status",
+    "occurred_at",
+    "contract_version"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "constraint_id": {
+      "minLength": 1,
+      "description": "The constraint being transitioned.",
+      "type": "string"
+    },
+    "proposal_id": {
+      "format": "uuid",
+      "description": "GovernanceProposal that drove this transition.",
+      "type": "string"
+    },
+    "from_status": {
+      "$id": "ConstraintLifecycleStatus",
+      "description": "Lifecycle status of a protocol constraint within governance.",
+      "anyOf": [
+        {
+          "const": "proposed",
+          "type": "string"
+        },
+        {
+          "const": "under_review",
+          "type": "string"
+        },
+        {
+          "const": "enacted",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        },
+        {
+          "const": "deprecated",
+          "type": "string"
+        }
+      ]
+    },
+    "to_status": {
+      "$id": "ConstraintLifecycleStatus",
+      "description": "Lifecycle status of a protocol constraint within governance.",
+      "anyOf": [
+        {
+          "const": "proposed",
+          "type": "string"
+        },
+        {
+          "const": "under_review",
+          "type": "string"
+        },
+        {
+          "const": "enacted",
+          "type": "string"
+        },
+        {
+          "const": "rejected",
+          "type": "string"
+        },
+        {
+          "const": "deprecated",
+          "type": "string"
+        }
+      ]
+    },
+    "enacted_by": {
+      "minLength": 1,
+      "description": "Agent who enacted the transition.",
+      "type": "string"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}

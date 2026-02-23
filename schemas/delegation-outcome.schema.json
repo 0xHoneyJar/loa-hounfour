@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/delegation-outcome",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/delegation-outcome",
   "additionalProperties": false,
   "description": "The outcome of a delegated governance decision with vote and dissent tracking.",
   "type": "object",
@@ -191,6 +191,21 @@
           "acknowledged": {
             "description": "Whether the dissent has been acknowledged by the decision maker.",
             "type": "boolean"
+          },
+          "acknowledged_at": {
+            "format": "date-time",
+            "description": "When the dissent was acknowledged.",
+            "type": "string"
+          },
+          "acknowledged_by": {
+            "minLength": 1,
+            "description": "ID of the agent who acknowledged the dissent.",
+            "type": "string"
+          },
+          "acknowledgment_response": {
+            "minLength": 1,
+            "description": "Response or explanation provided when acknowledging the dissent.",
+            "type": "string"
           }
         }
       }
@@ -213,5 +228,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
 }

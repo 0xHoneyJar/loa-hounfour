@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/constraint-type-signature",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/constraint-type-signature",
   "additionalProperties": false,
   "description": "Static type signature for a constraint expression (v6.0.0).",
   "type": "object",
@@ -98,5 +98,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/portability-response",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/portability-response",
   "additionalProperties": false,
   "description": "Response to a reputation portability request.",
   "type": "object",
@@ -66,5 +66,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
 }

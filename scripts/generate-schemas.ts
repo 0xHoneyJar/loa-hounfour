@@ -123,6 +123,9 @@ import { QualitySignalLevelSchema, OutcomeQualityMappingSchema, DelegationQualit
 import { DemotionRuleSchema, ReputationDecayPolicySchema, CollectionGovernanceConfigSchema } from '../src/governance/collection-governance-config.js';
 // v7.6.0 — Constraint Lifecycle
 import { ConstraintLifecycleStatusSchema, ConstraintCandidateSchema, ConstraintLifecycleEventSchema } from '../src/governance/constraint-lifecycle.js';
+// v7.6.0 — Reputation Routing + Policy Version
+import { RoutingSignalTypeSchema, ReputationRoutingSignalSchema } from '../src/governance/reputation-routing.js';
+import { PolicyTypeSchema, PolicyVersionSchema } from '../src/governance/policy-version.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -288,6 +291,12 @@ const schemas = [
   { name: 'constraint-lifecycle-status', schema: ConstraintLifecycleStatusSchema },
   { name: 'constraint-candidate', schema: ConstraintCandidateSchema },
   { name: 'constraint-lifecycle-event', schema: ConstraintLifecycleEventSchema },
+  // v7.6.0 — Reputation Routing
+  { name: 'routing-signal-type', schema: RoutingSignalTypeSchema },
+  { name: 'reputation-routing-signal', schema: ReputationRoutingSignalSchema },
+  // v7.6.0 — Policy Version
+  { name: 'policy-type', schema: PolicyTypeSchema },
+  { name: 'policy-version', schema: PolicyVersionSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.5.0/conformance-vector",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/conformance-vector",
   "description": "Cross-language conformance test vector for adapter verification.",
   "additionalProperties": false,
   "type": "object",
@@ -134,6 +134,22 @@
         {
           "const": "delegation-quality",
           "type": "string"
+        },
+        {
+          "const": "collection-governance-config",
+          "type": "string"
+        },
+        {
+          "const": "constraint-lifecycle",
+          "type": "string"
+        },
+        {
+          "const": "reputation-routing",
+          "type": "string"
+        },
+        {
+          "const": "policy-version",
+          "type": "string"
         }
       ]
     },
@@ -241,5 +257,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
 }

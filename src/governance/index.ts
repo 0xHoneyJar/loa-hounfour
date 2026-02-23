@@ -260,3 +260,19 @@ export {
   type ConstraintCandidate,
   type ConstraintLifecycleEvent,
 } from './constraint-lifecycle.js';
+
+// Schemas — Reputation Routing (v7.6.0, DR-S7)
+export {
+  RoutingSignalTypeSchema,
+  ReputationRoutingSignalSchema,
+  type RoutingSignalType,
+  type ReputationRoutingSignal,
+} from './reputation-routing.js';
+
+// Schemas — Policy Version (v7.6.0, DR-S8)
+export {
+  PolicyTypeSchema,
+  PolicyVersionSchema,
+  type PolicyType,
+  type PolicyVersion,
+} from './policy-version.js';

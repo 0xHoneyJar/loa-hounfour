@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('7.5.0');
+    expect(CONTRACT_VERSION).toBe('7.6.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('7.5.0');
+    expect(pkg.version).toBe('7.6.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('7.5.0');
+    expect(index.version).toBe('7.6.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('7.5.0');
+    expect(version).toBe('7.6.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -126,15 +126,33 @@ describe('version bump', () => {
     expect(names).toContain('reputation-credential');
   });
 
-  it('schemas/index.json schema $ids all use 7.5.0', () => {
+  it('schemas/index.json schema $ids all use 7.6.0', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/7\.5\.0\//);
+      expect(schema.$id).toMatch(/\/7\.6\.0\//);
     }
   });
 
-  it('schemas/index.json has 117 schemas', () => {
+  it('schemas/index.json includes v7.6.0 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(117);
+    const names = index.schemas.map((s: { name: string }) => s.name);
+    // Sprint 1
+    expect(names).toContain('demotion-rule');
+    expect(names).toContain('reputation-decay-policy');
+    expect(names).toContain('collection-governance-config');
+    // Sprint 2
+    expect(names).toContain('constraint-lifecycle-status');
+    expect(names).toContain('constraint-candidate');
+    expect(names).toContain('constraint-lifecycle-event');
+    // Sprint 3
+    expect(names).toContain('routing-signal-type');
+    expect(names).toContain('reputation-routing-signal');
+    expect(names).toContain('policy-type');
+    expect(names).toContain('policy-version');
+  });
+
+  it('schemas/index.json has 127 schemas', () => {
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    expect(index.schemas).toHaveLength(127);
   });
 });

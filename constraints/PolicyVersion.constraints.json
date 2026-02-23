@@ -1,0 +1,28 @@
+{
+  "schema_id": "PolicyVersion",
+  "description": "Constraints for versioned policy records.",
+  "contract_version": "7.6.0",
+  "constraints": [
+    {
+      "id": "policy-version-semver",
+      "description": "version must match semantic versioning pattern.",
+      "expression": "matches(version, '^\\d+\\.\\d+\\.\\d+$')",
+      "severity": "error",
+      "fields": ["version"],
+      "type_signature": {
+        "version": "string"
+      }
+    },
+    {
+      "id": "policy-version-supersedes-different",
+      "description": "supersedes must differ from version_id when present.",
+      "expression": "supersedes == undefined || supersedes != version_id",
+      "severity": "error",
+      "fields": ["version_id", "supersedes"],
+      "type_signature": {
+        "version_id": "string",
+        "supersedes": "string | undefined"
+      }
+    }
+  ]
+}

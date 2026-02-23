@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.6.0/reputation-routing-signal",
+  "additionalProperties": false,
+  "description": "Reputation-based routing signal for meritocratic resource allocation.",
+  "type": "object",
+  "required": [
+    "signal_id",
+    "personality_id",
+    "signal_type",
+    "qualifying_state",
+    "qualifying_score",
+    "routing_weight",
+    "effective_at",
+    "contract_version"
+  ],
+  "properties": {
+    "signal_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "personality_id": {
+      "minLength": 1,
+      "description": "The personality this routing signal applies to.",
+      "type": "string"
+    },
+    "signal_type": {
+      "$id": "RoutingSignalType",
+      "description": "Type of reputation-based routing signal.",
+      "anyOf": [
+        {
+          "const": "model_preference",
+          "type": "string"
+        },
+        {
+          "const": "task_eligibility",
+          "type": "string"
+        },
+        {
+          "const": "delegation_priority",
+          "type": "string"
+        }
+      ]
+    },
+    "qualifying_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "qualifying_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum blended score for this routing signal to be active.",
+      "type": "number"
+    },
+    "model_preferences": {
+      "description": "Per-model minimum cohort scores. Only relevant for model_preference signals.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_id",
+          "min_cohort_score"
+        ],
+        "properties": {
+          "model_id": {
+            "minLength": 1,
+            "description": "Model alias (e.g., \"gpt-4o\", \"claude-opus\").",
+            "type": "string"
+          },
+          "min_cohort_score": {
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Minimum per-model cohort score for this model preference.",
+            "type": "number"
+          }
+        }
+      }
+    },
+    "routing_weight": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Influence weight on allocation decisions (0 = no influence, 1 = full influence).",
+      "type": "number"
+    },
+    "effective_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "description": "When this signal expires. Null/absent means indefinite.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.6.0, min_supported=6.0.0"
+}
