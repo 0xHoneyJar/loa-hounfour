@@ -541,3 +541,121 @@ describe('v7.9.1 schemas', () => {
     expect(result.evaluation_gap).toBeDefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Partial evaluation symmetry — v7.9.1 Part 9.2 F2
+// ---------------------------------------------------------------------------
+
+describe('makeDenied symmetry fix (Part 9.2)', () => {
+  it('unknown reputation state: capital still evaluated accurately', () => {
+    // Trust input is invalid (unknown state), but capital is valid (50M >= 10M)
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'legendary' as any }),
+      makeCapitalSnapshot({ budget_remaining: '50000000' }),
+      makeCriteria({ min_available_budget: '10000000' }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(false); // invalid input
+    expect(result.capital_evaluation.passed).toBe(true); // capital passes: 50M >= 10M
+    expect(result.denial_codes).toEqual(['UNKNOWN_REPUTATION_STATE']);
+  });
+
+  it('unknown reputation state + insufficient capital: both false', () => {
+    // Trust input is invalid AND capital would fail
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'legendary' as any }),
+      makeCapitalSnapshot({ budget_remaining: '1000' }),
+      makeCriteria({ min_available_budget: '10000000' }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(false);
+    expect(result.capital_evaluation.passed).toBe(false); // capital actually fails: 1K < 10M
+    expect(result.denial_codes).toEqual(['UNKNOWN_REPUTATION_STATE']);
+  });
+
+  it('invalid budget format: trust still evaluated accurately', () => {
+    // Capital input is invalid (leading zeros), but trust is valid (0.82 >= 0.5, established >= warming)
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.82, reputation_state: 'established' }),
+      makeCapitalSnapshot({ budget_remaining: '007' }),
+      makeCriteria({ min_trust_score: 0.5, min_reputation_state: 'warming' }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(true); // trust passes: 0.82 >= 0.5, established >= warming
+    expect(result.capital_evaluation.passed).toBe(false); // invalid input
+    expect(result.denial_codes).toEqual(['INVALID_BUDGET_FORMAT']);
+  });
+
+  it('invalid budget format + insufficient trust: both false', () => {
+    // Capital input is invalid AND trust would fail
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.1, reputation_state: 'cold' }),
+      makeCapitalSnapshot({ budget_remaining: '007' }),
+      makeCriteria({ min_trust_score: 0.5, min_reputation_state: 'established' }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(false); // trust actually fails: 0.1 < 0.5, cold < established
+    expect(result.capital_evaluation.passed).toBe(false); // invalid input
+    expect(result.denial_codes).toEqual(['INVALID_BUDGET_FORMAT']);
+  });
+
+  it('unknown required reputation state: capital still evaluated', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'established' }),
+      makeCapitalSnapshot({ budget_remaining: '50000000' }),
+      makeCriteria({ min_reputation_state: 'mythical' as any, min_available_budget: '10000000' }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(false); // criteria invalid
+    expect(result.capital_evaluation.passed).toBe(true); // capital passes: 50M >= 10M
+    expect(result.denial_codes).toEqual(['UNKNOWN_REPUTATION_STATE']);
+  });
+
+  it('invalid required budget format: trust still evaluated', () => {
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ blended_score: 0.9, reputation_state: 'authoritative' }),
+      makeCapitalSnapshot({ budget_remaining: '50000000' }),
+      makeCriteria({ min_available_budget: '00invalid' as any }),
+      EVALUATED_AT,
+    );
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(true); // trust passes
+    expect(result.capital_evaluation.passed).toBe(false); // criteria invalid
+    expect(result.denial_codes).toEqual(['INVALID_BUDGET_FORMAT']);
+  });
+
+  it('missing qualification criteria: both false (no criteria to evaluate against)', () => {
+    const boundary: EconomicBoundary = {
+      boundary_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      personality_id: 'agent-alice',
+      collection_id: 'community-dao',
+      trust_layer: makeTrustSnapshot(),
+      capital_layer: makeCapitalSnapshot(),
+      access_decision: { granted: true },
+      evaluated_at: EVALUATED_AT,
+      contract_version: '7.9.1',
+    };
+    const result = evaluateFromBoundary(boundary, EVALUATED_AT);
+    expect(result.access_decision.granted).toBe(false);
+    expect(result.trust_evaluation.passed).toBe(false); // no criteria
+    expect(result.capital_evaluation.passed).toBe(false); // no criteria
+    expect(result.denial_codes).toEqual(['MISSING_QUALIFICATION_CRITERIA']);
+  });
+
+  it('validation failures produce schema-valid results', () => {
+    // Unknown state + valid capital
+    const result = evaluateEconomicBoundary(
+      makeTrustSnapshot({ reputation_state: 'legendary' as any }),
+      makeCapitalSnapshot(),
+      makeCriteria(),
+      EVALUATED_AT,
+      'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    );
+    expect(Value.Check(EconomicBoundaryEvaluationResultSchema, result)).toBe(true);
+  });
+});

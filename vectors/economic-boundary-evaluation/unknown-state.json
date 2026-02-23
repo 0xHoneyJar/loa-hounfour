@@ -29,7 +29,7 @@
       "passed": false
     },
     "capital_evaluation": {
-      "passed": false
+      "passed": true
     }
   }
 }

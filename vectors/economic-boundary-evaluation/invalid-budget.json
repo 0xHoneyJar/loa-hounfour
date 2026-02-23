@@ -26,7 +26,7 @@
       "denial_reason_contains": "invalid budget format"
     },
     "trust_evaluation": {
-      "passed": false
+      "passed": true
     },
     "capital_evaluation": {
       "passed": false

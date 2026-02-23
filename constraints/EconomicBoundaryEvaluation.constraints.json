@@ -47,6 +47,17 @@
         "trust_evaluation.required_score": "number"
       },
       "fields": ["trust_evaluation.required_score"]
+    },
+    {
+      "id": "eval-denied-needs-codes",
+      "expression": "access_decision.granted == true || len(denial_codes) >= 1",
+      "message": "Denied evaluations must include at least one machine-parseable denial code.",
+      "severity": "error",
+      "type_signature": {
+        "access_decision.granted": "boolean",
+        "denial_codes": "DenialCode[] | undefined"
+      },
+      "fields": ["access_decision.granted", "denial_codes"]
     }
   ]
 }

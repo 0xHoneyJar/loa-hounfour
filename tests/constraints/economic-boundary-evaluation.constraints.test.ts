@@ -69,8 +69,8 @@ function getExpr(id: string): string {
 }
 
 describe('EconomicBoundaryEvaluation constraints', () => {
-  it('constraint file has 4 constraints', () => {
-    expect(constraintFile.constraints).toHaveLength(4);
+  it('constraint file has 5 constraints', () => {
+    expect(constraintFile.constraints).toHaveLength(5);
   });
 
   it('has origin: genesis', () => {
@@ -159,6 +159,43 @@ describe('EconomicBoundaryEvaluation constraints', () => {
         ...grantedResult,
         trust_evaluation: { ...grantedResult.trust_evaluation, required_score: 1 },
       }, expr())).toBe(true);
+    });
+  });
+
+  describe('eval-denied-needs-codes', () => {
+    const expr = () => getExpr('eval-denied-needs-codes');
+
+    it('passes for granted (no codes needed)', () => {
+      expect(evaluateConstraint(grantedResult, expr())).toBe(true);
+    });
+
+    it('passes for denied with codes', () => {
+      const withCodes = {
+        ...deniedResult,
+        denial_codes: ['TRUST_SCORE_BELOW_THRESHOLD'],
+      };
+      expect(evaluateConstraint(withCodes, expr())).toBe(true);
+    });
+
+    it('passes for denied with multiple codes', () => {
+      const withCodes = {
+        ...deniedResult,
+        denial_codes: ['TRUST_SCORE_BELOW_THRESHOLD', 'CAPITAL_BELOW_THRESHOLD'],
+      };
+      expect(evaluateConstraint(withCodes, expr())).toBe(true);
+    });
+
+    it('fails for denied without codes', () => {
+      // deniedResult has no denial_codes field
+      expect(evaluateConstraint(deniedResult, expr())).toBe(false);
+    });
+
+    it('fails for denied with empty codes array', () => {
+      const emptyCodes = {
+        ...deniedResult,
+        denial_codes: [],
+      };
+      expect(evaluateConstraint(emptyCodes, expr())).toBe(false);
     });
   });
 });

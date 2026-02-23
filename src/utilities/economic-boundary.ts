@@ -59,6 +59,67 @@ export function parseMicroUsd(value: string): ParseMicroUsdResult {
 }
 
 // ---------------------------------------------------------------------------
+// Layer evaluation helpers — enables partial evaluation on validation failures
+// ---------------------------------------------------------------------------
+
+type TrustEvalResult = {
+  passed: boolean;
+  actual_score: number;
+  required_score: number;
+  actual_state: string;
+  required_state: string;
+};
+
+type CapitalEvalResult = {
+  passed: boolean;
+  actual_budget: string;
+  required_budget: string;
+};
+
+/**
+ * Attempt to evaluate the trust layer. Returns null if inputs are invalid.
+ */
+function tryEvaluateTrust(
+  trustSnapshot: TrustLayerSnapshot,
+  criteria: QualificationCriteria,
+): TrustEvalResult | null {
+  if (!isKnownReputationState(trustSnapshot.reputation_state)) return null;
+  if (!isKnownReputationState(criteria.min_reputation_state)) return null;
+
+  const actualStateRank = REPUTATION_STATE_ORDER[trustSnapshot.reputation_state];
+  const requiredStateRank = REPUTATION_STATE_ORDER[criteria.min_reputation_state];
+  const scorePassed = trustSnapshot.blended_score >= criteria.min_trust_score;
+  const statePassed = actualStateRank >= requiredStateRank;
+
+  return {
+    passed: scorePassed && statePassed,
+    actual_score: trustSnapshot.blended_score,
+    required_score: criteria.min_trust_score,
+    actual_state: trustSnapshot.reputation_state,
+    required_state: criteria.min_reputation_state,
+  };
+}
+
+/**
+ * Attempt to evaluate the capital layer. Returns null if inputs are invalid.
+ */
+function tryEvaluateCapital(
+  capitalSnapshot: CapitalLayerSnapshot,
+  criteria: QualificationCriteria,
+): CapitalEvalResult | null {
+  const actualBudget = parseMicroUsd(capitalSnapshot.budget_remaining);
+  if (!actualBudget.valid) return null;
+  const requiredBudget = parseMicroUsd(criteria.min_available_budget);
+  if (!requiredBudget.valid) return null;
+
+  return {
+    passed: actualBudget.amount >= requiredBudget.amount,
+    actual_budget: capitalSnapshot.budget_remaining,
+    required_budget: criteria.min_available_budget,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // evaluateEconomicBoundary — the decision engine
 // ---------------------------------------------------------------------------
 
@@ -69,11 +130,10 @@ export function parseMicroUsd(value: string): ParseMicroUsdResult {
  * (no wall-clock reads), and fail-closed (unknown states → denied).
  *
  * Algorithm:
- * 0. VALIDATE INPUTS — unknown reputation states or invalid budgets → denied
- * 1. EVALUATE TRUST LAYER — score >= comparison + ordinal state comparison
- * 2. EVALUATE CAPITAL LAYER — BigInt comparison via parseMicroUsd()
- * 3. COMPOSE DECISION — both must pass, structured denial_reason + denial_codes for failures
- * 4. RETURN with caller-provided evaluatedAt
+ * 0. ATTEMPT LAYER EVALUATIONS — each layer evaluated independently
+ * 1. HANDLE VALIDATION FAILURES — partial evaluation: valid layers get accurate results
+ * 2. COMPOSE DECISION — both must pass, structured denial_reason + denial_codes for failures
+ * 3. RETURN with caller-provided evaluatedAt
  */
 export function evaluateEconomicBoundary(
   trustSnapshot: TrustLayerSnapshot,
@@ -82,69 +142,21 @@ export function evaluateEconomicBoundary(
   evaluatedAt: string,
   boundaryId?: string,
 ): EconomicBoundaryEvaluationResult {
-  // Step 0: Validate inputs — fail-closed for unknown states/invalid budgets
-  // Uses isKnownReputationState type guard (F1) instead of `as` casts
-  if (!isKnownReputationState(trustSnapshot.reputation_state)) {
-    return makeDenied(
+  // Step 0: Attempt independent layer evaluations
+  const trustResult = tryEvaluateTrust(trustSnapshot, criteria);
+  const capitalResult = tryEvaluateCapital(capitalSnapshot, criteria);
+
+  // Step 1: Handle validation failures with partial evaluation
+  // Each layer gets its accurate result; only the invalid layer is marked failed.
+  if (trustResult === null || capitalResult === null) {
+    return buildValidationDenial(
       trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
-      `unknown reputation state: ${trustSnapshot.reputation_state}`,
-      ['UNKNOWN_REPUTATION_STATE'],
+      trustResult, capitalResult,
     );
   }
 
-  if (!isKnownReputationState(criteria.min_reputation_state)) {
-    return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
-      `unknown required reputation state: ${criteria.min_reputation_state}`,
-      ['UNKNOWN_REPUTATION_STATE'],
-    );
-  }
-
-  const actualStateRank = REPUTATION_STATE_ORDER[trustSnapshot.reputation_state];
-  const requiredStateRank = REPUTATION_STATE_ORDER[criteria.min_reputation_state];
-
-  const actualBudget = parseMicroUsd(capitalSnapshot.budget_remaining);
-  if (!actualBudget.valid) {
-    return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
-      `invalid budget format: ${actualBudget.reason}`,
-      ['INVALID_BUDGET_FORMAT'],
-    );
-  }
-
-  const requiredBudget = parseMicroUsd(criteria.min_available_budget);
-  if (!requiredBudget.valid) {
-    return makeDenied(
-      trustSnapshot, capitalSnapshot, criteria, evaluatedAt, boundaryId,
-      `invalid required budget format: ${requiredBudget.reason}`,
-      ['INVALID_BUDGET_FORMAT'],
-    );
-  }
-
-  // Step 1: Evaluate trust layer
-  const scorePassed = trustSnapshot.blended_score >= criteria.min_trust_score;
-  const statePassed = actualStateRank >= requiredStateRank;
-  const trustPassed = scorePassed && statePassed;
-
-  const trustEvaluation = {
-    passed: trustPassed,
-    actual_score: trustSnapshot.blended_score,
-    required_score: criteria.min_trust_score,
-    actual_state: trustSnapshot.reputation_state,
-    required_state: criteria.min_reputation_state,
-  };
-
-  // Step 2: Evaluate capital layer
-  const capitalPassed = actualBudget.amount >= requiredBudget.amount;
-
-  const capitalEvaluation = {
-    passed: capitalPassed,
-    actual_budget: capitalSnapshot.budget_remaining,
-    required_budget: criteria.min_available_budget,
-  };
-
-  // Step 3: Compose decision
-  const granted = trustPassed && capitalPassed;
+  // Step 2: Both layers valid — compose decision
+  const granted = trustResult.passed && capitalResult.passed;
 
   let denialReason: string | undefined;
   const denialCodes: DenialCode[] = [];
@@ -154,21 +166,32 @@ export function evaluateEconomicBoundary(
     const reasons: string[] = [];
     const gap: EvaluationGap = {};
 
-    if (!scorePassed) {
-      reasons.push(`trust score ${trustSnapshot.blended_score} < required ${criteria.min_trust_score}`);
-      denialCodes.push('TRUST_SCORE_BELOW_THRESHOLD');
-      gap.trust_score_gap = Math.max(0, criteria.min_trust_score - trustSnapshot.blended_score);
+    if (!trustResult.passed) {
+      const scorePassed = trustSnapshot.blended_score >= criteria.min_trust_score;
+      const actualStateRank = REPUTATION_STATE_ORDER[trustSnapshot.reputation_state];
+      const requiredStateRank = REPUTATION_STATE_ORDER[criteria.min_reputation_state];
+      const statePassed = actualStateRank >= requiredStateRank;
+
+      if (!scorePassed) {
+        reasons.push(`trust score ${trustSnapshot.blended_score} < required ${criteria.min_trust_score}`);
+        denialCodes.push('TRUST_SCORE_BELOW_THRESHOLD');
+        gap.trust_score_gap = Math.max(0, criteria.min_trust_score - trustSnapshot.blended_score);
+      }
+      if (!statePassed) {
+        reasons.push(`reputation state '${trustSnapshot.reputation_state}' below required '${criteria.min_reputation_state}'`);
+        denialCodes.push('TRUST_STATE_BELOW_THRESHOLD');
+        gap.reputation_state_gap = Math.max(0, requiredStateRank - actualStateRank);
+      }
     }
-    if (!statePassed) {
-      reasons.push(`reputation state '${trustSnapshot.reputation_state}' below required '${criteria.min_reputation_state}'`);
-      denialCodes.push('TRUST_STATE_BELOW_THRESHOLD');
-      gap.reputation_state_gap = Math.max(0, requiredStateRank - actualStateRank);
-    }
-    if (!capitalPassed) {
+    if (!capitalResult.passed) {
       reasons.push(`budget ${capitalSnapshot.budget_remaining} < required ${criteria.min_available_budget}`);
       denialCodes.push('CAPITAL_BELOW_THRESHOLD');
-      const budgetShortfall = requiredBudget.amount - actualBudget.amount;
-      gap.budget_gap = (budgetShortfall > 0n ? budgetShortfall : 0n).toString();
+      const actualBudget = parseMicroUsd(capitalSnapshot.budget_remaining);
+      const requiredBudget = parseMicroUsd(criteria.min_available_budget);
+      if (actualBudget.valid && requiredBudget.valid) {
+        const budgetShortfall = requiredBudget.amount - actualBudget.amount;
+        gap.budget_gap = (budgetShortfall > 0n ? budgetShortfall : 0n).toString();
+      }
     }
 
     denialReason = reasons.join('; ');
@@ -182,8 +205,8 @@ export function evaluateEconomicBoundary(
 
   const result: EconomicBoundaryEvaluationResult = {
     access_decision: accessDecision,
-    trust_evaluation: trustEvaluation,
-    capital_evaluation: capitalEvaluation,
+    trust_evaluation: trustResult,
+    capital_evaluation: capitalResult,
     criteria_used: criteria,
     evaluated_at: evaluatedAt,
   };
@@ -198,6 +221,92 @@ export function evaluateEconomicBoundary(
 
   if (evaluationGap !== undefined) {
     result.evaluation_gap = evaluationGap;
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Validation denial builder — partial evaluation with accurate layer results
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a denied result for input validation failures. Unlike the old makeDenied(),
+ * this performs partial evaluation: if one layer is valid, its `passed` boolean
+ * reflects the actual evaluation result rather than blindly being `false`.
+ *
+ * @since v7.9.1 — Part 9.2 symmetry fix
+ */
+function buildValidationDenial(
+  trustSnapshot: TrustLayerSnapshot,
+  capitalSnapshot: CapitalLayerSnapshot,
+  criteria: QualificationCriteria,
+  evaluatedAt: string,
+  boundaryId: string | undefined,
+  trustResult: TrustEvalResult | null,
+  capitalResult: CapitalEvalResult | null,
+): EconomicBoundaryEvaluationResult {
+  const reasons: string[] = [];
+  const codes: DenialCode[] = [];
+
+  // Determine trust evaluation — use actual result if available, else failed
+  const trustEvaluation: TrustEvalResult = trustResult ?? {
+    passed: false,
+    actual_score: trustSnapshot.blended_score,
+    required_score: criteria.min_trust_score,
+    actual_state: trustSnapshot.reputation_state,
+    required_state: criteria.min_reputation_state,
+  };
+
+  // Determine capital evaluation — use actual result if available, else failed
+  const capitalEvaluation: CapitalEvalResult = capitalResult ?? {
+    passed: false,
+    actual_budget: capitalSnapshot.budget_remaining,
+    required_budget: criteria.min_available_budget,
+  };
+
+  // Collect validation error reasons and codes
+  if (trustResult === null) {
+    if (!isKnownReputationState(trustSnapshot.reputation_state)) {
+      reasons.push(`unknown reputation state: ${trustSnapshot.reputation_state}`);
+      codes.push('UNKNOWN_REPUTATION_STATE');
+    } else if (!isKnownReputationState(criteria.min_reputation_state)) {
+      reasons.push(`unknown required reputation state: ${criteria.min_reputation_state}`);
+      codes.push('UNKNOWN_REPUTATION_STATE');
+    }
+  }
+
+  if (capitalResult === null) {
+    const actualBudget = parseMicroUsd(capitalSnapshot.budget_remaining);
+    if (!actualBudget.valid) {
+      reasons.push(`invalid budget format: ${actualBudget.reason}`);
+      codes.push('INVALID_BUDGET_FORMAT');
+    } else {
+      const requiredBudget = parseMicroUsd(criteria.min_available_budget);
+      if (!requiredBudget.valid) {
+        reasons.push(`invalid required budget format: ${requiredBudget.reason}`);
+        codes.push('INVALID_BUDGET_FORMAT');
+      }
+    }
+  }
+
+  const result: EconomicBoundaryEvaluationResult = {
+    access_decision: {
+      granted: false,
+      denial_reason: reasons.join('; '),
+    },
+    trust_evaluation: trustEvaluation,
+    capital_evaluation: capitalEvaluation,
+    criteria_used: criteria,
+    evaluated_at: evaluatedAt,
+  };
+
+  if (boundaryId !== undefined) {
+    result.boundary_id = boundaryId;
+  }
+
+  if (codes.length > 0) {
+    result.denial_codes = codes;
   }
 
   return result;
@@ -221,13 +330,36 @@ export function evaluateFromBoundary(
   evaluatedAt: string,
 ): EconomicBoundaryEvaluationResult {
   if (!boundary.qualification_criteria) {
-    return makeDenied(
-      boundary.trust_layer, boundary.capital_layer,
-      { min_trust_score: 0, min_reputation_state: 'cold', min_available_budget: '0' },
-      evaluatedAt, boundary.boundary_id,
-      'no qualification criteria on boundary',
-      ['MISSING_QUALIFICATION_CRITERIA'],
-    );
+    const dummyCriteria: QualificationCriteria = {
+      min_trust_score: 0,
+      min_reputation_state: 'cold',
+      min_available_budget: '0',
+    };
+    const result: EconomicBoundaryEvaluationResult = {
+      access_decision: {
+        granted: false,
+        denial_reason: 'no qualification criteria on boundary',
+      },
+      trust_evaluation: {
+        passed: false,
+        actual_score: boundary.trust_layer.blended_score,
+        required_score: 0,
+        actual_state: boundary.trust_layer.reputation_state,
+        required_state: 'cold',
+      },
+      capital_evaluation: {
+        passed: false,
+        actual_budget: boundary.capital_layer.budget_remaining,
+        required_budget: '0',
+      },
+      criteria_used: dummyCriteria,
+      evaluated_at: evaluatedAt,
+      denial_codes: ['MISSING_QUALIFICATION_CRITERIA'],
+    };
+    if (boundary.boundary_id) {
+      result.boundary_id = boundary.boundary_id;
+    }
+    return result;
   }
   return evaluateEconomicBoundary(
     boundary.trust_layer,
@@ -238,47 +370,3 @@ export function evaluateFromBoundary(
   );
 }
 
-// ---------------------------------------------------------------------------
-// Internal helper — construct denied result for input validation failures
-// ---------------------------------------------------------------------------
-
-function makeDenied(
-  trustSnapshot: TrustLayerSnapshot,
-  capitalSnapshot: CapitalLayerSnapshot,
-  criteria: QualificationCriteria,
-  evaluatedAt: string,
-  boundaryId: string | undefined,
-  reason: string,
-  codes: DenialCode[],
-): EconomicBoundaryEvaluationResult {
-  const result: EconomicBoundaryEvaluationResult = {
-    access_decision: {
-      granted: false,
-      denial_reason: reason,
-    },
-    trust_evaluation: {
-      passed: false,
-      actual_score: trustSnapshot.blended_score,
-      required_score: criteria.min_trust_score,
-      actual_state: trustSnapshot.reputation_state,
-      required_state: criteria.min_reputation_state,
-    },
-    capital_evaluation: {
-      passed: false,
-      actual_budget: capitalSnapshot.budget_remaining,
-      required_budget: criteria.min_available_budget,
-    },
-    criteria_used: criteria,
-    evaluated_at: evaluatedAt,
-  };
-
-  if (boundaryId !== undefined) {
-    result.boundary_id = boundaryId;
-  }
-
-  if (codes.length > 0) {
-    result.denial_codes = codes;
-  }
-
-  return result;
-}
