@@ -59,6 +59,24 @@ export {
   type AuditTrailVerificationResult,
 } from './audit-trail-hash.js';
 
+// Dynamic contracts (FR-4)
+export {
+  ProtocolCapabilitySchema,
+  RateLimitTierSchema,
+  ProtocolSurfaceSchema,
+  DynamicContractSchema,
+  type ProtocolCapability,
+  type RateLimitTier,
+  type ProtocolSurface,
+  type DynamicContract,
+} from './dynamic-contract.js';
+export {
+  AssertionMethodSchema,
+  ContractNegotiationSchema,
+  type AssertionMethod,
+  type ContractNegotiation,
+} from './contract-negotiation.js';
+
 // Error taxonomy
 export {
   InvariantViolationSchema,

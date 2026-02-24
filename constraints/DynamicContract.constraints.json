@@ -1,0 +1,19 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "DynamicContract",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "dynamic-contract-monotonic",
+      "expression": "native:monotonic_surface_expansion",
+      "severity": "error",
+      "message": "Capabilities at each reputation tier must be a superset of the previous tier (cold ⊆ warming ⊆ established ⊆ authoritative)",
+      "fields": ["surfaces"],
+      "type_signature": {
+        "surfaces": "Record<ReputationState, ProtocolSurface>"
+      }
+    }
+  ]
+}
