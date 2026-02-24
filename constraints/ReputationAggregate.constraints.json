@@ -2,7 +2,7 @@
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ReputationAggregate",
   "origin": "genesis",
-  "contract_version": "7.1.0",
+  "contract_version": "7.11.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -153,6 +153,61 @@
         "state": "string",
         "last_updated": "string",
         "transition_history": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-score-bounds",
+      "expression": "task_cohorts == undefined || task_cohorts.every(c => c.personal_score == null || (c.personal_score >= 0.0 && c.personal_score <= 1.0))",
+      "severity": "error",
+      "message": "task cohort personal_score must be in [0, 1] when not null",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-sample-nonneg",
+      "expression": "task_cohorts == undefined || task_cohorts.every(c => c.sample_count >= 0)",
+      "severity": "error",
+      "message": "task cohort sample_count must be >= 0",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-uniqueness",
+      "expression": "true",
+      "severity": "error",
+      "message": "(model_id, task_type) pairs MUST be unique within task_cohorts.",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "composite_key_uniqueness",
+        "fields": ["model_id", "task_type"],
+        "scope": "task_cohorts",
+        "reference_impl": "validateTaskCohortUniqueness()"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-max-items",
+      "expression": "task_cohorts == undefined || task_cohorts.length <= 50",
+      "severity": "error",
+      "message": "task_cohorts array must not exceed 50 entries",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
       }
     }
   ]

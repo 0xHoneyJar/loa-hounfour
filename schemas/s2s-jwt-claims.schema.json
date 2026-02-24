@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/s2s-jwt-claims",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/s2s-jwt-claims",
   "additionalProperties": false,
   "description": "Service-to-service JWT claims",
   "type": "object",
@@ -40,5 +40,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

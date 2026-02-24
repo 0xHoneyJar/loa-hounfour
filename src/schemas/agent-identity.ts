@@ -19,6 +19,8 @@ import { Value } from '@sinclair/typebox/value';
  *
  * Trust levels form a total order: untrusted < basic < verified < trusted < sovereign.
  * Delegation requires 'verified' or above within the delegation scope.
+ *
+ * @governance protocol-fixed
  */
 export const TrustLevelSchema = Type.Union(
   [
@@ -56,6 +58,8 @@ export const DELEGATION_TRUST_THRESHOLD: TrustLevel = 'verified';
  * - delegation: authority delegation to other agents
  * - audit: read access to audit trails, transaction history
  * - composition: multi-agent ensemble orchestration (v6.0.0)
+ *
+ * @governance registry-extensible
  */
 export const CapabilityScopeSchema = Type.Union(
   [
@@ -116,6 +120,8 @@ export type CapabilityScopedTrust = Static<typeof CapabilityScopedTrustSchema>;
 
 /**
  * Agent type classification.
+ *
+ * @governance registry-extensible
  */
 export const AgentTypeSchema = Type.Union(
   [

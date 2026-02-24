@@ -15,6 +15,7 @@ import { CapabilityScopedTrustSchema } from '../schemas/agent-identity.js';
 // Saga Status
 // ---------------------------------------------------------------------------
 
+/** @governance protocol-fixed */
 export const SagaStatusSchema = Type.Union(
   [
     Type.Literal('initiated'),

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "event_id",
+    "agent_id",
+    "collection_id",
+    "timestamp",
+    "type",
+    "score"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "description": "Globally unique event identifier for deduplication.",
+      "type": "string"
+    },
+    "agent_id": {
+      "maxLength": 255,
+      "minLength": 1,
+      "description": "Agent that produced this event.",
+      "type": "string"
+    },
+    "collection_id": {
+      "maxLength": 255,
+      "minLength": 1,
+      "description": "Collection context for the event.",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "description": "When the event occurred.",
+      "type": "string"
+    },
+    "sequence": {
+      "minimum": 0,
+      "description": "Optional total ordering sequence number.",
+      "type": "integer"
+    },
+    "type": {
+      "const": "quality_signal",
+      "type": "string"
+    },
+    "score": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Quality score in [0, 1].",
+      "type": "number"
+    },
+    "task_type": {
+      "$id": "TaskType",
+      "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
+      "anyOf": [
+        {
+          "const": "code_review",
+          "type": "string"
+        },
+        {
+          "const": "creative_writing",
+          "type": "string"
+        },
+        {
+          "const": "analysis",
+          "type": "string"
+        },
+        {
+          "const": "summarization",
+          "type": "string"
+        },
+        {
+          "const": "general",
+          "type": "string"
+        },
+        {
+          "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
+          "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
+          "type": "string"
+        }
+      ]
+    },
+    "dimensions": {
+      "maxProperties": 20,
+      "description": "Named quality dimensions (e.g., coherence, safety).",
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]{0,31}$": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    }
+  },
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/quality-signal-event",
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+}

@@ -1,0 +1,12 @@
+{
+  "vector_id": "conformance-scoring-path-log-003",
+  "category": "scoring-path-log",
+  "description": "Valid tier_default path with reason, no model/task",
+  "contract_version": "7.10.0",
+  "input": {
+    "path": "tier_default",
+    "reason": "No model-specific data available; using collection default"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

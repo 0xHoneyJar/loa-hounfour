@@ -24,7 +24,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(73); // 72 existing + 1 new EconomicBoundaryEvaluation
+    expect(files.length).toBe(77); // 73 existing + 4 new v7.10.0 (TaskType, TaskTypeCohort, ReputationEvent, ScoringPathLog)
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

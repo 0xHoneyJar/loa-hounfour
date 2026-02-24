@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-reputation-event-003",
+  "category": "reputation-event",
+  "description": "Valid task_completed event — minimal fields",
+  "contract_version": "7.10.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440002",
+    "agent_id": "bear-002",
+    "collection_id": "honeycomb",
+    "timestamp": "2026-02-24T13:00:00Z",
+    "type": "task_completed",
+    "task_type": "analysis",
+    "success": true
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

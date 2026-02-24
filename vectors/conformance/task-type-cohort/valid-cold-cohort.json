@@ -1,0 +1,15 @@
+{
+  "vector_id": "conformance-task-type-cohort-002",
+  "category": "task-type-cohort",
+  "description": "Valid cold TaskTypeCohort — null personal_score, zero sample_count",
+  "contract_version": "7.10.0",
+  "input": {
+    "model_id": "gpt-4o",
+    "personal_score": null,
+    "sample_count": 0,
+    "last_updated": "2026-02-24T08:00:00Z",
+    "task_type": "analysis"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

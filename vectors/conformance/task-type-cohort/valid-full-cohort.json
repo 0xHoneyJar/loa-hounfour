@@ -1,0 +1,15 @@
+{
+  "vector_id": "conformance-task-type-cohort-001",
+  "category": "task-type-cohort",
+  "description": "Valid TaskTypeCohort with all fields populated",
+  "contract_version": "7.10.0",
+  "input": {
+    "model_id": "native",
+    "personal_score": 0.85,
+    "sample_count": 42,
+    "last_updated": "2026-02-24T10:00:00Z",
+    "task_type": "code_review"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

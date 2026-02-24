@@ -11,7 +11,25 @@
 export * from './core/index.js';
 export * from './economy/index.js';
 export * from './model/index.js';
-export * from './governance/index.js';
+// Note: governance TaskTypeSchema/TaskType collide with core's routing-policy TaskType,
+// and governance ReputationEvent collides with core's domain-event ReputationEvent.
+// Core types take precedence in root barrel per ADR-001. Governance variants are
+// available via:
+//   1. '@0xhoneyjar/loa-hounfour/governance' sub-package import
+//   2. GovernanceTaskTypeSchema / GovernanceReputationEventSchema aliases (below)
+export { 
+// Exclude: TaskTypeSchema, type TaskType (collision with core/routing-policy)
+// Exclude: type ReputationEvent (collision with core/domain-event)
+// Everything else re-exported:
+SanctionSchema, DisputeRecordSchema, ValidatedOutcomeSchema, ReputationScoreSchema, PerformanceRecordSchema, PerformanceOutcomeSchema, ContributionRecordSchema, SANCTION_SEVERITY_LEVELS, SANCTION_SEVERITY_ORDER, VIOLATION_TYPES, ESCALATION_RULES, SanctionSeveritySchema, SANCTION_SEVERITY_LADDER, getSeverityEntry, compareSeverity, REPUTATION_WEIGHTS, REPUTATION_DECAY, MIN_REPUTATION_SAMPLE_SIZE, BAYESIAN_BLEND, ANTI_MANIPULATION, DEFAULT_HALF_LIFE_DAYS, ReputationStateSchema, ReputationTransitionSchema, ModelCohortSchema, ReputationAggregateSchema, REPUTATION_TRANSITIONS, isValidReputationTransition, computePersonalWeight, computeBlendedScore, computeDecayedSampleCount, computeCrossModelScore, getModelCohort, AggregateSnapshotSchema, QualityEventSchema, RecordQualityEventCommandSchema, QueryReputationCommandSchema, ResetReputationCommandSchema, ReputationStateChangedPayloadSchema, QualityEventRecordedPayloadSchema, CollectionScoreUpdatedPayloadSchema, isReliableReputation, ReputationCredentialSchema, GovernanceConfigSchema, MissionAlignmentSchema, DEFAULT_GOVERNANCE_CONFIG, resolveReservationTier, resolveAdvisoryThreshold, ForkTypeSchema, TreeNodeStatusSchema, TreeStrategySchema, BudgetAllocationSchema, DelegationTreeNodeSchema, DelegationTreeSchema, chainToTree, treeToChain, OutcomeTypeSchema, VoteChoiceSchema, DelegationVoteSchema, DissentTypeSchema, DissentSeveritySchema, DissentRecordSchema, DelegationOutcomeSchema, ReportingRequirementSchema, RevocationPolicySchema, PermissionBoundarySchema, ProposalStatusSchema, PROPOSAL_STATUS_TRANSITIONS, ProposedChangeSchema, GovernanceVoteSchema, VotingRecordSchema, GovernanceProposalSchema, EventFilterSchema, DeliveryMethodSchema, EventCursorSchema, EventSubscriptionSchema, PortabilityScopeSchema, ReputationPortabilityRequestSchema, PortabilityResponseSchema, QualitySignalLevelSchema, OutcomeQualityMappingSchema, DEFAULT_OUTCOME_QUALITY_MAPPING, QUALITY_SIGNAL_SCORES, DelegationQualityEventSchema, DemotionRuleSchema, ReputationDecayPolicySchema, CollectionGovernanceConfigSchema, DEFAULT_DEMOTION_RULES, ConstraintLifecycleStatusSchema, CONSTRAINT_LIFECYCLE_TRANSITIONS, ConstraintCandidateSchema, ConstraintLifecycleEventSchema, RoutingSignalTypeSchema, ReputationRoutingSignalSchema, PolicyTypeSchema, PolicyVersionSchema, ExecutionStatusSchema, EXECUTION_STATUS_TRANSITIONS, ChangeApplicationResultSchema, ProposalExecutionSchema, ExecutionStrategySchema, CheckpointHealthSchema, ProceedDecisionSchema, ExecutionCheckpointSchema, RollbackScopeSchema, ProposalEventTypeSchema, ProposalOutcomeEventSchema, EngagementSignalTypeSchema, CommunityEngagementSignalSchema, isProposalActionable, computeVotingResult, isConstraintEnactable, computeGovernanceWeight, computeModelRoutingScores, selectModel, computeCompositeBasketWeights, isModelEligible, computeRebalancedWeights, 
+// v7.10.0 — Task-Dimensional Reputation (non-colliding exports only)
+TASK_TYPES, TaskTypeCohortSchema, validateTaskCohortUniqueness, ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, ScoringPathSchema, ScoringPathLogSchema, } from './governance/index.js';
+// v7.10.1 — Aliased re-exports for colliding governance types (ADR-001).
+// These provide root-barrel discoverability without renaming $id values.
+// Core types (routing-policy TaskType, domain-event ReputationEvent) keep
+// their unaliased names; governance variants get the Governance* prefix.
+export { TaskTypeSchema as GovernanceTaskTypeSchema, } from './governance/task-type.js';
+export { ReputationEventSchema as GovernanceReputationEventSchema, } from './governance/reputation-event.js';
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 // Cross-cutting concerns (stay in root)

@@ -9,6 +9,27 @@
  */
 
 /**
+ * Structured metadata for constraints that require runtime enforcement
+ * beyond what the expression DSL can express.
+ *
+ * When a constraint's `expression` is `"true"` (sentinel), the
+ * `native_enforcement` field documents exactly what runtime consumers
+ * must enforce and provides a machine-readable strategy.
+ *
+ * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+ */
+export interface NativeEnforcement {
+  /** Named strategy pattern (e.g. 'composite_key_uniqueness'). */
+  strategy: string;
+  /** Fields involved in the native check. */
+  fields: string[];
+  /** Array field the check applies to (when strategy operates over a collection). */
+  scope?: string;
+  /** Function name of the TypeScript reference implementation. */
+  reference_impl: string;
+}
+
+/**
  * A single cross-field constraint with an evaluable expression.
  */
 export interface Constraint {
@@ -16,12 +37,29 @@ export interface Constraint {
   id: string;
   /** Expression in the constraint mini-language. */
   expression: string;
-  /** Severity: 'error' fails validation, 'warning' is advisory. */
-  severity: 'error' | 'warning';
+  /** Severity: 'error' fails validation, 'warning' is advisory, 'info' is guidance. */
+  severity: 'error' | 'warning' | 'info';
   /** Human-readable message when constraint is violated. */
   message: string;
   /** Fields referenced by this constraint (for documentation / tooling). */
   fields: string[];
+  /**
+   * Evaluation strategy for this constraint.
+   * - `'expression'` (default): evaluate the `expression` field using the constraint DSL.
+   * - `'native'`: the `expression` field is ignored; `native_enforcement` provides the spec.
+   *
+   * Omitted = `'expression'` for backward compatibility.
+   * @since v7.11.0 — Bridgebuilder Meditation IV
+   */
+  evaluation_geometry?: 'expression' | 'native';
+  /**
+   * Structured metadata for constraints that cannot be expressed in the DSL.
+   * When present, `evaluation_geometry` SHOULD be `"native"` and this field
+   * provides the machine-readable enforcement specification.
+   *
+   * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+   */
+  native_enforcement?: NativeEnforcement;
 }
 
 /**
@@ -32,6 +70,7 @@ export interface Constraint {
  *
  * Files without an explicit `origin` default to `'genesis'` interpretation.
  *
+ * @governance protocol-fixed
  * @since v7.9.0 — FR-6 ConstraintOrigin
  */
 export type ConstraintOrigin = 'genesis' | 'enacted' | 'migrated';
@@ -66,6 +105,10 @@ export interface ConstraintFile {
  * All expression grammar versions supported by the current evaluator.
  * Used by protocol-discovery to advertise compatibility during version negotiation.
  */
+// Note: evaluation_geometry (v7.11.0) is a constraint-level field independent of
+// expression grammar version. A constraint with evaluation_geometry: "native" can
+// appear in any expression_version file — the field controls evaluation strategy,
+// not grammar compatibility.
 export const EXPRESSION_VERSIONS_SUPPORTED: readonly string[] = ['1.0', '2.0'];
 
 export function expressionVersionSupported(version: string): boolean {

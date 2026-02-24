@@ -1,0 +1,16 @@
+{
+  "vector_id": "conformance-task-type-cohort-004",
+  "category": "task-type-cohort",
+  "description": "Valid TaskTypeCohort with confidence_threshold (v7.11.0)",
+  "contract_version": "7.11.0",
+  "input": {
+    "model_id": "native",
+    "personal_score": 0.92,
+    "sample_count": 45,
+    "last_updated": "2026-02-24T12:00:00Z",
+    "task_type": "analysis",
+    "confidence_threshold": 30
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

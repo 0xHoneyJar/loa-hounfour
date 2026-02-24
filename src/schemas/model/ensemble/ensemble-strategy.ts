@@ -2,6 +2,8 @@ import { Type, type Static } from '@sinclair/typebox';
 
 /**
  * Ensemble strategy types for multi-model coordination
+ *
+ * @governance registry-extensible
  */
 export const EnsembleStrategySchema = Type.Union(
   [

@@ -19,6 +19,7 @@ import { Type, type Static } from '@sinclair/typebox';
 // Policy Type
 // ---------------------------------------------------------------------------
 
+/** @governance registry-extensible */
 export const PolicyTypeSchema = Type.Union(
   [
     Type.Literal('monetary'),

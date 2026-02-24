@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/task-type-cohort",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "model_id",
+    "personal_score",
+    "sample_count",
+    "last_updated",
+    "task_type"
+  ],
+  "properties": {
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias (e.g. \"native\", \"gpt-4o\")",
+      "type": "string"
+    },
+    "personal_score": {
+      "description": "Per-model personal score. Null when this cohort is cold (no observations yet).",
+      "anyOf": [
+        {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sample_count": {
+      "minimum": 0,
+      "description": "Number of quality observations for this model",
+      "type": "integer"
+    },
+    "last_updated": {
+      "format": "date-time",
+      "description": "Timestamp of most recent observation for this model",
+      "type": "string"
+    },
+    "task_type": {
+      "$id": "TaskType",
+      "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
+      "anyOf": [
+        {
+          "const": "code_review",
+          "type": "string"
+        },
+        {
+          "const": "creative_writing",
+          "type": "string"
+        },
+        {
+          "const": "analysis",
+          "type": "string"
+        },
+        {
+          "const": "summarization",
+          "type": "string"
+        },
+        {
+          "const": "general",
+          "type": "string"
+        },
+        {
+          "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
+          "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
+          "type": "string"
+        }
+      ]
+    },
+    "confidence_threshold": {
+      "minimum": 1,
+      "default": 30,
+      "description": "Sample count at which task-specific scores are trusted at full weight. Protocol-recommended default: 30. Downstream consumers implement blending: effective_score = α * task_score + (1-α) * aggregate_score, where α = min(1.0, sample_count / confidence_threshold).",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+}

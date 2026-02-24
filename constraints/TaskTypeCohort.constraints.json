@@ -1,0 +1,63 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "TaskTypeCohort",
+  "origin": "genesis",
+  "contract_version": "7.11.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "task-cohort-score-bounds",
+      "expression": "personal_score == null || (personal_score >= 0.0 && personal_score <= 1.0)",
+      "severity": "error",
+      "message": "personal_score must be in [0, 1] when not null",
+      "fields": [
+        "personal_score"
+      ],
+      "type_signature": {
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "task-cohort-sample-nonneg",
+      "expression": "sample_count >= 0",
+      "severity": "error",
+      "message": "sample_count must be >= 0",
+      "fields": [
+        "sample_count"
+      ],
+      "type_signature": {
+        "sample_count": "number"
+      }
+    },
+    {
+      "id": "task-cohort-task-type-valid",
+      "expression": "true",
+      "severity": "error",
+      "message": "task_type must be a valid TaskType value (protocol literal or namespace:type community format per ADR-003).",
+      "fields": [
+        "task_type"
+      ],
+      "type_signature": {
+        "task_type": "string"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "open_enum_validation",
+        "fields": ["task_type"],
+        "reference_impl": "TaskTypeSchema (TypeBox Union with pattern branch)"
+      }
+    },
+    {
+      "id": "task-cohort-confidence-positive",
+      "expression": "confidence_threshold == undefined || confidence_threshold >= 1",
+      "severity": "error",
+      "message": "confidence_threshold must be >= 1 when specified (protocol-recommended default: 30).",
+      "fields": [
+        "confidence_threshold"
+      ],
+      "type_signature": {
+        "confidence_threshold": "number | undefined"
+      }
+    }
+  ]
+}

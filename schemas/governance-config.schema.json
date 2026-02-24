@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/governance-config",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/governance-config",
   "additionalProperties": false,
   "description": "Protocol governance parameters. Overrides hardcoded defaults when provided.",
   "type": "object",
@@ -126,5 +126,5 @@
       }
     }
   },
-  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

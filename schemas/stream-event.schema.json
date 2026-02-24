@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/stream-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/stream-event",
   "description": "SSE stream event discriminated union for real-time model responses",
   "discriminator": {
     "propertyName": "type"
@@ -260,5 +260,5 @@
       }
     }
   ],
-  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

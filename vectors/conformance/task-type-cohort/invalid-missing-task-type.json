@@ -1,0 +1,14 @@
+{
+  "vector_id": "conformance-task-type-cohort-003",
+  "category": "task-type-cohort",
+  "description": "Invalid TaskTypeCohort — missing required task_type field",
+  "contract_version": "7.10.0",
+  "input": {
+    "model_id": "native",
+    "personal_score": 0.7,
+    "sample_count": 10,
+    "last_updated": "2026-02-24T09:00:00Z"
+  },
+  "expected_output": {},
+  "expected_valid": false
+}

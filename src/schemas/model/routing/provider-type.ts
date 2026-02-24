@@ -6,6 +6,8 @@ import { Type, type Static } from '@sinclair/typebox';
  *
  * v5.1.0: Added `anthropic`, `google`, `custom` (additive only — wire stability SKP-002).
  * Existing values unchanged. See MIGRATION.md for exhaustive switch guidance (IMP-006).
+ *
+ * @governance registry-extensible
  */
 export const ProviderTypeSchema = Type.Union(
   [

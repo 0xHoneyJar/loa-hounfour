@@ -1,0 +1,121 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ScoringPathLog",
+  "origin": "genesis",
+  "contract_version": "7.11.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "scoring-path-valid",
+      "expression": "path == 'task_cohort' || path == 'aggregate' || path == 'tier_default'",
+      "severity": "error",
+      "message": "path must be one of: task_cohort, aggregate, tier_default",
+      "fields": [
+        "path"
+      ],
+      "type_signature": {
+        "path": "string"
+      }
+    },
+    {
+      "id": "scoring-path-task-cohort-requires-context",
+      "expression": "path != 'task_cohort' || (model_id != undefined && task_type != undefined)",
+      "severity": "error",
+      "message": "task_cohort path requires both model_id and task_type",
+      "fields": [
+        "path",
+        "model_id",
+        "task_type"
+      ],
+      "type_signature": {
+        "path": "string",
+        "model_id": "string | undefined",
+        "task_type": "string | undefined"
+      }
+    },
+    {
+      "id": "scoring-path-aggregate-requires-model",
+      "expression": "path != 'aggregate' || model_id != undefined",
+      "severity": "error",
+      "message": "aggregate path requires model_id",
+      "fields": [
+        "path",
+        "model_id"
+      ],
+      "type_signature": {
+        "path": "string",
+        "model_id": "string | undefined"
+      }
+    },
+    {
+      "id": "scoring-path-cascade-ordering",
+      "expression": "true",
+      "severity": "info",
+      "message": "The scoring cascade evaluates in order: task_cohort → aggregate → tier_default. Implementations SHOULD attempt the most specific path first and fall back only when data is insufficient.",
+      "fields": [
+        "path"
+      ],
+      "type_signature": {
+        "path": "string"
+      }
+    },
+    {
+      "id": "scoring-path-hash-pair",
+      "expression": "(entry_hash == undefined && previous_hash == undefined) || (entry_hash != undefined && previous_hash != undefined)",
+      "severity": "error",
+      "message": "entry_hash and previous_hash must both be present or both absent. A partial hash chain is invalid.",
+      "fields": [
+        "entry_hash",
+        "previous_hash"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "previous_hash": "string | undefined"
+      }
+    },
+    {
+      "id": "scoring-path-hash-requires-timestamp",
+      "expression": "entry_hash == undefined || scored_at != undefined",
+      "severity": "error",
+      "message": "scored_at timestamp is required when hash chain fields are present.",
+      "fields": [
+        "entry_hash",
+        "scored_at"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "scored_at": "string | undefined"
+      }
+    },
+    {
+      "id": "scoring-path-chain-integrity",
+      "expression": "true",
+      "severity": "error",
+      "message": "When hash chain fields are present: entry_hash MUST equal SHA-256 of canonical JSON of content fields (path, model_id, task_type, reason, scored_at). previous_hash MUST equal the entry_hash of the preceding entry in the chain, or the genesis hash for the first entry.",
+      "fields": [
+        "entry_hash",
+        "previous_hash",
+        "path",
+        "model_id",
+        "task_type",
+        "reason",
+        "scored_at"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "previous_hash": "string | undefined",
+        "path": "string",
+        "model_id": "string | undefined",
+        "task_type": "string | undefined",
+        "reason": "string | undefined",
+        "scored_at": "string | undefined"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "hash_chain_verification",
+        "fields": ["entry_hash", "previous_hash", "path", "model_id", "task_type", "reason", "scored_at"],
+        "reference_impl": "computeScoringPathHash() + SCORING_PATH_GENESIS_HASH"
+      }
+    }
+  ]
+}

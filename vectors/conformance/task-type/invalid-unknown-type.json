@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-006",
+  "category": "task-type",
+  "description": "Invalid TaskType: unknown value 'future_type' must be rejected",
+  "contract_version": "7.10.0",
+  "input": { "value": "future_type" },
+  "expected_output": {},
+  "expected_valid": false
+}

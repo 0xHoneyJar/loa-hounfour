@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-010",
+  "category": "task-type",
+  "description": "Invalid community type: missing namespace (no colon separator)",
+  "contract_version": "7.11.0",
+  "input": { "value": "contract_review" },
+  "expected_output": {},
+  "expected_valid": false
+}

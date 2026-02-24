@@ -1,0 +1,39 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "TaskType",
+  "origin": "genesis",
+  "contract_version": "7.11.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "task-type-protocol-values",
+      "expression": "value == 'code_review' || value == 'creative_writing' || value == 'analysis' || value == 'summarization' || value == 'general'",
+      "severity": "info",
+      "message": "Protocol-defined TaskType values are: code_review, creative_writing, analysis, summarization, general. Community types use namespace:type format (ADR-003).",
+      "fields": [
+        "value"
+      ],
+      "type_signature": {
+        "value": "string"
+      }
+    },
+    {
+      "id": "task-type-valid-format",
+      "expression": "true",
+      "severity": "error",
+      "message": "TaskType must be a protocol literal (code_review, creative_writing, analysis, summarization, general) or a community type matching namespace:type pattern (ADR-003).",
+      "fields": [
+        "value"
+      ],
+      "type_signature": {
+        "value": "string"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "open_enum_validation",
+        "fields": ["value"],
+        "reference_impl": "TaskTypeSchema (TypeBox Union with pattern branch)"
+      }
+    }
+  ]
+}

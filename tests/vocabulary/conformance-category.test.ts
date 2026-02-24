@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 40 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(40);
+  it('contains exactly 44 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(44);
   });
 
   it('includes all valid categories', () => {
@@ -106,6 +106,11 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'economic-performance',
       'routing-rebalance',
       'execution-checkpoint',
+      // v7.10.0 — Task-Dimensional Reputation
+      'task-type',
+      'task-type-cohort',
+      'reputation-event',
+      'scoring-path-log',
     ]);
   });
 });

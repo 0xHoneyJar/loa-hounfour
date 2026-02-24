@@ -1,0 +1,16 @@
+{
+  "vector_id": "conformance-reputation-event-001",
+  "category": "reputation-event",
+  "description": "Valid quality_signal event — minimal fields",
+  "contract_version": "7.10.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440000",
+    "agent_id": "bear-001",
+    "collection_id": "honeycomb",
+    "timestamp": "2026-02-24T12:00:00Z",
+    "type": "quality_signal",
+    "score": 0.85
+  },
+  "expected_output": {},
+  "expected_valid": true
+}
