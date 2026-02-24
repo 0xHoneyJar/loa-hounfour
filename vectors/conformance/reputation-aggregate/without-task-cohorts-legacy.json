@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-reputation-aggregate-016",
+  "category": "reputation-aggregate",
+  "description": "Valid legacy aggregate without task_cohorts — backward compat proof (v7.10.0)",
+  "contract_version": "7.10.0",
+  "input": {
+    "personality_id": "bear-002",
+    "collection_id": "honeycomb",
+    "pool_id": "pool-beta",
+    "state": "cold",
+    "personal_score": null,
+    "collection_score": 0.5,
+    "blended_score": 0.5,
+    "sample_count": 0,
+    "pseudo_count": 3,
+    "contributor_count": 0,
+    "min_sample_count": 5,
+    "created_at": "2026-02-24T00:00:00Z",
+    "last_updated": "2026-02-24T00:00:00Z",
+    "transition_history": [],
+    "contract_version": "7.10.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": { "notes": "Proves backward compatibility: aggregates without task_cohorts remain valid" }
+}

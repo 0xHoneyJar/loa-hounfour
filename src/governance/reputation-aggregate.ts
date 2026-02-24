@@ -1,5 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { DEFAULT_HALF_LIFE_DAYS } from '../vocabulary/reputation.js';
+import { TaskTypeCohortSchema } from './task-type-cohort.js';
 
 /**
  * Reputation state machine — 4 states from cold to authoritative.
@@ -95,6 +96,15 @@ export const ReputationAggregateSchema = Type.Object({
       + 'observations for a specific model alias. The top-level personal_score and '
       + 'sample_count represent the cross-model aggregation. Enables model-aware routing '
       + 'decisions per Hounfour RFC #31.',
+  })),
+
+  // Task-dimensional cohorts (v7.10.0 — Task-Dimensional Reputation)
+  task_cohorts: Type.Optional(Type.Array(TaskTypeCohortSchema, {
+    maxItems: 50,
+    description: 'Per-(model, task_type) reputation cohorts. Each entry tracks quality '
+      + 'observations for a specific (model_id, task_type) pair. Uniqueness invariant: '
+      + 'no two entries may share the same (model_id, task_type) key. Max 50 entries '
+      + 'to bound storage in hot-path lookups.',
   })),
 
   // Protocol versioning

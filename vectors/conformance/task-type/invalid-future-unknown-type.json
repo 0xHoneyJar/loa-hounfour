@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-008",
+  "category": "task-type",
+  "description": "Invalid TaskType: FR-1.4 extension governance — wire-level must reject unknown values even if they might be valid in future versions",
+  "contract_version": "7.10.0",
+  "input": { "value": "data_extraction" },
+  "expected_output": {},
+  "expected_valid": false
+}

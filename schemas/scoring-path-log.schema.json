@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/scoring-path-log",
+  "additionalProperties": false,
+  "description": "Audit record of which scoring cascade tier was used.",
+  "type": "object",
+  "required": [
+    "path"
+  ],
+  "properties": {
+    "path": {
+      "$id": "ScoringPath",
+      "description": "Which tier of the scoring cascade was used for a reputation decision.",
+      "anyOf": [
+        {
+          "const": "task_cohort",
+          "type": "string"
+        },
+        {
+          "const": "aggregate",
+          "type": "string"
+        },
+        {
+          "const": "tier_default",
+          "type": "string"
+        }
+      ]
+    },
+    "model_id": {
+      "maxLength": 255,
+      "description": "Model alias when path is task_cohort or aggregate.",
+      "type": "string"
+    },
+    "task_type": {
+      "$id": "TaskType",
+      "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+      "anyOf": [
+        {
+          "const": "code_review",
+          "type": "string"
+        },
+        {
+          "const": "creative_writing",
+          "type": "string"
+        },
+        {
+          "const": "analysis",
+          "type": "string"
+        },
+        {
+          "const": "summarization",
+          "type": "string"
+        },
+        {
+          "const": "general",
+          "type": "string"
+        }
+      ]
+    },
+    "reason": {
+      "maxLength": 500,
+      "description": "Human-readable explanation of why this path was selected.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+}

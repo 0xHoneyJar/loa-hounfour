@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "event_id",
+    "agent_id",
+    "collection_id",
+    "timestamp",
+    "type",
+    "task_type",
+    "success"
+  ],
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "description": "Globally unique event identifier for deduplication.",
+      "type": "string"
+    },
+    "agent_id": {
+      "maxLength": 255,
+      "minLength": 1,
+      "description": "Agent that produced this event.",
+      "type": "string"
+    },
+    "collection_id": {
+      "maxLength": 255,
+      "minLength": 1,
+      "description": "Collection context for the event.",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "description": "When the event occurred.",
+      "type": "string"
+    },
+    "sequence": {
+      "minimum": 0,
+      "description": "Optional total ordering sequence number.",
+      "type": "integer"
+    },
+    "type": {
+      "const": "task_completed",
+      "type": "string"
+    },
+    "task_type": {
+      "$id": "TaskType",
+      "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+      "anyOf": [
+        {
+          "const": "code_review",
+          "type": "string"
+        },
+        {
+          "const": "creative_writing",
+          "type": "string"
+        },
+        {
+          "const": "analysis",
+          "type": "string"
+        },
+        {
+          "const": "summarization",
+          "type": "string"
+        },
+        {
+          "const": "general",
+          "type": "string"
+        }
+      ]
+    },
+    "success": {
+      "description": "Whether the task completed successfully.",
+      "type": "boolean"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "maximum": 3600000,
+      "description": "Task duration in milliseconds (max 1 hour).",
+      "type": "integer"
+    }
+  },
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/task-completed-event",
+  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+}

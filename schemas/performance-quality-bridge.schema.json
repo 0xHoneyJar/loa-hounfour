@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.9.1/performance-quality-bridge",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/performance-quality-bridge",
   "additionalProperties": false,
   "description": "Connects economic performance outcomes to reputation quality events. This is the return path through the membrane — economic outcomes become trust signals.",
   "type": "object",
@@ -75,5 +75,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.9.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
 }

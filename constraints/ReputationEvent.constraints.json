@@ -1,0 +1,73 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ReputationEvent",
+  "origin": "genesis",
+  "contract_version": "7.10.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "reputation-event-type-valid",
+      "expression": "type == 'quality_signal' || type == 'task_completed' || type == 'credential_update'",
+      "severity": "error",
+      "message": "ReputationEvent type must be one of: quality_signal, task_completed, credential_update",
+      "fields": [
+        "type"
+      ],
+      "type_signature": {
+        "type": "string"
+      }
+    },
+    {
+      "id": "reputation-event-score-bounds",
+      "expression": "type != 'quality_signal' || (score >= 0.0 && score <= 1.0)",
+      "severity": "error",
+      "message": "quality_signal score must be in [0, 1]",
+      "fields": [
+        "type",
+        "score"
+      ],
+      "type_signature": {
+        "type": "string",
+        "score": "number"
+      }
+    },
+    {
+      "id": "reputation-event-duration-bounds",
+      "expression": "type != 'task_completed' || duration_ms == undefined || (duration_ms >= 0 && duration_ms <= 3600000)",
+      "severity": "error",
+      "message": "task_completed duration_ms must be in [0, 3600000] when present",
+      "fields": [
+        "type",
+        "duration_ms"
+      ],
+      "type_signature": {
+        "type": "string",
+        "duration_ms": "number | undefined"
+      }
+    },
+    {
+      "id": "reputation-event-sequence-nonneg",
+      "expression": "sequence == undefined || sequence >= 0",
+      "severity": "error",
+      "message": "sequence must be >= 0 when present",
+      "fields": [
+        "sequence"
+      ],
+      "type_signature": {
+        "sequence": "number | undefined"
+      }
+    },
+    {
+      "id": "reputation-event-dedup-guidance",
+      "expression": "true",
+      "severity": "info",
+      "message": "Implementations SHOULD deduplicate by event_id. Duplicate event_id with matching payload is idempotent (safe to replay). Duplicate event_id with mismatched payload SHOULD be rejected with a conflict error. Storage key recommendation: event_id alone.",
+      "fields": [
+        "event_id"
+      ],
+      "type_signature": {
+        "event_id": "string"
+      }
+    }
+  ]
+}

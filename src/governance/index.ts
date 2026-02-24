@@ -339,3 +339,37 @@ export {
   computeRebalancedWeights,
   type ModelRoutingScore,
 } from '../utilities/model-routing.js';
+
+// Schemas — TaskType (v7.10.0, Task-Dimensional Reputation)
+export {
+  TaskTypeSchema,
+  TASK_TYPES,
+  type TaskType,
+} from './task-type.js';
+
+// Schemas — TaskTypeCohort (v7.10.0, Task-Dimensional Reputation)
+export {
+  TaskTypeCohortSchema,
+  validateTaskCohortUniqueness,
+  type TaskTypeCohort,
+} from './task-type-cohort.js';
+
+// Schemas — ReputationEvent (v7.10.0, Task-Dimensional Reputation)
+export {
+  ReputationEventSchema,
+  QualitySignalEventSchema,
+  TaskCompletedEventSchema,
+  CredentialUpdateEventSchema,
+  type ReputationEvent,
+  type QualitySignalEvent,
+  type TaskCompletedEvent,
+  type CredentialUpdateEvent,
+} from './reputation-event.js';
+
+// Schemas — ScoringPathLog (v7.10.0, Task-Dimensional Reputation)
+export {
+  ScoringPathSchema,
+  ScoringPathLogSchema,
+  type ScoringPath,
+  type ScoringPathLog,
+} from './scoring-path-log.js';

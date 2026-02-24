@@ -1,0 +1,14 @@
+{
+  "vector_id": "conformance-scoring-path-log-001",
+  "category": "scoring-path-log",
+  "description": "Valid task_cohort path with model_id and task_type",
+  "contract_version": "7.10.0",
+  "input": {
+    "path": "task_cohort",
+    "model_id": "native",
+    "task_type": "code_review",
+    "reason": "Task cohort data available for native:code_review"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

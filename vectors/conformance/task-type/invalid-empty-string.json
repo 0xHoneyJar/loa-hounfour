@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-007",
+  "category": "task-type",
+  "description": "Invalid TaskType: empty string must be rejected",
+  "contract_version": "7.10.0",
+  "input": { "value": "" },
+  "expected_output": {},
+  "expected_valid": false
+}

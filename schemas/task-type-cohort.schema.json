@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/task-type-cohort",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "model_id",
+    "personal_score",
+    "sample_count",
+    "last_updated",
+    "task_type"
+  ],
+  "properties": {
+    "model_id": {
+      "minLength": 1,
+      "description": "Model alias (e.g. \"native\", \"gpt-4o\")",
+      "type": "string"
+    },
+    "personal_score": {
+      "description": "Per-(model, task_type) personal score. Null when this cohort is cold.",
+      "anyOf": [
+        {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sample_count": {
+      "minimum": 0,
+      "description": "Number of quality observations for this (model, task_type) pair",
+      "type": "integer"
+    },
+    "last_updated": {
+      "format": "date-time",
+      "description": "Timestamp of most recent observation",
+      "type": "string"
+    },
+    "task_type": {
+      "$id": "TaskType",
+      "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+      "anyOf": [
+        {
+          "const": "code_review",
+          "type": "string"
+        },
+        {
+          "const": "creative_writing",
+          "type": "string"
+        },
+        {
+          "const": "analysis",
+          "type": "string"
+        },
+        {
+          "const": "summarization",
+          "type": "string"
+        },
+        {
+          "const": "general",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+}

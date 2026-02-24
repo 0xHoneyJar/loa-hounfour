@@ -140,6 +140,11 @@ import { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema } from '../src/
 import { ExecutionStrategySchema } from '../src/governance/proposal-execution.js';
 import { CheckpointHealthSchema, ProceedDecisionSchema, ExecutionCheckpointSchema } from '../src/governance/execution-checkpoint.js';
 import { RollbackScopeSchema } from '../src/governance/rollback-scope.js';
+// v7.10.0 — Task-Dimensional Reputation
+import { TaskTypeSchema } from '../src/governance/task-type.js';
+import { TaskTypeCohortSchema } from '../src/governance/task-type-cohort.js';
+import { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema } from '../src/governance/reputation-event.js';
+import { ScoringPathSchema, ScoringPathLogSchema } from '../src/governance/scoring-path-log.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -352,6 +357,15 @@ const schemas = [
   { name: 'denial-code', schema: DenialCodeSchema },
   { name: 'evaluation-gap', schema: EvaluationGapSchema },
   { name: 'economic-boundary-evaluation-event', schema: EconomicBoundaryEvaluationEventSchema },
+  // v7.10.0 — Task-Dimensional Reputation
+  { name: 'task-type', schema: TaskTypeSchema },
+  { name: 'task-type-cohort', schema: TaskTypeCohortSchema },
+  { name: 'quality-signal-event', schema: QualitySignalEventSchema },
+  { name: 'task-completed-event', schema: TaskCompletedEventSchema },
+  { name: 'credential-update-event', schema: CredentialUpdateEventSchema },
+  { name: 'reputation-event', schema: ReputationEventSchema },
+  { name: 'scoring-path', schema: ScoringPathSchema },
+  { name: 'scoring-path-log', schema: ScoringPathLogSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

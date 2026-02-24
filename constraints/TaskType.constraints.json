@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "TaskType",
+  "origin": "genesis",
+  "contract_version": "7.10.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "task-type-closed-set",
+      "expression": "value == 'code_review' || value == 'creative_writing' || value == 'analysis' || value == 'summarization' || value == 'general'",
+      "severity": "error",
+      "message": "TaskType must be one of: code_review, creative_writing, analysis, summarization, general",
+      "fields": [
+        "value"
+      ],
+      "type_signature": {
+        "value": "string"
+      }
+    }
+  ]
+}

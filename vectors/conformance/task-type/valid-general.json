@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-005",
+  "category": "task-type",
+  "description": "Valid TaskType: general",
+  "contract_version": "7.10.0",
+  "input": { "value": "general" },
+  "expected_output": {},
+  "expected_valid": true
+}

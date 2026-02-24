@@ -1,0 +1,12 @@
+{
+  "vector_id": "conformance-scoring-path-log-004",
+  "category": "scoring-path-log",
+  "description": "task_cohort path without model_id — valid at schema level (constraint violation, not schema violation)",
+  "contract_version": "7.10.0",
+  "input": {
+    "path": "task_cohort"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": { "notes": "This is schema-valid but constraint-invalid. The scoring-path-task-cohort-requires-context constraint catches this." }
+}

@@ -1,0 +1,13 @@
+{
+  "vector_id": "conformance-scoring-path-log-002",
+  "category": "scoring-path-log",
+  "description": "Valid aggregate path with model_id",
+  "contract_version": "7.10.0",
+  "input": {
+    "path": "aggregate",
+    "model_id": "gpt-4o",
+    "reason": "No task cohort data; using aggregate model score"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

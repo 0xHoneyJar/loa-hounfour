@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/task-type",
+  "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+  "anyOf": [
+    {
+      "const": "code_review",
+      "type": "string"
+    },
+    {
+      "const": "creative_writing",
+      "type": "string"
+    },
+    {
+      "const": "analysis",
+      "type": "string"
+    },
+    {
+      "const": "summarization",
+      "type": "string"
+    },
+    {
+      "const": "general",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+}

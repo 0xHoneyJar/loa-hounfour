@@ -154,6 +154,54 @@
         "last_updated": "string",
         "transition_history": "array"
       }
+    },
+    {
+      "id": "reputation-task-cohort-score-bounds",
+      "expression": "task_cohorts == undefined || task_cohorts.every(c => c.personal_score == null || (c.personal_score >= 0.0 && c.personal_score <= 1.0))",
+      "severity": "error",
+      "message": "task cohort personal_score must be in [0, 1] when not null",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-sample-nonneg",
+      "expression": "task_cohorts == undefined || task_cohorts.every(c => c.sample_count >= 0)",
+      "severity": "error",
+      "message": "task cohort sample_count must be >= 0",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-uniqueness",
+      "expression": "true",
+      "severity": "error",
+      "message": "(model_id, task_type) pairs MUST be unique within task_cohorts. Composite key uniqueness cannot be expressed in the constraint DSL v1.0 — implementations MUST enforce natively. The TypeScript reference provides validateTaskCohortUniqueness().",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
+    },
+    {
+      "id": "reputation-task-cohort-max-items",
+      "expression": "task_cohorts == undefined || task_cohorts.length <= 50",
+      "severity": "error",
+      "message": "task_cohorts array must not exceed 50 entries",
+      "fields": [
+        "task_cohorts"
+      ],
+      "type_signature": {
+        "task_cohorts": "array"
+      }
     }
   ]
 }

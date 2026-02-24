@@ -1,0 +1,45 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "TaskTypeCohort",
+  "origin": "genesis",
+  "contract_version": "7.10.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "task-cohort-score-bounds",
+      "expression": "personal_score == null || (personal_score >= 0.0 && personal_score <= 1.0)",
+      "severity": "error",
+      "message": "personal_score must be in [0, 1] when not null",
+      "fields": [
+        "personal_score"
+      ],
+      "type_signature": {
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "task-cohort-sample-nonneg",
+      "expression": "sample_count >= 0",
+      "severity": "error",
+      "message": "sample_count must be >= 0",
+      "fields": [
+        "sample_count"
+      ],
+      "type_signature": {
+        "sample_count": "number"
+      }
+    },
+    {
+      "id": "task-cohort-task-type-valid",
+      "expression": "task_type == 'code_review' || task_type == 'creative_writing' || task_type == 'analysis' || task_type == 'summarization' || task_type == 'general'",
+      "severity": "error",
+      "message": "task_type must be a valid TaskType value",
+      "fields": [
+        "task_type"
+      ],
+      "type_signature": {
+        "task_type": "string"
+      }
+    }
+  ]
+}
