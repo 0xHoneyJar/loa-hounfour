@@ -37,3 +37,21 @@ export {
 export { GovernedCreditsSchema, type GovernedCredits } from './governed-credits.js';
 export { GovernedReputationSchema, type GovernedReputation } from './governed-reputation.js';
 export { GovernedFreshnessSchema, type GovernedFreshness } from './governed-freshness.js';
+
+// Error taxonomy
+export {
+  InvariantViolationSchema,
+  InvalidTransitionSchema,
+  GuardFailureSchema,
+  EvaluationErrorSchema,
+  HashDiscontinuityErrorSchema,
+  PartialApplicationSchema,
+  GovernanceErrorSchema,
+  type InvariantViolation,
+  type InvalidTransition,
+  type GuardFailure,
+  type EvaluationError,
+  type HashDiscontinuityError,
+  type PartialApplication,
+  type GovernanceError,
+} from './error-taxonomy.js';
