@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/aggregate-snapshot",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/aggregate-snapshot",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -198,7 +198,7 @@
                 "type": "string"
               },
               "personal_score": {
-                "description": "Per-model personal score. Null when this model cohort is cold (no observations yet).",
+                "description": "Per-model personal score. Null when this cohort is cold (no observations yet).",
                 "anyOf": [
                   {
                     "minimum": 0,
@@ -245,7 +245,7 @@
                 "type": "string"
               },
               "personal_score": {
-                "description": "Per-(model, task_type) personal score. Null when this cohort is cold.",
+                "description": "Per-model personal score. Null when this cohort is cold (no observations yet).",
                 "anyOf": [
                   {
                     "minimum": 0,
@@ -259,12 +259,12 @@
               },
               "sample_count": {
                 "minimum": 0,
-                "description": "Number of quality observations for this (model, task_type) pair",
+                "description": "Number of quality observations for this model",
                 "type": "integer"
               },
               "last_updated": {
                 "format": "date-time",
-                "description": "Timestamp of most recent observation",
+                "description": "Timestamp of most recent observation for this model",
                 "type": "string"
               },
               "task_type": {
@@ -320,5 +320,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
 }

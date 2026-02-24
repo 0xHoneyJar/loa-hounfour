@@ -59,6 +59,6 @@
       "type": "string"
     }
   },
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/reputation-transition",
-  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/reputation-transition",
+  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
 }

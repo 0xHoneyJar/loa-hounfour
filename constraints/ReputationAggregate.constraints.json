@@ -183,12 +183,18 @@
       "id": "reputation-task-cohort-uniqueness",
       "expression": "true",
       "severity": "error",
-      "message": "(model_id, task_type) pairs MUST be unique within task_cohorts. Composite key uniqueness cannot be expressed in the constraint DSL v1.0 — implementations MUST enforce natively. The TypeScript reference provides validateTaskCohortUniqueness().",
+      "message": "(model_id, task_type) pairs MUST be unique within task_cohorts.",
       "fields": [
         "task_cohorts"
       ],
       "type_signature": {
         "task_cohorts": "array"
+      },
+      "native_enforcement": {
+        "strategy": "composite_key_uniqueness",
+        "fields": ["model_id", "task_type"],
+        "scope": "task_cohorts",
+        "reference_impl": "validateTaskCohortUniqueness()"
       }
     },
     {

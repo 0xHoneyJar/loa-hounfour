@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/conservation-property-registry",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/conservation-property-registry",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Registry of conservation invariants with LTL specifications, enforcement classification, and liveness properties (v6.0.0).",
@@ -296,5 +296,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
 }

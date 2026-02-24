@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "7.10.0",
+  "version": "7.10.1",
   "type": "module",
   "description": "Constitutional protocol contracts for an AI agent economy — loa-finn ↔ arrakis integration layer",
   "license": "MIT",

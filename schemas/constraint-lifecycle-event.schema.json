@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/constraint-lifecycle-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/constraint-lifecycle-event",
   "additionalProperties": false,
   "description": "State transition event in a constraint lifecycle.",
   "type": "object",
@@ -95,5 +95,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
 }

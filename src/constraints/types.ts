@@ -9,6 +9,27 @@
  */
 
 /**
+ * Structured metadata for constraints that require runtime enforcement
+ * beyond what the expression DSL can express.
+ *
+ * When a constraint's `expression` is `"true"` (sentinel), the
+ * `native_enforcement` field documents exactly what runtime consumers
+ * must enforce and provides a machine-readable strategy.
+ *
+ * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+ */
+export interface NativeEnforcement {
+  /** Named strategy pattern (e.g. 'composite_key_uniqueness'). */
+  strategy: string;
+  /** Fields involved in the native check. */
+  fields: string[];
+  /** Array field the check applies to (when strategy operates over a collection). */
+  scope?: string;
+  /** Function name of the TypeScript reference implementation. */
+  reference_impl: string;
+}
+
+/**
  * A single cross-field constraint with an evaluable expression.
  */
 export interface Constraint {
@@ -16,12 +37,20 @@ export interface Constraint {
   id: string;
   /** Expression in the constraint mini-language. */
   expression: string;
-  /** Severity: 'error' fails validation, 'warning' is advisory. */
-  severity: 'error' | 'warning';
+  /** Severity: 'error' fails validation, 'warning' is advisory, 'info' is guidance. */
+  severity: 'error' | 'warning' | 'info';
   /** Human-readable message when constraint is violated. */
   message: string;
   /** Fields referenced by this constraint (for documentation / tooling). */
   fields: string[];
+  /**
+   * Structured metadata for constraints that cannot be expressed in the DSL.
+   * When present, `expression` SHOULD be `"true"` (sentinel) and this field
+   * provides the machine-readable enforcement specification.
+   *
+   * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+   */
+  native_enforcement?: NativeEnforcement;
 }
 
 /**

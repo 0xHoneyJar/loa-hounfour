@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.0/performance-outcome-type",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/performance-outcome-type",
   "description": "Classification of how a model invocation performed against expectations.",
   "anyOf": [
     {
@@ -28,5 +28,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=7.10.0, min_supported=6.0.0"
+  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
 }

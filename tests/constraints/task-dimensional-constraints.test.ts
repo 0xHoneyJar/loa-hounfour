@@ -261,12 +261,17 @@ describe('ReputationAggregate task_cohort constraints', () => {
 
   it('uniqueness constraint is native-enforcement sentinel (expression: true)', () => {
     // Composite key uniqueness cannot be expressed in DSL v1.0;
-    // the constraint is severity:error with expression:true and
-    // a message directing implementations to enforce natively.
+    // the constraint uses expression:true with native_enforcement metadata.
     const c = file.constraints.find((c) => c.id === 'reputation-task-cohort-uniqueness')!;
     expect(c.expression).toBe('true');
     expect(c.severity).toBe('error');
-    expect(c.message).toContain('validateTaskCohortUniqueness');
+    expect(c.message).toContain('unique');
+    // v7.10.1: structured native_enforcement metadata replaces verbose message
+    expect(c.native_enforcement).toBeDefined();
+    expect(c.native_enforcement.strategy).toBe('composite_key_uniqueness');
+    expect(c.native_enforcement.fields).toEqual(['model_id', 'task_type']);
+    expect(c.native_enforcement.scope).toBe('task_cohorts');
+    expect(c.native_enforcement.reference_impl).toBe('validateTaskCohortUniqueness()');
   });
 
   it('score-bounds passes with undefined task_cohorts', () => {

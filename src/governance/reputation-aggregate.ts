@@ -1,6 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { DEFAULT_HALF_LIFE_DAYS } from '../vocabulary/reputation.js';
 import { TaskTypeCohortSchema } from './task-type-cohort.js';
+import { COHORT_BASE_FIELDS } from './cohort-base-fields.js';
 
 /**
  * Reputation state machine — 4 states from cold to authoritative.
@@ -39,12 +40,7 @@ export type ReputationTransition = Static<typeof ReputationTransitionSchema>;
  * @since v7.3.0 — Bridgebuilder C5 + Spec I
  */
 export const ModelCohortSchema = Type.Object({
-  model_id: Type.String({ minLength: 1, description: 'Model alias (e.g. "native", "gpt-4o")' }),
-  personal_score: Type.Union([Type.Number({ minimum: 0, maximum: 1 }), Type.Null()], {
-    description: 'Per-model personal score. Null when this model cohort is cold (no observations yet).',
-  }),
-  sample_count: Type.Integer({ minimum: 0, description: 'Number of quality observations for this model' }),
-  last_updated: Type.String({ format: 'date-time', description: 'Timestamp of most recent observation for this model' }),
+  ...COHORT_BASE_FIELDS,
 }, {
   $id: 'ModelCohort',
   additionalProperties: false,

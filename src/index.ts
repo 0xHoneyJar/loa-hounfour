@@ -14,8 +14,10 @@ export * from './economy/index.js';
 export * from './model/index.js';
 // Note: governance TaskTypeSchema/TaskType collide with core's routing-policy TaskType,
 // and governance ReputationEvent collides with core's domain-event ReputationEvent.
-// Core types take precedence in root barrel. Import governance variants from
-// '@0xhoneyjar/loa-hounfour/governance' directly.
+// Core types take precedence in root barrel per ADR-001. Governance variants are
+// available via:
+//   1. '@0xhoneyjar/loa-hounfour/governance' sub-package import
+//   2. GovernanceTaskTypeSchema / GovernanceReputationEventSchema aliases (below)
 export {
   // Exclude: TaskTypeSchema, type TaskType (collision with core/routing-policy)
   // Exclude: type ReputationEvent (collision with core/domain-event)
@@ -61,6 +63,20 @@ export {
   ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, type QualitySignalEvent, type TaskCompletedEvent, type CredentialUpdateEvent,
   ScoringPathSchema, ScoringPathLogSchema, type ScoringPath, type ScoringPathLog,
 } from './governance/index.js';
+
+// v7.10.1 — Aliased re-exports for colliding governance types (ADR-001).
+// These provide root-barrel discoverability without renaming $id values.
+// Core types (routing-policy TaskType, domain-event ReputationEvent) keep
+// their unaliased names; governance variants get the Governance* prefix.
+export {
+  TaskTypeSchema as GovernanceTaskTypeSchema,
+  type TaskType as GovernanceTaskType,
+} from './governance/task-type.js';
+export {
+  ReputationEventSchema as GovernanceReputationEventSchema,
+  type ReputationEvent as GovernanceReputationEvent,
+} from './governance/reputation-event.js';
+
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 
