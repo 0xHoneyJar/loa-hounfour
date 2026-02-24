@@ -1,0 +1,47 @@
+{
+  "vector_id": "conformance-governed-credits-001",
+  "category": "governed-credits",
+  "description": "Valid credit lot with balanced conservation law",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "lot_id": "550e8400-e29b-41d4-a716-446655440000",
+    "balance": "500000",
+    "original_allocation": "1000000",
+    "reserved": "200000",
+    "consumed": "300000",
+    "currency": "micro-usd",
+    "conservation_law": {
+      "invariants": [
+        {
+          "invariant_id": "CL-01",
+          "name": "Lot conservation",
+          "expression": "bigint_sum([balance, reserved, consumed]) == original_allocation",
+          "severity": "error"
+        }
+      ],
+      "enforcement": "strict",
+      "scope": "per-entry"
+    },
+    "audit_trail": {
+      "entries": [],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    },
+    "state_machine": {
+      "states": [{"name": "active"}, {"name": "depleted"}, {"name": "recharged"}],
+      "transitions": [
+        {"from": "active", "to": "depleted"},
+        {"from": "depleted", "to": "recharged"}
+      ],
+      "initial_state": "active",
+      "terminal_states": []
+    },
+    "governance_class": "protocol-fixed",
+    "version": 0,
+    "contract_version": "8.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -45,7 +45,7 @@ function isValidType(t: string): boolean {
 
 describe('type_signature migration (S2-T5)', () => {
   it('found constraint files', () => {
-    expect(allFiles.length).toBe(77);
+    expect(allFiles.length).toBe(83);
   });
 
   for (const { filename, data } of allFiles) {

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernedReputation",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "REP-01",
+      "expression": "true",
+      "severity": "error",
+      "message": "Reputation state must follow state_machine progression (no skipping). Validated via state_machine.transitions.",
+      "fields": ["reputation_state", "state_machine"],
+      "type_signature": {
+        "reputation_state": "string",
+        "state_machine": "object"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "state_machine_validation",
+        "state_field": "reputation_state",
+        "machine_field": "state_machine"
+      }
+    },
+    {
+      "id": "REP-02",
+      "expression": "!(reputation_state == 'cold' && personal_score != null)",
+      "severity": "error",
+      "message": "personal_score must be null when reputation_state is cold",
+      "fields": ["reputation_state", "personal_score"],
+      "type_signature": {
+        "reputation_state": "string",
+        "personal_score": "number | null"
+      }
+    },
+    {
+      "id": "REP-03",
+      "expression": "sample_count >= 0",
+      "severity": "error",
+      "message": "sample_count must be non-negative",
+      "fields": ["sample_count"],
+      "type_signature": {
+        "sample_count": "number"
+      }
+    }
+  ]
+}

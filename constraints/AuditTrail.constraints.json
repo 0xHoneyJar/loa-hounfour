@@ -1,0 +1,30 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "AuditTrail",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "audit-trail-genesis-hash-set",
+      "expression": "genesis_hash != null",
+      "severity": "error",
+      "message": "genesis_hash must be set for chain anchoring",
+      "fields": ["genesis_hash"],
+      "type_signature": {
+        "genesis_hash": "string"
+      }
+    },
+    {
+      "id": "audit-trail-checkpoint-consistency",
+      "expression": "checkpoint_hash == undefined || checkpoint_index != undefined",
+      "severity": "error",
+      "message": "checkpoint_hash requires checkpoint_index to be set",
+      "fields": ["checkpoint_hash", "checkpoint_index"],
+      "type_signature": {
+        "checkpoint_hash": "string | undefined",
+        "checkpoint_index": "number | undefined"
+      }
+    }
+  ]
+}

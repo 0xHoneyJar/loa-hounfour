@@ -32,3 +32,8 @@ export {
   type GovernanceClass,
   type GovernanceMutation,
 } from './governed-resource.js';
+
+// Concrete instantiations
+export { GovernedCreditsSchema, type GovernedCredits } from './governed-credits.js';
+export { GovernedReputationSchema, type GovernedReputation } from './governed-reputation.js';
+export { GovernedFreshnessSchema, type GovernedFreshness } from './governed-freshness.js';
