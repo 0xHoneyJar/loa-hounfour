@@ -1,0 +1,31 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "QuarantineRecord",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "quarantine-index-order",
+      "expression": "first_affected_index <= last_affected_index",
+      "severity": "error",
+      "message": "first_affected_index must be <= last_affected_index",
+      "fields": ["first_affected_index", "last_affected_index"],
+      "type_signature": {
+        "first_affected_index": "number",
+        "last_affected_index": "number"
+      }
+    },
+    {
+      "id": "quarantine-resolved-requires-timestamp",
+      "expression": "!(status == 'reconciled' && resolved_at == undefined) && !(status == 'dismissed' && resolved_at == undefined)",
+      "severity": "error",
+      "message": "Resolved or dismissed status requires resolved_at timestamp",
+      "fields": ["status", "resolved_at"],
+      "type_signature": {
+        "status": "string",
+        "resolved_at": "string | undefined"
+      }
+    }
+  ]
+}

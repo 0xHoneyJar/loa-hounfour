@@ -38,6 +38,27 @@ export { GovernedCreditsSchema, type GovernedCredits } from './governed-credits.
 export { GovernedReputationSchema, type GovernedReputation } from './governed-reputation.js';
 export { GovernedFreshnessSchema, type GovernedFreshness } from './governed-freshness.js';
 
+// Hash chain operational response (ADR-006)
+export {
+  HashChainDiscontinuitySchema,
+  type HashChainDiscontinuity,
+} from './hash-chain-discontinuity.js';
+export {
+  QuarantineStatusSchema,
+  QuarantineRecordSchema,
+  type QuarantineStatus,
+  type QuarantineRecord,
+} from './quarantine.js';
+
+// Domain-separated hash utility
+export {
+  buildDomainTag,
+  computeAuditEntryHash,
+  verifyAuditTrailIntegrity,
+  type AuditEntryHashInput,
+  type AuditTrailVerificationResult,
+} from './audit-trail-hash.js';
+
 // Error taxonomy
 export {
   InvariantViolationSchema,
