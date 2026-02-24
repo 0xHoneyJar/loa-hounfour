@@ -8,6 +8,7 @@ import { Type, type Static } from '@sinclair/typebox';
  * - `violated`: known bad — billing cost differs from computed cost (delta !== 0).
  * - `unverifiable`: unknown — conservation cannot be determined (e.g., missing pricing_snapshot).
  *
+ * @governance protocol-fixed
  * @see SDD §3.1 — ConservationResult tristate
  * @see docs/patterns/epistemic-tristate.md — Pattern documentation
  */

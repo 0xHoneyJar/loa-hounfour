@@ -1,5 +1,5 @@
 /**
- * TaskType — closed taxonomy of task categories for reputation scoring.
+ * TaskType — open taxonomy of task categories for reputation scoring.
  *
  * Defines the 5 task types that partition the work domain into non-overlapping
  * categories. Each type represents a distinct skill axis along which model
@@ -17,11 +17,14 @@
  *   to the most specific type (e.g., "summarize this PR" → summarization,
  *   not code_review).
  *
+ * @governance registry-extensible
+ *
  * Extension governance (FR-1.4):
  * - Adding a new TaskType is a MINOR version bump (additive to the union).
  * - Removing or renaming a TaskType is a MAJOR version bump (breaking).
- * - Wire-level validation is strict: unknown values MUST be rejected.
+ * - Protocol types are validated as literals; community types match namespace:type pattern.
  * - Runtime consumers MAY implement permissive fallback for forward compat.
+ * - Community-defined types use `namespace:type` format (ADR-003).
  *
  * @see SDD §4.1 — TaskType
  * @since v7.10.0
@@ -29,7 +32,12 @@
 import { Type, type Static } from '@sinclair/typebox';
 
 /**
- * Closed union of task type literals.
+ * Open union of task type values.
+ *
+ * Protocol-defined types are validated as literals.
+ * Community-defined types match the `namespace:type` pattern (ADR-003).
+ *
+ * task_type MUST be assigned by the routing layer, not the scored agent (ADR-004).
  */
 export const TaskTypeSchema = Type.Union(
   [
@@ -38,20 +46,26 @@ export const TaskTypeSchema = Type.Union(
     Type.Literal('analysis'),
     Type.Literal('summarization'),
     Type.Literal('general'),
+    // Community-defined types: namespace:type format (ADR-003)
+    Type.String({
+      pattern: '^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$',
+      description: 'Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).',
+    }),
   ],
   {
     $id: 'TaskType',
-    description: 'Closed taxonomy of task categories for task-dimensional reputation scoring.',
+    description: 'Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.',
   },
 );
 
 export type TaskType = Static<typeof TaskTypeSchema>;
 
 /**
- * Canonical array of all valid TaskType values.
+ * Canonical array of protocol-defined TaskType values.
  *
+ * Lists only the 5 protocol types — community-defined types (namespace:type)
+ * are not enumerable at the protocol level.
  * Useful for iteration, validation, and UI rendering.
- * Order matches the union definition.
  */
 export const TASK_TYPES = [
   'code_review',

@@ -27,6 +27,15 @@ export const TaskTypeCohortSchema = Type.Object(
   {
     ...COHORT_BASE_FIELDS,
     task_type: TaskTypeSchema,
+    confidence_threshold: Type.Optional(Type.Integer({
+      minimum: 1,
+      default: 30,
+      description:
+        'Sample count at which task-specific scores are trusted at full weight. ' +
+        'Protocol-recommended default: 30. Downstream consumers implement blending: ' +
+        'effective_score = α * task_score + (1-α) * aggregate_score, ' +
+        'where α = min(1.0, sample_count / confidence_threshold).',
+    })),
   },
   {
     $id: 'TaskTypeCohort',

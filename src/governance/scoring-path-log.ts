@@ -20,6 +20,8 @@ import { TaskTypeSchema } from './task-type.js';
  * - task_cohort: per-(model, task_type) score was available
  * - aggregate: per-model aggregate score was used (no task-specific data)
  * - tier_default: fallback to collection/pool default
+ *
+ * @governance protocol-fixed
  */
 export const ScoringPathSchema = Type.Union(
   [
@@ -57,11 +59,24 @@ export const ScoringPathLogSchema = Type.Object(
       maxLength: 500,
       description: 'Human-readable explanation of why this path was selected.',
     })),
+    // v7.11.0 — Tamper-evident hash chain fields (Bridgebuilder Meditation III)
+    scored_at: Type.Optional(Type.String({
+      format: 'date-time',
+      description: 'Timestamp of the scoring decision.',
+    })),
+    entry_hash: Type.Optional(Type.String({
+      pattern: '^sha256:[a-f0-9]{64}$',
+      description: 'SHA-256 hash of canonical JSON of this entry (excluding hash fields).',
+    })),
+    previous_hash: Type.Optional(Type.String({
+      pattern: '^sha256:[a-f0-9]{64}$',
+      description: 'Hash of the preceding ScoringPathLog entry in the chain.',
+    })),
   },
   {
     $id: 'ScoringPathLog',
     additionalProperties: false,
-    description: 'Audit record of which scoring cascade tier was used.',
+    description: 'Audit record of which scoring cascade tier was used. Optional hash chain for tamper-evident audit.',
   },
 );
 

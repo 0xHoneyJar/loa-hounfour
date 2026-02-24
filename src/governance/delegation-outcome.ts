@@ -13,6 +13,7 @@ import { Type, type Static } from '@sinclair/typebox';
 // Outcome Type
 // ---------------------------------------------------------------------------
 
+/** @governance protocol-fixed */
 export const OutcomeTypeSchema = Type.Union(
   [
     Type.Literal('unanimous'),
@@ -31,6 +32,7 @@ export type OutcomeType = Static<typeof OutcomeTypeSchema>;
 // Vote Choice
 // ---------------------------------------------------------------------------
 
+/** @governance protocol-fixed */
 export const VoteChoiceSchema = Type.Union(
   [
     Type.Literal('agree'),

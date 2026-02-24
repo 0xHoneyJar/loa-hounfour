@@ -44,8 +44,17 @@ export interface Constraint {
   /** Fields referenced by this constraint (for documentation / tooling). */
   fields: string[];
   /**
+   * Evaluation strategy for this constraint.
+   * - `'expression'` (default): evaluate the `expression` field using the constraint DSL.
+   * - `'native'`: the `expression` field is ignored; `native_enforcement` provides the spec.
+   *
+   * Omitted = `'expression'` for backward compatibility.
+   * @since v7.11.0 — Bridgebuilder Meditation IV
+   */
+  evaluation_geometry?: 'expression' | 'native';
+  /**
    * Structured metadata for constraints that cannot be expressed in the DSL.
-   * When present, `expression` SHOULD be `"true"` (sentinel) and this field
+   * When present, `evaluation_geometry` SHOULD be `"native"` and this field
    * provides the machine-readable enforcement specification.
    *
    * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
@@ -61,6 +70,7 @@ export interface Constraint {
  *
  * Files without an explicit `origin` default to `'genesis'` interpretation.
  *
+ * @governance protocol-fixed
  * @since v7.9.0 — FR-6 ConstraintOrigin
  */
 export type ConstraintOrigin = 'genesis' | 'enacted' | 'migrated';

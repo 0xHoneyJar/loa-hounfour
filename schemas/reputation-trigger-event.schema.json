@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/reputation-trigger-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/reputation-trigger-event",
   "additionalProperties": false,
   "description": "The reputation event that triggered economic consequences.",
   "type": "object",
@@ -76,5 +76,5 @@
       "type": "number"
     }
   },
-  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

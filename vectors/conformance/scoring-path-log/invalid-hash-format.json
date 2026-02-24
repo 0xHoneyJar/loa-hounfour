@@ -1,0 +1,15 @@
+{
+  "vector_id": "conformance-scoring-path-log-006",
+  "category": "scoring-path-log",
+  "description": "Invalid ScoringPathLog: entry_hash missing sha256: prefix",
+  "contract_version": "7.11.0",
+  "input": {
+    "path": "aggregate",
+    "model_id": "gpt-4o",
+    "scored_at": "2026-02-24T15:00:00Z",
+    "entry_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "previous_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "expected_output": {},
+  "expected_valid": false
+}

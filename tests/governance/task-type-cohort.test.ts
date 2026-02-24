@@ -49,8 +49,12 @@ describe('TaskTypeCohort', () => {
       expect(Value.Check(TaskTypeCohortSchema, noTaskType)).toBe(false);
     });
 
-    it('rejects invalid task_type', () => {
+    it('rejects invalid task_type (no namespace)', () => {
       expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, task_type: 'unknown' })).toBe(false);
+    });
+
+    it('accepts community-defined task_type', () => {
+      expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, task_type: 'legal-guild:contract_review' })).toBe(true);
     });
 
     it('rejects missing model_id', () => {
@@ -68,6 +72,31 @@ describe('TaskTypeCohort', () => {
 
     it('rejects negative sample_count', () => {
       expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, sample_count: -1 })).toBe(false);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // confidence_threshold (v7.11.0, Bridgebuilder Meditation V Q3)
+  // -------------------------------------------------------------------------
+  describe('confidence_threshold', () => {
+    it('accepts cohort with confidence_threshold', () => {
+      expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, confidence_threshold: 30 })).toBe(true);
+    });
+
+    it('accepts cohort without confidence_threshold (optional)', () => {
+      expect(Value.Check(TaskTypeCohortSchema, VALID_COHORT)).toBe(true);
+    });
+
+    it('rejects confidence_threshold of 0', () => {
+      expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, confidence_threshold: 0 })).toBe(false);
+    });
+
+    it('rejects negative confidence_threshold', () => {
+      expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, confidence_threshold: -1 })).toBe(false);
+    });
+
+    it('rejects non-integer confidence_threshold', () => {
+      expect(Value.Check(TaskTypeCohortSchema, { ...VALID_COHORT, confidence_threshold: 30.5 })).toBe(false);
     });
   });
 
@@ -156,8 +185,8 @@ describe('TaskTypeCohort', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/task-type-cohort');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 3 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(3);
+    it('has at least 5 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(5);
     });
 
     for (const file of vectorFiles) {

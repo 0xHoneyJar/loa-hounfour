@@ -50,8 +50,8 @@ describe('v7.10.0 constraint file structure', () => {
         expect(file.schema_id).toBe(schemaId);
       });
 
-      it('has contract_version 7.10.0', () => {
-        expect(file.contract_version).toBe('7.10.0');
+      it('has contract_version 7.11.0', () => {
+        expect(file.contract_version).toBe('7.11.0');
       });
 
       it('has supported expression_version', () => {
@@ -95,14 +95,22 @@ describe('v7.10.0 constraint file structure', () => {
 describe('TaskType constraint evaluation', () => {
   const file = loadConstraints('TaskType');
 
-  it('accepts valid task types', () => {
+  it('protocol-values constraint accepts valid task types', () => {
     for (const value of ['code_review', 'creative_writing', 'analysis', 'summarization', 'general']) {
-      expect(evalById(file, 'task-type-closed-set', { value })).toBe(true);
+      expect(evalById(file, 'task-type-protocol-values', { value })).toBe(true);
     }
   });
 
-  it('rejects invalid task type', () => {
-    expect(evalById(file, 'task-type-closed-set', { value: 'unknown' })).toBe(false);
+  it('protocol-values constraint rejects non-protocol type', () => {
+    expect(evalById(file, 'task-type-protocol-values', { value: 'unknown' })).toBe(false);
+  });
+
+  it('valid-format constraint uses native enforcement (expression: true)', () => {
+    const c = file.constraints.find((c) => c.id === 'task-type-valid-format')!;
+    expect(c.expression).toBe('true');
+    expect(c.evaluation_geometry).toBe('native');
+    expect(c.native_enforcement).toBeDefined();
+    expect(c.native_enforcement!.strategy).toBe('open_enum_validation');
   });
 });
 
@@ -127,12 +135,24 @@ describe('TaskTypeCohort constraint evaluation', () => {
     expect(evalById(file, 'task-cohort-sample-nonneg', { sample_count: 0 })).toBe(true);
   });
 
-  it('accepts valid task_type', () => {
-    expect(evalById(file, 'task-cohort-task-type-valid', { task_type: 'analysis' })).toBe(true);
+  it('task-type-valid constraint uses native enforcement (open enum)', () => {
+    const c = file.constraints.find((c) => c.id === 'task-cohort-task-type-valid')!;
+    expect(c.expression).toBe('true');
+    expect(c.evaluation_geometry).toBe('native');
+    expect(c.native_enforcement).toBeDefined();
+    expect(c.native_enforcement!.strategy).toBe('open_enum_validation');
   });
 
-  it('rejects invalid task_type', () => {
-    expect(evalById(file, 'task-cohort-task-type-valid', { task_type: 'magic' })).toBe(false);
+  it('accepts valid confidence_threshold', () => {
+    expect(evalById(file, 'task-cohort-confidence-positive', { confidence_threshold: 30 })).toBe(true);
+  });
+
+  it('accepts undefined confidence_threshold', () => {
+    expect(evalById(file, 'task-cohort-confidence-positive', { confidence_threshold: undefined })).toBe(true);
+  });
+
+  it('rejects confidence_threshold of 0', () => {
+    expect(evalById(file, 'task-cohort-confidence-positive', { confidence_threshold: 0 })).toBe(false);
   });
 });
 
@@ -231,6 +251,56 @@ describe('ScoringPathLog constraint evaluation', () => {
       path: 'tier_default', model_id: undefined,
     })).toBe(true);
   });
+
+  // v7.11.0 — Hash chain constraints (Bridgebuilder Meditation III)
+  it('accepts both hash fields present', () => {
+    expect(evalById(file, 'scoring-path-hash-pair', {
+      entry_hash: 'sha256:abc123',
+      previous_hash: 'sha256:def456',
+    })).toBe(true);
+  });
+
+  it('accepts both hash fields absent', () => {
+    expect(evalById(file, 'scoring-path-hash-pair', {
+      entry_hash: undefined,
+      previous_hash: undefined,
+    })).toBe(true);
+  });
+
+  it('rejects entry_hash without previous_hash', () => {
+    expect(evalById(file, 'scoring-path-hash-pair', {
+      entry_hash: 'sha256:abc123',
+      previous_hash: undefined,
+    })).toBe(false);
+  });
+
+  it('rejects previous_hash without entry_hash', () => {
+    expect(evalById(file, 'scoring-path-hash-pair', {
+      entry_hash: undefined,
+      previous_hash: 'sha256:def456',
+    })).toBe(false);
+  });
+
+  it('requires scored_at when entry_hash present', () => {
+    expect(evalById(file, 'scoring-path-hash-requires-timestamp', {
+      entry_hash: 'sha256:abc123',
+      scored_at: '2026-02-24T15:00:00Z',
+    })).toBe(true);
+  });
+
+  it('rejects entry_hash without scored_at', () => {
+    expect(evalById(file, 'scoring-path-hash-requires-timestamp', {
+      entry_hash: 'sha256:abc123',
+      scored_at: undefined,
+    })).toBe(false);
+  });
+
+  it('accepts no entry_hash without scored_at', () => {
+    expect(evalById(file, 'scoring-path-hash-requires-timestamp', {
+      entry_hash: undefined,
+      scored_at: undefined,
+    })).toBe(true);
+  });
 });
 
 // ─── ReputationAggregate task_cohort constraints (added in v7.10.0) ─────────
@@ -272,6 +342,8 @@ describe('ReputationAggregate task_cohort constraints', () => {
     expect(c.native_enforcement.fields).toEqual(['model_id', 'task_type']);
     expect(c.native_enforcement.scope).toBe('task_cohorts');
     expect(c.native_enforcement.reference_impl).toBe('validateTaskCohortUniqueness()');
+    // v7.11.0: evaluation_geometry is now first-class (Bridgebuilder Meditation IV)
+    expect(c.evaluation_geometry).toBe('native');
   });
 
   it('score-bounds passes with undefined task_cohorts', () => {

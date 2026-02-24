@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/reputation-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/reputation-event",
   "description": "Discriminated union of reputation event variants. Discriminator: type.",
   "anyOf": [
     {
@@ -54,7 +54,7 @@
         },
         "task_type": {
           "$id": "TaskType",
-          "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+          "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
           "anyOf": [
             {
               "const": "code_review",
@@ -74,6 +74,11 @@
             },
             {
               "const": "general",
+              "type": "string"
+            },
+            {
+              "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$",
+              "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
               "type": "string"
             }
           ]
@@ -138,7 +143,7 @@
         },
         "task_type": {
           "$id": "TaskType",
-          "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+          "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
           "anyOf": [
             {
               "const": "code_review",
@@ -158,6 +163,11 @@
             },
             {
               "const": "general",
+              "type": "string"
+            },
+            {
+              "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$",
+              "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
               "type": "string"
             }
           ]
@@ -247,5 +257,5 @@
       }
     }
   ],
-  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

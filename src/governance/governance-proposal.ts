@@ -10,6 +10,7 @@
 import { Type, type Static } from '@sinclair/typebox';
 
 // ProposalStatus vocabulary
+/** @governance protocol-fixed */
 export const ProposalStatusSchema = Type.Union(
   [
     Type.Literal('proposed'),

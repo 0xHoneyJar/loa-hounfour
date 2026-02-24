@@ -6,6 +6,7 @@ import { COHORT_BASE_FIELDS } from './cohort-base-fields.js';
 /**
  * Reputation state machine — 4 states from cold to authoritative.
  *
+ * @governance protocol-fixed
  * @see SDD §2.3 — ReputationAggregate (FR-3)
  */
 export const ReputationStateSchema = Type.Union([

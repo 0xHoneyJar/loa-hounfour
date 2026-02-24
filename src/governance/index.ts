@@ -373,3 +373,10 @@ export {
   type ScoringPath,
   type ScoringPathLog,
 } from './scoring-path-log.js';
+
+// Utilities — ScoringPathLog hash chain (v7.11.0, Bridgebuilder Meditation III)
+export {
+  computeScoringPathHash,
+  SCORING_PATH_GENESIS_HASH,
+  type ScoringPathHashInput,
+} from './scoring-path-hash.js';

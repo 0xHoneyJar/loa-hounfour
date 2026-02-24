@@ -2,7 +2,7 @@
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ReputationAggregate",
   "origin": "genesis",
-  "contract_version": "7.1.0",
+  "contract_version": "7.11.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -190,6 +190,7 @@
       "type_signature": {
         "task_cohorts": "array"
       },
+      "evaluation_geometry": "native",
       "native_enforcement": {
         "strategy": "composite_key_uniqueness",
         "fields": ["model_id", "task_type"],

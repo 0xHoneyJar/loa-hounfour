@@ -1,0 +1,9 @@
+{
+  "vector_id": "conformance-task-type-009",
+  "category": "task-type",
+  "description": "Valid community-defined TaskType in namespace:type format (ADR-003)",
+  "contract_version": "7.11.0",
+  "input": { "value": "legal-guild:contract_review" },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/reputation-routing-signal",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/reputation-routing-signal",
   "additionalProperties": false,
   "description": "Reputation-based routing signal for meritocratic resource allocation.",
   "type": "object",
@@ -115,5 +115,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

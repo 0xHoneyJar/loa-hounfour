@@ -21,6 +21,8 @@ import { Type, type Static } from '@sinclair/typebox';
  * State machine:
  *   pending → executing → completed | failed
  *   failed → rolled_back
+ *
+ * @governance protocol-fixed
  */
 export const ExecutionStatusSchema = Type.Union(
   [
@@ -162,6 +164,7 @@ export type ProposalExecution = Static<typeof ProposalExecutionSchema>;
  * - `progressive`: changes applied in order with checkpoints between
  * - `canary`: changes applied to a subset first, then expanded on success
  *
+ * @governance protocol-fixed
  * @see DR-F5 — Progressive governance execution
  * @since v7.8.0
  */

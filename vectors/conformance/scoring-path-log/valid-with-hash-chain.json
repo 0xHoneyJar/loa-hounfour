@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-scoring-path-log-005",
+  "category": "scoring-path-log",
+  "description": "Valid ScoringPathLog with hash chain fields (v7.11.0, Bridgebuilder Meditation III)",
+  "contract_version": "7.11.0",
+  "input": {
+    "path": "task_cohort",
+    "model_id": "native",
+    "task_type": "code_review",
+    "reason": "Task cohort data available for native:code_review",
+    "scored_at": "2026-02-24T15:00:00Z",
+    "entry_hash": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "previous_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

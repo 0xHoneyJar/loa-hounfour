@@ -1,0 +1,15 @@
+{
+  "vector_id": "conformance-task-type-cohort-005",
+  "category": "task-type-cohort",
+  "description": "Valid TaskTypeCohort with community-defined task_type (ADR-003)",
+  "contract_version": "7.11.0",
+  "input": {
+    "model_id": "gpt-4o",
+    "personal_score": 0.78,
+    "sample_count": 15,
+    "last_updated": "2026-02-24T14:00:00Z",
+    "task_type": "legal-guild:contract_review"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

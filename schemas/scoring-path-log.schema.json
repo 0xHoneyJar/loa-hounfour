@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/scoring-path-log",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/scoring-path-log",
   "additionalProperties": false,
-  "description": "Audit record of which scoring cascade tier was used.",
+  "description": "Audit record of which scoring cascade tier was used. Optional hash chain for tamper-evident audit.",
   "type": "object",
   "required": [
     "path"
@@ -33,7 +33,7 @@
     },
     "task_type": {
       "$id": "TaskType",
-      "description": "Closed taxonomy of task categories for task-dimensional reputation scoring.",
+      "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
       "anyOf": [
         {
           "const": "code_review",
@@ -54,6 +54,11 @@
         {
           "const": "general",
           "type": "string"
+        },
+        {
+          "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$",
+          "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
+          "type": "string"
         }
       ]
     },
@@ -61,7 +66,22 @@
       "maxLength": 500,
       "description": "Human-readable explanation of why this path was selected.",
       "type": "string"
+    },
+    "scored_at": {
+      "format": "date-time",
+      "description": "Timestamp of the scoring decision.",
+      "type": "string"
+    },
+    "entry_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 hash of canonical JSON of this entry (excluding hash fields).",
+      "type": "string"
+    },
+    "previous_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Hash of the preceding ScoringPathLog entry in the chain.",
+      "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

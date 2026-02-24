@@ -23,6 +23,33 @@ describe('TaskType', () => {
     });
   });
 
+  // v7.11.0 — Community-defined types (ADR-003)
+  describe('community-defined types (namespace:type)', () => {
+    it('accepts "legal-guild:contract_review"', () => {
+      expect(Value.Check(TaskTypeSchema, 'legal-guild:contract_review')).toBe(true);
+    });
+
+    it('accepts "data-ops:etl_pipeline"', () => {
+      expect(Value.Check(TaskTypeSchema, 'data-ops:etl_pipeline')).toBe(true);
+    });
+
+    it('rejects uppercase namespace "Legal:review"', () => {
+      expect(Value.Check(TaskTypeSchema, 'Legal:review')).toBe(false);
+    });
+
+    it('rejects missing namespace "contract_review"', () => {
+      expect(Value.Check(TaskTypeSchema, 'contract_review')).toBe(false);
+    });
+
+    it('rejects empty namespace ":review"', () => {
+      expect(Value.Check(TaskTypeSchema, ':review')).toBe(false);
+    });
+
+    it('rejects empty type "guild:"', () => {
+      expect(Value.Check(TaskTypeSchema, 'guild:')).toBe(false);
+    });
+  });
+
   describe('invalid values', () => {
     it('rejects unknown string "future_type"', () => {
       expect(Value.Check(TaskTypeSchema, 'future_type')).toBe(false);
@@ -81,8 +108,8 @@ describe('TaskType', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/task-type');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 8 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(8);
+    it('has at least 11 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(11);
     });
 
     for (const file of vectorFiles) {

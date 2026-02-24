@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.10.1/economic-performance-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/economic-performance-event",
   "additionalProperties": false,
   "description": "Captures the outcome of a model invocation following an EconomicBoundary access decision. This is the return signal that closes the unidirectional membrane gap.",
   "type": "object",
@@ -122,5 +122,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.10.1, min_supported=6.0.0"
+  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
 }

@@ -2,7 +2,7 @@
   "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
   "schema_id": "ScoringPathLog",
   "origin": "genesis",
-  "contract_version": "7.10.0",
+  "contract_version": "7.11.0",
   "expression_version": "1.0",
   "constraints": [
     {
@@ -57,6 +57,34 @@
       ],
       "type_signature": {
         "path": "string"
+      }
+    },
+    {
+      "id": "scoring-path-hash-pair",
+      "expression": "(entry_hash == undefined && previous_hash == undefined) || (entry_hash != undefined && previous_hash != undefined)",
+      "severity": "error",
+      "message": "entry_hash and previous_hash must both be present or both absent. A partial hash chain is invalid.",
+      "fields": [
+        "entry_hash",
+        "previous_hash"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "previous_hash": "string | undefined"
+      }
+    },
+    {
+      "id": "scoring-path-hash-requires-timestamp",
+      "expression": "entry_hash == undefined || scored_at != undefined",
+      "severity": "error",
+      "message": "scored_at timestamp is required when hash chain fields are present.",
+      "fields": [
+        "entry_hash",
+        "scored_at"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "scored_at": "string | undefined"
       }
     }
   ]

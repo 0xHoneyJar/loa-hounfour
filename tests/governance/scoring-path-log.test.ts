@@ -52,6 +52,26 @@ describe('ScoringPathLog', () => {
         model_id: 'gpt-4o',
       })).toBe(true);
     });
+
+    // v7.11.0 — Hash chain fields (Bridgebuilder Meditation III)
+    it('accepts log with hash chain fields', () => {
+      expect(Value.Check(ScoringPathLogSchema, {
+        path: 'task_cohort',
+        model_id: 'native',
+        task_type: 'code_review',
+        scored_at: '2026-02-24T15:00:00Z',
+        entry_hash: 'sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+        previous_hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      })).toBe(true);
+    });
+
+    it('accepts log without hash chain fields (backward compatible)', () => {
+      expect(Value.Check(ScoringPathLogSchema, {
+        path: 'aggregate',
+        model_id: 'gpt-4o',
+        reason: 'No task cohort data',
+      })).toBe(true);
+    });
   });
 
   describe('invalid instances', () => {
@@ -67,6 +87,26 @@ describe('ScoringPathLog', () => {
       expect(Value.Check(ScoringPathLogSchema, {
         path: 'tier_default',
         reason: 'x'.repeat(501),
+      })).toBe(false);
+    });
+
+    it('rejects entry_hash without sha256: prefix', () => {
+      expect(Value.Check(ScoringPathLogSchema, {
+        path: 'aggregate',
+        model_id: 'gpt-4o',
+        scored_at: '2026-02-24T15:00:00Z',
+        entry_hash: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+        previous_hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      })).toBe(false);
+    });
+
+    it('rejects entry_hash with wrong length', () => {
+      expect(Value.Check(ScoringPathLogSchema, {
+        path: 'aggregate',
+        model_id: 'gpt-4o',
+        scored_at: '2026-02-24T15:00:00Z',
+        entry_hash: 'sha256:abc123',
+        previous_hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       })).toBe(false);
     });
   });
@@ -85,8 +125,8 @@ describe('ScoringPathLog', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/scoring-path-log');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 4 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(4);
+    it('has at least 6 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(6);
     });
 
     for (const file of vectorFiles) {

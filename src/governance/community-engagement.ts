@@ -17,6 +17,7 @@ import { Type, type Static } from '@sinclair/typebox';
 // Engagement Signal Type
 // ---------------------------------------------------------------------------
 
+/** @governance registry-extensible */
 export const EngagementSignalTypeSchema = Type.Union(
   [
     Type.Literal('participation'),
