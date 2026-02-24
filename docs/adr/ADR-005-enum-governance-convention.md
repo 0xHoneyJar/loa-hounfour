@@ -40,7 +40,7 @@ Only major exported enums get `@governance` annotations — not inline unions wi
 | `SagaStatus` | `economy/bridge-transfer-saga.ts` | protocol-fixed |
 | `ProposalStatus` | `governance/governance-proposal.ts` | protocol-fixed |
 | `ExecutionStatus` | `governance/proposal-execution.ts` | protocol-fixed |
-| `ExecutionStrategy` | `governance/execution-checkpoint.ts` | protocol-fixed |
+| `ExecutionStrategy` | `governance/proposal-execution.ts` | protocol-fixed |
 | `ConstraintOrigin` | `constraints/types.ts` | protocol-fixed |
 | `ConservationStatus` | `vocabulary/conservation-status.ts` | protocol-fixed |
 | `TrustLevel` | `schemas/agent-identity.ts` | protocol-fixed |

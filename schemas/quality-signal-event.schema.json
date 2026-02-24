@@ -73,7 +73,7 @@
           "type": "string"
         },
         {
-          "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$",
+          "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
           "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
           "type": "string"
         }

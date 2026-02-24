@@ -86,6 +86,36 @@
         "entry_hash": "string | undefined",
         "scored_at": "string | undefined"
       }
+    },
+    {
+      "id": "scoring-path-chain-integrity",
+      "expression": "true",
+      "severity": "error",
+      "message": "When hash chain fields are present: entry_hash MUST equal SHA-256 of canonical JSON of content fields (path, model_id, task_type, reason, scored_at). previous_hash MUST equal the entry_hash of the preceding entry in the chain, or the genesis hash for the first entry.",
+      "fields": [
+        "entry_hash",
+        "previous_hash",
+        "path",
+        "model_id",
+        "task_type",
+        "reason",
+        "scored_at"
+      ],
+      "type_signature": {
+        "entry_hash": "string | undefined",
+        "previous_hash": "string | undefined",
+        "path": "string",
+        "model_id": "string | undefined",
+        "task_type": "string | undefined",
+        "reason": "string | undefined",
+        "scored_at": "string | undefined"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "hash_chain_verification",
+        "fields": ["entry_hash", "previous_hash", "path", "model_id", "task_type", "reason", "scored_at"],
+        "reference_impl": "computeScoringPathHash() + SCORING_PATH_GENESIS_HASH"
+      }
     }
   ]
 }

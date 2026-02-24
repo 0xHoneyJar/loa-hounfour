@@ -57,6 +57,26 @@ describe('computeScoringPathHash', () => {
     const hash = computeScoringPathHash({ path: 'tier_default' });
     expect(hash).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
+
+  // Bridgebuilder HIGH-1: extra fields must be stripped at runtime
+  it('strips extra fields (structural subtyping safety)', () => {
+    const cleanEntry: ScoringPathHashInput = {
+      path: 'task_cohort',
+      model_id: 'native',
+      task_type: 'code_review',
+      scored_at: '2026-02-24T15:00:00Z',
+    };
+    // Simulate a full ScoringPathLog object being passed (with chain metadata)
+    const dirtyEntry = {
+      ...cleanEntry,
+      entry_hash: 'sha256:should-be-stripped',
+      previous_hash: 'sha256:should-be-stripped',
+      extra_field: 'should-be-stripped',
+    };
+    // Both should produce identical hashes — extra fields are stripped
+    expect(computeScoringPathHash(dirtyEntry as ScoringPathHashInput))
+      .toBe(computeScoringPathHash(cleanEntry));
+  });
 });
 
 describe('SCORING_PATH_GENESIS_HASH', () => {

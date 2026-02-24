@@ -105,6 +105,10 @@ export interface ConstraintFile {
  * All expression grammar versions supported by the current evaluator.
  * Used by protocol-discovery to advertise compatibility during version negotiation.
  */
+// Note: evaluation_geometry (v7.11.0) is a constraint-level field independent of
+// expression grammar version. A constraint with evaluation_geometry: "native" can
+// appear in any expression_version file — the field controls evaluation strategy,
+// not grammar compatibility.
 export const EXPRESSION_VERSIONS_SUPPORTED: readonly string[] = ['1.0', '2.0'];
 
 export function expressionVersionSupported(version: string): boolean {

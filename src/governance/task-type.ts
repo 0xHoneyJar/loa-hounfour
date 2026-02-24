@@ -48,7 +48,7 @@ export const TaskTypeSchema = Type.Union(
     Type.Literal('general'),
     // Community-defined types: namespace:type format (ADR-003)
     Type.String({
-      pattern: '^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$',
+      pattern: '^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$',
       description: 'Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).',
     }),
   ],

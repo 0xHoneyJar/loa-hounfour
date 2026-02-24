@@ -47,7 +47,17 @@ export interface ScoringPathHashInput {
  * @throws If canonicalization fails
  */
 export function computeScoringPathHash(entry: ScoringPathHashInput): string {
-  const canonical = canonicalize(entry);
+  // Runtime field stripping — prevent structural subtyping from leaking
+  // chain metadata (entry_hash, previous_hash) into the hash input.
+  // TypeScript interfaces are erased at runtime; this is the real boundary.
+  const hashInput: ScoringPathHashInput = {
+    path: entry.path,
+    ...(entry.model_id !== undefined && { model_id: entry.model_id }),
+    ...(entry.task_type !== undefined && { task_type: entry.task_type }),
+    ...(entry.reason !== undefined && { reason: entry.reason }),
+    ...(entry.scored_at !== undefined && { scored_at: entry.scored_at }),
+  };
+  const canonical = canonicalize(hashInput);
   if (canonical === undefined) {
     throw new Error('Failed to canonicalize ScoringPathLog entry');
   }

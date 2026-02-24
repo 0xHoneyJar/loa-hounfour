@@ -23,7 +23,7 @@ Adopt a three-tier governance model for `TaskType`, modeled on DNS:
 ### Naming Convention
 
 - **Protocol types**: Lowercase single-word with underscores (e.g., `code_review`). Listed in the `TASK_TYPES` const array.
-- **Community types**: `namespace:type` format (e.g., `legal-guild:contract_review`). The colon separator mirrors DNS hierarchy. Pattern: `^[a-z][a-z0-9_-]*:[a-z][a-z0-9_]*$`.
+- **Community types**: `namespace:type` format (e.g., `legal-guild:contract_review`). The colon separator mirrors DNS hierarchy. Pattern: `^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$` (minimum 2 chars per segment to prevent degenerate namespaces).
 
 ### Portability Rules
 
