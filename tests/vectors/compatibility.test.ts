@@ -4,13 +4,13 @@ import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 
 describe('Version Compatibility (v7.0.0)', () => {
   it('exact match is fully compatible', () => {
-    const result = validateCompatibility('7.11.0');
+    const result = validateCompatibility('8.0.0');
     expect(result.compatible).toBe(true);
     expect('warning' in result).toBe(false);
   });
 
   it('patch difference is fully compatible', () => {
-    const result = validateCompatibility('7.1.1');
+    const result = validateCompatibility('8.0.1');
     expect(result.compatible).toBe(true);
   });
 
@@ -39,13 +39,13 @@ describe('Version Compatibility (v7.0.0)', () => {
   });
 
   it('future major version is incompatible', () => {
-    const result = validateCompatibility('8.0.0');
+    const result = validateCompatibility('9.0.0');
     expect(result.compatible).toBe(false);
     expect('error' in result && result.error).toContain('future major version');
   });
 
   it('future minor version is compatible with warning', () => {
-    const result = validateCompatibility('7.12.0');
+    const result = validateCompatibility('8.1.0');
     expect(result.compatible).toBe(true);
     expect('warning' in result && result.warning).toContain('Minor version mismatch');
   });
@@ -69,7 +69,7 @@ describe('Version Compatibility (v7.0.0)', () => {
 
   // Version canary — if these constants change, update the hardcoded test values above
   it('version constants match expected values', () => {
-    expect(CONTRACT_VERSION).toBe('7.11.0');
+    expect(CONTRACT_VERSION).toBe('8.0.0');
     expect(MIN_SUPPORTED_VERSION).toBe('6.0.0');
   });
 });

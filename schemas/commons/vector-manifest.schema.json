@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/vector-manifest",
+  "additionalProperties": false,
+  "description": "Self-describing manifest for conformance test vectors. Cross-language consumers use this to discover and load vectors.",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "generated_at",
+    "contract_version",
+    "total_vectors",
+    "vectors"
+  ],
+  "properties": {
+    "manifest_version": {
+      "description": "Schema version for manifest format evolution.",
+      "const": "1.0.0",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "contract_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "total_vectors": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "vectors": {
+      "type": "array",
+      "items": {
+        "$id": "VectorManifestEntry",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vector_id",
+          "category",
+          "path",
+          "layer",
+          "description",
+          "contract_version",
+          "expected_valid"
+        ],
+        "properties": {
+          "vector_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "category": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "path": {
+            "minLength": 1,
+            "description": "Relative path from vectors/ root to the vector JSON file.",
+            "type": "string"
+          },
+          "layer": {
+            "description": "Layer 1: schema validation vectors. Layer 2: behavioral/constraint evaluation vectors.",
+            "anyOf": [
+              {
+                "const": 1,
+                "type": "number"
+              },
+              {
+                "const": 2,
+                "type": "number"
+              }
+            ]
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "contract_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expected_valid": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

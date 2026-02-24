@@ -145,6 +145,21 @@ import { TaskTypeSchema } from '../src/governance/task-type.js';
 import { TaskTypeCohortSchema } from '../src/governance/task-type-cohort.js';
 import { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema } from '../src/governance/reputation-event.js';
 import { ScoringPathSchema, ScoringPathLogSchema } from '../src/governance/scoring-path-log.js';
+// v8.0.0 — Commons Protocol
+import { InvariantSchema } from '../src/commons/invariant.js';
+import { ConservationLawSchema } from '../src/commons/conservation-law.js';
+import { AuditEntrySchema as CommonsAuditEntrySchema, AuditTrailSchema } from '../src/commons/audit-trail.js';
+import { StateSchema, TransitionSchema, StateMachineConfigSchema } from '../src/commons/state-machine.js';
+import { GovernanceClassSchema, GovernanceMutationSchema } from '../src/commons/governed-resource.js';
+import { GovernedCreditsSchema } from '../src/commons/governed-credits.js';
+import { GovernedReputationSchema } from '../src/commons/governed-reputation.js';
+import { GovernedFreshnessSchema } from '../src/commons/governed-freshness.js';
+import { HashChainDiscontinuitySchema } from '../src/commons/hash-chain-discontinuity.js';
+import { QuarantineStatusSchema, QuarantineRecordSchema } from '../src/commons/quarantine.js';
+import { GovernanceErrorSchema } from '../src/commons/error-taxonomy.js';
+import { ProtocolSurfaceSchema, DynamicContractSchema } from '../src/commons/dynamic-contract.js';
+import { ContractNegotiationSchema } from '../src/commons/contract-negotiation.js';
+import { VectorManifestSchema, VectorManifestEntrySchema } from '../src/commons/vectors/manifest-schema.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -366,6 +381,28 @@ const schemas = [
   { name: 'reputation-event', schema: ReputationEventSchema },
   { name: 'scoring-path', schema: ScoringPathSchema },
   { name: 'scoring-path-log', schema: ScoringPathLogSchema },
+  // v8.0.0 — Commons Protocol
+  { name: 'commons/invariant', schema: InvariantSchema },
+  { name: 'commons/conservation-law', schema: ConservationLawSchema },
+  { name: 'commons/audit-entry', schema: CommonsAuditEntrySchema },
+  { name: 'commons/audit-trail', schema: AuditTrailSchema },
+  { name: 'commons/state', schema: StateSchema },
+  { name: 'commons/transition', schema: TransitionSchema },
+  { name: 'commons/state-machine-config', schema: StateMachineConfigSchema },
+  { name: 'commons/governance-class', schema: GovernanceClassSchema },
+  { name: 'commons/governance-mutation', schema: GovernanceMutationSchema },
+  { name: 'commons/governed-credits', schema: GovernedCreditsSchema },
+  { name: 'commons/governed-reputation', schema: GovernedReputationSchema },
+  { name: 'commons/governed-freshness', schema: GovernedFreshnessSchema },
+  { name: 'commons/hash-chain-discontinuity', schema: HashChainDiscontinuitySchema },
+  { name: 'commons/quarantine-status', schema: QuarantineStatusSchema },
+  { name: 'commons/quarantine-record', schema: QuarantineRecordSchema },
+  { name: 'commons/governance-error', schema: GovernanceErrorSchema },
+  { name: 'commons/protocol-surface', schema: ProtocolSurfaceSchema },
+  { name: 'commons/dynamic-contract', schema: DynamicContractSchema },
+  { name: 'commons/contract-negotiation', schema: ContractNegotiationSchema },
+  { name: 'commons/vector-manifest-entry', schema: VectorManifestEntrySchema },
+  { name: 'commons/vector-manifest', schema: VectorManifestSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('7.11.0');
+    expect(CONTRACT_VERSION).toBe('8.0.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('7.11.0');
+    expect(pkg.version).toBe('8.0.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('7.11.0');
+    expect(index.version).toBe('8.0.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('7.11.0');
+    expect(version).toBe('8.0.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,8 +129,30 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use 7.11.0', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/7\.11\.0\//);
+      expect(schema.$id).toMatch(/\/8\.0\.0\//);
     }
+  });
+
+  it('schemas/index.json includes v8.0.0 commons schemas', () => {
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    const names = index.schemas.map((s: { name: string }) => s.name);
+    // Commons Protocol
+    expect(names).toContain('commons/invariant');
+    expect(names).toContain('commons/governance-mutation');
+    expect(names).toContain('commons/governed-credits');
+    expect(names).toContain('commons/conservation-law');
+    expect(names).toContain('commons/audit-entry');
+    expect(names).toContain('commons/audit-trail');
+    expect(names).toContain('commons/state-machine-config');
+    expect(names).toContain('commons/state');
+    expect(names).toContain('commons/transition');
+    expect(names).toContain('commons/dynamic-contract');
+    expect(names).toContain('commons/protocol-surface');
+    expect(names).toContain('commons/contract-negotiation');
+    expect(names).toContain('commons/quarantine-record');
+    expect(names).toContain('commons/hash-chain-discontinuity');
+    expect(names).toContain('commons/vector-manifest-entry');
+    expect(names).toContain('commons/vector-manifest');
   });
 
   it('schemas/index.json includes v7.6.0 schemas', () => {
@@ -214,6 +236,6 @@ describe('version bump', () => {
 
   it('schemas/index.json has 168 schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(168);
+    expect(index.schemas).toHaveLength(189);
   });
 });

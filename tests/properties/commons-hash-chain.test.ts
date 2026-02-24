@@ -27,8 +27,10 @@ const DOMAIN_TAG = buildDomainTag('Test', '8.0.0');
 const uuidArb = fc.uuid().map((v) => v);
 
 /** Generate a valid ISO 8601 date-time string. */
-const dateTimeArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
-  .map((d) => d.toISOString());
+const dateTimeArb = fc.integer({
+  min: new Date('2020-01-01T00:00:00Z').getTime(),
+  max: new Date('2030-12-31T23:59:59Z').getTime(),
+}).map((ms) => new Date(ms).toISOString());
 
 /** Generate a valid event_type string. */
 const eventTypeArb = fc.constantFrom(
@@ -36,6 +38,10 @@ const eventTypeArb = fc.constantFrom(
   'commons.transition.executed',
   'commons.resource.updated',
   'commons.resource.deleted',
+  'commons.resource.quarantined',
+  'commons.resource.restored',
+  'commons.contract.negotiated',
+  'commons.contract.expired',
 );
 
 /** Build a valid entry from random inputs. */
@@ -167,18 +173,15 @@ describe('Hash chain properties', () => {
             prevHash = entry.entry_hash;
           }
 
-          // Tamper with one entry's event_type
+          // Tamper with one entry's event_type (ensure it differs from original)
           const tamperIndex = tamperSeed % entries.length;
+          const original = entries[tamperIndex].event_type;
+          const tamperValue = original === 'commons.TAMPERED' ? 'commons.TAMPERED.alt' : 'commons.TAMPERED';
           const tampered = [...entries];
           tampered[tamperIndex] = {
             ...tampered[tamperIndex],
-            event_type: 'commons.resource.deleted', // Changed content
+            event_type: tamperValue,
           };
-
-          // Trail might still pass if the tampered value happened to be the same
-          if (tampered[tamperIndex].event_type === entries[tamperIndex].event_type) {
-            return true; // No actual tampering occurred
-          }
 
           const trail: AuditTrail = {
             entries: tampered,

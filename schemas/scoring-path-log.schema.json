@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/scoring-path-log",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/scoring-path-log",
   "additionalProperties": false,
   "description": "Audit record of which scoring cascade tier was used. Optional hash chain for tamper-evident audit.",
   "type": "object",
@@ -83,5 +83,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
 }

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/quarantine-record",
+  "additionalProperties": false,
+  "description": "Record of quarantined audit trail entries after hash chain discontinuity.",
+  "type": "object",
+  "required": [
+    "quarantine_id",
+    "discontinuity_id",
+    "resource_type",
+    "resource_id",
+    "status",
+    "quarantined_at",
+    "first_affected_index",
+    "last_affected_index"
+  ],
+  "properties": {
+    "quarantine_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "discontinuity_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "resource_type": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "resource_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "status": {
+      "$id": "QuarantineStatus",
+      "description": "active: entries under investigation. reconciled: entries verified and reintegrated. dismissed: entries permanently rejected.",
+      "anyOf": [
+        {
+          "const": "active",
+          "type": "string"
+        },
+        {
+          "const": "reconciled",
+          "type": "string"
+        },
+        {
+          "const": "dismissed",
+          "type": "string"
+        }
+      ]
+    },
+    "quarantined_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "resolved_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "first_affected_index": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "last_affected_index": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "resolution_notes": {
+      "maxLength": 2000,
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

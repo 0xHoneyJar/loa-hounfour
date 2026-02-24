@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/state",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "minLength": 1,
+      "maxLength": 100,
+      "type": "string"
+    },
+    "description": {
+      "maxLength": 500,
+      "type": "string"
+    },
+    "entry_conditions": {
+      "type": "array",
+      "items": {
+        "description": "Constraint DSL expressions evaluated on entering this state.",
+        "type": "string"
+      }
+    },
+    "exit_conditions": {
+      "type": "array",
+      "items": {
+        "description": "Constraint DSL expressions evaluated on leaving this state.",
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governed-reputation",
+  "additionalProperties": false,
+  "description": "Governed reputation — maps to ReputationAggregate state machine (cold → warming → established → authoritative).",
+  "type": "object",
+  "required": [
+    "personality_id",
+    "collection_id",
+    "pool_id",
+    "reputation_state",
+    "personal_score",
+    "blended_score",
+    "sample_count",
+    "conservation_law",
+    "audit_trail",
+    "state_machine",
+    "governance_class",
+    "version",
+    "contract_version"
+  ],
+  "properties": {
+    "personality_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "collection_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pool_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "reputation_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "personal_score": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "blended_score": {
+      "minimum": 0,
+      "maximum": 1,
+      "type": "number"
+    },
+    "sample_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "conservation_law": {
+      "$id": "ConservationLaw",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "invariants",
+        "enforcement",
+        "scope"
+      ],
+      "properties": {
+        "invariants": {
+          "description": "Named expressions that must hold before/after state transitions. When enforcement is strict, at least one invariant is required.",
+          "type": "array",
+          "items": {
+            "$id": "Invariant",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "invariant_id",
+              "name",
+              "expression",
+              "severity"
+            ],
+            "properties": {
+              "invariant_id": {
+                "pattern": "^[A-Z]+-\\d{1,4}$",
+                "description": "Canonical identifier (e.g., I-1, CL-01, REP-001).",
+                "type": "string"
+              },
+              "name": {
+                "minLength": 1,
+                "maxLength": 255,
+                "type": "string"
+              },
+              "expression": {
+                "minLength": 1,
+                "description": "Constraint DSL expression evaluated against the GovernedResource<T> instance. Uses the existing 42-builtin evaluator (v7.11.0). Expression variables bind to field paths on the resource (e.g., resource.balance, audit_trail.integrity_status).",
+                "type": "string"
+              },
+              "severity": {
+                "anyOf": [
+                  {
+                    "const": "error",
+                    "type": "string"
+                  },
+                  {
+                    "const": "warning",
+                    "type": "string"
+                  },
+                  {
+                    "const": "info",
+                    "type": "string"
+                  }
+                ]
+              },
+              "description": {
+                "maxLength": 1000,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "enforcement": {
+          "description": "strict: violation halts and records audit event. advisory: violation warns and records audit event.",
+          "anyOf": [
+            {
+              "const": "strict",
+              "type": "string"
+            },
+            {
+              "const": "advisory",
+              "type": "string"
+            }
+          ]
+        },
+        "scope": {
+          "description": "per-entry: evaluated per state transition. aggregate: evaluated across all entries in the resource.",
+          "anyOf": [
+            {
+              "const": "per-entry",
+              "type": "string"
+            },
+            {
+              "const": "aggregate",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "audit_trail": {
+      "$id": "AuditTrail",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "entries",
+        "hash_algorithm",
+        "genesis_hash",
+        "integrity_status"
+      ],
+      "properties": {
+        "entries": {
+          "description": "Ordered sequence of audit events. Append-only.",
+          "type": "array",
+          "items": {
+            "$id": "AuditEntry",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "entry_id",
+              "timestamp",
+              "event_type",
+              "entry_hash",
+              "previous_hash",
+              "hash_domain_tag"
+            ],
+            "properties": {
+              "entry_id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "timestamp": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "event_type": {
+                "minLength": 1,
+                "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+                "description": "Dotted event type (e.g., commons.transition.executed). Follows existing EventType pattern from vocabulary/event-types.ts.",
+                "type": "string"
+              },
+              "actor_id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "payload": {
+                "description": "Event-specific data. Schema varies by event_type."
+              },
+              "entry_hash": {
+                "pattern": "^sha256:[a-f0-9]{64}$",
+                "description": "Domain-separated SHA-256 of this entry (excluding hash fields).",
+                "type": "string"
+              },
+              "previous_hash": {
+                "pattern": "^sha256:[a-f0-9]{64}$",
+                "description": "Hash of the preceding entry. Genesis entry uses AUDIT_TRAIL_GENESIS_HASH.",
+                "type": "string"
+              },
+              "hash_domain_tag": {
+                "minLength": 1,
+                "description": "The exact domain tag used when computing entry_hash. Format: \"loa-commons:audit:<schema_$id>:<contract_version>\". Persisted at write time so cross-version verification is unambiguous. (Flatline SKP-002)",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "hash_algorithm": {
+          "description": "Hash function for chain integrity. Fixed to sha256.",
+          "const": "sha256",
+          "type": "string"
+        },
+        "genesis_hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Chain anchor. Must equal AUDIT_TRAIL_GENESIS_HASH for new trails.",
+          "type": "string"
+        },
+        "integrity_status": {
+          "description": "verified: chain integrity confirmed. unverified: chain not yet checked. quarantined: discontinuity detected, entries after break are suspect.",
+          "anyOf": [
+            {
+              "const": "verified",
+              "type": "string"
+            },
+            {
+              "const": "unverified",
+              "type": "string"
+            },
+            {
+              "const": "quarantined",
+              "type": "string"
+            }
+          ]
+        },
+        "checkpoint_hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Hash of the most recent checkpoint. When present, entries before the checkpoint may be archived. The checkpoint_hash proves continuity with the archived segment without requiring the full history.",
+          "type": "string"
+        },
+        "checkpoint_index": {
+          "minimum": 0,
+          "description": "Index of the last checkpointed entry. Entries at or before this index may be pruned from the entries array after archiving.",
+          "type": "integer"
+        }
+      }
+    },
+    "state_machine": {
+      "$id": "StateMachineConfig",
+      "additionalProperties": false,
+      "description": "State machine configuration for a governed resource. Complements the existing StateMachineDefinition interface in vocabulary/state-machines.ts with schema-level validation and constraint DSL guards.",
+      "type": "object",
+      "required": [
+        "states",
+        "transitions",
+        "initial_state",
+        "terminal_states"
+      ],
+      "properties": {
+        "states": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$id": "State",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "minLength": 1,
+                "maxLength": 100,
+                "type": "string"
+              },
+              "description": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "entry_conditions": {
+                "type": "array",
+                "items": {
+                  "description": "Constraint DSL expressions evaluated on entering this state.",
+                  "type": "string"
+                }
+              },
+              "exit_conditions": {
+                "type": "array",
+                "items": {
+                  "description": "Constraint DSL expressions evaluated on leaving this state.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$id": "Transition",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "from": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "to": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "event": {
+                "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+                "description": "Event that triggers this transition.",
+                "type": "string"
+              },
+              "guard": {
+                "description": "Constraint DSL expression that must be true for transition to fire.",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "initial_state": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "terminal_states": {
+          "description": "States from which no transitions are possible.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "governance_class": {
+      "$id": "GovernanceClass",
+      "anyOf": [
+        {
+          "const": "protocol-fixed",
+          "type": "string"
+        },
+        {
+          "const": "registry-extensible",
+          "type": "string"
+        },
+        {
+          "const": "community-defined",
+          "type": "string"
+        }
+      ]
+    },
+    "version": {
+      "minimum": 0,
+      "description": "Monotonic resource version for optimistic concurrency (CAS). Required for all GovernedResource instantiations (Flatline SKP-005). All mutations MUST present the expected version. Version mismatch returns PARTIAL_APPLICATION error. Starts at 0 for new resources, increments on each successful mutation.",
+      "type": "integer"
+    },
+    "governance_extensions": {
+      "description": "Extension point for future governance fields. Prevents additionalProperties:false from making governance field additions a breaking change across all instantiations. Keys are namespaced (e.g., \"commons.checkpoint\", \"commons.acl\"). Consumers MUST ignore unknown keys.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

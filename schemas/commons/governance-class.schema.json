@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governance-class",
+  "anyOf": [
+    {
+      "const": "protocol-fixed",
+      "type": "string"
+    },
+    {
+      "const": "registry-extensible",
+      "type": "string"
+    },
+    {
+      "const": "community-defined",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

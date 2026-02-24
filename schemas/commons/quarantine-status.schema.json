@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/quarantine-status",
+  "description": "active: entries under investigation. reconciled: entries verified and reintegrated. dismissed: entries permanently rejected.",
+  "anyOf": [
+    {
+      "const": "active",
+      "type": "string"
+    },
+    {
+      "const": "reconciled",
+      "type": "string"
+    },
+    {
+      "const": "dismissed",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

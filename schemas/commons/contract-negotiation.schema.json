@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/contract-negotiation",
+  "additionalProperties": false,
+  "description": "Runtime handshake for dynamic contract negotiation. Model presents reputation state, receives allowed protocol surface. Reputation MUST be server-derived or signed — self-assertion is non-conformant.",
+  "type": "object",
+  "required": [
+    "negotiation_id",
+    "model_id",
+    "reputation_state",
+    "assertion_method",
+    "granted_surface",
+    "negotiated_at",
+    "nonce",
+    "expires_at"
+  ],
+  "properties": {
+    "negotiation_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "reputation_state": {
+      "$id": "ReputationState",
+      "anyOf": [
+        {
+          "const": "cold",
+          "type": "string"
+        },
+        {
+          "const": "warming",
+          "type": "string"
+        },
+        {
+          "const": "established",
+          "type": "string"
+        },
+        {
+          "const": "authoritative",
+          "type": "string"
+        }
+      ]
+    },
+    "assertion_method": {
+      "description": "How the reputation_state was determined. server-derived: looked up from authoritative audit trail (recommended). signed-attestation: cryptographic proof from a trusted authority.",
+      "anyOf": [
+        {
+          "const": "server-derived",
+          "type": "string"
+        },
+        {
+          "const": "signed-attestation",
+          "type": "string"
+        }
+      ]
+    },
+    "requested_surface": {
+      "$id": "ProtocolSurface",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemas",
+        "capabilities",
+        "rate_limit_tier"
+      ],
+      "properties": {
+        "schemas": {
+          "description": "Accessible schema $id values at this surface level.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "description": "Enabled capabilities at this surface level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "const": "inference",
+                "type": "string"
+              },
+              {
+                "const": "ensemble",
+                "type": "string"
+              },
+              {
+                "const": "tools",
+                "type": "string"
+              },
+              {
+                "const": "governance",
+                "type": "string"
+              },
+              {
+                "const": "byok",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "rate_limit_tier": {
+          "anyOf": [
+            {
+              "const": "restricted",
+              "type": "string"
+            },
+            {
+              "const": "standard",
+              "type": "string"
+            },
+            {
+              "const": "extended",
+              "type": "string"
+            },
+            {
+              "const": "unlimited",
+              "type": "string"
+            }
+          ]
+        },
+        "ensemble_strategies": {
+          "description": "Available ensemble strategy identifiers at this surface level.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "granted_surface": {
+      "$id": "ProtocolSurface",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemas",
+        "capabilities",
+        "rate_limit_tier"
+      ],
+      "properties": {
+        "schemas": {
+          "description": "Accessible schema $id values at this surface level.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "description": "Enabled capabilities at this surface level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "const": "inference",
+                "type": "string"
+              },
+              {
+                "const": "ensemble",
+                "type": "string"
+              },
+              {
+                "const": "tools",
+                "type": "string"
+              },
+              {
+                "const": "governance",
+                "type": "string"
+              },
+              {
+                "const": "byok",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "rate_limit_tier": {
+          "anyOf": [
+            {
+              "const": "restricted",
+              "type": "string"
+            },
+            {
+              "const": "standard",
+              "type": "string"
+            },
+            {
+              "const": "extended",
+              "type": "string"
+            },
+            {
+              "const": "unlimited",
+              "type": "string"
+            }
+          ]
+        },
+        "ensemble_strategies": {
+          "description": "Available ensemble strategy identifiers at this surface level.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "negotiated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "nonce": {
+      "minLength": 16,
+      "maxLength": 64,
+      "description": "Replay protection nonce. Unique per negotiation.",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "description": "Granted surface TTL. After expiry, re-negotiation required.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

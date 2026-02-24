@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governance-error",
+  "anyOf": [
+    {
+      "$id": "InvariantViolation",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "invariant_id",
+        "expression",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "INVARIANT_VIOLATION",
+          "type": "string"
+        },
+        "invariant_id": {
+          "pattern": "^[A-Z]+-\\d{1,4}$",
+          "type": "string"
+        },
+        "expression": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "retryable": {
+          "const": false,
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "InvalidTransition",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "from_state",
+        "to_state",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "INVALID_TRANSITION",
+          "type": "string"
+        },
+        "from_state": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "to_state": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "retryable": {
+          "const": false,
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "GuardFailure",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "guard_expression",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "GUARD_FAILURE",
+          "type": "string"
+        },
+        "guard_expression": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "EvaluationError",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "expression",
+        "eval_error",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "EVALUATION_ERROR",
+          "type": "string"
+        },
+        "expression": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "eval_error": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "retryable": {
+          "const": false,
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "HashDiscontinuityError",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "entry_index",
+        "expected_hash",
+        "actual_hash",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "HASH_DISCONTINUITY",
+          "type": "string"
+        },
+        "entry_index": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expected_hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "actual_hash": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "retryable": {
+          "const": false,
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "$id": "PartialApplication",
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "expected_version",
+        "actual_version",
+        "retryable",
+        "error_code",
+        "message",
+        "affected_fields",
+        "timestamp"
+      ],
+      "properties": {
+        "type": {
+          "const": "PARTIAL_APPLICATION",
+          "type": "string"
+        },
+        "expected_version": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "actual_version": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "retryable": {
+          "const": true,
+          "type": "boolean"
+        },
+        "error_code": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "maxLength": 2000,
+          "type": "string"
+        },
+        "affected_fields": {
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "audit_entry_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/hash-chain-discontinuity",
+  "additionalProperties": false,
+  "description": "Event recording a detected hash chain discontinuity in an audit trail. Triggers halt-and-reconcile protocol (ADR-006).",
+  "type": "object",
+  "required": [
+    "discontinuity_id",
+    "resource_type",
+    "resource_id",
+    "detected_at",
+    "entry_index",
+    "expected_hash",
+    "actual_hash",
+    "last_known_good_index",
+    "affected_entries",
+    "detector",
+    "failure_phase"
+  ],
+  "properties": {
+    "discontinuity_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "resource_type": {
+      "minLength": 1,
+      "description": "Schema $id of the affected resource.",
+      "type": "string"
+    },
+    "resource_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "detected_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "entry_index": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "expected_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "actual_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "last_known_good_index": {
+      "minimum": -1,
+      "type": "integer"
+    },
+    "affected_entries": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "detector": {
+      "minLength": 1,
+      "description": "Identifier of the service/component that detected the discontinuity.",
+      "type": "string"
+    },
+    "failure_phase": {
+      "description": "Which verification phase detected the failure.",
+      "anyOf": [
+        {
+          "const": "content",
+          "type": "string"
+        },
+        {
+          "const": "chain",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

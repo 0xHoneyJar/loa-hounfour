@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governance-mutation",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "mutation_id",
+    "expected_version",
+    "mutated_at"
+  ],
+  "properties": {
+    "mutation_id": {
+      "format": "uuid",
+      "description": "Idempotency key. Replaying same ID is a no-op.",
+      "type": "string"
+    },
+    "expected_version": {
+      "minimum": 0,
+      "description": "Expected resource version (CAS). Mismatch returns PARTIAL_APPLICATION.",
+      "type": "integer"
+    },
+    "mutated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "actor_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

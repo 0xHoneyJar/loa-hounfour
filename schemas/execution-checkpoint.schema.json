@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/execution-checkpoint",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/execution-checkpoint",
   "additionalProperties": false,
   "description": "Health check recorded during progressive or canary governance execution.",
   "type": "object",
@@ -90,5 +90,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
 }

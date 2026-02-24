@@ -80,6 +80,9 @@ export {
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 
+// v8.0.0 — Commons Protocol
+export * from './commons/index.js';
+
 // Cross-cutting concerns (stay in root)
 export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
 export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator } from './validators/index.js';

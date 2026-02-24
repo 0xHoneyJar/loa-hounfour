@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/audit-entry",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "entry_id",
+    "timestamp",
+    "event_type",
+    "entry_hash",
+    "previous_hash",
+    "hash_domain_tag"
+  ],
+  "properties": {
+    "entry_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "event_type": {
+      "minLength": 1,
+      "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+      "description": "Dotted event type (e.g., commons.transition.executed). Follows existing EventType pattern from vocabulary/event-types.ts.",
+      "type": "string"
+    },
+    "actor_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "payload": {
+      "description": "Event-specific data. Schema varies by event_type."
+    },
+    "entry_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Domain-separated SHA-256 of this entry (excluding hash fields).",
+      "type": "string"
+    },
+    "previous_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Hash of the preceding entry. Genesis entry uses AUDIT_TRAIL_GENESIS_HASH.",
+      "type": "string"
+    },
+    "hash_domain_tag": {
+      "minLength": 1,
+      "description": "The exact domain tag used when computing entry_hash. Format: \"loa-commons:audit:<schema_$id>:<contract_version>\". Persisted at write time so cross-version verification is unambiguous. (Flatline SKP-002)",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

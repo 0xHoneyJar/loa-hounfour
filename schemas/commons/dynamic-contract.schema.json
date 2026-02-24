@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/dynamic-contract",
+  "additionalProperties": false,
+  "description": "Maps reputation state to protocol surface. A model at cold state accesses different protocol features than one at authoritative.",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "surfaces",
+    "contract_version",
+    "created_at"
+  ],
+  "properties": {
+    "contract_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "surfaces": {
+      "description": "Maps each ReputationState to its allowed ProtocolSurface. cold → restricted, warming → standard, established → extended, authoritative → full.",
+      "type": "object",
+      "required": [
+        "cold",
+        "warming",
+        "established",
+        "authoritative"
+      ],
+      "properties": {
+        "cold": {
+          "$id": "ProtocolSurface",
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemas",
+            "capabilities",
+            "rate_limit_tier"
+          ],
+          "properties": {
+            "schemas": {
+              "description": "Accessible schema $id values at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "capabilities": {
+              "description": "Enabled capabilities at this surface level.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "const": "inference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "ensemble",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tools",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  },
+                  {
+                    "const": "byok",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "rate_limit_tier": {
+              "anyOf": [
+                {
+                  "const": "restricted",
+                  "type": "string"
+                },
+                {
+                  "const": "standard",
+                  "type": "string"
+                },
+                {
+                  "const": "extended",
+                  "type": "string"
+                },
+                {
+                  "const": "unlimited",
+                  "type": "string"
+                }
+              ]
+            },
+            "ensemble_strategies": {
+              "description": "Available ensemble strategy identifiers at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "warming": {
+          "$id": "ProtocolSurface",
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemas",
+            "capabilities",
+            "rate_limit_tier"
+          ],
+          "properties": {
+            "schemas": {
+              "description": "Accessible schema $id values at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "capabilities": {
+              "description": "Enabled capabilities at this surface level.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "const": "inference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "ensemble",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tools",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  },
+                  {
+                    "const": "byok",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "rate_limit_tier": {
+              "anyOf": [
+                {
+                  "const": "restricted",
+                  "type": "string"
+                },
+                {
+                  "const": "standard",
+                  "type": "string"
+                },
+                {
+                  "const": "extended",
+                  "type": "string"
+                },
+                {
+                  "const": "unlimited",
+                  "type": "string"
+                }
+              ]
+            },
+            "ensemble_strategies": {
+              "description": "Available ensemble strategy identifiers at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "established": {
+          "$id": "ProtocolSurface",
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemas",
+            "capabilities",
+            "rate_limit_tier"
+          ],
+          "properties": {
+            "schemas": {
+              "description": "Accessible schema $id values at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "capabilities": {
+              "description": "Enabled capabilities at this surface level.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "const": "inference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "ensemble",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tools",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  },
+                  {
+                    "const": "byok",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "rate_limit_tier": {
+              "anyOf": [
+                {
+                  "const": "restricted",
+                  "type": "string"
+                },
+                {
+                  "const": "standard",
+                  "type": "string"
+                },
+                {
+                  "const": "extended",
+                  "type": "string"
+                },
+                {
+                  "const": "unlimited",
+                  "type": "string"
+                }
+              ]
+            },
+            "ensemble_strategies": {
+              "description": "Available ensemble strategy identifiers at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "authoritative": {
+          "$id": "ProtocolSurface",
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemas",
+            "capabilities",
+            "rate_limit_tier"
+          ],
+          "properties": {
+            "schemas": {
+              "description": "Accessible schema $id values at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "capabilities": {
+              "description": "Enabled capabilities at this surface level.",
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "const": "inference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "ensemble",
+                    "type": "string"
+                  },
+                  {
+                    "const": "tools",
+                    "type": "string"
+                  },
+                  {
+                    "const": "governance",
+                    "type": "string"
+                  },
+                  {
+                    "const": "byok",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "rate_limit_tier": {
+              "anyOf": [
+                {
+                  "const": "restricted",
+                  "type": "string"
+                },
+                {
+                  "const": "standard",
+                  "type": "string"
+                },
+                {
+                  "const": "extended",
+                  "type": "string"
+                },
+                {
+                  "const": "unlimited",
+                  "type": "string"
+                }
+              ]
+            },
+            "ensemble_strategies": {
+              "description": "Available ensemble strategy identifiers at this surface level.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+}

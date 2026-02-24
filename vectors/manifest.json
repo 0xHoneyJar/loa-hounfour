@@ -1,8 +1,8 @@
 {
   "manifest_version": "1.0.0",
-  "generated_at": "2026-02-24T23:43:02.429Z",
-  "contract_version": "7.11.0",
-  "total_vectors": 200,
+  "generated_at": "2026-02-24T23:52:06.505Z",
+  "contract_version": "8.0.0",
+  "total_vectors": 202,
   "vectors": [
     {
       "vector_id": "conformance-access-policy-compound-002",
@@ -190,6 +190,24 @@
       "path": "conformance/commons/audit-trail/hash-reference-vector.json",
       "layer": 1,
       "description": "Cross-language reference vector for domain-separated audit entry hashing. Other implementations (Python, Go, Rust) must produce identical hashes from the same inputs using RFC 8785 JCS canonicalization.",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-dynamic-contract-001",
+      "category": "commons",
+      "path": "conformance/commons/dynamic-contract/valid-monotonic-surfaces.json",
+      "layer": 1,
+      "description": "Valid dynamic contract with monotonically expanding surfaces across all 4 reputation tiers",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-contract-negotiation-001",
+      "category": "commons",
+      "path": "conformance/commons/dynamic-contract/valid-negotiation-server-derived.json",
+      "layer": 1,
+      "description": "Valid contract negotiation with server-derived assertion, replay protection nonce, and TTL",
       "contract_version": "8.0.0",
       "expected_valid": true
     },
