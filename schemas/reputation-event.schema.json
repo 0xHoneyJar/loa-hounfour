@@ -85,6 +85,7 @@
         },
         "dimensions": {
           "maxProperties": 20,
+          "additionalProperties": false,
           "description": "Named quality dimensions (e.g., coherence, safety).",
           "type": "object",
           "patternProperties": {
@@ -305,16 +306,19 @@
         },
         "model_id": {
           "minLength": 1,
+          "maxLength": 255,
           "description": "Model alias (e.g., \"gpt-4o\", \"claude-opus\"). Matches COHORT_BASE_FIELDS.model_id for pipeline compatibility.",
           "type": "string"
         },
         "provider": {
           "minLength": 1,
+          "maxLength": 255,
           "description": "Provider identifier (e.g., \"openai\", \"anthropic\").",
           "type": "string"
         },
         "pool_id": {
           "minLength": 1,
+          "maxLength": 255,
           "description": "Pool context for the evaluation.",
           "type": "string"
         },

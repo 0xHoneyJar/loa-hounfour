@@ -81,6 +81,7 @@
     },
     "dimensions": {
       "maxProperties": 20,
+      "additionalProperties": false,
       "description": "Named quality dimensions (e.g., coherence, safety).",
       "type": "object",
       "patternProperties": {

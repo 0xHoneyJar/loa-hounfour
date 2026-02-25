@@ -262,6 +262,41 @@ describe('ReputationEvent', () => {
       })).toBe(false);
     });
 
+    it('rejects model_id exceeding maxLength', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        model_id: 'x'.repeat(256),
+      })).toBe(false);
+    });
+
+    it('rejects provider exceeding maxLength', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        provider: 'x'.repeat(256),
+      })).toBe(false);
+    });
+
+    it('rejects pool_id exceeding maxLength', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        pool_id: 'x'.repeat(256),
+      })).toBe(false);
+    });
+
+    it('accepts empty request_context', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        request_context: {},
+      })).toBe(true);
+    });
+
+    it('rejects additional top-level property', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        unknown_field: 'should_fail',
+      })).toBe(false);
+    });
+
     it('validates against ReputationEventSchema', () => {
       expect(Value.Check(ReputationEventSchema, MODEL_PERFORMANCE)).toBe(true);
     });
@@ -369,8 +404,8 @@ describe('ReputationEvent', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/reputation-event');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 13 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(13);
+    it('has at least 15 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(15);
     });
 
     for (const file of vectorFiles) {

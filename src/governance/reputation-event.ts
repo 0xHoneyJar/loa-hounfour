@@ -60,7 +60,7 @@ const QualitySignalPayloadSchema = Type.Object({
   dimensions: Type.Optional(Type.Record(
     Type.String({ pattern: '^[a-z][a-z0-9_]{0,31}$' }),
     Type.Number({ minimum: 0, maximum: 1 }),
-    { maxProperties: 20, description: 'Named quality dimensions (e.g., coherence, safety).' },
+    { maxProperties: 20, additionalProperties: false, description: 'Named quality dimensions (e.g., coherence, safety).' },
   )),
 }, {
   additionalProperties: false,
@@ -166,15 +166,18 @@ const ModelPerformancePayloadSchema = Type.Object({
   type: Type.Literal('model_performance'),
   model_id: Type.String({
     minLength: 1,
+    maxLength: 255,
     description: 'Model alias (e.g., "gpt-4o", "claude-opus"). '
       + 'Matches COHORT_BASE_FIELDS.model_id for pipeline compatibility.',
   }),
   provider: Type.String({
     minLength: 1,
+    maxLength: 255,
     description: 'Provider identifier (e.g., "openai", "anthropic").',
   }),
   pool_id: Type.String({
     minLength: 1,
+    maxLength: 255,
     description: 'Pool context for the evaluation.',
   }),
   task_type: TaskTypeSchema,

@@ -1,0 +1,23 @@
+{
+  "vector_id": "conformance-reputation-event-014",
+  "category": "reputation-event",
+  "description": "Valid model_performance event — empty request_context (all fields optional)",
+  "contract_version": "8.2.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440014",
+    "agent_id": "bear-001",
+    "collection_id": "honeycomb",
+    "timestamp": "2026-02-25T12:00:00Z",
+    "type": "model_performance",
+    "model_id": "gpt-4o",
+    "provider": "openai",
+    "pool_id": "pool-alpha",
+    "task_type": "analysis",
+    "quality_observation": {
+      "score": 0.82
+    },
+    "request_context": {}
+  },
+  "expected_output": {},
+  "expected_valid": true
+}
