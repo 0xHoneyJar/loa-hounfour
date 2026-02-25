@@ -50,7 +50,7 @@ const taskCompletedArb = envelopeArb.chain((env) =>
     ...Object.fromEntries(Object.entries(env).map(([k, v]) => [k, fc.constant(v)])),
     type: fc.constant('task_completed' as const),
     task_type: fc.oneof(
-      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general'),
+      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
       communityTaskTypeArb,
     ),
     success: fc.boolean(),

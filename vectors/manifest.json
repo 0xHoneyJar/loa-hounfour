@@ -1,8 +1,8 @@
 {
   "manifest_version": "1.0.0",
-  "generated_at": "2026-02-25T04:56:05.228Z",
+  "generated_at": "2026-02-25T04:59:18.958Z",
   "contract_version": "8.2.0",
-  "total_vectors": 218,
+  "total_vectors": 219,
   "vectors": [
     {
       "vector_id": "conformance-access-policy-compound-002",
@@ -1351,6 +1351,15 @@
       "path": "conformance/reputation-event/model-performance-boundary-score-max.json",
       "layer": 1,
       "description": "Valid model_performance — boundary score=1 at quality_observation level (Flatline IMP-001, B038-1-004)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-023",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-boundary-score-min.json",
+      "layer": 1,
+      "description": "Valid model_performance — boundary score=0 at quality_observation level without dimensions (B038-2-006)",
       "contract_version": "8.2.0",
       "expected_valid": true
     },
