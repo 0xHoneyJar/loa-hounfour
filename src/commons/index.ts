@@ -10,6 +10,16 @@
 // Foundation schemas
 export { InvariantSchema, type Invariant } from './invariant.js';
 export { ConservationLawSchema, type ConservationLaw } from './conservation-law.js';
+// Conservation law factory functions (v8.1.0, Bridgebuilder F7)
+export {
+  buildSumInvariant,
+  buildNonNegativeInvariant,
+  buildBoundedInvariant,
+  createBalanceConservation,
+  createNonNegativeConservation,
+  createBoundedConservation,
+  createMonotonicConservation,
+} from './conservation-law-factories.js';
 export {
   AuditEntrySchema,
   AuditTrailSchema,
@@ -59,6 +69,14 @@ export {
   type AuditTrailVerificationResult,
 } from './audit-trail-hash.js';
 
+// Audit trail checkpointing utilities (v8.1.0, Bridgebuilder F8)
+export {
+  createCheckpoint,
+  verifyCheckpointContinuity,
+  pruneBeforeCheckpoint,
+  type CheckpointResult,
+} from './audit-trail-checkpoint.js';
+
 // Dynamic contracts (FR-4)
 export {
   ProtocolCapabilitySchema,
@@ -76,6 +94,26 @@ export {
   type AssertionMethod,
   type ContractNegotiation,
 } from './contract-negotiation.js';
+
+// ContractNegotiation TTL validation (v8.1.0, Bridgebuilder F9)
+export {
+  isNegotiationValid,
+  computeNegotiationExpiry,
+  type NegotiationValidityResult,
+} from './contract-negotiation-validity.js';
+
+// DynamicContract monotonic expansion verification (v8.1.0, Bridgebuilder F10)
+export {
+  verifyMonotonicExpansion,
+  type MonotonicViolation,
+  type MonotonicExpansionResult,
+} from './dynamic-contract-monotonic.js';
+
+// Governance mutation evaluation (v8.1.0, Bridgebuilder F6)
+export {
+  evaluateGovernanceMutation,
+  type GovernanceMutationEvalResult,
+} from './governance-mutation-eval.js';
 
 // Error taxonomy
 export {

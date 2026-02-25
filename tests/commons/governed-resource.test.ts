@@ -115,6 +115,17 @@ describe('GOVERNED_RESOURCE_FIELDS', () => {
     expect(Value.Check(TestGovernedSchema, rest)).toBe(false);
   });
 
+  it('validates with access_policy_ref (optional, F6)', () => {
+    expect(Value.Check(TestGovernedSchema, {
+      ...validInstance,
+      access_policy_ref: 'policy-billing-write',
+    })).toBe(true);
+  });
+
+  it('validates without access_policy_ref (optional)', () => {
+    expect(Value.Check(TestGovernedSchema, validInstance)).toBe(true);
+  });
+
   it('contains all expected field keys', () => {
     const keys = Object.keys(GOVERNED_RESOURCE_FIELDS);
     expect(keys).toContain('conservation_law');
@@ -122,6 +133,7 @@ describe('GOVERNED_RESOURCE_FIELDS', () => {
     expect(keys).toContain('state_machine');
     expect(keys).toContain('governance_class');
     expect(keys).toContain('version');
+    expect(keys).toContain('access_policy_ref');
     expect(keys).toContain('governance_extensions');
     expect(keys).toContain('contract_version');
   });
@@ -132,18 +144,24 @@ describe('GovernanceMutation', () => {
     mutation_id: '550e8400-e29b-41d4-a716-446655440000',
     expected_version: 0,
     mutated_at: '2026-02-25T10:00:00Z',
+    actor_id: 'agent-001',
   };
 
   describe('valid instances', () => {
-    it('accepts a full mutation envelope', () => {
-      expect(Value.Check(GovernanceMutationSchema, {
-        ...validMutation,
-        actor_id: 'agent-001',
-      })).toBe(true);
+    it('accepts a full mutation envelope with actor_id', () => {
+      expect(Value.Check(GovernanceMutationSchema, validMutation)).toBe(true);
     });
 
-    it('accepts minimal mutation (without actor_id)', () => {
-      expect(Value.Check(GovernanceMutationSchema, validMutation)).toBe(true);
+    it('rejects mutation without actor_id (required since v8.1.0, F6)', () => {
+      const { actor_id, ...rest } = validMutation;
+      expect(Value.Check(GovernanceMutationSchema, rest)).toBe(false);
+    });
+
+    it('rejects empty actor_id', () => {
+      expect(Value.Check(GovernanceMutationSchema, {
+        ...validMutation,
+        actor_id: '',
+      })).toBe(false);
     });
 
     it('accepts version 0 (new resource)', () => {

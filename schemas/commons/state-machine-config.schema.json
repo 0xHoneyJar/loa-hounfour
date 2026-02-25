@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/state-machine-config",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/commons/state-machine-config",
   "additionalProperties": false,
   "description": "State machine configuration for a governed resource. Complements the existing StateMachineDefinition interface in vocabulary/state-machines.ts with schema-level validation and constraint DSL guards.",
   "type": "object",
@@ -92,5 +92,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
 }

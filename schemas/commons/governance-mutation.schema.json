@@ -1,12 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governance-mutation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/commons/governance-mutation",
   "additionalProperties": false,
   "type": "object",
   "required": [
     "mutation_id",
     "expected_version",
-    "mutated_at"
+    "mutated_at",
+    "actor_id"
   ],
   "properties": {
     "mutation_id": {
@@ -25,8 +26,9 @@
     },
     "actor_id": {
       "minLength": 1,
+      "description": "Identity of the actor performing this mutation. Required for audit trail attribution and access policy evaluation. (Bridgebuilder F6 — authorization at the mutation boundary)",
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
 }

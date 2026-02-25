@@ -58,6 +58,16 @@ export const GOVERNED_RESOURCE_FIELDS = {
       + 'Version mismatch returns PARTIAL_APPLICATION error. '
       + 'Starts at 0 for new resources, increments on each successful mutation.',
   }),
+  access_policy_ref: Type.Optional(
+    Type.String({
+      minLength: 1,
+      description:
+        'Reference to an AccessPolicy governing mutations to this resource. '
+        + 'When present, mutation evaluation SHOULD check the actor\'s context '
+        + 'against this policy before applying changes. '
+        + '(Bridgebuilder F6 — authorization at the governance boundary)',
+    }),
+  ),
   governance_extensions: Type.Optional(
     Type.Record(Type.String(), Type.Unknown(), {
       description:
@@ -91,7 +101,13 @@ export const GovernanceMutationSchema = Type.Object(
         'Expected resource version (CAS). Mismatch returns PARTIAL_APPLICATION.',
     }),
     mutated_at: Type.String({ format: 'date-time' }),
-    actor_id: Type.Optional(Type.String({ minLength: 1 })),
+    actor_id: Type.String({
+      minLength: 1,
+      description:
+        'Identity of the actor performing this mutation. Required for audit trail '
+        + 'attribution and access policy evaluation. '
+        + '(Bridgebuilder F6 — authorization at the mutation boundary)',
+    }),
   },
   { $id: 'GovernanceMutation', additionalProperties: false },
 );

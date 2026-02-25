@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/commons/governed-reputation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/commons/governed-reputation",
   "additionalProperties": false,
   "description": "Governed reputation — maps to ReputationAggregate state machine (cold → warming → established → authoritative).",
   "type": "object",
@@ -385,6 +385,11 @@
       "description": "Monotonic resource version for optimistic concurrency (CAS). Required for all GovernedResource instantiations (Flatline SKP-005). All mutations MUST present the expected version. Version mismatch returns PARTIAL_APPLICATION error. Starts at 0 for new resources, increments on each successful mutation.",
       "type": "integer"
     },
+    "access_policy_ref": {
+      "minLength": 1,
+      "description": "Reference to an AccessPolicy governing mutations to this resource. When present, mutation evaluation SHOULD check the actor's context against this policy before applying changes. (Bridgebuilder F6 — authorization at the governance boundary)",
+      "type": "string"
+    },
     "governance_extensions": {
       "description": "Extension point for future governance fields. Prevents additionalProperties:false from making governance field additions a breaking change across all instantiations. Keys are namespaced (e.g., \"commons.checkpoint\", \"commons.acl\"). Consumers MUST ignore unknown keys.",
       "type": "object",
@@ -397,5 +402,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
 }

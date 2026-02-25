@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.0.0/event-subscription",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/event-subscription",
   "additionalProperties": false,
   "description": "A subscription to reputation events with filter, delivery, and cursor configuration.",
   "type": "object",
@@ -170,5 +170,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.0.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
 }

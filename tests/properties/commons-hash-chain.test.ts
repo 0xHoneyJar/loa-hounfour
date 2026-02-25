@@ -21,7 +21,7 @@ import {
 } from '../../src/commons/audit-trail.js';
 
 const GENESIS = AUDIT_TRAIL_GENESIS_HASH;
-const DOMAIN_TAG = buildDomainTag('Test', '8.0.0');
+const DOMAIN_TAG = buildDomainTag('Test', '8.1.0');
 
 /** Generate a valid UUID v4 string. */
 const uuidArb = fc.uuid().map((v) => v);
