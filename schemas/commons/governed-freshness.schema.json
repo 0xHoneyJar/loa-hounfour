@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/commons/governed-freshness",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/governed-freshness",
   "additionalProperties": false,
   "description": "Governed freshness — maps to loa-dixie adaptive decay weights. Conservation law: freshness_score >= minimum_freshness while not expired.",
   "type": "object",
@@ -370,5 +370,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

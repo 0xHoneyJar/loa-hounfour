@@ -143,7 +143,8 @@ import { RollbackScopeSchema } from '../src/governance/rollback-scope.js';
 // v7.10.0 — Task-Dimensional Reputation
 import { TaskTypeSchema } from '../src/governance/task-type.js';
 import { TaskTypeCohortSchema } from '../src/governance/task-type-cohort.js';
-import { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema } from '../src/governance/reputation-event.js';
+import { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, ModelPerformanceEventSchema } from '../src/governance/reputation-event.js';
+import { QualityObservationSchema } from '../src/governance/quality-observation.js';
 import { ScoringPathSchema, ScoringPathLogSchema } from '../src/governance/scoring-path-log.js';
 // v8.0.0 — Commons Protocol
 import { InvariantSchema } from '../src/commons/invariant.js';
@@ -381,6 +382,9 @@ const schemas = [
   { name: 'reputation-event', schema: ReputationEventSchema },
   { name: 'scoring-path', schema: ScoringPathSchema },
   { name: 'scoring-path-log', schema: ScoringPathLogSchema },
+  // v8.2.0 — ModelPerformance Event (Issue #38)
+  { name: 'quality-observation', schema: QualityObservationSchema },
+  { name: 'model-performance-event', schema: ModelPerformanceEventSchema },
   // v8.0.0 — Commons Protocol
   { name: 'commons/invariant', schema: InvariantSchema },
   { name: 'commons/conservation-law', schema: ConservationLawSchema },

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.1.0/commons/governed-credits",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/governed-credits",
   "additionalProperties": false,
   "description": "Governed credit lot — maps to loa-freeside lot_invariant (I-1 through I-5). Conservation law: balance + reserved + consumed == original_allocation.",
   "type": "object",
@@ -372,5 +372,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.1.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

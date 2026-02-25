@@ -9,10 +9,12 @@ import {
   QualitySignalEventSchema,
   TaskCompletedEventSchema,
   CredentialUpdateEventSchema,
+  ModelPerformanceEventSchema,
   type ReputationEvent,
   type QualitySignalEvent,
   type TaskCompletedEvent,
   type CredentialUpdateEvent,
+  type ModelPerformanceEvent,
 } from '../../src/governance/reputation-event.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -44,6 +46,21 @@ const CREDENTIAL_UPDATE: CredentialUpdateEvent = {
   type: 'credential_update',
   credential_id: '660e8400-e29b-41d4-a716-446655440099',
   action: 'issued',
+};
+
+const MODEL_PERFORMANCE: ModelPerformanceEvent = {
+  event_id: '550e8400-e29b-41d4-a716-446655440010',
+  agent_id: 'bear-001',
+  collection_id: 'honeycomb',
+  timestamp: '2026-02-25T12:00:00Z',
+  type: 'model_performance',
+  model_id: 'gpt-4o',
+  provider: 'openai',
+  pool_id: 'pool-alpha',
+  task_type: 'analysis',
+  quality_observation: {
+    score: 0.82,
+  },
 };
 
 describe('ReputationEvent', () => {
@@ -158,6 +175,111 @@ describe('ReputationEvent', () => {
   });
 
   // -------------------------------------------------------------------------
+  // Variant 4: ModelPerformanceEvent (v8.2.0, Issue #38)
+  // -------------------------------------------------------------------------
+  describe('ModelPerformanceEvent', () => {
+    it('accepts minimal model performance event', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, MODEL_PERFORMANCE)).toBe(true);
+    });
+
+    it('accepts with all optional fields', () => {
+      const full: ModelPerformanceEvent = {
+        ...MODEL_PERFORMANCE,
+        sequence: 10,
+        quality_observation: {
+          score: 0.91,
+          dimensions: { coherence: 0.95, safety: 0.99 },
+          latency_ms: 2340,
+          evaluated_by: 'dixie-eval-v2',
+        },
+        request_context: {
+          request_id: '660e8400-e29b-41d4-a716-446655440020',
+          delegation_id: '770e8400-e29b-41d4-a716-446655440030',
+        },
+      };
+      expect(Value.Check(ModelPerformanceEventSchema, full)).toBe(true);
+    });
+
+    it('accepts community task_type (namespace:type)', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        task_type: 'legal-guild:contract_review',
+      })).toBe(true);
+    });
+
+    it('accepts request_context with only request_id', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        request_context: {
+          request_id: '660e8400-e29b-41d4-a716-446655440020',
+        },
+      })).toBe(true);
+    });
+
+    it('rejects score out of range', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        quality_observation: { score: 1.5 },
+      })).toBe(false);
+    });
+
+    it('rejects negative score', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        quality_observation: { score: -0.1 },
+      })).toBe(false);
+    });
+
+    it('rejects missing model_id', () => {
+      const { model_id, ...noModelId } = MODEL_PERFORMANCE;
+      expect(Value.Check(ModelPerformanceEventSchema, noModelId)).toBe(false);
+    });
+
+    it('rejects missing provider', () => {
+      const { provider, ...noProvider } = MODEL_PERFORMANCE;
+      expect(Value.Check(ModelPerformanceEventSchema, noProvider)).toBe(false);
+    });
+
+    it('rejects missing pool_id', () => {
+      const { pool_id, ...noPoolId } = MODEL_PERFORMANCE;
+      expect(Value.Check(ModelPerformanceEventSchema, noPoolId)).toBe(false);
+    });
+
+    it('rejects missing task_type', () => {
+      const { task_type, ...noTaskType } = MODEL_PERFORMANCE;
+      expect(Value.Check(ModelPerformanceEventSchema, noTaskType)).toBe(false);
+    });
+
+    it('rejects missing quality_observation', () => {
+      const { quality_observation, ...noObs } = MODEL_PERFORMANCE;
+      expect(Value.Check(ModelPerformanceEventSchema, noObs)).toBe(false);
+    });
+
+    it('rejects empty model_id', () => {
+      expect(Value.Check(ModelPerformanceEventSchema, {
+        ...MODEL_PERFORMANCE,
+        model_id: '',
+      })).toBe(false);
+    });
+
+    it('validates against ReputationEventSchema', () => {
+      expect(Value.Check(ReputationEventSchema, MODEL_PERFORMANCE)).toBe(true);
+    });
+
+    it('type narrows correctly via discriminator', () => {
+      const event: ReputationEvent = MODEL_PERFORMANCE;
+      if (event.type === 'model_performance') {
+        // TypeScript should narrow to ModelPerformanceEvent
+        expect(event.model_id).toBe('gpt-4o');
+        expect(event.provider).toBe('openai');
+        expect(event.quality_observation.score).toBe(0.82);
+      } else {
+        throw new Error('Expected model_performance type');
+      }
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Cross-variant rejection (Flatline SKP-003)
   // -------------------------------------------------------------------------
   describe('cross-variant rejection', () => {
@@ -232,6 +354,11 @@ describe('ReputationEvent', () => {
       expect(QualitySignalEventSchema.additionalProperties).toBe(false);
       expect(TaskCompletedEventSchema.additionalProperties).toBe(false);
       expect(CredentialUpdateEventSchema.additionalProperties).toBe(false);
+      expect(ModelPerformanceEventSchema.additionalProperties).toBe(false);
+    });
+
+    it('union has 4 members', () => {
+      expect(ReputationEventSchema.anyOf).toHaveLength(4);
     });
   });
 
@@ -242,8 +369,8 @@ describe('ReputationEvent', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/reputation-event');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 7 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(7);
+    it('has at least 13 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(13);
     });
 
     for (const file of vectorFiles) {

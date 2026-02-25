@@ -60,7 +60,8 @@ export {
   // v7.10.0 — Task-Dimensional Reputation (non-colliding exports only)
   TASK_TYPES,
   TaskTypeCohortSchema, validateTaskCohortUniqueness, type TaskTypeCohort,
-  ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, type QualitySignalEvent, type TaskCompletedEvent, type CredentialUpdateEvent,
+  ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, ModelPerformanceEventSchema, type QualitySignalEvent, type TaskCompletedEvent, type CredentialUpdateEvent, type ModelPerformanceEvent,
+  QualityObservationSchema, type QualityObservation,
   ScoringPathSchema, ScoringPathLogSchema, type ScoringPath, type ScoringPathLog,
 } from './governance/index.js';
 
