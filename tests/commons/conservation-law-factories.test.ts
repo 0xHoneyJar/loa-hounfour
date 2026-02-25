@@ -18,7 +18,13 @@ import {
   createNonNegativeConservation,
   createBoundedConservation,
   createMonotonicConservation,
+  resetFactoryCounter,
 } from '../../src/commons/conservation-law-factories.js';
+import { beforeEach } from 'vitest';
+
+beforeEach(() => {
+  resetFactoryCounter();
+});
 
 // ─── Invariant builders ──────────────────────────────────────────────────────
 
@@ -114,8 +120,10 @@ describe('createBalanceConservation', () => {
   it('has 2 invariants (sum + non-negative)', () => {
     const law = createBalanceConservation(['balance', 'reserved', 'consumed'], 'original_allocation');
     expect(law.invariants).toHaveLength(2);
-    expect(law.invariants[0].invariant_id).toBe('CL-01');
-    expect(law.invariants[1].invariant_id).toBe('CL-02');
+    expect(law.invariants[0].invariant_id).toMatch(/^CL-\d+$/);
+    expect(law.invariants[1].invariant_id).toMatch(/^CL-\d+$/);
+    // IDs must be unique
+    expect(law.invariants[0].invariant_id).not.toBe(law.invariants[1].invariant_id);
   });
 
   it('defaults to strict enforcement', () => {

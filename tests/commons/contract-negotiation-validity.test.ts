@@ -92,4 +92,16 @@ describe('computeNegotiationExpiry', () => {
     const result = computeNegotiationExpiry(long);
     expect(result.ttl_ms).toBe(24 * 60 * 60 * 1000); // 24 hours
   });
+
+  it('returns NaN ttl_ms for invalid dates (F12)', () => {
+    const bad = { ...baseNegotiation, negotiated_at: 'not-a-date' };
+    const result = computeNegotiationExpiry(bad);
+    expect(Number.isNaN(result.ttl_ms)).toBe(true);
+  });
+
+  it('returns NaN ttl_ms for invalid expires_at (F12)', () => {
+    const bad = { ...baseNegotiation, expires_at: 'garbage' };
+    const result = computeNegotiationExpiry(bad);
+    expect(Number.isNaN(result.ttl_ms)).toBe(true);
+  });
 });

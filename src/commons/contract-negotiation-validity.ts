@@ -83,6 +83,14 @@ export function computeNegotiationExpiry(
   const negotiatedMs = new Date(negotiation.negotiated_at).getTime();
   const expiresMs = new Date(negotiation.expires_at).getTime();
 
+  if (Number.isNaN(negotiatedMs) || Number.isNaN(expiresMs)) {
+    return {
+      negotiated_at: negotiation.negotiated_at,
+      expires_at: negotiation.expires_at,
+      ttl_ms: NaN,
+    };
+  }
+
   return {
     negotiated_at: negotiation.negotiated_at,
     expires_at: negotiation.expires_at,

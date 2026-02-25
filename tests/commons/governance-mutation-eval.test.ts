@@ -21,6 +21,7 @@ describe('evaluateGovernanceMutation', () => {
     it('authorizes when no policy is provided', () => {
       const result = evaluateGovernanceMutation(baseMutation);
       expect(result.authorized).toBe(true);
+      expect(result.policy_evaluated).toBe(false);
       expect(result.actor_id).toBe('billing-service');
       expect(result.reason).toContain('No access policy');
     });
@@ -28,6 +29,7 @@ describe('evaluateGovernanceMutation', () => {
     it('authorizes with undefined policy', () => {
       const result = evaluateGovernanceMutation(baseMutation, undefined);
       expect(result.authorized).toBe(true);
+      expect(result.policy_evaluated).toBe(false);
     });
   });
 
@@ -44,6 +46,7 @@ describe('evaluateGovernanceMutation', () => {
         { role: 'billing-service' },
       );
       expect(result.authorized).toBe(true);
+      expect(result.policy_evaluated).toBe(true);
       expect(result.policy_result).toBeDefined();
       expect(result.policy_result!.allowed).toBe(true);
     });

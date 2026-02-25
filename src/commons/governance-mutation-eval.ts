@@ -20,6 +20,8 @@ import type { GovernanceMutation } from './governed-resource.js';
 export interface GovernanceMutationEvalResult {
   /** Whether the mutation is authorized. */
   authorized: boolean;
+  /** Whether an access policy was evaluated (false = authorized by default). */
+  policy_evaluated: boolean;
   /** Human-readable reason for the decision. */
   reason: string;
   /** The actor_id from the mutation envelope. */
@@ -51,6 +53,7 @@ export function evaluateGovernanceMutation(
   if (!accessPolicy) {
     return {
       authorized: true,
+      policy_evaluated: false,
       reason: 'No access policy configured — mutation authorized by default',
       actor_id: mutation.actor_id,
     };
@@ -70,6 +73,7 @@ export function evaluateGovernanceMutation(
 
   return {
     authorized: policyResult.allowed,
+    policy_evaluated: true,
     reason: policyResult.allowed
       ? `Mutation authorized: ${policyResult.reason}`
       : `Mutation denied for actor '${mutation.actor_id}': ${policyResult.reason}`,

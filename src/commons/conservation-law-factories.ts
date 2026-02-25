@@ -11,6 +11,21 @@
 import type { ConservationLaw } from './conservation-law.js';
 import type { Invariant } from './invariant.js';
 
+/**
+ * Auto-incrementing counter for factory-generated invariant IDs.
+ * Prevents ID collisions when multiple factories are called for the same resource.
+ * (Bridgebuilder F11 — hardcoded singleton IDs)
+ */
+let _factoryCounter = 0;
+function nextFactoryId(): string {
+  return String(++_factoryCounter).padStart(2, '0');
+}
+
+/** Reset the factory counter (for testing). */
+export function resetFactoryCounter(): void {
+  _factoryCounter = 0;
+}
+
 // ─── Invariant Builders ──────────────────────────────────────────────────────
 
 /**
@@ -147,8 +162,8 @@ export function createBalanceConservation(
 ): ConservationLaw {
   return {
     invariants: [
-      buildSumInvariant('CL-01', 'Sum conservation', sumFields, totalField),
-      buildNonNegativeInvariant('CL-02', 'Non-negative fields', [...sumFields, totalField] as [string, ...string[]]),
+      buildSumInvariant(`CL-${nextFactoryId()}`, 'Sum conservation', sumFields, totalField),
+      buildNonNegativeInvariant(`CL-${nextFactoryId()}`, 'Non-negative fields', [...sumFields, totalField] as [string, ...string[]]),
     ],
     enforcement,
     scope: 'per-entry',
@@ -167,7 +182,7 @@ export function createNonNegativeConservation(
 ): ConservationLaw {
   return {
     invariants: [
-      buildNonNegativeInvariant('NN-01', 'Non-negative constraint', fields),
+      buildNonNegativeInvariant(`NN-${nextFactoryId()}`, 'Non-negative constraint', fields),
     ],
     enforcement,
     scope: 'per-entry',
@@ -192,7 +207,7 @@ export function createBoundedConservation(
 ): ConservationLaw {
   return {
     invariants: [
-      buildBoundedInvariant('BD-01', `Bounded: ${floor} <= ${field} <= ${ceiling}`, field, floor, ceiling),
+      buildBoundedInvariant(`BD-${nextFactoryId()}`, `Bounded: ${floor} <= ${field} <= ${ceiling}`, field, floor, ceiling),
     ],
     enforcement,
     scope: 'per-entry',
@@ -217,7 +232,7 @@ export function createMonotonicConservation(
   return {
     invariants: [
       {
-        invariant_id: 'MN-01',
+        invariant_id: `MN-${nextFactoryId()}`,
         name: `Monotonic ${direction}: ${field}`,
         expression: `${field}_new ${op} ${field}_old`,
         severity: 'error',

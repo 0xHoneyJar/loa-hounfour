@@ -19,6 +19,7 @@ export {
   createNonNegativeConservation,
   createBoundedConservation,
   createMonotonicConservation,
+  resetFactoryCounter,
 } from './conservation-law-factories.js';
 export {
   AuditEntrySchema,
