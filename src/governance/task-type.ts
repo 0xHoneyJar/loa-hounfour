@@ -46,6 +46,10 @@ export const TaskTypeSchema = Type.Union(
     Type.Literal('analysis'),
     Type.Literal('summarization'),
     Type.Literal('general'),
+    // Reserved value for edge cases where task metadata is unavailable (PRD FR-1).
+    // Cohort update logic MUST route to aggregate-only scoring; do not create
+    // a task-type cohort entry.
+    Type.Literal('unspecified'),
     // Community-defined types: namespace:type format (ADR-003)
     Type.String({
       pattern: '^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$',
@@ -73,4 +77,5 @@ export const TASK_TYPES = [
   'analysis',
   'summarization',
   'general',
+  'unspecified',
 ] as const satisfies readonly TaskType[];

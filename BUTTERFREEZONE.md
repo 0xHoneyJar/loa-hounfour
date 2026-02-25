@@ -101,9 +101,11 @@ Directory structure:
 ./loa/grimoires
 ./loa/tests
 ./schemas
+./schemas/commons
 ./scripts
 ./specs
 ./src
+./src/commons
 ./src/composition
 ./src/constraints
 ./src/core
@@ -111,29 +113,27 @@ Directory structure:
 ./src/governance
 ./src/graph
 ./src/integrity
-./src/model
-./src/schemas
 ```
 
 ## Module Map
 <!-- provenance: DERIVED -->
 | Module | Files | Purpose | Documentation |
 |--------|-------|---------|---------------|
-| `constraints/` | 78 | Constraints | \u2014 |
-| `docs/` | 24 | > `@0xhoneyjar/loa-hounfour` — Shared protocol contracts for the loa-finn <-> arrakis integration | [docs/README.md](docs/README.md) |
-| `grimoires/` | 10 | Loa state and memory files | \u2014 |
+| `constraints/` | 88 | Constraints | \u2014 |
+| `docs/` | 28 | > `@0xhoneyjar/loa-hounfour` — Shared protocol contracts for the loa-finn <-> arrakis integration | [docs/README.md](docs/README.md) |
+| `grimoires/` | 13 | Loa state and memory files | \u2014 |
 | `loa/` | 1529 | <!-- AGENT-CONTEXT: Loa is an agent-driven development framework for Claude | [loa/README.md](loa/README.md) |
-| `schemas/` | 171 | **Contract version:** | [schemas/README.md](schemas/README.md) |
-| `scripts/` | 11 | Utility scripts | \u2014 |
+| `schemas/` | 194 | **Contract version:** | [schemas/README.md](schemas/README.md) |
+| `scripts/` | 13 | Utility scripts | \u2014 |
 | `specs/` | 1 | Specs | \u2014 |
-| `src/` | 162 | Source code | \u2014 |
-| `tests/` | 266 | Test suites | \u2014 |
-| `vectors/` | 246 | Vectors | \u2014 |
+| `src/` | 185 | Source code | \u2014 |
+| `tests/` | 295 | Test suites | \u2014 |
+| `vectors/` | 267 | Vectors | \u2014 |
 
 ## Verification
 <!-- provenance: CODE-FACTUAL -->
 - Trust Level: **L3 — Property-Based**
-- 266 test files across 1 suite
+- 295 test files across 1 suite
 - CI/CD: GitHub Actions (1 workflows)
 - Type safety: TypeScript
 - Security: SECURITY.md present
@@ -162,15 +162,15 @@ npm install @0xhoneyjar/loa-hounfour
 pnpm add @0xhoneyjar/loa-hounfour
 ```
 <!-- ground-truth-meta
-head_sha: 5f1046edef6e4eae9eb690855a9eb03ea9c953e6
-generated_at: 2026-02-24T23:18:41Z
+head_sha: 60c1c371605f6da158f54594f18f1c5345c295da
+generated_at: 2026-02-25T04:40:21Z
 generator: butterfreezone-gen v1.0.0
 sections:
-  agent_context: 4ef621064facee9cd5b926a409de6eb198e319c823def66fdd2891bcfe07278c
+  agent_context: 60681064a3c05b5e121989f6f1a10a0002a9b8ee39a809b705eab929e1e86538
   capabilities: 91c76b88484745b0ccfd46492d3209336d104c4c2179e8d36f67e3442f3dd93f
-  architecture: adbb299fa4c212e7242c470f7f643ff67c9f68e38df394c0e7f3e064db7e015b
-  module_map: 4ecde878c3658ab22df41f40f668dccd615740ee0b85340c7366c47e56a2b47c
-  verification: 66e1493c1e195c5f7ead6f4f854b0ef86dbe7774d10eee45fe3ac15938e2a767
+  architecture: f25624174f84056c3ec6b0bc5f47ed4b8e3cbb4c68530286bcd1d5fecb5ba654
+  module_map: 53ac670780a4f80997b435ba0f6ea2ea7aa447fee5c190c4163744bc3595eddb
+  verification: d9a50673d3613dcb54111ac1b1c97fab675370f3e73dab1ea4c22f30bb789b98
   ecosystem: 106a752a5faab1fbf6d5a71394f39fc1a568723df26c5c93a9a9d4c9e4aaf5aa
   quick_start: bbe40cc048ee3bbe1e24097064c0cf5bf532786bb91157ecd2ef96563b7e92d7
 -->

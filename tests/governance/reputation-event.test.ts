@@ -404,8 +404,8 @@ describe('ReputationEvent', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/reputation-event');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 19 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(19);
+    it('has at least 21 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(21);
     });
 
     for (const file of vectorFiles) {
