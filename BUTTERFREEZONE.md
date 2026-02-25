@@ -9,19 +9,19 @@ ecosystem:
   - repo: 0xHoneyJar/loa-finn
     role: runtime
     interface: hounfour-router
-    protocol: loa-hounfour@7.9.2
+    protocol: loa-hounfour@8.2.0
   - repo: 0xHoneyJar/loa-dixie
     role: reputation
     interface: npm-package
-    protocol: loa-hounfour@7.9.2
+    protocol: loa-hounfour@8.2.0
   - repo: 0xHoneyJar/loa-freeside
     role: billing
     interface: npm-package
-    protocol: loa-hounfour@7.9.2
+    protocol: loa-hounfour@8.2.0
   - repo: 0xHoneyJar/arrakis
     role: distribution
     interface: jwt-auth
-    protocol: loa-hounfour@7.9.2
+    protocol: loa-hounfour@8.2.0
 version: v1.41.0
 trust_level: L3-hardened
 -->

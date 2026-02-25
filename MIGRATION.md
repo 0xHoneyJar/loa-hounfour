@@ -1,8 +1,121 @@
-<!-- docs-version: 7.0.0 -->
+<!-- docs-version: 8.2.0 -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## v7.11.0 → v8.2.0 (Breaking)
+
+**Breaking changes:** Major version bump introduces `commons` module (v8.0.0). `GovernanceMutation.actor_id` becomes required (v8.1.0). `ModelPerformanceEvent` added as 4th `ReputationEvent` variant (v8.2.0).
+
+### GovernanceMutation — `actor_id` (required in v8.1.0)
+
+```typescript
+// BEFORE (v7.11.0 / v8.0.0):
+const mutation = {
+  mutation_id: '550e8400-e29b-41d4-a716-446655440000',
+  expected_version: 3,
+  mutated_at: '2026-02-25T00:00:00Z',
+  // actor_id was optional or absent
+};
+
+// AFTER (v8.1.0+) — actor_id required:
+const mutation = {
+  mutation_id: '550e8400-e29b-41d4-a716-446655440000',
+  expected_version: 3,
+  mutated_at: '2026-02-25T00:00:00Z',
+  actor_id: 'agent-007',  // NEW — required, minLength: 1
+};
+```
+
+### New `./commons` module (v8.0.0+)
+
+```typescript
+import {
+  GovernedCreditsSchema,
+  ConservationLawSchema,
+  AuditTrailSchema,
+  StateMachineConfigSchema,
+  GovernanceMutationSchema,
+  DynamicContractSchema,
+  GovernanceErrorSchema,
+} from '@0xhoneyjar/loa-hounfour/commons';
+```
+
+### New schemas (15 commons + 2 governance)
+
+| Schema | Module | Version | Purpose |
+|--------|--------|---------|---------|
+| `Invariant` | `commons` | 8.0.0 | Conservation invariant definition |
+| `ConservationLaw` | `commons` | 8.0.0 | Grouped invariants with enforcement level |
+| `AuditEntry` | `commons` | 8.0.0 | Single audit trail entry with content hash |
+| `AuditTrail` | `commons` | 8.0.0 | Hash-chained audit log |
+| `State` | `commons` | 8.0.0 | State machine state |
+| `Transition` | `commons` | 8.0.0 | State machine transition |
+| `StateMachineConfig` | `commons` | 8.0.0 | Full state machine configuration |
+| `GovernanceClass` | `commons` | 8.0.0 | Governance classification |
+| `GovernanceMutation` | `commons` | 8.0.0 | Mutation envelope (actor_id required in 8.1.0) |
+| `GovernedCredits` | `commons` | 8.0.0 | Governed credit balance resource |
+| `GovernedReputation` | `commons` | 8.0.0 | Governed reputation resource |
+| `GovernedFreshness` | `commons` | 8.0.0 | Governed freshness/TTL resource |
+| `DynamicContract` | `commons` | 8.0.0 | Negotiable protocol surface contract |
+| `ContractNegotiation` | `commons` | 8.0.0 | Contract negotiation state |
+| `GovernanceError` | `commons` | 8.0.0 | 6-variant error discriminated union |
+| `QualityObservation` | `governance` | 8.2.0 | Structured quality evaluation output |
+| `ModelPerformanceEvent` | `governance` | 8.2.0 | 4th ReputationEvent variant |
+
+### TaskType `unspecified` literal (v8.2.0)
+
+```typescript
+import type { TaskType } from '@0xhoneyjar/loa-hounfour/governance';
+
+// New valid value — routes to aggregate-only scoring:
+const taskType: TaskType = 'unspecified';
+```
+
+### ReputationEvent — 4th variant switch case (v8.2.0)
+
+```typescript
+import type { ReputationEvent } from '@0xhoneyjar/loa-hounfour/governance';
+
+function handleEvent(event: ReputationEvent): void {
+  switch (event.type) {
+    case 'quality_signal':    /* ... */ break;
+    case 'task_completion':   /* ... */ break;
+    case 'peer_review':       /* ... */ break;
+    case 'model_performance': /* ... */ break;  // NEW — v8.2.0
+    default: {
+      const _: never = event;
+      throw new Error(`Unknown variant: ${(event as any).type}`);
+    }
+  }
+}
+```
+
+### Consumer migration paths
+
+#### loa-finn
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.2.0`
+2. Add `actor_id` to all `GovernanceMutation` payloads (breaking in 8.1.0)
+3. Handle `model_performance` variant in `ReputationEvent` routing
+4. Optionally import governance enforcement utilities from `./commons`
+
+#### loa-dixie
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.2.0`
+2. Emit `ModelPerformanceEvent` for model quality observations
+3. Handle `'unspecified'` TaskType — route to aggregate-only scoring
+4. Use `QualityObservationSchema` for structured evaluation output
+
+#### arrakis / freeside
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.2.0`
+2. Validate `DynamicContract` and `ContractNegotiation` schemas at gateway
+3. Wire `GovernedCredits` for commons-governed billing
+4. Add `actor_id` to governance mutation calls
 
 ---
 
@@ -113,7 +226,7 @@ import { trustLevelIndex, meetsThreshold } from '@0xhoneyjar/loa-hounfour/core';
 
 | Property | Value |
 |----------|-------|
-| **Current Version** | 7.0.0 |
+| **Current Version** | 8.2.0 |
 | **Minimum Supported** | 6.0.0 |
 
 ---

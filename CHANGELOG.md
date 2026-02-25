@@ -3,6 +3,124 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.2.0] — 2026-02-25
+
+### Added
+
+- **`ModelPerformanceEvent` variant** — 4th discriminated union variant in `ReputationEvent`. Carries model performance observations (`model_id`, `provider`, `pool_id`) with structured `QualityObservation`. Closes autopoietic feedback loop: Dixie evaluation → cross-model scoring → routing signal adjustment. ([Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38))
+- **`QualityObservation` schema** — Standalone quality evaluation output: `score` [0,1], optional `dimensions` (max 20, pattern `^[a-z][a-z0-9_]{0,31}$`), `latency_ms`, `evaluated_by`. Reusable beyond the event pipeline.
+- **`'unspecified'` TaskType literal** — Reserved fallback when task metadata is unavailable. Cohort update logic routes to aggregate-only scoring (no task-type cohort entry). (Flatline FR-1)
+- **23 conformance vectors** — 6 model-performance variants (minimal, full, with-dimensions, community-task-type, invalid-score, missing-model-id), boundary scores, unspecified-task-type, plus existing vector updates. 217 vectors total.
+- **Property-based discrimination tests** — Exactly-one-match, roundtrip, and negative tests for `ReputationEvent` variant exhaustiveness.
+- **Integration tests** — Pipeline acceptance, variant marshalling, duplicate detection, forward compatibility.
+
+### Source
+
+[PR #37](https://github.com/0xHoneyJar/loa-hounfour/pull/37) — Flatline integration (cycle-038), [Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38).
+
+---
+
+## [8.1.0] — 2026-02-25
+
+### Breaking Changes
+
+- **`GovernanceMutation.actor_id` now required** — Mutation envelope must include actor identity (`minLength: 1`) for audit trail attribution and access policy evaluation. (Bridgebuilder F6 — HIGH)
+
+### Added
+
+- **Governance Enforcement SDK** — Pure utility functions for mutation and resource validation (ADR-008, Path B):
+  - `evaluateGovernanceMutation()` — Evaluate mutation against access policy (F6)
+  - Conservation law factories: `buildSumInvariant()`, `buildNonNegativeInvariant()`, `buildBoundedInvariant()` + `create*Conservation()` variants (F7)
+  - Audit trail checkpointing: `createCheckpoint()`, `verifyCheckpointContinuity()`, `pruneBeforeCheckpoint()` (F8)
+  - Contract negotiation TTL: `isNegotiationValid()`, `computeNegotiationExpiry()` (F9)
+  - Dynamic contract verification: `verifyMonotonicExpansion()` (F10)
+- **`GOVERNED_RESOURCE_FIELDS` extensions** — `access_policy_ref` (optional), `governance_extensions` (optional), `contract_version` (required).
+- **12 property-based tests** — Conservation law symmetry, checkpoint continuity, TTL monotonicity, expansion verification.
+- **ADR-008** — Governance Enforcement SDK (Path B, opt-in enforcement).
+- **ADR-009** — DynamicContract → Model Routing Integration.
+
+### Source
+
+[PR #37](https://github.com/0xHoneyJar/loa-hounfour/pull/37) — Bridgebuilder findings F6–F10 (5 sprints).
+
+---
+
+## [8.0.0] — 2026-02-25
+
+### Breaking Changes
+
+- **Major version bump** — New `commons` module introduces governance substrate. No existing schemas removed or modified, but the major version signals a new architectural layer.
+
+### Added
+
+- **`commons` module** — 21 schemas for governed resource management:
+  - Foundation: `Invariant`, `ConservationLaw`, `AuditEntry`, `AuditTrail`, `State`, `Transition`, `StateMachineConfig`, `GovernanceClass`, `GovernanceMutation`
+  - Instantiations: `GovernedCredits`, `GovernedReputation`, `GovernedFreshness`
+  - Hash chain (ADR-006): `HashChainDiscontinuity`, `QuarantineStatus`, `QuarantineRecord`
+  - Dynamic contracts (FR-4): `ProtocolCapability`, `RateLimitTier`, `ProtocolSurface`, `DynamicContract`, `AssertionMethod`, `ContractNegotiation`
+  - Error taxonomy: `GovernanceError` discriminated union (6 variants: `InvariantViolation`, `InvalidTransition`, `GuardFailure`, `EvaluationError`, `HashDiscontinuityError`, `PartialApplication`)
+- **`./commons` export** — New sub-package barrel: `import { ... } from '@0xhoneyjar/loa-hounfour/commons'`.
+- **ADR-006** — Hash Chain Operational Response (halt-and-reconcile protocol).
+- **ADR-007** — Commons Protocol Pattern (Ostrom isomorphism, `GovernedResource<T>` primitive).
+- **189 JSON schemas** regenerated with commons additions.
+
+### Source
+
+[PR #37](https://github.com/0xHoneyJar/loa-hounfour/pull/37) — Sprints 1–8, Commons Protocol foundation through release.
+
+---
+
+## [7.11.0] — 2026-02-24
+
+### Added
+
+- **Open `TaskType` enum** — Community `namespace:type` format via regex pattern (e.g., `legal-guild:contract_review`). Governance: `registry-extensible` (MINOR to add, MAJOR to remove/rename).
+- **`@governance` annotations** — Constraint-level governance metadata for schema evolution policy.
+- **Hash-chain fields** — `previous_hash` and `chain_height` on audit-relevant schemas for tamper-evident logging.
+- **ADR-003** — Open TaskType Governance (extensibility without protocol coordination).
+- **ADR-004** — Community Namespace Convention.
+- **ADR-005** — Hash Chain Audit Fields.
+- **7 conformance vectors** — Task-type community format, hash-chain validation, governance annotation coverage.
+
+### Source
+
+[PR #36](https://github.com/0xHoneyJar/loa-hounfour/pull/36) — Protocol hardening, Bridgebuilder second reading.
+
+---
+
+## [7.10.1] — 2026-02-24
+
+### Fixed
+
+- **Root barrel discoverability** — All new v7.10.0 exports re-exported from root `index.ts`.
+- **`NativeEnforcement` interface** — Extracted enforcement interface for constraint runtime.
+- **`COHORT_BASE_FIELDS` extraction** — Shared fields factored into reusable constant for cohort schemas.
+- **ADR-001** — NativeEnforcement Interface Pattern.
+- **ADR-002** — Shared Cohort Base Fields.
+
+### Source
+
+[PR #36](https://github.com/0xHoneyJar/loa-hounfour/pull/36) — Bridgebuilder findings.
+
+---
+
+## [7.10.0] — 2026-02-24
+
+### Added
+
+- **`TaskType` schema** — 5 protocol-defined task categories (`code_review`, `creative_writing`, `analysis`, `summarization`, `general`) for task-dimensional reputation scoring.
+- **`TaskTypeCohort` schema** — Per-task-type reputation tracking with scoring path log.
+- **`ReputationEvent` discriminated union** — 3 initial variants (`quality_signal`, `task_completion`, `peer_review`) for reputation pipeline events.
+- **`ScoringPathLog` schema** — Audit trail for scoring algorithm decisions.
+- **8 new schemas** — TaskType, TaskTypeCohort, ReputationEvent (3 variants), ScoringPathLog, plus supporting types.
+- **22 conformance vectors** — Task-type validation, cohort lifecycle, event discrimination, scoring path coverage.
+
+### Source
+
+[PR #36](https://github.com/0xHoneyJar/loa-hounfour/pull/36) — Task-dimensional reputation, upstream shared vocabulary from Dixie.
+
+---
+
 ## [7.9.2] — 2026-02-23
 
 ### Removed

@@ -1,0 +1,2515 @@
+{
+  "release_version": "8.2.0",
+  "generated_at": "2026-02-25T06:55:14.919Z",
+  "generator": "generate-release-integrity.ts",
+  "totals": {
+    "schemas": 193,
+    "vectors": 219,
+    "constraints": 87,
+    "total": 499
+  },
+  "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
+  "checksums": {
+    "schemas": [
+      {
+        "path": "schemas/access-decision.schema.json",
+        "sha256": "b360d2b1eaa126a1b68727803ce191af02d817ee11b2352d7d27aaecee38edd5",
+        "size_bytes": 739
+      },
+      {
+        "path": "schemas/agent-capacity-reservation.schema.json",
+        "sha256": "6dccb923727f9fd22d392b4a339a34e7e9f29cd6a372d5f1b0ee602afb854a79",
+        "size_bytes": 2239
+      },
+      {
+        "path": "schemas/agent-descriptor.schema.json",
+        "sha256": "ed2ccfde52cf483a68075d4e68f571382af556afe605a84a830cea2fdbc147b8",
+        "size_bytes": 5036
+      },
+      {
+        "path": "schemas/agent-identity.schema.json",
+        "sha256": "b0ce886f104d8cccbbbf96f4deb729a4d3b669ff2581e9eb83d05896bad2ba42",
+        "size_bytes": 8545
+      },
+      {
+        "path": "schemas/agent-lifecycle-state.schema.json",
+        "sha256": "5203c6bfeee66f04ea3291474b89bc9542c5a95d112c2bc575a2a7bb239c8310",
+        "size_bytes": 651
+      },
+      {
+        "path": "schemas/agent-requirements.schema.json",
+        "sha256": "82ed2e188eea85fb425a77189b5c9a1b717b0894c7bfacda30afc65304e91865",
+        "size_bytes": 964
+      },
+      {
+        "path": "schemas/aggregate-snapshot.schema.json",
+        "sha256": "4e092335ece100e3aae521b68e5eefaceff32b1246f4cafb3f569d95ccfa28c1",
+        "size_bytes": 10517
+      },
+      {
+        "path": "schemas/audit-trail-entry.schema.json",
+        "sha256": "cdd471e33140e9a4c6e4fec3e1e85314f7945f538a7082619c5fc6e1c182559c",
+        "size_bytes": 2928
+      },
+      {
+        "path": "schemas/basket-composition-entry.schema.json",
+        "sha256": "a1236df9ec5f90d0167fde0df9652323ba81a226973726ef4a5a854b77657e11",
+        "size_bytes": 1028
+      },
+      {
+        "path": "schemas/basket-composition.schema.json",
+        "sha256": "4d0966dd0c11d0e2ce83a4ed798331f002c7ab44885edbae486998f305a327c9",
+        "size_bytes": 2284
+      },
+      {
+        "path": "schemas/billing-entry.schema.json",
+        "sha256": "4ecba83d6ef8720728891e625d56345114fd85a1f615ed8be366432bd8cdbf24",
+        "size_bytes": 8553
+      },
+      {
+        "path": "schemas/bridge-enforcement.schema.json",
+        "sha256": "02103bbe6fa7d6345fcc60b00a895fcb140673d553143c4e4690908c14fb06af",
+        "size_bytes": 501
+      },
+      {
+        "path": "schemas/bridge-invariant.schema.json",
+        "sha256": "c0508b0c3f47839e349fd48e762465344ce2493b7c23375f96e25ae25935f3a0",
+        "size_bytes": 1327
+      },
+      {
+        "path": "schemas/bridge-transfer-saga.schema.json",
+        "sha256": "e302dea40c4007fc93c469dd62784514575b2d80eb0dee444e28ccbeb9d81301",
+        "size_bytes": 23310
+      },
+      {
+        "path": "schemas/budget-allocation.schema.json",
+        "sha256": "9ce237af5bdfdf8c09d8b513df892071dbc9c8ace097a0514b6d81cf518387a1",
+        "size_bytes": 486
+      },
+      {
+        "path": "schemas/budget-scope.schema.json",
+        "sha256": "72d003e67e1b2fd628129b550a061447ab409dbf0118ced71c7e0384fe897074",
+        "size_bytes": 3241
+      },
+      {
+        "path": "schemas/capability-query.schema.json",
+        "sha256": "d550492be26c21f7aa2aca4e2a363c6d58dc60f322f3ae11eede56ea38f4ff49",
+        "size_bytes": 958
+      },
+      {
+        "path": "schemas/capability-response.schema.json",
+        "sha256": "3dd998cc5e568c28a40afd73489f68517d00b7a97b48e7539a20e035d7a7852d",
+        "size_bytes": 2506
+      },
+      {
+        "path": "schemas/capability-scope.schema.json",
+        "sha256": "b0dfc15617d53ed52c9f12b05375238650ff7dfbd56eac52659ee6c88242e76c",
+        "size_bytes": 675
+      },
+      {
+        "path": "schemas/capability-scoped-trust.schema.json",
+        "sha256": "77279c487398f2450b51b53522e2583a82d890d8a7aa7f2b9211ba2c53863078",
+        "size_bytes": 5306
+      },
+      {
+        "path": "schemas/capability.schema.json",
+        "sha256": "5511873b3e39b4f4c8832f6c77a35e8670a2ce695d6f8d2d4114adec9a3d52f4",
+        "size_bytes": 1282
+      },
+      {
+        "path": "schemas/capital-layer-snapshot.schema.json",
+        "sha256": "80097a4f007fa017bcf4c1f32bffe8cdc7cfeb9e016cfcd0dab9bc09e3158d4b",
+        "size_bytes": 884
+      },
+      {
+        "path": "schemas/change-application-result.schema.json",
+        "sha256": "a426f7d3a6feb922ca42fcb238682a5e115cfb68230affbe5105a8296f0dfd42",
+        "size_bytes": 1278
+      },
+      {
+        "path": "schemas/checkpoint-health.schema.json",
+        "sha256": "e4613cbf2f80bbe4d3e07dd3658fbb1c7c588569acc0b603e978d5e89ba78833",
+        "size_bytes": 485
+      },
+      {
+        "path": "schemas/collection-governance-config.schema.json",
+        "sha256": "8cbc061e9bd5bb8eced69521ce7b53c817f771fa1a8029e86fcada6acc764d92",
+        "size_bytes": 5521
+      },
+      {
+        "path": "schemas/collection-score-updated-payload.schema.json",
+        "sha256": "ea60264a7ec53fd23fbad92c41452edc2266cc12e00176cfdffbae6f3dabc507",
+        "size_bytes": 921
+      },
+      {
+        "path": "schemas/commons-dividend.schema.json",
+        "sha256": "a0652497f1e80517f44525dd4fa4d4d900230ca60a906e803e7a8edc1dbd20fb",
+        "size_bytes": 3892
+      },
+      {
+        "path": "schemas/commons/audit-entry.schema.json",
+        "sha256": "5c5b494b5393bf51b3cd59dae964e9f1b9fe9cf8c37b04249ff23fc1cca9ee6a",
+        "size_bytes": 1678
+      },
+      {
+        "path": "schemas/commons/audit-trail.schema.json",
+        "sha256": "3e5cff79e49a672ef53c341d605ce8bf0766516fde54d4e6be319b0d6c97254a",
+        "size_bytes": 3660
+      },
+      {
+        "path": "schemas/commons/conservation-law.schema.json",
+        "sha256": "70bb1b97816eb5d9c2e4e714d7f68bd74e0a0ddd7561b19fe3a73e968e5107ab",
+        "size_bytes": 2650
+      },
+      {
+        "path": "schemas/commons/contract-negotiation.schema.json",
+        "sha256": "122b147f48a94545934380ca0fd8c66b509ea1d7090bddbc0f765b8ccaf4a781",
+        "size_bytes": 5903
+      },
+      {
+        "path": "schemas/commons/dynamic-contract.schema.json",
+        "sha256": "467a0ab4fb806997afc27c07593c437f75f6a9c379d23da67b3802504341baaa",
+        "size_bytes": 9955
+      },
+      {
+        "path": "schemas/commons/governance-class.schema.json",
+        "sha256": "96e95900f9dec742c9cc2c433fed6524b682939c0bf0548a68b1bc635f4d1378",
+        "size_bytes": 444
+      },
+      {
+        "path": "schemas/commons/governance-error.schema.json",
+        "sha256": "2778229ff7dab7075899f8a596f70438b942641bd3949bfce3c6b96b60b12d55",
+        "size_bytes": 7750
+      },
+      {
+        "path": "schemas/commons/governance-mutation.schema.json",
+        "sha256": "84e4eeb1f66c67efcaceda73a64cca8099ef90ee40de540c5d7a5581c243b5f8",
+        "size_bytes": 1055
+      },
+      {
+        "path": "schemas/commons/governed-credits.schema.json",
+        "sha256": "b2e5da8c2c7cd23255f6fa9f4ac5d4c4cafb6267d4117fd407d91bfc94fb18e5",
+        "size_bytes": 12468
+      },
+      {
+        "path": "schemas/commons/governed-freshness.schema.json",
+        "sha256": "b3e2f6ff28899a106dc793f8313998e642be80eabdbe9a21dc80450cdd4dddcb",
+        "size_bytes": 12486
+      },
+      {
+        "path": "schemas/commons/governed-reputation.schema.json",
+        "sha256": "7a0d68f1e0307b2a835fabfc367a119a2cbe7168aac4fbb684a0bd7634a005cf",
+        "size_bytes": 12920
+      },
+      {
+        "path": "schemas/commons/hash-chain-discontinuity.schema.json",
+        "sha256": "cfa0893170d61f12cc981b9cfe00ed233e2349020c8c902b79c2cf09beb38eba",
+        "size_bytes": 1917
+      },
+      {
+        "path": "schemas/commons/invariant.schema.json",
+        "sha256": "3964e7eebd826ed05ece656e3bae0aa12c7a0e794d5443af1b4acabe8f289a1b",
+        "size_bytes": 1311
+      },
+      {
+        "path": "schemas/commons/protocol-surface.schema.json",
+        "sha256": "57199449089d0e2808430d42b75a7fcb8ffb40e76df5fadc2e2a44a2787acb24",
+        "size_bytes": 1761
+      },
+      {
+        "path": "schemas/commons/quarantine-record.schema.json",
+        "sha256": "a11be47ca2888cebae97cd31db550cbeb7c333fd4e6b9464a22a8217db3df8e4",
+        "size_bytes": 1755
+      },
+      {
+        "path": "schemas/commons/quarantine-status.schema.json",
+        "sha256": "9f08f387784edab3f5c4b9b8b99b81c9529d8265694b53aef40651f04517b6a3",
+        "size_bytes": 565
+      },
+      {
+        "path": "schemas/commons/state-machine-config.schema.json",
+        "sha256": "4949c99c745ae53312b5071b28f0280a25f7386bd907ef67413a874db916bd82",
+        "size_bytes": 2626
+      },
+      {
+        "path": "schemas/commons/state.schema.json",
+        "sha256": "79ec93dea913f7e8cf557b83b8a450c775a587f2ed9a86e6eec21fb9b17a8bc1",
+        "size_bytes": 857
+      },
+      {
+        "path": "schemas/commons/transition.schema.json",
+        "sha256": "15aeea72d88dbd545711d0a81442a66ea9c3ec4191281ddc301884c12d586c15",
+        "size_bytes": 745
+      },
+      {
+        "path": "schemas/commons/vector-manifest-entry.schema.json",
+        "sha256": "1d3aa8fb5d976045904618e2816221c452a4ab7900ca92719589a7ede2f71b55",
+        "size_bytes": 1227
+      },
+      {
+        "path": "schemas/commons/vector-manifest.schema.json",
+        "sha256": "2442242a45142bf31b8402a8b65ea766742c86eb1fec751759cd41f8afa70b6e",
+        "size_bytes": 2351
+      },
+      {
+        "path": "schemas/community-engagement-signal.schema.json",
+        "sha256": "6a747da53cd2fab20e88234ceabdad4971f0be5f6fed37fa3166930eb9d3fa51",
+        "size_bytes": 2060
+      },
+      {
+        "path": "schemas/completion-request.schema.json",
+        "sha256": "b2c82f5f3778329052e23a4a12e7810aa459b84be750df2593005a0c78309bf7",
+        "size_bytes": 6841
+      },
+      {
+        "path": "schemas/completion-result.schema.json",
+        "sha256": "8190baa153ca733af81d785cfd7039bd0718b3a1c7567d0359d253a44a13c54b",
+        "size_bytes": 3951
+      },
+      {
+        "path": "schemas/conformance-level.schema.json",
+        "sha256": "78fa613b43f7e0902490402a6e8db0e01007edc8274665e40a0964adaa300a72",
+        "size_bytes": 532
+      },
+      {
+        "path": "schemas/conformance-vector.schema.json",
+        "sha256": "7cf1c3a8d12efbc53ba4e5a9efa4cf2daec2f143e527afb1e22d8d377d6e99cb",
+        "size_bytes": 7189
+      },
+      {
+        "path": "schemas/conservation-property-registry.schema.json",
+        "sha256": "e0f7e0e628519dda6c2351604edbc329e66a2b52059077874a514d9685af3c0a",
+        "size_bytes": 8941
+      },
+      {
+        "path": "schemas/conservation-status.schema.json",
+        "sha256": "4e99abbd78d7433aa4555817bf3e07f8bc4444682faf93a0b3d79c1e3f8611c8",
+        "size_bytes": 492
+      },
+      {
+        "path": "schemas/constraint-candidate.schema.json",
+        "sha256": "5e1d766baea8b5b00004228234091986ed46237c00b063d3abac8e1a872895ec",
+        "size_bytes": 2509
+      },
+      {
+        "path": "schemas/constraint-lifecycle-event.schema.json",
+        "sha256": "30cdbd6c9ad3456080a952eab32365ccd4ebc05d057a98abe8c4ff1359e51c7b",
+        "size_bytes": 2380
+      },
+      {
+        "path": "schemas/constraint-lifecycle-status.schema.json",
+        "sha256": "5a353c75458e4b9e7775a3e81ffa103d662736bffa392ad248059e33bb479dd9",
+        "size_bytes": 633
+      },
+      {
+        "path": "schemas/constraint-proposal.schema.json",
+        "sha256": "c99f10f3aad5f82b77f761a714fc6e3e7a426e36473e7c9f6146f9fe51ff8205",
+        "size_bytes": 3533
+      },
+      {
+        "path": "schemas/constraint-type-signature.schema.json",
+        "sha256": "ea404f27ed8e55ae6a455862bc2f006958418697df969a9b9f28ac1519d195fe",
+        "size_bytes": 2479
+      },
+      {
+        "path": "schemas/constraint-type.schema.json",
+        "sha256": "da4a575ff33a0a45848727cf025acccf40104c3d4f12642fc2b0584db7858589",
+        "size_bytes": 798
+      },
+      {
+        "path": "schemas/contribution-record.schema.json",
+        "sha256": "f358f54b2eb7eea4ff40ceb0a8e4699f5deb5d9b28535418bda4a6884be174b3",
+        "size_bytes": 2274
+      },
+      {
+        "path": "schemas/conversation.schema.json",
+        "sha256": "a464ea666a46781a66646f3ddc6672c1c6be1a7311456558122ff1cd01347440",
+        "size_bytes": 8746
+      },
+      {
+        "path": "schemas/cost-per-token.schema.json",
+        "sha256": "0d835ddfabdbe1a44f168ffe87e13f249a639038cd5d77e72222b6787e46a9c8",
+        "size_bytes": 645
+      },
+      {
+        "path": "schemas/credential-update-event.schema.json",
+        "sha256": "2521eb9ed542c71d471ba7ef42d31a10d08752bfa2c5555bff0ec3e5a632c983",
+        "size_bytes": 1763
+      },
+      {
+        "path": "schemas/credit-note.schema.json",
+        "sha256": "5033870f0e442c2c61254ba86a114050ed56e1079e9e7c91f2883ca1d254a009",
+        "size_bytes": 3748
+      },
+      {
+        "path": "schemas/delegation-chain.schema.json",
+        "sha256": "ada5a6c2bf53a9bf973bd542e8c02f658558d97007285c708c2d3f06699cba59",
+        "size_bytes": 3972
+      },
+      {
+        "path": "schemas/delegation-outcome.schema.json",
+        "sha256": "39ecf1c509f573104ca3485cfec36d0777d6550870b951cc6a2aea267d6e1c16",
+        "size_bytes": 6547
+      },
+      {
+        "path": "schemas/delegation-quality-event.schema.json",
+        "sha256": "686d56384b25b172ff1c3a29ddbbac1f3199d1bf472c5398c1752cb5c0573f8d",
+        "size_bytes": 5514
+      },
+      {
+        "path": "schemas/delegation-tree-node.schema.json",
+        "sha256": "ddaec4d7248c0429d5e86f78d717c82ec9d86567fc2a8430974e98b4bfdde33a",
+        "size_bytes": 3576
+      },
+      {
+        "path": "schemas/delegation-tree.schema.json",
+        "sha256": "1e579e90dbaaf376df741024c352990568d6f8d9278d8cc23537afead0606a4d",
+        "size_bytes": 6242
+      },
+      {
+        "path": "schemas/delivery-method.schema.json",
+        "sha256": "23f5799aee93a57485155a3d29dc6ec02947d14098ac92399484cecd9d0528f6",
+        "size_bytes": 402
+      },
+      {
+        "path": "schemas/demotion-rule.schema.json",
+        "sha256": "498baf5ba9607eb60fecf0b1d0ab127c12e6876ae1d3e83516a9505ac1b75b2c",
+        "size_bytes": 1643
+      },
+      {
+        "path": "schemas/denial-code.schema.json",
+        "sha256": "805b03ac03fcd6d3a083d3093d78d4e9d95fb646638d7c4deccd0d0be76228b2",
+        "size_bytes": 770
+      },
+      {
+        "path": "schemas/dispute-record.schema.json",
+        "sha256": "ec5a0a982b6b6605fb3e6cfca8326e9a718f91b260b4a76f7656459c73d13b2c",
+        "size_bytes": 2678
+      },
+      {
+        "path": "schemas/domain-event-batch.schema.json",
+        "sha256": "25a49a1959b0c37ebd47a960d381db4755b610b720936946de0509b2489429b6",
+        "size_bytes": 6986
+      },
+      {
+        "path": "schemas/domain-event.schema.json",
+        "sha256": "4ec09bf85fe320acc31946871d53b1ac21d5fd3ed13802619d25eb89d34928a2",
+        "size_bytes": 2776
+      },
+      {
+        "path": "schemas/economic-boundary-evaluation-event.schema.json",
+        "sha256": "64cd83754cd32b7385f7c58698113764b004a77b3250878eb56a8a32322d1812",
+        "size_bytes": 8327
+      },
+      {
+        "path": "schemas/economic-boundary.schema.json",
+        "sha256": "9ef7021c34840637363e367984587fa146f70dff02b597aef7824046562b16fc",
+        "size_bytes": 5063
+      },
+      {
+        "path": "schemas/economic-impact-entry.schema.json",
+        "sha256": "933eda33464758feba6e06b76302a66601f513aecc24db8408f63513f34b9b3e",
+        "size_bytes": 1391
+      },
+      {
+        "path": "schemas/economic-impact-type.schema.json",
+        "sha256": "c0dad93feb02d9349e636cd84d5c6f1cab0de8ad97831707ecb310e98240d3e2",
+        "size_bytes": 718
+      },
+      {
+        "path": "schemas/economic-performance-event.schema.json",
+        "sha256": "a466c50efa1afd33e5034945dc4ea4477a7918e485f71fbde6bf5d826ab17a13",
+        "size_bytes": 3319
+      },
+      {
+        "path": "schemas/engagement-signal-type.schema.json",
+        "sha256": "ea1192def8307a2e277f556936f0dc8672f148d6d7babd55adb108da8167b3af",
+        "size_bytes": 562
+      },
+      {
+        "path": "schemas/ensemble-capability-profile.schema.json",
+        "sha256": "2c3979be1743665da827e078ca91cbae860651dd436f1fe99384fdb908cfe2db",
+        "size_bytes": 4565
+      },
+      {
+        "path": "schemas/ensemble-request.schema.json",
+        "sha256": "6626e7fabe9cfd9a6950b96d42bf029142b4ea1dc0bd2422ce86a95fba730da5",
+        "size_bytes": 10378
+      },
+      {
+        "path": "schemas/ensemble-result.schema.json",
+        "sha256": "ea7b25d57e24b7eb8c94914b1a854abdbf681155fb78c3aa79ac0a6cf3b77bd4",
+        "size_bytes": 18743
+      },
+      {
+        "path": "schemas/escrow-entry.schema.json",
+        "sha256": "5a235a7cf06c832f13aadb53414f2750e3eb7256fae4ba7127b78a8706565433",
+        "size_bytes": 2004
+      },
+      {
+        "path": "schemas/evaluation-gap.schema.json",
+        "sha256": "e246f97605bd36d53570804203fc759a72f698f91e98b9dd45dcff2b0033e08f",
+        "size_bytes": 828
+      },
+      {
+        "path": "schemas/event-cursor.schema.json",
+        "sha256": "a30c19c286cb44efc029d2711f8dfaea00364fe18d210c61c54d9c865a38da5a",
+        "size_bytes": 864
+      },
+      {
+        "path": "schemas/event-filter.schema.json",
+        "sha256": "6f3d82ff6f7f176052c51dfee10c695f58bc96ee4914a86e1a6497af111f63c4",
+        "size_bytes": 1587
+      },
+      {
+        "path": "schemas/event-subscription.schema.json",
+        "sha256": "e04c8f877158a635f3feb807c38dcd06850d6f9372e59bca8a68cc7c402bbb24",
+        "size_bytes": 4788
+      },
+      {
+        "path": "schemas/exchange-rate-spec.schema.json",
+        "sha256": "8f469308eecf2a758e0e4e03a865e22ef0ec8d67a0e72a1657bf42ce61533e8e",
+        "size_bytes": 1560
+      },
+      {
+        "path": "schemas/exchange-rate-type.schema.json",
+        "sha256": "d89d9a45f1bb99c3a5c39a971d7a5d9e023fee99cdc7dc347bc74111bf070341",
+        "size_bytes": 485
+      },
+      {
+        "path": "schemas/execution-checkpoint.schema.json",
+        "sha256": "6ed3d191393f15e0e9c40b068a6b44344f2391d25ba8b817e0434c9dbc433d31",
+        "size_bytes": 2419
+      },
+      {
+        "path": "schemas/execution-status.schema.json",
+        "sha256": "0ac528a42d6263a5f1ab3e514aa8691dda83010bba6b1c26837c449a8f5c135a",
+        "size_bytes": 611
+      },
+      {
+        "path": "schemas/execution-strategy.schema.json",
+        "sha256": "d2312d9849f8f71551f966690b8ef04ad26fa92ecb4d8c70834b38bd99637cb2",
+        "size_bytes": 483
+      },
+      {
+        "path": "schemas/fork-type.schema.json",
+        "sha256": "cf61c4bb6c1403a68390b6d8ab47c055b04211f8280dbd99563a88d9563a2e7b",
+        "size_bytes": 509
+      },
+      {
+        "path": "schemas/governance-config.schema.json",
+        "sha256": "45b1c4fd4e5ef349a20f2bcdf0f3e162815deca7cea383cb81abf893d02c4718",
+        "size_bytes": 3707
+      },
+      {
+        "path": "schemas/governance-proposal.schema.json",
+        "sha256": "c7b422c992ef66a341de575a157395c5605d640ab46c1a91fc039e6f79cac593",
+        "size_bytes": 6183
+      },
+      {
+        "path": "schemas/health-status.schema.json",
+        "sha256": "ac26ed218cec8d6c029227b301ce24a19cff3d7c25a5f64dafab29a669531882",
+        "size_bytes": 1599
+      },
+      {
+        "path": "schemas/inbound-claims.schema.json",
+        "sha256": "b5bcc93458ae7146f202e5590fe0c47fad8cdd66ebd931995c7dfaf945a53df6",
+        "size_bytes": 1810
+      },
+      {
+        "path": "schemas/index.json",
+        "sha256": "078de528883327f429fc76db1a9faea77e91ccf1307463660b1f413b093b5e02",
+        "size_bytes": 50919
+      },
+      {
+        "path": "schemas/inter-agent-transaction-audit.schema.json",
+        "sha256": "e570209aeac741aebef9263301f9033c0159cba1502d0d33346852312b2ab12c",
+        "size_bytes": 4664
+      },
+      {
+        "path": "schemas/invoke-response.schema.json",
+        "sha256": "cd0b659d10d0ab50cd6c9e1be3cbe69476d5876adb9a99c620b1017343376503",
+        "size_bytes": 3246
+      },
+      {
+        "path": "schemas/jwt-boundary-spec.schema.json",
+        "sha256": "d90c47b695648a9ad35ab41a69b7b021ed9a036dc936222ee13d5b84c34aaf66",
+        "size_bytes": 2770
+      },
+      {
+        "path": "schemas/jwt-claims.schema.json",
+        "sha256": "b8bd3adc13f6777bb36bdcdf812ec7c69c3ea2dd4b3dead516aefd1f343747b9",
+        "size_bytes": 2840
+      },
+      {
+        "path": "schemas/lifecycle-transition-payload.schema.json",
+        "sha256": "65e11a77e23fd702b7099b672b832d10201900791ae290b809fccf569d5ad38c",
+        "size_bytes": 3748
+      },
+      {
+        "path": "schemas/liveness-property.schema.json",
+        "sha256": "7353dbb5af608b3395fcbea0fb15548afdd2d0049dad10bc5869169393a18930",
+        "size_bytes": 3093
+      },
+      {
+        "path": "schemas/message.schema.json",
+        "sha256": "d021d7c3a1686ef8c59bc19291c11f41ff3b04a34330a4e46a8a9e8080be7917",
+        "size_bytes": 2271
+      },
+      {
+        "path": "schemas/micro-usdc.schema.json",
+        "sha256": "93425acd09a0ad90c9b1e75ef5598227c14b3dd11c5ec7b5f3a068873df9acb4",
+        "size_bytes": 351
+      },
+      {
+        "path": "schemas/minting-policy.schema.json",
+        "sha256": "69448e23eeab799c61d53c5211c5fb55da3801f8ab8d77c7ce8d1bead704d998",
+        "size_bytes": 1620
+      },
+      {
+        "path": "schemas/model-capabilities.schema.json",
+        "sha256": "78d2abea00da243d9e0c67ab5d783a917231e0cc33e533dd186b733f0d5d3da0",
+        "size_bytes": 2723
+      },
+      {
+        "path": "schemas/model-economic-profile.schema.json",
+        "sha256": "7d11faf90a6c0ccf8393b41c791de89036b7fc5027c396613e0e73c2939af059",
+        "size_bytes": 2046
+      },
+      {
+        "path": "schemas/model-performance-event.schema.json",
+        "sha256": "9bdca832423499b5a67d1571b929bd7a115c3accfabc24ecf398b46be21ac4bb",
+        "size_bytes": 4362
+      },
+      {
+        "path": "schemas/model-provider-spec.schema.json",
+        "sha256": "a6357c1e94a4a6aa83dd24ebaf378ee43232425754e60d148e079b77847f6cb4",
+        "size_bytes": 8715
+      },
+      {
+        "path": "schemas/monetary-policy.schema.json",
+        "sha256": "027e0a84a4b267feb9e8aec3a85a0f3bf9897af62a02e044aeb217a35dd9e329",
+        "size_bytes": 2974
+      },
+      {
+        "path": "schemas/mutual-credit.schema.json",
+        "sha256": "b9ad611cebe1004a7685f11e718f172a2f99d1425cf802640d9b57a5af0ae131",
+        "size_bytes": 2470
+      },
+      {
+        "path": "schemas/outbound-claims.schema.json",
+        "sha256": "4fa00f4636e24534e5d3220b60b238fa1f77580b5a12546dfdf15cdbea510194",
+        "size_bytes": 1726
+      },
+      {
+        "path": "schemas/outcome-quality-mapping.schema.json",
+        "sha256": "9315f32318a1b40ef095f4a989eaef9fd60145ae4313986911f3f3ff2b0e570e",
+        "size_bytes": 2462
+      },
+      {
+        "path": "schemas/performance-outcome-type.schema.json",
+        "sha256": "b5777295b0a2a18c160b61ba453794bca56ecd9d1ad7044326731e139ba8f4e0",
+        "size_bytes": 729
+      },
+      {
+        "path": "schemas/performance-quality-bridge.schema.json",
+        "sha256": "c1b8bf7f33f790dff69316604eed5ef207a7d6005b6c82ac2595862f0f1d8233",
+        "size_bytes": 2260
+      },
+      {
+        "path": "schemas/performance-record.schema.json",
+        "sha256": "7cc97e7306f37908fd8d45b0c70b9af08b937c580b67a1eaa3f51ff216210e35",
+        "size_bytes": 2608
+      },
+      {
+        "path": "schemas/permission-boundary.schema.json",
+        "sha256": "cac544e206ac2fbdca6a0ee4d16773d69b94afe0b95e7ed9522dc634c09bee0c",
+        "size_bytes": 3919
+      },
+      {
+        "path": "schemas/personality-assignment.schema.json",
+        "sha256": "1c563e8984bd3677546a27b00aa58b4bf3c80b2e68eca89ebaecdf25b24854c0",
+        "size_bytes": 1683
+      },
+      {
+        "path": "schemas/personality-tier.schema.json",
+        "sha256": "c559ad2f959b72e880b4f09cdcbb1312f17572c0acde16d998b15d259a8dd6ac",
+        "size_bytes": 406
+      },
+      {
+        "path": "schemas/policy-type.schema.json",
+        "sha256": "8436c78b8ec555713633ae7411a9e299d080fb2ed66a0ed81198932ae5f60782",
+        "size_bytes": 520
+      },
+      {
+        "path": "schemas/policy-version.schema.json",
+        "sha256": "8df8f84fa8c4871cb22433b8fe61632a78aab67e2056f2a148cdebde7e7521e2",
+        "size_bytes": 2008
+      },
+      {
+        "path": "schemas/portability-response.schema.json",
+        "sha256": "90e8dfe04fd3462ec4e4cb7b4b22200b7ed597d144b8b1b1935c4fdefd3d967e",
+        "size_bytes": 1783
+      },
+      {
+        "path": "schemas/portability-scope.schema.json",
+        "sha256": "34f44a3e07a5b5c69b1724efdfb6391fa5a6672ca834bf48ff8d5cdeed176a57",
+        "size_bytes": 528
+      },
+      {
+        "path": "schemas/proceed-decision.schema.json",
+        "sha256": "9d4d43f2fac8ea641efece8aec01c0b85742b5efaee591c44f94365a96553266",
+        "size_bytes": 479
+      },
+      {
+        "path": "schemas/proposal-event-type.schema.json",
+        "sha256": "7b1c64560adea700b36b73040549350f75719c1e0551d8a2e3e0e1cc777b8c61",
+        "size_bytes": 891
+      },
+      {
+        "path": "schemas/proposal-execution.schema.json",
+        "sha256": "a158ef1f70f242534e93e728335b706ffdd295e84f29aad234f670450cfcf8b6",
+        "size_bytes": 4353
+      },
+      {
+        "path": "schemas/proposal-outcome-event.schema.json",
+        "sha256": "15e4908fcef774f48652d2c80ee8e0e517764a65eddd8c6d6597af96422f1bbc",
+        "size_bytes": 2145
+      },
+      {
+        "path": "schemas/protocol-discovery.schema.json",
+        "sha256": "566870e3c93d7f64998d717c60da47c11eca0ab8392298be56fc5df05cca57e3",
+        "size_bytes": 3696
+      },
+      {
+        "path": "schemas/provider-wire-message.schema.json",
+        "sha256": "3d7a47454094cd9728a470fad3c8ee6223c5ff7652cfd7cd0fd243b466d30fd2",
+        "size_bytes": 2130
+      },
+      {
+        "path": "schemas/quality-bridge-direction.schema.json",
+        "sha256": "5d897820e581636648cd31a2b3299ee7339e2d8bb0d7a9cea78f6c7d42a43bd0",
+        "size_bytes": 503
+      },
+      {
+        "path": "schemas/quality-event-recorded-payload.schema.json",
+        "sha256": "11e246e47835b70a4a6c1c85b77ea35ee80d1d16751eb152eb4914a2eec841c0",
+        "size_bytes": 938
+      },
+      {
+        "path": "schemas/quality-event.schema.json",
+        "sha256": "a9512986b6deaf599cc57938d4da45dc59e0c2af844175ad477493a20d546100",
+        "size_bytes": 1658
+      },
+      {
+        "path": "schemas/quality-observation.schema.json",
+        "sha256": "ad64c82ab693090e3f4a31ff51edd0bb583833432fd60e32ad9f3a46ddf0c90f",
+        "size_bytes": 1169
+      },
+      {
+        "path": "schemas/quality-signal-event.schema.json",
+        "sha256": "d9f9a9841ff54d96e6b981198ffbd23c940ee7dc765d5e579b4d3b851fa67302",
+        "size_bytes": 2602
+      },
+      {
+        "path": "schemas/quality-signal-level.schema.json",
+        "sha256": "423ffdea700cd401b0dc884e2d5a0fec18510322395e85577cddc39db6ee8889",
+        "size_bytes": 569
+      },
+      {
+        "path": "schemas/query-reputation-command.schema.json",
+        "sha256": "1d876564d96b0c8a2f0baeaab2f7ba5a88d999421d8a3110163a658813a5cb76",
+        "size_bytes": 1253
+      },
+      {
+        "path": "schemas/rebalance-trigger-type.schema.json",
+        "sha256": "d74db39d7c20e6a6dc727b6196889c4ca88e22581bf4dbd9b839a5329d111c6a",
+        "size_bytes": 558
+      },
+      {
+        "path": "schemas/reconciliation-mode.schema.json",
+        "sha256": "ab9e0ce21d9f5c7a48623ee894fdc80e17177c7e6029711bfed18970b8f9197c",
+        "size_bytes": 471
+      },
+      {
+        "path": "schemas/record-quality-event-command.schema.json",
+        "sha256": "3f493e31bccbe5079896232d033f25f9d588431b6ed12bd1f9ab883f4e0c27cc",
+        "size_bytes": 2338
+      },
+      {
+        "path": "schemas/registry-bridge.schema.json",
+        "sha256": "99f4a0e1d4f4a8e2b9778cf7cc2541921304f56170fb032125227b84f4057929",
+        "size_bytes": 4836
+      },
+      {
+        "path": "schemas/reputation-aggregate.schema.json",
+        "sha256": "894c24979513ca5219bbab4f806d682eec96a164a99619d3525a255a256cd2b5",
+        "size_bytes": 8619
+      },
+      {
+        "path": "schemas/reputation-credential.schema.json",
+        "sha256": "ef966b8490ddb634500ff9bd96bf36ce00770d200a192b5b457386c1ac9ff628",
+        "size_bytes": 2217
+      },
+      {
+        "path": "schemas/reputation-decay-policy.schema.json",
+        "sha256": "46b8242a78bd08abd3f9916a8f35618a8725000f6bcad6f797e85510abe9b4fd",
+        "size_bytes": 3001
+      },
+      {
+        "path": "schemas/reputation-economic-impact.schema.json",
+        "sha256": "0570bfec5ba0e6adfd88d2dc7aa116f80a865eba4038d9e6c4cfad0bfd6cc3dc",
+        "size_bytes": 4692
+      },
+      {
+        "path": "schemas/reputation-event.schema.json",
+        "sha256": "a22c8cfc9bfba07cf91cf19d708b8d1eec28406b65191642f37bb2ada033571f",
+        "size_bytes": 12310
+      },
+      {
+        "path": "schemas/reputation-portability-request.schema.json",
+        "sha256": "9139afa2efb9701ea534a48309864ad382ba1ccd3d3fb9a4992006229713995d",
+        "size_bytes": 1933
+      },
+      {
+        "path": "schemas/reputation-routing-signal.schema.json",
+        "sha256": "07fdda19ba2a7288483f8d6200b8fc6766e25634f9bedb66e24a0628272c54dc",
+        "size_bytes": 3133
+      },
+      {
+        "path": "schemas/reputation-score.schema.json",
+        "sha256": "83fe7bbd98885eefb4514db1841104d9e1a3757ae7ffe1ee750112f2486e198f",
+        "size_bytes": 2253
+      },
+      {
+        "path": "schemas/reputation-state-changed-payload.schema.json",
+        "sha256": "a72f6e34b6589a64c04f1f428b99494eb5523547c81bc807d43fe28c60b94ca0",
+        "size_bytes": 1627
+      },
+      {
+        "path": "schemas/reputation-state.schema.json",
+        "sha256": "c8e713617cb2812fe10e5b620f831b6bd75bc8ab5e23fefd77f5082c18a67e82",
+        "size_bytes": 476
+      },
+      {
+        "path": "schemas/reputation-transition.schema.json",
+        "sha256": "6ddfe4846c62ee8b988de6b31905c55317d8d1c2d691ba1850082d9f0177418d",
+        "size_bytes": 1248
+      },
+      {
+        "path": "schemas/reputation-trigger-event.schema.json",
+        "sha256": "64a51f1c934dae11d6956b444d86149f83b84df9487a71eddf08f635e735f1c2",
+        "size_bytes": 1793
+      },
+      {
+        "path": "schemas/reservation-enforcement.schema.json",
+        "sha256": "57f2706bae771924457308efbcaf08d0b2c981b98139b814afe990ba354a5c75",
+        "size_bytes": 495
+      },
+      {
+        "path": "schemas/reservation-state.schema.json",
+        "sha256": "bd9bbbb0ab05adefeeb1b34d32eff9b33eed2786f88331f6822974af096bfe1f",
+        "size_bytes": 478
+      },
+      {
+        "path": "schemas/reservation-tier.schema.json",
+        "sha256": "59e12440468af73df4e3efa1206456de04e7284c9ecdd0bcb35ad616e2179e0d",
+        "size_bytes": 340
+      },
+      {
+        "path": "schemas/reset-reputation-command.schema.json",
+        "sha256": "a9e6f9d1b6b7ced5d9cd4a142f4c76de7534347a35aff4f050b9f5c8d78845b0",
+        "size_bytes": 958
+      },
+      {
+        "path": "schemas/rollback-scope.schema.json",
+        "sha256": "a26df1658a361c9766bbab5b654051aac8e13071b9b0476afb4f0de47d0c6d5b",
+        "size_bytes": 1624
+      },
+      {
+        "path": "schemas/routing-constraint.schema.json",
+        "sha256": "25bb62fb777dd1e3f10637ac3d337c4c227c5429f94b9f3f246278ece89c5b34",
+        "size_bytes": 2191
+      },
+      {
+        "path": "schemas/routing-policy.schema.json",
+        "sha256": "1b4a5e0eb3d2afa4870625300bb3e93dd427f7f2e86e43fb5738e0a5ac24acbe",
+        "size_bytes": 5505
+      },
+      {
+        "path": "schemas/routing-rebalance-event.schema.json",
+        "sha256": "30966aa75049beeca86ac92deb31fb56daf681dd6cbac76fc7d87e9f3d0b842a",
+        "size_bytes": 2208
+      },
+      {
+        "path": "schemas/routing-resolution.schema.json",
+        "sha256": "1540951a1b31a78764533a2588125329db940912ff3a27b68938858b56c4bbf3",
+        "size_bytes": 1213
+      },
+      {
+        "path": "schemas/routing-signal-type.schema.json",
+        "sha256": "f4192ab0fecfc5ae896a91c6363e8e6a5f9580ce1b1e1d3b3413369e85d9a306",
+        "size_bytes": 501
+      },
+      {
+        "path": "schemas/s2s-jwt-claims.schema.json",
+        "sha256": "e030122032afa17a8e9feb9089ef9af375b4612d50a0ead14988d48feeb79b0f",
+        "size_bytes": 1095
+      },
+      {
+        "path": "schemas/saga-context.schema.json",
+        "sha256": "7ce4aa33cf751866c3c721875fd31f9b1cbab729cd646e624e492b70bb58c7bd",
+        "size_bytes": 1074
+      },
+      {
+        "path": "schemas/sanction-severity.schema.json",
+        "sha256": "83e7481495fec8002b2bc796b9048841bfe3a0bbb8e86fd83c6cc68f323010d2",
+        "size_bytes": 655
+      },
+      {
+        "path": "schemas/sanction.schema.json",
+        "sha256": "01f09bde0a32c8b1753b502b842f4dace4a3182746f0436fccd814c432ebc439",
+        "size_bytes": 4159
+      },
+      {
+        "path": "schemas/schemastore-catalog.json",
+        "sha256": "41fcc6d4db2b01272060d4d409f84ed859fe123f3503fe1bda9ab925f357b903",
+        "size_bytes": 1588
+      },
+      {
+        "path": "schemas/scoring-path-log.schema.json",
+        "sha256": "bfcfa2b18c4cbde30c112799d96487ac042b142c33aa743417f68613e1408e87",
+        "size_bytes": 2568
+      },
+      {
+        "path": "schemas/scoring-path.schema.json",
+        "sha256": "64963d693c67712cb4c02d3cbe143f6d3a0f807f944620efcd593825651f4bcc",
+        "size_bytes": 504
+      },
+      {
+        "path": "schemas/settlement-policy.schema.json",
+        "sha256": "57a00492edb2ae9219a70645fd05898066b0e235c4b31894841bbde97f21d924",
+        "size_bytes": 472
+      },
+      {
+        "path": "schemas/stake-position.schema.json",
+        "sha256": "30a7f3c2720bc1db1c82f00af05131fb9fc3643b9c3f49b1e18e727a28379d93",
+        "size_bytes": 2677
+      },
+      {
+        "path": "schemas/stream-event.schema.json",
+        "sha256": "ec8c1654364919576a1db5f5277ab93049b6e713fd8f8473dcab320e5c75601a",
+        "size_bytes": 6404
+      },
+      {
+        "path": "schemas/task-completed-event.schema.json",
+        "sha256": "64773e7752b21779d96587e5c4d471ceb3876d22a6a8ac10658c07b8eaa0cbdf",
+        "size_bytes": 2417
+      },
+      {
+        "path": "schemas/task-type-cohort.schema.json",
+        "sha256": "77fb0d4772af685749cbacc49aa25f4dedc819cb693f8fd79265ef0249367b74",
+        "size_bytes": 2450
+      },
+      {
+        "path": "schemas/task-type.schema.json",
+        "sha256": "d6923b239573c1c965ccfcb2ec6b82ffff8856459309cbfcb4118733fc3ebb28",
+        "size_bytes": 947
+      },
+      {
+        "path": "schemas/thinking-trace.schema.json",
+        "sha256": "5e243bfa704538c3cbe4db688de0e94dadf08013f5dccde5d158c1350a4eb69b",
+        "size_bytes": 1252
+      },
+      {
+        "path": "schemas/timeout-behavior.schema.json",
+        "sha256": "530ed0d635d62b378c38a04dc84546adcf46ccb6a78c85f91c21dd161dad71e2",
+        "size_bytes": 552
+      },
+      {
+        "path": "schemas/tool-call.schema.json",
+        "sha256": "5e0a42fba37857df41bd4b795ff044e0d8635a2508f06dc922fbb4da7dbee6de",
+        "size_bytes": 820
+      },
+      {
+        "path": "schemas/tool-definition.schema.json",
+        "sha256": "657b910d717531511feb6abe7eb82b6c09ddf8ce060f24ac4e33db496569c881",
+        "size_bytes": 762
+      },
+      {
+        "path": "schemas/tool-result.schema.json",
+        "sha256": "a5ffafc51ccce6b73618cb08f3d6cc299607a9f66cc4a5bd5221f0773673a6a0",
+        "size_bytes": 529
+      },
+      {
+        "path": "schemas/transfer-event.schema.json",
+        "sha256": "9a861758197c4c9fe6c91183bc7eb4122f746ac637d75734762520097b0057f9",
+        "size_bytes": 8675
+      },
+      {
+        "path": "schemas/transfer-spec.schema.json",
+        "sha256": "3063268ec9d548ffcb53bdc850f5eb8c4f705c206d40766b2408e215af7e9ffb",
+        "size_bytes": 8240
+      },
+      {
+        "path": "schemas/tree-node-status.schema.json",
+        "sha256": "6d93ca6593ed4e307bab524c4f23a906efc85316e6fbbba05cc4560bce2fd2f6",
+        "size_bytes": 587
+      },
+      {
+        "path": "schemas/tree-strategy.schema.json",
+        "sha256": "8cf64b07238fffd1d0d40d8562755d032f25184ca4cfc74e1168a67c484cba67",
+        "size_bytes": 553
+      },
+      {
+        "path": "schemas/trust-layer-snapshot.schema.json",
+        "sha256": "e209624b152290d1102b15ad564b294e6bb0049e1c84e0461ec958ea27eddcb3",
+        "size_bytes": 1165
+      },
+      {
+        "path": "schemas/usage-report.schema.json",
+        "sha256": "83d89d904e382a0146267851aa309657502ff2fe3164a5a3805479bbe7750d77",
+        "size_bytes": 2096
+      },
+      {
+        "path": "schemas/validated-outcome.schema.json",
+        "sha256": "82cf00aba113f71a3dc680f57ad7a866f0777fc73ce148510524969cd2141029",
+        "size_bytes": 1752
+      }
+    ],
+    "vectors": [
+      {
+        "path": "vectors/conformance/access-policy/compound-and-deny.json",
+        "sha256": "6bd27f0df1b3012bf1c7260c19099da4a060e64ebafcfbe79b9b1567df6a2497",
+        "size_bytes": 1041
+      },
+      {
+        "path": "vectors/conformance/access-policy/compound-and-grant.json",
+        "sha256": "da889fc7f29c8409b7d0a53789102a2d3689b6b7790f2d3104f6525a046cfa91",
+        "size_bytes": 1021
+      },
+      {
+        "path": "vectors/conformance/access-policy/compound-or-deny.json",
+        "sha256": "8927218abea7e0054ee5d67ca2d4a969e9049ef9a2d7a7e214baede6f15cd531",
+        "size_bytes": 1080
+      },
+      {
+        "path": "vectors/conformance/access-policy/compound-or-grant.json",
+        "sha256": "bae703804cb25d7362e805895fd1012b7b5ea788b23012592571da2e4970c985",
+        "size_bytes": 1008
+      },
+      {
+        "path": "vectors/conformance/access-policy/hysteresis-grant-hold.json",
+        "sha256": "0189ce0fe228c25b0869d6e2919a7983f37cac5ab56f217326d729c23fdcb008",
+        "size_bytes": 883
+      },
+      {
+        "path": "vectors/conformance/access-policy/hysteresis-no-previous.json",
+        "sha256": "02763537529d204aa94c8e99d5f45fb99932cb5b7653547decd2c793da926140",
+        "size_bytes": 831
+      },
+      {
+        "path": "vectors/conformance/access-policy/hysteresis-revoke.json",
+        "sha256": "bd670fb94d0f1656644e54c3bcbe0e104c993eb09df5ecc5347c38a5395018b4",
+        "size_bytes": 874
+      },
+      {
+        "path": "vectors/conformance/agent-identity/service-zero-depth.json",
+        "sha256": "29bf660d4e04003aeea17b79c8266ac2aba8c2205aca25e927ff45dd3d687df2",
+        "size_bytes": 871
+      },
+      {
+        "path": "vectors/conformance/agent-identity/sovereign-full-authority.json",
+        "sha256": "baeea827849a80ce52e5c11391d646db509de6c6d09de19ea78c8652431531dd",
+        "size_bytes": 964
+      },
+      {
+        "path": "vectors/conformance/agent-identity/untrusted-with-delegation.json",
+        "sha256": "981849bde9420a15a79c03512feaa0062106d0d71b92265c1d094e4e56600c2c",
+        "size_bytes": 1112
+      },
+      {
+        "path": "vectors/conformance/bridge-transfer-saga/invalid-compensation-order.json",
+        "sha256": "02b948324fb2d8aaf450ecff53a756b87bc9be6c08f321ec9ddfc6ee84655e97",
+        "size_bytes": 1783
+      },
+      {
+        "path": "vectors/conformance/bridge-transfer-saga/partial-failure-compensation.json",
+        "sha256": "3e4fdd1b3ea0cf3bbc8e1d1b52b08ae47bf601df05e70ccb56d1edd3e2685fa9",
+        "size_bytes": 3234
+      },
+      {
+        "path": "vectors/conformance/bridge-transfer-saga/successful-atomic.json",
+        "sha256": "2965c8e15b912d46367c388f886ffb6cbc96d26c496f5f8e5b42a1273d234422",
+        "size_bytes": 2682
+      },
+      {
+        "path": "vectors/conformance/bridge-transfer-saga/timeout-triggered.json",
+        "sha256": "9c246c799a86776b5fefcc83c8fd25e24dfb55d69e1a25438775c424b83f9b13",
+        "size_bytes": 2444
+      },
+      {
+        "path": "vectors/conformance/capability-scoped-trust/delegation-scope-untrusted.json",
+        "sha256": "f19652a7148597bfb61562922085d521988ea2ea546964d2132c303232282aa6",
+        "size_bytes": 1071
+      },
+      {
+        "path": "vectors/conformance/capability-scoped-trust/missing-required-scopes.json",
+        "sha256": "76cc9d0ea9f7bdac8946acce56b59ca42dbc3087b53231b961f310d77f4d0170",
+        "size_bytes": 981
+      },
+      {
+        "path": "vectors/conformance/capability-scoped-trust/multi-scope-agent.json",
+        "sha256": "39747e6b6b5c2d9c6658e6b7777421d8b5e15243b56fa51bb95c3cc53ce4c0f7",
+        "size_bytes": 899
+      },
+      {
+        "path": "vectors/conformance/collection-governance-config/invalid-demotion-forward.json",
+        "sha256": "4f33885cee53920aa516263b4871e31f678e84038354ab55125921eb73bf7e3a",
+        "size_bytes": 914
+      },
+      {
+        "path": "vectors/conformance/collection-governance-config/valid-conservative-community.json",
+        "sha256": "07d23e68f8ad9ac70d8b621a1640d2b05a2e4d4ef1c718d2fc0400fcb47bd48e",
+        "size_bytes": 953
+      },
+      {
+        "path": "vectors/conformance/collection-governance-config/valid-default-config.json",
+        "sha256": "0370957dc572d93fecf0eaf09d0879f4b076eac46b782cf058475fc49ed6d98e",
+        "size_bytes": 1067
+      },
+      {
+        "path": "vectors/conformance/commons/audit-trail/hash-reference-vector.json",
+        "sha256": "0057ccfda22e9867e852a74f54dc37eefc465887c8c7fa03fd83664f50283978",
+        "size_bytes": 1004
+      },
+      {
+        "path": "vectors/conformance/commons/dynamic-contract/valid-monotonic-surfaces.json",
+        "sha256": "eae88dbb8dbef4f424f98e43010d3153e68aa49305b782176868eaa294cb3ee5",
+        "size_bytes": 1359
+      },
+      {
+        "path": "vectors/conformance/commons/dynamic-contract/valid-negotiation-server-derived.json",
+        "sha256": "218220304fe250b9ad2844637bc1e7c59b6a311395e616d7c95d6653306af1b7",
+        "size_bytes": 863
+      },
+      {
+        "path": "vectors/conformance/commons/governed-credits/valid-balanced-lot.json",
+        "sha256": "c63f6b7f48d9b7332164175f5f85fe4cd16e61503872bc5c5a40934f9529b641",
+        "size_bytes": 1416
+      },
+      {
+        "path": "vectors/conformance/commons/governed-freshness/valid-fresh-resource.json",
+        "sha256": "a76bc0a81cea3b0f4fc8c368982a5597bfee67b57aeaff797f59b2f8483a00d6",
+        "size_bytes": 1446
+      },
+      {
+        "path": "vectors/conformance/commons/governed-reputation/cold-null-score-valid.json",
+        "sha256": "5443900cf50f63fe7df5e7e87a9f472cb44d32e0fe6951384fc995e40e798591",
+        "size_bytes": 1529
+      },
+      {
+        "path": "vectors/conformance/commons/governed-resource/missing-version-rejected.json",
+        "sha256": "75b78593ea702e80507a12ec36a025ce9891e10294f9f42af0d15957de36e797",
+        "size_bytes": 974
+      },
+      {
+        "path": "vectors/conformance/commons/governed-resource/strict-empty-invariants-rejected.json",
+        "sha256": "1879aae7e8a4cb280cbedc3727957135b0d38e8c73963d195110c77c8eb74c2b",
+        "size_bytes": 506
+      },
+      {
+        "path": "vectors/conformance/community-engagement/invalid-negative-weight.json",
+        "sha256": "93e4edbd8dd05c54bc3a8c7ff556df813a634f027defcb0e84836074319d5b4c",
+        "size_bytes": 539
+      },
+      {
+        "path": "vectors/conformance/community-engagement/valid-cultural-resonance.json",
+        "sha256": "8de04ccb4f12f699f1de0efb743ccb9d178d39f96346c593009e1b1a5a7e0e12",
+        "size_bytes": 589
+      },
+      {
+        "path": "vectors/conformance/community-engagement/valid-participation-signal.json",
+        "sha256": "676ac4d92db934f2f12cf7882b029ff86eef384e5948697eca2b4af6e09ad414",
+        "size_bytes": 681
+      },
+      {
+        "path": "vectors/conformance/conservation-properties/invalid-count-mismatch.json",
+        "sha256": "0229ff2a581960704ae3ae059a62f165cbf50c57302c215f0a1b2e9009455cff",
+        "size_bytes": 1337
+      },
+      {
+        "path": "vectors/conformance/conservation-properties/invalid-duplicate-ids.json",
+        "sha256": "5fdb409fb42bebd7eb3cb160ceba930ccfb08087baaa1ae2429605415247b132",
+        "size_bytes": 1314
+      },
+      {
+        "path": "vectors/conformance/conservation-properties/valid-registry.json",
+        "sha256": "063f36340c31c89819400ae26e1e2b7db790575233bdbea0c3a858e3958792a1",
+        "size_bytes": 1748
+      },
+      {
+        "path": "vectors/conformance/constraint-lifecycle/invalid-backward-transition.json",
+        "sha256": "a378b313c34b3700e112e7643ab32222a74e886b1adaa33cba4914e78b1274e6",
+        "size_bytes": 592
+      },
+      {
+        "path": "vectors/conformance/constraint-lifecycle/valid-candidate-with-dryrun.json",
+        "sha256": "072922604aef04ec47813285492b407e2bce1cf861c071ef23e66da2602d9a0a",
+        "size_bytes": 708
+      },
+      {
+        "path": "vectors/conformance/constraint-lifecycle/valid-proposed-to-enacted.json",
+        "sha256": "d042558cdbb746a52b2fea18ea527220ad64ca822a322a6414c8e58ad2d17d23",
+        "size_bytes": 587
+      },
+      {
+        "path": "vectors/conformance/delegation-chain/3-link-budget-split.json",
+        "sha256": "d4f0581f6ceff6a42c6be64d69e82fa550c5efe8afecd00a2e6096c36f915629",
+        "size_bytes": 1618
+      },
+      {
+        "path": "vectors/conformance/delegation-chain/authority-conservation-violated.json",
+        "sha256": "94d530ad98faad05d1c53d21d332e8bd10ff2320c6c0e6ca0a90702e64a0cfea",
+        "size_bytes": 1454
+      },
+      {
+        "path": "vectors/conformance/delegation-chain/depth-limit-exceeded.json",
+        "sha256": "d9411353205c739e3247e8a7d5228222bdcc64e1fc567f35fafd4f523af71329",
+        "size_bytes": 1987
+      },
+      {
+        "path": "vectors/conformance/delegation-chain/simple-2-link.json",
+        "sha256": "610f34c3eb9a883a8d95a3a24d2e6f3205c903bf583e9500107c4ccc2492738c",
+        "size_bytes": 1362
+      },
+      {
+        "path": "vectors/conformance/delegation-outcome/deadlock-escalation.json",
+        "sha256": "647e9db52c556158842aeed7c4bf82dcd4d0f951d49ddce8a8ae0bc7fbcca4bf",
+        "size_bytes": 2051
+      },
+      {
+        "path": "vectors/conformance/delegation-outcome/invalid-unanimous-with-dissent.json",
+        "sha256": "7750422ad25517ca48b4b637ec93caf0455df86e7a18310fbb9b082d23847219",
+        "size_bytes": 1460
+      },
+      {
+        "path": "vectors/conformance/delegation-outcome/majority-2of3-minority.json",
+        "sha256": "047162f951e39454280dd50889a45e5788000ac33551531dbc344d99ccab7ac7",
+        "size_bytes": 1968
+      },
+      {
+        "path": "vectors/conformance/delegation-outcome/unanimous-3of3.json",
+        "sha256": "f4fbe61dc3b166f8ed5c85cb173e180d045ea569980102fd88756129bb712e67",
+        "size_bytes": 1525
+      },
+      {
+        "path": "vectors/conformance/delegation-quality/invalid-missing-required.json",
+        "sha256": "a430ff8dc133a6864f29e1f3184e5ea03a708f1f3780321d99eac18356b56803",
+        "size_bytes": 922
+      },
+      {
+        "path": "vectors/conformance/delegation-quality/valid-deadlock-low.json",
+        "sha256": "537636cd9c542ff456bd17e2b7751a286264aef0d1c033c34202c0b4ba6ee959",
+        "size_bytes": 1030
+      },
+      {
+        "path": "vectors/conformance/delegation-quality/valid-unanimous-high.json",
+        "sha256": "eb2fd795a2ccea2caad6b3a05d267d684de82c6ce761a691cabe9af6033872ca",
+        "size_bytes": 983
+      },
+      {
+        "path": "vectors/conformance/delegation-tree/budget-overflow.json",
+        "sha256": "88d8f2449aa6f27b6b631b4975262a83c5cfd465fe3f3ca90db8c213524848bf",
+        "size_bytes": 1954
+      },
+      {
+        "path": "vectors/conformance/delegation-tree/consensus-too-few.json",
+        "sha256": "ae798e3b634856aa570e32d214476de2d2b3190886cc381633f83ce6b66f6d56",
+        "size_bytes": 1932
+      },
+      {
+        "path": "vectors/conformance/delegation-tree/parallel-ensemble.json",
+        "sha256": "f338565a9913abe0a17d79290f6e1d377bd01c283a82a995ff4ddf5981a44c74",
+        "size_bytes": 2164
+      },
+      {
+        "path": "vectors/conformance/economic-boundary/invalid-denied-no-reason.json",
+        "sha256": "81e8c25af114b10befe3db8368e0121c468adf2f4fa440a6ed569c638fcce5e0",
+        "size_bytes": 875
+      },
+      {
+        "path": "vectors/conformance/economic-boundary/valid-denied-insufficient-reputation.json",
+        "sha256": "42929d8ea48b6e37baba8120389d5a9e6fc5ce7643bbdc1540d7fe0f942d1741",
+        "size_bytes": 1016
+      },
+      {
+        "path": "vectors/conformance/economic-boundary/valid-granted-access.json",
+        "sha256": "19772f523a35699c401d0263bbdcda6c6784fdf851bcad62cb882ff76fdf73b9",
+        "size_bytes": 926
+      },
+      {
+        "path": "vectors/conformance/economic-performance/invalid-quality-exceeds-one.json",
+        "sha256": "cc2468ee694dc87a8430c262d333533686947f127244cc6b5eaef73d21b35870",
+        "size_bytes": 725
+      },
+      {
+        "path": "vectors/conformance/economic-performance/valid-cost-within-budget.json",
+        "sha256": "3a322a9c69733792e96b6ab58908dc82fdcb04571238ee2d9db8c2964a089529",
+        "size_bytes": 770
+      },
+      {
+        "path": "vectors/conformance/economic-performance/valid-quality-below-threshold.json",
+        "sha256": "8fb1c4c49979828cc8c4be2ff979fb4a055f4da4ee3e0974e25f96c240e2eb44",
+        "size_bytes": 795
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/budget-exhausted.json",
+        "sha256": "0d9daaa43aac94cf12fbd8519fa7c618818ef9754dee6a66ad224a1c493496bf",
+        "size_bytes": 878
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/consensus-2-models.json",
+        "sha256": "f00695e7d86c212a9b73db156725e049eb860d02c4a5724270a42fe3767862d4",
+        "size_bytes": 902
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/consensus-3-models.json",
+        "sha256": "11bad6c5eafa056862cf0b6573713effbe6b4820fc8b5dcbfc1696a71f4910c9",
+        "size_bytes": 1002
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/dialogue-2-rounds.json",
+        "sha256": "a743f356836e9a7ccdddaa85dd8a9f99b4a70d87a9f83e6eae734a50d224b12c",
+        "size_bytes": 1135
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/position-change.json",
+        "sha256": "484ac1dd04a2a9813743a5f26421edfa63b0735259078afdbae081cb887c91c2",
+        "size_bytes": 1173
+      },
+      {
+        "path": "vectors/conformance/ensemble-position/timeout.json",
+        "sha256": "47e978d32b7f161129a758cf505c92561653a39b109a66afea6e8708d007a458",
+        "size_bytes": 885
+      },
+      {
+        "path": "vectors/conformance/event-subscription/invalid-webhook-no-endpoint.json",
+        "sha256": "503b606bdfa22686a74cc66c92fe62193e66e046e76ab8b424c549670e2146c5",
+        "size_bytes": 710
+      },
+      {
+        "path": "vectors/conformance/event-subscription/valid-sse-subscription.json",
+        "sha256": "e55c4236444f3dbd612950a875ab70594ad66210d201d3e87bc6eb03fbffda0a",
+        "size_bytes": 895
+      },
+      {
+        "path": "vectors/conformance/event-subscription/valid-webhook-subscription.json",
+        "sha256": "524ca7efcd05ffa9bc791a707bd5bdf6b014c251501034601e3b190dbb629241",
+        "size_bytes": 994
+      },
+      {
+        "path": "vectors/conformance/execution-checkpoint/invalid-failing-continue.json",
+        "sha256": "086ae8deba8ad47993e2d36da19b6c3a1195cd827b578ed15a731bdef3e29d61",
+        "size_bytes": 648
+      },
+      {
+        "path": "vectors/conformance/execution-checkpoint/valid-canary-with-rollback.json",
+        "sha256": "5d41244f8750a870bdad19247a5bcfd419487d13180644ffb9e86862dfd933eb",
+        "size_bytes": 707
+      },
+      {
+        "path": "vectors/conformance/execution-checkpoint/valid-progressive-healthy.json",
+        "sha256": "290d00d417de3db4889f55cf74ef70f4b9252093276b18675cfe96f78e04d5d9",
+        "size_bytes": 705
+      },
+      {
+        "path": "vectors/conformance/governance-proposal/invalid-empty-changes.json",
+        "sha256": "7d7b2294183ee39eb4df58126364400830d740eadff63f15c2d8fe2587f245f1",
+        "size_bytes": 888
+      },
+      {
+        "path": "vectors/conformance/governance-proposal/valid-parameter-update.json",
+        "sha256": "61f204c1fccf9509810449ec34c64c47a369984d6c341cf3067ac7bd31115899",
+        "size_bytes": 1557
+      },
+      {
+        "path": "vectors/conformance/inter-agent-transaction/conservation-violated.json",
+        "sha256": "bba18f6b9b7b455226d5ac353d87998abbb0fcc964349096cc4f5c722a637d3c",
+        "size_bytes": 1183
+      },
+      {
+        "path": "vectors/conformance/inter-agent-transaction/delegation-linked-transfer.json",
+        "sha256": "bf40f0b928e2f921f6dc2cc6ce6290d358843bb5e1c08e342ab4b495ad794852",
+        "size_bytes": 1060
+      },
+      {
+        "path": "vectors/conformance/inter-agent-transaction/self-transfer-rejected.json",
+        "sha256": "161d7cd445e0ba2c6ae460efbc62e0bdc0126e53ea2ea152dd95ae93efaa9252",
+        "size_bytes": 1143
+      },
+      {
+        "path": "vectors/conformance/inter-agent-transaction/standard-peer-transfer.json",
+        "sha256": "28c6bff483da23145be4b6b777291254dc11ceaf56c4141dcbee1817a0a988a4",
+        "size_bytes": 997
+      },
+      {
+        "path": "vectors/conformance/jwt-boundary/invalid-non-blocking-crypto.json",
+        "sha256": "26eb47f9b38959dba47741deea6d21917a8dd3c17adf15be17d6cd386206f91a",
+        "size_bytes": 1720
+      },
+      {
+        "path": "vectors/conformance/jwt-boundary/invalid-step-ordering.json",
+        "sha256": "6e0a87d3366c70810d19d3a59752618185dede6a337d0c558a13f6effacf9e71",
+        "size_bytes": 1713
+      },
+      {
+        "path": "vectors/conformance/jwt-boundary/valid-boundary-spec.json",
+        "sha256": "9c6344b530c7484f6c3fb238bb674383266a3bf19b0671662a5bded89c4281a8",
+        "size_bytes": 1735
+      },
+      {
+        "path": "vectors/conformance/liveness-properties/complete-safety-liveness-pairs.json",
+        "sha256": "213745c4865c485edc6688bb2e12bc45bfea8a350fceafb5d2f5b76698ffba48",
+        "size_bytes": 820
+      },
+      {
+        "path": "vectors/conformance/liveness-properties/liveness-empty-formula.json",
+        "sha256": "82ecde64773f0948fd1a1d6cf3fd86333db6650d1f15d32c106bc322f1807e9e",
+        "size_bytes": 770
+      },
+      {
+        "path": "vectors/conformance/liveness-properties/liveness-without-companion.json",
+        "sha256": "f5bc7e9d3eee78c3b565348b4c7ce2478fba84fa61947385b3cbb42e45ee2ca5",
+        "size_bytes": 837
+      },
+      {
+        "path": "vectors/conformance/micro-usdc/conversion-preservation.json",
+        "sha256": "3faa068d1f73700ab0a82108d66ead85fb9c2544b1b4648b5d2235275f483b7b",
+        "size_bytes": 498
+      },
+      {
+        "path": "vectors/conformance/micro-usdc/negative-rejection.json",
+        "sha256": "92b1f7ac7e16d79090f068f2224e958ae650648b37ee0a17d7803b4e86e58641",
+        "size_bytes": 371
+      },
+      {
+        "path": "vectors/conformance/micro-usdc/non-numeric-rejection.json",
+        "sha256": "0024bf108baa042fb67b43b3b46335302f393e3dc962cf141a3c9f357d9de068",
+        "size_bytes": 375
+      },
+      {
+        "path": "vectors/conformance/micro-usdc/round-trip.json",
+        "sha256": "fdec3803d23e673d5b387e4d77e45229bc16c90057302a425808627ad1770d39",
+        "size_bytes": 453
+      },
+      {
+        "path": "vectors/conformance/model-economic-profile/invalid-negative-quality.json",
+        "sha256": "385a4e75d5d98722c557823abae6d407ce19c4344f09b8049098994a4c3061d9",
+        "size_bytes": 610
+      },
+      {
+        "path": "vectors/conformance/model-economic-profile/valid-gpt4o-profile.json",
+        "sha256": "5db657421b177c8dd02c2da8dff5945a19f3aeed2a09d47905f2134cf7be3a8a",
+        "size_bytes": 607
+      },
+      {
+        "path": "vectors/conformance/model-economic-profile/valid-native-profile.json",
+        "sha256": "8749c9e82c4ac757c94e84142bb42546810aa3b9c46ff509a93268d866e72eef",
+        "size_bytes": 642
+      },
+      {
+        "path": "vectors/conformance/monetary-policy/invalid-mint-exceeds-ceiling.json",
+        "sha256": "b876fc47efa2cef32fbf7fedccc25d9e96932dd495792a5306c7187c4040f314",
+        "size_bytes": 898
+      },
+      {
+        "path": "vectors/conformance/monetary-policy/invalid-undercollateralized.json",
+        "sha256": "ddf8c9740598f648f61681c1b4e2673ee7aad00887077fa2f261a8217c1e0078",
+        "size_bytes": 889
+      },
+      {
+        "path": "vectors/conformance/monetary-policy/valid-150pct-collateral.json",
+        "sha256": "32610b21daf6125efafad67f618149560dfe88b492c4db1677117a5117feeb24",
+        "size_bytes": 899
+      },
+      {
+        "path": "vectors/conformance/permission-boundary/valid-billing-advisory.json",
+        "sha256": "866230bea05937a5c92af4d87015ff4cd432e1b03f7f1a58445bba981babcae1",
+        "size_bytes": 862
+      },
+      {
+        "path": "vectors/conformance/permission-boundary/valid-governance-monitored.json",
+        "sha256": "c30d27c5fe542ce27a1e82d5be8d295ec7622d10d45af1794183555cffa253fe",
+        "size_bytes": 848
+      },
+      {
+        "path": "vectors/conformance/personality-assignment/invalid-fingerprint.json",
+        "sha256": "d8a88bc0fa5b603af264277e9df0eb4716d894f5e3eb3cfff6fe2c42c947c744",
+        "size_bytes": 678
+      },
+      {
+        "path": "vectors/conformance/personality-assignment/invalid-nft-id.json",
+        "sha256": "f60db5ff2bebc1a0089a151ac03b1824d7957902967acbf8e7ac48b6c0fe3186",
+        "size_bytes": 690
+      },
+      {
+        "path": "vectors/conformance/personality-assignment/premium-tier-checksum.json",
+        "sha256": "68e012d87c89ced747f3bdd6a9be10b2826e389de2062b2b50a53e514a2c698e",
+        "size_bytes": 950
+      },
+      {
+        "path": "vectors/conformance/personality-assignment/valid-assignment.json",
+        "sha256": "4f8de52f7218275d0f4766e867778a05949cf9f2bed76027e32d2b43814ffcc4",
+        "size_bytes": 989
+      },
+      {
+        "path": "vectors/conformance/policy-version/invalid-self-supersede.json",
+        "sha256": "41e0c85d1b45887e7bb3e7d48206918c60a34078fefb6e39add3b9b73925dc34",
+        "size_bytes": 532
+      },
+      {
+        "path": "vectors/conformance/policy-version/valid-monetary-upgrade.json",
+        "sha256": "ada8ed6b700fb13dd0003ff2b44f295f61731e62d295acd7500a6142ab701444",
+        "size_bytes": 623
+      },
+      {
+        "path": "vectors/conformance/policy-version/valid-with-migration.json",
+        "sha256": "b60dc65a8e694f4be4cbfefa7ec7953b5f734746ab552ff63ae59202a7483330",
+        "size_bytes": 571
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/asymmetric-pricing.json",
+        "sha256": "baf166855e92c7943030cdaec135261d34105dd82af05c92f778dcbccff801ab",
+        "size_bytes": 802
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/max-tokens.json",
+        "sha256": "13aa2a6ee5870b8bbc599cab867afdc514d100f46618d0826affa35b8e3776b7",
+        "size_bytes": 841
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/standard-claude.json",
+        "sha256": "ffb8b49794139ff389fe7ed21d796f9afcb883a43431d4a5c355fdc3b6125d6b",
+        "size_bytes": 833
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/standard-gpt4.json",
+        "sha256": "b6e57d78796231e3404d1b92a5fe3c0ac86a555f4963eb6e5b6c7bd3246dd393",
+        "size_bytes": 814
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/sub-micro-fraction.json",
+        "sha256": "732b7b850eb70fd530ea9639dbd04ddb74e0f29039a3a5ba71fe3401f1c2ccef",
+        "size_bytes": 783
+      },
+      {
+        "path": "vectors/conformance/pricing-calculation/zero-tokens.json",
+        "sha256": "f0bcee96d366cf9054b340e0dd55c6a0c4aa86b6d3ec58c2609992d340a5b8b3",
+        "size_bytes": 659
+      },
+      {
+        "path": "vectors/conformance/proposal-execution/invalid-completed-without-timestamp.json",
+        "sha256": "29dcc42490e8f89622a6c0bf59d524ddf4ab5c361ea77e0c594b52aafd53ca83",
+        "size_bytes": 725
+      },
+      {
+        "path": "vectors/conformance/proposal-execution/valid-completed-execution.json",
+        "sha256": "b1b7fccf08cd6c389a5d4f4f7e361d1da3e726c0744364320f78547f4445b072",
+        "size_bytes": 771
+      },
+      {
+        "path": "vectors/conformance/proposal-execution/valid-partial-failure.json",
+        "sha256": "c7358bee3fcf3752020e11c440d3d07c782449c61efd15dce8d1d6f338546a76",
+        "size_bytes": 946
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/anthropic-basic.json",
+        "sha256": "a945907eec5a76d4047f3475d5ee1ff9ccc342e4ef8b95f9f1507572bff50865",
+        "size_bytes": 793
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/anthropic-thinking.json",
+        "sha256": "6703153c5ea27301e194ef1337efcb49577b2b2a7f7857c788f03a569f292ae4",
+        "size_bytes": 916
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/google-basic.json",
+        "sha256": "e4a2fb5c6baee3ca14d904cc780de79bead76c5b77683c155cc0460d842838c2",
+        "size_bytes": 853
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/google-thinking.json",
+        "sha256": "491a2c4c3e9f1ef5f97a56134491613a617df2d37fbec2197ef81733537fe390",
+        "size_bytes": 1104
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/invalid-missing-usage.json",
+        "sha256": "425db05c7e01e414c64192e2f735daff22c7d3018995e60e3ca16a3f03b68e21",
+        "size_bytes": 612
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/invalid-wrong-finish.json",
+        "sha256": "21787e5c5de6a7e07bcbd0622529ffb34cf1c5495e97d1e6221c729648b882cb",
+        "size_bytes": 680
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/openai-basic.json",
+        "sha256": "8f2083897b62f241eb3ea3df38750f7cbf4c681b1b176baa87a50a5a36e7d3a7",
+        "size_bytes": 818
+      },
+      {
+        "path": "vectors/conformance/provider-normalization/openai-tool-calls.json",
+        "sha256": "1716c674df9543a06f43eb0df771d16b357cf694b65be3ff0d8b127b5bef29e3",
+        "size_bytes": 1183
+      },
+      {
+        "path": "vectors/conformance/registry-bridge/duplicate-invariant-ids.json",
+        "sha256": "87c02a463dd027b8f844c37ac0cb651920656037726bdd875daffafedffd3396",
+        "size_bytes": 1435
+      },
+      {
+        "path": "vectors/conformance/registry-bridge/same-registry-bridge.json",
+        "sha256": "243d9d326adbf0be64549886295a375ff14d91d344adc95f0c94ca62bb5bb73a",
+        "size_bytes": 1260
+      },
+      {
+        "path": "vectors/conformance/registry-bridge/valid-bridge.json",
+        "sha256": "1809b9e615201430455aba9889b1655611bc3071d437c8d53c251b016b5b1b2b",
+        "size_bytes": 1104
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/authoritative-insufficient-weight.json",
+        "sha256": "46ce7a0040fb7c9f8a732f48e02be15859043d55877fe66834675f4b3881623e",
+        "size_bytes": 923
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/authoritative-valid.json",
+        "sha256": "9a09ebc614d0a275583802fb1835dd4db03c3f123bd495e7f0b5335d1a4e39fa",
+        "size_bytes": 1344
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/blended-score-computation.json",
+        "sha256": "2b1fc54e297238f33036ada03ad05881546701af22557b0caf3f27246d005ab2",
+        "size_bytes": 603
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/cold-nonnull-invalid.json",
+        "sha256": "99943a790f4f5ba2df1258f008c8af11737dd7c905a11ddccaa5fc259d9e737b",
+        "size_bytes": 870
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/cold-null-score.json",
+        "sha256": "41b9f517a11d82cd28c7b2ecf8fa065aee9b68a5ba3801626cc5596c9e0e796f",
+        "size_bytes": 896
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/model-cohort-score-invalid.json",
+        "sha256": "eb60d818e9f3b122186639bec8f85c8605530b7489fdec6d824af3be8d53bbc4",
+        "size_bytes": 1063
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/model-cohorts-all-cold.json",
+        "sha256": "bac13277658db30dbf30821f43b266e9d6fea4cc28d0dbb436b6ad6adb0702cc",
+        "size_bytes": 1244
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/model-cohorts-mixed.json",
+        "sha256": "62254e041774c0e14302227e65ac880365ac75c4ec7ee8832fbf45b7a6ec861b",
+        "size_bytes": 1671
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/no-model-cohorts.json",
+        "sha256": "09d2d3acb0fb57fa22307b825314125d2a3110d5fc47070529db9f36cbf0d1a8",
+        "size_bytes": 993
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/reset-to-cold.json",
+        "sha256": "f2407d82f26c6deac5bd1d0718e4e61f1699621df71b105f3971ba9550e8d924",
+        "size_bytes": 507
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/snapshot-invalid-hash.json",
+        "sha256": "c17540d1dfb56b8a45f58d65f623b67fc2e8cbbded99a18d2bfe5efbeb74cd0b",
+        "size_bytes": 1040
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/snapshot-with-hash.json",
+        "sha256": "b2a0b3daab530cc661994154a6cc3e1b1aa5277528bd2bc2350abc200c892963",
+        "size_bytes": 1391
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/snapshot-without-hash.json",
+        "sha256": "b25d49ce71ed6f63ba45c120869f8faf2538e7fc3336a20d515c6449d24c3560",
+        "size_bytes": 1174
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/warming-to-established.json",
+        "sha256": "1e683f3db279bf4232a1af24d11c76063ad0884e317dcb52bec5eeaa39554fb2",
+        "size_bytes": 1173
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/with-task-cohorts.json",
+        "sha256": "b05fe655e9289410df0f01fce9edae30721325bc86a8b44cf839689a00eefa37",
+        "size_bytes": 1750
+      },
+      {
+        "path": "vectors/conformance/reputation-aggregate/without-task-cohorts-legacy.json",
+        "sha256": "b08dc4931b7230b40781c9db95ec48d5a47225718b318fc781fdcc99dd664c73",
+        "size_bytes": 853
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/cold-source-credential.json",
+        "sha256": "aa87972e67a4ad02282283bd9ed24ab3db92c1cf5dd295cadf81d0d86105dcad",
+        "size_bytes": 795
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/constraint-violation-expiry-before-issuance.json",
+        "sha256": "6976b662ebeeb563525ae4a2413821c7b023e081373fe8d487ce8fa5d736dfa5",
+        "size_bytes": 764
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/invalid-attestation-hash.json",
+        "sha256": "3cd3fd959895d7e71aed01c883ea9e3e5899a44e525a7b20d3f135a9edab0fcd",
+        "size_bytes": 732
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/invalid-missing-required.json",
+        "sha256": "3e57750e28c09866eba0b65eb4ff32ac4e363fa236311a9054dfd6b951ec4f0b",
+        "size_bytes": 649
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/invalid-score-range.json",
+        "sha256": "7827b9fd2d45a20e6596442b62b1a68cab46d07e1c338aa5a884eb6b19449321",
+        "size_bytes": 686
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/valid-credential-no-expiry.json",
+        "sha256": "b0572dbfbc9aa55818cbf432d786d5a946e9a30e47f7151704c62e3f9ca90472",
+        "size_bytes": 794
+      },
+      {
+        "path": "vectors/conformance/reputation-credential/valid-credential.json",
+        "sha256": "278ded8baa5ef38e7d9d2655391e816c1e6220803039fb8ee59a38f973e64d36",
+        "size_bytes": 935
+      },
+      {
+        "path": "vectors/conformance/reputation-economic-impact/invalid-empty-impacts.json",
+        "sha256": "f598e401cf3c403790b0b05386357d4c319fbc58841bcb864176c86ddeb1d994",
+        "size_bytes": 666
+      },
+      {
+        "path": "vectors/conformance/reputation-economic-impact/valid-access-revoked-on-demotion.json",
+        "sha256": "440b1c264699e455426df2967815e8bf2769d6bfb7617033fead12b5f402ebcb",
+        "size_bytes": 967
+      },
+      {
+        "path": "vectors/conformance/reputation-economic-impact/valid-tier-upgrade.json",
+        "sha256": "d9a5c42b8b19c3dada95d0edda33ab1463b4756eefb859325146eee72198a4ff",
+        "size_bytes": 1046
+      },
+      {
+        "path": "vectors/conformance/reputation-event/credential-update-valid.json",
+        "sha256": "7e858b371ab8ba0cd2b96787e941c4268c27fb1dcf41dec90ff83b2a7f141e97",
+        "size_bytes": 515
+      },
+      {
+        "path": "vectors/conformance/reputation-event/invalid-score-out-of-range.json",
+        "sha256": "e80a64402f48f78d04e6e2040a5623948b9a6cbf7223484e1bfac2482ea5f68c",
+        "size_bytes": 474
+      },
+      {
+        "path": "vectors/conformance/reputation-event/invalid-unknown-type.json",
+        "sha256": "3a8f1f28143b43ebbccf66a5eee0e8f3c5ac5a8e365fa5832ba66f9368038421",
+        "size_bytes": 487
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-boundary-score-max.json",
+        "sha256": "0684a9a1021c33322b2062f45de9875c725fd9d1364d42a1d402b623af72abf8",
+        "size_bytes": 687
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-boundary-score-min.json",
+        "sha256": "ff2078d110f5f6187924966b3ae63f41ab484b7b7393b7515700ee81035816dd",
+        "size_bytes": 668
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-boundary-scores.json",
+        "sha256": "a1f0fb13e83a9ce9d3d9fa3d811f7ddb0d284e83a44d94f5babe9b370c97329a",
+        "size_bytes": 708
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-community-task-type.json",
+        "sha256": "8a213f43332bb35170cc05ac55b1aff3db8c7771cf5bdf94fd2c33561fbbe9d3",
+        "size_bytes": 729
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-empty-request-context.json",
+        "sha256": "d24c5284cb1f7b3d6f7750c1cf71e5b3774c22aad0f504209d30b3a945c2da7d",
+        "size_bytes": 670
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-extra-property.json",
+        "sha256": "095bf87bed2ffa929cf2993cd31e628321d2f9dff55fb744060df7af8e9151ca",
+        "size_bytes": 671
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-full.json",
+        "sha256": "ca1fe380263d27c0efef6943e3d39c425a46e6300bcc8112c14da9e6edf5e4a3",
+        "size_bytes": 991
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-invalid-score.json",
+        "sha256": "9dafa861794c4ee7d065dd8d4893ff6180307ac98ffe4401ef3dfeca3c90c190",
+        "size_bytes": 646
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-minimal.json",
+        "sha256": "deb051e99335554e63013c35a918d86eeea215c1fb2dce2f3ed893ab03588c8f",
+        "size_bytes": 620
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-missing-model-id.json",
+        "sha256": "5080073c7e3117012ac243fc9c88d1b50ea7914f1e3c12d91c3b191dc26fe2e6",
+        "size_bytes": 601
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-missing-pool-id.json",
+        "sha256": "9f48cca01f722b9ee11ba3cf17edd67e51e4f26ab981a6cecd51310e5c5739ec",
+        "size_bytes": 597
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-missing-provider.json",
+        "sha256": "21eb1f881c365a7d632a7bc07917a231aa46b9be786f0a68a931d1901ebc60f1",
+        "size_bytes": 601
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-missing-quality-observation.json",
+        "sha256": "4880a4b8bad56099a31a8c42fd80a6be9f45adc0068533e0f67647b555a39f3d",
+        "size_bytes": 583
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-missing-task-type.json",
+        "sha256": "5ff397eb73ba5ed387f2d88399be6fa7750814045b92d51c0a6addccd482146e",
+        "size_bytes": 599
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-unspecified-task-type.json",
+        "sha256": "d9721f657a3e71db63c879af1179b5d5d83b0a0dd55480605dd746b0a8f7ceb7",
+        "size_bytes": 683
+      },
+      {
+        "path": "vectors/conformance/reputation-event/model-performance-with-dimensions.json",
+        "sha256": "2d988345f38f5034a1c7ad0041bd02f2a6f3870bbcda8a043eb4a3c5dbf0fc5c",
+        "size_bytes": 808
+      },
+      {
+        "path": "vectors/conformance/reputation-event/quality-signal-valid.json",
+        "sha256": "c7b940a1ca74fe63087796d89709cd3281ca773d6cf20d8dd4494c29680ca313",
+        "size_bytes": 462
+      },
+      {
+        "path": "vectors/conformance/reputation-event/quality-signal-with-dimensions.json",
+        "sha256": "dcd4a97bb29799719a2bfc367e4ab47aee92288ddf1520f58f80253363cc7a3a",
+        "size_bytes": 602
+      },
+      {
+        "path": "vectors/conformance/reputation-event/task-completed-valid.json",
+        "sha256": "e652d33e89b73356a4b880a04d321a773827ee7af20acd18b3cb86caf30a5938",
+        "size_bytes": 493
+      },
+      {
+        "path": "vectors/conformance/reputation-event/task-completed-with-duration.json",
+        "sha256": "d8a8099f37e60e08226f8f5954b0fb5f2f379bbe936d04fa06e28f6e4ebb81fb",
+        "size_bytes": 560
+      },
+      {
+        "path": "vectors/conformance/reputation-portability/invalid-same-collection.json",
+        "sha256": "b14f7c2623c12440b25086bb8304c2cda1c0f98b85fb65cd3fd98fc7cd58b920",
+        "size_bytes": 906
+      },
+      {
+        "path": "vectors/conformance/reputation-portability/valid-portability-request.json",
+        "sha256": "229ac318513a6f69cf247dc5337188e4eb8a696f6fee483330f8afdc92429924",
+        "size_bytes": 931
+      },
+      {
+        "path": "vectors/conformance/reputation-portability/valid-response-accepted.json",
+        "sha256": "44b63f41b109da8199e15bad381043f53c20a00ca662de2ae1f8415e585e6be0",
+        "size_bytes": 765
+      },
+      {
+        "path": "vectors/conformance/reputation-routing/invalid-expired-signal.json",
+        "sha256": "ef5770bdf1830286ba6167ffafcedbba8da40081eeaeeccd3607ff85a7de29af",
+        "size_bytes": 608
+      },
+      {
+        "path": "vectors/conformance/reputation-routing/valid-model-preference.json",
+        "sha256": "ccce5d740acc3b852b69e96a6a258fc0c4e4e69f4ea89373f767f3524c1c5310",
+        "size_bytes": 743
+      },
+      {
+        "path": "vectors/conformance/reputation-routing/valid-task-eligibility.json",
+        "sha256": "773748215b71667b18a9ad536893389a7eff45a6997f5c0c346fca28dde74c1b",
+        "size_bytes": 613
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/advisory-floor-breach.json",
+        "sha256": "69fc3888817e99e0bdff9cc3147f83d43fb7d842c2a2068b89f93dc9e6cfa642",
+        "size_bytes": 952
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/advisory-near-floor.json",
+        "sha256": "10a8020d465be6ee1a875cbf177694055e88429af0d7cfe6ae52dbc871594ec9",
+        "size_bytes": 894
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/below-minimum-bps.json",
+        "sha256": "200318c9644fe536e132b9051270ec5b579dc7663acda87fee497ecdddc662c5",
+        "size_bytes": 767
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/budget-exhaustion-floor.json",
+        "sha256": "12d3a6170112dabe4c88a32c3c06fccac56e779f9d30720a7c66452b6b759d0c",
+        "size_bytes": 926
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/budget-within-floor.json",
+        "sha256": "de03e6cc07094fedeb1cea9208c180fccabe3b3451c1d8d11d97b50958f43e49",
+        "size_bytes": 892
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/self-declared-valid.json",
+        "sha256": "a378b6652f07981f5d1d69f32da17c518b9c2021278a1717a450d3829d58a7a8",
+        "size_bytes": 724
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/unsupported-above-floor.json",
+        "sha256": "b88640cecdca32c9124429a32545a7f7fe6d5f32bf39968a8094f427f21b1411",
+        "size_bytes": 871
+      },
+      {
+        "path": "vectors/conformance/reservation-enforcement/unsupported-at-floor.json",
+        "sha256": "254bb5a7e8b703722702b300c5b4774bb5af7ab243408f0befd2f53741d60d3a",
+        "size_bytes": 865
+      },
+      {
+        "path": "vectors/conformance/routing-rebalance/invalid-same-composition.json",
+        "sha256": "a4f1a0d8df1cf091df027a913b421645e324ad65291ddb841a5f8274a612e15d",
+        "size_bytes": 578
+      },
+      {
+        "path": "vectors/conformance/routing-rebalance/valid-performance-driven.json",
+        "sha256": "2c53aab05bae9bad52ddc3e7313ca539ce21ccbd0ffe30c099a851478182c715",
+        "size_bytes": 665
+      },
+      {
+        "path": "vectors/conformance/routing-rebalance/valid-periodic-rebalance.json",
+        "sha256": "c73b3fbc58735ca7503d21a52d3f7f6e35b19000a51c4f4b9b858c1ea44a0f2b",
+        "size_bytes": 678
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/aggregate-path-valid.json",
+        "sha256": "a46c94034069de436ee39fc4155d32abf79337731a83add1573a70f73a478e1d",
+        "size_bytes": 360
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/invalid-hash-format.json",
+        "sha256": "be68fe517010f2cc5fb00eeaf98a19e7af82189d4395423cee6f0d230b5f76ee",
+        "size_bytes": 541
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/invalid-task-cohort-missing-context.json",
+        "sha256": "832b5d987bebd20f0bdc568d2180fc9244f2db38bd45053e86b31b3d488e1fd5",
+        "size_bytes": 486
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/task-cohort-path-valid.json",
+        "sha256": "ec0dc3f2975025e386fae09de0d5edb7608979d2251f9bbba30d8feaa7a9e91b",
+        "size_bytes": 411
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/tier-default-path-valid.json",
+        "sha256": "706d607df174e8026b366e5c29c4f6175b5d59cf492d75f96137c1cfd1f730ce",
+        "size_bytes": 363
+      },
+      {
+        "path": "vectors/conformance/scoring-path-log/valid-with-hash-chain.json",
+        "sha256": "014771dc5a5390807e3168385ee01be7da1ae5a5d418b7905f9c5e0cdeed6618",
+        "size_bytes": 674
+      },
+      {
+        "path": "vectors/conformance/task-type-cohort/invalid-missing-task-type.json",
+        "sha256": "c6e9e4e90f78e92c47f766375cb90d2c03aed41c197a87adfef709fb5b1ecabf",
+        "size_bytes": 390
+      },
+      {
+        "path": "vectors/conformance/task-type-cohort/valid-cold-cohort.json",
+        "sha256": "495c5acbb38d12fd3f31385e600b96fe2344e03d7940c2cdd85c458537fd448e",
+        "size_bytes": 427
+      },
+      {
+        "path": "vectors/conformance/task-type-cohort/valid-community-task-type.json",
+        "sha256": "57071504f97f300f0bec30c9863db8386eb21f38bd7e3fab6207d9dd78863d3b",
+        "size_bytes": 442
+      },
+      {
+        "path": "vectors/conformance/task-type-cohort/valid-full-cohort.json",
+        "sha256": "5065813e3db57085d3f743746575faa55f9defb819e5144d3ada1b2cbe9ee386",
+        "size_bytes": 409
+      },
+      {
+        "path": "vectors/conformance/task-type-cohort/valid-with-threshold.json",
+        "sha256": "c06c41dc0b3880feef8b8943002df8a4d39963c48698b7b7b372cd35930d31b1",
+        "size_bytes": 448
+      },
+      {
+        "path": "vectors/conformance/task-type/invalid-empty-string.json",
+        "sha256": "f67e5f27aa473b0f1d8612e73d87e933fdbd6ae66b834f71d572df4b7f1f9892",
+        "size_bytes": 254
+      },
+      {
+        "path": "vectors/conformance/task-type/invalid-future-unknown-type.json",
+        "sha256": "7149f48342e9da16ecc1b2b87bfc9e0539159cfb407164a58f3d082157c6adf3",
+        "size_bytes": 356
+      },
+      {
+        "path": "vectors/conformance/task-type/invalid-no-namespace.json",
+        "sha256": "dfe36cc15ccc28dc90e6cb590f1e98170421d17855d9734ef0d5d2461e69da67",
+        "size_bytes": 284
+      },
+      {
+        "path": "vectors/conformance/task-type/invalid-unknown-type.json",
+        "sha256": "d37e25e9843d8155131350192dba76ba2d1273b726c5c8a8a2eeb096f8e5f30b",
+        "size_bytes": 280
+      },
+      {
+        "path": "vectors/conformance/task-type/invalid-uppercase-namespace.json",
+        "sha256": "7af5f9883d08bea41dd9d0ab0bfdb0aa3f751d1e43f00fcd7c905d977299f67d",
+        "size_bytes": 291
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-analysis.json",
+        "sha256": "2cdb4cbecea8a9819679aaf43fdadfe82212cfae0b250f46d7e36cefab570920",
+        "size_bytes": 238
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-code-review.json",
+        "sha256": "8f255fe0c1c8f12382ec62c51217094a14688bf32b9013f7eec5b611969573a9",
+        "size_bytes": 244
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-community-type.json",
+        "sha256": "134c9d3032104ec2f1abd298c86d600ddc6f7b88921522a320d2ace99c381344",
+        "size_bytes": 300
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-creative-writing.json",
+        "sha256": "c45280e895c45cd6831e4694ff88c9ebb4aa59f1fafea64fe6c45ba0b50a710a",
+        "size_bytes": 254
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-general.json",
+        "sha256": "9a7397c70d38d9343d99ee3afca759d963e0458d9e086ba9b2734a45c1cab622",
+        "size_bytes": 236
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-summarization.json",
+        "sha256": "b09488a60b205f327371bfbe9e14cdab296c0eb86c14e1fcdb065b7432e04966",
+        "size_bytes": 248
+      },
+      {
+        "path": "vectors/conformance/task-type/valid-unspecified.json",
+        "sha256": "7c36fddff75e78407f00fba2b227f92b904877def065c1018951c630fd30eaa4",
+        "size_bytes": 310
+      },
+      {
+        "path": "vectors/conformance/thinking-trace/anthropic-trace.json",
+        "sha256": "6087e3ca028029072bdb92e120592d13b5e612fe81748cc91d5e1a56e957b783",
+        "size_bytes": 991
+      },
+      {
+        "path": "vectors/conformance/thinking-trace/google-trace.json",
+        "sha256": "7f472e0d047d8dd26bddad84e4485f42d7995cfe49e7e56e1bdc0d1690540f62",
+        "size_bytes": 984
+      },
+      {
+        "path": "vectors/conformance/thinking-trace/no-thinking.json",
+        "sha256": "0581d3a222cf1463f17c2a3710255cab0eb7e41a33bd63938c6da7d1530f34bc",
+        "size_bytes": 778
+      },
+      {
+        "path": "vectors/conformance/thinking-trace/truncated-trace.json",
+        "sha256": "d21e949f678a2e204175910a87442dfdc9d3ae5c00e642483f27fd3a2b44fed6",
+        "size_bytes": 951
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/empty-arguments.json",
+        "sha256": "dbdd50e322d5dff5ee53cad2351cc80f1e2221f986f1e5b3f8f0ee1113086e77",
+        "size_bytes": 578
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/invalid-tool-name.json",
+        "sha256": "99c04206f5a89f780ece63c214570fe1a54ee9d987ebf39e6f1150ad737a77e5",
+        "size_bytes": 509
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/nested-arguments.json",
+        "sha256": "9c84fcd23df4ce2e81d3b2c476fd24c75a988a8724b3327fdfe9795c071722f2",
+        "size_bytes": 1093
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/parallel-tools.json",
+        "sha256": "efb540a94a90b053490ed942a9eac966c45724afb651a68488a54c2270bd8adf",
+        "size_bytes": 1073
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/single-tool.json",
+        "sha256": "e2dcb8bfb528cf8ef0103b28ac74cc0705a30b447de3dc09e4481eeec7641fcc",
+        "size_bytes": 673
+      },
+      {
+        "path": "vectors/conformance/tool-call-roundtrip/tool-error.json",
+        "sha256": "ece4340c72bde9a56e277775744b274031881f3d007eae54e8314995ffad55e2",
+        "size_bytes": 752
+      }
+    ],
+    "constraints": [
+      {
+        "path": "constraints/AccessPolicy.constraints.json",
+        "sha256": "b92977404a93429f5745cc72e206520c84bbd834a0d2b6a8c03548d9f5e6334c",
+        "size_bytes": 1078
+      },
+      {
+        "path": "constraints/AgentIdentity.constraints.json",
+        "sha256": "9d9ec1e81378dbe33d4b3ad1fe30fd555cc90253b0822b2fd46840e0c73fb35d",
+        "size_bytes": 1901
+      },
+      {
+        "path": "constraints/AuditTrail.constraints.json",
+        "sha256": "07bed0722d83d3aef9f0b26a6c0b57263e9c993997edb839f4948ba133b14783",
+        "size_bytes": 940
+      },
+      {
+        "path": "constraints/AuditTrailEntry.constraints.json",
+        "sha256": "ce023e983ea1be54851f5bcedbaea9591a3dca99b556338ca8200cac035d90fc",
+        "size_bytes": 1106
+      },
+      {
+        "path": "constraints/BasketComposition.constraints.json",
+        "sha256": "27f0b0f3fbcc715a84e8f8c01767b5ca0d560fdba2b5390132e5da32c76b309f",
+        "size_bytes": 781
+      },
+      {
+        "path": "constraints/BillingEntry.constraints.json",
+        "sha256": "d745fd3bd8c644013cbf6b64faccff4dbc21d3688b82d52d5858df1098788877",
+        "size_bytes": 626
+      },
+      {
+        "path": "constraints/BridgeTransferSaga.constraints.json",
+        "sha256": "a514b5dc6dd1228960e0bb1679349da17f4c267045b1bc80017c774aa5229f51",
+        "size_bytes": 2041
+      },
+      {
+        "path": "constraints/BudgetScope.constraints.json",
+        "sha256": "fa51fcc2a5319a0afc02ae3666e92991b1e457b5304d6351e2c10098048d33b9",
+        "size_bytes": 1540
+      },
+      {
+        "path": "constraints/CollectionGovernanceConfig.constraints.json",
+        "sha256": "b8e415d34cd905af1792fae9eb05d69f2500e3c3c9e30bc33e7efca04b40a455",
+        "size_bytes": 1393
+      },
+      {
+        "path": "constraints/CollectionScoreUpdatedPayload.constraints.json",
+        "sha256": "0437015f11e30bcd5a4c1473f60f753d20db6cc8dcab78ebc6d2f76858c1417f",
+        "size_bytes": 915
+      },
+      {
+        "path": "constraints/CommonsDividend.constraints.json",
+        "sha256": "2dbec2686725b15bd03ace2c5938c6a2a2a7948ad264c92fd168f15bdc557ea1",
+        "size_bytes": 1848
+      },
+      {
+        "path": "constraints/CommunityEngagementSignal.constraints.json",
+        "sha256": "c89617f57f888f23439d7ca7b639edc7e26c6e1b99e52a44411453d325499d84",
+        "size_bytes": 806
+      },
+      {
+        "path": "constraints/CompletionRequest.constraints.json",
+        "sha256": "f165de7fa52f2f6e7164877158c999647ba509e355210917e477863a2cefe198",
+        "size_bytes": 1879
+      },
+      {
+        "path": "constraints/CompletionResult.constraints.json",
+        "sha256": "d12b9c87a363e1cf63d32709e1b82b4168f391bd08314edf2e1d487d2a1cc302",
+        "size_bytes": 1196
+      },
+      {
+        "path": "constraints/ConservationLaw.constraints.json",
+        "sha256": "d5fa12a422276a29cff1a54f9d48dc988d4bef612354e3a696070b393e28cf82",
+        "size_bytes": 601
+      },
+      {
+        "path": "constraints/ConservationPropertyRegistry.constraints.json",
+        "sha256": "68cca3a4f016e9bc6fb78eb43c277582a03bf86460fe10f66e230c5dc2d3a096",
+        "size_bytes": 3071
+      },
+      {
+        "path": "constraints/ConstraintCandidate.constraints.json",
+        "sha256": "6e2f54c6610301a1584c7f5de3ea773c06c79011d519afd4d1f7f3a7a7c73198",
+        "size_bytes": 810
+      },
+      {
+        "path": "constraints/ConstraintLifecycleEvent.constraints.json",
+        "sha256": "93f028a43c982afd77b3238979a54c454da55b8c05b30fbc34e79e8f783ca254",
+        "size_bytes": 1019
+      },
+      {
+        "path": "constraints/ConstraintProposal.constraints.json",
+        "sha256": "ec4e4e8f1fed22dbe2f0b56d24dd06e3f434bfad0f0868ed8e81954af436a355",
+        "size_bytes": 1202
+      },
+      {
+        "path": "constraints/ContractNegotiation.constraints.json",
+        "sha256": "0ba5a5566acf352c24cc985710402b78580623c5273c6cec8d78455244d4d883",
+        "size_bytes": 865
+      },
+      {
+        "path": "constraints/ConversationSealingPolicy.constraints.json",
+        "sha256": "5282b0b1d28dadb8e5c6b03e4b454aca9909612fe90b2e8cd518b38cd4d8d7f9",
+        "size_bytes": 541
+      },
+      {
+        "path": "constraints/DelegationChain.constraints.json",
+        "sha256": "eff5b5aa5d08ffb9e0bea47b394b7fbd6bc95abaefa2163d93aefaaa6a0cc29a",
+        "size_bytes": 2823
+      },
+      {
+        "path": "constraints/DelegationOutcome.constraints.json",
+        "sha256": "9bd1a36aac0b47afaa1182457c78249779015b27d78733d4a5adb723ef537380",
+        "size_bytes": 1901
+      },
+      {
+        "path": "constraints/DelegationQualityEvent.constraints.json",
+        "sha256": "5e7a34a994b83e79bfa3433f6ea7a8540dc36c5a2c73c9dad0e4c9e1c889bb34",
+        "size_bytes": 911
+      },
+      {
+        "path": "constraints/DelegationTree.constraints.json",
+        "sha256": "4de3fe60eec269d1ac5ae61aabc09ffe416c642b23a25a027ce855d729016539",
+        "size_bytes": 1672
+      },
+      {
+        "path": "constraints/DisputeRecord.constraints.json",
+        "sha256": "861ef51a54eb436206eac7bf246e08200bf3a49bfbb3feef9bf2ae5030e0c5a5",
+        "size_bytes": 1015
+      },
+      {
+        "path": "constraints/DynamicContract.constraints.json",
+        "sha256": "1ff9746a8381cdde08a314f878ce69283022ebc9b88499a311b39863793b1bbc",
+        "size_bytes": 632
+      },
+      {
+        "path": "constraints/EconomicBoundary.constraints.json",
+        "sha256": "124e1ae2e4e352b51524f51a7ee235adf6849fb11f6aa98f5ce9c0feb6c46c21",
+        "size_bytes": 1040
+      },
+      {
+        "path": "constraints/EconomicBoundaryEvaluation.constraints.json",
+        "sha256": "685ec5159f3e9e04ebcc2aff81353d5359e547babffb905b0ea67a8befc0c679",
+        "size_bytes": 2487
+      },
+      {
+        "path": "constraints/EconomicPerformanceEvent.constraints.json",
+        "sha256": "f880227156c1aef9fb5be234bdbf3b66c16770da6e475addf1142f1d35a2e4ba",
+        "size_bytes": 1021
+      },
+      {
+        "path": "constraints/EnsembleCapabilityProfile.constraints.json",
+        "sha256": "74f9625a63ab8198c2c87b8edfa59c4ed1fb55784666569f6899e918359e232c",
+        "size_bytes": 1938
+      },
+      {
+        "path": "constraints/EnsembleRequest.constraints.json",
+        "sha256": "e9b304c36f35ec9b69849480f2567f3daadd7cb67acc5a1b4d2855b8f0871050",
+        "size_bytes": 1491
+      },
+      {
+        "path": "constraints/EnsembleResult.constraints.json",
+        "sha256": "11bbb9d8ce644570f1232c1b00b08178d5cd560a2744e457fc32952eaa75e3a8",
+        "size_bytes": 4320
+      },
+      {
+        "path": "constraints/EpistemicTristate.constraints.json",
+        "sha256": "fd82212bef40eb74f0a15861a06edb033059b371100b260e606339a560337d86",
+        "size_bytes": 1016
+      },
+      {
+        "path": "constraints/EscrowEntry.constraints.json",
+        "sha256": "9c0cf39abcc153e2a363dd27b416b41f94f9b7c74eea57b19082fb060c0d7b75",
+        "size_bytes": 2856
+      },
+      {
+        "path": "constraints/EventSubscription.constraints.json",
+        "sha256": "01e88294b0fa601c84f553054b1018e5bbe78e659f487261d4cc1a2d213aa97f",
+        "size_bytes": 921
+      },
+      {
+        "path": "constraints/ExecutionCheckpoint.constraints.json",
+        "sha256": "d993b66d8ec818f8b78048a74d925a6ff9ffbcde6be9721b6d6ab6636550e40b",
+        "size_bytes": 1060
+      },
+      {
+        "path": "constraints/GovernanceConfig.constraints.json",
+        "sha256": "f62678d98fb7154e5f1c29cac28b955ddb0c58bafeea2d0f0b10343d22f25428",
+        "size_bytes": 2351
+      },
+      {
+        "path": "constraints/GovernanceProposal.constraints.json",
+        "sha256": "20c9cac82e6e88bac9b390b8543552a5a3cba9a31917dd8c6584a2a86b85f705",
+        "size_bytes": 2067
+      },
+      {
+        "path": "constraints/GovernedCredits.constraints.json",
+        "sha256": "44d6bdd73f555f812489b3016fa124486e86719417efcc51e10b4e51cca5ebcf",
+        "size_bytes": 1343
+      },
+      {
+        "path": "constraints/GovernedFreshness.constraints.json",
+        "sha256": "f6ba3a7e93d12d45dc0c4bbd36762d8e49113446c8e1e3c7ce338d8cd7a5ba3b",
+        "size_bytes": 1494
+      },
+      {
+        "path": "constraints/GovernedReputation.constraints.json",
+        "sha256": "02beeb41e244ee71afd3750cbdec143aee0d8a5bd93a152907fa957334d016e2",
+        "size_bytes": 1457
+      },
+      {
+        "path": "constraints/HashChainDiscontinuity.constraints.json",
+        "sha256": "ad848db89461955e541b6c01185eeac041135f28e714e2aa172303b4dd1bcbef",
+        "size_bytes": 918
+      },
+      {
+        "path": "constraints/InterAgentTransactionAudit.constraints.json",
+        "sha256": "a846b0278a2a15fd117d38279808b6ff99a8537b1c61503d10267a3502cb6728",
+        "size_bytes": 4212
+      },
+      {
+        "path": "constraints/JwtBoundarySpec.constraints.json",
+        "sha256": "bca9786dfd955fc6f107512daa4cf9a4bab607d2d744dc2cdb13d65b39522a46",
+        "size_bytes": 1321
+      },
+      {
+        "path": "constraints/LivenessProperty.constraints.json",
+        "sha256": "41ff15a572e137df95623bd6963870ce28c85d2f99478d896b919fee74118c28",
+        "size_bytes": 535
+      },
+      {
+        "path": "constraints/MicroUSDC.constraints.json",
+        "sha256": "fdc41082a50fcfa4783b3f52ff8b919cde57f540b291a4e4adc03fcf75fa5776",
+        "size_bytes": 828
+      },
+      {
+        "path": "constraints/MintingPolicy.constraints.json",
+        "sha256": "44e51f2da9217805b44f2c88307e39402b27ccd8aaa246767d0a2ced69bb53f5",
+        "size_bytes": 1289
+      },
+      {
+        "path": "constraints/ModelEconomicProfile.constraints.json",
+        "sha256": "865480ad54cbd284d497a5a53431398d0753627bf9a19e7d72badaf2e3571f92",
+        "size_bytes": 818
+      },
+      {
+        "path": "constraints/ModelProviderSpec.constraints.json",
+        "sha256": "fa38670e823e5a7794553e1d634ad3f54605ec3b73b44b5605a38a56178317f7",
+        "size_bytes": 2491
+      },
+      {
+        "path": "constraints/MonetaryPolicy.constraints.json",
+        "sha256": "9b0ff037c33a29322640be6ff5c18abe112f273304e9371e034b8be0da6705b0",
+        "size_bytes": 1455
+      },
+      {
+        "path": "constraints/MutualCredit.constraints.json",
+        "sha256": "17222f5be2255bab944d762dec7a3f044b19a93131887863be2bf9b2cf889fab",
+        "size_bytes": 2121
+      },
+      {
+        "path": "constraints/PerformanceQualityBridge.constraints.json",
+        "sha256": "2c2637ef6079fa969f4c79007774e0cdd653d58fb61d4b22013c381540d23265",
+        "size_bytes": 559
+      },
+      {
+        "path": "constraints/PerformanceRecord.constraints.json",
+        "sha256": "86e7dbe42157335085f823adc3c6e280ad931d00d86453586131aa4f8d5eeef3",
+        "size_bytes": 1182
+      },
+      {
+        "path": "constraints/PermissionBoundary.constraints.json",
+        "sha256": "2fd18c3ccc7946eff1bbb5425ba5da3b44a37ec9765cce67aa13f50447abb218",
+        "size_bytes": 1116
+      },
+      {
+        "path": "constraints/PersonalityAssignment.constraints.json",
+        "sha256": "db8dff4b3366ad3bacbbc7f7b008d0de380aff10b876cc8e117ca9ab5b3fa2de",
+        "size_bytes": 558
+      },
+      {
+        "path": "constraints/PolicyVersion.constraints.json",
+        "sha256": "b5d5f7201b13083eff5bb29f4fa973cffa0b469d3c6f49ef5a01643e8dccc0d1",
+        "size_bytes": 978
+      },
+      {
+        "path": "constraints/PortabilityResponse.constraints.json",
+        "sha256": "3e3f556d3422178f24c2bacd0b34b9cf74b1c57549c049d9ff53166e3e036fe9",
+        "size_bytes": 1357
+      },
+      {
+        "path": "constraints/PricingConvergence.constraints.json",
+        "sha256": "bebfc0f28beb402090f3e6b2bce6084423b8819dae24b50f2f49476900cfe7f5",
+        "size_bytes": 1247
+      },
+      {
+        "path": "constraints/ProposalExecution.constraints.json",
+        "sha256": "8bd5adc8fb7bc50d0ff7262f2b8155d86ff92dae8a33d389c6cc72c8ccff0b1c",
+        "size_bytes": 895
+      },
+      {
+        "path": "constraints/ProposalOutcomeEvent.constraints.json",
+        "sha256": "81df222db94b0bef9bf59efee57583dd89d1876c21fecdded48ca9fef277d776",
+        "size_bytes": 460
+      },
+      {
+        "path": "constraints/ProviderWireMessage.constraints.json",
+        "sha256": "fc04746c9b6e58fb60de31248a8c0d73c23438f7f691af1f07d99d35158f6e13",
+        "size_bytes": 978
+      },
+      {
+        "path": "constraints/QualityEvent.constraints.json",
+        "sha256": "a11ac7bef2656cf774d7fb9da1db20a4b0f482de02613615d7218599697f063d",
+        "size_bytes": 3034
+      },
+      {
+        "path": "constraints/QualityEventRecordedPayload.constraints.json",
+        "sha256": "ce7db38a6fa64fbcaacfd6aa8b048d0249497279c58a5a3a4ab55e657fdff511",
+        "size_bytes": 1011
+      },
+      {
+        "path": "constraints/QuarantineRecord.constraints.json",
+        "sha256": "30e12d03b01e7bfe44e126a4905b2030606c4db8f961b4f785e2512cedbbc804",
+        "size_bytes": 1070
+      },
+      {
+        "path": "constraints/QueryReputationCommand.constraints.json",
+        "sha256": "e6c9624372d6b96940d9f039a86327363c981975e5596b41d2580fd20c370b43",
+        "size_bytes": 1305
+      },
+      {
+        "path": "constraints/RecordQualityEventCommand.constraints.json",
+        "sha256": "c4710e24a14432fd547aedbe90ae39d935bc8969ce0488d90a4018e0b90dc14c",
+        "size_bytes": 523
+      },
+      {
+        "path": "constraints/RegistryBridge.constraints.json",
+        "sha256": "5ae110c9d3d656f99fb987ddb3b3b016b9e3cd1a6823299fdccc7cb3edb3d461",
+        "size_bytes": 1635
+      },
+      {
+        "path": "constraints/ReputationAggregate.constraints.json",
+        "sha256": "dc40aa4aea6fbf07acc10a813f18a06620198487bb2f07ac8ca0c93acc1f05e6",
+        "size_bytes": 6931
+      },
+      {
+        "path": "constraints/ReputationCredential.constraints.json",
+        "sha256": "ce9d4fccc729de9edaddcb1f70a326f85e65f92a3712460692d3abdf7f261f9a",
+        "size_bytes": 1562
+      },
+      {
+        "path": "constraints/ReputationEconomicImpact.constraints.json",
+        "sha256": "71f34990726865a54a07dbe5dafec16b4fc9ac91362ddb1d63dda4863a0f728b",
+        "size_bytes": 793
+      },
+      {
+        "path": "constraints/ReputationEvent.constraints.json",
+        "sha256": "d447cb00b2e15e612649e857b811b4ddf05cd6f3746dcd00090c9f0cecd13f0b",
+        "size_bytes": 2269
+      },
+      {
+        "path": "constraints/ReputationPortabilityRequest.constraints.json",
+        "sha256": "e7c2fb3f27910c9bb9b700151e3787cba9f52fc8db54cae469f5d049a3d36917",
+        "size_bytes": 940
+      },
+      {
+        "path": "constraints/ReputationRoutingSignal.constraints.json",
+        "sha256": "ee6d62309be396a16dd5f92a57818ab4a63228399f88897e6c3642421fcccdf6",
+        "size_bytes": 1045
+      },
+      {
+        "path": "constraints/ReputationScore.constraints.json",
+        "sha256": "142ecd43a8effa4ecb8cb4b0b83a0c60a89a9a58e841089ed31bab548e234632",
+        "size_bytes": 881
+      },
+      {
+        "path": "constraints/ReputationStateChangedPayload.constraints.json",
+        "sha256": "d8dae906efbb963b4802b274740d0f1fb70915f906407f85c7dc935a84b88f78",
+        "size_bytes": 962
+      },
+      {
+        "path": "constraints/ReservationArithmetic.constraints.json",
+        "sha256": "73dfd68879f3a63f2b447a7eeff3ea03dcb547899f7e82545a91406783d39055",
+        "size_bytes": 1207
+      },
+      {
+        "path": "constraints/ResetReputationCommand.constraints.json",
+        "sha256": "4661312133d7487bf26e8242e8727826b106cd558a4a7aefdb1d34e91751bbcf",
+        "size_bytes": 581
+      },
+      {
+        "path": "constraints/RollbackScope.constraints.json",
+        "sha256": "232a66105388abb589f89a1f20ae3c8a96b3734219e560191546a392a7424c61",
+        "size_bytes": 799
+      },
+      {
+        "path": "constraints/RoutingRebalanceEvent.constraints.json",
+        "sha256": "583ff9c8620c5594e40dc8e8108d05c553f88c05ce52f6dd81df759afd212e2d",
+        "size_bytes": 1176
+      },
+      {
+        "path": "constraints/SagaContext.constraints.json",
+        "sha256": "e59ecb0d7f4deb0e7c41511e9cb8929edc0eff32c27e87641b344d70fdce6c0e",
+        "size_bytes": 1156
+      },
+      {
+        "path": "constraints/Sanction.constraints.json",
+        "sha256": "59323f4152d35750e0ecff0791650ec04671f5ca7133508fb32710ffd7aad828",
+        "size_bytes": 3593
+      },
+      {
+        "path": "constraints/ScoringPathLog.constraints.json",
+        "sha256": "24a1c0a93be14893399c0cbb0214b882136d64dfcd300b9f2b43d10e6af14b12",
+        "size_bytes": 4032
+      },
+      {
+        "path": "constraints/StakePosition.constraints.json",
+        "sha256": "2fd669baf04d5165c6f6abc7617e51b031f2b9920891179dccc26c423b5b681d",
+        "size_bytes": 1262
+      },
+      {
+        "path": "constraints/StateMachineConfig.constraints.json",
+        "sha256": "e75209c2103e7f7d01418c8ade6d8363a6b55d1f57ba58f0e679ebbfed6f0505",
+        "size_bytes": 1923
+      },
+      {
+        "path": "constraints/TaskType.constraints.json",
+        "sha256": "480db35bc0be0f93cc49dc90c319201dcad5473c34a6a738b9657b7c1a34544e",
+        "size_bytes": 1342
+      },
+      {
+        "path": "constraints/TaskTypeCohort.constraints.json",
+        "sha256": "bc20e6459cdfc68b6cdae1016cb6454b3e0e164bfde272282502c9ca98dc37f9",
+        "size_bytes": 1880
+      }
+    ]
+  }
+}

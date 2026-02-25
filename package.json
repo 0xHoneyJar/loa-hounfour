@@ -57,7 +57,8 @@
     "dist",
     "schemas",
     "vectors",
-    "constraints"
+    "constraints",
+    "RELEASE-INTEGRITY.json"
   ],
   "scripts": {
     "build": "tsc",
@@ -73,6 +74,7 @@
     "check:migration": "tsx scripts/check-migration.ts",
     "schemas:validate": "tsx scripts/validate-schemas.ts",
     "check:constraints": "tsx scripts/generate-constraints.ts --validate",
+    "integrity:generate": "tsx scripts/generate-release-integrity.ts",
     "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
