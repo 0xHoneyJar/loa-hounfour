@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/change-application-result",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/change-application-result",
   "additionalProperties": false,
   "description": "Result of applying a single proposed change during execution.",
   "type": "object",
@@ -47,5 +47,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

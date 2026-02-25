@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/quality-observation",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "score"
+  ],
+  "properties": {
+    "score": {
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall quality score in [0, 1].",
+      "type": "number"
+    },
+    "dimensions": {
+      "maxProperties": 20,
+      "additionalProperties": false,
+      "description": "Named quality dimensions (e.g., coherence, safety). Same pattern constraint as quality_signal dimensions.",
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]{0,31}$": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "description": "End-to-end latency of the evaluated request in milliseconds.",
+      "type": "integer"
+    },
+    "evaluated_by": {
+      "minLength": 1,
+      "description": "Agent or system that performed the quality evaluation.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+}

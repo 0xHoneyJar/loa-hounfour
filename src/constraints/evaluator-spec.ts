@@ -1459,4 +1459,36 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
     ],
     edge_cases: ['Healthy with pause returns false', 'Unknown health_status returns false', 'Missing fields return false'],
   }],
+  // Audit trail chain validation (v8.0.0 — Commons Protocol)
+  ['audit_trail_chain_valid', {
+    name: 'audit_trail_chain_valid',
+    signature: 'audit_trail_chain_valid(trail) → boolean',
+    description: 'Validates structural chain linkage in an audit trail: entries[0].previous_hash must equal genesis_hash, and entries[i].previous_hash must equal entries[i-1].entry_hash for all i > 0. Does NOT recompute content hashes.',
+    arguments: [
+      { name: 'trail', type: 'object', description: 'Object with entries (array of {entry_hash, previous_hash, ...}) and genesis_hash fields.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: false,
+    examples: [
+      {
+        description: 'Empty trail is valid',
+        context: { t: { entries: [], genesis_hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } },
+        expression: 'audit_trail_chain_valid(t)',
+        expected: true,
+      },
+      {
+        description: 'Single entry linked to genesis',
+        context: { t: { entries: [{ entry_hash: 'sha256:aaaa', previous_hash: 'sha256:0000' }], genesis_hash: 'sha256:0000' } },
+        expression: 'audit_trail_chain_valid(t)',
+        expected: true,
+      },
+      {
+        description: 'Broken genesis link',
+        context: { t: { entries: [{ entry_hash: 'sha256:aaaa', previous_hash: 'sha256:ffff' }], genesis_hash: 'sha256:0000' } },
+        expression: 'audit_trail_chain_valid(t)',
+        expected: false,
+      },
+    ],
+    edge_cases: ['Missing entries field returns false', 'Missing genesis_hash returns false', 'Entry without entry_hash breaks chain for next entry'],
+  }],
 ]);

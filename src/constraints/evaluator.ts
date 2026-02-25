@@ -185,6 +185,9 @@ class Parser {
       ['basket_weights_normalized', () => this.parseBasketWeightsNormalized()],
       // Execution checkpoint validation (v7.8.0 — DR-F5)
       ['execution_checkpoint_valid', () => this.parseExecutionCheckpointValid()],
+
+      // Audit trail chain validation (v8.0.0 — Commons Protocol)
+      ['audit_trail_chain_valid', () => this.parseAuditTrailChainValid()],
     ]);
   }
 
@@ -1619,6 +1622,50 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
+  // Audit trail chain validation (v8.0.0 — Commons Protocol)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Parse audit_trail_chain_valid(trail).
+   * Structural validation: verifies previous_hash linkage across entries.
+   *
+   * - entries[0].previous_hash must equal trail.genesis_hash
+   * - entries[i].previous_hash must equal entries[i-1].entry_hash for all i > 0
+   *
+   * Does NOT recompute content hashes (that's verifyAuditTrailIntegrity).
+   *
+   * @since v8.0.0
+   */
+  private parseAuditTrailChainValid(): boolean {
+    this.advance(); // consume 'audit_trail_chain_valid'
+    this.expect('paren', '(');
+    const trail = asRecord(this.parseExpr());
+    this.expect('paren', ')');
+
+    const entries = trail.entries;
+    const genesisHash = trail.genesis_hash;
+
+    if (!Array.isArray(entries) || typeof genesisHash !== 'string') return false;
+    if (entries.length === 0) return true;
+
+    // First entry must link to genesis
+    const first = asRecord(entries[0]);
+    if (first.previous_hash !== genesisHash) return false;
+
+    // Each subsequent entry must link to the previous entry's hash
+    for (let i = 1; i < entries.length; i++) {
+      const curr = asRecord(entries[i]);
+      const prev = asRecord(entries[i - 1]);
+      if (typeof curr.previous_hash !== 'string' || typeof prev.entry_hash !== 'string') {
+        return false;
+      }
+      if (curr.previous_hash !== prev.entry_hash) return false;
+    }
+
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
   // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
   // ---------------------------------------------------------------------------
 
@@ -1790,6 +1837,8 @@ export const EVALUATOR_BUILTINS = [
   'basket_weights_normalized',
   // Execution checkpoint (v7.8.0)
   'execution_checkpoint_valid',
+  // Audit trail chain (v8.0.0)
+  'audit_trail_chain_valid',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

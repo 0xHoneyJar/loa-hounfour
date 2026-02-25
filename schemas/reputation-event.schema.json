@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/reputation-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/reputation-event",
   "description": "Discriminated union of reputation event variants. Discriminator: type.",
   "anyOf": [
     {
@@ -77,6 +77,10 @@
               "type": "string"
             },
             {
+              "const": "unspecified",
+              "type": "string"
+            },
+            {
               "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
               "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
               "type": "string"
@@ -85,6 +89,7 @@
         },
         "dimensions": {
           "maxProperties": 20,
+          "additionalProperties": false,
           "description": "Named quality dimensions (e.g., coherence, safety).",
           "type": "object",
           "patternProperties": {
@@ -163,6 +168,10 @@
             },
             {
               "const": "general",
+              "type": "string"
+            },
+            {
+              "const": "unspecified",
               "type": "string"
             },
             {
@@ -255,7 +264,164 @@
           ]
         }
       }
+    },
+    {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "event_id",
+        "agent_id",
+        "collection_id",
+        "timestamp",
+        "type",
+        "model_id",
+        "provider",
+        "pool_id",
+        "task_type",
+        "quality_observation"
+      ],
+      "properties": {
+        "event_id": {
+          "format": "uuid",
+          "description": "Globally unique event identifier for deduplication.",
+          "type": "string"
+        },
+        "agent_id": {
+          "maxLength": 255,
+          "minLength": 1,
+          "description": "Agent that produced this event.",
+          "type": "string"
+        },
+        "collection_id": {
+          "maxLength": 255,
+          "minLength": 1,
+          "description": "Collection context for the event.",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "description": "When the event occurred.",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 0,
+          "description": "Optional total ordering sequence number.",
+          "type": "integer"
+        },
+        "type": {
+          "const": "model_performance",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Model alias (e.g., \"gpt-4o\", \"claude-opus\"). Matches COHORT_BASE_FIELDS.model_id for pipeline compatibility.",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Provider identifier (e.g., \"openai\", \"anthropic\").",
+          "type": "string"
+        },
+        "pool_id": {
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Pool context for the evaluation.",
+          "type": "string"
+        },
+        "task_type": {
+          "$id": "TaskType",
+          "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
+          "anyOf": [
+            {
+              "const": "code_review",
+              "type": "string"
+            },
+            {
+              "const": "creative_writing",
+              "type": "string"
+            },
+            {
+              "const": "analysis",
+              "type": "string"
+            },
+            {
+              "const": "summarization",
+              "type": "string"
+            },
+            {
+              "const": "general",
+              "type": "string"
+            },
+            {
+              "const": "unspecified",
+              "type": "string"
+            },
+            {
+              "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
+              "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
+              "type": "string"
+            }
+          ]
+        },
+        "quality_observation": {
+          "$id": "QualityObservation",
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "score"
+          ],
+          "properties": {
+            "score": {
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Overall quality score in [0, 1].",
+              "type": "number"
+            },
+            "dimensions": {
+              "maxProperties": 20,
+              "additionalProperties": false,
+              "description": "Named quality dimensions (e.g., coherence, safety). Same pattern constraint as quality_signal dimensions.",
+              "type": "object",
+              "patternProperties": {
+                "^[a-z][a-z0-9_]{0,31}$": {
+                  "minimum": 0,
+                  "maximum": 1,
+                  "type": "number"
+                }
+              }
+            },
+            "latency_ms": {
+              "minimum": 0,
+              "description": "End-to-end latency of the evaluated request in milliseconds.",
+              "type": "integer"
+            },
+            "evaluated_by": {
+              "minLength": 1,
+              "description": "Agent or system that performed the quality evaluation.",
+              "type": "string"
+            }
+          }
+        },
+        "request_context": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "format": "uuid",
+              "description": "Originating inference request ID.",
+              "type": "string"
+            },
+            "delegation_id": {
+              "format": "uuid",
+              "description": "Delegation chain context, if any.",
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   ],
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

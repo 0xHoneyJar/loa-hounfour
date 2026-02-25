@@ -1,0 +1,15 @@
+{
+  "vector_id": "conformance-governed-resource-neg-001",
+  "category": "governed-resource",
+  "description": "Negative: strict enforcement with empty invariants (SKP-001 constraint violation)",
+  "contract_version": "8.0.0",
+  "layer": 2,
+  "input": {
+    "enforcement": "strict",
+    "invariants": []
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "constraint_id": "conservation-strict-requires-invariants",
+  "note": "Schema-valid but constraint-invalid. Layer 2 (semantic) catches this."
+}

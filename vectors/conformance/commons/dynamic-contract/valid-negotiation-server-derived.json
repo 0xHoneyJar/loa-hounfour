@@ -1,0 +1,24 @@
+{
+  "vector_id": "conformance-contract-negotiation-001",
+  "category": "commons",
+  "description": "Valid contract negotiation with server-derived assertion, replay protection nonce, and TTL",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "negotiation_id": "550e8400-e29b-41d4-a716-446655440001",
+    "model_id": "claude-opus-4-20250514",
+    "reputation_state": "established",
+    "assertion_method": "server-derived",
+    "granted_surface": {
+      "schemas": ["AgentIdentity", "TaskOutcome", "ReputationAggregate"],
+      "capabilities": ["inference", "tools", "ensemble"],
+      "rate_limit_tier": "extended",
+      "ensemble_strategies": ["parallel"]
+    },
+    "negotiated_at": "2026-02-25T10:00:00Z",
+    "nonce": "a1b2c3d4e5f6g7h8i9j0k1l2",
+    "expires_at": "2026-02-25T11:00:00Z"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/invariant",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "invariant_id",
+    "name",
+    "expression",
+    "severity"
+  ],
+  "properties": {
+    "invariant_id": {
+      "pattern": "^[A-Z]+-\\d{1,4}$",
+      "description": "Canonical identifier (e.g., I-1, CL-01, REP-001).",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "maxLength": 255,
+      "type": "string"
+    },
+    "expression": {
+      "minLength": 1,
+      "description": "Constraint DSL expression evaluated against the GovernedResource<T> instance. Uses the existing 42-builtin evaluator (v7.11.0). Expression variables bind to field paths on the resource (e.g., resource.balance, audit_trail.integrity_status).",
+      "type": "string"
+    },
+    "severity": {
+      "anyOf": [
+        {
+          "const": "error",
+          "type": "string"
+        },
+        {
+          "const": "warning",
+          "type": "string"
+        },
+        {
+          "const": "info",
+          "type": "string"
+        }
+      ]
+    },
+    "description": {
+      "maxLength": 1000,
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+}

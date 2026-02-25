@@ -354,17 +354,25 @@ export {
   type TaskTypeCohort,
 } from './task-type-cohort.js';
 
-// Schemas — ReputationEvent (v7.10.0, Task-Dimensional Reputation)
+// Schemas — ReputationEvent (v7.10.0, Task-Dimensional Reputation; v8.2.0, Issue #38)
 export {
   ReputationEventSchema,
   QualitySignalEventSchema,
   TaskCompletedEventSchema,
   CredentialUpdateEventSchema,
+  ModelPerformanceEventSchema,
   type ReputationEvent,
   type QualitySignalEvent,
   type TaskCompletedEvent,
   type CredentialUpdateEvent,
+  type ModelPerformanceEvent,
 } from './reputation-event.js';
+
+// Schemas — QualityObservation (v8.2.0, Issue #38)
+export {
+  QualityObservationSchema,
+  type QualityObservation,
+} from './quality-observation.js';
 
 // Schemas — ScoringPathLog (v7.10.0, Task-Dimensional Reputation)
 export {

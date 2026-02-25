@@ -1,7 +1,7 @@
 /**
  * ReputationEvent — discriminated union for task-dimensional reputation events.
  *
- * Three event variants share a common envelope (agent_id, collection_id,
+ * Four event variants share a common envelope (agent_id, collection_id,
  * event_id, timestamp, optional sequence) with type-specific payloads.
  *
  * Variant | type discriminator     | Payload shape
@@ -9,6 +9,7 @@
  * 1       | "quality_signal"       | score, dimensions, optional task_type
  * 2       | "task_completed"       | required task_type, success, duration_ms
  * 3       | "credential_update"    | credential_id, action
+ * 4       | "model_performance"    | model_id, provider, pool_id, task_type, quality_observation
  *
  * Deduplication semantics (SDD §4.3.6):
  * - event_id is globally unique (UUID).
@@ -26,6 +27,7 @@
  */
 import { Type, type Static } from '@sinclair/typebox';
 import { TaskTypeSchema } from './task-type.js';
+import { QualityObservationSchema } from './quality-observation.js';
 
 // ---------------------------------------------------------------------------
 // Shared Envelope Fields (not exported — spread into each variant)
@@ -58,7 +60,7 @@ const QualitySignalPayloadSchema = Type.Object({
   dimensions: Type.Optional(Type.Record(
     Type.String({ pattern: '^[a-z][a-z0-9_]{0,31}$' }),
     Type.Number({ minimum: 0, maximum: 1 }),
-    { maxProperties: 20, description: 'Named quality dimensions (e.g., coherence, safety).' },
+    { maxProperties: 20, additionalProperties: false, description: 'Named quality dimensions (e.g., coherence, safety).' },
   )),
 }, {
   additionalProperties: false,
@@ -121,20 +123,89 @@ export const CredentialUpdateEventSchema = CredentialUpdatePayloadSchema;
 export type CredentialUpdateEvent = Static<typeof CredentialUpdateEventSchema>;
 
 // ---------------------------------------------------------------------------
+// Variant 4: ModelPerformanceEvent
+// ---------------------------------------------------------------------------
+
+/**
+ * Request context — optional traceability metadata.
+ *
+ * Links the performance observation to its originating inference request
+ * and delegation chain. Not a standalone schema (no $id) — too small
+ * and event-specific for independent reuse.
+ */
+const RequestContextSchema = Type.Object(
+  {
+    request_id: Type.Optional(Type.String({
+      format: 'uuid',
+      description: 'Originating inference request ID.',
+    })),
+    delegation_id: Type.Optional(Type.String({
+      format: 'uuid',
+      description: 'Delegation chain context, if any.',
+    })),
+  },
+  { additionalProperties: false },
+);
+
+/**
+ * Model performance event payload.
+ *
+ * Carries full model attribution (model_id, provider, pool_id) alongside
+ * a structured quality observation. Closes the autopoietic feedback loop:
+ * Dixie emits this event → cross-model scoring updates → routing signal
+ * adjusts → Finn routes next request → Dixie evaluates again.
+ *
+ * Unlike quality_signal, task_type is REQUIRED — every model performance
+ * observation inherently has a task context.
+ *
+ * @see Issue #38 — model_performance variant
+ * @since v8.2.0
+ */
+const ModelPerformancePayloadSchema = Type.Object({
+  ...EventEnvelopeFields,
+  type: Type.Literal('model_performance'),
+  model_id: Type.String({
+    minLength: 1,
+    maxLength: 255,
+    description: 'Model alias (e.g., "gpt-4o", "claude-opus"). '
+      + 'Matches COHORT_BASE_FIELDS.model_id for pipeline compatibility.',
+  }),
+  provider: Type.String({
+    minLength: 1,
+    maxLength: 255,
+    description: 'Provider identifier (e.g., "openai", "anthropic").',
+  }),
+  pool_id: Type.String({
+    minLength: 1,
+    maxLength: 255,
+    description: 'Pool context for the evaluation.',
+  }),
+  task_type: TaskTypeSchema,
+  quality_observation: QualityObservationSchema,
+  request_context: Type.Optional(RequestContextSchema),
+}, {
+  additionalProperties: false,
+});
+
+export const ModelPerformanceEventSchema = ModelPerformancePayloadSchema;
+export type ModelPerformanceEvent = Static<typeof ModelPerformanceEventSchema>;
+
+// ---------------------------------------------------------------------------
 // Discriminated Union
 // ---------------------------------------------------------------------------
 
 /**
  * ReputationEvent — discriminated union of all event variants.
  *
- * Discriminates on the `type` field. Generated JSON Schema uses `oneOf`
- * with `const` discriminator.
+ * Discriminates on the `type` field. Generated JSON Schema uses `anyOf`
+ * with `const`-discriminated variants (TypeBox Type.Union always emits anyOf).
  */
 export const ReputationEventSchema = Type.Union(
   [
     QualitySignalEventSchema,
     TaskCompletedEventSchema,
     CredentialUpdateEventSchema,
+    ModelPerformanceEventSchema,
   ],
   {
     $id: 'ReputationEvent',

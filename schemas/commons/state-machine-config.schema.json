@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/state-machine-config",
+  "additionalProperties": false,
+  "description": "State machine configuration for a governed resource. Complements the existing StateMachineDefinition interface in vocabulary/state-machines.ts with schema-level validation and constraint DSL guards.",
+  "type": "object",
+  "required": [
+    "states",
+    "transitions",
+    "initial_state",
+    "terminal_states"
+  ],
+  "properties": {
+    "states": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$id": "State",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "entry_conditions": {
+            "type": "array",
+            "items": {
+              "description": "Constraint DSL expressions evaluated on entering this state.",
+              "type": "string"
+            }
+          },
+          "exit_conditions": {
+            "type": "array",
+            "items": {
+              "description": "Constraint DSL expressions evaluated on leaving this state.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "$id": "Transition",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "from": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "to": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "event": {
+            "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+            "description": "Event that triggers this transition.",
+            "type": "string"
+          },
+          "guard": {
+            "description": "Constraint DSL expression that must be true for transition to fire.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "initial_state": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "terminal_states": {
+      "description": "States from which no transitions are possible.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    }
+  },
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+}

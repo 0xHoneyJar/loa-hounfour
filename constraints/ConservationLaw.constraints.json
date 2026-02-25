@@ -1,0 +1,20 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ConservationLaw",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "conservation-strict-requires-invariants",
+      "expression": "!(enforcement == 'strict' && invariants.length == 0)",
+      "severity": "error",
+      "message": "Strict enforcement requires at least one invariant",
+      "fields": ["enforcement", "invariants"],
+      "type_signature": {
+        "enforcement": "string",
+        "invariants": "array"
+      }
+    }
+  ]
+}

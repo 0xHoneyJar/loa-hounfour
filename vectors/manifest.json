@@ -1,0 +1,1979 @@
+{
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-02-25T04:59:18.958Z",
+  "contract_version": "8.2.0",
+  "total_vectors": 219,
+  "vectors": [
+    {
+      "vector_id": "conformance-access-policy-compound-002",
+      "category": "access-policy",
+      "path": "conformance/access-policy/compound-and-deny.json",
+      "layer": 1,
+      "description": "Compound AND: one sub-policy denies — access denied (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-compound-001",
+      "category": "access-policy",
+      "path": "conformance/access-policy/compound-and-grant.json",
+      "layer": 1,
+      "description": "Compound AND: all sub-policies grant — access allowed (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-compound-004",
+      "category": "access-policy",
+      "path": "conformance/access-policy/compound-or-deny.json",
+      "layer": 1,
+      "description": "Compound OR: all sub-policies deny — access denied (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-compound-003",
+      "category": "access-policy",
+      "path": "conformance/access-policy/compound-or-grant.json",
+      "layer": 1,
+      "description": "Compound OR: one sub-policy grants — access allowed (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-hysteresis-001",
+      "category": "access-policy",
+      "path": "conformance/access-policy/hysteresis-grant-hold.json",
+      "layer": 1,
+      "description": "Hysteresis: previously granted personality stays granted between revoke and grant thresholds (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-hysteresis-003",
+      "category": "access-policy",
+      "path": "conformance/access-policy/hysteresis-no-previous.json",
+      "layer": 1,
+      "description": "Hysteresis: without previously_granted, grant threshold applies (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-access-policy-hysteresis-002",
+      "category": "access-policy",
+      "path": "conformance/access-policy/hysteresis-revoke.json",
+      "layer": 1,
+      "description": "Hysteresis: previously granted personality revoked below revoke threshold (v7.4.0)",
+      "contract_version": "7.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-agent-identity-003",
+      "category": "agent-identity",
+      "path": "conformance/agent-identity/service-zero-depth.json",
+      "layer": 1,
+      "description": "Service agent with no delegation authority — valid (v6.0.0 scoped trust)",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-agent-identity-001",
+      "category": "agent-identity",
+      "path": "conformance/agent-identity/sovereign-full-authority.json",
+      "layer": 1,
+      "description": "Sovereign agent with full delegation authority — valid (v6.0.0 scoped trust)",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-agent-identity-002",
+      "category": "agent-identity",
+      "path": "conformance/agent-identity/untrusted-with-delegation.json",
+      "layer": 1,
+      "description": "Agent with untrusted delegation scope attempting to hold delegation authority — should fail constraint",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-bridge-transfer-saga-0004",
+      "category": "bridge-transfer-saga",
+      "path": "conformance/bridge-transfer-saga/invalid-compensation-order.json",
+      "layer": 1,
+      "description": "Invalid saga with empty step_ids in steps — should fail saga-steps-ordered constraint",
+      "contract_version": "7.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-bridge-transfer-saga-0002",
+      "category": "bridge-transfer-saga",
+      "path": "conformance/bridge-transfer-saga/partial-failure-compensation.json",
+      "layer": 1,
+      "description": "Saga where step 2 (transfer) failed, status is compensating, compensation_steps present to reverse reservation",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-bridge-transfer-saga-0001",
+      "category": "bridge-transfer-saga",
+      "path": "conformance/bridge-transfer-saga/successful-atomic.json",
+      "layer": 1,
+      "description": "Valid atomic saga with 3 completed steps, settled status, and settled_at timestamp",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-bridge-transfer-saga-0003",
+      "category": "bridge-transfer-saga",
+      "path": "conformance/bridge-transfer-saga/timeout-triggered.json",
+      "layer": 1,
+      "description": "Saga where timeout was exceeded during transfer step, status failed with timeout error",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-capability-scoped-trust-002",
+      "category": "capability-scoped-trust",
+      "path": "conformance/capability-scoped-trust/delegation-scope-untrusted.json",
+      "layer": 1,
+      "description": "Agent with untrusted delegation scope but non-empty delegation_authority — should fail",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-capability-scoped-trust-003",
+      "category": "capability-scoped-trust",
+      "path": "conformance/capability-scoped-trust/missing-required-scopes.json",
+      "layer": 1,
+      "description": "Agent missing required billing and inference scopes — should fail scope-coverage constraint",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-capability-scoped-trust-001",
+      "category": "capability-scoped-trust",
+      "path": "conformance/capability-scoped-trust/multi-scope-agent.json",
+      "layer": 1,
+      "description": "Agent with different trust levels per scope — valid",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-collection-governance-config-003",
+      "category": "collection-governance-config",
+      "path": "conformance/collection-governance-config/invalid-demotion-forward.json",
+      "layer": 1,
+      "description": "Invalid: demotion rule attempts forward transition (cold to warming). Demotion must go backward only.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-collection-governance-config-002",
+      "category": "collection-governance-config",
+      "path": "conformance/collection-governance-config/valid-conservative-community.json",
+      "layer": 1,
+      "description": "Conservative community with high pseudo_count (k=10) and long decay half-life.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-collection-governance-config-001",
+      "category": "collection-governance-config",
+      "path": "conformance/collection-governance-config/valid-default-config.json",
+      "layer": 1,
+      "description": "Default collection governance configuration with k=3 and standard thresholds.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-audit-trail-hash-001",
+      "category": "commons",
+      "path": "conformance/commons/audit-trail/hash-reference-vector.json",
+      "layer": 1,
+      "description": "Cross-language reference vector for domain-separated audit entry hashing. Other implementations (Python, Go, Rust) must produce identical hashes from the same inputs using RFC 8785 JCS canonicalization.",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-dynamic-contract-001",
+      "category": "commons",
+      "path": "conformance/commons/dynamic-contract/valid-monotonic-surfaces.json",
+      "layer": 1,
+      "description": "Valid dynamic contract with monotonically expanding surfaces across all 4 reputation tiers",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-contract-negotiation-001",
+      "category": "commons",
+      "path": "conformance/commons/dynamic-contract/valid-negotiation-server-derived.json",
+      "layer": 1,
+      "description": "Valid contract negotiation with server-derived assertion, replay protection nonce, and TTL",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-governed-credits-001",
+      "category": "commons",
+      "path": "conformance/commons/governed-credits/valid-balanced-lot.json",
+      "layer": 1,
+      "description": "Valid credit lot with balanced conservation law",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-governed-freshness-001",
+      "category": "commons",
+      "path": "conformance/commons/governed-freshness/valid-fresh-resource.json",
+      "layer": 1,
+      "description": "Valid fresh resource with score above threshold",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-governed-reputation-001",
+      "category": "commons",
+      "path": "conformance/commons/governed-reputation/cold-null-score-valid.json",
+      "layer": 1,
+      "description": "Valid cold reputation with null personal_score",
+      "contract_version": "8.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-governed-resource-neg-002",
+      "category": "commons",
+      "path": "conformance/commons/governed-resource/missing-version-rejected.json",
+      "layer": 1,
+      "description": "Negative: governed resource missing required version field (Flatline SKP-005)",
+      "contract_version": "8.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-governed-resource-neg-001",
+      "category": "commons",
+      "path": "conformance/commons/governed-resource/strict-empty-invariants-rejected.json",
+      "layer": 2,
+      "description": "Negative: strict enforcement with empty invariants (SKP-001 constraint violation)",
+      "contract_version": "8.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-community-engagement-003",
+      "category": "community-engagement",
+      "path": "conformance/community-engagement/invalid-negative-weight.json",
+      "layer": 1,
+      "description": "Invalid: negative weight violates minimum: 0 constraint.",
+      "contract_version": "7.7.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-community-engagement-002",
+      "category": "community-engagement",
+      "path": "conformance/community-engagement/valid-cultural-resonance.json",
+      "layer": 1,
+      "description": "Valid community engagement signal: cultural resonance with high weight and no source event.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-community-engagement-001",
+      "category": "community-engagement",
+      "path": "conformance/community-engagement/valid-participation-signal.json",
+      "layer": 1,
+      "description": "Valid community engagement signal: participation event with moderate weight.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-conservation-properties-002",
+      "category": "conservation-properties",
+      "path": "conformance/conservation-properties/invalid-count-mismatch.json",
+      "layer": 1,
+      "description": "Invalid registry: total_count does not match properties array length",
+      "contract_version": "5.5.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-conservation-properties-003",
+      "category": "conservation-properties",
+      "path": "conformance/conservation-properties/invalid-duplicate-ids.json",
+      "layer": 1,
+      "description": "Invalid registry: duplicate invariant_id values in properties array",
+      "contract_version": "5.5.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-conservation-properties-001",
+      "category": "conservation-properties",
+      "path": "conformance/conservation-properties/valid-registry.json",
+      "layer": 1,
+      "description": "Valid conservation property registry with 3 properties, correct total_count, unique IDs, and non-empty LTL formulas",
+      "contract_version": "5.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-constraint-lifecycle-003",
+      "category": "constraint-lifecycle",
+      "path": "conformance/constraint-lifecycle/invalid-backward-transition.json",
+      "layer": 1,
+      "description": "Invalid: constraint lifecycle event with same from_status and to_status (no-op transition).",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-constraint-lifecycle-002",
+      "category": "constraint-lifecycle",
+      "path": "conformance/constraint-lifecycle/valid-candidate-with-dryrun.json",
+      "layer": 1,
+      "description": "Valid constraint candidate with successful dry-run validation.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-constraint-lifecycle-001",
+      "category": "constraint-lifecycle",
+      "path": "conformance/constraint-lifecycle/valid-proposed-to-enacted.json",
+      "layer": 1,
+      "description": "Valid constraint lifecycle event: proposed → under_review transition.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-chain-0002",
+      "category": "delegation-chain",
+      "path": "conformance/delegation-chain/3-link-budget-split.json",
+      "layer": 1,
+      "description": "Valid 3-link chain with budget conservation: agent → sub-agent → provider",
+      "contract_version": "5.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-chain-0003",
+      "category": "delegation-chain",
+      "path": "conformance/delegation-chain/authority-conservation-violated.json",
+      "layer": 1,
+      "description": "Invalid: link grants authority_scope not in delegator's received scope (scope escalation)",
+      "contract_version": "5.4.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-chain-0004",
+      "category": "delegation-chain",
+      "path": "conformance/delegation-chain/depth-limit-exceeded.json",
+      "layer": 1,
+      "description": "Invalid: 5 links but max_depth is 3 — depth limit exceeded",
+      "contract_version": "5.4.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-chain-0001",
+      "category": "delegation-chain",
+      "path": "conformance/delegation-chain/simple-2-link.json",
+      "layer": 1,
+      "description": "Valid 2-link delegation: agent delegates inference to model provider, completed successfully",
+      "contract_version": "5.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-outcome-0003",
+      "category": "delegation-outcome",
+      "path": "conformance/delegation-outcome/deadlock-escalation.json",
+      "layer": 1,
+      "description": "Deadlock outcome with 1 agree, 2 disagree, null result, escalated to higher authority",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-outcome-0004",
+      "category": "delegation-outcome",
+      "path": "conformance/delegation-outcome/invalid-unanimous-with-dissent.json",
+      "layer": 1,
+      "description": "Invalid: unanimous outcome type but one vote is disagree — should fail outcome-consensus-consistent constraint",
+      "contract_version": "7.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-outcome-0002",
+      "category": "delegation-outcome",
+      "path": "conformance/delegation-outcome/majority-2of3-minority.json",
+      "layer": 1,
+      "description": "Majority outcome with 2 agree, 1 disagree with minority_report dissent record",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-outcome-0001",
+      "category": "delegation-outcome",
+      "path": "conformance/delegation-outcome/unanimous-3of3.json",
+      "layer": 1,
+      "description": "Unanimous outcome with 3 agree votes, no dissent, consensus achieved",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-quality-003",
+      "category": "delegation-quality",
+      "path": "conformance/delegation-quality/invalid-missing-required.json",
+      "layer": 1,
+      "description": "Invalid: missing required personality_id field (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-quality-002",
+      "category": "delegation-quality",
+      "path": "conformance/delegation-quality/valid-deadlock-low.json",
+      "layer": 1,
+      "description": "Valid quality event: deadlock outcome maps to low signal (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-quality-001",
+      "category": "delegation-quality",
+      "path": "conformance/delegation-quality/valid-unanimous-high.json",
+      "layer": 1,
+      "description": "Valid quality event: unanimous outcome maps to high signal (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-delegation-tree-0002",
+      "category": "delegation-tree",
+      "path": "conformance/delegation-tree/budget-overflow.json",
+      "layer": 1,
+      "description": "Invalid: children budget sum (600000 + 600000 = 1200000) exceeds parent budget (1000000)",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-tree-0003",
+      "category": "delegation-tree",
+      "path": "conformance/delegation-tree/consensus-too-few.json",
+      "layer": 1,
+      "description": "Invalid: consensus strategy with only 2 children at root (requires >= 3)",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-delegation-tree-0001",
+      "category": "delegation-tree",
+      "path": "conformance/delegation-tree/parallel-ensemble.json",
+      "layer": 1,
+      "description": "Valid parallel ensemble tree: 3 children with conserved budget and narrowing authority",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-economic-boundary-003",
+      "category": "economic-boundary",
+      "path": "conformance/economic-boundary/invalid-denied-no-reason.json",
+      "layer": 1,
+      "description": "Invalid: access denied but no denial_reason provided. Constraint boundary-denial-needs-reason should fail.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-economic-boundary-002",
+      "category": "economic-boundary",
+      "path": "conformance/economic-boundary/valid-denied-insufficient-reputation.json",
+      "layer": 1,
+      "description": "Valid economic boundary evaluation: access denied due to cold reputation state with denial reason.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-economic-boundary-001",
+      "category": "economic-boundary",
+      "path": "conformance/economic-boundary/valid-granted-access.json",
+      "layer": 1,
+      "description": "Valid economic boundary evaluation: access granted to agent with established reputation and sufficient budget.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-economic-performance-003",
+      "category": "economic-performance",
+      "path": "conformance/economic-performance/invalid-quality-exceeds-one.json",
+      "layer": 1,
+      "description": "Invalid: actual_quality exceeds 1.0 bound.",
+      "contract_version": "7.8.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-economic-performance-001",
+      "category": "economic-performance",
+      "path": "conformance/economic-performance/valid-cost-within-budget.json",
+      "layer": 1,
+      "description": "Valid performance event: model invocation came in under budget with quality met.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-economic-performance-002",
+      "category": "economic-performance",
+      "path": "conformance/economic-performance/valid-quality-below-threshold.json",
+      "layer": 1,
+      "description": "Valid performance event: model quality fell below expectations, triggering negative feedback.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-005",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/budget-exhausted.json",
+      "layer": 1,
+      "description": "Budget exhausted — ensemble halts when cost limit is reached",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-001",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/consensus-2-models.json",
+      "layer": 1,
+      "description": "Consensus with 2 models — both models agree on answer",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-002",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/consensus-3-models.json",
+      "layer": 1,
+      "description": "Consensus with 3 models — majority agreement (2/3 agree)",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-003",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/dialogue-2-rounds.json",
+      "layer": 1,
+      "description": "Dialogue with 2 rounds — models refine positions through conversation",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-004",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/position-change.json",
+      "layer": 1,
+      "description": "Position change audit trail — tracks when a model changes its position",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-ensemble-006",
+      "category": "ensemble-position",
+      "path": "conformance/ensemble-position/timeout.json",
+      "layer": 1,
+      "description": "Timeout — ensemble halts when time limit is exceeded",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-event-subscription-003",
+      "category": "event-subscription",
+      "path": "conformance/event-subscription/invalid-webhook-no-endpoint.json",
+      "layer": 1,
+      "description": "Invalid: webhook delivery without endpoint URL (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-event-subscription-002",
+      "category": "event-subscription",
+      "path": "conformance/event-subscription/valid-sse-subscription.json",
+      "layer": 1,
+      "description": "Valid SSE subscription with cursor (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-event-subscription-001",
+      "category": "event-subscription",
+      "path": "conformance/event-subscription/valid-webhook-subscription.json",
+      "layer": 1,
+      "description": "Valid webhook subscription with filter and retry policy (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-execution-checkpoint-003",
+      "category": "execution-checkpoint",
+      "path": "conformance/execution-checkpoint/invalid-failing-continue.json",
+      "layer": 1,
+      "description": "Invalid: failing health but continue decision violates consistency rule.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-execution-checkpoint-002",
+      "category": "execution-checkpoint",
+      "path": "conformance/execution-checkpoint/valid-canary-with-rollback.json",
+      "layer": 1,
+      "description": "Canary execution with failing checkpoint that triggers rollback.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-execution-checkpoint-001",
+      "category": "execution-checkpoint",
+      "path": "conformance/execution-checkpoint/valid-progressive-healthy.json",
+      "layer": 1,
+      "description": "Progressive execution with healthy checkpoint that continues.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-governance-proposal-0002",
+      "category": "governance-proposal",
+      "path": "conformance/governance-proposal/invalid-empty-changes.json",
+      "layer": 1,
+      "description": "Invalid proposal with no proposed changes",
+      "contract_version": "7.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-governance-proposal-0001",
+      "category": "governance-proposal",
+      "path": "conformance/governance-proposal/valid-parameter-update.json",
+      "layer": 1,
+      "description": "Valid governance proposal to update a parameter with full voting record",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-inter-agent-transaction-0003",
+      "category": "inter-agent-transaction",
+      "path": "conformance/inter-agent-transaction/conservation-violated.json",
+      "layer": 1,
+      "description": "Invalid: post-balances don't conserve the amount — sender loses more than receiver gains",
+      "contract_version": "5.4.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-inter-agent-transaction-0002",
+      "category": "inter-agent-transaction",
+      "path": "conformance/inter-agent-transaction/delegation-linked-transfer.json",
+      "layer": 1,
+      "description": "Valid delegation budget transfer linked to a delegation chain",
+      "contract_version": "5.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-inter-agent-transaction-0004",
+      "category": "inter-agent-transaction",
+      "path": "conformance/inter-agent-transaction/self-transfer-rejected.json",
+      "layer": 1,
+      "description": "Invalid: sender and receiver are the same agent — self-transfer rejected",
+      "contract_version": "5.4.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-inter-agent-transaction-0001",
+      "category": "inter-agent-transaction",
+      "path": "conformance/inter-agent-transaction/standard-peer-transfer.json",
+      "layer": 1,
+      "description": "Valid peer transfer with conservation verified: sender loses 500000, receiver gains 500000",
+      "contract_version": "5.4.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-jwt-boundary-003",
+      "category": "jwt-boundary",
+      "path": "conformance/jwt-boundary/invalid-non-blocking-crypto.json",
+      "layer": 1,
+      "description": "Invalid JWT boundary spec: cryptographic step 2 is not blocking",
+      "contract_version": "5.5.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-jwt-boundary-002",
+      "category": "jwt-boundary",
+      "path": "conformance/jwt-boundary/invalid-step-ordering.json",
+      "layer": 1,
+      "description": "Invalid JWT boundary spec: steps not numbered 1-6 consecutively (skips step 3)",
+      "contract_version": "5.5.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-jwt-boundary-001",
+      "category": "jwt-boundary",
+      "path": "conformance/jwt-boundary/valid-boundary-spec.json",
+      "layer": 1,
+      "description": "Valid JWT boundary spec with all 6 steps in order, blocking crypto steps, and non-empty algorithm whitelist",
+      "contract_version": "5.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-liveness-properties-001",
+      "category": "liveness-properties",
+      "path": "conformance/liveness-properties/complete-safety-liveness-pairs.json",
+      "layer": 1,
+      "description": "Complete safety-liveness pair — valid liveness property with companion safety invariant",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-liveness-properties-003",
+      "category": "liveness-properties",
+      "path": "conformance/liveness-properties/liveness-empty-formula.json",
+      "layer": 1,
+      "description": "Liveness property with empty LTL formula — should fail schema and constraint validation",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-liveness-properties-002",
+      "category": "liveness-properties",
+      "path": "conformance/liveness-properties/liveness-without-companion.json",
+      "layer": 1,
+      "description": "Liveness property with invalid companion_safety pattern — should fail schema validation",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-micro-usdc-003",
+      "category": "micro-usdc",
+      "path": "conformance/micro-usdc/conversion-preservation.json",
+      "layer": 1,
+      "description": "MicroUSD ↔ MicroUSDC conversion preserves numeric value (same scale, different brand)",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-micro-usdc-002",
+      "category": "micro-usdc",
+      "path": "conformance/micro-usdc/negative-rejection.json",
+      "layer": 1,
+      "description": "Negative amount rejected — MicroUSDC constructor throws RangeError on negative bigint",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-micro-usdc-004",
+      "category": "micro-usdc",
+      "path": "conformance/micro-usdc/non-numeric-rejection.json",
+      "layer": 1,
+      "description": "Non-numeric string rejected — deserializeMicroUSDC throws on invalid format",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-micro-usdc-001",
+      "category": "micro-usdc",
+      "path": "conformance/micro-usdc/round-trip.json",
+      "layer": 1,
+      "description": "Round-trip serialization: '1000000' → BigInt(1000000) → '1000000'",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-model-economic-profile-003",
+      "category": "model-economic-profile",
+      "path": "conformance/model-economic-profile/invalid-negative-quality.json",
+      "layer": 1,
+      "description": "Invalid: quality_yield is negative, violating minimum: 0 constraint.",
+      "contract_version": "7.7.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-model-economic-profile-001",
+      "category": "model-economic-profile",
+      "path": "conformance/model-economic-profile/valid-gpt4o-profile.json",
+      "layer": 1,
+      "description": "Valid model economic profile for GPT-4o with moderate routing weight.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-model-economic-profile-002",
+      "category": "model-economic-profile",
+      "path": "conformance/model-economic-profile/valid-native-profile.json",
+      "layer": 1,
+      "description": "Valid model economic profile for native Opus model with high quality yield and dominant routing weight.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-monetary-policy-0003",
+      "category": "monetary-policy",
+      "path": "conformance/monetary-policy/invalid-mint-exceeds-ceiling.json",
+      "layer": 1,
+      "description": "Invalid: zero conservation ceiling means no minting allowed",
+      "contract_version": "7.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-monetary-policy-0002",
+      "category": "monetary-policy",
+      "path": "conformance/monetary-policy/invalid-undercollateralized.json",
+      "layer": 1,
+      "description": "Invalid monetary policy with collateral ratio below 100% (10000 bps minimum)",
+      "contract_version": "7.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-monetary-policy-0001",
+      "category": "monetary-policy",
+      "path": "conformance/monetary-policy/valid-150pct-collateral.json",
+      "layer": 1,
+      "description": "Valid monetary policy with 150% collateral ratio and epoch-based review",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-permission-boundary-0001",
+      "category": "permission-boundary",
+      "path": "conformance/permission-boundary/valid-billing-advisory.json",
+      "layer": 1,
+      "description": "Valid advisory permission boundary for billing scope",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-permission-boundary-0002",
+      "category": "permission-boundary",
+      "path": "conformance/permission-boundary/valid-governance-monitored.json",
+      "layer": 1,
+      "description": "Valid monitored permission boundary for governance scope with timeout revocation",
+      "contract_version": "7.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-personality-assignment-002",
+      "category": "personality-assignment",
+      "path": "conformance/personality-assignment/invalid-fingerprint.json",
+      "layer": 1,
+      "description": "Invalid fingerprint hash — too short (32 chars instead of 64)",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-personality-assignment-003",
+      "category": "personality-assignment",
+      "path": "conformance/personality-assignment/invalid-nft-id.json",
+      "layer": 1,
+      "description": "Invalid NftId format — missing eip155 prefix",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-personality-assignment-004",
+      "category": "personality-assignment",
+      "path": "conformance/personality-assignment/premium-tier-checksum.json",
+      "layer": 1,
+      "description": "Premium tier with valid EIP-55 checksummed address in NftId",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-personality-assignment-001",
+      "category": "personality-assignment",
+      "path": "conformance/personality-assignment/valid-assignment.json",
+      "layer": 1,
+      "description": "Valid assignment with all required fields and correct formats",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-policy-version-003",
+      "category": "policy-version",
+      "path": "conformance/policy-version/invalid-self-supersede.json",
+      "layer": 1,
+      "description": "Invalid: policy version supersedes itself.",
+      "contract_version": "7.6.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-policy-version-001",
+      "category": "policy-version",
+      "path": "conformance/policy-version/valid-monetary-upgrade.json",
+      "layer": 1,
+      "description": "Valid monetary policy version upgrade with supersession.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-policy-version-002",
+      "category": "policy-version",
+      "path": "conformance/policy-version/valid-with-migration.json",
+      "layer": 1,
+      "description": "Valid governance policy version with migration validation expression.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-006",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/asymmetric-pricing.json",
+      "layer": 1,
+      "description": "Asymmetric pricing — vastly different input vs output rates (embeddings-like)",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-005",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/max-tokens.json",
+      "layer": 1,
+      "description": "MAX_SAFE_INTEGER tokens — tests BigInt arithmetic at scale boundary",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-002",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/standard-claude.json",
+      "layer": 1,
+      "description": "Standard Claude 3 Opus pricing — 15 USD / 1M input, 75 USD / 1M output",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-001",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/standard-gpt4.json",
+      "layer": 1,
+      "description": "Standard GPT-4 pricing — 30 USD / 1M input, 60 USD / 1M output",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-004",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/sub-micro-fraction.json",
+      "layer": 1,
+      "description": "Sub-micro fraction — 1 token at 30 USD/1M rate; tests BigInt floor behavior",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-pricing-003",
+      "category": "pricing-calculation",
+      "path": "conformance/pricing-calculation/zero-tokens.json",
+      "layer": 1,
+      "description": "Zero tokens — edge case where both input and output are zero",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-proposal-execution-003",
+      "category": "proposal-execution",
+      "path": "conformance/proposal-execution/invalid-completed-without-timestamp.json",
+      "layer": 1,
+      "description": "Invalid: completed execution without completed_at timestamp.",
+      "contract_version": "7.7.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-proposal-execution-001",
+      "category": "proposal-execution",
+      "path": "conformance/proposal-execution/valid-completed-execution.json",
+      "layer": 1,
+      "description": "Valid completed proposal execution with all changes successful.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-proposal-execution-002",
+      "category": "proposal-execution",
+      "path": "conformance/proposal-execution/valid-partial-failure.json",
+      "layer": 1,
+      "description": "Valid failed execution with one success and one failure.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-001",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/anthropic-basic.json",
+      "layer": 1,
+      "description": "Basic Anthropic provider normalization — maps Claude response to unified format",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-002",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/anthropic-thinking.json",
+      "layer": 1,
+      "description": "Anthropic response with thinking trace — extended_thinking content blocks",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-005",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/google-basic.json",
+      "layer": 1,
+      "description": "Basic Google Gemini provider normalization — maps Gemini response to unified format",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-006",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/google-thinking.json",
+      "layer": 1,
+      "description": "Google Gemini response with thinking — thought content parts normalization",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-007",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/invalid-missing-usage.json",
+      "layer": 1,
+      "description": "Invalid: missing usage data — adapters must always include token counts",
+      "contract_version": "5.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-normalization-008",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/invalid-wrong-finish.json",
+      "layer": 1,
+      "description": "Invalid: unrecognized finish reason — must map to known enum value or fail",
+      "contract_version": "5.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-normalization-003",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/openai-basic.json",
+      "layer": 1,
+      "description": "Basic OpenAI provider normalization — maps GPT response to unified format",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-normalization-004",
+      "category": "provider-normalization",
+      "path": "conformance/provider-normalization/openai-tool-calls.json",
+      "layer": 1,
+      "description": "OpenAI response with tool calls — function calling normalization",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-registry-bridge-0003",
+      "category": "registry-bridge",
+      "path": "conformance/registry-bridge/duplicate-invariant-ids.json",
+      "layer": 1,
+      "description": "Invalid: bridge contains duplicate invariant IDs",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-registry-bridge-0002",
+      "category": "registry-bridge",
+      "path": "conformance/registry-bridge/same-registry-bridge.json",
+      "layer": 1,
+      "description": "Invalid: source and target registry are the same (self-bridge)",
+      "contract_version": "6.0.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-registry-bridge-0001",
+      "category": "registry-bridge",
+      "path": "conformance/registry-bridge/valid-bridge.json",
+      "layer": 1,
+      "description": "Valid bridge between two distinct registries with conservation invariant",
+      "contract_version": "6.0.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-005",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/authoritative-insufficient-weight.json",
+      "layer": 1,
+      "description": "established → authoritative at n=26, k=3 (personal weight = 26/29 ≈ 0.897 < 0.9) — violates constraint",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-004",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/authoritative-valid.json",
+      "layer": 1,
+      "description": "established → authoritative at n=28, k=3 (personal weight = 28/31 ≈ 0.903 > 0.9)",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-007",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/blended-score-computation.json",
+      "layer": 1,
+      "description": "Blended score computation: k=3, n=10, personal=0.8, collection=0.5 → (3*0.5 + 10*0.8)/13 ≈ 0.73077",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-002",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/cold-nonnull-invalid.json",
+      "layer": 1,
+      "description": "Cold state with non-null personal_score — violates cold-null-score constraint",
+      "contract_version": "7.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-001",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/cold-null-score.json",
+      "layer": 1,
+      "description": "Cold state with null personal_score — valid initial state",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-010",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/model-cohort-score-invalid.json",
+      "layer": 1,
+      "description": "Invalid — model cohort with personal_score > 1 (out of bounds)",
+      "contract_version": "7.3.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-011",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/model-cohorts-all-cold.json",
+      "layer": 1,
+      "description": "Valid — all model cohorts cold (personal_score: null, sample_count: 0)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-008",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/model-cohorts-mixed.json",
+      "layer": 1,
+      "description": "Valid aggregate with model_cohorts array — 3 models, mixed states (v7.3.0 C5)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-009",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/no-model-cohorts.json",
+      "layer": 1,
+      "description": "Valid aggregate without model_cohorts — backwards compatible with v7.2.0",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-006",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/reset-to-cold.json",
+      "layer": 1,
+      "description": "Reset from authoritative to cold — valid transition from any state",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-014",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/snapshot-invalid-hash.json",
+      "layer": 1,
+      "description": "Invalid aggregate snapshot — event_stream_hash wrong length (v7.3.0 C2)",
+      "contract_version": "7.3.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-012",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/snapshot-with-hash.json",
+      "layer": 1,
+      "description": "Valid aggregate snapshot with event_stream_hash (v7.3.0 C2 + Spec V)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-013",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/snapshot-without-hash.json",
+      "layer": 1,
+      "description": "Valid aggregate snapshot without event_stream_hash — hash is optional (v7.3.0 C2)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-003",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/warming-to-established.json",
+      "layer": 1,
+      "description": "warming → established transition at sample_count=5 (equals min_sample_count)",
+      "contract_version": "7.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-015",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/with-task-cohorts.json",
+      "layer": 1,
+      "description": "Valid aggregate with task_cohorts array (v7.10.0)",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-aggregate-016",
+      "category": "reputation-aggregate",
+      "path": "conformance/reputation-aggregate/without-task-cohorts-legacy.json",
+      "layer": 1,
+      "description": "Valid legacy aggregate without task_cohorts — backward compat proof (v7.10.0)",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-credential-005",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/cold-source-credential.json",
+      "layer": 1,
+      "description": "Valid credential from cold source — structurally valid but carries constraint warning",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-credential-007",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/constraint-violation-expiry-before-issuance.json",
+      "layer": 1,
+      "description": "Credential with expires_at before issued_at — violates credential-expiry-after-issuance constraint",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-credential-004",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/invalid-attestation-hash.json",
+      "layer": 1,
+      "description": "Invalid credential — attestation_hash not a valid 64-char hex string",
+      "contract_version": "7.3.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-credential-006",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/invalid-missing-required.json",
+      "layer": 1,
+      "description": "Invalid credential — missing required personality_id field",
+      "contract_version": "7.3.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-credential-003",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/invalid-score-range.json",
+      "layer": 1,
+      "description": "Invalid credential — source_blended_score exceeds [0,1] range",
+      "contract_version": "7.3.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-credential-002",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/valid-credential-no-expiry.json",
+      "layer": 1,
+      "description": "Valid reputation credential without optional expiry or attestation_hash (v7.3.0)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-credential-001",
+      "category": "reputation-credential",
+      "path": "conformance/reputation-credential/valid-credential.json",
+      "layer": 1,
+      "description": "Valid reputation credential from an established source (v7.3.0 C1 + Spec IV)",
+      "contract_version": "7.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-economic-impact-003",
+      "category": "reputation-economic-impact",
+      "path": "conformance/reputation-economic-impact/invalid-empty-impacts.json",
+      "layer": 1,
+      "description": "Invalid: empty impacts array violates minItems: 1. A reputation change must have at least one economic consequence.",
+      "contract_version": "7.7.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-economic-impact-002",
+      "category": "reputation-economic-impact",
+      "path": "conformance/reputation-economic-impact/valid-access-revoked-on-demotion.json",
+      "layer": 1,
+      "description": "Valid reputation economic impact: demotion triggers access revocation and routing change.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-economic-impact-001",
+      "category": "reputation-economic-impact",
+      "path": "conformance/reputation-economic-impact/valid-tier-upgrade.json",
+      "layer": 1,
+      "description": "Valid reputation economic impact: state transition triggers tier upgrade and budget adjustment.",
+      "contract_version": "7.7.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-005",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/credential-update-valid.json",
+      "layer": 1,
+      "description": "Valid credential_update event",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-007",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/invalid-score-out-of-range.json",
+      "layer": 1,
+      "description": "Invalid quality_signal — score 1.5 exceeds [0, 1] range",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-006",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/invalid-unknown-type.json",
+      "layer": 1,
+      "description": "Invalid ReputationEvent — unknown type 'future_event' must be rejected",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-022",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-boundary-score-max.json",
+      "layer": 1,
+      "description": "Valid model_performance — boundary score=1 at quality_observation level (Flatline IMP-001, B038-1-004)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-023",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-boundary-score-min.json",
+      "layer": 1,
+      "description": "Valid model_performance — boundary score=0 at quality_observation level without dimensions (B038-2-006)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-020",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-boundary-scores.json",
+      "layer": 1,
+      "description": "Valid model_performance — boundary scores 0 and 1 (Flatline IMP-001)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-013",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-community-task-type.json",
+      "layer": 1,
+      "description": "Valid model_performance event — community-defined task_type (namespace:type format)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-014",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-empty-request-context.json",
+      "layer": 1,
+      "description": "Valid model_performance event — empty request_context (all fields optional)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-015",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-extra-property.json",
+      "layer": 1,
+      "description": "Invalid model_performance event — additional property at top level",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-009",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-full.json",
+      "layer": 1,
+      "description": "Valid model_performance event — all optional fields populated",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-011",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-invalid-score.json",
+      "layer": 1,
+      "description": "Invalid model_performance — quality_observation.score 1.5 exceeds [0, 1] range",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-008",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-minimal.json",
+      "layer": 1,
+      "description": "Valid model_performance event — required fields only",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-012",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-missing-model-id.json",
+      "layer": 1,
+      "description": "Invalid model_performance — missing required model_id field",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-017",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-missing-pool-id.json",
+      "layer": 1,
+      "description": "Invalid model_performance — missing required pool_id field",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-016",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-missing-provider.json",
+      "layer": 1,
+      "description": "Invalid model_performance — missing required provider field",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-019",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-missing-quality-observation.json",
+      "layer": 1,
+      "description": "Invalid model_performance — missing required quality_observation field",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-018",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-missing-task-type.json",
+      "layer": 1,
+      "description": "Invalid model_performance — missing required task_type field",
+      "contract_version": "8.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-event-021",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-unspecified-task-type.json",
+      "layer": 1,
+      "description": "Valid model_performance — task_type 'unspecified' routes to aggregate-only scoring (Flatline IMP-003)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-010",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/model-performance-with-dimensions.json",
+      "layer": 1,
+      "description": "Valid model_performance event — quality dimensions populated",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-001",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/quality-signal-valid.json",
+      "layer": 1,
+      "description": "Valid quality_signal event — minimal fields",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-002",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/quality-signal-with-dimensions.json",
+      "layer": 1,
+      "description": "Valid quality_signal event with task_type and dimensions",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-003",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/task-completed-valid.json",
+      "layer": 1,
+      "description": "Valid task_completed event — minimal fields",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-event-004",
+      "category": "reputation-event",
+      "path": "conformance/reputation-event/task-completed-with-duration.json",
+      "layer": 1,
+      "description": "Valid task_completed event with duration_ms and sequence",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-portability-003",
+      "category": "reputation-portability",
+      "path": "conformance/reputation-portability/invalid-same-collection.json",
+      "layer": 1,
+      "description": "Invalid: source and target collections are the same (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-portability-001",
+      "category": "reputation-portability",
+      "path": "conformance/reputation-portability/valid-portability-request.json",
+      "layer": 1,
+      "description": "Valid reputation portability request across collections (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-portability-002",
+      "category": "reputation-portability",
+      "path": "conformance/reputation-portability/valid-response-accepted.json",
+      "layer": 1,
+      "description": "Valid accepted portability response with credential (v7.5.0)",
+      "contract_version": "7.5.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-routing-003",
+      "category": "reputation-routing",
+      "path": "conformance/reputation-routing/invalid-expired-signal.json",
+      "layer": 1,
+      "description": "Invalid: expires_at is before effective_at.",
+      "contract_version": "7.6.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reputation-routing-001",
+      "category": "reputation-routing",
+      "path": "conformance/reputation-routing/valid-model-preference.json",
+      "layer": 1,
+      "description": "Valid model preference routing signal with per-model cohort scores.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reputation-routing-002",
+      "category": "reputation-routing",
+      "path": "conformance/reputation-routing/valid-task-eligibility.json",
+      "layer": 1,
+      "description": "Valid task eligibility signal with expiry date.",
+      "contract_version": "7.6.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0005",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/advisory-floor-breach.json",
+      "layer": 1,
+      "description": "Advisory enforcement allows request that would breach floor, with warning",
+      "contract_version": "5.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0006",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/advisory-near-floor.json",
+      "layer": 1,
+      "description": "Advisory enforcement warns when post-transaction is within 20% of floor",
+      "contract_version": "5.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0002",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/below-minimum-bps.json",
+      "layer": 1,
+      "description": "Below-minimum bps for community_verified tier (requires 500, given 200) — expected tier_valid: false",
+      "contract_version": "5.2.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0004",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/budget-exhaustion-floor.json",
+      "layer": 1,
+      "description": "Budget exhaustion with floor enforcement — spending would breach reservation floor, request blocked",
+      "contract_version": "5.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0003",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/budget-within-floor.json",
+      "layer": 1,
+      "description": "Budget spending within reservation floor — sufficient budget, request should be allowed",
+      "contract_version": "5.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0001",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/self-declared-valid.json",
+      "layer": 1,
+      "description": "Valid reservation with self_declared tier at 300 bps minimum — expected to pass",
+      "contract_version": "5.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0007",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/unsupported-above-floor.json",
+      "layer": 1,
+      "description": "Unsupported enforcement allows request when budget sufficient and above floor",
+      "contract_version": "5.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-reservation-enforcement-0008",
+      "category": "reservation-enforcement",
+      "path": "conformance/reservation-enforcement/unsupported-at-floor.json",
+      "layer": 1,
+      "description": "Unsupported enforcement blocks when budget at or below reservation floor",
+      "contract_version": "5.3.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-routing-rebalance-003",
+      "category": "routing-rebalance",
+      "path": "conformance/routing-rebalance/invalid-same-composition.json",
+      "layer": 1,
+      "description": "Invalid: before and after composition IDs are identical (no change).",
+      "contract_version": "7.8.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-routing-rebalance-002",
+      "category": "routing-rebalance",
+      "path": "conformance/routing-rebalance/valid-performance-driven.json",
+      "layer": 1,
+      "description": "Valid performance-driven rebalance with trigger details.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-routing-rebalance-001",
+      "category": "routing-rebalance",
+      "path": "conformance/routing-rebalance/valid-periodic-rebalance.json",
+      "layer": 1,
+      "description": "Valid periodic rebalancing event with performance window.",
+      "contract_version": "7.8.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-002",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/aggregate-path-valid.json",
+      "layer": 1,
+      "description": "Valid aggregate path with model_id",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-006",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/invalid-hash-format.json",
+      "layer": 1,
+      "description": "Invalid ScoringPathLog: entry_hash missing sha256: prefix",
+      "contract_version": "7.11.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-004",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/invalid-task-cohort-missing-context.json",
+      "layer": 1,
+      "description": "task_cohort path without model_id — valid at schema level (constraint violation, not schema violation)",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-001",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/task-cohort-path-valid.json",
+      "layer": 1,
+      "description": "Valid task_cohort path with model_id and task_type",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-003",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/tier-default-path-valid.json",
+      "layer": 1,
+      "description": "Valid tier_default path with reason, no model/task",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-scoring-path-log-005",
+      "category": "scoring-path-log",
+      "path": "conformance/scoring-path-log/valid-with-hash-chain.json",
+      "layer": 1,
+      "description": "Valid ScoringPathLog with hash chain fields (v7.11.0, Bridgebuilder Meditation III)",
+      "contract_version": "7.11.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-cohort-003",
+      "category": "task-type-cohort",
+      "path": "conformance/task-type-cohort/invalid-missing-task-type.json",
+      "layer": 1,
+      "description": "Invalid TaskTypeCohort — missing required task_type field",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-cohort-002",
+      "category": "task-type-cohort",
+      "path": "conformance/task-type-cohort/valid-cold-cohort.json",
+      "layer": 1,
+      "description": "Valid cold TaskTypeCohort — null personal_score, zero sample_count",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-cohort-005",
+      "category": "task-type-cohort",
+      "path": "conformance/task-type-cohort/valid-community-task-type.json",
+      "layer": 1,
+      "description": "Valid TaskTypeCohort with community-defined task_type (ADR-003)",
+      "contract_version": "7.11.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-cohort-001",
+      "category": "task-type-cohort",
+      "path": "conformance/task-type-cohort/valid-full-cohort.json",
+      "layer": 1,
+      "description": "Valid TaskTypeCohort with all fields populated",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-cohort-004",
+      "category": "task-type-cohort",
+      "path": "conformance/task-type-cohort/valid-with-threshold.json",
+      "layer": 1,
+      "description": "Valid TaskTypeCohort with confidence_threshold (v7.11.0)",
+      "contract_version": "7.11.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-007",
+      "category": "task-type",
+      "path": "conformance/task-type/invalid-empty-string.json",
+      "layer": 1,
+      "description": "Invalid TaskType: empty string must be rejected",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-008",
+      "category": "task-type",
+      "path": "conformance/task-type/invalid-future-unknown-type.json",
+      "layer": 1,
+      "description": "Invalid TaskType: FR-1.4 extension governance — wire-level must reject unknown values even if they might be valid in future versions",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-010",
+      "category": "task-type",
+      "path": "conformance/task-type/invalid-no-namespace.json",
+      "layer": 1,
+      "description": "Invalid community type: missing namespace (no colon separator)",
+      "contract_version": "7.11.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-006",
+      "category": "task-type",
+      "path": "conformance/task-type/invalid-unknown-type.json",
+      "layer": 1,
+      "description": "Invalid TaskType: unknown value 'future_type' must be rejected",
+      "contract_version": "7.10.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-011",
+      "category": "task-type",
+      "path": "conformance/task-type/invalid-uppercase-namespace.json",
+      "layer": 1,
+      "description": "Invalid community type: uppercase in namespace violates pattern",
+      "contract_version": "7.11.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-task-type-003",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-analysis.json",
+      "layer": 1,
+      "description": "Valid TaskType: analysis",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-001",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-code-review.json",
+      "layer": 1,
+      "description": "Valid TaskType: code_review",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-009",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-community-type.json",
+      "layer": 1,
+      "description": "Valid community-defined TaskType in namespace:type format (ADR-003)",
+      "contract_version": "7.11.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-002",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-creative-writing.json",
+      "layer": 1,
+      "description": "Valid TaskType: creative_writing",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-005",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-general.json",
+      "layer": 1,
+      "description": "Valid TaskType: general",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-004",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-summarization.json",
+      "layer": 1,
+      "description": "Valid TaskType: summarization",
+      "contract_version": "7.10.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-task-type-012",
+      "category": "task-type",
+      "path": "conformance/task-type/valid-unspecified.json",
+      "layer": 1,
+      "description": "Valid TaskType: unspecified — reserved fallback for missing task metadata (PRD FR-1, v8.2.0)",
+      "contract_version": "8.2.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-thinking-001",
+      "category": "thinking-trace",
+      "path": "conformance/thinking-trace/anthropic-trace.json",
+      "layer": 1,
+      "description": "Anthropic extended thinking trace — full chain-of-thought extraction",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-thinking-002",
+      "category": "thinking-trace",
+      "path": "conformance/thinking-trace/google-trace.json",
+      "layer": 1,
+      "description": "Google Gemini thinking trace — thought=true content parts",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-thinking-003",
+      "category": "thinking-trace",
+      "path": "conformance/thinking-trace/no-thinking.json",
+      "layer": 1,
+      "description": "No thinking trace — standard response without chain-of-thought",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-thinking-004",
+      "category": "thinking-trace",
+      "path": "conformance/thinking-trace/truncated-trace.json",
+      "layer": 1,
+      "description": "Truncated thinking trace — adapter receives partial thinking due to context limit",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-toolcall-006",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/empty-arguments.json",
+      "layer": 1,
+      "description": "Empty arguments — tool call with no arguments",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-toolcall-005",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/invalid-tool-name.json",
+      "layer": 1,
+      "description": "Invalid tool name — tool name contains disallowed characters",
+      "contract_version": "5.1.0",
+      "expected_valid": false
+    },
+    {
+      "vector_id": "conformance-toolcall-003",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/nested-arguments.json",
+      "layer": 1,
+      "description": "Nested arguments — tool call with deeply nested object arguments",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-toolcall-002",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/parallel-tools.json",
+      "layer": 1,
+      "description": "Parallel tool calls — multiple function invocations in single response",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-toolcall-001",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/single-tool.json",
+      "layer": 1,
+      "description": "Single tool call — basic function invocation roundtrip",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    },
+    {
+      "vector_id": "conformance-toolcall-004",
+      "category": "tool-call-roundtrip",
+      "path": "conformance/tool-call-roundtrip/tool-error.json",
+      "layer": 1,
+      "description": "Tool error response — roundtrip of error result from tool execution",
+      "contract_version": "5.1.0",
+      "expected_valid": true
+    }
+  ]
+}

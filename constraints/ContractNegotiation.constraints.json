@@ -1,0 +1,30 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ContractNegotiation",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "negotiation-expires-after-negotiated",
+      "expression": "is_after(expires_at, negotiated_at)",
+      "severity": "error",
+      "message": "expires_at must be after negotiated_at",
+      "fields": ["expires_at", "negotiated_at"],
+      "type_signature": {
+        "expires_at": "string",
+        "negotiated_at": "string"
+      }
+    },
+    {
+      "id": "negotiation-nonce-present",
+      "expression": "len(nonce) >= 16",
+      "severity": "error",
+      "message": "Nonce must be at least 16 characters for replay protection",
+      "fields": ["nonce"],
+      "type_signature": {
+        "nonce": "string"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "vector_id": "conformance-governed-freshness-001",
+  "category": "governed-freshness",
+  "description": "Valid fresh resource with score above threshold",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "source_id": "data-feed-001",
+    "freshness_score": 0.95,
+    "decay_rate": 0.01,
+    "last_refresh": "2026-02-25T10:00:00Z",
+    "minimum_freshness": 0.3,
+    "conservation_law": {
+      "invariants": [
+        {
+          "invariant_id": "FR-01",
+          "name": "Score bounds",
+          "expression": "freshness_score >= 0 && freshness_score <= 1",
+          "severity": "error"
+        }
+      ],
+      "enforcement": "strict",
+      "scope": "per-entry"
+    },
+    "audit_trail": {
+      "entries": [],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    },
+    "state_machine": {
+      "states": [
+        {"name": "fresh"}, {"name": "decaying"},
+        {"name": "stale"}, {"name": "expired"}
+      ],
+      "transitions": [
+        {"from": "fresh", "to": "decaying"},
+        {"from": "decaying", "to": "stale"},
+        {"from": "stale", "to": "expired"}
+      ],
+      "initial_state": "fresh",
+      "terminal_states": ["expired"]
+    },
+    "governance_class": "protocol-fixed",
+    "version": 0,
+    "contract_version": "8.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernedFreshness",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "FR-01",
+      "expression": "freshness_score >= 0 && freshness_score <= 1",
+      "severity": "error",
+      "message": "Freshness score must be in [0, 1]",
+      "fields": ["freshness_score"],
+      "type_signature": {
+        "freshness_score": "number"
+      }
+    },
+    {
+      "id": "FR-02",
+      "expression": "decay_rate >= 0",
+      "severity": "error",
+      "message": "Decay rate must be non-negative",
+      "fields": ["decay_rate"],
+      "type_signature": {
+        "decay_rate": "number"
+      }
+    },
+    {
+      "id": "FR-03",
+      "expression": "true",
+      "severity": "error",
+      "message": "When state is fresh or decaying, freshness_score must be >= minimum_freshness. Evaluated against state_machine.states context.",
+      "fields": ["freshness_score", "minimum_freshness", "state_machine"],
+      "type_signature": {
+        "freshness_score": "number",
+        "minimum_freshness": "number",
+        "state_machine": "object"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "conditional_threshold",
+        "condition_states": ["fresh", "decaying"],
+        "field": "freshness_score",
+        "threshold_field": "minimum_freshness",
+        "operator": ">="
+      }
+    }
+  ]
+}

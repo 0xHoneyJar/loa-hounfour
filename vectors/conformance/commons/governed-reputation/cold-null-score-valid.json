@@ -1,0 +1,52 @@
+{
+  "vector_id": "conformance-governed-reputation-001",
+  "category": "governed-reputation",
+  "description": "Valid cold reputation with null personal_score",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "personality_id": "agent-001",
+    "collection_id": "collection-alpha",
+    "pool_id": "pool-main",
+    "reputation_state": "cold",
+    "personal_score": null,
+    "blended_score": 0.5,
+    "sample_count": 0,
+    "conservation_law": {
+      "invariants": [
+        {
+          "invariant_id": "REP-02",
+          "name": "Cold null score",
+          "expression": "!(reputation_state == 'cold' && personal_score != null)",
+          "severity": "error"
+        }
+      ],
+      "enforcement": "strict",
+      "scope": "per-entry"
+    },
+    "audit_trail": {
+      "entries": [],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    },
+    "state_machine": {
+      "states": [
+        {"name": "cold"}, {"name": "warming"},
+        {"name": "established"}, {"name": "authoritative"}
+      ],
+      "transitions": [
+        {"from": "cold", "to": "warming"},
+        {"from": "warming", "to": "established"},
+        {"from": "established", "to": "authoritative"}
+      ],
+      "initial_state": "cold",
+      "terminal_states": []
+    },
+    "governance_class": "protocol-fixed",
+    "version": 0,
+    "contract_version": "8.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

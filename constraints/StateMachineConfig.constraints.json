@@ -1,0 +1,64 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "StateMachineConfig",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "state-machine-initial-in-states",
+      "expression": "true",
+      "severity": "error",
+      "message": "initial_state must be one of the declared states[].name values",
+      "fields": ["initial_state", "states"],
+      "type_signature": {
+        "initial_state": "string",
+        "states": "array"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "membership_check",
+        "field": "initial_state",
+        "scope": "states",
+        "lookup_key": "name"
+      }
+    },
+    {
+      "id": "state-machine-terminal-in-states",
+      "expression": "true",
+      "severity": "error",
+      "message": "Each terminal_state must be one of the declared states[].name values",
+      "fields": ["terminal_states", "states"],
+      "type_signature": {
+        "terminal_states": "array",
+        "states": "array"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "subset_check",
+        "field": "terminal_states",
+        "scope": "states",
+        "lookup_key": "name"
+      }
+    },
+    {
+      "id": "state-machine-transitions-reference-states",
+      "expression": "true",
+      "severity": "error",
+      "message": "All transition from/to values must reference declared states[].name values",
+      "fields": ["transitions", "states"],
+      "type_signature": {
+        "transitions": "array",
+        "states": "array"
+      },
+      "evaluation_geometry": "native",
+      "native_enforcement": {
+        "strategy": "reference_check",
+        "fields": ["from", "to"],
+        "scope": "transitions",
+        "reference_scope": "states",
+        "lookup_key": "name"
+      }
+    }
+  ]
+}

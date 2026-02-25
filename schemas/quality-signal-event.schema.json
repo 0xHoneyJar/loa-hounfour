@@ -73,6 +73,10 @@
           "type": "string"
         },
         {
+          "const": "unspecified",
+          "type": "string"
+        },
+        {
           "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
           "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
           "type": "string"
@@ -81,6 +85,7 @@
     },
     "dimensions": {
       "maxProperties": 20,
+      "additionalProperties": false,
       "description": "Named quality dimensions (e.g., coherence, safety).",
       "type": "object",
       "patternProperties": {
@@ -92,6 +97,6 @@
       }
     }
   },
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/quality-signal-event",
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/quality-signal-event",
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

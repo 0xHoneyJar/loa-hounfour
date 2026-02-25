@@ -1,0 +1,29 @@
+{
+  "vector_id": "conformance-reputation-event-010",
+  "category": "reputation-event",
+  "description": "Valid model_performance event — quality dimensions populated",
+  "contract_version": "8.2.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440012",
+    "agent_id": "bear-003",
+    "collection_id": "honeycomb",
+    "timestamp": "2026-02-25T13:00:00Z",
+    "type": "model_performance",
+    "model_id": "gpt-4o-mini",
+    "provider": "openai",
+    "pool_id": "pool-gamma",
+    "task_type": "summarization",
+    "quality_observation": {
+      "score": 0.76,
+      "dimensions": {
+        "coherence": 0.9,
+        "safety": 0.95,
+        "relevance": 0.78,
+        "factual_accuracy": 0.65,
+        "conciseness": 0.82
+      }
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

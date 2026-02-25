@@ -1,6 +1,6 @@
 {
   "name": "@0xhoneyjar/loa-hounfour",
-  "version": "7.11.0",
+  "version": "8.2.0",
   "type": "module",
   "description": "Constitutional protocol contracts for an AI agent economy — loa-finn ↔ arrakis integration layer",
   "license": "MIT",
@@ -43,6 +43,14 @@
       "types": "./dist/composition/index.d.ts",
       "import": "./dist/composition/index.js"
     },
+    "./commons": {
+      "types": "./dist/commons/index.d.ts",
+      "import": "./dist/commons/index.js"
+    },
+    "./vectors": {
+      "types": "./dist/commons/vectors/index.d.ts",
+      "import": "./dist/commons/vectors/index.js"
+    },
     "./schemas/*": "./schemas/*"
   },
   "files": [
@@ -58,6 +66,8 @@
     "schema:check": "tsx scripts/check-schemas.ts",
     "semver:check": "tsx scripts/semver-check.ts",
     "vectors:check": "tsx scripts/check-vectors.ts",
+    "vectors:manifest": "tsx scripts/generate-manifest.ts",
+    "vectors:package": "tsx scripts/package-vectors.ts",
     "spec:generate": "tsx scripts/generate-asyncapi.ts",
     "docs:choreography": "tsx scripts/generate-choreography-diagrams.ts",
     "check:migration": "tsx scripts/check-migration.ts",

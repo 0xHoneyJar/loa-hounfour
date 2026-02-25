@@ -1,0 +1,32 @@
+{
+  "vector_id": "conformance-governed-resource-neg-002",
+  "category": "governed-resource",
+  "description": "Negative: governed resource missing required version field (Flatline SKP-005)",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "test_field": "hello",
+    "conservation_law": {
+      "invariants": [],
+      "enforcement": "advisory",
+      "scope": "per-entry"
+    },
+    "audit_trail": {
+      "entries": [],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    },
+    "state_machine": {
+      "states": [{"name": "active"}],
+      "transitions": [],
+      "initial_state": "active",
+      "terminal_states": []
+    },
+    "governance_class": "protocol-fixed",
+    "contract_version": "8.0.0"
+  },
+  "expected_output": {},
+  "expected_valid": false,
+  "note": "version field is required (not optional) per Flatline SKP-005."
+}

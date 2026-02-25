@@ -1,0 +1,38 @@
+{
+  "vector_id": "conformance-dynamic-contract-001",
+  "category": "commons",
+  "description": "Valid dynamic contract with monotonically expanding surfaces across all 4 reputation tiers",
+  "contract_version": "8.0.0",
+  "layer": 1,
+  "input": {
+    "contract_id": "550e8400-e29b-41d4-a716-446655440000",
+    "surfaces": {
+      "cold": {
+        "schemas": ["AgentIdentity"],
+        "capabilities": ["inference"],
+        "rate_limit_tier": "restricted"
+      },
+      "warming": {
+        "schemas": ["AgentIdentity", "TaskOutcome"],
+        "capabilities": ["inference", "tools"],
+        "rate_limit_tier": "standard"
+      },
+      "established": {
+        "schemas": ["AgentIdentity", "TaskOutcome", "ReputationAggregate"],
+        "capabilities": ["inference", "tools", "ensemble"],
+        "rate_limit_tier": "extended",
+        "ensemble_strategies": ["parallel", "sequential"]
+      },
+      "authoritative": {
+        "schemas": ["AgentIdentity", "TaskOutcome", "ReputationAggregate", "GovernanceProposal"],
+        "capabilities": ["inference", "tools", "ensemble", "governance", "byok"],
+        "rate_limit_tier": "unlimited",
+        "ensemble_strategies": ["parallel", "sequential", "adaptive"]
+      }
+    },
+    "contract_version": "8.0.0",
+    "created_at": "2026-02-25T10:00:00Z"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

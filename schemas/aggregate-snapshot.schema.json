@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/aggregate-snapshot",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/aggregate-snapshot",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -292,6 +292,10 @@
                     "type": "string"
                   },
                   {
+                    "const": "unspecified",
+                    "type": "string"
+                  },
+                  {
                     "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
                     "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
                     "type": "string"
@@ -331,5 +335,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

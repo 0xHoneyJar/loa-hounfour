@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/audit-trail",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "entries",
+    "hash_algorithm",
+    "genesis_hash",
+    "integrity_status"
+  ],
+  "properties": {
+    "entries": {
+      "description": "Ordered sequence of audit events. Append-only.",
+      "type": "array",
+      "items": {
+        "$id": "AuditEntry",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entry_id",
+          "timestamp",
+          "event_type",
+          "entry_hash",
+          "previous_hash",
+          "hash_domain_tag"
+        ],
+        "properties": {
+          "entry_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "event_type": {
+            "minLength": 1,
+            "pattern": "^[a-z]+\\.[a-z_]+\\.[a-z_]+$",
+            "description": "Dotted event type (e.g., commons.transition.executed). Follows existing EventType pattern from vocabulary/event-types.ts.",
+            "type": "string"
+          },
+          "actor_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "payload": {
+            "description": "Event-specific data. Schema varies by event_type."
+          },
+          "entry_hash": {
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "description": "Domain-separated SHA-256 of this entry (excluding hash fields).",
+            "type": "string"
+          },
+          "previous_hash": {
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "description": "Hash of the preceding entry. Genesis entry uses AUDIT_TRAIL_GENESIS_HASH.",
+            "type": "string"
+          },
+          "hash_domain_tag": {
+            "minLength": 1,
+            "description": "The exact domain tag used when computing entry_hash. Format: \"loa-commons:audit:<schema_$id>:<contract_version>\". Persisted at write time so cross-version verification is unambiguous. (Flatline SKP-002)",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "hash_algorithm": {
+      "description": "Hash function for chain integrity. Fixed to sha256.",
+      "const": "sha256",
+      "type": "string"
+    },
+    "genesis_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Chain anchor. Must equal AUDIT_TRAIL_GENESIS_HASH for new trails.",
+      "type": "string"
+    },
+    "integrity_status": {
+      "description": "verified: chain integrity confirmed. unverified: chain not yet checked. quarantined: discontinuity detected, entries after break are suspect.",
+      "anyOf": [
+        {
+          "const": "verified",
+          "type": "string"
+        },
+        {
+          "const": "unverified",
+          "type": "string"
+        },
+        {
+          "const": "quarantined",
+          "type": "string"
+        }
+      ]
+    },
+    "checkpoint_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Hash of the most recent checkpoint. When present, entries before the checkpoint may be archived. The checkpoint_hash proves continuity with the archived segment without requiring the full history.",
+      "type": "string"
+    },
+    "checkpoint_index": {
+      "minimum": 0,
+      "description": "Index of the last checkpointed entry. Entries at or before this index may be pruned from the entries array after archiving.",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+}

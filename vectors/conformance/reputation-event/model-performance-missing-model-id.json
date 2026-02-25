@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-reputation-event-012",
+  "category": "reputation-event",
+  "description": "Invalid model_performance — missing required model_id field",
+  "contract_version": "8.2.0",
+  "input": {
+    "event_id": "550e8400-e29b-41d4-a716-446655440014",
+    "agent_id": "bear-001",
+    "collection_id": "honeycomb",
+    "timestamp": "2026-02-25T14:30:00Z",
+    "type": "model_performance",
+    "provider": "openai",
+    "pool_id": "pool-alpha",
+    "task_type": "analysis",
+    "quality_observation": {
+      "score": 0.8
+    }
+  },
+  "expected_output": {},
+  "expected_valid": false
+}

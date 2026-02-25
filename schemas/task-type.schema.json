@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/7.11.0/task-type",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/task-type",
   "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
   "anyOf": [
     {
@@ -24,10 +24,14 @@
       "type": "string"
     },
     {
+      "const": "unspecified",
+      "type": "string"
+    },
+    {
       "pattern": "^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$",
       "description": "Community-defined task type in namespace:type format (e.g., legal-guild:contract_review).",
       "type": "string"
     }
   ],
-  "$comment": "contract_version=7.11.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
 }

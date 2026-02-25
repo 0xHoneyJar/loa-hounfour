@@ -60,7 +60,8 @@ export {
   // v7.10.0 — Task-Dimensional Reputation (non-colliding exports only)
   TASK_TYPES,
   TaskTypeCohortSchema, validateTaskCohortUniqueness, type TaskTypeCohort,
-  ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, type QualitySignalEvent, type TaskCompletedEvent, type CredentialUpdateEvent,
+  ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSchema, CredentialUpdateEventSchema, ModelPerformanceEventSchema, type QualitySignalEvent, type TaskCompletedEvent, type CredentialUpdateEvent, type ModelPerformanceEvent,
+  QualityObservationSchema, type QualityObservation,
   ScoringPathSchema, ScoringPathLogSchema, type ScoringPath, type ScoringPathLog,
 } from './governance/index.js';
 
@@ -79,6 +80,9 @@ export {
 
 export * from './constraints/index.js';
 export * from './integrity/index.js';
+
+// v8.0.0 — Commons Protocol
+export * from './commons/index.js';
 
 // Cross-cutting concerns (stay in root)
 export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';

@@ -1,7 +1,7 @@
 /**
  * TaskType — open taxonomy of task categories for reputation scoring.
  *
- * Defines the 5 task types that partition the work domain into non-overlapping
+ * Defines the 6 task types that partition the work domain into non-overlapping
  * categories. Each type represents a distinct skill axis along which model
  * quality can vary independently.
  *
@@ -11,6 +11,8 @@
  * - analysis: data analysis, research synthesis, structured reasoning
  * - summarization: condensation, TL;DR, meeting notes, digest generation
  * - general: catch-all for tasks that don't fit other categories
+ * - unspecified: reserved fallback when task metadata is unavailable;
+ *   routes to aggregate-only scoring (no task-type cohort entry)
  *
  * Exclusion semantics:
  * - A task belongs to exactly one category; overlapping semantics resolve
@@ -46,6 +48,10 @@ export const TaskTypeSchema = Type.Union(
     Type.Literal('analysis'),
     Type.Literal('summarization'),
     Type.Literal('general'),
+    // Reserved value for edge cases where task metadata is unavailable (PRD FR-1).
+    // Cohort update logic MUST route to aggregate-only scoring; do not create
+    // a task-type cohort entry.
+    Type.Literal('unspecified'),
     // Community-defined types: namespace:type format (ADR-003)
     Type.String({
       pattern: '^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$',
@@ -63,7 +69,7 @@ export type TaskType = Static<typeof TaskTypeSchema>;
 /**
  * Canonical array of protocol-defined TaskType values.
  *
- * Lists only the 5 protocol types — community-defined types (namespace:type)
+ * Lists only the 6 protocol types — community-defined types (namespace:type)
  * are not enumerable at the protocol level.
  * Useful for iteration, validation, and UI rendering.
  */
@@ -73,4 +79,5 @@ export const TASK_TYPES = [
   'analysis',
   'summarization',
   'general',
+  'unspecified',
 ] as const satisfies readonly TaskType[];

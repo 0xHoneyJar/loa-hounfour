@@ -1,0 +1,30 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "HashChainDiscontinuity",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "discontinuity-affected-nonneg",
+      "expression": "affected_entries >= 0",
+      "severity": "error",
+      "message": "affected_entries must be non-negative",
+      "fields": ["affected_entries"],
+      "type_signature": {
+        "affected_entries": "number"
+      }
+    },
+    {
+      "id": "discontinuity-last-good-bounds",
+      "expression": "last_known_good_index < entry_index",
+      "severity": "error",
+      "message": "last_known_good_index must be before the discontinuity entry_index",
+      "fields": ["last_known_good_index", "entry_index"],
+      "type_signature": {
+        "last_known_good_index": "number",
+        "entry_index": "number"
+      }
+    }
+  ]
+}

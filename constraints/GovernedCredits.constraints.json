@@ -1,0 +1,43 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernedCredits",
+  "origin": "genesis",
+  "contract_version": "8.0.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CL-01",
+      "expression": "bigint_sum([balance, reserved, consumed]) == original_allocation",
+      "severity": "error",
+      "message": "Lot conservation: balance + reserved + consumed must equal original allocation (I-2)",
+      "fields": ["balance", "reserved", "consumed", "original_allocation"],
+      "type_signature": {
+        "balance": "string",
+        "reserved": "string",
+        "consumed": "string",
+        "original_allocation": "string"
+      }
+    },
+    {
+      "id": "CL-02",
+      "expression": "bigint_gte(balance, '0')",
+      "severity": "error",
+      "message": "Non-negativity: balance must be >= 0 (I-1)",
+      "fields": ["balance"],
+      "type_signature": {
+        "balance": "string"
+      }
+    },
+    {
+      "id": "CL-03",
+      "expression": "bigint_gte(original_allocation, reserved)",
+      "severity": "error",
+      "message": "Receivable bounded: reserved cannot exceed original allocation (I-3)",
+      "fields": ["original_allocation", "reserved"],
+      "type_signature": {
+        "original_allocation": "string",
+        "reserved": "string"
+      }
+    }
+  ]
+}

@@ -18,6 +18,7 @@ describe('TaskType', () => {
       'analysis',
       'summarization',
       'general',
+      'unspecified',
     ] satisfies TaskType[])('accepts "%s"', (value) => {
       expect(Value.Check(TaskTypeSchema, value)).toBe(true);
     });
@@ -76,8 +77,8 @@ describe('TaskType', () => {
   // TASK_TYPES array
   // -------------------------------------------------------------------------
   describe('TASK_TYPES', () => {
-    it('has exactly 5 entries', () => {
-      expect(TASK_TYPES).toHaveLength(5);
+    it('has exactly 6 entries', () => {
+      expect(TASK_TYPES).toHaveLength(6);
     });
 
     it('all entries are valid TaskType values', () => {
@@ -108,8 +109,8 @@ describe('TaskType', () => {
     const vectorDir = path.join(process.cwd(), 'vectors/conformance/task-type');
     const vectorFiles = fs.readdirSync(vectorDir).filter(f => f.endsWith('.json'));
 
-    it('has at least 11 vectors', () => {
-      expect(vectorFiles.length).toBeGreaterThanOrEqual(11);
+    it('has at least 12 vectors', () => {
+      expect(vectorFiles.length).toBeGreaterThanOrEqual(12);
     });
 
     for (const file of vectorFiles) {
