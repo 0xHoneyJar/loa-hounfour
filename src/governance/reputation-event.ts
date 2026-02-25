@@ -197,8 +197,8 @@ export type ModelPerformanceEvent = Static<typeof ModelPerformanceEventSchema>;
 /**
  * ReputationEvent — discriminated union of all event variants.
  *
- * Discriminates on the `type` field. Generated JSON Schema uses `oneOf`
- * with `const` discriminator.
+ * Discriminates on the `type` field. Generated JSON Schema uses `anyOf`
+ * with `const`-discriminated variants (TypeBox Type.Union always emits anyOf).
  */
 export const ReputationEventSchema = Type.Union(
   [
