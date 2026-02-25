@@ -43,11 +43,16 @@ const qualitySignalArb = envelopeArb.chain((env) =>
   }),
 );
 
+const communityTaskTypeArb = fc.stringMatching(/^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$/);
+
 const taskCompletedArb = envelopeArb.chain((env) =>
   fc.record({
     ...Object.fromEntries(Object.entries(env).map(([k, v]) => [k, fc.constant(v)])),
     type: fc.constant('task_completed' as const),
-    task_type: fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general'),
+    task_type: fc.oneof(
+      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general'),
+      communityTaskTypeArb,
+    ),
     success: fc.boolean(),
   }),
 );
@@ -68,7 +73,10 @@ const modelPerformanceArb = envelopeArb.chain((env) =>
     model_id: fc.stringMatching(/^[a-z][a-z0-9-]{0,49}$/),
     provider: fc.constantFrom('openai', 'anthropic', 'google', 'meta'),
     pool_id: fc.stringMatching(/^pool-[a-z]{1,20}$/),
-    task_type: fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
+    task_type: fc.oneof(
+      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
+      communityTaskTypeArb,
+    ),
     quality_observation: fc.record({
       score: scoreArb,
     }),

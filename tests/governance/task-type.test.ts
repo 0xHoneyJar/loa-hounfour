@@ -18,6 +18,7 @@ describe('TaskType', () => {
       'analysis',
       'summarization',
       'general',
+      'unspecified',
     ] satisfies TaskType[])('accepts "%s"', (value) => {
       expect(Value.Check(TaskTypeSchema, value)).toBe(true);
     });

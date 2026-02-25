@@ -207,6 +207,8 @@ describe('variant exhaustiveness', () => {
 // T2.7: Duplicate event_id detection (Flatline SKP-002)
 // ---------------------------------------------------------------------------
 
+// These tests document the dedup *contract* for consumers (schema layer).
+// Actual dedup enforcement is a runtime concern (loa-finn or arrakis).
 describe('duplicate event_id detection', () => {
   it('detects duplicate event_id with matching payload (idempotent)', () => {
     const event1 = { ...MODEL_PERF_EVENT };
