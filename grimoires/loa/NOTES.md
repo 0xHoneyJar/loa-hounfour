@@ -16,6 +16,9 @@
 - 2026-02-27: Received dixie cycle-017 PRD as PR #39 comment (3 Tier 1, 4 Tier 2, 3 Tier 3)
 - 2026-02-27: Updated PRD to 8 FRs — added FR-8 (GovernedResource<T> runtime interface), updated FR-3 (EMA details), updated FR-5 (chain-bound hash)
 - 2026-02-27: Revised D-004 — GovernedResource<T> runtime interface IN SCOPE (3-witness evidence from dixie)
+- 2026-02-27: Researched deployment PRs across finn (5 PRs), dixie (5 PRs), freeside (5 PRs) for Bridgebuilder visions
+- 2026-02-27: Captured 7 visions (V-001 through V-007) from cross-repo deployment Bridgebuilder reviews
+- 2026-02-27: Updated PRD with deployment visions triage — 3 actionable for v8.3.0, 4 deferred
 
 ## Decisions
 - **D-001:** Version will be v8.3.0 (MINOR) — all 8 FRs are additive-only, no breaking changes (confirmed by finn + dixie)
@@ -38,6 +41,10 @@
 - L-004: Dixie's GovernedResource<T> has 3 production witnesses (ReputationService, ScoringPathTracker, KnowledgeGovernor) — this crosses the "three-witness" threshold for upstream extraction
 - L-005: EMA dampening is TRIVIAL extraction — pure math, zero external deps, production-proven since dixie cycle-007
 - L-006: Chain-bound hashing extends (not replaces) existing audit trail infrastructure — backward compatible by design
+- L-007: Bridgebuilder independently identified the "five-repo conservation stack" across finn PR #108, dixie PR #8 — each repo conserves a distinct quantity (Trust, Money, Governance, Law, Agency)
+- L-008: Advisory lock 32-bit hashCode() birthday paradox flagged by BOTH dixie and freeside independently — phantom contention at O(10K) domain tags
+- L-009: Timestamp validation at audit I/O boundary is a HIGH severity gap — once invalid timestamps enter the hash chain, they're permanently embedded (chain immutability)
+- L-010: Finn's graduation protocol and hounfour's `computeDecayedConfidence()` are in tension — permanent vs temporal trust models need reconciliation post-launch
 
 ## Observations
 - Finn's PRD is exceptionally well-structured — 24 acceptance criteria, each traceable to hounfour P0 items

@@ -30,7 +30,7 @@ The versioning question — v8.3.0 (MINOR, additive-only) vs v9.0.0 (MAJOR, brea
 | G-4: Proper release distribution | Git tag, GitHub release, dist/ committed | v8.3.0 or v9.0.0 tagged |
 | G-5: Economic boundary evaluation refined | `evaluateEconomicBoundary()` gaps closed | 7 semantic gaps addressed (from freeside spike) |
 | G-6: Feedback dampening protocol pattern | Schema + invariant + reference implementation | FeedbackDampening config + `computeDampenedScore()` exported |
-| G-7: Vision registry captures architectural insights | Visions captured from cross-repo staging feedback | 3+ visions |
+| G-7: Vision registry captures architectural insights | Visions captured from cross-repo deployment Bridgebuilder reviews | 7 visions captured (V-001 through V-007) |
 | G-8: GovernedResource<T> runtime interface | Interface + abstract base class upstream | `GovernedResource<T>` + `GovernedResourceBase` exported |
 
 ---
@@ -437,6 +437,23 @@ export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends st
 - **Conviction-Gated Access** (dixie Tier 3) — 5-tier model currently BGT-coupled, needs abstraction layer for non-THJ use
 - **EvaluationGap / ZPD** (dixie Tier 3) — ADR-004, needs ecosystem validation before extraction
 - **Autonomy Governance** (dixie Tier 3) — SovereigntyEngine may be dixie-specific
+
+### Cross-Repo Deployment Visions (from Bridgebuilder Reviews)
+
+Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs #8, #50, #51, #56, #58), and freeside (PRs #88, #96, #97, #99, #100) surfaced 7 protocol-level insights relevant to hounfour. These are captured as visions in `grimoires/loa/visions/entries/` and triaged below.
+
+| Vision | Title | Affects FR | Action |
+|--------|-------|-----------|--------|
+| V-001 | Audit Trail Single-Writer Invariant | FR-5 | Add as documented invariant in audit trail docs |
+| V-002 | Advisory Lock Hash Collision (Birthday Paradox) | FR-5 | Note in chain-bound hash docs; consider `computeAdvisoryLockId()` |
+| V-003 | Timestamp Validation at Audit I/O Boundary | FR-5 | Add `parseAuditTimestamp()` utility or document validation requirement |
+| V-004 | Temporal Trust — Revocable Graduation vs Decayed Confidence | Deferred | Design question for post-launch (governance module) |
+| V-005 | Five-Repo Conservation Stack | Documentation | Frame in release notes and ecosystem docs |
+| V-006 | S2S JWT jti Claim (Replay Protection) | FR-1 (related) | Consider `S2SJwtPayloadSchema` requiring `jti` — additive |
+| V-007 | EMA Population vs Sample Variance | FR-3 | Document variance formula choice in `computeDampenedScore()` |
+
+**Actionable for v8.3.0:** V-001 (documentation in FR-5), V-003 (validation utility or doc), V-007 (doc in FR-3)
+**Deferred:** V-002 (performance, not correctness), V-004 (design question), V-005 (documentation only), V-006 (needs breaking-change assessment)
 
 ---
 
