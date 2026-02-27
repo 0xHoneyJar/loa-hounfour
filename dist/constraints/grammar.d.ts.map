@@ -1,0 +1,1 @@
+{"version":3,"file":"grammar.d.ts","sourceRoot":"","sources":["../../src/constraints/grammar.ts"],"names":[],"mappings":"AAAA;;;;;;;;;GASG;AAIH,0CAA0C;AAC1C,eAAO,MAAM,kBAAkB,QAAQ,CAAC;AAmRxC;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAChC,IAAI,EAAE,MAAM,GACX;IAAE,KAAK,EAAE,IAAI,CAAA;CAAE,GAAG;IAAE,KAAK,EAAE,KAAK,CAAC;IAAC,KAAK,EAAE,MAAM,CAAC;IAAC,QAAQ,EAAE,MAAM,CAAA;CAAE,CAgBrE"}

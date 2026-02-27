@@ -1,0 +1,1 @@
+{"version":3,"file":"reservation-enforcement.d.ts","sourceRoot":"","sources":["../../src/vocabulary/reservation-enforcement.ts"],"names":[],"mappings":"AAAA;;;;;;;;;GASG;AACH,OAAO,EAAQ,KAAK,MAAM,EAAE,MAAM,mBAAmB,CAAC;AAEtD,eAAO,MAAM,4BAA4B,6LAUxC,CAAC;AAEF,MAAM,MAAM,sBAAsB,GAAG,MAAM,CAAC,OAAO,4BAA4B,CAAC,CAAC;AAEjF,eAAO,MAAM,6BAA6B,EAAE,SAAS,sBAAsB,EAIjE,CAAC"}

@@ -13,7 +13,6 @@ coverage/
 
 # Production builds
 build/
-dist/
 out/
 
 # Environment variables
