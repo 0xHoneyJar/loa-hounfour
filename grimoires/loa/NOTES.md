@@ -1,10 +1,10 @@
 # Project Notes
 
 ## Current Focus
-- **Task:** v8.3.0 pre-launch protocol hardening (8 FRs, 36 ACs)
-- **Status:** PRD updated with finn + dixie feedback, awaiting freeside feedback on PR #39
-- **Blockers:** None — finn + dixie feedback received, freeside expected soon
-- **Next Action:** Integrate freeside feedback → /architect → SDD for v8.3.0 implementation
+- **Task:** v8.3.0 pre-launch protocol hardening (8 FRs, 43 ACs)
+- **Status:** PRD feature-complete — all 3 consumer repos have provided feedback
+- **Blockers:** None — all feedback received
+- **Next Action:** /architect → SDD for v8.3.0 implementation
 
 ## Session Log
 - 2026-02-27: Created RFC PR #39 (21 extraction candidates from cross-repo staging)
@@ -19,20 +19,28 @@
 - 2026-02-27: Researched deployment PRs across finn (5 PRs), dixie (5 PRs), freeside (5 PRs) for Bridgebuilder visions
 - 2026-02-27: Captured 7 visions (V-001 through V-007) from cross-repo deployment Bridgebuilder reviews
 - 2026-02-27: Updated PRD with deployment visions triage — 3 actionable for v8.3.0, 4 deferred
+- 2026-02-28: Received freeside cycle-045 feedback as PR #39 comment (3 GovernedResource witnesses, 2 new extraction candidates)
+- 2026-02-28: Updated PRD with freeside contributions — 6 total GovernedResource witnesses, `validateAuditTimestamp()`, `computeAdvisoryLockKey()`, `MutationContext` interface
+- 2026-02-28: V-002 and V-003 promoted from visions to FR-5 ACs (freeside confirmed both independently)
+- 2026-02-28: PRD now feature-complete — all 3 consumer repos have provided feedback, unanimous v8.3.0 MINOR consensus
 
 ## Decisions
-- **D-001:** Version will be v8.3.0 (MINOR) — all 8 FRs are additive-only, no breaking changes (confirmed by finn + dixie)
+- **D-001:** Version will be v8.3.0 (MINOR) — all 8 FRs are additive-only, no breaking changes (confirmed by all 3 consumer repos)
 - **D-002:** x402 schemas added to economy module (not new module) — follows existing pattern
 - **D-003:** Conditional constraints use optional `condition` field — all existing constraints remain valid
 - **D-004:** ~~GovernedResource<T> runtime changes deferred~~ → **REVISED**: GovernedResource<T> runtime interface IN SCOPE (FR-8) — dixie provides 3 production witnesses validating the abstraction. Interface + abstract base class are additive exports.
 - **D-005:** EMA feedback dampening constants exported as configurable defaults — consumers can tune via FeedbackDampeningConfigSchema
 - **D-006:** Chain-bound hash (`computeChainBoundHash()`) is opt-in — existing `computeAuditEntryHash()` remains for simple use cases
 - **D-007:** Dixie Tier 2/3 patterns deferred to v8.4.0 or v9.0.0 — need design decisions first
+- **D-008:** GovernedResourceBase gets `MutationContext` as generic parameter — freeside's CreditMutationContext validates the pattern
+- **D-009:** `validateAuditTimestamp()` and `computeAdvisoryLockKey()` extracted to hounfour — both independently validated by dixie + freeside
+- **D-010:** Fail-closed default convention deferred — document as protocol guidance post-launch
+- **D-011:** Deployment group orchestration deferred — cross-service health check schema for post-launch
 
 ## Blockers
 - [x] Finn feedback on PR #39 — RECEIVED (cycle-037 PRD)
 - [x] Dixie feedback on PR #39 — RECEIVED (cycle-017 PRD, 3 Tier 1 patterns)
-- [ ] Freeside feedback on PR #39 (requested, expected soon)
+- [x] Freeside feedback on PR #39 — RECEIVED (cycle-045, 3 GovernedResource witnesses, 2 new extraction candidates)
 
 ## Learnings
 - L-001: All three repos independently discovered the governance isomorphism (GovernedResource<T> pattern) — validation that the v8.0.0 commons protocol design was correct
@@ -45,10 +53,16 @@
 - L-008: Advisory lock 32-bit hashCode() birthday paradox flagged by BOTH dixie and freeside independently — phantom contention at O(10K) domain tags
 - L-009: Timestamp validation at audit I/O boundary is a HIGH severity gap — once invalid timestamps enter the hash chain, they're permanently embedded (chain immutability)
 - L-010: Finn's graduation protocol and hounfour's `computeDecayedConfidence()` are in tension — permanent vs temporal trust models need reconciliation post-launch
+- L-011: GovernedResource<T> now has 6 production witnesses across 2 repos (dixie: 3, freeside: 3) — the pattern is definitively stable
+- L-012: Freeside's CreditMutationContext validates the need for a `MutationContext` generic parameter on GovernedResourceBase — every governed resource needs typed mutation context
+- L-013: Broken commit pin (`addb0bf` → `b6e0027a`) caused 70% of freeside's CI failures — strongest possible argument for formal semver releases (FR-7)
 
 ## Observations
 - Finn's PRD is exceptionally well-structured — 24 acceptance criteria, each traceable to hounfour P0 items
 - Dixie's PRD contributes runtime interfaces that complement finn's schema-level consumption — different layers, no conflict
-- Both finn and dixie independently recommend v8.3.0 MINOR — strong consensus on additive-only approach
+- Freeside's feedback closes the loop — production witnesses, new utility candidates, and operational evidence (broken pin → need for semver releases)
+- **All 3 consumer repos independently recommend v8.3.0 MINOR** — unanimous consensus on additive-only approach
 - The consumer-driven contract pattern (freeside's contract.json) should be standardized across all consumers
 - Dixie's Tier 2 items raise good design questions (library convention vs protocol-level for actor types) — defer to post-launch
+- Freeside proposes fail-closed as protocol convention and deployment group orchestration — both are valuable but defer to post-launch
+- The 6-witness GovernedResource<T> evidence is the strongest validation of any pattern in the ecosystem — the isomorphism proof is now conclusive

@@ -4,7 +4,7 @@
 **Author:** Jani + Claude
 **Date:** 2026-02-27
 **Cycle:** cycle-001 (hounfour)
-**References:** [PR #39 RFC](https://github.com/0xHoneyJar/loa-hounfour/pull/39) · [Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38) · [Finn PRD cycle-037](https://github.com/0xHoneyJar/loa-finn/blob/main/grimoires/loa/prd.md) · [Finn Issue #66](https://github.com/0xHoneyJar/loa-finn/issues/66) · [Dixie PRD cycle-017](grimoires/loa/context/dixie-prd-cycle-017.md)
+**References:** [PR #39 RFC](https://github.com/0xHoneyJar/loa-hounfour/pull/39) · [Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38) · [Finn PRD cycle-037](https://github.com/0xHoneyJar/loa-finn/blob/main/grimoires/loa/prd.md) · [Finn Issue #66](https://github.com/0xHoneyJar/loa-finn/issues/66) · [Dixie PRD cycle-017](grimoires/loa/context/dixie-prd-cycle-017.md) · [Freeside Feedback cycle-045](grimoires/loa/context/freeside-feedback-cycle-045.md)
 
 ---
 
@@ -12,11 +12,11 @@
 
 Hounfour v8.2.0 shipped the Commons Protocol (GovernedResource substrate, ModelPerformanceEvent, QualityObservation, audit trail hash chains). Three consumer repos — loa-finn, loa-dixie, loa-freeside — are deploying to staging simultaneously. During this deployment, all three surfaced gaps in the protocol layer that must be resolved before the ecosystem graduates from staging to closed main launch.
 
-loa-finn has provided the most concrete feedback (PR #39 comment, full PRD for cycle-037). loa-dixie has responded with a comprehensive PRD for cycle-017, contributing 3 Tier 1 patterns ready for immediate extraction, 4 Tier 2 patterns requiring validation, and 3 Tier 3 patterns needing design work. Key finding: **v8.2.0 already exports most of what consumers need**, but there are gaps in x402 payment schemas, economic boundary evaluation refinements, proper release distribution, runtime governance interfaces, and cross-repo conformance infrastructure.
+loa-finn has provided the most concrete feedback (PR #39 comment, full PRD for cycle-037). loa-dixie has responded with a comprehensive PRD for cycle-017, contributing 3 Tier 1 patterns ready for immediate extraction, 4 Tier 2 patterns requiring validation, and 3 Tier 3 patterns needing design work. loa-freeside has completed the feedback loop with production witnesses for 5 of 6 P0 items and 3 additional GovernedResource\<T\> witnesses, plus two new extraction candidates (`validateAuditTimestamp()`, `computeAdvisoryLockKey()`). Key finding: **v8.2.0 already exports most of what consumers need**, but there are gaps in x402 payment schemas, economic boundary evaluation refinements, proper release distribution, runtime governance interfaces, audit trail safety utilities, and cross-repo conformance infrastructure.
 
-The versioning question — v8.3.0 (MINOR, additive-only) vs v9.0.0 (MAJOR, breaking) — depends on whether any extraction adds required fields to existing schemas. Both finn and dixie independently confirm v8.3.0 is appropriate — all contributions are additive. This PRD is intentionally conservative: prefer additive-only changes (v8.3.0) unless a breaking change is demonstrably necessary.
+The versioning question — v8.3.0 (MINOR, additive-only) vs v9.0.0 (MAJOR, breaking) — depends on whether any extraction adds required fields to existing schemas. **All three consumer repos independently confirm v8.3.0 is appropriate** — all contributions are additive. This PRD is intentionally conservative: prefer additive-only changes (v8.3.0) unless a breaking change is demonstrably necessary.
 
-> Sources: PR #39 RFC (21 extraction candidates), finn cycle-037 PRD (6 FRs, 24 ACs), dixie cycle-017 PRD (3 Tier 1, 4 Tier 2, 3 Tier 3 patterns), dixie PR #15 Part III (GovernedResource<T> isomorphism), freeside Issue #91 (x402 schema gaps), freeside Issue #103 (dist/ distribution fix)
+> Sources: PR #39 RFC (21 extraction candidates), finn cycle-037 PRD (6 FRs, 24 ACs), dixie cycle-017 PRD (3 Tier 1, 4 Tier 2, 3 Tier 3 patterns), freeside cycle-045 feedback (5 P0 witnesses, 2 new extraction candidates), dixie PR #15 Part III (GovernedResource<T> isomorphism), freeside Issue #91 (x402 schema gaps), freeside Issue #103 (dist/ distribution fix)
 
 ---
 
@@ -41,7 +41,7 @@ The versioning question — v8.3.0 (MINOR, additive-only) vs v9.0.0 (MAJOR, brea
 |---------|------|
 | **loa-finn** | model_performance event validated against canonical schema; x402 schemas proposed upstream; CI-verifiable conformance tests against hounfour exports |
 | **loa-dixie** | GovernedResource<T> runtime interface upstream (3 production witnesses); chain-bound hash utility (`computeChainBoundHash()`); EMA feedback dampening as protocol pattern with `computeDampenedScore()` reference implementation; audit trail domain separation; conditional constraints schema |
-| **loa-freeside** | x402 payment schema bridge; economic boundary evaluation gaps closed; proper git tag for CI pin; consumer-driven contract format |
+| **loa-freeside** | x402 payment schema bridge; economic boundary evaluation gaps closed; proper git tag for CI pin (broken `addb0bf` caused 70% CI failures); consumer-driven contract format; GovernedResource\<T\> witnesses (CreditLotGovernor, AmendmentService, GovernedMutationService); `validateAuditTimestamp()` + `computeAdvisoryLockKey()` extractions |
 | **Hounfour maintainers** | Clean release with integrity manifest; breaking vs additive classification for each change; comprehensive test coverage |
 | **Operator (Jani)** | Confidence that protocol layer is hardened before opening to the public; each repo can independently verify conformance |
 
@@ -144,7 +144,7 @@ loa-freeside's decision engine spike (PR #94) identified 7 semantic gaps when mi
 **Breaking:** No — purely additive
 **Primary contributor:** loa-dixie (invented cycle-007, production since)
 
-loa-dixie independently implemented EMA dampening with adaptive alpha ramp (PR #15 Finding F1) to prevent amplification spirals in the autopoietic feedback loop. This is not dixie-specific — it's a protocol-level requirement for any repo participating in the reputation→routing feedback loop. Dixie's cycle-017 PRD confirms TRIVIAL extraction complexity — pure math, zero external deps.
+loa-dixie independently implemented EMA dampening with adaptive alpha ramp (PR #15 Finding F1) to prevent amplification spirals in the autopoietic feedback loop. This is not dixie-specific — it's a protocol-level requirement for any repo participating in the reputation→routing feedback loop. Dixie's cycle-017 PRD confirms TRIVIAL extraction complexity — pure math, zero external deps. loa-freeside confirms the same constants work for billing reconciliation cost averaging (`reconciliation.ts`), validating cross-domain applicability.
 
 **What to add:**
 
@@ -225,22 +225,26 @@ export const ConsumerContractSchema = Type.Object({
 
 **Priority:** P0
 **Breaking:** No — documentation + new utilities (additive)
-**Contributors:** loa-finn (domain tags), loa-dixie (chain-bound hashing, TOCTOU prevention)
+**Contributors:** loa-finn (domain tags), loa-dixie (chain-bound hashing, TOCTOU prevention), loa-freeside (timestamp validation, advisory lock hashing)
 
-v8.0.0 already exports `computeAuditEntryHash()`, `buildDomainTag()`, `verifyAuditTrailIntegrity()`, and `AUDIT_TRAIL_GENESIS_HASH`. Two additions are needed:
+v8.0.0 already exports `computeAuditEntryHash()`, `buildDomainTag()`, `verifyAuditTrailIntegrity()`, and `AUDIT_TRAIL_GENESIS_HASH`. Four additions are needed:
 
 1. **Documentation** of the domain separation convention and cross-repo verification guidance (from finn)
 2. **Chain-bound hash utility** — `computeChainBoundHash()` extending `computeAuditEntryHash()` with chain binding, TOCTOU prevention pattern, and genesis race safeguards (from dixie)
+3. **Timestamp validation** — `validateAuditTimestamp()` preventing invalid timestamps from entering hash chains (from freeside — HIGH severity bridgebuilder finding, V-003)
+4. **Advisory lock hashing** — `computeAdvisoryLockKey()` using FNV-1a for collision-resistant advisory lock IDs (from freeside — independently flagged by both dixie and freeside, V-002)
 
 loa-finn's cycle-037 PRD (FR-3) specifies: genesis seed `FINN_AUDIT_GENESIS_SEED = "finn:audit:genesis:v1"` with domain prefix `finn:audit:`. Each repo needs its own domain tag.
 
 loa-dixie's cycle-017 PRD (P0-3) contributes: chain-bound hashing (`entryHash = sha256(contentHash + ":" + previousHash)`), `hash_domain_tag` for domain separation (`resource_type + contract_version`), TOCTOU prevention via `FOR UPDATE` serialization, and genesis race prevention via `UNIQUE(resource_type, previous_hash)` constraint.
 
 **What to add:**
-1. Documentation: `docs/integration/audit-trail-domains.md` — convention for domain tags, genesis seeds, cross-repo verification, TOCTOU prevention pattern
+1. Documentation: `docs/integration/audit-trail-domains.md` — convention for domain tags, genesis seeds, cross-repo verification, TOCTOU prevention pattern, single-writer invariant (V-001)
 2. Conformance vectors: multi-domain hash chain verification (finn, dixie, freeside domain tags)
 3. Utility: `validateDomainTag()` — ensures domain tags follow convention (`{repo}:{domain}:{qualifier}`)
 4. Utility: `computeChainBoundHash()` — extends `computeAuditEntryHash()` with chain binding
+5. Utility: `validateAuditTimestamp()` — validates ISO 8601 format before chain entry, returns normalized string
+6. Utility: `computeAdvisoryLockKey()` — FNV-1a hash for collision-resistant advisory lock IDs per domain tag
 
 ```typescript
 // Addition to src/commons/ or src/integrity/
@@ -260,6 +264,24 @@ export function computeChainBoundHash(
   domainTag: string,
   previousHash: string,
 ): string;
+
+/**
+ * Validates ISO 8601 timestamp before audit chain entry.
+ * Prevents invalid/malformed timestamps from corrupting hash chains.
+ * Source: freeside bridgebuilder HIGH finding (PR #99, iter-1).
+ */
+export function validateAuditTimestamp(input: string): {
+  valid: boolean;
+  normalized: string;   // Canonical ISO 8601 if valid
+  error?: string;       // Human-readable error if invalid
+};
+
+/**
+ * Collision-resistant advisory lock key using FNV-1a (32-bit).
+ * Replaces Java-style hashCode() which has birthday-paradox risk at O(10K) tags.
+ * Source: freeside audit-helpers.ts + dixie BB-DEEP-04.
+ */
+export function computeAdvisoryLockKey(domainTag: string): number;
 ```
 
 **Domain Tag Convention:**
@@ -276,13 +298,15 @@ loa-freeside:billing:*  — Freeside's billing audit trail
 - Genesis race: `UNIQUE(resource_type, previous_hash)` constraint prevents duplicate genesis entries
 
 **Acceptance Criteria:**
-- AC18: `docs/integration/audit-trail-domains.md` with domain tag convention + TOCTOU prevention pattern
+- AC18: `docs/integration/audit-trail-domains.md` with domain tag convention + TOCTOU prevention pattern + single-writer invariant (V-001)
 - AC19: `validateDomainTag()` exported from `@0xhoneyjar/loa-hounfour/commons`
 - AC20: `computeChainBoundHash()` exported from `@0xhoneyjar/loa-hounfour/commons` — extends `computeAuditEntryHash()` with chain binding
-- AC21: 8+ conformance vectors: multi-domain hash chain verification, chain-bound hash vs content-only hash, genesis entry, TOCTOU race scenario
-- AC22: Cross-repo verification example in docs (finn chain verified by dixie)
+- AC21: `validateAuditTimestamp()` exported from `@0xhoneyjar/loa-hounfour/commons` — validates ISO 8601, returns `{valid, normalized, error?}`
+- AC22: `computeAdvisoryLockKey()` exported from `@0xhoneyjar/loa-hounfour/commons` — FNV-1a hash with documented collision bounds
+- AC23_a: 10+ conformance vectors: multi-domain hash chain, chain-bound hash, genesis entry, TOCTOU race, invalid timestamps (null, malformed, epoch), advisory lock collision resistance
+- AC23_b: Cross-repo verification example in docs (finn chain verified by dixie)
 
-> Sources: finn cycle-037 FR-3 (AC10-12), dixie cycle-017 PRD §P0-3, dixie `audit-trail-store.ts`, dixie ADR dual-track hash chain, RFC PR #39 §2.2
+> Sources: finn cycle-037 FR-3 (AC10-12), dixie cycle-017 PRD §P0-3, freeside cycle-045 feedback §FR-4/FR-6, dixie `audit-trail-store.ts`, freeside `audit-helpers.ts`, dixie ADR dual-track hash chain, RFC PR #39 §2.2, Visions V-001/V-002/V-003
 
 ### FR-6: Conditional Constraints Schema
 
@@ -304,10 +328,10 @@ loa-dixie vision-004 (Issue #40) proposes adding a `condition` field to the cons
 ```
 
 **Acceptance Criteria:**
-- AC23: `ConstraintConditionSchema` added to constraint grammar (optional field — all existing constraints remain valid)
-- AC24: Constraint evaluator handles `condition.when` — if flag not set, uses original; if set, uses override
-- AC25: GRAMMAR.md updated with condition syntax
-- AC26: 5+ test cases: flag present, flag absent, override text, override rule_type, nested conditions rejected
+- AC24: `ConstraintConditionSchema` added to constraint grammar (optional field — all existing constraints remain valid)
+- AC25: Constraint evaluator handles `condition.when` — if flag not set, uses original; if set, uses override
+- AC26: GRAMMAR.md updated with condition syntax
+- AC27_a: 5+ test cases: flag present, flag absent, override text, override rule_type, nested conditions rejected
 
 > Sources: dixie Issue #40 (vision-004), RFC PR #39 §2.4
 
@@ -329,15 +353,23 @@ All three repos consume hounfour via git commit pin. Commit `b6e0027a` fixed the
 
 **Priority:** P1
 **Breaking:** No — purely additive (new interface + abstract base, no changes to existing schemas)
-**Primary contributor:** loa-dixie (3 production witnesses, ADR-015)
+**Primary contributors:** loa-dixie (3 production witnesses, ADR-015), loa-freeside (3 production witnesses, governance substrate PR #99)
 
-v8.0.0 exports `GOVERNED_RESOURCE_FIELDS` schema defining the structural substrate. loa-dixie has independently developed a production-proven runtime interface `GovernedResource<TState, TEvent, TInvariant>` with an abstract base class `GovernedResourceBase`, validated across 3 concrete implementations (the "three-witness" standard from ADR-015 — "The Kubernetes CRD Moment"):
+v8.0.0 exports `GOVERNED_RESOURCE_FIELDS` schema defining the structural substrate. The runtime interface has now been validated across **6 production witnesses** in 2 independent repos — far exceeding the "three-witness" standard from ADR-015 ("The Kubernetes CRD Moment"):
 
+**Dixie witnesses** (3):
 1. `ReputationService` → `GovernedResource<ReputationState, ReputationEvent, ReputationInvariant>`
 2. `ScoringPathTracker` → `GovernedResource<ScoringPath, ScoringPathEvent, ScoringPathInvariant>`
 3. `KnowledgeGovernor` → `GovernedResource<KnowledgeState, KnowledgeEvent, KnowledgeInvariant>`
 
-This upgrades GovernedResource from a schema-level concept to a runtime-level contract. Extraction is justified by the three-witness convergence — the same interface emerged independently across multiple implementations.
+**Freeside witnesses** (3):
+4. `CreditLotGovernor` — `LOT_CONSERVATION = createBalanceConservation()`, enforced at application + SQL layers (`available + reserved + consumed = original`)
+5. `AmendmentService` — Status machine (proposed → approved → enacted | rejected | expired) with 30-day TTL, audit trail integration, `evaluateGovernanceMutation()` delegation
+6. `GovernedMutationService` — Atomic coupling of state mutation + audit append in single SERIALIZABLE transaction (canonical write path pattern)
+
+This upgrades GovernedResource from a schema-level concept to a runtime-level contract. Extraction is justified by the six-witness convergence across two independent repos.
+
+**Freeside architectural insight**: `CreditMutationContext` extends the governance pattern with `accessPolicy` (required_reputation_state, required_role, min_reputation_score) and `resolveActorId()` (JWT sub → service identity → throw). This is a natural candidate for a `MutationContext` generic parameter on the abstract base — every governed resource needs a mutation context.
 
 **What to add:**
 
@@ -375,10 +407,26 @@ export interface GovernedResource<
   readonly mutationLog: ReadonlyArray<GovernanceMutation>;
 }
 
+// Mutation context — access policy + actor resolution (from freeside's CreditMutationContext)
+export interface MutationContext {
+  readonly actorId: string;
+  readonly actorType: 'human' | 'system' | 'autonomous';
+  readonly accessPolicy?: {
+    required_reputation_state?: string;
+    required_role?: string;
+    min_reputation_score?: number;
+  };
+}
+
 // Abstract base providing invariant verification harness and audit trail wiring
-export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends string = string>
-  implements GovernedResource<TState, TEvent, TInvariant> {
+export abstract class GovernedResourceBase<
+  TState,
+  TEvent,
+  TInvariant extends string = string,
+  TContext extends MutationContext = MutationContext,
+> implements GovernedResource<TState, TEvent, TInvariant> {
   // Consumers implement: applyEvent(), defineInvariants(), initializeState()
+  // TContext provides typed mutation context (access policy, actor resolution)
 }
 ```
 
@@ -386,14 +434,14 @@ export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends st
 
 **Acceptance Criteria:**
 - AC30: `GovernedResource<TState, TEvent, TInvariant>` interface exported from `@0xhoneyjar/loa-hounfour/commons`
-- AC31: `GovernedResourceBase` abstract class exported with default invariant verification harness
-- AC32: `TransitionResult<TState>` and `InvariantResult` types exported
-- AC33: TypeBox schemas for `TransitionResult` and `InvariantResult` generated in `schemas/`
-- AC34: 5+ conformance vectors: valid transition, invariant violation, version monotonicity, audit trail append
-- AC35: ADR-015 ("The Kubernetes CRD Moment") included in `docs/` as design rationale
+- AC31: `GovernedResourceBase` abstract class exported with default invariant verification harness + `MutationContext` generic parameter
+- AC32: `TransitionResult<TState>`, `InvariantResult`, and `MutationContext` types exported
+- AC33: TypeBox schemas for `TransitionResult`, `InvariantResult`, and `MutationContext` generated in `schemas/`
+- AC34: 8+ conformance vectors: valid transition, invariant violation, version monotonicity, audit trail append, mutation context validation, actor type discrimination
+- AC35: ADR-015 ("The Kubernetes CRD Moment") included in `docs/` as design rationale — updated with 6-witness evidence
 - AC36: Existing `GOVERNED_RESOURCE_FIELDS` schema unchanged — backward compatible
 
-> Sources: dixie cycle-017 PRD §P0-2, dixie `governed-resource.ts`, dixie ADR-015, RFC PR #39 §2.1
+> Sources: dixie cycle-017 PRD §P0-2, freeside cycle-045 feedback §FR-1, dixie `governed-resource.ts`, freeside `arrakis-governance.ts`, freeside `governed-mutation-service.ts`, dixie ADR-015, RFC PR #39 §2.1
 
 ---
 
@@ -408,7 +456,7 @@ export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends st
 | Build time | `npm run build` completes in <15s |
 | Schema count | 193+ (current) → 210+ (target) |
 | Constraint evaluation | Conditional constraints add <1ms per evaluation |
-| Pure functions | `computeDampenedScore()`, `computeChainBoundHash()` — zero side effects, deterministic |
+| Pure functions | `computeDampenedScore()`, `computeChainBoundHash()`, `validateAuditTimestamp()`, `computeAdvisoryLockKey()` — zero side effects, deterministic |
 
 ---
 
@@ -419,9 +467,9 @@ export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends st
 - Economic boundary evaluation refinements (tier mapping, denial codes)
 - Feedback dampening protocol schema + reference implementation + constants
 - Consumer-driven contract specification format + validation
-- Audit trail domain separation documentation + chain-bound hash utility
+- Audit trail domain separation documentation + chain-bound hash utility + timestamp validation + advisory lock hashing
 - Conditional constraints schema extension
-- GovernedResource\<T\> runtime interface + abstract base class (dixie Tier 1)
+- GovernedResource\<T\> runtime interface + abstract base class + MutationContext (dixie + freeside Tier 1)
 - Proper git tag + release + integrity manifest
 - Conformance vectors for all new schemas
 
@@ -437,6 +485,8 @@ export abstract class GovernedResourceBase<TState, TEvent, TInvariant extends st
 - **Conviction-Gated Access** (dixie Tier 3) — 5-tier model currently BGT-coupled, needs abstraction layer for non-THJ use
 - **EvaluationGap / ZPD** (dixie Tier 3) — ADR-004, needs ecosystem validation before extraction
 - **Autonomy Governance** (dixie Tier 3) — SovereigntyEngine may be dixie-specific
+- **Fail-Closed Default Convention** (freeside proposal) — every governance module should default to closed state on error. Praised across 3 bridgebuilder reviews as "consistent fail-closed philosophy." Consider as documented protocol convention.
+- **Deployment Group Orchestration** (freeside proposal) — health check schema, readiness gate, rollback trigger for cross-service deployment. Not hounfour's code, but deployment contract could live alongside protocol schemas.
 
 ### Cross-Repo Deployment Visions (from Bridgebuilder Reviews)
 
@@ -445,15 +495,16 @@ Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs 
 | Vision | Title | Affects FR | Action |
 |--------|-------|-----------|--------|
 | V-001 | Audit Trail Single-Writer Invariant | FR-5 | Add as documented invariant in audit trail docs |
-| V-002 | Advisory Lock Hash Collision (Birthday Paradox) | FR-5 | Note in chain-bound hash docs; consider `computeAdvisoryLockId()` |
-| V-003 | Timestamp Validation at Audit I/O Boundary | FR-5 | Add `parseAuditTimestamp()` utility or document validation requirement |
+| V-002 | Advisory Lock Hash Collision (Birthday Paradox) | FR-5 | **Promoted to AC22** — `computeAdvisoryLockKey()` with FNV-1a (freeside confirmed) |
+| V-003 | Timestamp Validation at Audit I/O Boundary | FR-5 | **Promoted to AC21** — `validateAuditTimestamp()` (freeside confirmed) |
 | V-004 | Temporal Trust — Revocable Graduation vs Decayed Confidence | Deferred | Design question for post-launch (governance module) |
 | V-005 | Five-Repo Conservation Stack | Documentation | Frame in release notes and ecosystem docs |
 | V-006 | S2S JWT jti Claim (Replay Protection) | FR-1 (related) | Consider `S2SJwtPayloadSchema` requiring `jti` — additive |
 | V-007 | EMA Population vs Sample Variance | FR-3 | Document variance formula choice in `computeDampenedScore()` |
 
-**Actionable for v8.3.0:** V-001 (documentation in FR-5), V-003 (validation utility or doc), V-007 (doc in FR-3)
-**Deferred:** V-002 (performance, not correctness), V-004 (design question), V-005 (documentation only), V-006 (needs breaking-change assessment)
+**Promoted to FRs for v8.3.0:** V-002 → FR-5 AC22, V-003 → FR-5 AC21
+**Actionable for v8.3.0:** V-001 (documentation in FR-5), V-007 (doc in FR-3)
+**Deferred:** V-004 (design question), V-005 (documentation only), V-006 (needs breaking-change assessment)
 
 ---
 
@@ -468,13 +519,14 @@ Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs 
 | GovernedResource\<T\> interface too rigid for other repos | Low | High | Three-witness proof validates abstraction; abstract base is optional |
 | EMA constants tuned to dixie's workload | Medium | Medium | Export as configurable via `FeedbackDampeningConfigSchema`; document tuning methodology |
 | Chain-bound hash adds complexity for simple use cases | Low | Medium | Export as opt-in utility; existing `computeAuditEntryHash()` remains for simple use |
-| Freeside doesn't provide feedback before launch | Medium | Low | Finn + dixie feedback is comprehensive; freeside contribution expected soon |
+| FNV-1a advisory lock key changes locking behavior | Low | Low | FNV-1a produces different keys than Java hashCode() — consumers migrating must handle both during transition |
 
 ### Dependencies
 - loa-finn cycle-037 PRD (primary consumer feedback — **received**)
 - loa-dixie cycle-017 PRD (Tier 1 extraction patterns — **received**)
-- loa-freeside feedback on PR #39 (requested, expected soon)
+- loa-freeside cycle-045 feedback (production witnesses + new extraction candidates — **received**)
 - Staging deployment stable (parallel — not blocking this work)
+- **All 3 consumer repos have now provided feedback. PRD is feature-complete pending operator approval.**
 
 ---
 
@@ -488,12 +540,12 @@ Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs 
 | FR-2 | `mapTierToReputationState()`, extended `DenialCode` | No | New utility, additive union extension |
 | FR-3 | `FeedbackDampeningConfigSchema` + `computeDampenedScore()` + constants | No | New schema, new exports, new utility |
 | FR-4 | `ConsumerContractSchema` | No | New schema, new export |
-| FR-5 | `validateDomainTag()`, `computeChainBoundHash()`, docs | No | New utilities, documentation |
+| FR-5 | `validateDomainTag()`, `computeChainBoundHash()`, `validateAuditTimestamp()`, `computeAdvisoryLockKey()`, docs | No | New utilities, documentation |
 | FR-6 | `condition` field on constraints | No | Optional field — all existing constraints valid |
 | FR-7 | Release tag | No | Distribution only |
-| FR-8 | `GovernedResource<T>` interface + `GovernedResourceBase` | No | New interface + abstract class, existing schemas unchanged |
+| FR-8 | `GovernedResource<T>` interface + `GovernedResourceBase` + `MutationContext` | No | New interface + abstract class + type, existing schemas unchanged |
 
-**Conclusion: v8.3.0 (MINOR)** — all 8 FRs are additive. No breaking changes required. Confirmed independently by finn (cycle-037) and dixie (cycle-017).
+**Conclusion: v8.3.0 (MINOR)** — all 8 FRs are additive. No breaking changes required. **Confirmed independently by all three consumer repos** — finn (cycle-037), dixie (cycle-017), freeside (cycle-045).
 
 ### Sprint Estimation
 
@@ -516,7 +568,7 @@ loa-finn's cycle-037 addresses these hounfour P0 items from their side:
 | FR-2 (GovernedResource verification) | Runtime interface now upstream via FR-8 | Addressed by FR-8 |
 | FR-3 (Audit trail verification) | Documentation + chain-bound hash utility | Addressed by FR-5 |
 | FR-4 (x402 schema verification) | Schemas need to be added | Addressed by FR-1 |
-| FR-5 (PR #39 feedback) | Receive and integrate | Ongoing (freeside pending) |
+| FR-5 (PR #39 feedback) | Receive and integrate | **Complete** — all 3 repos received |
 | FR-6 (CI modernization) | Not hounfour scope | N/A |
 
 ### Dixie PRD Cross-Reference
@@ -534,13 +586,31 @@ loa-dixie's cycle-017 contributes to hounfour via Tier 1 extraction:
 
 Dixie confirms v8.3.0 MINOR recommendation — all Tier 1 contributions are purely additive.
 
+### Freeside Feedback Cross-Reference
+
+loa-freeside's cycle-045 provides production witnesses and new extraction candidates:
+
+| Freeside Contribution | Hounfour FR | Status |
+|----------------------|-------------|--------|
+| GovernedResource\<T\> — 3 witnesses (CreditLotGovernor, AmendmentService, GovernedMutationService) | FR-8 | **Updated** — 6 total witnesses across 2 repos |
+| `MutationContext` interface (CreditMutationContext pattern) | FR-8 | **Added** — generic parameter on GovernedResourceBase |
+| `validateAuditTimestamp()` | FR-5 | **Added** — new AC21 |
+| `computeAdvisoryLockKey()` (FNV-1a) | FR-5 | **Added** — new AC22 |
+| EMA dampening constants confirmation (billing reconciliation) | FR-3 | **Confirmed** — cross-domain applicability validated |
+| Chain-bound hashing TOCTOU pattern | FR-5 | Already covered (converged with dixie independently) |
+| Fail-closed default convention | Deferred | Protocol convention — needs documentation |
+| Deployment group orchestration | Deferred | Cross-service deployment contract |
+| S2S JWT jti claim | Deferred | Breaking-change assessment needed (V-006) |
+
+Freeside confirms v8.3.0 MINOR recommendation — all contributions are purely additive. Migration estimate: ~150 lines deleted when consuming hounfour v8.3.0 exports.
+
 ### Cross-Repo Coordination Points
 
 | Coordination | Repos | Risk |
 |-------------|-------|------|
 | EMA dampening should compose with finn's scoring pipeline | finn + dixie | If finn changes scoring schema, dixie's dampening input may need adaptation |
 | Chain-bound hash extends existing `computeAuditEntryHash()` | dixie + hounfour | Must remain backward-compatible — existing consumers use content-only hash |
-| x402 schemas must match freeside's consumption patterns | freeside + hounfour | Freeside review pending |
+| x402 schemas must match freeside's consumption patterns | freeside + hounfour | Freeside review **received** — no conflicts identified |
 | GovernedResource\<T\> interface must not constrain finn's verification | finn + dixie | Interface is opt-in — schema-only consumers unaffected |
 
 ### Anti-Duplication Rule
