@@ -1,0 +1,173 @@
+{
+  "consensus_summary": {
+    "high_consensus_count": 4,
+    "disputed_count": 0,
+    "low_value_count": 0,
+    "blocker_count": 9,
+    "model_agreement_percent": 100,
+    "models": 2,
+    "tertiary_items": 0,
+    "confidence": "full"
+  },
+  "high_consensus": [
+    {
+      "id": "IMP-001",
+      "description": "Real operational gap. A rollback trigger and procedure is actionable and cheap, especially for a core hashing-path change with uncertain blast radius. Slight trade-off: can add process overhead if too rigid.",
+      "gpt_score": 760,
+      "opus_score": 950,
+      "tertiary_score": null,
+      "delta": 190,
+      "average_score": 855,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-002",
+      "description": "High-value specification hardening. Edge-case behavior (Unicode, long input, repeated delimiters) is currently underdefined and directly affects determinism/interoperability. Clear acceptance tests can be added with low-to-moderate effort.",
+      "gpt_score": 890,
+      "opus_score": 880,
+      "tertiary_score": null,
+      "delta": 10,
+      "average_score": 885,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-003",
+      "description": "Most critical item. Backward verification of persisted old-format tags is the primary compatibility risk; relying on implicit coverage is insufficient. A dedicated fixture/test is precise, cheap, and high ROI.",
+      "gpt_score": 960,
+      "opus_score": 720,
+      "tertiary_score": null,
+      "delta": 240,
+      "average_score": 840,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-004",
+      "description": "Strong improvement. If collision risk is documented, at least one concrete test should codify that behavior to prevent future misunderstanding/regression. Domain-appropriate and easy to implement.",
+      "gpt_score": 780,
+      "opus_score": 860,
+      "tertiary_score": null,
+      "delta": 80,
+      "average_score": 820,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    }
+  ],
+  "disputed": [],
+  "low_value": [],
+  "blockers": [
+    {
+      "id": "SKP-004",
+      "concern": "Assumption that no tests have hardcoded/pinned hash values is unverified",
+      "severity": "HIGH",
+      "severity_score": 750,
+      "why_matters": "Task 1.5 says 'No hardcoded hash values should break (they're computed, not pinned)' and estimates 'likely zero-change.' This is an assumption, not a fact. With 6,628 tests across ~8 test files, the probability of at least one snapshot, fixture, or inline hash assertion is high. If even one test pins an old hash, it fails and blocks the sprint \u2014 and debugging hash mismatches is notoriously time-consuming.",
+      "location": "Task 1.5: estimated effort 'Small (likely zero-change)'",
+      "recommendation": "Before implementation, do a full grep for hex strings (SHA-256 patterns), 'GovernedCredits:8.0.0', and any test snapshot files. Map every hardcoded hash value to determine actual blast radius.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-004",
+      "concern": "Assumption that only one source file is impacted likely underestimates hidden coupling in hash-domain logic.",
+      "severity": "HIGH",
+      "severity_score": 710,
+      "why_matters": "Hash and validation behavior is often cross-cutting; missing one indirect caller or fixture can cause latent production defects despite passing targeted tests.",
+      "location": "Overview (\"touches 1 source file\") + Risk Mitigation",
+      "recommendation": "Perform repository-wide impact analysis (code + fixtures + docs + external SDKs), and add a checklist of all domain-tag producers/consumers before merge.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-002",
+      "concern": "Breaking change shipped as MINOR version (v8.4.0) violates semver",
+      "severity": "CRITICAL",
+      "severity_score": 880,
+      "why_matters": "buildDomainTag() now produces different output for the same inputs. Any consumer pinned to ^8.x that calls buildDomainTag('GovernedCredits', '8.0.0') and compares the result to a stored string will break. Conformance vectors change. Hash values change. This is a behavioral breaking change by any semver definition. Shipping it as MINOR means consumers on auto-update will silently get incompatible hashes.",
+      "location": "Overview: Version v8.4.0 (MINOR)",
+      "recommendation": "Ship as v9.0.0 (MAJOR) or provide a migration path with both old and new functions. At minimum, document the breaking nature prominently and consider a deprecation cycle.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-005",
+      "concern": "Conformance vector consumers have no advance notice of format change",
+      "severity": "HIGH",
+      "severity_score": 720,
+      "why_matters": "Conformance vectors exist precisely so external implementations can verify compatibility. Changing the vector's domain_tag and entry_hash means every external consumer's conformance test will fail on upgrade. The domain_tag_format metadata field is a nice-to-have but only helps consumers who already check for it \u2014 existing consumers will just see a test failure with no clear migration path.",
+      "location": "Task 1.6: Update conformance vectors",
+      "recommendation": "Ship both old and new conformance vectors (versioned). Add a migration guide. Consider a conformance vector versioning scheme rather than in-place mutation.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-001",
+      "concern": "Lossy sanitization can create domain-tag collisions across distinct schema/version inputs, but there is no prevention or detection strategy.",
+      "severity": "CRITICAL",
+      "severity_score": 920,
+      "why_matters": "Different producers could hash different logical domains into the same sanitized tag (e.g., punctuation/case variants), undermining domain separation guarantees and making audit hashes ambiguous.",
+      "location": "Task 1.1 Description (sanitizeSegment + JSDoc collision note)",
+      "recommendation": "Define a collision-handling policy now: either reject lossy transforms, append canonical hash suffix of raw input, or maintain an explicit mapping table with collision tests.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-001",
+      "concern": "Lossy sanitization creates silent hash collisions in production data",
+      "severity": "CRITICAL",
+      "severity_score": 920,
+      "why_matters": "The sanitization is explicitly lossy: 'a:b' and 'ab' both map to 'ab', 'a.b' and 'a-b' both map to 'a-b'. Any existing production system that relied on distinct domain tags for distinct schemas (e.g., 'Schema:V1' vs 'SchemaV1') will now produce identical hashes for semantically different audit trails. This is not just a theoretical collision risk \u2014 it is a data integrity violation that can make audit trails unverifiable or ambiguous. The JSDoc note (AC-1.7) documents it but does not prevent it.",
+      "location": "Task 1.1: sanitizeSegment() \u2014 dots-to-hyphens, strip colons",
+      "recommendation": "Add a collision detection mechanism or at minimum a runtime warning. Consider rejecting inputs that would collide rather than silently normalizing. Enumerate known schema IDs to verify no actual collisions exist before shipping.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-003",
+      "concern": "No migration strategy for existing persisted audit trails with old domain tags",
+      "severity": "CRITICAL",
+      "severity_score": 870,
+      "why_matters": "Existing audit entries in databases store hash_domain_tag as 'loa-commons:audit:GovernedCredits:8.0.0'. New entries will use 'loa-commons:audit:governedcredits:8-0-0'. verifyAuditTrailIntegrity() reads the stored tag, so old entries should still verify \u2014 but any system that chains old and new entries, compares tags across entries, or uses domain tags as lookup keys will have mixed-format data. The plan explicitly defers consumer workaround removal to other repos, but doesn't address the mixed-state problem.",
+      "location": "Out of Scope section; Task 1.5 description",
+      "recommendation": "Add explicit documentation and testing for mixed audit trails (old-format entries followed by new-format entries in the same chain). Verify verifyAuditTrailIntegrity handles chains that cross the format boundary.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-002",
+      "concern": "No migration/compatibility plan for existing persisted entries using old domain tags.",
+      "severity": "CRITICAL",
+      "severity_score": 890,
+      "why_matters": "Historical records and cross-service verification may fail in mixed environments when some systems emit old tags and others emit sanitized tags, breaking integrity checks and backward compatibility.",
+      "location": "Overview + Task 1.6 + Out of Scope",
+      "recommendation": "Add dual-read/dual-verify compatibility window, migration script for stored vectors/records, and explicit cutoff version policy.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-003",
+      "concern": "Versioning strategy appears inconsistent: behavior and conformance vectors change, but release is marked MINOR without explicit breaking-change analysis.",
+      "severity": "HIGH",
+      "severity_score": 760,
+      "why_matters": "Downstream consumers that pin exact hashes/tags may experience breaking behavior despite a minor bump, causing integration failures and trust issues in release semantics.",
+      "location": "Header (Version v8.4.0 MINOR) + Task 1.6",
+      "recommendation": "Run a formal semver impact assessment; if externally observable hashes/tags change incompatibly, publish as MAJOR or provide strict migration guidance.",
+      "source": "tertiary_skeptic"
+    }
+  ],
+  "degraded": false,
+  "degraded_model": null,
+  "confidence": "full",
+  "phase": "sprint",
+  "document": "grimoires/loa/sprint.md",
+  "domain": " overview single sprint cycle",
+  "execution": {
+    "mode": "hitl",
+    "mode_reason": "Simstim workflow active (.run/simstim-state.json state=RUNNING)",
+    "run_id": null
+  },
+  "timestamp": "2026-02-28T06:58:08Z",
+  "metrics": {
+    "total_latency_ms": 214000,
+    "cost_cents": 0,
+    "cost_usd": 0
+  }
+}
