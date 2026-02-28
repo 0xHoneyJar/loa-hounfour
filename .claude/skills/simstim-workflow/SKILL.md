@@ -34,7 +34,7 @@ This skill manages its own 8-phase workflow. DO NOT use Claude Code's native Pla
 
 ## Constraint Rules
 
-<!-- @constraint-generated: start simstim_constraints | hash:852a0b4eccaea5a8 -->
+<!-- @constraint-generated: start simstim_constraints | hash:fa9331a75525a8d5 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
 1. NEVER call `EnterPlanMode` — simstim phases ARE the plan
 2. NEVER jump to implementation after any user confirmation
