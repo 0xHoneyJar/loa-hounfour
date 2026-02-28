@@ -43,6 +43,14 @@ if [[ "${_LIB_SECURITY_LOADED:-}" != "true" ]]; then
   unset _lib_dir
 fi
 
+# Ensure normalize-json.sh is loaded (for extract_verdict)
+if ! declare -f extract_verdict &>/dev/null; then
+  _lib_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=lib/normalize-json.sh
+  source "$_lib_dir/lib/normalize-json.sh"
+  unset _lib_dir
+fi
+
 # =============================================================================
 # Constants
 # =============================================================================
@@ -323,10 +331,9 @@ call_api() {
     return 5
   fi
 
-  # Validate verdict field
+  # Validate verdict field (supports .verdict and .overall_verdict fallback)
   local verdict
-  verdict=$(echo "$content_response" | jq -r '.verdict // empty')
-  if [[ -z "$verdict" ]]; then
+  if ! verdict=$(extract_verdict "$content_response"); then
     echo "ERROR: Response missing 'verdict' field" >&2
     echo "[gpt-review-api] Response content: $content_response" >&2
     return 5
