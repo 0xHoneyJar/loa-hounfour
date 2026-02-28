@@ -118,6 +118,7 @@ export declare abstract class GovernedResourceBase<TState, TEvent, TInvariant ex
     private _version;
     private _auditTrail;
     private _mutationLog;
+    private _cachedInvariants;
     constructor(initialState: TState);
     get current(): TState;
     get version(): number;
@@ -139,6 +140,10 @@ export declare abstract class GovernedResourceBase<TState, TEvent, TInvariant ex
      * Optional override — default is no-op.
      */
     protected onTransitionFailure(_event: TEvent, _context: TContext, _violations: InvariantResult[]): Promise<void>;
+    /**
+     * Returns cached invariant map, calling defineInvariants() only once per instance.
+     */
+    private getInvariants;
     verify(invariantId: TInvariant): InvariantResult;
     verifyAll(): InvariantResult[];
     /**

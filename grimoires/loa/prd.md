@@ -1,10 +1,10 @@
 # PRD: Hounfour v9 — Pre-Launch Protocol Hardening
 
-**Status:** Draft
+**Status:** Implemented (v8.3.0 pushed to PR #39, bridge-validated)
 **Author:** Jani + Claude
-**Date:** 2026-02-27
+**Date:** 2026-02-27 (updated 2026-02-28)
 **Cycle:** cycle-001 (hounfour)
-**References:** [PR #39 RFC](https://github.com/0xHoneyJar/loa-hounfour/pull/39) · [Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38) · [Finn PRD cycle-037](https://github.com/0xHoneyJar/loa-finn/blob/main/grimoires/loa/prd.md) · [Finn Issue #66](https://github.com/0xHoneyJar/loa-finn/issues/66) · [Dixie PRD cycle-017](grimoires/loa/context/dixie-prd-cycle-017.md) · [Freeside Feedback cycle-045](grimoires/loa/context/freeside-feedback-cycle-045.md)
+**References:** [PR #39 RFC](https://github.com/0xHoneyJar/loa-hounfour/pull/39) · [Issue #38](https://github.com/0xHoneyJar/loa-hounfour/issues/38) · [Finn PRD cycle-037](https://github.com/0xHoneyJar/loa-finn/blob/main/grimoires/loa/prd.md) · [Finn Issue #66](https://github.com/0xHoneyJar/loa-finn/issues/66) · [Dixie PRD cycle-017](grimoires/loa/context/dixie-prd-cycle-017.md) · [Freeside Feedback cycle-045](grimoires/loa/context/freeside-feedback-cycle-045.md) · [Freeside Governance Substrate PRD cycle-043](grimoires/loa/context/freeside-governance-substrate-prd-cycle-043.md)
 
 ---
 
@@ -544,8 +544,9 @@ Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs 
 - loa-finn cycle-037 PRD (primary consumer feedback — **received**)
 - loa-dixie cycle-017 PRD (Tier 1 extraction patterns — **received**)
 - loa-freeside cycle-045 feedback (production witnesses + new extraction candidates — **received**)
+- loa-freeside governance substrate PRD cycle-043 (full v8.2.0 adoption plan — 10 FRs, 78+ symbols, protocol barrel pattern, phased CONTRACT_VERSION negotiation — **captured to context**)
 - Staging deployment stable (parallel — not blocking this work)
-- **All 3 consumer repos have now provided feedback. PRD is feature-complete pending operator approval.**
+- **All 3 consumer repos have now provided feedback. PRD is feature-complete. v8.3.0 implemented and pushed.**
 
 ---
 
@@ -652,3 +653,57 @@ From finn #66 Comment 10 — enforced throughout:
 | Model routing | loa-finn (ONLY) | — |
 | Reputation storage | loa-dixie (ONLY) | — |
 | Billing ledger | loa-finn (ONLY) | — |
+
+---
+
+## 9. Implementation Status
+
+**v8.3.0 implemented and pushed to PR #39** (2026-02-28)
+
+All 8 FRs implemented across 4 sprints, bridge-validated (2 iterations, flatline achieved):
+- 333 files changed, 7,750 insertions, 1,019 deletions
+- 6,620 tests passing, 0 failures
+- 201 JSON schemas generated, 232 conformance vectors, 93 constraints
+- RELEASE-INTEGRITY.json regenerated (528 files)
+
+### Bridgebuilder Review Summary
+
+**Iteration 1**: 16 findings (2 HIGH, 5 MEDIUM, 5 LOW, 2 PRAISE, 1 SPECULATION, 1 REFRAME)
+**Iteration 2**: 9 findings addressed, 0 new findings → flatline
+
+Key fixes: constraint file format normalization (severity/expression_version), additionalProperties on nested schemas, EIP-55 documentation correction, alpha_min > alpha_max runtime guard, dead field removal, error code naming, invariant identity guarantee.
+
+### Bridgebuilder Architectural Review (PR #39 Comments)
+
+Two deep architectural reviews posted to PR #39 (issuecomment-3975934596, issuecomment-3975937612):
+- Mapped hounfour to Ostrom's 8 institutional design principles
+- Identified Permission Scape as most important unbuilt piece
+- Proposed 5 v8.4.0 priorities: Permission Scape Schema, Derived Constraint Generation, Invariant Registry, Cross-Repo Consumer Contract CI, Event Sourcing Foundation
+
+### Forward-Looking: v8.4.0 Planning Inputs
+
+Remaining deferred items from bridge review + consumer feedback:
+- **B1-008**: sampleCount negative value validation (LOW)
+- **B1-010**: ISO timezone colon strictness (LOW)
+- **B1-011**: defineInvariants() caching opportunity (LOW)
+- **B1-012**: Concurrent transition test (LOW)
+- **Fail-Closed Default Convention** (freeside D-010): protocol documentation
+- **Deployment Group Orchestration** (freeside D-011): cross-service health check schema
+- **Governance Mutation Attribution** (dixie Tier 2): actor type discrimination, resolveActorId(), MutationLog
+- **Conviction-Gated Access** (dixie Tier 3): needs BGT abstraction
+- **Autonomy Governance** (dixie Tier 3): may be dixie-specific
+- **Permission Scape Schema** (bridgebuilder): 10-dimensional access control space from finn#31
+- **Derived Constraint Generation**: auto-generate structural constraints from TypeBox schemas
+- **Invariant Registry**: formalize invariant identity as type-level concept
+- **Cross-Repo Consumer Contract CI**: detect breaking changes before merge
+- **Event Sourcing Foundation**: event log + replay for GovernedResource
+
+### Consumer Adoption Cross-Reference
+
+Freeside's governance substrate PRD (cycle-043) provides the most detailed adoption plan:
+- 10 FRs for adopting hounfour v8.2.0 → v8.3.0
+- Protocol barrel pattern: all hounfour imports through `@arrakis/core/protocol` barrel
+- Phased CONTRACT_VERSION negotiation (dual-accept → tighten after finn upgrades)
+- 219 conformance vectors with P0/nightly split strategy
+- ~150 LOC deleted when consuming v8.3.0 exports
+- See `grimoires/loa/context/freeside-governance-substrate-prd-cycle-043.md` for full details

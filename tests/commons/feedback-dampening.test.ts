@@ -153,6 +153,27 @@ describe('computeDampenedScore', () => {
       expect(() => computeDampenedScore(0.5, 0.8, 5, config))
         .toThrow('alpha_min (0.9) must not exceed alpha_max (0.1)');
     });
+
+    it('throws RangeError for negative sampleCount', () => {
+      expect(() => computeDampenedScore(0.5, 0.8, -1))
+        .toThrow(RangeError);
+      expect(() => computeDampenedScore(0.5, 0.8, -1))
+        .toThrow('non-negative');
+    });
+
+    it('throws RangeError for NaN sampleCount', () => {
+      expect(() => computeDampenedScore(0.5, 0.8, NaN))
+        .toThrow(RangeError);
+    });
+
+    it('throws RangeError for Infinity sampleCount', () => {
+      expect(() => computeDampenedScore(0.5, 0.8, Infinity))
+        .toThrow(RangeError);
+    });
+
+    it('accepts zero sampleCount (cold start)', () => {
+      expect(() => computeDampenedScore(null, 0.8, 0)).not.toThrow();
+    });
   });
 
   describe('bounded feedback invariant (property test)', () => {

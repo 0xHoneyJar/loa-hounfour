@@ -95,6 +95,18 @@ describe('validateAuditTimestamp', () => {
       expect(result.valid).toBe(false);
       expect(result.error).toContain('ISO 8601');
     });
+
+    it('rejects timezone offset without colon (B1-010)', () => {
+      const result = validateAuditTimestamp('2026-02-28T04:00:00-0800', { now: REFERENCE_NOW });
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('ISO 8601');
+    });
+
+    it('rejects positive offset without colon', () => {
+      const result = validateAuditTimestamp('2026-02-28T17:30:00+0530', { now: REFERENCE_NOW });
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('ISO 8601');
+    });
   });
 
   describe('injectable now', () => {

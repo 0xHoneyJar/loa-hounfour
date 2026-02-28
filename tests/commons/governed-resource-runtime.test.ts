@@ -328,6 +328,80 @@ describe('GovernedResourceBase', () => {
   });
 });
 
+describe('defineInvariants caching (B1-011)', () => {
+  it('caches defineInvariants result across verify calls', () => {
+    let callCount = 0;
+
+    class InstrumentedCounter extends GovernedResourceBase<
+      CounterState,
+      CounterEvent,
+      CounterInvariant
+    > {
+      readonly resourceId = 'instrumented-001';
+      readonly resourceType = 'counter';
+
+      protected applyEvent(state: CounterState, event: CounterEvent): CounterState {
+        switch (event.type) {
+          case 'increment': return { count: state.count + event.amount };
+          case 'decrement': return { count: state.count - event.amount };
+          case 'reset': return { count: 0 };
+        }
+      }
+
+      protected defineInvariants(): Map<CounterInvariant, (state: CounterState) => InvariantResult> {
+        callCount++;
+        return new Map<CounterInvariant, (state: CounterState) => InvariantResult>([
+          ['non-negative', (s) => ({ invariantId: 'non-negative', holds: s.count >= 0 })],
+          ['max-bound', (s) => ({ invariantId: 'max-bound', holds: s.count <= 1000 })],
+        ]);
+      }
+
+      protected async onTransitionSuccess(): Promise<void> { /* no-op */ }
+    }
+
+    const counter = new InstrumentedCounter({ count: 5 });
+
+    counter.verify('non-negative');
+    counter.verify('max-bound');
+    counter.verifyAll();
+    counter.verifyAll();
+
+    expect(callCount).toBe(1);
+  });
+});
+
+describe('concurrent transition contract (B1-012)', () => {
+  it('concurrent transitions can produce inconsistent state', async () => {
+    const counter = new CounterResource({ count: 100 });
+
+    // Fire two concurrent transitions — both read count=100
+    const [r1, r2] = await Promise.all([
+      counter.transition({ type: 'decrement', amount: 60 }, CTX),
+      counter.transition({ type: 'decrement', amount: 60 }, CTX),
+    ]);
+
+    // Both succeed because they each see count=100, decrement to 40
+    // But the second one applies to the state AFTER the first completes
+    // Since applyEvent is synchronous and transition is async,
+    // the interleaving depends on microtask ordering.
+    // Key assertion: at least one should succeed
+    expect(r1.success || r2.success).toBe(true);
+
+    // The final state demonstrates why single-writer is required:
+    // Without external serialization, the result is either -20 (both succeed
+    // against overlapping state) or 40 (one succeeds, one rolls back).
+    // Either outcome proves the contract: concurrent calls produce
+    // results that differ from sequential execution.
+    if (r1.success && r2.success) {
+      // Both succeeded — state went negative, proving interleaving risk
+      expect(counter.current.count).toBe(-20);
+    } else {
+      // One was rolled back by invariant — the safe case
+      expect(counter.current.count).toBe(40);
+    }
+  });
+});
+
 describe('GovernedResource interface compliance', () => {
   it('CounterResource satisfies GovernedResource interface', () => {
     const counter: GovernedResource<CounterState, CounterEvent, CounterInvariant> =

@@ -86,6 +86,9 @@ export function computeDampenedScore(oldScore, newScore, sampleCount, config) {
     if (alphaMin > alphaMax) {
         throw new Error(`alpha_min (${alphaMin}) must not exceed alpha_max (${alphaMax})`);
     }
+    if (!Number.isFinite(sampleCount) || sampleCount < 0) {
+        throw new RangeError(`sampleCount must be a non-negative finite number, got ${sampleCount}`);
+    }
     // Cold start: Bayesian pseudo-count prior
     if (oldScore === null) {
         const effectiveSamples = Math.max(sampleCount, 1);

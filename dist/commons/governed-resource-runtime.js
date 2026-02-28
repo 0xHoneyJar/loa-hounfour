@@ -72,6 +72,7 @@ export class GovernedResourceBase {
     _version;
     _auditTrail;
     _mutationLog;
+    _cachedInvariants = null;
     constructor(initialState) {
         this._state = initialState;
         this._version = 0;
@@ -120,8 +121,17 @@ export class GovernedResourceBase {
      * Optional override — default is no-op.
      */
     async onTransitionFailure(_event, _context, _violations) { }
+    /**
+     * Returns cached invariant map, calling defineInvariants() only once per instance.
+     */
+    getInvariants() {
+        if (this._cachedInvariants === null) {
+            this._cachedInvariants = this.defineInvariants();
+        }
+        return this._cachedInvariants;
+    }
     verify(invariantId) {
-        const invariants = this.defineInvariants();
+        const invariants = this.getInvariants();
         const check = invariants.get(invariantId);
         if (!check) {
             return { invariantId, holds: false, detail: `Unknown invariant: ${invariantId}` };
@@ -129,7 +139,7 @@ export class GovernedResourceBase {
         return check(this._state);
     }
     verifyAll() {
-        const invariants = this.defineInvariants();
+        const invariants = this.getInvariants();
         return Array.from(invariants.entries()).map(([id, check]) => {
             const result = check(this._state);
             return { ...result, invariant_id: id };

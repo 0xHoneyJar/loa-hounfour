@@ -172,6 +172,7 @@ export abstract class GovernedResourceBase<
   private _version: number;
   private _auditTrail: AuditTrail;
   private _mutationLog: GovernanceMutation[];
+  private _cachedInvariants: Map<TInvariant, (state: TState) => InvariantResult> | null = null;
 
   constructor(initialState: TState) {
     this._state = initialState;
@@ -250,8 +251,18 @@ export abstract class GovernedResourceBase<
     _violations: InvariantResult[],
   ): Promise<void> { /* no-op by default */ }
 
+  /**
+   * Returns cached invariant map, calling defineInvariants() only once per instance.
+   */
+  private getInvariants(): Map<TInvariant, (state: TState) => InvariantResult> {
+    if (this._cachedInvariants === null) {
+      this._cachedInvariants = this.defineInvariants();
+    }
+    return this._cachedInvariants;
+  }
+
   verify(invariantId: TInvariant): InvariantResult {
-    const invariants = this.defineInvariants();
+    const invariants = this.getInvariants();
     const check = invariants.get(invariantId);
     if (!check) {
       return { invariantId, holds: false, detail: `Unknown invariant: ${invariantId}` };
@@ -260,7 +271,7 @@ export abstract class GovernedResourceBase<
   }
 
   verifyAll(): InvariantResult[] {
-    const invariants = this.defineInvariants();
+    const invariants = this.getInvariants();
     return Array.from(invariants.entries()).map(([id, check]) => {
       const result = check(this._state);
       return { ...result, invariant_id: id };

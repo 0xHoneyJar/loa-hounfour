@@ -1,6 +1,6 @@
 {
   "release_version": "8.3.0",
-  "generated_at": "2026-02-28T00:50:09.430Z",
+  "generated_at": "2026-02-28T01:24:55.826Z",
   "generator": "generate-release-integrity.ts",
   "totals": {
     "schemas": 203,
@@ -528,7 +528,7 @@
       },
       {
         "path": "schemas/index.json",
-        "sha256": "1a0e6dd142a36b2bdc7f0945fecacad44ab74a4b7ad739a0eaf79262ccb52ed8",
+        "sha256": "bcf53ed826fe4e5211a88286801cdd2135eed09ef103de08e9a3890f53d6fb3a",
         "size_bytes": 53376
       },
       {

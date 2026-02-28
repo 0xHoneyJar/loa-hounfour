@@ -22,14 +22,15 @@ const TWENTY_FOUR_HOURS_MS = 86_400_000;
  * - 2026-02-28T12:00:00Z
  * - 2026-02-28T12:00:00.000Z
  * - 2026-02-28T12:00:00+05:30
- * - 2026-02-28T12:00:00-0800
+ * - 2026-02-28T12:00:00-08:00
  *
  * Rejects:
  * - "Feb 28, 2026" (locale-dependent)
  * - "1234567890" (epoch timestamp)
  * - "" (empty string)
+ * - "2026-02-28T12:00:00-0800" (missing colon in offset)
  */
-const ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/;
+const ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 /**
  * Validate and normalize an audit timestamp.
  *
