@@ -11,7 +11,7 @@ import {
   ChainBoundHashError,
   AUDIT_TRAIL_GENESIS_HASH,
 } from '../../src/commons/chain-bound-hash.js';
-import { computeAuditEntryHash } from '../../src/commons/audit-trail-hash.js';
+import { buildDomainTag, computeAuditEntryHash } from '../../src/commons/audit-trail-hash.js';
 import type { AuditEntryHashInput } from '../../src/commons/audit-trail-hash.js';
 
 const GENESIS = AUDIT_TRAIL_GENESIS_HASH;
@@ -140,6 +140,20 @@ describe('computeChainBoundHash', () => {
     it('throws on invalid domain tag segments', () => {
       expect(() => computeChainBoundHash(SAMPLE_ENTRY, 'a:b', GENESIS))
         .toThrow(ChainBoundHashError);
+    });
+  });
+
+  describe('buildDomainTag integration (issue #41)', () => {
+    it('succeeds with buildDomainTag output', () => {
+      const tag = buildDomainTag('test', '8.3.0');
+      const hash = computeChainBoundHash(SAMPLE_ENTRY, tag, GENESIS);
+      expect(hash).toMatch(/^sha256:[a-f0-9]{64}$/);
+    });
+
+    it('succeeds with PascalCase schemaId via buildDomainTag', () => {
+      const tag = buildDomainTag('GovernedCredits', '8.0.0');
+      const hash = computeChainBoundHash(SAMPLE_ENTRY, tag, GENESIS);
+      expect(hash).toMatch(/^sha256:[a-f0-9]{64}$/);
     });
   });
 

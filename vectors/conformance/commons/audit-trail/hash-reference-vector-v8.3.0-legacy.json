@@ -3,10 +3,9 @@
   "category": "audit-trail",
   "description": "Cross-language reference vector for domain-separated audit entry hashing. Other implementations (Python, Go, Rust) must produce identical hashes from the same inputs using RFC 8785 JCS canonicalization.",
   "contract_version": "8.0.0",
-  "domain_tag_format": "v8.4.0-sanitized",
   "layer": 1,
   "input": {
-    "domain_tag": "loa-commons:audit:governedcredits:8-0-0",
+    "domain_tag": "loa-commons:audit:GovernedCredits:8.0.0",
     "entry": {
       "entry_id": "550e8400-e29b-41d4-a716-446655440000",
       "timestamp": "2026-02-25T10:00:00Z",
@@ -16,7 +15,7 @@
     "hash_input_description": "UTF-8 encode: domain_tag + canonical_json, then SHA-256"
   },
   "expected_output": {
-    "entry_hash": "sha256:71de714b5dcefc7f43d6ca1c29da6c970cefcc2af916ae20ac820600f3f37d79"
+    "entry_hash": "sha256:8130c0f4709494429384410aece64bc07ac5214747b231204743c5f534325394"
   },
   "expected_valid": true
 }

@@ -1,0 +1,183 @@
+{
+  "consensus_summary": {
+    "high_consensus_count": 4,
+    "disputed_count": 0,
+    "low_value_count": 0,
+    "blocker_count": 10,
+    "model_agreement_percent": 100,
+    "models": 2,
+    "tertiary_items": 0,
+    "confidence": "full"
+  },
+  "high_consensus": [
+    {
+      "id": "IMP-001",
+      "description": "This is a real and central gap. If validateDomainTag() semantics are unspecified, the proposed fix cannot be independently verified. Highly actionable (add grammar/regex + examples) and low cost with high correctness impact.",
+      "gpt_score": 890,
+      "opus_score": 950,
+      "tertiary_score": null,
+      "delta": 60,
+      "average_score": 920,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-002",
+      "description": "Strong migration-risk catch. Version-boundary verification behavior is exactly where audit/hash systems fail silently. Actionable via explicit compatibility matrix and verifier behavior requirements; moderate effort, high risk reduction.",
+      "gpt_score": 835,
+      "opus_score": 880,
+      "tertiary_score": null,
+      "delta": 45,
+      "average_score": 857.5,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-003",
+      "description": "Important consistency issue. Semver/changelog contradiction undermines release safety and consumer expectations. Easy to fix, but impact depends on project semver policy interpretation, so slightly below critical.",
+      "gpt_score": 780,
+      "opus_score": 750,
+      "tertiary_score": null,
+      "delta": 30,
+      "average_score": 765,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    },
+    {
+      "id": "IMP-005",
+      "description": "Valuable edge-case hardening. Highlights concrete validator/sanitizer mismatch and potential ambiguity after sanitization. Actionable with post-sanitization invariants and tests.",
+      "gpt_score": 745,
+      "opus_score": 820,
+      "tertiary_score": null,
+      "delta": 75,
+      "average_score": 782.5,
+      "source": "gpt_scored",
+      "would_integrate": true,
+      "agreement": "HIGH"
+    }
+  ],
+  "disputed": [],
+  "low_value": [],
+  "blockers": [
+    {
+      "id": "SKP-001",
+      "concern": "Breaking behavioral change classified as MINOR instead of MAJOR",
+      "severity": "CRITICAL",
+      "severity_score": 900,
+      "why_matters": "The SDD explicitly states 'Breaking behavior: domain tag strings change' yet classifies this as a MINOR semver bump (v8.4.0). Any downstream consumer that compares, stores, or derives values from buildDomainTag() output will silently produce different results after upgrade. The justification references 'Flatline SKP-002' but the document doesn't explain why a function returning different output for the same input isn't a breaking change under standard semver. This will erode trust in the versioning contract and may cause silent data inconsistencies in downstream systems.",
+      "location": "Section 4.1 - Version: v8.4.0 (MINOR)",
+      "recommendation": "Either release as v9.0.0 MAJOR, or provide the full Flatline SKP-002 rationale inline proving that no public API contract is broken. If MINOR is justified, add an explicit compatibility analysis showing every call site and why the output change is non-breaking for each.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-002",
+      "concern": "Hash chain continuity has a silent boundary discontinuity with no migration or detection mechanism",
+      "severity": "CRITICAL",
+      "severity_score": 870,
+      "why_matters": "Pre-fix entries store unsanitized domain tags; post-fix entries store sanitized ones. The document claims verification is unchanged because it reads stored tags, but there is no mechanism to detect which entries are pre-fix vs post-fix. If any code path re-derives the domain tag from schema metadata (rather than reading the stored value) \u2014 now or in the future \u2014 it will fail to verify old entries. There is no epoch marker, no version flag on entries, and no migration path for existing data. This is a latent integrity time bomb.",
+      "location": "Section 2.3 - Hash Chain Continuity Model",
+      "recommendation": "Add a format version field or epoch marker to audit entries so verification logic can deterministically know which tag format was used. Document an invariant that domain tags must NEVER be re-derived from source metadata during verification. Add an integration test that verifies a mixed chain spanning the boundary.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-005",
+      "concern": "Locale-dependent lowercasing may yield inconsistent tags across runtimes.",
+      "severity": "HIGH",
+      "severity_score": 730,
+      "why_matters": "Using `toLowerCase()` without locale constraints can produce divergent behavior for non-ASCII inputs if upstream validation ever expands or bypasses occur, causing non-deterministic hashes.",
+      "location": "Section 2.1 sanitizeSegment()",
+      "recommendation": "Constrain inputs to ASCII explicitly at boundaries and document that requirement; use deterministic normalization strategy and add cross-runtime determinism tests.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-002",
+      "concern": "Lossy sanitization can create domain-tag collisions across distinct schema/version inputs.",
+      "severity": "CRITICAL",
+      "severity_score": 890,
+      "why_matters": "Different identifiers can normalize to the same tag (case-folding, colon stripping, dot-to-hyphen). Collisions can cause hash-domain ambiguity, cross-schema contamination, and difficult-to-detect integrity issues.",
+      "location": "Section 2.1 sanitizeSegment() and lossy transform note",
+      "recommendation": "Use a reversible encoding (or append a stable hash of original inputs), and add collision detection tests plus explicit collision-handling policy.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-003",
+      "concern": "Lossy sanitization creates collision risk that is hand-waved as 'theoretical'",
+      "severity": "HIGH",
+      "severity_score": 750,
+      "why_matters": "The sanitizer maps multiple inputs to the same output: 'a.b' and 'a-b' both become 'a-b'; 'A' and 'a' both become 'a'; 'a:b' and 'ab' both become 'ab'. The document acknowledges this but dismisses it because 'schemaIds are controlled identifiers.' However, no uniqueness constraint or collision detection is specified. If two schemas ever collide post-sanitization, their audit trails would share a domain tag, undermining cryptographic domain separation \u2014 the exact purpose of domain tags.",
+      "location": "Section 2.1 - sanitizeSegment() and JSDoc comment",
+      "recommendation": "Add a collision detection mechanism: maintain a registry/map of (original -> sanitized) pairs and throw if a new original maps to an already-registered sanitized value from a different original. Alternatively, use a bijective encoding (e.g., percent-encoding or base32) instead of lossy sanitization.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-006",
+      "concern": "New TypeError behavior can become an availability risk if invalid upstream data reaches this function.",
+      "severity": "HIGH",
+      "severity_score": 710,
+      "why_matters": "Previously permissive behavior now throws. Without audited call sites and error handling, this can cause request failures, dropped events, or dead-letter growth in production.",
+      "location": "Section 2.1 buildDomainTag() throws TypeError",
+      "recommendation": "Audit all call sites, define failure policy (reject vs fallback), and add resilience tests for invalid production-like inputs.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-005",
+      "concern": "No downstream consumer impact analysis beyond Finn and Dixie",
+      "severity": "HIGH",
+      "severity_score": 720,
+      "why_matters": "The migration plan mentions two consumers (Finn, Dixie) with specific workarounds to remove. But there is no systematic analysis of all consumers of buildDomainTag(). Any consumer that caches, persists, compares, or transmits domain tags will break. The SDD doesn't mention: database indexes on domain tags, log grep patterns, monitoring dashboards filtering on tag strings, configuration files with hardcoded tags, or third-party integrations.",
+      "location": "Section 4.2 - Changelog/Migration",
+      "recommendation": "Conduct a full dependency impact analysis: grep all repositories for buildDomainTag usage, stored domain tag strings, and hardcoded tag patterns. Document each consumer and its required migration action. Add a migration verification checklist.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-004",
+      "concern": "No explicit backward-compatibility contract for mixed old/new tags across external verifiers and tools.",
+      "severity": "HIGH",
+      "severity_score": 770,
+      "why_matters": "The model explains internal verification continuity, but external systems may re-derive tags instead of trusting stored values. Mixed trails can fail in third-party validators and audit exports.",
+      "location": "Section 2.3 Hash Chain Continuity Model, Section 4.2 Migration",
+      "recommendation": "Publish a formal compatibility matrix and require verifiers to use stored `hash_domain_tag` for legacy entries; add integration tests against representative external consumers.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-003",
+      "concern": "SDD contains a direct contradiction: tests expect colon stripping, but input grammar rejects colons.",
+      "severity": "CRITICAL",
+      "severity_score": 860,
+      "why_matters": "The example test `buildDomainTag('a:b', '8.0.0')` cannot pass if `SCHEMA_ID_RE` is enforced. This indicates unresolved requirements and likely implementation/test churn right before release.",
+      "location": "Section 2.1 SCHEMA_ID_RE, Section 3.1 Unit Tests (\"Strips colons\")",
+      "recommendation": "Decide one contract: either allow colons then sanitize, or reject them. Update regex, docs, and tests to one consistent rule.",
+      "source": "tertiary_skeptic"
+    },
+    {
+      "id": "SKP-001",
+      "concern": "Versioning strategy is inconsistent with declared breaking behavior (MINOR release despite changed outputs and new exceptions).",
+      "severity": "CRITICAL",
+      "severity_score": 920,
+      "why_matters": "Downstream consumers may treat v8.4.0 as safe to auto-upgrade, but domain tag values and runtime behavior change. This can silently break interoperability, signatures, and pipelines that depend on prior tag format or non-throwing behavior.",
+      "location": "Section 4.1 Version: v8.4.0 (MINOR), Section 4.2 Changelog (**Breaking behavior** note)",
+      "recommendation": "Reclassify as MAJOR or provide a compatibility mode with explicit deprecation window and rollout guidance.",
+      "source": "tertiary_skeptic"
+    }
+  ],
+  "degraded": false,
+  "degraded_model": null,
+  "confidence": "full",
+  "phase": "sdd",
+  "document": "grimoires/loa/sdd.md",
+  "domain": " 2 architecture ",
+  "execution": {
+    "mode": "hitl",
+    "mode_reason": "Simstim workflow active (.run/simstim-state.json state=RUNNING)",
+    "run_id": null
+  },
+  "timestamp": "2026-02-28T06:42:10Z",
+  "metrics": {
+    "total_latency_ms": 101000,
+    "cost_cents": 0,
+    "cost_usd": 0
+  }
+}

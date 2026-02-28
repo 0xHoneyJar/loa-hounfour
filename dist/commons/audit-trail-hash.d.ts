@@ -2,9 +2,21 @@ import type { AuditTrail } from './audit-trail.js';
 /**
  * Build the domain tag for audit entry hashing.
  *
- * @param schemaId - The $id of the governed resource schema (e.g., 'GovernedCredits')
- * @param contractVersion - Protocol version (e.g., '8.0.0')
- * @returns Domain tag string
+ * Sanitization is lossy: different inputs may produce the same tag.
+ * - Case folding: "GovernedCredits" → "governedcredits"
+ * - Dot-to-hyphen: "8.3.0" → "8-3-0"
+ * - Plus-to-hyphen: "8.0.0+build1" → "8-0-0-build1"
+ * - Colon stripping: "a:b" → "ab"
+ *
+ * This is acceptable because schemaIds are controlled identifiers
+ * (not user input) and versions follow semver convention. Collisions are
+ * detectable at schema registration time. The original schemaId and
+ * contractVersion are available in the calling context for forensic tracing.
+ *
+ * @param schemaId - Schema identifier (e.g., 'GovernedCredits', 'test-store')
+ * @param contractVersion - Protocol version (e.g., '8.3.0')
+ * @returns Domain tag string that passes validateDomainTag()
+ * @throws {TypeError} If schemaId or contractVersion don't match input grammar
  */
 export declare function buildDomainTag(schemaId: string, contractVersion: string): string;
 /**
