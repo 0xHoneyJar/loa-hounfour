@@ -102,6 +102,12 @@ vision_registry:
 prompt_isolation:
   enabled: true                # Enable context isolation wrappers in prompt construction
 
+# Continuous Learning — Skill Extraction (cycle-046)
+continuous_learning:
+  skills_dir: grimoires/loa/skills
+  pending_dir: grimoires/loa/skills-pending
+  archive_dir: grimoires/loa/skills-archived
+
 run_bridge:
   enabled: true
   defaults:
