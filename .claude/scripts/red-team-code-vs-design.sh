@@ -70,6 +70,70 @@ read_config() {
 }
 
 # =============================================================================
+# Adaptive Budget Computation (T4.1, cycle-047)
+# =============================================================================
+
+# Compute per-channel budget weighted by input size. Larger inputs get
+# proportionally more budget, with a floor of 4000 chars per channel.
+#
+# Args:
+#   $1 - total token budget
+#   $2 - number of input channels (2 or 3)
+#   $3 - SDD path
+#   $4 - diff path
+#   $5+ - prior findings paths (optional)
+#
+# Returns:
+#   Maximum chars for the largest channel (used as budget_per_channel)
+compute_adaptive_budget() {
+    local total_budget="$1"
+    local channels="$2"
+    local sdd_path="$3"
+    local diff_path="$4"
+    shift 4
+    local prior_paths=("$@")
+
+    local total_chars=$((total_budget * 4))
+    local floor=4000
+
+    # Measure input sizes
+    local sdd_size=0 diff_size=0 prior_size=0
+    [[ -f "$sdd_path" ]] && sdd_size=$(wc -c < "$sdd_path" 2>/dev/null || echo "0")
+    [[ -f "$diff_path" ]] && diff_size=$(wc -c < "$diff_path" 2>/dev/null || echo "0")
+    for pp in "${prior_paths[@]:-}"; do
+        [[ -n "${pp:-}" && -f "$pp" ]] && prior_size=$((prior_size + $(wc -c < "$pp" 2>/dev/null || echo "0")))
+    done
+
+    local total_input=$((sdd_size + diff_size + prior_size))
+    if [[ $total_input -eq 0 ]]; then
+        # Fallback to equal split
+        echo $(( total_chars / channels ))
+        return
+    fi
+
+    # Weight budget proportionally to input size, capped at total_chars
+    # The largest channel gets the most budget
+    local sdd_budget=$((total_chars * sdd_size / total_input))
+    local diff_budget=$((total_chars * diff_size / total_input))
+
+    # Apply floor
+    [[ $sdd_budget -lt $floor ]] && sdd_budget=$floor
+    [[ $diff_budget -lt $floor ]] && diff_budget=$floor
+
+    # Return the largest channel budget (used as max_section_chars)
+    local max_budget=$sdd_budget
+    [[ $diff_budget -gt $max_budget ]] && max_budget=$diff_budget
+    if [[ $channels -eq 3 ]]; then
+        local prior_budget=$((total_chars * prior_size / total_input))
+        [[ $prior_budget -lt $floor ]] && prior_budget=$floor
+        [[ $prior_budget -gt $max_budget ]] && max_budget=$prior_budget
+    fi
+
+    log "Adaptive budget: SDD=$sdd_budget, diff=$diff_budget${channels:+, prior=${prior_budget:-0}} (total input: $total_input chars)"
+    echo "$max_budget"
+}
+
+# =============================================================================
 # SDD Section Extraction — delegated to compliance-lib.sh (cycle-047 T3.3)
 # =============================================================================
 
@@ -166,7 +230,18 @@ main() {
         input_channels=3
         log "Prior findings provided (${#prior_findings_paths[@]} files) — 3-way token budget"
     fi
+
+    # Adaptive budget: weight channels by input size (T4.1, cycle-047)
+    local adaptive_enabled
+    adaptive_enabled=$(read_config '.red_team.adaptive_budget.enabled' 'false')
+    local budget_mode="equal"
     local max_section_chars=$(( token_budget * 4 / input_channels ))
+
+    if [[ "$adaptive_enabled" == "true" ]]; then
+        budget_mode="adaptive"
+        max_section_chars=$(compute_adaptive_budget "$token_budget" "$input_channels" "$sdd_path" "$diff_path" "${prior_findings_paths[@]:-}")
+    fi
+
     [[ $max_section_chars -gt 100000 ]] && max_section_chars=100000  # cap at 100K chars
     [[ $max_section_chars -lt 4000 ]] && max_section_chars=4000      # floor at 4K chars
     log "Extracting SDD security sections from: $sdd_path (max $max_section_chars chars)"
@@ -328,6 +403,7 @@ PROMPT
             --argjson budget_per_channel "$max_section_chars" \
             --arg sprint "$sprint_id" \
             --arg sdd_path "$sdd_path" \
+            --arg budget_mode "$budget_mode" \
             '{
                 timestamp: now | strftime("%Y-%m-%dT%H:%M:%SZ"),
                 sprint: $sprint,
@@ -336,6 +412,7 @@ PROMPT
                 char_counts: {sdd: $sdd_chars, diff: $diff_chars, prior_findings: $prior_chars},
                 token_budget: $budget,
                 budget_per_channel: $budget_per_channel,
+                budget_mode: $budget_mode,
                 mode: (if $channels == 3 then "deliberative_council" else "standard")
             }' > "$meta_dir/deliberation-metadata.json" 2>/dev/null || true
     fi
