@@ -390,6 +390,7 @@ run_with_timeout() {
     perl -e '
       my $timeout = shift @ARGV;
       my $pid = fork();
+      die "fork failed: $!" unless defined $pid;
       if ($pid == 0) { exec @ARGV; die "exec failed: $!" }
       $SIG{ALRM} = sub { kill 9, $pid; exit 124 };
       alarm($timeout);
