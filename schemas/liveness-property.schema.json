@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/liveness-property",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/liveness-property",
   "additionalProperties": false,
   "description": "F_t-bounded liveness property with companion safety invariant reference.",
   "type": "object",
@@ -121,5 +121,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
 }

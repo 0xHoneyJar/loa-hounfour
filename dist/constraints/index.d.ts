@@ -14,8 +14,8 @@
  * @see Ostrom, E. (1990). Governing the Commons.
  * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules (v5.3.0)
  */
-export { type ConstraintFile, type Constraint, type NativeEnforcement, type ConstraintOrigin, expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from './types.js';
-export { evaluateConstraint, MAX_EXPRESSION_DEPTH, EVALUATOR_BUILTINS, RESERVED_EVALUATOR_NAMES, type EvaluatorBuiltin, type EvaluationContext } from './evaluator.js';
+export { type ConstraintFile, type Constraint, type NativeEnforcement, type ConstraintOrigin, type ConstraintCondition, expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from './types.js';
+export { evaluateConstraint, resolveConditionalExpression, MAX_EXPRESSION_DEPTH, EVALUATOR_BUILTINS, RESERVED_EVALUATOR_NAMES, type EvaluatorBuiltin, type EvaluationContext } from './evaluator.js';
 export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';

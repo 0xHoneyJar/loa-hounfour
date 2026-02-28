@@ -28,6 +28,24 @@ export interface NativeEnforcement {
     reference_impl: string;
 }
 /**
+ * Conditional constraint activation — evaluate constraint only when feature flag is active.
+ *
+ * When `when` feature flag is present and true in EvaluationContext.feature_flags:
+ * - If override_text is provided, evaluate override_text instead of original expression
+ *
+ * When flag is absent or false, the original expression is evaluated unchanged.
+ *
+ * @see PRD FR-6 — Conditional Constraints
+ * @see SDD §6.6 — Conditional Constraints
+ * @since v8.3.0
+ */
+export interface ConstraintCondition {
+    /** Feature flag name to check in EvaluationContext.feature_flags. */
+    when: string;
+    /** Override expression to evaluate when flag is active. */
+    override_text?: string;
+}
+/**
  * A single cross-field constraint with an evaluable expression.
  */
 export interface Constraint {
@@ -41,6 +59,12 @@ export interface Constraint {
     message: string;
     /** Fields referenced by this constraint (for documentation / tooling). */
     fields: string[];
+    /**
+     * Conditional activation — evaluate constraint differently based on feature flags.
+     * Nested conditions are rejected at runtime.
+     * @since v8.3.0 — FR-6 Conditional Constraints
+     */
+    condition?: ConstraintCondition;
     /**
      * Evaluation strategy for this constraint.
      * - `'expression'` (default): evaluate the `expression` field using the constraint DSL.

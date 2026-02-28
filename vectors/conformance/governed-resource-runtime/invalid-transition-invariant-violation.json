@@ -1,0 +1,20 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-003",
+  "category": "governed-resource-runtime",
+  "description": "Failed transition with invariant violation and rollback",
+  "contract_version": "8.3.0",
+  "input": {
+    "transition_result": {
+      "success": false,
+      "new_state": {
+        "count": 5
+      },
+      "version": 0,
+      "violations": [
+        "non-negative: Count is negative: -5"
+      ]
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

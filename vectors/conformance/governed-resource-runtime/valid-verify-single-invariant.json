@@ -1,0 +1,14 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-004",
+  "category": "governed-resource-runtime",
+  "description": "Single invariant check passes",
+  "contract_version": "8.3.0",
+  "input": {
+    "invariant_result": {
+      "invariant_id": "non-negative",
+      "holds": true
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

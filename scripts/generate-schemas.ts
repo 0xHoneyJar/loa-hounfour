@@ -161,6 +161,14 @@ import { GovernanceErrorSchema } from '../src/commons/error-taxonomy.js';
 import { ProtocolSurfaceSchema, DynamicContractSchema } from '../src/commons/dynamic-contract.js';
 import { ContractNegotiationSchema } from '../src/commons/contract-negotiation.js';
 import { VectorManifestSchema, VectorManifestEntrySchema } from '../src/commons/vectors/manifest-schema.js';
+// v8.3.0 — x402 Payment Schemas
+import { X402QuoteSchema, X402PaymentProofSchema, X402SettlementStatusSchema, X402SettlementSchema, X402ErrorCodeSchema } from '../src/economy/x402-payment.js';
+// v8.3.0 — Consumer Contract
+import { ConsumerContractSchema, ConsumerContractEntrypointSchema } from '../src/integrity/consumer-contract.js';
+// v8.3.0 — Feedback Dampening
+import { FeedbackDampeningConfigSchema } from '../src/commons/feedback-dampening.js';
+// v8.3.0 — GovernedResource Runtime
+import { TransitionResultSchema, InvariantResultSchema, MutationContextSchema } from '../src/commons/governed-resource-runtime.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -407,6 +415,20 @@ const schemas = [
   { name: 'commons/contract-negotiation', schema: ContractNegotiationSchema },
   { name: 'commons/vector-manifest-entry', schema: VectorManifestEntrySchema },
   { name: 'commons/vector-manifest', schema: VectorManifestSchema },
+  // v8.3.0 — x402 Payment Schemas (FR-1)
+  { name: 'x402-quote', schema: X402QuoteSchema },
+  { name: 'x402-payment-proof', schema: X402PaymentProofSchema },
+  { name: 'x402-settlement-status', schema: X402SettlementStatusSchema },
+  { name: 'x402-settlement', schema: X402SettlementSchema },
+  { name: 'x402-error-code', schema: X402ErrorCodeSchema },
+  // v8.3.0 — Consumer Contract (FR-4)
+  { name: 'consumer-contract', schema: ConsumerContractSchema },
+  // v8.3.0 — Feedback Dampening (FR-3)
+  { name: 'feedback-dampening-config', schema: FeedbackDampeningConfigSchema },
+  // v8.3.0 — GovernedResource Runtime (FR-8)
+  { name: 'transition-result', schema: TransitionResultSchema },
+  { name: 'invariant-result', schema: InvariantResultSchema },
+  { name: 'mutation-context', schema: MutationContextSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

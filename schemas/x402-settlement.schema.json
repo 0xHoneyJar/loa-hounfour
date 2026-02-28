@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/x402-settlement",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "payment_id",
+    "quote_id",
+    "actual_cost_micro",
+    "settlement_status",
+    "chain_id",
+    "token_address"
+  ],
+  "properties": {
+    "payment_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "quote_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "actual_cost_micro": {
+      "pattern": "^[0-9]+$",
+      "maxLength": 20,
+      "description": "MicroUSD amount as non-negative integer string. 1 USD = 1,000,000 micro-USD.",
+      "type": "string"
+    },
+    "settlement_status": {
+      "$id": "X402SettlementStatus",
+      "anyOf": [
+        {
+          "const": "pending",
+          "type": "string"
+        },
+        {
+          "const": "confirmed",
+          "type": "string"
+        },
+        {
+          "const": "failed",
+          "type": "string"
+        },
+        {
+          "const": "refunded",
+          "type": "string"
+        }
+      ]
+    },
+    "settled_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "chain_id": {
+      "minimum": 1,
+      "description": "EVM chain ID where settlement occurred.",
+      "type": "integer"
+    },
+    "token_address": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "ERC-20 token contract address used for settlement.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

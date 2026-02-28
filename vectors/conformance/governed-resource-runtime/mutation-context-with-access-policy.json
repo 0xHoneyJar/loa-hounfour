@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-009",
+  "category": "governed-resource-runtime",
+  "description": "MutationContext with access policy fields populated",
+  "contract_version": "8.3.0",
+  "input": {
+    "actor_id": "admin-user",
+    "actor_type": "human",
+    "access_policy": {
+      "required_reputation_state": "established",
+      "required_role": "admin",
+      "min_reputation_score": 0.8
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

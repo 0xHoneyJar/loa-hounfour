@@ -53,6 +53,9 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('task-type-cohort'),
     Type.Literal('reputation-event'),
     Type.Literal('scoring-path-log'),
+    // v8.3.0 — Consumer Contracts + GovernedResource Runtime
+    Type.Literal('consumer-contract'),
+    Type.Literal('governed-resource-runtime'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -109,4 +112,7 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'task-type-cohort',
   'reputation-event',
   'scoring-path-log',
+  // v8.3.0 — Consumer Contracts + GovernedResource Runtime
+  'consumer-contract',
+  'governed-resource-runtime',
 ] as const;

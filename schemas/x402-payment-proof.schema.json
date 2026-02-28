@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/x402-payment-proof",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "payment_header",
+    "quote_id"
+  ],
+  "properties": {
+    "payment_header": {
+      "minLength": 1,
+      "description": "HTTP 402 payment header value.",
+      "type": "string"
+    },
+    "quote_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "tx_hash": {
+      "pattern": "^0x[a-fA-F0-9]{64}$",
+      "description": "On-chain transaction hash for verification.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

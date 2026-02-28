@@ -110,6 +110,9 @@ export const X402ErrorCodeSchema = Type.Union([
 - AC3: 10+ conformance vectors covering happy path, expired quote, insufficient funds, refund
 - AC4: `MicroUSDSchema` (existing) reused for all cost fields — no floating point
 - AC5: Settlement asset is generic (not hardcoded to any chain) — supports Berachain Honey, USDC, etc.
+- AC5_a: `payment_address` validated as 0x-prefixed hex string (EIP-55 checksum optional but recommended) — invalid addresses rejected at schema level *(Flatline IMP-002, avg 937.5)*
+- AC5_b: `max_cost_micro` and `actual_cost_micro` enforce non-negative via `MicroUSDSchema` pattern — zero is valid (free tier), negative rejected *(Flatline IMP-002)*
+- AC5_c: `valid_until` enforces future timestamp at validation time — expired quotes rejected before settlement *(Flatline IMP-002)*
 
 > Sources: finn cycle-037 FR-4 (AC13-15), freeside #91 (x402 activation), freeside #98 (Berachain Honey), finn #66 Comment 20 (billing RFC)
 
@@ -183,6 +186,7 @@ export function computeDampenedScore(
 - AC12: `computeDampenedScore()` reference implementation exported as utility — pure function, configurable via `FeedbackDampeningConfigSchema`
 - AC13: 5+ conformance vectors: cold start (null oldScore), ramp-up (sampleCount < ramp_samples), steady state (sampleCount >= ramp_samples), boundary values (0, 1, negative)
 - AC14: Default constants exported: `FEEDBACK_DAMPENING_ALPHA_MIN`, `FEEDBACK_DAMPENING_ALPHA_MAX`, `DAMPENING_RAMP_SAMPLES`, `DEFAULT_PSEUDO_COUNT`
+- AC14_a: Error semantics documented for edge cases: `NaN`/`Infinity` inputs throw `TypeError`, `sampleCount < 0` throws `RangeError`, `alpha_min > alpha_max` in config throws on construction *(Flatline IMP-003, avg 805)*
 
 > Sources: dixie cycle-017 PRD §P0-1/P1-10, dixie INV-006, dixie `reputation-scoring-engine.ts`, RFC PR #39 §2.3
 
@@ -218,6 +222,7 @@ export const ConsumerContractSchema = Type.Object({
 - AC16: `validateConsumerContract()` utility that checks contract symbols against actual exports
 - AC17: Script `scripts/verify-consumer-contract.ts` for CI integration
 - AC18_a: Example contracts for finn (48+ symbols), dixie, freeside in `vectors/contracts/`
+- AC18_b: `ConsumerContractSchema` includes `format_version` field (starting at `"1.0"`) for forward-compatible evolution of the contract format *(Flatline IMP-010, avg 632.5 — DISPUTED, accepted)*
 
 > Sources: freeside PR #96 (`contract.json`), RFC PR #39 §3.3
 
@@ -305,6 +310,7 @@ loa-freeside:billing:*  — Freeside's billing audit trail
 - AC22: `computeAdvisoryLockKey()` exported from `@0xhoneyjar/loa-hounfour/commons` — FNV-1a hash with documented collision bounds
 - AC23_a: 10+ conformance vectors: multi-domain hash chain, chain-bound hash, genesis entry, TOCTOU race, invalid timestamps (null, malformed, epoch), advisory lock collision resistance
 - AC23_b: Cross-repo verification example in docs (finn chain verified by dixie)
+- AC23_c: Error semantics for `computeChainBoundHash()`: empty `domainTag` throws `TypeError`, invalid `previousHash` (not hex) throws `TypeError`. `validateAuditTimestamp()`: returns `{valid: false, error}` for all invalid inputs (never throws). `computeAdvisoryLockKey()`: empty string returns deterministic hash (documented as valid) *(Flatline IMP-003, avg 805)*
 
 > Sources: finn cycle-037 FR-3 (AC10-12), dixie cycle-017 PRD §P0-3, freeside cycle-045 feedback §FR-4/FR-6, dixie `audit-trail-store.ts`, freeside `audit-helpers.ts`, dixie ADR dual-track hash chain, RFC PR #39 §2.2, Visions V-001/V-002/V-003
 
@@ -346,6 +352,7 @@ All three repos consume hounfour via git commit pin. Commit `b6e0027a` fixed the
 - AC27: Git tag created (v8.3.0 or v9.0.0 depending on breaking assessment)
 - AC28: GitHub Release created with changelog and migration notes
 - AC29: `RELEASE-INTEGRITY.json` regenerated with updated checksums
+- AC29_a: Rollback playbook documented in release notes: per-repo rollback steps, commit pin revert commands, and expected behavior for partial rollback (repo A on v8.3.0, repo B still on v8.2.0) *(Flatline IMP-001, avg 890)*
 
 > Sources: freeside #103, dixie #57, RFC PR #39 §4.1-4.2
 
@@ -440,6 +447,7 @@ export abstract class GovernedResourceBase<
 - AC34: 8+ conformance vectors: valid transition, invariant violation, version monotonicity, audit trail append, mutation context validation, actor type discrimination
 - AC35: ADR-015 ("The Kubernetes CRD Moment") included in `docs/` as design rationale — updated with 6-witness evidence
 - AC36: Existing `GOVERNED_RESOURCE_FIELDS` schema unchanged — backward compatible
+- AC37: `GovernedResourceBase` documents which methods are abstract (must-implement) vs concrete (optional override) — `applyEvent()`, `defineInvariants()`, `initializeState()` are abstract; `transition()`, `verify()`, `verifyAll()` are concrete with default harness implementations *(Flatline IMP-005, avg 797.5)*
 
 > Sources: dixie cycle-017 PRD §P0-2, freeside cycle-045 feedback §FR-1, dixie `governed-resource.ts`, freeside `arrakis-governance.ts`, freeside `governed-mutation-service.ts`, dixie ADR-015, RFC PR #39 §2.1
 
@@ -457,6 +465,7 @@ export abstract class GovernedResourceBase<
 | Schema count | 193+ (current) → 210+ (target) |
 | Constraint evaluation | Conditional constraints add <1ms per evaluation |
 | Pure functions | `computeDampenedScore()`, `computeChainBoundHash()`, `validateAuditTimestamp()`, `computeAdvisoryLockKey()` — zero side effects, deterministic |
+| Schema drift CI | `npm run schema:generate` output checked into repo; CI step verifies no drift between TypeBox source and generated JSON Schema *(Flatline IMP-007, avg 745)* |
 
 ---
 
@@ -520,6 +529,16 @@ Bridgebuilder reviews across finn (PRs #63, #105, #108, #109, #110), dixie (PRs 
 | EMA constants tuned to dixie's workload | Medium | Medium | Export as configurable via `FeedbackDampeningConfigSchema`; document tuning methodology |
 | Chain-bound hash adds complexity for simple use cases | Low | Medium | Export as opt-in utility; existing `computeAuditEntryHash()` remains for simple use |
 | FNV-1a advisory lock key changes locking behavior | Low | Low | FNV-1a produces different keys than Java hashCode() — consumers migrating must handle both during transition |
+
+### Flatline Override Log
+
+| Blocker | Severity | Override Rationale |
+|---------|----------|-------------------|
+| SKP-001 | 910 | DenialCode union expansion is additive by design — consumers using `assertNever` must handle new variants as part of normal semver MINOR contract. Document in migration guide. |
+| SKP-002 | 930 | Hounfour defines data shapes, not crypto protocols. x402 payment security (signatures, replay prevention, nonce management) is consumer responsibility at the transport/application layer. Add security considerations section to docs. |
+| SKP-003 | 760 | 32-bit FNV-1a is adequate for real-world domain tag cardinality (O(100) across ecosystem). Birthday paradox at O(10K) is theoretical; current ecosystem has ~20 domain tags total. |
+| SKP-004 | 740 | Audit trail safety is a documentation + conformance convention, not a runtime enforcement contract. Hounfour provides schemas and utilities; consumers enforce at their DB layer. |
+| SKP-005 | 720 | NFR targets are aspirational, not hard gates. Sprint implementation will prioritize quality over metrics. |
 
 ### Dependencies
 - loa-finn cycle-037 PRD (primary consumer feedback — **received**)
@@ -612,6 +631,14 @@ Freeside confirms v8.3.0 MINOR recommendation — all contributions are purely a
 | Chain-bound hash extends existing `computeAuditEntryHash()` | dixie + hounfour | Must remain backward-compatible — existing consumers use content-only hash |
 | x402 schemas must match freeside's consumption patterns | freeside + hounfour | Freeside review **received** — no conflicts identified |
 | GovernedResource\<T\> interface must not constrain finn's verification | finn + dixie | Interface is opt-in — schema-only consumers unaffected |
+
+### Per-Repo Migration Steps *(Flatline IMP-004, avg 792.5)*
+
+| Repo | Migration Actions |
+|------|-------------------|
+| **loa-finn** | Pin to v8.3.0 tag; verify x402 schemas match local types; add consumer contract (`vectors/contracts/finn.json`); run conformance vectors |
+| **loa-dixie** | Pin to v8.3.0 tag; replace local `computeDampenedScore()` with hounfour export; replace local `computeChainBoundHash()` + TOCTOU helpers; extend `ReputationService`, `ScoringPathTracker`, `KnowledgeGovernor` from `GovernedResourceBase` |
+| **loa-freeside** | Pin to v8.3.0 tag (replace commit pin `b6e0027a`); replace local `advisoryLockKey()` → `computeAdvisoryLockKey()`; replace timestamp validation → `validateAuditTimestamp()`; extend `CreditLotGovernor`, `AmendmentService`, `GovernedMutationService` from `GovernedResourceBase`; ~150 LOC deleted |
 
 ### Anti-Duplication Rule
 

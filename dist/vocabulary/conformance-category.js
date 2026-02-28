@@ -51,6 +51,9 @@ export const ConformanceCategorySchema = Type.Union([
     Type.Literal('task-type-cohort'),
     Type.Literal('reputation-event'),
     Type.Literal('scoring-path-log'),
+    // v8.3.0 — Consumer Contracts + GovernedResource Runtime
+    Type.Literal('consumer-contract'),
+    Type.Literal('governed-resource-runtime'),
 ], {
     $id: 'ConformanceCategory',
     description: 'Category of conformance vector for provider verification.',
@@ -102,5 +105,8 @@ export const CONFORMANCE_CATEGORIES = [
     'task-type-cohort',
     'reputation-event',
     'scoring-path-log',
+    // v8.3.0 — Consumer Contracts + GovernedResource Runtime
+    'consumer-contract',
+    'governed-resource-runtime',
 ];
 //# sourceMappingURL=conformance-category.js.map

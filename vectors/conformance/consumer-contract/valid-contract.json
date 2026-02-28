@@ -1,0 +1,28 @@
+{
+  "vector_id": "conformance-consumer-contract-001",
+  "category": "consumer-contract",
+  "description": "Valid consumer contract with two entrypoints",
+  "contract_version": "8.3.0",
+  "input": {
+    "consumer": "loa-finn",
+    "provider": "@0xhoneyjar/loa-hounfour",
+    "provider_version_range": ">=8.3.0",
+    "entrypoints": {
+      "@0xhoneyjar/loa-hounfour/core": {
+        "symbols": [
+          "AgentProfileSchema",
+          "MessageEnvelopeSchema"
+        ]
+      },
+      "@0xhoneyjar/loa-hounfour/economy": {
+        "symbols": [
+          "BillingEntrySchema"
+        ],
+        "min_version": "8.3.0"
+      }
+    },
+    "generated_at": "2026-02-28T12:00:00Z"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

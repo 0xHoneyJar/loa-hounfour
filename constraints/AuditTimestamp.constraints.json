@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "AuditTimestamp",
+  "origin": "genesis",
+  "contract_version": "8.3.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "audit-timestamp-not-empty",
+      "expression": "input != null",
+      "severity": "error",
+      "message": "Audit timestamp must not be empty",
+      "fields": ["input"],
+      "type_signature": {
+        "input": "string"
+      }
+    },
+    {
+      "id": "audit-timestamp-iso-format",
+      "expression": "valid == true",
+      "severity": "error",
+      "message": "Audit timestamp must pass validateAuditTimestamp() — strict ISO 8601 format, no pre-epoch, no far-future",
+      "fields": ["valid"],
+      "type_signature": {
+        "valid": "boolean"
+      }
+    }
+  ]
+}

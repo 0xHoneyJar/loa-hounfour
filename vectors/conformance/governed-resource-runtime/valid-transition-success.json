@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-001",
+  "category": "governed-resource-runtime",
+  "description": "Successful state transition with invariants holding",
+  "contract_version": "8.3.0",
+  "input": {
+    "transition_result": {
+      "success": true,
+      "new_state": {
+        "count": 5
+      },
+      "version": 1
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

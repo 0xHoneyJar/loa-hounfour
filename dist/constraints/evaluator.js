@@ -1789,4 +1789,30 @@ export function evaluateConstraint(data, expression, context) {
     const result = parser.parseExpr();
     return !!result;
 }
+/**
+ * Resolve the effective expression for a constraint, applying conditional logic.
+ *
+ * When a constraint has a `condition.when` field:
+ * - If the feature flag is active in context.feature_flags AND override_text is provided,
+ *   returns the override expression.
+ * - Otherwise returns the original expression.
+ *
+ * Nested conditions (condition on a constraint whose expression was itself an override)
+ * are rejected at runtime.
+ *
+ * @param constraint - Constraint object with optional condition
+ * @param context - Evaluation context with optional feature_flags
+ * @returns Effective expression string to evaluate
+ * @since v8.3.0 — FR-6 Conditional Constraints
+ */
+export function resolveConditionalExpression(constraint, context) {
+    if (!constraint.condition) {
+        return constraint.expression;
+    }
+    const flagActive = context?.feature_flags?.[constraint.condition.when] ?? false;
+    if (flagActive && constraint.condition.override_text) {
+        return constraint.condition.override_text;
+    }
+    return constraint.expression;
+}
 //# sourceMappingURL=evaluator.js.map

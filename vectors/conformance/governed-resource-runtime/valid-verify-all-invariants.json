@@ -1,0 +1,20 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-005",
+  "category": "governed-resource-runtime",
+  "description": "All invariants pass verification",
+  "contract_version": "8.3.0",
+  "input": {
+    "invariant_results": [
+      {
+        "invariant_id": "non-negative",
+        "holds": true
+      },
+      {
+        "invariant_id": "max-bound",
+        "holds": true
+      }
+    ]
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

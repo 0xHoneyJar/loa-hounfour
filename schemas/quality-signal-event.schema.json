@@ -97,6 +97,6 @@
       }
     }
   },
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/quality-signal-event",
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/quality-signal-event",
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
 }

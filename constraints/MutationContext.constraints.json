@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "MutationContext",
+  "contract_version": "8.3.0",
+  "origin": "genesis",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "MC-001",
+      "expression": "actor_id != null && actor_id != ''",
+      "severity": "error",
+      "message": "Actor ID must be a non-empty string.",
+      "fields": ["actor_id"],
+      "type_signature": {
+        "actor_id": "string"
+      }
+    },
+    {
+      "id": "MC-002",
+      "expression": "actor_type == 'human' || actor_type == 'system' || actor_type == 'autonomous'",
+      "severity": "error",
+      "message": "Actor type must be 'human', 'system', or 'autonomous'.",
+      "fields": ["actor_type"],
+      "type_signature": {
+        "actor_type": "string"
+      }
+    }
+  ]
+}

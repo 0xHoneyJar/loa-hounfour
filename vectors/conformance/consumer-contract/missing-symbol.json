@@ -1,0 +1,30 @@
+{
+  "vector_id": "conformance-consumer-contract-002",
+  "category": "consumer-contract",
+  "description": "Contract with missing symbol should fail validation",
+  "contract_version": "8.3.0",
+  "input": {
+    "consumer": "loa-dixie",
+    "provider": "@0xhoneyjar/loa-hounfour",
+    "provider_version_range": ">=8.3.0",
+    "entrypoints": {
+      "@0xhoneyjar/loa-hounfour/core": {
+        "symbols": [
+          "AgentProfileSchema",
+          "NonExistentSchema"
+        ]
+      }
+    },
+    "generated_at": "2026-02-28T12:00:00Z"
+  },
+  "expected_output": {
+    "valid": false,
+    "missing_symbols": [
+      {
+        "entrypoint": "@0xhoneyjar/loa-hounfour/core",
+        "symbol": "NonExistentSchema"
+      }
+    ]
+  },
+  "expected_valid": true
+}

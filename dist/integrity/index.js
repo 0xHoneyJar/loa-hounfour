@@ -11,4 +11,6 @@ export { LivenessPropertySchema, TimeoutBehaviorSchema, CANONICAL_LIVENESS_PROPE
 export { computeReqHash, verifyReqHash, decompressBody, DecompressionError, EMPTY_BODY_HASH, DEFAULT_MAX_BODY_BYTES, DEFAULT_MAX_COMPRESSION_RATIO, MAX_ENCODING_DEPTH, } from './req-hash.js';
 // Idempotency
 export { deriveIdempotencyKey } from './idempotency.js';
+// Consumer Contracts (v8.3.0, FR-4)
+export { ConsumerContractEntrypointSchema, ConsumerContractSchema, validateConsumerContract, computeContractChecksum, } from './consumer-contract.js';
 //# sourceMappingURL=index.js.map

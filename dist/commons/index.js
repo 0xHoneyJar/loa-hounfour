@@ -34,6 +34,16 @@ export { isNegotiationValid, computeNegotiationExpiry, } from './contract-negoti
 export { verifyMonotonicExpansion, } from './dynamic-contract-monotonic.js';
 // Governance mutation evaluation (v8.1.0, Bridgebuilder F6)
 export { evaluateGovernanceMutation, } from './governance-mutation-eval.js';
+// Feedback dampening (v8.3.0, FR-3)
+export { FeedbackDampeningConfigSchema, computeDampenedScore, FEEDBACK_DAMPENING_ALPHA_MIN, FEEDBACK_DAMPENING_ALPHA_MAX, DAMPENING_RAMP_SAMPLES, DEFAULT_PSEUDO_COUNT, } from './feedback-dampening.js';
+// Chain-bound hash (v8.3.0, FR-5)
+export { computeChainBoundHash, validateDomainTag, ChainBoundHashError, } from './chain-bound-hash.js';
+// Audit timestamp validation (v8.3.0, FR-5)
+export { validateAuditTimestamp, } from './audit-timestamp.js';
+// Advisory lock key (v8.3.0, FR-5)
+export { computeAdvisoryLockKey, } from './advisory-lock.js';
+// GovernedResource<T> runtime interface (v8.3.0, FR-8)
+export { TransitionResultSchema, InvariantResultSchema, MutationContextSchema, GovernedResourceBase, } from './governed-resource-runtime.js';
 // Error taxonomy
 export { InvariantViolationSchema, InvalidTransitionSchema, GuardFailureSchema, EvaluationErrorSchema, HashDiscontinuityErrorSchema, PartialApplicationSchema, GovernanceErrorSchema, } from './error-taxonomy.js';
 //# sourceMappingURL=index.js.map

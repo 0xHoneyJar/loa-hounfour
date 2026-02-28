@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/feedback-dampening-config",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "alpha_min",
+    "alpha_max",
+    "ramp_samples",
+    "pseudo_count"
+  ],
+  "properties": {
+    "alpha_min": {
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.1,
+      "description": "Minimum learning rate (used at high sample counts).",
+      "type": "number"
+    },
+    "alpha_max": {
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.5,
+      "description": "Maximum learning rate (used at low sample counts).",
+      "type": "number"
+    },
+    "ramp_samples": {
+      "minimum": 1,
+      "default": 50,
+      "description": "Number of samples to complete alpha ramp from max to min.",
+      "type": "integer"
+    },
+    "pseudo_count": {
+      "minimum": 0,
+      "default": 10,
+      "description": "Bayesian prior weight for cold-start smoothing.",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

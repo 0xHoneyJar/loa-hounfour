@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/economic-boundary-evaluation-event",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/economic-boundary-evaluation-event",
   "additionalProperties": false,
   "description": "Event recording an economic boundary evaluation for the feedback loop.",
   "type": "object",
@@ -219,6 +219,18 @@
               {
                 "const": "MISSING_QUALIFICATION_CRITERIA",
                 "type": "string"
+              },
+              {
+                "const": "BUDGET_PERIOD_EXPIRED",
+                "type": "string"
+              },
+              {
+                "const": "TIER_REPUTATION_MISMATCH",
+                "type": "string"
+              },
+              {
+                "const": "BUDGET_SCOPE_MISMATCH",
+                "type": "string"
               }
             ]
           }
@@ -258,5 +270,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
 }
