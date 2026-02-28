@@ -197,6 +197,9 @@ jobs:
             # Skip comment lines
             [[ "$content" =~ ^[[:space:]]*# ]] && continue
 
+            # Skip lines using the secure write_curl_auth_config pattern
+            [[ "$content" == *"write_curl_auth_config"* ]] && continue
+
             echo "  ERROR: $file:$line — raw 'Authorization.*Bearer' pattern detected"
             echo "         Use: write_curl_auth_config (from lib-security.sh)"
             echo "         $content"
