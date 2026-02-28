@@ -116,6 +116,51 @@ export {
   type GovernanceMutationEvalResult,
 } from './governance-mutation-eval.js';
 
+// Feedback dampening (v8.3.0, FR-3)
+export {
+  FeedbackDampeningConfigSchema,
+  computeDampenedScore,
+  FEEDBACK_DAMPENING_ALPHA_MIN,
+  FEEDBACK_DAMPENING_ALPHA_MAX,
+  DAMPENING_RAMP_SAMPLES,
+  DEFAULT_PSEUDO_COUNT,
+  type FeedbackDampeningConfig,
+} from './feedback-dampening.js';
+
+// Chain-bound hash (v8.3.0, FR-5)
+export {
+  computeChainBoundHash,
+  validateDomainTag,
+  ChainBoundHashError,
+  type AuditEntryHashInput as ChainBoundHashInput,
+} from './chain-bound-hash.js';
+
+// Audit timestamp validation (v8.3.0, FR-5)
+export {
+  validateAuditTimestamp,
+  type AuditTimestampResult,
+} from './audit-timestamp.js';
+
+// Advisory lock key (v8.3.0, FR-5)
+export {
+  computeAdvisoryLockKey,
+} from './advisory-lock.js';
+
+// GovernedResource<T> runtime interface (v8.3.0, FR-8)
+export {
+  TransitionResultSchema,
+  InvariantResultSchema,
+  MutationContextSchema,
+  GovernedResourceBase,
+  type TransitionResult,
+  type InvariantResult,
+  type MutationContext,
+  type GovernedResource,
+  type TransitionResultStatic,
+  type InvariantResultStatic,
+  type MutationContextStatic,
+} from './governed-resource-runtime.js';
+
 // Error taxonomy
 export {
   InvariantViolationSchema,

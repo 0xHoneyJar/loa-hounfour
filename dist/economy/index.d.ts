@@ -36,5 +36,6 @@ export { CostPerTokenSchema, ModelEconomicProfileSchema, type CostPerToken, type
 export { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBridgeDirectionSchema, PerformanceQualityBridgeSchema, type PerformanceOutcomeType, type EconomicPerformanceEvent, type QualityBridgeDirection, type PerformanceQualityBridge, } from './economic-performance.js';
 export { BasketCompositionEntrySchema, BasketCompositionSchema, type BasketCompositionEntry, type BasketComposition, } from './basket-composition.js';
 export { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema, type RebalanceTriggerType, type RoutingRebalanceEvent, } from './routing-rebalance.js';
+export { X402QuoteSchema, X402PaymentProofSchema, X402SettlementStatusSchema, X402SettlementSchema, X402ErrorCodeSchema, type X402Quote, type X402PaymentProof, type X402SettlementStatus, type X402Settlement, type X402ErrorCode, } from './x402-payment.js';
 export { createTransitionValidator, DEFAULT_GUARDS, guardKey, isValidGuardResult, requiresTransferId, requiresNoActiveTransfer, requiresReasonResolved, requiresTransferCompleted, requiresSanctionEvidence, type TransitionValidator, type TransitionGuard, type GuardResult, type GuardSeverity, } from '../utilities/lifecycle.js';
 //# sourceMappingURL=index.d.ts.map

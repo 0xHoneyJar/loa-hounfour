@@ -1,0 +1,30 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GovernedResourceRuntime",
+  "contract_version": "8.3.0",
+  "origin": "genesis",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "GRR-001",
+      "expression": "version >= 0",
+      "severity": "error",
+      "message": "Resource version must be non-negative.",
+      "fields": ["version"],
+      "type_signature": {
+        "version": "number"
+      }
+    },
+    {
+      "id": "GRR-002",
+      "expression": "success == true || len(violations) > 0",
+      "severity": "error",
+      "message": "Failed transitions must report at least one violation.",
+      "fields": ["success", "violations"],
+      "type_signature": {
+        "success": "boolean",
+        "violations": "string[]"
+      }
+    }
+  ]
+}

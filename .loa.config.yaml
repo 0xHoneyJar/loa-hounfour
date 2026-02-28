@@ -1,0 +1,159 @@
+# Loa Framework Configuration
+# This file is yours to customize - framework updates will never modify it
+
+# =============================================================================
+# Persistence Mode
+# =============================================================================
+# - standard: Commit grimoire and beads to repo (default)
+# - stealth: Add state files to .gitignore, local-only operation
+persistence_mode: standard
+
+# =============================================================================
+# Integrity Enforcement
+# =============================================================================
+# - strict: Block agent execution on System Zone drift (recommended)
+# - warn: Warn but allow execution
+# - disabled: No integrity checks (not recommended)
+integrity_enforcement: strict
+
+# =============================================================================
+# Drift Resolution Policy
+# =============================================================================
+# - code: Update documentation to match implementation (existing codebases)
+# - docs: Create beads to fix code to match documentation (greenfield)
+# - ask: Always prompt for human decision
+drift_resolution: code
+
+# =============================================================================
+# Agent Configuration
+# =============================================================================
+disabled_agents: []
+# disabled_agents:
+#   - auditing-security
+#   - translating-for-executives
+
+# =============================================================================
+# Structured Memory
+# =============================================================================
+memory:
+  notes_file: grimoires/loa/NOTES.md
+  trajectory_dir: grimoires/loa/a2a/trajectory
+  # Auto-compact trajectory logs older than N days
+  trajectory_retention_days: 30
+
+# =============================================================================
+# Evaluation-Driven Development
+# =============================================================================
+edd:
+  enabled: true
+  # Require N test scenarios before marking task complete
+  min_test_scenarios: 3
+  # Audit reasoning trajectory for hallucination
+  trajectory_audit: true
+
+# =============================================================================
+# Context Hygiene
+# =============================================================================
+compaction:
+  enabled: true
+  threshold: 5
+
+# =============================================================================
+# Integrations
+# =============================================================================
+integrations:
+  - github
+
+# =============================================================================
+# Flatline Protocol (Multi-Model Adversarial Review)
+# =============================================================================
+flatline_protocol:
+  enabled: true
+  # 3-model adversarial panel
+  primary: opus
+  secondary: gpt-5.3-codex
+  tertiary: gemini-2.5-pro
+  # Auto-trigger after document generation
+  auto_trigger: true
+  # Which phases trigger Flatline review
+  phases:
+    prd: true
+    sdd: true
+    sprint: true
+  # Knowledge sources for context
+  knowledge_sources:
+    tier_1: grimoires/loa/
+    tier_2: notebooklm
+  # Consensus thresholds (0-1000)
+  consensus:
+    high: 700
+    valuable: 600
+    nice_to_have: 400
+    low_value: 0
+
+# =============================================================================
+# Run Mode (Autonomous Sprint Execution)
+# =============================================================================
+run_mode:
+  enabled: true
+  max_cycles: 20
+  timeout_hours: 8
+  # Safety: always require feature branch
+  require_feature_branch: true
+
+# =============================================================================
+# Run Bridge (Autonomous Excellence Loop)
+# =============================================================================
+run_bridge:
+  enabled: true
+  defaults:
+    depth: 3
+    flatline_threshold: 0.05
+    consecutive_flatline: 2
+    per_sprint: false
+
+# =============================================================================
+# Beads (Task Graph Tracking)
+# =============================================================================
+beads:
+  enabled: true
+  autonomous:
+    requires_beads: true
+  # Flatline beads loop: multi-model refinement of task graphs
+  flatline_loop: true
+
+# =============================================================================
+# Vision Registry
+# =============================================================================
+visions:
+  enabled: true
+  # Auto-capture visions during bridge iterations
+  auto_capture: true
+  # Vision directory
+  entries_dir: grimoires/loa/visions/entries
+  # Vision states
+  states:
+    - captured
+    - exploring
+    - validated
+    - integrated
+    - deferred
+
+# =============================================================================
+# Autonomous Mode
+# =============================================================================
+autonomous_mode:
+  enabled: false
+  # Strong signal auto-enable (CLAWDBOT_GATEWAY_TOKEN, LOA_OPERATOR=ai)
+  auto_detect: true
+
+# =============================================================================
+# Framework Upgrade Behavior
+# =============================================================================
+upgrade:
+  # Create git commit after mount/upgrade (default: true)
+  auto_commit: true
+  # Create version tag after mount/upgrade (default: true)
+  auto_tag: true
+  # Conventional commit prefix (default: "chore")
+  commit_prefix: "chore"

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/x402-quote",
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "quote_id",
+    "model",
+    "max_cost_micro",
+    "payment_address",
+    "chain_id",
+    "token_address",
+    "valid_until"
+  ],
+  "properties": {
+    "quote_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "model": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "max_cost_micro": {
+      "pattern": "^[0-9]+$",
+      "maxLength": 20,
+      "description": "MicroUSD amount as non-negative integer string. 1 USD = 1,000,000 micro-USD.",
+      "type": "string"
+    },
+    "payment_address": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "Hex-encoded Ethereum address for payment (EIP-55 validation not enforced at schema level).",
+      "type": "string"
+    },
+    "chain_id": {
+      "minimum": 1,
+      "description": "EVM chain ID (1=mainnet, 137=Polygon, etc.).",
+      "type": "integer"
+    },
+    "token_address": {
+      "pattern": "^0x[a-fA-F0-9]{40}$",
+      "description": "ERC-20 token contract address for settlement.",
+      "type": "string"
+    },
+    "valid_until": {
+      "format": "date-time",
+      "description": "Quote expiration time (UTC).",
+      "type": "string"
+    },
+    "cost_per_input_token_micro": {
+      "pattern": "^[0-9]+$",
+      "maxLength": 20,
+      "description": "MicroUSD amount as non-negative integer string. 1 USD = 1,000,000 micro-USD.",
+      "type": "string"
+    },
+    "cost_per_output_token_micro": {
+      "pattern": "^[0-9]+$",
+      "maxLength": 20,
+      "description": "MicroUSD amount as non-negative integer string. 1 USD = 1,000,000 micro-USD.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

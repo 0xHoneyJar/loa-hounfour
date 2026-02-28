@@ -1,0 +1,35 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-010",
+  "category": "governed-resource-runtime",
+  "description": "Version only increases \u2014 monotonicity invariant",
+  "contract_version": "8.3.0",
+  "input": {
+    "transitions": [
+      {
+        "success": true,
+        "new_state": {
+          "count": 1
+        },
+        "version": 1
+      },
+      {
+        "success": true,
+        "new_state": {
+          "count": 2
+        },
+        "version": 2
+      },
+      {
+        "success": true,
+        "new_state": {
+          "count": 3
+        },
+        "version": 3
+      }
+    ]
+  },
+  "expected_output": {
+    "monotonic": true
+  },
+  "expected_valid": true
+}

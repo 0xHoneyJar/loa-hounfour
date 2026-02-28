@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/invariant-result",
+  "additionalProperties": false,
+  "description": "Result of checking a single invariant on a GovernedResource.",
+  "type": "object",
+  "required": [
+    "invariant_id",
+    "holds"
+  ],
+  "properties": {
+    "invariant_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "holds": {
+      "type": "boolean"
+    },
+    "detail": {
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

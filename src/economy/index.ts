@@ -343,6 +343,20 @@ export {
   type RoutingRebalanceEvent,
 } from './routing-rebalance.js';
 
+// Schemas — x402 Payment (v8.3.0, FR-1)
+export {
+  X402QuoteSchema,
+  X402PaymentProofSchema,
+  X402SettlementStatusSchema,
+  X402SettlementSchema,
+  X402ErrorCodeSchema,
+  type X402Quote,
+  type X402PaymentProof,
+  type X402SettlementStatus,
+  type X402Settlement,
+  type X402ErrorCode,
+} from './x402-payment.js';
+
 // Utilities — Lifecycle (transition guards)
 export {
   createTransitionValidator,

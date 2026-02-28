@@ -146,6 +146,10 @@ export const DenialCodeSchema = Type.Union([
     Type.Literal('UNKNOWN_REPUTATION_STATE'),
     Type.Literal('INVALID_BUDGET_FORMAT'),
     Type.Literal('MISSING_QUALIFICATION_CRITERIA'),
+    // v8.3.0 — FR-2 Economic Boundary Refinement (additive)
+    Type.Literal('BUDGET_PERIOD_EXPIRED'),
+    Type.Literal('TIER_REPUTATION_MISMATCH'),
+    Type.Literal('BUDGET_SCOPE_MISMATCH'),
 ], {
     $id: 'DenialCode',
     description: 'Machine-parseable denial codes for agent consumers.',

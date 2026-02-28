@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/cost-per-token",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/cost-per-token",
   "additionalProperties": false,
   "description": "Token-level pricing for a model.",
   "type": "object",
@@ -20,5 +20,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
 }

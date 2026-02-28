@@ -45,4 +45,5 @@ export { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSche
 export { QualityObservationSchema, type QualityObservation, } from './quality-observation.js';
 export { ScoringPathSchema, ScoringPathLogSchema, type ScoringPath, type ScoringPathLog, } from './scoring-path-log.js';
 export { computeScoringPathHash, SCORING_PATH_GENESIS_HASH, type ScoringPathHashInput, } from './scoring-path-hash.js';
+export { mapTierToReputationState, } from './tier-reputation-map.js';
 //# sourceMappingURL=index.d.ts.map

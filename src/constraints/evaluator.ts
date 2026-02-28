@@ -40,6 +40,12 @@ export const MAX_EXPRESSION_DEPTH = 32;
 export interface EvaluationContext {
   /** ISO 8601 timestamp to use for now(). Enables deterministic replay. */
   evaluation_timestamp?: string;
+  /**
+   * Feature flags for conditional constraint evaluation.
+   * When a constraint has a `condition.when` field, the flag is looked up here.
+   * @since v8.3.0 — FR-6 Conditional Constraints
+   */
+  feature_flags?: Record<string, boolean>;
 }
 
 /**
@@ -1884,4 +1890,36 @@ export function evaluateConstraint(
   const parser = new Parser(tokens, data, 0, context);
   const result = parser.parseExpr();
   return !!result;
+}
+
+/**
+ * Resolve the effective expression for a constraint, applying conditional logic.
+ *
+ * When a constraint has a `condition.when` field:
+ * - If the feature flag is active in context.feature_flags AND override_text is provided,
+ *   returns the override expression.
+ * - Otherwise returns the original expression.
+ *
+ * Nested conditions (condition on a constraint whose expression was itself an override)
+ * are rejected at runtime.
+ *
+ * @param constraint - Constraint object with optional condition
+ * @param context - Evaluation context with optional feature_flags
+ * @returns Effective expression string to evaluate
+ * @since v8.3.0 — FR-6 Conditional Constraints
+ */
+export function resolveConditionalExpression(
+  constraint: { expression: string; condition?: { when: string; override_text?: string } },
+  context?: EvaluationContext,
+): string {
+  if (!constraint.condition) {
+    return constraint.expression;
+  }
+
+  const flagActive = context?.feature_flags?.[constraint.condition.when] ?? false;
+  if (flagActive && constraint.condition.override_text) {
+    return constraint.condition.override_text;
+  }
+
+  return constraint.expression;
 }

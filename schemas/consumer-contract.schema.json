@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/consumer-contract",
+  "additionalProperties": false,
+  "description": "Consumer-driven contract declaring imported symbols per entrypoint.",
+  "type": "object",
+  "required": [
+    "consumer",
+    "provider",
+    "provider_version_range",
+    "entrypoints",
+    "generated_at"
+  ],
+  "properties": {
+    "consumer": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provider": {
+      "const": "@0xhoneyjar/loa-hounfour",
+      "type": "string"
+    },
+    "provider_version_range": {
+      "minLength": 1,
+      "description": "Semver range (e.g., \">=8.2.0\").",
+      "type": "string"
+    },
+    "entrypoints": {
+      "description": "Map of entrypoint paths to consumed symbols.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "symbols"
+          ],
+          "properties": {
+            "symbols": {
+              "minItems": 1,
+              "description": "Imported symbol names from this entrypoint.",
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "min_version": {
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "description": "Per-entrypoint minimum version requirement.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "checksum": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 of sorted symbol list for drift detection.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+}

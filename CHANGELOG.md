@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.3.0] — 2026-02-28
+
+### Added
+
+- **Feedback Dampening** (FR-1) — EMA-based dampening with cold-start Bayesian prior. `dampNext()` smooths noisy reputation signals with configurable `alpha` and `minSamples` parameters. Prevents oscillation during agent warm-up.
+- **Chain-Bound Hash** (FR-2) — SHA-256 chain-bound hashing with domain tag validation. `chainBoundHash()` produces deterministic, domain-separated digests for audit trail integrity. Tags must match `^[a-z][a-z0-9_.-]{0,63}$`.
+- **Audit Timestamp Validation** (FR-3) — Strict ISO 8601 validation with drift detection. `validateAuditTimestamp()` enforces format, rejects future timestamps beyond configurable tolerance, and validates reasonable temporal bounds.
+- **Advisory Lock Hashing** (FR-4) — FNV-1a 32-bit hashing for PostgreSQL advisory locks. `advisoryLockHash()` produces deterministic int32 lock IDs from string keys. No crypto dependency.
+- **X402 Payment Schemas** (FR-5) — 5 schemas for HTTP 402-based machine payment: `X402Quote`, `X402PaymentProof`, `X402SettlementStatus`, `X402Settlement`, `X402ErrorCode`. String micro-USD amounts, EIP-55 addresses.
+- **Tier-Reputation Mapping** (FR-5) — `mapTierToReputationState()` maps billing tiers to reputation states: free→cold, basic→warming, pro→established, enterprise→authoritative.
+- **DenialCode Extension** (FR-5) — 3 new denial codes: `BUDGET_PERIOD_EXPIRED`, `TIER_REPUTATION_MISMATCH`, `BUDGET_SCOPE_MISMATCH`. Extends `EconomicBoundaryEvaluationEvent` coverage.
+- **Conditional Constraints** (FR-5) — `ConstraintCondition` interface with `when` expression, `override_text`, `override_rule_type`. `resolveConditionalExpression()` evaluates feature flags against `EvaluationContext`.
+- **ConsumerContract** (FR-6) — Consumer-driven contract declaring imported symbols per entrypoint. `validateConsumerContract()` checks against export map. `computeContractChecksum()` produces SHA-256 content hash for drift detection.
+- **GovernedResource Runtime** (FR-6) — `GovernedResource<T>` interface and `GovernedResourceBase` abstract class. Single-writer semantics, invariant verification harness, automatic rollback on violation, monotonic versioning, audit trail integration. Schemas: `TransitionResult`, `InvariantResult`, `MutationContext`.
+- **10 new JSON schemas** — 201 total (up from 191).
+- **13 conformance vectors** — 232 total (up from 219). 3 consumer-contract vectors, 10 governed-resource-runtime vectors.
+- **6 constraint files** — 93 total (up from 87). FeedbackDampening, ChainBoundHash, AuditTimestamp, ConsumerContract, GovernedResourceRuntime, MutationContext.
+- **~150 new tests** — 6,619 total. Includes property-based tests (fast-check) for dampening convergence and hash determinism.
+
+### Source
+
+PR #39 — v8.3.0 Pre-Launch Protocol Hardening (Bridge iteration 1).
+
+---
+
 ## [8.2.0] — 2026-02-25
 
 ### Added

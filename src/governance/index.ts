@@ -388,3 +388,8 @@ export {
   SCORING_PATH_GENESIS_HASH,
   type ScoringPathHashInput,
 } from './scoring-path-hash.js';
+
+// Utilities — Tier-to-Reputation mapping (v8.3.0, FR-2)
+export {
+  mapTierToReputationState,
+} from './tier-reputation-map.js';

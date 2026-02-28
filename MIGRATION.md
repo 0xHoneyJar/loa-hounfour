@@ -1,8 +1,139 @@
-<!-- docs-version: 8.2.0 -->
+<!-- docs-version: 8.3.0 -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## v8.2.0 → v8.3.0 (Minor — Additive Only)
+
+**No breaking changes.** All additions are new exports and schemas. Existing code continues to work unchanged.
+
+### New utility functions
+
+```typescript
+import {
+  dampNext,
+  chainBoundHash,
+  validateAuditTimestamp,
+  advisoryLockHash,
+} from '@0xhoneyjar/loa-hounfour/commons';
+
+// Feedback dampening with cold-start prior
+const smoothed = dampNext(rawScore, { alpha: 0.3, minSamples: 5 }, history);
+
+// Chain-bound hash for audit trail integrity
+const digest = chainBoundHash('audit.entry', payload, previousHash);
+
+// Strict ISO 8601 timestamp validation
+const result = validateAuditTimestamp(timestamp, { maxDriftMs: 5000 });
+
+// Advisory lock ID from string key
+const lockId = advisoryLockHash('resource:agent-007');
+```
+
+### X402 Payment schemas
+
+```typescript
+import {
+  X402QuoteSchema,
+  X402PaymentProofSchema,
+  X402SettlementSchema,
+} from '@0xhoneyjar/loa-hounfour/economy';
+```
+
+### ConsumerContract (integrity module)
+
+```typescript
+import {
+  ConsumerContractSchema,
+  validateConsumerContract,
+  computeContractChecksum,
+} from '@0xhoneyjar/loa-hounfour/integrity';
+
+// Validate consumer's declared imports against actual exports
+const result = validateConsumerContract(contract, exportMap);
+
+// Compute content-addressable checksum for drift detection
+const checksum = computeContractChecksum(contract);
+```
+
+### GovernedResource runtime (commons module)
+
+```typescript
+import {
+  GovernedResourceBase,
+  TransitionResultSchema,
+  InvariantResultSchema,
+  MutationContextSchema,
+} from '@0xhoneyjar/loa-hounfour/commons';
+import type { GovernedResource, MutationContext } from '@0xhoneyjar/loa-hounfour/commons';
+
+// Extend GovernedResourceBase for custom resources
+class MyResource extends GovernedResourceBase<MyState, MyEvent, 'balance_positive'> {
+  protected applyEvent(state: MyState, event: MyEvent): MyState { /* ... */ }
+  protected defineInvariants() {
+    return new Map([['balance_positive', (s: MyState) => ({ invariant_id: 'balance_positive', holds: s.balance >= 0 })]]);
+  }
+}
+```
+
+### New DenialCode values
+
+```typescript
+// 3 new codes added to DenialCodeSchema union:
+// - 'BUDGET_PERIOD_EXPIRED'
+// - 'TIER_REPUTATION_MISMATCH'
+// - 'BUDGET_SCOPE_MISMATCH'
+```
+
+### Conditional constraints
+
+```typescript
+import {
+  resolveConditionalExpression,
+} from '@0xhoneyjar/loa-hounfour/constraints';
+import type { ConstraintCondition } from '@0xhoneyjar/loa-hounfour/constraints';
+```
+
+### New schemas (10 added)
+
+| Schema | Module | Purpose |
+|--------|--------|---------|
+| `X402Quote` | `economy` | Machine-readable price quote |
+| `X402PaymentProof` | `economy` | Payment proof with tx hash |
+| `X402SettlementStatus` | `economy` | Settlement lifecycle status |
+| `X402Settlement` | `economy` | Full settlement record |
+| `X402ErrorCode` | `economy` | Payment error taxonomy |
+| `ConsumerContract` | `integrity` | Consumer-declared import contract |
+| `ConsumerContractEntrypoint` | `integrity` | Per-entrypoint symbol list |
+| `TransitionResult` | `commons` | State transition outcome |
+| `InvariantResult` | `commons` | Invariant verification result |
+| `MutationContext` | `commons` | Actor context for mutations |
+
+### Consumer migration paths
+
+#### loa-finn
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.3.0`
+2. Use `dampNext()` for reputation signal smoothing
+3. Use `chainBoundHash()` for audit trail integrity
+4. Optionally adopt `ConsumerContract` for import verification
+5. Handle 3 new `DenialCode` values in economic boundary evaluation
+
+#### loa-dixie
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.3.0`
+2. Use `validateAuditTimestamp()` for evaluation timestamp validation
+3. Use `advisoryLockHash()` for concurrent evaluation locking
+4. Optionally extend `GovernedResourceBase` for governed evaluation resources
+
+#### arrakis / freeside
+
+1. Update `@0xhoneyjar/loa-hounfour` to `^8.3.0`
+2. Implement X402 payment flow using `X402QuoteSchema` → `X402PaymentProofSchema` → `X402SettlementSchema`
+3. Use `mapTierToReputationState()` for tier-based reputation initialization
 
 ---
 

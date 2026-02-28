@@ -83,4 +83,6 @@ export { QualityObservationSchema, } from './quality-observation.js';
 export { ScoringPathSchema, ScoringPathLogSchema, } from './scoring-path-log.js';
 // Utilities — ScoringPathLog hash chain (v7.11.0, Bridgebuilder Meditation III)
 export { computeScoringPathHash, SCORING_PATH_GENESIS_HASH, } from './scoring-path-hash.js';
+// Utilities — Tier-to-Reputation mapping (v8.3.0, FR-2)
+export { mapTierToReputationState, } from './tier-reputation-map.js';
 //# sourceMappingURL=index.js.map

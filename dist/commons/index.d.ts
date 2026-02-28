@@ -24,5 +24,10 @@ export { AssertionMethodSchema, ContractNegotiationSchema, type AssertionMethod,
 export { isNegotiationValid, computeNegotiationExpiry, type NegotiationValidityResult, } from './contract-negotiation-validity.js';
 export { verifyMonotonicExpansion, type MonotonicViolation, type MonotonicExpansionResult, } from './dynamic-contract-monotonic.js';
 export { evaluateGovernanceMutation, type GovernanceMutationEvalResult, } from './governance-mutation-eval.js';
+export { FeedbackDampeningConfigSchema, computeDampenedScore, FEEDBACK_DAMPENING_ALPHA_MIN, FEEDBACK_DAMPENING_ALPHA_MAX, DAMPENING_RAMP_SAMPLES, DEFAULT_PSEUDO_COUNT, type FeedbackDampeningConfig, } from './feedback-dampening.js';
+export { computeChainBoundHash, validateDomainTag, ChainBoundHashError, type AuditEntryHashInput as ChainBoundHashInput, } from './chain-bound-hash.js';
+export { validateAuditTimestamp, type AuditTimestampResult, } from './audit-timestamp.js';
+export { computeAdvisoryLockKey, } from './advisory-lock.js';
+export { TransitionResultSchema, InvariantResultSchema, MutationContextSchema, GovernedResourceBase, type TransitionResult, type InvariantResult, type MutationContext, type GovernedResource, type TransitionResultStatic, type InvariantResultStatic, type MutationContextStatic, } from './governed-resource-runtime.js';
 export { InvariantViolationSchema, InvalidTransitionSchema, GuardFailureSchema, EvaluationErrorSchema, HashDiscontinuityErrorSchema, PartialApplicationSchema, GovernanceErrorSchema, type InvariantViolation, type InvalidTransition, type GuardFailure, type EvaluationError, type HashDiscontinuityError, type PartialApplication, type GovernanceError, } from './error-taxonomy.js';
 //# sourceMappingURL=index.d.ts.map

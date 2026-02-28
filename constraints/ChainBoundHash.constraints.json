@@ -1,0 +1,29 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ChainBoundHash",
+  "origin": "genesis",
+  "contract_version": "8.3.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "chain-hash-domain-tag-format",
+      "expression": "domain_tag != null",
+      "severity": "error",
+      "message": "domain_tag is required for chain-bound hashing (format: repo:domain:qualifier)",
+      "fields": ["domain_tag"],
+      "type_signature": {
+        "domain_tag": "string"
+      }
+    },
+    {
+      "id": "chain-hash-previous-hash-format",
+      "expression": "previous_hash != null",
+      "severity": "error",
+      "message": "previous_hash must be set (use AUDIT_TRAIL_GENESIS_HASH for genesis entry)",
+      "fields": ["previous_hash"],
+      "type_signature": {
+        "previous_hash": "string"
+      }
+    }
+  ]
+}

@@ -58,7 +58,7 @@ export type CapitalEvaluation = Static<typeof CapitalEvaluationSchema>;
  * Complements human-readable denial_reason with structured codes.
  * @since v7.9.1 — F4 deep review improvement
  */
-export declare const DenialCodeSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">]>;
+export declare const DenialCodeSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">, import("@sinclair/typebox").TLiteral<"BUDGET_PERIOD_EXPIRED">, import("@sinclair/typebox").TLiteral<"TIER_REPUTATION_MISMATCH">, import("@sinclair/typebox").TLiteral<"BUDGET_SCOPE_MISMATCH">]>;
 export type DenialCode = Static<typeof DenialCodeSchema>;
 /**
  * Structured gap information for denied evaluations.
@@ -96,7 +96,7 @@ export declare const EconomicBoundaryEvaluationResultSchema: import("@sinclair/t
     }>;
     evaluated_at: import("@sinclair/typebox").TString;
     boundary_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-    denial_codes: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">]>>>;
+    denial_codes: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">, import("@sinclair/typebox").TLiteral<"BUDGET_PERIOD_EXPIRED">, import("@sinclair/typebox").TLiteral<"TIER_REPUTATION_MISMATCH">, import("@sinclair/typebox").TLiteral<"BUDGET_SCOPE_MISMATCH">]>>>;
     evaluation_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
         trust_score_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
         reputation_state_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
@@ -140,7 +140,7 @@ export declare const EconomicBoundaryEvaluationEventSchema: import("@sinclair/ty
         }>;
         evaluated_at: import("@sinclair/typebox").TString;
         boundary_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
-        denial_codes: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">]>>>;
+        denial_codes: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"TRUST_SCORE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"TRUST_STATE_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"CAPITAL_BELOW_THRESHOLD">, import("@sinclair/typebox").TLiteral<"UNKNOWN_REPUTATION_STATE">, import("@sinclair/typebox").TLiteral<"INVALID_BUDGET_FORMAT">, import("@sinclair/typebox").TLiteral<"MISSING_QUALIFICATION_CRITERIA">, import("@sinclair/typebox").TLiteral<"BUDGET_PERIOD_EXPIRED">, import("@sinclair/typebox").TLiteral<"TIER_REPUTATION_MISMATCH">, import("@sinclair/typebox").TLiteral<"BUDGET_SCOPE_MISMATCH">]>>>;
         evaluation_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
             trust_score_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
             reputation_state_gap: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;

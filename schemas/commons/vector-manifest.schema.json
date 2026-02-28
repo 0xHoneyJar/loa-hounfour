@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/commons/vector-manifest",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/commons/vector-manifest",
   "additionalProperties": false,
   "description": "Self-describing manifest for conformance test vectors. Cross-language consumers use this to discover and load vectors.",
   "type": "object",
@@ -86,5 +86,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
 }

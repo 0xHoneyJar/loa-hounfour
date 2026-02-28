@@ -1,0 +1,39 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ConsumerContract",
+  "contract_version": "8.3.0",
+  "origin": "genesis",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CC-001",
+      "expression": "consumer != null && consumer != ''",
+      "severity": "error",
+      "message": "Consumer name must be a non-empty string.",
+      "fields": ["consumer"],
+      "type_signature": {
+        "consumer": "string"
+      }
+    },
+    {
+      "id": "CC-002",
+      "expression": "provider == '@0xhoneyjar/loa-hounfour'",
+      "severity": "error",
+      "message": "Provider must be '@0xhoneyjar/loa-hounfour'.",
+      "fields": ["provider"],
+      "type_signature": {
+        "provider": "string"
+      }
+    },
+    {
+      "id": "CC-003",
+      "expression": "provider_version_range != null && provider_version_range != ''",
+      "severity": "error",
+      "message": "Provider version range must be a non-empty string.",
+      "fields": ["provider_version_range"],
+      "type_signature": {
+        "provider_version_range": "string"
+      }
+    }
+  ]
+}

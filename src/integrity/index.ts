@@ -43,3 +43,14 @@ export {
 
 // Idempotency
 export { deriveIdempotencyKey } from './idempotency.js';
+
+// Consumer Contracts (v8.3.0, FR-4)
+export {
+  ConsumerContractEntrypointSchema,
+  ConsumerContractSchema,
+  validateConsumerContract,
+  computeContractChecksum,
+  type ConsumerContractEntrypoint,
+  type ConsumerContract,
+  type ContractValidationResult,
+} from './consumer-contract.js';

@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 44 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(44);
+  it('contains exactly 46 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(46);
   });
 
   it('includes all valid categories', () => {
@@ -111,6 +111,9 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'task-type-cohort',
       'reputation-event',
       'scoring-path-log',
+      // v8.3.0 — Consumer Contracts + GovernedResource Runtime
+      'consumer-contract',
+      'governed-resource-runtime',
     ]);
   });
 });

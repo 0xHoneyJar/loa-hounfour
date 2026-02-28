@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.2.0/ensemble-result",
-  "$comment": "contract_version=8.2.0, min_supported=6.0.0. Financial amounts (total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/ensemble-result",
+  "$comment": "contract_version=8.3.0, min_supported=6.0.0. Financial amounts (total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "type": "object",

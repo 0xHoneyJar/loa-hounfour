@@ -1,0 +1,17 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-002",
+  "category": "governed-resource-runtime",
+  "description": "Version increments from 0 to 1 on first transition",
+  "contract_version": "8.3.0",
+  "input": {
+    "transition_result": {
+      "success": true,
+      "new_state": {
+        "balance": "1000"
+      },
+      "version": 1
+    }
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -1,0 +1,12 @@
+{
+  "vector_id": "conformance-governed-resource-runtime-008",
+  "category": "governed-resource-runtime",
+  "description": "MutationContext with autonomous actor type",
+  "contract_version": "8.3.0",
+  "input": {
+    "actor_id": "agent-007",
+    "actor_type": "autonomous"
+  },
+  "expected_output": {},
+  "expected_valid": true
+}

@@ -24,7 +24,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(87); // 77 existing + 10 new v8.0.0 (ConservationLaw, StateMachineConfig, AuditTrail, GovernedCredits, GovernedReputation, GovernedFreshness, HashChainDiscontinuity, QuarantineRecord, DynamicContract, ContractNegotiation)
+    expect(files.length).toBe(93); // 77 existing + 10 new v8.0.0 + 6 new v8.3.0 (FeedbackDampening, ChainBoundHash, AuditTimestamp, ConsumerContract, GovernedResourceRuntime, MutationContext)
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

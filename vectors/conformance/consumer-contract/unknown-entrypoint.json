@@ -1,0 +1,26 @@
+{
+  "vector_id": "conformance-consumer-contract-003",
+  "category": "consumer-contract",
+  "description": "Contract with unknown entrypoint should fail validation",
+  "contract_version": "8.3.0",
+  "input": {
+    "consumer": "loa-freeside",
+    "provider": "@0xhoneyjar/loa-hounfour",
+    "provider_version_range": ">=8.3.0",
+    "entrypoints": {
+      "@0xhoneyjar/loa-hounfour/nonexistent": {
+        "symbols": [
+          "SomeSchema"
+        ]
+      }
+    },
+    "generated_at": "2026-02-28T12:00:00Z"
+  },
+  "expected_output": {
+    "valid": false,
+    "unknown_entrypoints": [
+      "@0xhoneyjar/loa-hounfour/nonexistent"
+    ]
+  },
+  "expected_valid": true
+}

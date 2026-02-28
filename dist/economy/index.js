@@ -68,6 +68,8 @@ export { PerformanceOutcomeTypeSchema, EconomicPerformanceEventSchema, QualityBr
 export { BasketCompositionEntrySchema, BasketCompositionSchema, } from './basket-composition.js';
 // Schemas — Routing Rebalance Event (v7.8.0 — DR-F2)
 export { RebalanceTriggerTypeSchema, RoutingRebalanceEventSchema, } from './routing-rebalance.js';
+// Schemas — x402 Payment (v8.3.0, FR-1)
+export { X402QuoteSchema, X402PaymentProofSchema, X402SettlementStatusSchema, X402SettlementSchema, X402ErrorCodeSchema, } from './x402-payment.js';
 // Utilities — Lifecycle (transition guards)
 export { createTransitionValidator, DEFAULT_GUARDS, guardKey, isValidGuardResult, requiresTransferId, requiresNoActiveTransfer, requiresReasonResolved, requiresTransferCompleted, requiresSanctionEvidence, } from '../utilities/lifecycle.js';
 //# sourceMappingURL=index.js.map
