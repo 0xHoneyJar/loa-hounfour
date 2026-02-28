@@ -20,6 +20,13 @@ import type { AuditEntry, AuditTrail } from './audit-trail.js';
 const canonicalize = _canonicalize as unknown as (input: unknown) => string | undefined;
 
 /**
+ * Maximum length for schemaId and contractVersion inputs.
+ * Practical identifiers are 5-40 chars; 256 provides 10x headroom.
+ * Prevents unbounded allocation through sanitization pipeline.
+ */
+const MAX_SEGMENT_LENGTH = 256;
+
+/**
  * Input grammar for schemaId.
  * Allows PascalCase, kebab-case, dot-separated, and colon-containing identifiers.
  * Colons are allowed in input but stripped during sanitization (they are structural
@@ -34,8 +41,8 @@ const SCHEMA_ID_RE = /^[a-zA-Z][a-zA-Z0-9._:-]*$/;
 const CONTRACT_VERSION_RE = /^[0-9][a-zA-Z0-9._+-]*$/;
 
 /**
- * Segment sanitizer: lowercase, strip colons, replace dots with hyphens,
- * strip remaining non-[a-z0-9_-] characters.
+ * Segment sanitizer: lowercase, strip colons, replace dots and plus with
+ * hyphens, strip remaining non-[a-z0-9_-] characters.
  *
  * Post-condition: output matches /^[a-z0-9][a-z0-9_-]*$/ (DOMAIN_TAG_SEGMENT)
  * for any input passing the input grammar.
@@ -48,7 +55,7 @@ function sanitizeSegment(segment: string): string {
   return segment
     .toLowerCase()
     .replace(/:/g, '')
-    .replace(/\./g, '-')
+    .replace(/[.+]/g, '-')
     .replace(/[^a-z0-9_-]/g, '');
 }
 
@@ -58,6 +65,7 @@ function sanitizeSegment(segment: string): string {
  * Sanitization is lossy: different inputs may produce the same tag.
  * - Case folding: "GovernedCredits" → "governedcredits"
  * - Dot-to-hyphen: "8.3.0" → "8-3-0"
+ * - Plus-to-hyphen: "8.0.0+build1" → "8-0-0-build1"
  * - Colon stripping: "a:b" → "ab"
  *
  * This is acceptable because schemaIds are controlled identifiers
@@ -71,14 +79,24 @@ function sanitizeSegment(segment: string): string {
  * @throws {TypeError} If schemaId or contractVersion don't match input grammar
  */
 export function buildDomainTag(schemaId: string, contractVersion: string): string {
+  if (schemaId.length === 0 || schemaId.length > MAX_SEGMENT_LENGTH) {
+    throw new TypeError(
+      `schemaId length must be 1-${MAX_SEGMENT_LENGTH} (got ${schemaId.length})`,
+    );
+  }
   if (!SCHEMA_ID_RE.test(schemaId)) {
     throw new TypeError(
-      `schemaId must match ${SCHEMA_ID_RE} (got "${schemaId}")`,
+      `schemaId must match ${SCHEMA_ID_RE} (got "${schemaId.slice(0, 50)}")`,
+    );
+  }
+  if (contractVersion.length === 0 || contractVersion.length > MAX_SEGMENT_LENGTH) {
+    throw new TypeError(
+      `contractVersion length must be 1-${MAX_SEGMENT_LENGTH} (got ${contractVersion.length})`,
     );
   }
   if (!CONTRACT_VERSION_RE.test(contractVersion)) {
     throw new TypeError(
-      `contractVersion must match ${CONTRACT_VERSION_RE} (got "${contractVersion}")`,
+      `contractVersion must match ${CONTRACT_VERSION_RE} (got "${contractVersion.slice(0, 50)}")`,
     );
   }
   return `loa-commons:audit:${sanitizeSegment(schemaId)}:${sanitizeSegment(contractVersion)}`;

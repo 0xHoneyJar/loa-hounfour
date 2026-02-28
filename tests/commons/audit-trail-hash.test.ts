@@ -86,6 +86,24 @@ describe('buildDomainTag', () => {
     expect(() => buildDomainTag('test', '')).toThrow(TypeError);
   });
 
+  it('rejects oversized schemaId (>256 chars)', () => {
+    const longId = 'a' + 'b'.repeat(256);
+    expect(() => buildDomainTag(longId, '8.0.0')).toThrow(TypeError);
+    expect(() => buildDomainTag(longId, '8.0.0')).toThrow(/length/);
+  });
+
+  it('rejects oversized version (>256 chars)', () => {
+    const longVer = '1' + '0'.repeat(256);
+    expect(() => buildDomainTag('test', longVer)).toThrow(TypeError);
+    expect(() => buildDomainTag('test', longVer)).toThrow(/length/);
+  });
+
+  it('accepts schemaId at max length (256 chars)', () => {
+    const maxId = 'a' + 'b'.repeat(255);
+    const tag = buildDomainTag(maxId, '8.0.0');
+    expect(validateDomainTag(tag)).toEqual({ valid: true });
+  });
+
   it('strips colons from schemaId', () => {
     expect(buildDomainTag('a:b', '8.0.0')).toBe(
       'loa-commons:audit:ab:8-0-0',
@@ -113,7 +131,7 @@ describe('buildDomainTag', () => {
 
     it('handles version with + build metadata', () => {
       const tag = buildDomainTag('Test', '8.3.0+build1');
-      expect(tag).toBe('loa-commons:audit:test:8-3-0build1');
+      expect(tag).toBe('loa-commons:audit:test:8-3-0-build1');
       expect(validateDomainTag(tag)).toEqual({ valid: true });
     });
 

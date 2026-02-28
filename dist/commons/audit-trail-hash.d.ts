@@ -5,6 +5,7 @@ import type { AuditTrail } from './audit-trail.js';
  * Sanitization is lossy: different inputs may produce the same tag.
  * - Case folding: "GovernedCredits" → "governedcredits"
  * - Dot-to-hyphen: "8.3.0" → "8-3-0"
+ * - Plus-to-hyphen: "8.0.0+build1" → "8-0-0-build1"
  * - Colon stripping: "a:b" → "ab"
  *
  * This is acceptable because schemaIds are controlled identifiers
