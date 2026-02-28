@@ -1,447 +1,435 @@
-# SDD: Compassionate Excellence — Bridgebuilder Deep Review Integration
+# SDD: Community Feedback — Review Pipeline Hardening
 
-> **Cycle**: 047
-> **Created**: 2026-02-28
-> **PRD**: `grimoires/loa/prd.md`
-> **Target**: `.claude/` System Zone (scripts, skills, data, lib) + `.loa.config.yaml` + `grimoires/loa/lore/`
+**Cycle**: cycle-048
+**PRD**: grimoires/loa/prd.md
+**Created**: 2026-02-28
+**Flatline Review**: Passed — 5 HIGH findings integrated, 0 BLOCKERS
 
----
+## 1. Architecture Overview
 
-## 1. System Architecture
+Six targeted fixes to the review pipeline, all in the `.claude/scripts/` System Zone (authorized for this cycle per PRD Section 5). The fixes share a common pattern: centralize logic that is currently duplicated across call sites, then migrate all sites to the centralized helper.
 
-### 1.1 Component Map
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Shared Libraries  (NEW — FR-3)            │
-│                                                             │
-│  .claude/scripts/lib/                                       │
-│  ├── findings-lib.sh    ← extract_prior_findings()          │
-│  ├── compliance-lib.sh  ← extract_sections_by_keywords()    │
-│  └── (sourced by red-team-*.sh, pipeline-self-review.sh,    │
-│       bridge-orchestrator.sh)                                │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              Constitutional SDD Map  (NEW — FR-2)            │
-│                                                             │
-│  pipeline-sdd-map.json:                                     │
-│    forward:  implementation → governing SDD                  │
-│    reverse:  SDD → governed implementations  (NEW)          │
-│    change:   triggers self-review + human flag               │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              Deliberation Observability (NEW — FR-1)         │
-│                                                             │
-│  Each Red Team invocation logs:                              │
-│    { input_channels: [...], char_counts: {...},              │
-│      token_budget: N, prior_findings_used: [...] }          │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              Lore Lifecycle  (NEW — FR-2)                    │
-│                                                             │
-│  patterns.yaml entries gain:                                 │
-│    status: Active | Challenged | Deprecated | Superseded    │
-│    challenges: [{date, source, description}]                 │
-│    lineage: <id of predecessor pattern>                      │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│          Compliance Gate Separation  (NEW — FR-3)            │
-│                                                             │
-│  Gate = Extraction (keywords → sections)                    │
-│       + Evaluation (prompt_template → model → findings)     │
-│  Currently conflated; Sprint 3 separates them               │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 1.2 Data Flow: Shared Library Integration
-
-```
-red-team-code-vs-design.sh          pipeline-self-review.sh
-         │                                    │
-         ├── source lib/findings-lib.sh ──────┤
-         ├── source lib/compliance-lib.sh ────┤
-         │                                    │
-         ▼                                    ▼
-  extract_prior_findings()          extract_sections_by_keywords()
-  extract_sections_by_keywords()    load_compliance_profile()
-  log_deliberation_metadata()
-```
+**Implementation order** (dependency-driven):
+1. FR-6 (curl config guard) — no dependencies, used by FR-4
+2. FR-4 (error surfacing) — uses FR-6's `write_curl_auth_config()`
+3. FR-1 (verdict parsing) — modifies same file as FR-4, must follow
+4. FR-3 (flatline readiness) — independent, can parallel with FR-1
+5. FR-5 (timeout helper) — independent, can parallel with FR-1
+6. FR-2 (YAML regex) — TypeScript, isolated from shell changes
 
 ## 2. Detailed Design
 
-### 2.1 FR-1: Verification + Defensive Hardening
+### 2.1 FR-1: Centralized Verdict Extraction
 
-#### 2.1.1 Gemini Participation Investigation
+**Design decision**: Create `extract_verdict()` in `lib/normalize-json.sh` as a single normalization point, rather than patching 7+ individual call sites with fallback logic.
 
-Trace the Gemini path through the Flatline Protocol:
-
-1. Config: `.loa.config.yaml` → `flatline_protocol.models.tertiary: gemini-2.5-pro`
-2. Orchestrator: `flatline-orchestrator.sh` → `get_model_tertiary()` function
-3. Model adapter: `.claude/scripts/model-adapter.sh` → `MODEL_PROVIDERS[gemini-2.5-pro]`
-4. API call: Verify the adapter actually invokes Gemini API (not silently skipping)
-
-Acceptance: Either confirm Gemini works end-to-end, or identify and fix the break point.
-
-#### 2.1.2 Red Team Simstim Documentation
-
-The Red Team code-vs-design gate is wired into the run-mode SKILL.md (step 7) but gated by config. In simstim workflow, `red_team.simstim.auto_trigger: false`. Document this explicitly in:
-
-- simstim SKILL.md — add "Red Team Integration" section
-- `.loa.config.yaml.example` — document the red_team.simstim keys
-
-#### 2.1.3 F-004 Glob Boundary Fix
-
-The `*` → `.*` regex conversion matches across `/` boundaries. For git diff output (flat paths like `.claude/scripts/foo.sh`), this works because paths contain no internal structure ambiguity. However, for robustness:
+**New function** in `.claude/scripts/lib/normalize-json.sh`:
 
 ```bash
-# Option A: Document the flat-path assumption (minimal change)
-# The glob-to-regex is only applied to git diff --name-only output,
-# which always produces full relative paths without trailing slashes.
-
-# Option B: Use [^/]* instead of .* for non-** globs
-gsub("\\*\\*"; ".*") | gsub("\\*"; "[^/]*")
-```
-
-Decision: Option B (more defensive) since `**` patterns may appear in future SDD map entries.
-
-#### 2.1.4 F-007 Fence Stripping Hardening
-
-When models return preamble text before JSON (e.g., "Here is the analysis:\n```json\n{...}"), the current `strip_code_fences()` only activates if the first line is a fence. Add pre-JSON detection:
-
-```bash
-strip_code_fences() {
-    local input="$1"
-    # Check if FIRST line is a fence
-    if echo "$input" | head -1 | grep -qE '^[[:space:]]*```'; then
-        echo "$input" | awk '/^[[:space:]]*```/{if(f){exit}else{f=1;next}} f'
-    # Check if ANY line starts a fence (preamble case)
-    elif echo "$input" | grep -qE '^[[:space:]]*```'; then
-        echo "$input" | awk '/^[[:space:]]*```/{if(f){exit}else{f=1;next}} f'
-    else
-        echo "$input"
-    fi
+# extract_verdict — Resilient verdict extraction with field fallback
+# Returns: verdict string on stdout, exit 0 on success, exit 1 on missing
+# Usage: verdict=$(echo "$json" | extract_verdict)
+extract_verdict() {
+  local json="${1:-$(cat)}"
+  local verdict
+  verdict=$(echo "$json" | jq -r '.verdict // .overall_verdict // empty' 2>/dev/null)
+  if [[ -z "$verdict" ]]; then
+    return 1
+  fi
+  echo "$verdict"
 }
 ```
 
-#### 2.1.5 Deliberation Observability
+**Call sites to migrate** (11 implementation + 22 test locations):
 
-Add metadata logging to each Red Team invocation in `red-team-code-vs-design.sh`:
+| File | Lines | Current Pattern | Migration |
+|------|-------|-----------------|-----------|
+| `gpt-review-api.sh` | 116, 131 | `jq -e '.verdict'` | `extract_verdict` existence check |
+| `lib-curl-fallback.sh` | 318 | `jq -r '.verdict // empty'` | `extract_verdict` |
+| `lib-route-table.sh` | 202, 581 | `jq -e '.verdict'`, `jq -r '.verdict // empty'` | `extract_verdict` |
+| `lib/normalize-json.sh` | 250 | `jq -r '.verdict // ""'` | `extract_verdict` (self-use) |
+| `post-pr-audit.sh` | 370, 491 | `jq -r '.verdict' "$file"` (file-based, no fallback) | `extract_verdict < "$file"` |
+| `cache-manager.sh` | 580-581 | `jq -e '.verdict'` + `jq -r '.verdict // "stored"'` | `extract_verdict` with "stored" default |
+| `condense.sh` | 217, 352 | `jq -r '.verdict // .status // .result // "UNKNOWN"'` | Already resilient — leave as-is |
+
+**condense.sh exception**: Lines 217 and 352 already use triple-fallback (`.verdict // .status // .result // "UNKNOWN"`). These are in the condensation pipeline where any status value suffices. No change needed.
+
+**Test updates**: 22 locations across 3 test files (`test-gpt-review-integration.bats`, `test-gpt-review-codex-adapter.bats`, `test-gpt-review-multipass.bats`) use `.verdict` in assertions. These should test with both `.verdict` and `.overall_verdict` response shapes.
+
+**New test file**: `tests/unit/extract-verdict.bats`
+- Test `.verdict` present → returns verdict
+- Test `.overall_verdict` present → returns overall_verdict
+- Test both present → `.verdict` takes precedence
+- Test neither present → exit 1
+- Test null verdict → exit 1
+- Test enum validation downstream (APPROVED, CHANGES_REQUIRED, DECISION_NEEDED, SKIPPED)
+
+### 2.2 FR-2: Bridgebuilder YAML Regex Fix
+
+**Target**: `.claude/skills/bridgebuilder-review/resources/config.ts` line 189
+
+**Current regex**:
+```regex
+/^bridgebuilder:\s*\n((?:\s+.+\n?)*)/m
+```
+
+**Fixed regex**:
+```regex
+/^bridgebuilder:\s*\n((?:[ \t]+.+\n?)*)/m
+```
+
+**Design notes**:
+- The `\s+` in the inner capture group matches `\n`, causing the capture to bleed past the `bridgebuilder:` section into subsequent sections. `[ \t]+` restricts to horizontal whitespace only.
+- The `^` anchor with multiline flag matches any line start. `bridgebuilder_design_review:` would NOT match because the regex requires exactly `bridgebuilder:` followed by optional whitespace and newline — `bridgebuilder_design_review:` has additional characters before the colon.
+- **dist/ is tracked in git** (not gitignored). After the TypeScript change, run `npm run build` and commit the updated dist/ output. Verify with `git diff --exit-code dist/`.
+- Existing `config.test.ts` tests bypass `loadYamlConfig()` entirely (pass yamlConfig directly to `resolveConfig()`), so they don't exercise the regex.
+
+**Test strategy**: Add tests to `config.test.ts` that exercise `loadYamlConfig()` directly:
+1. Create temp YAML file with `bridgebuilder:` before `red_team:` (which has `enabled: false`)
+2. Verify `loadYamlConfig()` returns `{ enabled: true }` for bridgebuilder
+3. Verify `bridgebuilder_design_review:` is NOT captured as a `bridgebuilder:` match
+4. Verify section ordering independence (bridgebuilder after red_team)
+
+### 2.3 FR-3: Flatline Readiness Script
+
+**New file**: `.claude/scripts/flatline-readiness.sh`
+
+**Interface** (mirrors `beads-health.sh`):
+
+```
+Usage: flatline-readiness.sh [--json] [--quick]
+Exit codes:
+  0 = READY       (all configured providers available)
+  1 = DISABLED    (flatline_protocol.enabled is false)
+  2 = NO_API_KEYS (zero provider keys present)
+  3 = DEGRADED    (some but not all provider keys present)
+```
+
+**Provider mapping logic**:
 
 ```bash
-log_deliberation_metadata() {
-    local output_dir="$1"
-    local sdd_chars="$2"
-    local diff_chars="$3"
-    local prior_chars="$4"
-    local input_channels="$5"
-    local token_budget="$6"
-
-    local meta_file="${output_dir}/deliberation-metadata.json"
-    jq -n \
-        --argjson sdd "$sdd_chars" \
-        --argjson diff "$diff_chars" \
-        --argjson prior "$prior_chars" \
-        --argjson channels "$input_channels" \
-        --argjson budget "$token_budget" \
-        '{
-            timestamp: (now | strftime("%Y-%m-%dT%H:%M:%SZ")),
-            input_channels: $channels,
-            char_counts: {sdd: $sdd, diff: $diff, prior_findings: $prior},
-            token_budget: $budget,
-            budget_per_channel: ($budget / $channels)
-        }' > "$meta_file"
+# Map model names to provider + env var
+map_model_to_provider() {
+  local model="$1"
+  case "$model" in
+    opus|claude-*|anthropic-*)
+      echo "anthropic:ANTHROPIC_API_KEY" ;;
+    gpt-*|openai-*)
+      echo "openai:OPENAI_API_KEY" ;;
+    gemini-*|google-*)
+      # GOOGLE_API_KEY is canonical (per cheval.py, google_adapter.py)
+      # GEMINI_API_KEY accepted as alias with deprecation warning
+      echo "google:GOOGLE_API_KEY:GEMINI_API_KEY" ;;
+    *)
+      echo "unknown:" ;;
+  esac
 }
 ```
 
-### 2.2 FR-2: Constitutional Architecture
+**Config reading**: Uses `yq` to extract `flatline_protocol.models.{primary,secondary,tertiary}` from `.loa.config.yaml`.
 
-#### 2.2.1 Pipeline SDD Map Constitutional Promotion
-
-Add `pipeline-sdd-map.json` to the pipeline-sdd-map.json itself (self-referential governance):
-
+**JSON output schema**:
 ```json
 {
-    "glob": ".claude/data/pipeline-sdd-map.json",
-    "sdd": ".claude/skills/run-bridge/SKILL.md",
-    "sections": ["Pipeline Self-Review", "SDD Mapping", "Governance"],
-    "constitutional": true
+  "status": "READY",
+  "exit_code": 0,
+  "providers": {
+    "anthropic": { "configured": true, "available": true, "env_var": "ANTHROPIC_API_KEY" },
+    "openai": { "configured": true, "available": true, "env_var": "OPENAI_API_KEY" },
+    "google": { "configured": true, "available": true, "env_var": "GOOGLE_API_KEY" }
+  },
+  "models": {
+    "primary": "opus",
+    "secondary": "gpt-5.3-codex",
+    "tertiary": "gemini-2.5-pro"
+  },
+  "recommendations": [],
+  "timestamp": "2026-02-28T09:00:00Z"
 }
 ```
 
-The `constitutional: true` flag causes pipeline-self-review.sh to emit a `CONSTITUTIONAL_CHANGE` marker in findings, which the bridge orchestrator surfaces as requiring human attention.
+**GEMINI_API_KEY alias handling**: If `GOOGLE_API_KEY` is unset but `GEMINI_API_KEY` is set, use it with a stderr warning: `"WARNING: GEMINI_API_KEY is deprecated, use GOOGLE_API_KEY"`.
 
-#### 2.2.2 Reverse Mapping
+**Integration point**: Called from simstim Phase 0 preflight. Status logged to trajectory. DEGRADED triggers a warning but does not block the workflow (operator decides).
 
-Add a `resolve_governed_implementations()` function to pipeline-self-review.sh:
+**Test file**: `tests/unit/flatline-readiness.bats`
+- DISABLED: `flatline_protocol.enabled: false` → exit 1
+- NO_API_KEYS: all keys unset → exit 2
+- DEGRADED: only ANTHROPIC_API_KEY set → exit 3
+- READY: all 3 keys set → exit 0
+- GEMINI_API_KEY alias: only GEMINI_API_KEY set for google → exit 0 with deprecation warning
+- `--json` output structure validation
+- `PROJECT_ROOT` override for test isolation
+
+### 2.4 FR-4: API Error Message Surfacing
+
+**Target**: `.claude/scripts/lib-curl-fallback.sh` lines 255-257
+
+**Current code** (401 handler in `call_api()`):
+```bash
+401)
+  echo "ERROR: Authentication failed - check OPENAI_API_KEY" >&2
+  return 4
+  ;;
+```
+
+**Updated code**:
+```bash
+401)
+  # Extract provider error message if available
+  local api_error=""
+  if [[ -n "$response" ]]; then
+    api_error=$(echo "$response" | jq -r '.error.message // empty' 2>/dev/null)
+    # Redact potential key fragments before display
+    # Note: redact_log_output() takes positional arg, not stdin (Flatline fix)
+    if [[ -n "$api_error" ]]; then
+      api_error=$(redact_log_output "$api_error")
+    fi
+  fi
+  if [[ -n "$api_error" ]]; then
+    echo "ERROR: API authentication failed: $api_error" >&2
+  else
+    echo "ERROR: Authentication failed - check API key for provider" >&2
+  fi
+  return 4
+  ;;
+```
+
+**Dependencies**: `redact_log_output()` from `lib-security.sh` (already sourced in the call chain).
+
+**Edge cases**:
+- HTML response body (proxy/CDN 401) → `jq` returns empty, falls through to generic message
+- Empty response body → `$response` is empty, skips extraction
+- JSON without `.error` key → `jq` returns empty, falls through
+- `.error.message` contains key fragment → `redact_log_output()` catches it
+
+**Scope boundary**: Only the direct curl path (`call_api()`). The model-invoke path (`call_api_via_model_invoke()`) is out of scope per PRD.
+
+**Test**: `tests/unit/api-error-surfacing.bats`
+- Mock 401 with JSON error body → shows API error message
+- Mock 401 with HTML body → falls back to generic
+- Mock 401 with empty body → falls back to generic
+- Mock 401 with key fragment in error → redacted before display
+
+### 2.5 FR-5: Canonical `run_with_timeout()`
+
+**Target**: `.claude/scripts/compat-lib.sh`
+
+**Existing implementations to consolidate**:
+1. `post-pr-orchestrator.sh:104-133` — array-based, timeout/manual fallback
+2. `post-pr-e2e.sh:103-142` — string-based with security allowlist
+3. `golden-path.sh:403` — bare `timeout 2` with no fallback
+
+**Canonical implementation**:
 
 ```bash
-resolve_governed_implementations() {
-    local sdd_path="$1"
-    local map_file="${2:-.claude/data/pipeline-sdd-map.json}"
+# run_with_timeout — Portable timeout execution
+# Usage: run_with_timeout <seconds> <command> [args...]
+# Exit codes: command's exit code, or 124 on timeout
+# Fallback: timeout → gtimeout → perl alarm → run without timeout (with warning)
+run_with_timeout() {
+  local timeout_val="$1"
+  shift
 
-    jq -r --arg sdd "$sdd_path" \
-        '.patterns[] | select(.sdd == $sdd) | .glob' \
-        "$map_file"
+  # Runtime detection (not cached) to support test PATH manipulation
+  if command -v timeout &>/dev/null; then
+    timeout "$timeout_val" "$@"
+  elif command -v gtimeout &>/dev/null; then
+    gtimeout "$timeout_val" "$@"
+  elif command -v perl &>/dev/null; then
+    # Note: exec replaces process image, losing $SIG{ALRM} handler.
+    # Use system() to fork+exec, preserving alarm handler in parent.
+    perl -e '
+      $SIG{ALRM} = sub { kill 9, $pid; exit 124 };
+      alarm(shift @ARGV);
+      $pid = fork();
+      if ($pid == 0) { exec @ARGV; die "exec failed: $!" }
+      waitpid($pid, 0);
+      exit($? >> 8);
+    ' "$timeout_val" "$@"
+  else
+    echo "WARNING: No timeout mechanism available, running without timeout" >&2
+    "$@"
+  fi
 }
 ```
 
-This enables: "when run-bridge/SKILL.md changes, which implementation files does it govern?"
+**Design decisions**:
+- **Runtime detection** (not cached at source time) — differs from compat-lib.sh's existing pattern of caching at source time. This is intentional: tests need to manipulate PATH between calls.
+- **Array-based** execution (`"$@"`) — safer than string interpolation, no injection risk.
+- **Exit code 124** convention preserved (standard for GNU timeout).
+- **perl alarm** as third fallback — uses fork+waitpid pattern (not bare `exec`) to preserve the `$SIG{ALRM}` handler. Bare `exec` replaces the process image, losing the signal handler and producing exit 142 instead of 124. _(Flatline SPR-11 fix)_
+- **Security allowlist** from `post-pr-e2e.sh` is NOT included in the canonical version — that's a separate concern for the caller. The e2e file will keep its `validate_command()` call before invoking `run_with_timeout()`.
 
-#### 2.2.3 Lore Lifecycle Schema
+**Migration plan**:
+1. Add `run_with_timeout()` to compat-lib.sh
+2. `post-pr-orchestrator.sh`: replace local implementation with `source compat-lib.sh` + call
+3. `post-pr-e2e.sh`: keep `validate_command()`, replace timeout logic with `run_with_timeout()`
+4. `golden-path.sh:403`: replace bare `timeout 2` with `run_with_timeout 2`
 
-Extend `grimoires/loa/lore/patterns.yaml` schema:
-
-```yaml
-- id: governance-isomorphism
-  term: Governance Isomorphism
-  short: "..."
-  context: |
-    ...
-  source: "bridge-20260228-170473 deep-review / PR #429"
-  tags: [architecture, governance, cross-repo, pattern]
-  # NEW lifecycle fields
-  status: Active  # Active | Challenged | Deprecated | Superseded
-  challenges: []  # [{date: "2026-02-28", source: "bridge-xyz", description: "..."}]
-  lineage: null    # ID of predecessor pattern, if this evolved from another
-  superseded_by: null  # ID of successor pattern, if deprecated
+**CI lint rule**: Add to `.github/workflows/shell-compat-lint.yml` (or existing CI) a check that flags bare `timeout` command usage outside of `run_with_timeout()`:
+```bash
+# Flag bare timeout usage in .sh files (excluding compat-lib.sh itself)
+grep -rn 'timeout [0-9]' .claude/scripts/ --include='*.sh' | grep -v 'compat-lib.sh' | grep -v 'run_with_timeout' | grep -v '#'
 ```
 
-Update `grimoires/loa/lore/index.yaml` to include lifecycle metadata for filtering.
+**Test file**: `tests/unit/run-with-timeout.bats`
+- PATH with `timeout` → uses timeout
+- PATH without `timeout` but with `gtimeout` → uses gtimeout
+- PATH without both but with `perl` → uses perl alarm
+- PATH without all three → warns and runs without timeout
+- Timeout fires correctly (command killed after N seconds)
+- Non-timeout command completes with correct exit code
 
-#### 2.2.4 Lore Discoverability in Bridge Reviews
+### 2.6 FR-6: Curl Config Injection Guard
 
-During bridge review, the orchestrator queries the lore index for entries tagged with relevant domains:
+**Target**: `.claude/scripts/lib-security.sh`
+
+**New function**:
 
 ```bash
-discover_relevant_lore() {
-    local changed_files="$1"
-    local lore_file="grimoires/loa/lore/patterns.yaml"
+# write_curl_auth_config — Secure curl config file creation
+# Usage: config_path=$(write_curl_auth_config "$api_key" ["$header_name"])
+# Returns: path to temp file on stdout (caller must rm after use)
+# Exit 1 with error message on invalid key
+write_curl_auth_config() {
+  local api_key="$1"
+  local header_name="${2:-Authorization: Bearer}"
 
-    if [[ ! -f "$lore_file" ]]; then return; fi
+  # Validate key: reject injection vectors
+  if [[ "$api_key" =~ [$'\r\n\0\\'] ]]; then
+    echo "ERROR: API key contains invalid characters (CR/LF/null/backslash)" >&2
+    return 1
+  fi
 
-    # Extract tags from changed file paths
-    local domains=""
-    if echo "$changed_files" | grep -q "scripts/"; then
-        domains="$domains|pipeline|review"
-    fi
-    if echo "$changed_files" | grep -q "lore/"; then
-        domains="$domains|governance|architecture"
-    fi
+  local config_path
+  config_path=$(mktemp)
+  chmod 600 "$config_path"
 
-    # Query lore for matching tags where status is Active
-    yq ".[].tags[]" "$lore_file" 2>/dev/null | sort -u
+  # Use printf (not echo) to avoid -n/-e interpretation
+  # Escape double quotes in key value
+  local escaped_key="${api_key//\"/\\\"}"
+  printf 'header = "%s %s"\n' "$header_name" "$escaped_key" > "$config_path"
+
+  echo "$config_path"
 }
 ```
 
-### 2.3 FR-3: Shared Library Extraction
+**Call sites to migrate**:
 
-#### 2.3.1 findings-lib.sh
+| File | Lines | Current Pattern | Notes |
+|------|-------|-----------------|-------|
+| `lib-curl-fallback.sh` | 211-215 | `mktemp` + `chmod 600` + `printf` | Bearer auth |
+| `constructs-auth.sh` | 156-159 | `mktemp` + `chmod 600` + `echo` | Bearer auth |
+| `constructs-browse.sh` | 117-120, 179-182 | `mktemp` + `chmod 600` + `echo` | Bearer auth |
 
-Extract from `red-team-code-vs-design.sh` to `.claude/scripts/lib/findings-lib.sh`:
-
+**Migration pattern**:
 ```bash
-#!/usr/bin/env bash
-# findings-lib.sh — Shared functions for extracting and processing review findings
-# Sourced by: red-team-code-vs-design.sh, pipeline-self-review.sh, bridge-orchestrator.sh
+# Before (each site):
+local curl_config=$(mktemp)
+chmod 600 "$curl_config"
+echo "header = \"Authorization: Bearer ${api_key}\"" > "$curl_config"
 
-extract_prior_findings() {
-    local path="$1"
-    local max_chars="${2:-20000}"
-
-    if [[ ! -f "$path" ]]; then
-        return
-    fi
-
-    local content
-    content=$(grep -iE "^## (Findings|Issues|Changes Required|Security|SEC-)" "$path" \
-        | head -c "$max_chars")
-
-    if [[ -z "$content" ]]; then
-        # Fallback: extract everything after first ## heading
-        content=$(sed -n '/^## /,$p' "$path" | head -c "$max_chars")
-    fi
-
-    echo "$content"
-}
-
-strip_code_fences() {
-    local input="$1"
-    if echo "$input" | grep -qE '^[[:space:]]*```'; then
-        echo "$input" | awk '/^[[:space:]]*```/{if(f){exit}else{f=1;next}} f'
-    else
-        echo "$input"
-    fi
-}
+# After:
+local curl_config
+curl_config=$(write_curl_auth_config "$api_key") || return 1
 ```
 
-#### 2.3.2 compliance-lib.sh
-
-Extract from `red-team-code-vs-design.sh` to `.claude/scripts/lib/compliance-lib.sh`:
-
+**Content-Type headers**: Some sites also write `Content-Type` to the same config file. The helper returns the path, so callers can append additional headers:
 ```bash
-#!/usr/bin/env bash
-# compliance-lib.sh — Shared functions for compliance gate extraction and evaluation
-
-# Load compliance profile keywords from config
-load_compliance_keywords() {
-    local profile="${1:-security}"
-    local config_file="${2:-.loa.config.yaml}"
-    local default_keywords="Security|Authentication|Authorization|Validation|Error.Handling|Access.Control|Secrets|Encryption|Input.Sanitiz"
-
-    if command -v yq &>/dev/null && [[ -f "$config_file" ]]; then
-        local config_keywords
-        config_keywords=$(yq ".red_team.compliance_gates.${profile}.keywords // [] | join(\"|\")" "$config_file" 2>/dev/null || echo "")
-        if [[ -n "$config_keywords" ]]; then
-            echo "$config_keywords"
-            return
-        fi
-    fi
-
-    echo "$default_keywords"
-}
-
-# Extract SDD sections matching keyword pattern
-extract_sections_by_keywords() {
-    local file_path="$1"
-    local max_chars="${2:-20000}"
-    local keywords="${3:-$(load_compliance_keywords)}"
-
-    # ... extraction logic with parameterized keywords ...
-}
-
-# Load prompt template for a compliance gate profile
-load_prompt_template() {
-    local profile="${1:-security}"
-    local config_file="${2:-.loa.config.yaml}"
-
-    if command -v yq &>/dev/null && [[ -f "$config_file" ]]; then
-        local template
-        template=$(yq ".red_team.compliance_gates.${profile}.prompt_template // \"\"" "$config_file" 2>/dev/null || echo "")
-        if [[ -n "$template" ]]; then
-            echo "$template"
-            return
-        fi
-    fi
-
-    echo "security-comparison"  # Default
-}
+curl_config=$(write_curl_auth_config "$api_key") || return 1
+printf 'header = "Content-Type: application/json"\n' >> "$curl_config"
 ```
 
-#### 2.3.3 Gate Separation: Extraction vs Evaluation
-
-The compliance gate currently conflates extraction (finding relevant SDD sections) with evaluation (comparing code against those sections). Separate them:
-
-```
-┌─────────────┐     ┌──────────────┐     ┌────────────────┐
-│ Extraction   │ ──→ │ Sections     │ ──→ │ Evaluation     │
-│ (keywords)   │     │ (text)       │     │ (model prompt) │
-└─────────────┘     └──────────────┘     └────────────────┘
-```
-
-The `red-team-code-vs-design.sh` prompt currently includes both. After refactoring:
-
-1. `compliance-lib.sh::extract_sections_by_keywords()` handles extraction
-2. `compliance-lib.sh::load_prompt_template()` returns the evaluation template name
-3. `red-team-code-vs-design.sh` assembles the prompt using both components
-
-#### 2.3.4 Prompt Template Support
-
-Add `prompt_template` field to compliance gate config:
-
-```yaml
-compliance_gates:
-  security:
-    keywords: [Security, Authentication, ...]
-    prompt_template: "security-comparison"
-  # Future:
-  # api_contract:
-  #   keywords: [Interface, Export, Contract, Protocol]
-  #   prompt_template: "contract-comparison"
-```
-
-The template name maps to a prompt construction pattern in the Red Team script. For now, only "security-comparison" exists (the current default behavior). The extensibility point is the template name field — future templates can be added without changing the extraction logic.
-
-### 2.4 FR-4: Adaptive Intelligence + Ecosystem Design
-
-#### 2.4.1 Adaptive Token Budget
-
-Design for future implementation (not active by default):
-
+**CI regression check**: Add to CI a grep that flags raw curl config creation outside of `lib-security.sh`:
 ```bash
-compute_adaptive_budget() {
-    local total_budget="$1"
-    local sdd_size="$2"
-    local diff_size="$3"
-    local prior_size="$4"
-
-    local total_input=$((sdd_size + diff_size + prior_size))
-    if [[ $total_input -eq 0 ]]; then
-        echo "$total_budget $total_budget $total_budget"
-        return
-    fi
-
-    # Weight by content size (larger inputs get proportionally more budget)
-    local sdd_budget=$((total_budget * sdd_size / total_input))
-    local diff_budget=$((total_budget * diff_size / total_input))
-    local prior_budget=$((total_budget * prior_size / total_input))
-
-    # Floor: minimum 4000 chars per channel
-    local floor=4000
-    sdd_budget=$((sdd_budget > floor ? sdd_budget : floor))
-    diff_budget=$((diff_budget > floor ? diff_budget : floor))
-    prior_budget=$((prior_budget > floor ? prior_budget : floor))
-
-    echo "$sdd_budget $diff_budget $prior_budget"
-}
+# Flag raw Authorization Bearer patterns in .sh files (excluding lib-security.sh)
+grep -rn 'Authorization.*Bearer' .claude/scripts/ --include='*.sh' | grep -v 'lib-security.sh' | grep -v '#'
 ```
 
-Gated by config: `red_team.adaptive_budget.enabled: false` (default).
+**Test file**: `tests/unit/curl-config-guard.bats`
+- Valid key → correct curl config content
+- Key with CR → rejected (exit 1)
+- Key with LF → rejected (exit 1)
+- Key with null byte → rejected (exit 1)
+- Key with backslash → rejected (exit 1)
+- Key with double quote → properly escaped
+- Key with base64 chars (+, /, =) → accepted
+- Config file permissions → 0600
+- Config file path → starts with /tmp
 
-#### 2.4.2 Cost Tracking
+## 3. Cross-Cutting Concerns
 
-Add inference cost metadata to bridge state:
+### 3.1 System Zone Authorization
 
-```json
-{
-  "iterations": [{
-    "red_team_invocations": 2,
-    "estimated_input_tokens": 45000,
-    "estimated_output_tokens": 3000,
-    "sdd_patterns_matched": 5,
-    "cost_estimate_usd": 0.12
-  }]
-}
-```
+All target files are in `.claude/scripts/` (System Zone). The PRD authorizes System Zone writes for this cycle. The safety hook `team-role-guard-write.sh` will need to be accounted for in Agent Teams mode — the team lead must perform these writes.
 
-Uses token estimation from char counts (1 token ~ 4 chars) and model pricing from model-adapter.sh `COST_INPUT`/`COST_OUTPUT` arrays.
+### 3.2 Test Isolation
 
-#### 2.4.3 Cross-Repo Governance Protocol Design
+Pre-existing 271 BATS failures may interfere. New tests should:
+- Be runnable individually: `bats tests/unit/<specific-file>.bats`
+- Not depend on test infrastructure from failing tests
+- Use `PROJECT_ROOT` override for filesystem isolation
 
-Design document only (extends T4.5 from cycle-046). Key addition: **specification change notification**.
+### 3.3 Integration Test
 
-When an SDD changes in repo A and repo B has implementations governed by that SDD:
-1. Repo A CI emits a `spec-changed` event with SDD path and diff
-2. Repo B's bridge orchestrator detects the event and triggers Red Team review of affected implementations
-3. Findings are posted as cross-repo PR comments
+A single integration test (`tests/unit/review-pipeline-integration.bats`) should exercise FR-1 + FR-4 + FR-6 together:
+1. Create curl config via `write_curl_auth_config()` (FR-6)
+2. Mock a 401 response with JSON error body (FR-4)
+3. Mock a success response with `.overall_verdict` instead of `.verdict` (FR-1)
+4. Verify: error surfaced with redaction, verdict extracted correctly
 
-This requires: shared SDD index (T4.5), event transport (GitHub webhooks or A2A protocol), and cross-repo auth (existing JWT through Arrakis).
+## 4. File Manifest
 
-## 3. Security Considerations
+### New files
+| File | FR | Purpose |
+|------|-----|---------|
+| `.claude/scripts/flatline-readiness.sh` | FR-3 | Flatline readiness check |
+| `tests/unit/flatline-readiness.bats` | FR-3 | Readiness tests |
+| `tests/unit/extract-verdict.bats` | FR-1 | Verdict extraction tests |
+| `tests/unit/api-error-surfacing.bats` | FR-4 | Error surfacing tests |
+| `tests/unit/run-with-timeout.bats` | FR-5 | Timeout helper tests |
+| `tests/unit/curl-config-guard.bats` | FR-6 | Injection guard tests |
+| `tests/unit/review-pipeline-integration.bats` | FR-1,4,6 | Integration test |
 
-- Shared libraries in `.claude/scripts/lib/` are System Zone — not editable by teammates in Agent Teams mode
-- Constitutional change markers must not be suppressible by config — they are hardcoded
-- Cost tracking metadata may reveal inference provider pricing — keep in `.run/` (ephemeral, not committed)
+### Modified files
+| File | FR | Change |
+|------|-----|--------|
+| `.claude/scripts/lib/normalize-json.sh` | FR-1 | Add `extract_verdict()` |
+| `.claude/scripts/gpt-review-api.sh` | FR-1 | Use `extract_verdict()` |
+| `.claude/scripts/lib-curl-fallback.sh` | FR-1, FR-4, FR-6 | Verdict, error surfacing, curl config |
+| `.claude/scripts/lib-route-table.sh` | FR-1 | Use `extract_verdict()` |
+| `.claude/scripts/post-pr-audit.sh` | FR-1 | Use `extract_verdict()` |
+| `.claude/scripts/cache-manager.sh` | FR-1 | Use `extract_verdict()` |
+| `.claude/scripts/lib-security.sh` | FR-6 | Add `write_curl_auth_config()` |
+| `.claude/scripts/constructs-auth.sh` | FR-6 | Migrate to `write_curl_auth_config()` |
+| `.claude/scripts/constructs-browse.sh` | FR-6 | Migrate to `write_curl_auth_config()` |
+| `.claude/scripts/compat-lib.sh` | FR-5 | Add `run_with_timeout()` |
+| `.claude/scripts/post-pr-orchestrator.sh` | FR-5 | Migrate to `compat-lib.sh` helper |
+| `.claude/scripts/post-pr-e2e.sh` | FR-5 | Migrate timeout logic |
+| `.claude/scripts/golden-path.sh` | FR-5 | Replace bare `timeout` |
+| `.claude/skills/bridgebuilder-review/resources/config.ts` | FR-2 | Regex fix |
+| `.claude/skills/bridgebuilder-review/resources/config.test.ts` | FR-2 | Add loadYamlConfig tests |
+| `.claude/protocols/cross-platform-shell.md` | FR-5, FR-6 | Document patterns |
 
-## 4. Testing Strategy
+### Unchanged files (already resilient)
+| File | Reason |
+|------|--------|
+| `.claude/scripts/condense.sh` | Lines 217, 352 already use triple-fallback pattern |
 
-| Test | Type | Validates |
-|------|------|-----------|
-| Gemini model adapter call | Integration | FR-1.1: Gemini actually receives and responds to API calls |
-| Glob boundary matching | Unit | FR-1.3: `[^/]*` vs `.*` behavior difference |
-| Fence stripping with preamble | Unit | FR-1.4: JSON extracted even with model commentary before fences |
-| Reverse SDD mapping | Unit | FR-2.2: given SDD path, returns correct globs |
-| Lore lifecycle field validation | Unit | FR-2.3: schema validates with new fields |
-| Library sourcing | Integration | FR-3.1-2: red-team and pipeline-self-review source shared libs correctly |
-| Compliance gate extraction/evaluation split | Integration | FR-3.3: extraction returns raw sections, evaluation uses template |
-| Adaptive budget computation | Unit | FR-4.1: larger inputs get proportionally more budget, floor enforced |
+## 5. Security Considerations
+
+- **FR-4**: Error messages pass through `redact_log_output()` before display — prevents API key fragment leakage
+- **FR-6**: Injection guard uses denylist (CR/LF/null/backslash) + escaping (quotes) — allows valid base64 characters
+- **FR-6**: `mktemp` + `chmod 600` pattern centralized — single point of enforcement
+- **FR-3**: No API calls made — only checks env var presence (no key material transmitted)
+- **All**: No `.env` file reading (SKP-003 security decision maintained)
+
+## 6. Sprint Mapping
+
+| Sprint | FRs | Rationale |
+|--------|-----|-----------|
+| Sprint 1 | FR-6, FR-4, FR-2 | Foundation (curl guard) + error surfacing + TS regex (early to minimize dist/ merge conflicts) |
+| Sprint 2 | FR-1, FR-3 | Verdict centralization + readiness script |
+| Sprint 3 | FR-5 | Timeout consolidation + migration |
+| Sprint 4 | Integration test, CI lint rules, protocol docs | Cross-FR validation, regression checks, documentation |

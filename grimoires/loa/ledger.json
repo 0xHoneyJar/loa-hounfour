@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_cycle": "cycle-047",
+  "active_cycle": "cycle-048",
   "cycles": [
     {
       "id": "cycle-036",
@@ -389,7 +389,7 @@
     {
       "id": "cycle-047",
       "label": "Compassionate Excellence — Bridgebuilder Deep Review Integration",
-      "status": "active",
+      "status": "archived",
       "created": "2026-02-28T06:30:00Z",
       "prd": "grimoires/loa/prd.md",
       "sdd": "grimoires/loa/sdd.md",
@@ -418,8 +418,44 @@
           "label": "Adaptive Intelligence + Ecosystem Design",
           "status": "planned"
         }
+      ],
+      "archived": "2026-02-28T08:50:00Z",
+      "archive_path": "grimoires/loa/archive/2026-02-28-compassionate-excellence"
+    },
+    {
+      "id": "cycle-048",
+      "label": "Community Feedback — Review Pipeline Hardening",
+      "status": "active",
+      "created": "2026-02-28T08:50:00Z",
+      "prd": "grimoires/loa/prd.md",
+      "sdd": "grimoires/loa/sdd.md",
+      "sprints": [
+        {
+          "local_id": 1,
+          "global_id": 98,
+          "label": "Foundation — Curl Guard, Error Surfacing, YAML Regex",
+          "status": "planned"
+        },
+        {
+          "local_id": 2,
+          "global_id": 99,
+          "label": "Verdict Centralization & Flatline Readiness",
+          "status": "planned"
+        },
+        {
+          "local_id": 3,
+          "global_id": 100,
+          "label": "Timeout Consolidation & Migration",
+          "status": "planned"
+        },
+        {
+          "local_id": 4,
+          "global_id": 101,
+          "label": "Integration Testing, CI Lint, Protocol Docs",
+          "status": "planned"
+        }
       ]
     }
   ],
-  "global_sprint_counter": 97
+  "global_sprint_counter": 101
 }
