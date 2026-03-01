@@ -1,14 +1,14 @@
 # =============================================================================
-# Per-Model Capability Constraints (Hounfour v7+ CapabilityScopedTrust vocabulary)
+# Per-Model Capability Constraints (Hounfour v8+ CapabilityScopedTrust vocabulary)
 # =============================================================================
-# trust_scopes: 7-dimensional trust model per loa-hounfour v7.0.0+
+# trust_scopes: 7-dimensional trust model per loa-hounfour v8.3.1+
 # trust_level: retained as backward-compatible summary field
 #
 # Dimensions: data_access, financial, delegation, model_selection,
 #             governance, external_communication, context_access
 # Values: high | medium | none (+ limited for delegation)
 #
-# context_access (epistemic dimension, v7.0.0):
+# context_access (epistemic dimension, v7.0.0+):
 #   Sub-fields: architecture, business_logic, security, lore
 #   Values: full | summary | redacted | none
 #   Controls what knowledge a model receives in its context window.

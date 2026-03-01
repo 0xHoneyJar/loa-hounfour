@@ -10,15 +10,15 @@ ecosystem:
   - repo: 0xHoneyJar/loa-finn
     role: runtime
     interface: hounfour-router
-    protocol: loa-hounfour@5.0.0
+    protocol: loa-hounfour@8.3.1
   - repo: 0xHoneyJar/loa-hounfour
     role: protocol
     interface: npm-package
-    protocol: loa-hounfour@7.0.0
+    protocol: loa-hounfour@8.3.1
   - repo: 0xHoneyJar/arrakis
     role: distribution
     interface: jwt-auth
-    protocol: loa-hounfour@7.0.0
+    protocol: loa-hounfour@8.3.1
 capability_requirements:
   - filesystem: read
   - filesystem: write (scope: state)
