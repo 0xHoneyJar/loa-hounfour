@@ -45,6 +45,15 @@ if [[ -f "$LIB_DIR/validation-history.sh" ]]; then
     source "$LIB_DIR/validation-history.sh"
 fi
 
+if [[ -f "$LIB_DIR/context-isolation-lib.sh" ]]; then
+    source "$LIB_DIR/context-isolation-lib.sh"
+fi
+
+# Source security library (for write_curl_auth_config)
+if [[ -f "$SCRIPT_DIR/lib-security.sh" ]]; then
+    source "$SCRIPT_DIR/lib-security.sh"
+fi
+
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -194,11 +203,18 @@ build_validation_prompt() {
     trigger=$(echo "$learning_json" | jq -r '.trigger')
     solution=$(echo "$learning_json" | jq -r '.solution')
 
-    cat <<EOF
+    # Apply context isolation wrappers (vision-003)
+    if command -v isolate_content &>/dev/null; then
+        trigger=$(isolate_content "$trigger" "LEARNING TRIGGER")
+        solution=$(isolate_content "$solution" "LEARNING SOLUTION")
+    fi
+
+    cat <<'PROMPT_EOF'
 Evaluate this learning for inclusion in a framework learning library.
 
-TRIGGER: $trigger
-SOLUTION: $solution
+PROMPT_EOF
+    printf 'TRIGGER: %s\nSOLUTION: %s\n' "$trigger" "$solution"
+    cat <<'PROMPT_EOF'
 
 Assess whether this learning is:
 1. Generalizable (applies beyond a single project)
@@ -212,7 +228,7 @@ Respond with ONLY valid JSON:
   "confidence": 0.0 to 1.0,
   "reasoning": "Brief explanation (max 100 words)"
 }
-EOF
+PROMPT_EOF
 }
 
 # Call GPT for validation
@@ -242,8 +258,11 @@ call_gpt_validation() {
     else
         # SEC-AUDIT SEC-HIGH-01: Use curl config to avoid exposing API key in process list
         local _curl_cfg
-        _curl_cfg=$(mktemp) && chmod 600 "$_curl_cfg"
-        printf 'header = "Content-Type: application/json"\nheader = "Authorization: Bearer %s"\n' "${OPENAI_API_KEY:-}" > "$_curl_cfg"
+        _curl_cfg=$(write_curl_auth_config "Authorization" "Bearer ${OPENAI_API_KEY:-}") || {
+            log_error "Failed to create secure curl config"
+            return 4
+        }
+        printf 'header = "Content-Type: application/json"\n' >> "$_curl_cfg"
         response=$(curl -s --max-time "$TIMEOUT_SECONDS" \
             -X POST "${OPENAI_API_BASE:-https://api.openai.com}/v1/chat/completions" \
             --config "$_curl_cfg" \
@@ -307,8 +326,12 @@ call_opus_validation() {
     local response
     # SEC-AUDIT SEC-HIGH-01: Use curl config to avoid exposing API key in process list
     local _curl_cfg
-    _curl_cfg=$(mktemp) && chmod 600 "$_curl_cfg"
-    printf 'header = "Content-Type: application/json"\nheader = "x-api-key: %s"\nheader = "anthropic-version: 2023-06-01"\n' "${ANTHROPIC_API_KEY:-}" > "$_curl_cfg"
+    _curl_cfg=$(write_curl_auth_config "x-api-key" "${ANTHROPIC_API_KEY:-}") || {
+        log_error "Failed to create secure curl config"
+        return 4
+    }
+    printf 'header = "Content-Type: application/json"\n' >> "$_curl_cfg"
+    printf 'header = "anthropic-version: 2023-06-01"\n' >> "$_curl_cfg"
     response=$(curl -s --max-time "$TIMEOUT_SECONDS" \
         -X POST "https://api.anthropic.com/v1/messages" \
         --config "$_curl_cfg" \

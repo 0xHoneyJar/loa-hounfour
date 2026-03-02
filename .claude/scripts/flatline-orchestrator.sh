@@ -48,6 +48,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/bootstrap.sh"
 source "$SCRIPT_DIR/lib/normalize-json.sh"
 source "$SCRIPT_DIR/lib/invoke-diagnostics.sh"
+source "$SCRIPT_DIR/lib/context-isolation-lib.sh"
 
 # Note: bootstrap.sh already handles PROJECT_ROOT canonicalization via realpath
 TRAJECTORY_DIR=$(get_trajectory_dir)
@@ -193,18 +194,41 @@ get_model_primary() {
 }
 
 get_model_secondary() {
-    read_config '.flatline_protocol.models.secondary' 'gpt-5.2'
+    read_config '.flatline_protocol.models.secondary' 'gpt-5.3-codex'
 }
 
-# FR-3: Optional tertiary model for 3-model Flatline (e.g., Gemini 3 Pro)
+# Provisional resolution — will be replaced by Hounfour router capability
+# query when ModelPort interface is available (see loa-finn #31).
+# The function signature is the durable contract; the config lookup is temporary.
+#
+# Checks hounfour config first (canonical), then flatline_protocol.models.tertiary (alias)
 # Returns empty string when not configured (2-model mode preserved)
+# Cache avoids repeated yq invocations during a single Flatline run
+_CACHED_TERTIARY_MODEL=""
+_CACHED_TERTIARY_MODEL_SET=false
+
 get_model_tertiary() {
-    read_config '.hounfour.flatline_tertiary_model' ''
+    if [[ "$_CACHED_TERTIARY_MODEL_SET" == true ]]; then
+        echo "$_CACHED_TERTIARY_MODEL"
+        return
+    fi
+    local model
+    model=$(read_config '.hounfour.flatline_tertiary_model' '')
+    if [[ -z "$model" ]]; then
+        model=$(read_config '.flatline_protocol.models.tertiary' '')
+    fi
+    _CACHED_TERTIARY_MODEL="$model"
+    _CACHED_TERTIARY_MODEL_SET=true
+    echo "$model"
+}
+
+get_max_iterations() {
+    read_config '.flatline_protocol.max_iterations' '5'
 }
 
 # Valid model names accepted by model-adapter.sh.legacy MODEL_PROVIDERS registry.
 # Keep in sync with MODEL_PROVIDERS in model-adapter.sh.legacy (line ~69).
-VALID_FLATLINE_MODELS=(opus gpt-5.2 gpt-5.2-codex gpt-5.3-codex claude-opus-4.6 claude-opus-4.5 gemini-2.0 gemini-2.5-flash gemini-2.5-pro gemini-3-flash gemini-3-pro)
+VALID_FLATLINE_MODELS=(opus gpt-5.2 gpt-5.3-codex claude-opus-4.6 claude-opus-4.5 gemini-2.0 gemini-2.5-flash gemini-2.5-pro gemini-3-flash gemini-3-pro)
 
 validate_model() {
     local model="$1"
@@ -276,7 +300,7 @@ declare -A MODE_TO_AGENT=(
 # Legacy model name → provider:model-id for model-invoke --model override
 declare -A MODEL_TO_PROVIDER_ID=(
     ["gpt-5.2"]="openai:gpt-5.2"
-    ["gpt-5.2-codex"]="openai:gpt-5.2-codex"
+    ["gpt-5.3-codex"]="openai:gpt-5.3-codex"
     ["opus"]="anthropic:claude-opus-4-6"
     ["claude-opus-4.6"]="anthropic:claude-opus-4-6"
     ["gemini-2.0"]="google:gemini-2.0-flash"
@@ -594,6 +618,12 @@ run_inquiry() {
         extra_context=$(cat "$context_file" 2>/dev/null | head -500) || extra_context=""
     fi
 
+    # Apply context isolation wrappers (vision-003: de-authorization for untrusted content)
+    doc_content=$(isolate_content "$doc_content" "DOCUMENT UNDER REVIEW")
+    if [[ -n "$extra_context" ]]; then
+        extra_context=$(isolate_content "$extra_context" "ADDITIONAL CONTEXT")
+    fi
+
     # Build inquiry prompts
     local structural_prompt="You are conducting a structural architectural inquiry.
 
@@ -787,6 +817,7 @@ run_phase1() {
             tertiary_model=""
         else
             has_tertiary=true
+            log "Tertiary model confirmed: $tertiary_model (3-model Flatline active)"
         fi
     fi
 
@@ -1377,6 +1408,15 @@ main() {
         log "Warning: Mode detection script not found, defaulting to interactive"
     fi
 
+    # FR-1 (cycle-045): Log tertiary model status for observability
+    local tertiary_model_check
+    tertiary_model_check=$(get_model_tertiary)
+    if [[ -n "$tertiary_model_check" ]]; then
+        log "Tertiary model: $tertiary_model_check (active)"
+    else
+        log "Tertiary model: none (disabled)"
+    fi
+
     log "Document: $doc"
     log "Phase: $phase"
     log "Mode: $execution_mode"
@@ -1630,6 +1670,14 @@ main() {
     end_time=$(date +%s)
     local total_latency_ms=$(( (end_time - START_TIME) * 1000 ))
 
+    # FR-1 (cycle-045): Determine tertiary model status for output metadata
+    local tertiary_model_output
+    tertiary_model_output=$(get_model_tertiary)
+    local tertiary_status_output="disabled"
+    if [[ -n "$tertiary_model_output" ]]; then
+        tertiary_status_output="active"
+    fi
+
     # Add metadata to result
     local final_result
     final_result=$(echo "$result" | jq \
@@ -1639,6 +1687,8 @@ main() {
         --arg mode "$execution_mode" \
         --arg mode_reason "$mode_reason" \
         --arg run_id "${run_id:-}" \
+        --argjson tertiary_model "$(if [[ -n "${tertiary_model_output:-}" ]]; then jq -n --arg m "$tertiary_model_output" '$m'; else echo 'null'; fi)" \
+        --arg tertiary_status "$tertiary_status_output" \
         --argjson latency_ms "$total_latency_ms" \
         --argjson cost_cents "$TOTAL_COST" \
         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -1646,6 +1696,8 @@ main() {
             phase: $phase,
             document: $doc,
             domain: $domain,
+            tertiary_model_used: $tertiary_model,
+            tertiary_status: $tertiary_status,
             execution: {
                 mode: $mode,
                 mode_reason: $mode_reason,
@@ -1665,6 +1717,16 @@ main() {
     # Output result
     echo "$final_result" | jq .
 
+    # FR-4 (cycle-045): Log model count for observability
+    local primary_model_name
+    primary_model_name=$(get_model_primary)
+    local secondary_model_name
+    secondary_model_name=$(get_model_secondary)
+    if [[ -n "$tertiary_model_output" ]]; then
+        log "Flatline: 3-model ($primary_model_name + $secondary_model_name + $tertiary_model_output)"
+    else
+        log "Flatline: 2-model ($primary_model_name + $secondary_model_name)"
+    fi
     log "Flatline Protocol complete. Cost: $TOTAL_COST cents, Latency: ${total_latency_ms}ms"
 }
 

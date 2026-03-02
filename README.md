@@ -9,7 +9,7 @@ Health check: /loa doctor
 Version: 1.36.0
 -->
 
-[![Version](https://img.shields.io/badge/version-1.39.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.49.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE.md)
 [![Release](https://img.shields.io/badge/release-Post--Merge%20Automation-purple.svg)](CHANGELOG.md#1360---2026-02-13)
 
@@ -21,7 +21,7 @@ Loa is an agent-driven development framework for [Claude Code](https://docs.anth
 
 ### Why "Loa"?
 
-In William Gibson's Sprawl trilogy, Loa are AI entities that "ride" humans through neural interfaces. These agents don't replace you—they **ride with you**, channeling expertise through the interface.
+In William Gibson's Sprawl trilogy (*Neuromancer*, *Count Zero*), Loa are AI entities that "ride" humans through neural interfaces — a metaphor Gibson adapted from Haitian Vodou via the anthropological work of Robert Tallant and (likely) Maya Deren. These agents don't replace you — they **ride with you**, channeling expertise through the interface. See [docs/ecosystem-architecture.md](docs/ecosystem-architecture.md#naming--the-scholarly-chain) for the full naming lineage.
 
 ## Quick Start (~2 minutes)
 

@@ -145,6 +145,68 @@ jobs:
           done < <(grep -rn 'date +%.*N' .claude/scripts/*.sh .claude/scripts/**/*.sh 2>/dev/null || true)
 
           # ---------------------------------------------------------------
+          # ERROR: bare `timeout` command (FR-5, not portable to macOS)
+          #
+          # macOS doesn't ship GNU coreutils `timeout`. Use
+          # run_with_timeout() from compat-lib.sh which provides a
+          # 4-tier fallback: timeout → gtimeout → perl → warn.
+          #
+          # Allowlist: compat-lib.sh (implements the fallback)
+          # Excludes:  --timeout flags, variable names, comments
+          # Pattern:   lines starting with optional whitespace then `timeout`
+          #            followed by a space and a digit (bare invocation)
+          # ---------------------------------------------------------------
+          echo "Checking: bare timeout usage..."
+          while IFS=: read -r file line content; do
+            # Skip the library that implements the fallback
+            [[ "$file" == *"compat-lib.sh"* ]] && continue
+            [[ "$file" == *"test"* ]] && continue
+            [[ "$file" == *".bats"* ]] && continue
+
+            # Skip comment lines
+            [[ "$content" =~ ^[[:space:]]*# ]] && continue
+
+            # Skip if file sources compat-lib and uses run_with_timeout
+            if grep -q 'run_with_timeout' "$file" 2>/dev/null; then
+              continue
+            fi
+
+            echo "  ERROR: $file:$line — bare 'timeout' command (not portable to macOS)"
+            echo "         Use: run_with_timeout (from compat-lib.sh)"
+            echo "         $content"
+            ((errors++)) || true
+          done < <(grep -rn -E '^\s*timeout [0-9]' .claude/scripts/*.sh .claude/scripts/**/*.sh 2>/dev/null | grep -v '\-\-timeout' || true)
+
+          # ---------------------------------------------------------------
+          # ERROR: raw Authorization.*Bearer in curl calls (FR-6)
+          #
+          # API keys must never appear in command arguments (visible in
+          # process listings). Use write_curl_auth_config() from
+          # lib-security.sh which writes a secure 0600 curl config file.
+          #
+          # Allowlist: lib-security.sh (implements the function)
+          # Excludes:  comments, test files
+          # ---------------------------------------------------------------
+          echo "Checking: raw curl Authorization Bearer patterns..."
+          while IFS=: read -r file line content; do
+            # Skip the library that implements the secure alternative
+            [[ "$file" == *"lib-security.sh"* ]] && continue
+            [[ "$file" == *"test"* ]] && continue
+            [[ "$file" == *".bats"* ]] && continue
+
+            # Skip comment lines
+            [[ "$content" =~ ^[[:space:]]*# ]] && continue
+
+            # Skip lines using the secure write_curl_auth_config pattern
+            [[ "$content" == *"write_curl_auth_config"* ]] && continue
+
+            echo "  ERROR: $file:$line — raw 'Authorization.*Bearer' pattern detected"
+            echo "         Use: write_curl_auth_config (from lib-security.sh)"
+            echo "         $content"
+            ((errors++)) || true
+          done < <(grep -rn 'Authorization.*Bearer' .claude/scripts/*.sh .claude/scripts/**/*.sh 2>/dev/null || true)
+
+          # ---------------------------------------------------------------
           # Summary
           # ---------------------------------------------------------------
           echo ""

@@ -76,11 +76,82 @@ interprets and acts on:
 | `GENERATE_SPRINT_FROM_FINDINGS` | Create sprint plan from parsed findings |
 | `RUN_SPRINT_PLAN` | Execute `/run sprint-plan` |
 | `RUN_PER_SPRINT` | Execute per-sprint mode |
+| `PIPELINE_SELF_REVIEW` | Detect .claude/ changes → run Red Team against pipeline SDDs (gated by `run_bridge.pipeline_self_review.enabled`) |
+| `RED_TEAM_CODE` | Run `red-team-code-vs-design.sh` against SDD sections for implemented code (gated by `red_team.code_vs_design.enabled`) |
 | `BRIDGEBUILDER_REVIEW` | Invoke Bridgebuilder on changes |
-| `VISION_CAPTURE` | Run `bridge-vision-capture.sh` |
+| `VISION_CAPTURE` | Check findings for VISION/SPECULATION severity → invoke `bridge-vision-capture.sh` (gated by `vision_registry.bridge_auto_capture`) |
 | `GITHUB_TRAIL` | Run `bridge-github-trail.sh` |
 | `FLATLINE_CHECK` | Evaluate flatline condition |
-| `LORE_DISCOVERY` | Run `lore-discover.sh` to extract patterns from bridge reviews (v1.39.0) |
+| `LORE_DISCOVERY` | Run `lore-discover.sh` → call `vision_check_lore_elevation()` for visions with refs > 0 (v1.42.0) |
+
+#### PIPELINE_SELF_REVIEW (cycle-046)
+
+Before the Bridgebuilder review, the pipeline can review changes to itself:
+
+1. **Gate check**: `run_bridge.pipeline_self_review.enabled: true` in config
+2. **Detection**: `pipeline-self-review.sh --base-branch main --output-dir <output>`
+   - Runs `git diff --name-only main...HEAD -- .claude/scripts/ .claude/skills/ .claude/data/ .claude/protocols/`
+   - If no pipeline files changed → skip silently
+3. **SDD Resolution**: Maps changed files to governing SDDs via `.claude/data/pipeline-sdd-map.json`
+4. **Self-Review**: Invokes `red-team-code-vs-design.sh` against each resolved SDD
+5. **Output**: Findings posted as PR comment with `[Pipeline Self-Review]` prefix
+
+This addresses the "pipeline bugs have multiplicative impact" insight — the review
+infrastructure should examine itself with the same rigor it examines application code.
+
+#### Red Team Gate Placement (cycle-047)
+
+The Red Team code-vs-design gate (`red-team-code-vs-design.sh`) runs **before** the
+Bridgebuilder review, after code has been implemented. This placement is deliberate:
+
+```
+RUN_SPRINT_PLAN → PIPELINE_SELF_REVIEW → RED_TEAM_CODE → BRIDGEBUILDER_REVIEW → FLATLINE_CHECK
+```
+
+**Why before Bridgebuilder, not after:**
+- Red Team checks code-vs-SDD **compliance** (did the code match the design?)
+- Bridgebuilder reviews **quality and architecture** (is the design evolving well?)
+- Compliance findings should be fixed before the Bridgebuilder sees the code,
+  otherwise the Bridgebuilder wastes attention on compliance drift that will be fixed
+
+**Why after implementation, not before:**
+- Red Team needs actual code diff to compare against the SDD
+- Pre-implementation Red Team is the `/red-team` skill (design-phase, attacks-only)
+- Post-implementation Red Team is `red-team-code-vs-design.sh` (compliance check)
+
+**Relationship to reviewer/auditor in `/run`:**
+- `/run` cycle: implement → `/review-sprint` → `/audit-sprint` (per-sprint quality gates)
+- Bridge cycle: sprint-plan → Red Team → Bridgebuilder (cross-iteration quality gates)
+- These are complementary — `/run` gates check sprint-level quality, bridge gates
+  check iteration-level architectural drift
+
+**Configuration:**
+```yaml
+# .loa.config.yaml
+red_team:
+  enabled: true
+  code_vs_design:
+    enabled: true          # Enable Red Team code-vs-design in bridge iterations
+```
+
+#### VISION_CAPTURE → LORE_DISCOVERY Chain (v1.42.0)
+
+After `BRIDGEBUILDER_REVIEW` completes and findings are parsed:
+
+1. **VISION_CAPTURE** (conditional):
+   - Only fires when `vision_registry.bridge_auto_capture: true` in `.loa.config.yaml`
+   - Filters parsed findings for VISION or SPECULATION severity
+   - Invokes `bridge-vision-capture.sh` with findings JSON path
+   - Creates vision entries in `grimoires/loa/visions/entries/`
+   - Updates `grimoires/loa/visions/index.md`
+
+2. **LORE_DISCOVERY** (always after VISION_CAPTURE):
+   - Invokes `lore-discover.sh` to extract patterns from bridge reviews
+   - Sources `vision-lib.sh` and calls `vision_check_lore_elevation()` for each vision with `refs > 0`
+   - If elevation threshold met, calls `vision_generate_lore_entry()` and `vision_append_lore_entry()`
+   - Logs elevation events to trajectory JSONL
+
+Data flow: `bridge finding JSON → vision entry → index update → lore elevation check`
 
 ### Phase 3.1: Enriched Bridgebuilder Review
 
@@ -102,11 +173,15 @@ When the `BRIDGEBUILDER_REVIEW` signal fires, execute this 10-step workflow:
    If any section is missing or empty, log WARNING and disable persona enrichment for
    this iteration (fall back to unadorned review).
 
-3. **Lore Load**: Query lore index for relevant entries:
+3. **Lore Load**: Query lore index for relevant entries from both discovered
+   patterns AND elevated visions (closing the autopoietic loop):
    ```bash
    categories=$(yq '.run_bridge.lore.categories[]' .loa.config.yaml 2>/dev/null)
+   # Load from both patterns.yaml (discovered patterns) and visions.yaml (elevated visions)
    ```
    Load `short` fields inline in the review prompt. Use `context` for teaching moments.
+   The visions.yaml source ensures that insights which accumulated enough references
+   through the vision registry feed back into future bridge reviews.
 
 4. **Embody Persona**: Include the persona file content in the review prompt as the
    agent's identity and voice instructions. The persona defines HOW to review, not
