@@ -93,6 +93,9 @@
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"
   },
+  "overrides": {
+    "rollup": "^4.59.0"
+  },
   "engines": {
     "node": ">=22"
   }
