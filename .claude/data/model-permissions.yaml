@@ -228,6 +228,34 @@ model_permissions:
       reasoning with redacted business logic. All operational trust_scopes none.
 
   # -------------------------------------------------------------------------
+  # Google Gemini 3.1 Pro Preview — Remote model, advanced reasoning
+  # -------------------------------------------------------------------------
+  google:gemini-3.1-pro-preview:
+    trust_level: standard
+    trust_scopes:
+      data_access: none
+      financial: none
+      delegation: none
+      model_selection: none
+      governance: none
+      external_communication: none
+      context_access:
+        architecture: full
+        business_logic: redacted
+        security: none
+        lore: full
+    execution_mode: remote_model
+    capabilities:
+      file_read: false
+      file_write: false
+      command_execution: false
+      network_access: false
+    notes: >
+      Gemini 3.1 Pro with 2x reasoning improvement over 3 Pro. Uses
+      thinkingLevel config format. Architecture-aware reasoning with
+      redacted business logic. All operational trust_scopes none.
+
+  # -------------------------------------------------------------------------
   # Google Gemini 3 Flash — Remote model, fast generation
   # -------------------------------------------------------------------------
   google:gemini-3-flash:
