@@ -1,4 +1,0 @@
-{"concerns":[
-  {"concern":"Missing error handling","severity_score":720,"category":"robustness"},
-  {"concern":"No input validation","severity_score":600,"category":"security"}
-]}

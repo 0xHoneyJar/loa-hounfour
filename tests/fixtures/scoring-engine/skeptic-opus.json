@@ -1,3 +1,0 @@
-{"concerns":[
-  {"concern":"Race condition risk","severity_score":800,"category":"concurrency"}
-]}

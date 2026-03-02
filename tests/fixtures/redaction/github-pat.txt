@@ -1,3 +1,0 @@
-To authenticate with the GitHub API, use this token:
-ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij1234
-Make sure to keep it secret.

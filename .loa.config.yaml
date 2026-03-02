@@ -1,245 +1,159 @@
-# Loa Configuration
-# Active: Eval Sandbox (#277)
+# Loa Framework Configuration
+# This file is yours to customize - framework updates will never modify it
 
-simstim:
+# =============================================================================
+# Persistence Mode
+# =============================================================================
+# - standard: Commit grimoire and beads to repo (default)
+# - stealth: Add state files to .gitignore, local-only operation
+persistence_mode: standard
+
+# =============================================================================
+# Integrity Enforcement
+# =============================================================================
+# - strict: Block agent execution on System Zone drift (recommended)
+# - warn: Warn but allow execution
+# - disabled: No integrity checks (not recommended)
+integrity_enforcement: strict
+
+# =============================================================================
+# Drift Resolution Policy
+# =============================================================================
+# - code: Update documentation to match implementation (existing codebases)
+# - docs: Create beads to fix code to match documentation (greenfield)
+# - ask: Always prompt for human decision
+drift_resolution: code
+
+# =============================================================================
+# Agent Configuration
+# =============================================================================
+disabled_agents: []
+# disabled_agents:
+#   - auditing-security
+#   - translating-for-executives
+
+# =============================================================================
+# Structured Memory
+# =============================================================================
+memory:
+  notes_file: grimoires/loa/NOTES.md
+  trajectory_dir: grimoires/loa/a2a/trajectory
+  # Auto-compact trajectory logs older than N days
+  trajectory_retention_days: 30
+
+# =============================================================================
+# Evaluation-Driven Development
+# =============================================================================
+edd:
   enabled: true
-  bridgebuilder_design_review: true   # Phase 3.5 gate — enabled for cycle-048
-  flatline:
-    auto_accept_high_consensus: true
-    show_disputed: true
-    show_blockers: true
-    beads_loop: true                    # Phase 6.5: Flatline Beads iterative refinement
-    phases:
-      - prd
-      - sdd
-      - sprint
+  # Require N test scenarios before marking task complete
+  min_test_scenarios: 3
+  # Audit reasoning trajectory for hallucination
+  trajectory_audit: true
 
-run_mode:
+# =============================================================================
+# Context Hygiene
+# =============================================================================
+compaction:
   enabled: true
-  defaults:
-    max_cycles: 20
-    timeout_hours: 8
-  sprint_plan:
-    branch_prefix: "feat/"
-    default_branch_name: "platform-hardening-c015"
-    consolidate_pr: true
-    commit_prefix: "feat"
-    include_commits_by_sprint: true
+  threshold: 5
 
-# Hounfour — Model-Heterogeneous Agent Routing (cycle-026)
-hounfour:
-  flatline_routing: false  # Route Flatline/GPT-review through model-invoke (cheval.py)
-  flatline_tertiary_model: gemini-2.5-pro  # 3-model Flatline: Opus + GPT-5.3-codex + Gemini
+# =============================================================================
+# Integrations
+# =============================================================================
+integrations:
+  - github
 
-  # Per-subsystem feature flags (all default true — opt-out)
-  feature_flags:
-    google_adapter: true     # Enable Google provider adapter
-    deep_research: true      # Enable Deep Research models (Interactions API)
-    flatline_routing: false   # Route Flatline through Hounfour (same as top-level)
-    metering: true           # Enable BudgetEnforcer cost tracking
-    thinking_traces: true    # Include thinking config in request bodies
-    jam_geometry: false      # Enable Jam multi-model parallel review (opt-in)
-
-  # Metering configuration
-  metering:
-    enabled: true
-    ledger_path: .run/cost-ledger.jsonl
-    budget:
-      daily_micro_usd: 500000000  # $500/day default
-      warn_at_percent: 80
-      on_exceeded: downgrade      # block | downgrade | warn
-
-# BUTTERFREEZONE — Cross-Repo Agent Legibility (cycle-017)
-butterfreezone:
-  ecosystem:
-    - repo: 0xHoneyJar/loa-finn
-      role: runtime
-      interface: hounfour-router
-      protocol: loa-hounfour@8.3.1
-    - repo: 0xHoneyJar/loa-hounfour
-      role: protocol
-      interface: npm-package
-      protocol: loa-hounfour@8.3.1
-    - repo: 0xHoneyJar/arrakis
-      role: distribution
-      interface: jwt-auth
-      protocol: loa-hounfour@8.3.1
-  culture:
-    naming_etymology: "Vodou terminology (Loa, Grimoire, Hounfour, Simstim) as cognitive hooks for agent framework concepts"
-    principles:
-      - "Think Before Coding — plan and analyze before implementing"
-      - "Simplicity First — minimum complexity for the current task"
-      - "Surgical Changes — minimal diff, maximum impact"
-      - "Goal-Driven — every action traces to acceptance criteria"
-    methodology: "Agent-driven development with iterative excellence loops (Simstim, Run Bridge, Flatline Protocol)"
-    generative:
-      description: "Creative methodology drawing from cyberpunk fiction, free jazz improvisation, and temporary autonomous zones"
-      references:
-        - "Neuromancer (Gibson) — Simstim as shared consciousness metaphor"
-        - "Flatline Protocol — adversarial multi-model review as creative tension"
-        - "TAZ (Hakim Bey) — temporary spaces for autonomous agent exploration"
-      study_groups: "Knowledge production through collective inquiry — Flatline as multi-model study group"
-
-# Vision Registry Integration (v1.42.0 — cycle-041)
-# Weaves captured visions from bridge reviews into planning workflows.
-# Disabled by default — opt-in via enabled: true.
-vision_registry:
-  enabled: false           # Master switch — default OFF, opt-in
-  shadow_mode: true        # Log matches silently before presenting to user
-  shadow_cycles_before_prompt: 2  # Shadow cycles before graduation prompt
-  status_filter:
-    - Captured
-    - Exploring
-  min_tag_overlap: 2       # Minimum tag overlap for relevance
-  max_visions_per_session: 3  # Cap visions shown per planning session
-  ref_elevation_threshold: 3  # Ref count before lore elevation suggestion
-  propose_requirements: false  # Experimental — vision-inspired requirement proposals
-  bridge_auto_capture: false   # Auto-capture VISION findings from bridge reviews (cycle-042)
-
-# Prompt Isolation (v1.42.0 — cycle-042)
-# De-authorization wrappers for untrusted content in LLM prompts.
-# Addresses vision-003: Context Isolation as Prompt Injection Defense.
-prompt_isolation:
-  enabled: true                # Enable context isolation wrappers in prompt construction
-
-# Continuous Learning — Skill Extraction (cycle-046)
-continuous_learning:
-  skills_dir: grimoires/loa/skills
-  pending_dir: grimoires/loa/skills-pending
-  archive_dir: grimoires/loa/skills-archived
-
-run_bridge:
-  enabled: true
-  defaults:
-    depth: 5
-    per_sprint: false
-    flatline_threshold: 0.05
-    consecutive_flatline: 2
-  bridgebuilder:
-    persona_enabled: true
-    persona_path: .claude/data/bridgebuilder-persona.md
-    enriched_findings: true
-    insights_stream: true
-    praise_findings: true
-    integrity_check: true
-    token_budget:
-      findings_tokens: 5000
-      insights_tokens: 25000
-      total_tokens: 30000
-    size_limits:
-      truncate_bytes: 66560
-      findings_only_bytes: 262144
-    redaction:
-      enabled: true
-      post_redaction_safety: true
-  pipeline_self_review:
-    enabled: false              # Default false — progressive rollout
-    base_branch: main           # Branch to diff against
-
-# Bridgebuilder Design Review (cycle-044)
-bridgebuilder_design_review:
-  enabled: true                 # Enabled for cycle-048 — progressive rollout (sole gate)
-  persona_path: ".claude/data/bridgebuilder-persona.md"  # FR-5.2: configurable persona
-  lore_enabled: true            # Load lore context for reviews
-  vision_capture: true          # Capture VISION/SPECULATION to registry
-  token_budget:                 # Inherits run_bridge.bridgebuilder defaults
-    findings_tokens: 5000
-    insights_tokens: 25000
-    total_tokens: 30000         # Output budget only (input context is additional)
-
+# =============================================================================
+# Flatline Protocol (Multi-Model Adversarial Review)
+# =============================================================================
 flatline_protocol:
   enabled: true
+  # 3-model adversarial panel
+  primary: opus
+  secondary: gpt-5.3-codex
+  tertiary: gemini-2.5-pro
+  # Auto-trigger after document generation
   auto_trigger: true
+  # Which phases trigger Flatline review
   phases:
     prd: true
     sdd: true
     sprint: true
-  models:
-    primary: opus
-    secondary: gpt-5.3-codex
-    tertiary: gemini-2.5-pro        # 3-model Flatline (also read from hounfour.flatline_tertiary_model)
-  thresholds:
-    high_consensus: 700
-    disputed_delta: 300
-    low_value: 400
-    blocker_skeptic: 700
-  max_iterations: 5
-  secret_scanning:
-    patterns:
-      - "AIzaSy[A-Za-z0-9_-]{33}"
-  knowledge:
-    local:
-      enabled: true
-      paths:
-        - grimoires/loa/
-        - .claude/protocols/
-    notebooklm:
-      enabled: false
-      notebook_id: ""
+  # Knowledge sources for context
+  knowledge_sources:
+    tier_1: grimoires/loa/
+    tier_2: notebooklm
+  # Consensus thresholds (0-1000)
+  consensus:
+    high: 700
+    valuable: 600
+    nice_to_have: 400
+    low_value: 0
 
-# Red Team — Generative Adversarial Security Design (cycle-012)
-red_team:
+# =============================================================================
+# Run Mode (Autonomous Sprint Execution)
+# =============================================================================
+run_mode:
   enabled: true
-  mode: standard
-  models:
-    attacker_primary: opus
-    attacker_secondary: gpt-5.3-codex
-    defender_primary: opus
-    defender_secondary: gpt-5.3-codex
+  max_cycles: 20
+  timeout_hours: 8
+  # Safety: always require feature branch
+  require_feature_branch: true
+
+# =============================================================================
+# Run Bridge (Autonomous Excellence Loop)
+# =============================================================================
+run_bridge:
+  enabled: true
   defaults:
-    attacks_per_model: 10
-    depth: 1
-    focus: null
-  thresholds:
-    confirmed_attack: 700
-    theoretical: 400
-    human_review_gate: 800
-  budgets:
-    quick_max_tokens: 50000
-    standard_max_tokens: 200000
-    deep_max_tokens: 500000
-    max_attacks_total: 20
-  early_stopping:
-    saturation_threshold: 0.8
-    min_novel_per_iteration: 2
-  safety:
-    prohibited_content: true
-    mandatory_redaction: true
-    retention_days_restricted: 30
-    retention_days_internal: 90
-    ci_artifact_scrubbing: true
-  input_sanitization:
-    injection_detection: true
-    context_isolation: true
-    secret_filtering: true
-  surfaces_registry: .claude/data/attack-surfaces.yaml
-  simstim:
-    auto_trigger: true      # Enabled for cycle-048
-    phase: post_sdd
-  bridge:
-    enabled: false
-  # Compliance Gate Profiles — parameterized keyword extraction (cycle-046 FR-4)
-  # The 'security' profile is the default. Additional profiles (accessibility,
-  # performance) can be added following the same schema.
-  compliance_gates:
-    security:
-      # Values are grep -E regex patterns. Use "." for single-char wildcard
-      # (e.g., "Error.Handling" matches "Error Handling" and "Error-Handling").
-      keywords:
-        - Security
-        - Authentication
-        - Authorization
-        - Validation
-        - Error.Handling
-        - Access.Control
-        - Secrets
-        - Encryption
-        - Input.Sanitiz
-      prompt_template: "security-comparison"  # Maps to get_evaluation_context() in compliance-lib.sh
-  # Code-vs-Design gate — compares SDD security design to implemented code (cycle-045)
-  code_vs_design:
-    enabled: false                    # Default off — opt-in per FR-3
-    max_cycles: 2                     # Circuit breaker: max re-implementation cycles
-    skip_if_no_sdd: true             # Skip silently when no SDD exists
-    severity_threshold: 700           # Only divergences >700 trigger re-implementation
-    token_budget: 150000              # 150K token ceiling per invocation
+    depth: 3
+    flatline_threshold: 0.05
+    consecutive_flatline: 2
+    per_sprint: false
+
+# =============================================================================
+# Beads (Task Graph Tracking)
+# =============================================================================
+beads:
+  enabled: true
+  autonomous:
+    requires_beads: true
+  # Flatline beads loop: multi-model refinement of task graphs
+  flatline_loop: true
+
+# =============================================================================
+# Vision Registry
+# =============================================================================
+visions:
+  enabled: true
+  # Auto-capture visions during bridge iterations
+  auto_capture: true
+  # Vision directory
+  entries_dir: grimoires/loa/visions/entries
+  # Vision states
+  states:
+    - captured
+    - exploring
+    - validated
+    - integrated
+    - deferred
+
+# =============================================================================
+# Autonomous Mode
+# =============================================================================
+autonomous_mode:
+  enabled: false
+  # Strong signal auto-enable (CLAWDBOT_GATEWAY_TOKEN, LOA_OPERATOR=ai)
+  auto_detect: true
+
+# =============================================================================
+# Framework Upgrade Behavior
+# =============================================================================
+upgrade:
+  # Create git commit after mount/upgrade (default: true)
+  auto_commit: true
+  # Create version tag after mount/upgrade (default: true)
+  auto_tag: true
+  # Conventional commit prefix (default: "chore")
+  commit_prefix: "chore"

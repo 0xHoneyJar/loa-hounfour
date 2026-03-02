@@ -1,3 +1,0 @@
-This document contains configuration notes.
-The old AWS access key was AKIAIOSFODNN7EXAMPLE and should be rotated.
-Please update the credentials in the deployment config.
