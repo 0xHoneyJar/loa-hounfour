@@ -91,7 +91,7 @@
     "fast-check": "^4.5.3",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.2"
   },
   "overrides": {
     "rollup": "^4.59.0"
