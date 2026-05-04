@@ -174,4 +174,17 @@ describe('OrgRepresentativeDelegationSchema', () => {
     };
     expect(Value.Check(OrgRepresentativeDelegationSchema, mutated)).toBe(false);
   });
+
+  // --- Mutation 9: revocation.revoked pinned to literal true (envelope-presence semantics) ---
+  it('rejects revocation.revoked = false (must be literal true when envelope is present)', () => {
+    const mutated = {
+      ...validDelegation,
+      revocation: {
+        revoked: false,
+        revoked_at: '2026-06-05T00:00:00Z',
+        revoked_by: 'agent-overseer',
+      },
+    };
+    expect(Value.Check(OrgRepresentativeDelegationSchema, mutated)).toBe(false);
+  });
 });

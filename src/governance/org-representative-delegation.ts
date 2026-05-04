@@ -57,10 +57,15 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
     revocation: Type.Optional(
       Type.Object(
         {
-          revoked: Type.Boolean({
+          revoked: Type.Literal(true, {
             description:
-              'Append-only revocation flag. ORD-2 (runtime-deferred): once true, MUST NOT '
-              + 'be set back to false in any subsequent record sharing this delegation_id.',
+              'Pinned to literal `true`. The presence of the revocation envelope is the '
+              + 'semantic signal of revocation; the boolean is retained as an explicit '
+              + 'sentinel so consumers do not need to reason about envelope presence. '
+              + 'Setting `revoked: false` is structurally unrepresentable, which subsumes '
+              + 'the ORD-2 append-only-revoked invariant at the schema layer (ORD-2 '
+              + 'remains runtime-deferred for the cross-record "no later record may '
+              + 'reset to absent-envelope" obligation).',
           }),
           revoked_at: Type.String({
             format: 'date-time',
@@ -81,7 +86,9 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
         {
           additionalProperties: false,
           description:
-            'Revocation envelope. When present, indicates this record marks the delegation as revoked.',
+            'Revocation envelope. When present, this record revokes the delegation. The '
+            + '`revoked` field is pinned to `true` so envelope-presence and boolean-value '
+            + 'cannot disagree.',
         },
       ),
     ),
