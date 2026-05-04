@@ -488,7 +488,7 @@
       "type": "string"
     },
     "scoring_rubric": {
-      "description": "Per-dimension scoring config; expected to mirror CrossScoreReport dimensions (output_score, reasoning_score, grounding_score).",
+      "description": "Per-dimension scoring config. Conventional keys (per CrossScoreReport dimensions): `output_score`, `reasoning_score`, `grounding_score` — each typically `{ weight: number 0..1, description?: string }`. The schema accepts any keys to avoid pinning a tight v8.4.0 shape; a stricter `Type.Object` form MAY land additively in a later release.",
       "type": "object",
       "patternProperties": {
         "^(.*)$": {}
