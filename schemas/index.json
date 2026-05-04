@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.3.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-02-28T01:24:40.383Z",
+  "generated_at": "2026-05-04T16:56:23.466Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1209,6 +1209,30 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/mutation-context",
       "file": "mutation-context.schema.json",
       "description": "Context for a governed resource mutation — actor identity, type, and access policy. Generalized from freeside's CreditMutationContext (6-witness pattern)."
+    },
+    {
+      "name": "panel-decision-artifact",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-decision-artifact",
+      "file": "panel-decision-artifact.schema.json",
+      "description": "Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json."
+    },
+    {
+      "name": "panel-verdict",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-verdict",
+      "file": "panel-verdict.schema.json",
+      "description": "Deliberation output: bucket + per-juror verdicts + Ed25519-signed envelope. Cross-field rules in constraints/PanelVerdict.constraints.json."
+    },
+    {
+      "name": "deliberation-dissent",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/deliberation-dissent",
+      "file": "deliberation-dissent.schema.json",
+      "description": "Mid-deliberation concern, minority verdict, or process objection. Distinct lifecycle from governance DissentRecord."
+    },
+    {
+      "name": "cross-score-report",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/cross-score-report",
+      "file": "cross-score-report.schema.json",
+      "description": "Signed pairwise cross-scoring attestation. Cross-field rule (no-self-scoring) in constraints/CrossScoreReport.constraints.json."
     }
   ]
 }

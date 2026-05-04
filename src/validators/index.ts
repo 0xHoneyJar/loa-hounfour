@@ -68,6 +68,10 @@ import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
 import { AgentCapacityReservationSchema, type AgentCapacityReservation } from '../schemas/model/routing/agent-capacity-reservation.js';
 import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
 import { AuditTrailEntrySchema, type AuditTrailEntry } from '../schemas/audit-trail-entry.js';
+import { PanelDecisionArtifactSchema } from '../governance/panel-decision-artifact.js';
+import { PanelVerdictSchema } from '../governance/panel-verdict.js';
+import { DeliberationDissentSchema } from '../governance/deliberation-dissent.js';
+import { CrossScoreReportSchema } from '../governance/cross-score-report.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -960,4 +964,10 @@ export const validators = {
 
   // v5.2.0 — Audit Trail
   auditTrailEntry: () => getOrCompile(AuditTrailEntrySchema),
+
+  // v8.4.0 — Deliberation Set (FR-A1..FR-A4)
+  panelDecisionArtifact: () => getOrCompile(PanelDecisionArtifactSchema),
+  panelVerdict: () => getOrCompile(PanelVerdictSchema),
+  deliberationDissent: () => getOrCompile(DeliberationDissentSchema),
+  crossScoreReport: () => getOrCompile(CrossScoreReportSchema),
 } as const;

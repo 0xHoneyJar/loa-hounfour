@@ -393,3 +393,47 @@ export {
 export {
   mapTierToReputationState,
 } from './tier-reputation-map.js';
+
+// Sub-schema — Signing Context (v8.4.0, shared by PanelVerdict + CrossScoreReport + OrgRepresentativeDelegation)
+export {
+  SigningContextSchema,
+  type SigningContext,
+} from './signing-context.js';
+
+// Schemas — PanelDecisionArtifact (v8.4.0, FR-A1)
+export {
+  ClaimGroundingSchema,
+  ClaimSchema,
+  ProposedActionSchema,
+  TrustContextSchema,
+  PanelDecisionArtifactSchema,
+  type ClaimGrounding,
+  type Claim,
+  type ProposedAction,
+  type TrustContext,
+  type PanelDecisionArtifact,
+} from './panel-decision-artifact.js';
+
+// Schemas — PanelVerdict (v8.4.0, FR-A2)
+export {
+  JurorVerdictSchema,
+  AsymmetricBlockerSignalSchema,
+  PanelVerdictSchema,
+  type JurorVerdict,
+  type AsymmetricBlockerSignal,
+  type PanelVerdict,
+} from './panel-verdict.js';
+
+// Schemas — DeliberationDissent (v8.4.0, FR-A3)
+export {
+  DeliberationDissentSchema,
+  type DeliberationDissent,
+} from './deliberation-dissent.js';
+
+// Schemas — CrossScoreReport (v8.4.0, FR-A4)
+export {
+  PairwiseScoreSchema,
+  CrossScoreReportSchema,
+  type PairwiseScore,
+  type CrossScoreReport,
+} from './cross-score-report.js';
