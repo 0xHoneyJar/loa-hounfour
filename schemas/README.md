@@ -2,7 +2,7 @@
 
 **Contract version:** 8.3.1
 **Min supported:** 6.0.0
-**Schemas:** 206
+**Schemas:** 209
 
 ## Schemas
 
@@ -214,6 +214,9 @@
 | panel-verdict | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/panel-verdict` | [panel-verdict.schema.json](panel-verdict.schema.json) |
 | deliberation-dissent | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/deliberation-dissent` | [deliberation-dissent.schema.json](deliberation-dissent.schema.json) |
 | cross-score-report | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/cross-score-report` | [cross-score-report.schema.json](cross-score-report.schema.json) |
+| org-identity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/org-identity` | [org-identity.schema.json](org-identity.schema.json) |
+| org-representative-delegation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/org-representative-delegation` | [org-representative-delegation.schema.json](org-representative-delegation.schema.json) |
+| succession-policy | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/succession-policy` | [succession-policy.schema.json](succession-policy.schema.json) |
 
 ## Usage
 

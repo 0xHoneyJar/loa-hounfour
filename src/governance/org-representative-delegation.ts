@@ -1,0 +1,145 @@
+/**
+ * OrgRepresentativeDelegation — append-only delegation log binding org public
+ * key → representative AgentIdentity, optionally chained through prior
+ * delegations to a genesis sentinel.
+ *
+ * Each record is Ed25519-signed and bears a `signing_context` envelope
+ * (audience = org_id, scope = `'org-delegation/grant'` | `'org-delegation/revoke'`,
+ * contract_version) to prevent cross-org and cross-lifecycle replay.
+ *
+ * The chain is rooted at the literal genesis sentinel string
+ * `"genesis:org-public-key"` (SDD section 3.6 ORD-3): the first delegation in
+ * a chain has `granted_by == "genesis:org-public-key"`; subsequent records
+ * have `granted_by == <prior-delegation-id>`. Maximum chain depth is 20.
+ *
+ * Cross-field rules ORD-1..3 (constraints/OrgRepresentativeDelegation.constraints.json):
+ *   - ORD-1: Ed25519 signature verification — *runtime-deferred* per NF-1
+ *   - ORD-2: revocation lifecycle append-only — *runtime-deferred* (single-record stateless)
+ *   - ORD-3: chain validity + depth bound — *library*, via `is_valid_dag` (PR-A1.3)
+ *
+ * @see SDD section 3.4.2 — OrgRepresentativeDelegation required fields, signing_context binding
+ * @see SDD section 3.6 — ORD-3 genesis sentinel encoding
+ * @see Issue #61 — Source RFC
+ * @since v8.4.0 (FR-B2)
+ */
+import { Type, type Static } from '@sinclair/typebox';
+import { AgentIdentitySchema } from '../schemas/agent-identity.js';
+import { SigningContextSchema } from './signing-context.js';
+
+/**
+ * Genesis sentinel literal string. The first delegation in a chain (granted
+ * directly by the cold-storage `org_public_key`) records `granted_by` as
+ * this exact value. Stable cross-runner per SDD section 3.6.
+ */
+export const ORG_DELEGATION_GENESIS_SENTINEL = 'genesis:org-public-key' as const;
+
+export const OrgRepresentativeDelegationSchema = Type.Object(
+  {
+    delegation_id: Type.String({
+      format: 'uuid',
+      description: 'UUID v4 identifying this delegation record.',
+    }),
+    org_id: Type.String({
+      format: 'uuid',
+      description: 'UUID v4 of the org this delegation is scoped to.',
+    }),
+    representative: AgentIdentitySchema,
+    capability_scope: Type.Record(Type.String(), Type.Unknown(), {
+      description:
+        'Domain-specific capability scope. Keys are consumer-defined. '
+        + 'Library does not interpret the contents; consumer-side authorization '
+        + 'evaluates against this object.',
+    }),
+    expiry: Type.String({
+      format: 'date-time',
+      description: 'ISO 8601 timestamp after which this delegation is no longer effective.',
+    }),
+    revocation: Type.Optional(
+      Type.Object(
+        {
+          revoked: Type.Boolean({
+            description:
+              'Append-only revocation flag. ORD-2 (runtime-deferred): once true, MUST NOT '
+              + 'be set back to false in any subsequent record sharing this delegation_id.',
+          }),
+          revoked_at: Type.String({
+            format: 'date-time',
+            description: 'ISO 8601 timestamp at which this delegation was revoked.',
+          }),
+          revoked_by: Type.String({
+            pattern: '^[a-z][a-z0-9_-]{2,63}$',
+            description: 'agent_id of the actor that issued the revocation.',
+          }),
+          reason: Type.Optional(
+            Type.String({
+              minLength: 1,
+              maxLength: 1024,
+              description: 'Optional human-readable revocation reason.',
+            }),
+          ),
+        },
+        {
+          additionalProperties: false,
+          description:
+            'Revocation envelope. When present, indicates this record marks the delegation as revoked.',
+        },
+      ),
+    ),
+    granted_by: Type.Union(
+      [
+        Type.String({
+          format: 'uuid',
+          description: 'delegation_id reference to the prior link in the chain.',
+        }),
+        Type.Literal(ORG_DELEGATION_GENESIS_SENTINEL, {
+          description: 'Genesis sentinel — chain rooted directly at org_public_key.',
+        }),
+      ],
+      {
+        description:
+          'Either the prior delegation_id (UUID v4) in the chain, or the literal genesis '
+          + 'sentinel "genesis:org-public-key" indicating direct grant by the cold-storage '
+          + 'org_public_key. ORD-3 verifies chain reachability via the is_valid_dag builtin.',
+      },
+    ),
+    chain_depth: Type.Integer({
+      minimum: 0,
+      maximum: 20,
+      description:
+        'Asserted depth of this delegation in the chain (0 for genesis-granted). '
+        + 'Hard cap of 20; ORD-3 cross-checks against actual chain reachability.',
+    }),
+    signature: Type.String({
+      pattern: '^ed25519:[A-Za-z0-9_-]{86,88}$',
+      description:
+        'Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. '
+        + 'Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).',
+    }),
+    signed_by: Type.String({
+      pattern: '^ed25519-pub:[A-Za-z0-9_-]{43,44}$',
+      description: 'Ed25519 public key identifier of the signer.',
+    }),
+    signing_key_id: Type.String({
+      minLength: 1,
+      description: 'Stable key identifier for rotation tracking on the consumer side.',
+    }),
+    signing_algorithm: Type.Literal('ed25519', {
+      description: 'Pinned to ed25519 for v8.4.0; future versions MAY widen this union additively.',
+    }),
+    signed_at: Type.String({
+      format: 'date-time',
+      description: 'ISO 8601 timestamp at which this delegation was signed.',
+    }),
+    signing_context: SigningContextSchema,
+  },
+  {
+    $id: 'OrgRepresentativeDelegation',
+    additionalProperties: false,
+    'x-cross-field-validated': true,
+    description:
+      'Append-only delegation record binding org → representative, signed under '
+      + 'a signing_context envelope. Cross-field rules in '
+      + 'constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3).',
+  },
+);
+export type OrgRepresentativeDelegation = Static<typeof OrgRepresentativeDelegationSchema>;

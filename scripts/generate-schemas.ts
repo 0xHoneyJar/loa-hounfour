@@ -175,6 +175,10 @@ import { PanelDecisionArtifactSchema } from '../src/governance/panel-decision-ar
 import { PanelVerdictSchema } from '../src/governance/panel-verdict.js';
 import { DeliberationDissentSchema } from '../src/governance/deliberation-dissent.js';
 import { CrossScoreReportSchema } from '../src/governance/cross-score-report.js';
+// v8.4.0 — OrgOverseer (FR-B1..FR-B3)
+import { OrgIdentitySchema } from '../src/governance/org-identity.js';
+import { OrgRepresentativeDelegationSchema } from '../src/governance/org-representative-delegation.js';
+import { SuccessionPolicySchema } from '../src/governance/succession-policy.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -441,6 +445,10 @@ const schemas = [
   { name: 'panel-verdict', schema: PanelVerdictSchema },
   { name: 'deliberation-dissent', schema: DeliberationDissentSchema },
   { name: 'cross-score-report', schema: CrossScoreReportSchema },
+  // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
+  { name: 'org-identity', schema: OrgIdentitySchema },
+  { name: 'org-representative-delegation', schema: OrgRepresentativeDelegationSchema },
+  { name: 'succession-policy', schema: SuccessionPolicySchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

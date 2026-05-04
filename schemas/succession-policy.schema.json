@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/succession-policy",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Constitutional thresholds enforcing the asymmetric ladder + non-decreasing cooldown invariants. Cross-field rules SP-1..2 in constraints/SuccessionPolicy.constraints.json.",
+  "type": "object",
+  "required": [
+    "policy_id",
+    "org_id",
+    "amend",
+    "rotate",
+    "add",
+    "remove",
+    "effective_at"
+  ],
+  "properties": {
+    "policy_id": {
+      "format": "uuid",
+      "description": "UUID v4 identifying this policy.",
+      "type": "string"
+    },
+    "org_id": {
+      "format": "uuid",
+      "description": "UUID v4 of the org this policy is bound to.",
+      "type": "string"
+    },
+    "amend": {
+      "additionalProperties": false,
+      "description": "Per-action threshold + cooldown pair.",
+      "type": "object",
+      "required": [
+        "threshold",
+        "cooldown_seconds"
+      ],
+      "properties": {
+        "threshold": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Quorum fraction in [0, 1] required to enact this action. Compared across actions by the SP-1 asymmetric-ladder rule.",
+          "type": "number"
+        },
+        "cooldown_seconds": {
+          "minimum": 0,
+          "description": "Minimum elapsed seconds between successive actions of this kind. Compared across actions by the SP-2 non-decreasing-cooldown rule.",
+          "type": "integer"
+        }
+      }
+    },
+    "rotate": {
+      "additionalProperties": false,
+      "description": "Per-action threshold + cooldown pair.",
+      "type": "object",
+      "required": [
+        "threshold",
+        "cooldown_seconds"
+      ],
+      "properties": {
+        "threshold": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Quorum fraction in [0, 1] required to enact this action. Compared across actions by the SP-1 asymmetric-ladder rule.",
+          "type": "number"
+        },
+        "cooldown_seconds": {
+          "minimum": 0,
+          "description": "Minimum elapsed seconds between successive actions of this kind. Compared across actions by the SP-2 non-decreasing-cooldown rule.",
+          "type": "integer"
+        }
+      }
+    },
+    "add": {
+      "additionalProperties": false,
+      "description": "Per-action threshold + cooldown pair.",
+      "type": "object",
+      "required": [
+        "threshold",
+        "cooldown_seconds"
+      ],
+      "properties": {
+        "threshold": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Quorum fraction in [0, 1] required to enact this action. Compared across actions by the SP-1 asymmetric-ladder rule.",
+          "type": "number"
+        },
+        "cooldown_seconds": {
+          "minimum": 0,
+          "description": "Minimum elapsed seconds between successive actions of this kind. Compared across actions by the SP-2 non-decreasing-cooldown rule.",
+          "type": "integer"
+        }
+      }
+    },
+    "remove": {
+      "additionalProperties": false,
+      "description": "Per-action threshold + cooldown pair.",
+      "type": "object",
+      "required": [
+        "threshold",
+        "cooldown_seconds"
+      ],
+      "properties": {
+        "threshold": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Quorum fraction in [0, 1] required to enact this action. Compared across actions by the SP-1 asymmetric-ladder rule.",
+          "type": "number"
+        },
+        "cooldown_seconds": {
+          "minimum": 0,
+          "description": "Minimum elapsed seconds between successive actions of this kind. Compared across actions by the SP-2 non-decreasing-cooldown rule.",
+          "type": "integer"
+        }
+      }
+    },
+    "effective_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp from which this policy is in force.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+}

@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/org-representative-delegation",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Append-only delegation record binding org → representative, signed under a signing_context envelope. Cross-field rules in constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3).",
+  "type": "object",
+  "required": [
+    "delegation_id",
+    "org_id",
+    "representative",
+    "capability_scope",
+    "expiry",
+    "granted_by",
+    "chain_depth",
+    "signature",
+    "signed_by",
+    "signing_key_id",
+    "signing_algorithm",
+    "signed_at",
+    "signing_context"
+  ],
+  "properties": {
+    "delegation_id": {
+      "format": "uuid",
+      "description": "UUID v4 identifying this delegation record.",
+      "type": "string"
+    },
+    "org_id": {
+      "format": "uuid",
+      "description": "UUID v4 of the org this delegation is scoped to.",
+      "type": "string"
+    },
+    "representative": {
+      "$id": "AgentIdentity",
+      "additionalProperties": false,
+      "x-cross-field-validated": true,
+      "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING).",
+      "type": "object",
+      "required": [
+        "agent_id",
+        "display_name",
+        "agent_type",
+        "capabilities",
+        "trust_scopes",
+        "delegation_authority",
+        "max_delegation_depth",
+        "governance_weight",
+        "contract_version"
+      ],
+      "properties": {
+        "agent_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "Unique agent identifier (lowercase, 3-64 chars).",
+          "type": "string"
+        },
+        "display_name": {
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Human-readable agent display name.",
+          "type": "string"
+        },
+        "agent_type": {
+          "$id": "AgentType",
+          "description": "Classification of agent type in the protocol.",
+          "anyOf": [
+            {
+              "const": "model",
+              "type": "string"
+            },
+            {
+              "const": "orchestrator",
+              "type": "string"
+            },
+            {
+              "const": "human",
+              "type": "string"
+            },
+            {
+              "const": "service",
+              "type": "string"
+            },
+            {
+              "const": "composite",
+              "type": "string"
+            }
+          ]
+        },
+        "capabilities": {
+          "minItems": 1,
+          "description": "Non-empty list of agent capabilities.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "trust_scopes": {
+          "$id": "CapabilityScopedTrust",
+          "additionalProperties": false,
+          "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+          "type": "object",
+          "required": [
+            "scopes",
+            "default_level"
+          ],
+          "properties": {
+            "scopes": {
+              "additionalProperties": false,
+              "description": "Per-scope trust levels. Missing scopes fall back to default_level.",
+              "type": "object",
+              "properties": {
+                "billing": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "governance": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "inference": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "delegation": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "audit": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "composition": {
+                  "$id": "TrustLevel",
+                  "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                  "anyOf": [
+                    {
+                      "const": "untrusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "basic",
+                      "type": "string"
+                    },
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "trusted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "sovereign",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            "default_level": {
+              "$id": "TrustLevel",
+              "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+              "anyOf": [
+                {
+                  "const": "untrusted",
+                  "type": "string"
+                },
+                {
+                  "const": "basic",
+                  "type": "string"
+                },
+                {
+                  "const": "verified",
+                  "type": "string"
+                },
+                {
+                  "const": "trusted",
+                  "type": "string"
+                },
+                {
+                  "const": "sovereign",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        "delegation_authority": {
+          "description": "Permissions this agent may delegate. Requires delegation scope >= verified.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "max_delegation_depth": {
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Maximum delegation chain depth this agent may create.",
+          "type": "integer"
+        },
+        "governance_weight": {
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Voting weight in governance proposals (0-1).",
+          "type": "number"
+        },
+        "metadata": {
+          "description": "Extensible metadata key-value store.",
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {}
+          }
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Protocol contract version.",
+          "type": "string"
+        }
+      }
+    },
+    "capability_scope": {
+      "description": "Domain-specific capability scope. Keys are consumer-defined. Library does not interpret the contents; consumer-side authorization evaluates against this object.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "expiry": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp after which this delegation is no longer effective.",
+      "type": "string"
+    },
+    "revocation": {
+      "additionalProperties": false,
+      "description": "Revocation envelope. When present, indicates this record marks the delegation as revoked.",
+      "type": "object",
+      "required": [
+        "revoked",
+        "revoked_at",
+        "revoked_by"
+      ],
+      "properties": {
+        "revoked": {
+          "description": "Append-only revocation flag. ORD-2 (runtime-deferred): once true, MUST NOT be set back to false in any subsequent record sharing this delegation_id.",
+          "type": "boolean"
+        },
+        "revoked_at": {
+          "format": "date-time",
+          "description": "ISO 8601 timestamp at which this delegation was revoked.",
+          "type": "string"
+        },
+        "revoked_by": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "agent_id of the actor that issued the revocation.",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "Optional human-readable revocation reason.",
+          "type": "string"
+        }
+      }
+    },
+    "granted_by": {
+      "description": "Either the prior delegation_id (UUID v4) in the chain, or the literal genesis sentinel \"genesis:org-public-key\" indicating direct grant by the cold-storage org_public_key. ORD-3 verifies chain reachability via the is_valid_dag builtin.",
+      "anyOf": [
+        {
+          "format": "uuid",
+          "description": "delegation_id reference to the prior link in the chain.",
+          "type": "string"
+        },
+        {
+          "description": "Genesis sentinel — chain rooted directly at org_public_key.",
+          "const": "genesis:org-public-key",
+          "type": "string"
+        }
+      ]
+    },
+    "chain_depth": {
+      "minimum": 0,
+      "maximum": 20,
+      "description": "Asserted depth of this delegation in the chain (0 for genesis-granted). Hard cap of 20; ORD-3 cross-checks against actual chain reachability.",
+      "type": "integer"
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
+      "description": "Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).",
+      "type": "string"
+    },
+    "signed_by": {
+      "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43,44}$",
+      "description": "Ed25519 public key identifier of the signer.",
+      "type": "string"
+    },
+    "signing_key_id": {
+      "minLength": 1,
+      "description": "Stable key identifier for rotation tracking on the consumer side.",
+      "type": "string"
+    },
+    "signing_algorithm": {
+      "description": "Pinned to ed25519 for v8.4.0; future versions MAY widen this union additively.",
+      "const": "ed25519",
+      "type": "string"
+    },
+    "signed_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which this delegation was signed.",
+      "type": "string"
+    },
+    "signing_context": {
+      "$id": "SigningContext",
+      "additionalProperties": false,
+      "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection.",
+      "type": "object",
+      "required": [
+        "audience",
+        "scope",
+        "contract_version"
+      ],
+      "properties": {
+        "audience": {
+          "minLength": 1,
+          "description": "Consumer-defined identifier the signature is bound to (e.g., the org_id or service principal).",
+          "type": "string"
+        },
+        "scope": {
+          "minLength": 1,
+          "description": "Deliberation- or lifecycle-context binding (e.g., \"panel-v1/security-review\", \"org-delegation/grant\").",
+          "type": "string"
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semver-formatted protocol contract version pinned to the signing event.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+}
