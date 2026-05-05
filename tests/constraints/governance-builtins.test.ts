@@ -271,8 +271,8 @@ describe('proposal_weights_normalized', () => {
 // Registry and specs
 // ---------------------------------------------------------------------------
 
-describe('All 41 builtins in registry (v7.8.0)', () => {
-  it('EVALUATOR_BUILTINS contains 41 functions', () => {
+describe('All registered builtins in registry', () => {
+  it('EVALUATOR_BUILTINS contains the registered set of builtins', () => {
     expect(EVALUATOR_BUILTINS).toHaveLength(44);
   });
 
@@ -288,7 +288,7 @@ describe('All 41 builtins in registry (v7.8.0)', () => {
     expect(EVALUATOR_BUILTINS).toContain('proposal_quorum_met');
   });
 
-  it('EVALUATOR_BUILTIN_SPECS has 41 entries', () => {
+  it('EVALUATOR_BUILTIN_SPECS has one spec per registered builtin', () => {
     expect(EVALUATOR_BUILTIN_SPECS.size).toBe(44);
   });
 

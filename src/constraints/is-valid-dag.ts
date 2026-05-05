@@ -185,6 +185,10 @@ export function evaluateIsValidDag(
   // Step 1: build the id-index. +1 op per item visited.
   let ops = 0;
   const index = new Map<string, Record<string, unknown>>();
+  // Map id → source array index. Used at diagnostic time to produce
+  // canonical `$[i].refField` paths (vs the wildcard `$[*].refField`),
+  // so consumers can locate the offending source record without rescan.
+  const idToIndex = new Map<string, number>();
   // Track all original-array indices for each id so DAG_DUPLICATE_ID can
   // report a complete `indices` list per the diagnostic contract.
   const idIndices = new Map<string, number[]>();
@@ -251,6 +255,7 @@ export function evaluateIsValidDag(
       };
     }
     idIndices.set(idValue, [i]);
+    idToIndex.set(idValue, i);
     index.set(idValue, record);
   }
 
@@ -293,11 +298,13 @@ export function evaluateIsValidDag(
     const node = index.get(nodeId);
     if (node === undefined) {
       // Unreachable when all ids are indexed, but defend against future
-      // refactors. Treat as dangling at the entry point.
+      // refactors. The `kind: 'index-miss'` discriminator distinguishes this
+      // defensive trap from a genuine dangling-ref case (which would carry
+      // distinct `from` and `ref` ids, not a self-reference).
       diagnostic = {
         code: 'DAG_DANGLING_REF',
         path: '$',
-        context: { from: nodeId, ref: nodeId },
+        context: { from: nodeId, ref: nodeId, kind: 'index-miss' },
       };
       return;
     }
@@ -317,10 +324,15 @@ export function evaluateIsValidDag(
       const refValue = extractPath(node, refField);
       if (refValue === undefined || refValue === null) continue;
 
+      const sourceIndex = idToIndex.get(nodeId);
+      const sourcePath = sourceIndex !== undefined
+        ? `$[${sourceIndex}].${refField}`
+        : `$[*].${refField}`;
+
       if (typeof refValue !== 'string') {
         diagnostic = {
           code: 'DAG_DANGLING_REF',
-          path: `$[*].${refField}`,
+          path: sourcePath,
           context: { from: nodeId, ref: refValue, reason: 'non-string-ref' },
         };
         return;
@@ -329,7 +341,7 @@ export function evaluateIsValidDag(
       if (!index.has(refValue)) {
         diagnostic = {
           code: 'DAG_DANGLING_REF',
-          path: `$[*].${refField}`,
+          path: sourcePath,
           context: { from: nodeId, ref: refValue },
         };
         return;

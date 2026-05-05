@@ -262,6 +262,20 @@ describe('is_valid_dag — DSL surface variadic ref_fields', () => {
       ),
     ).toBe(false);
   });
+
+  it('returns false on the DSL surface when a ref_field literal is non-string', () => {
+    // Honest constraint expressions always use string-literal ref_fields
+    // (e.g., 'next', 'grounding.claim_id'). The parser short-circuits to
+    // false when a numeric or boolean literal slips in, instead of silently
+    // proceeding with a malformed ref_field. This guards the cross-runner
+    // contract — a runner that COERCED 42 to '42' would diverge from TS.
+    expect(
+      evaluateConstraint(
+        { items: [{ id: 'A' }] },
+        "is_valid_dag(items, 'id', 42)",
+      ),
+    ).toBe(false);
+  });
 });
 
 describe('extract_path — SDD section 5.5.1 reference table', () => {
