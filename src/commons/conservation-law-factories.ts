@@ -5,7 +5,7 @@
  * rather than relying on hand-written runtime strings. Each factory maps to
  * a real-world pattern from the loa ecosystem.
  *
- * @see Bridgebuilder Finding F7 — Static checking for conservation expressions
+ * @see code review Finding F7 — Static checking for conservation expressions
  * @since v8.1.0
  */
 import type { ConservationLaw } from './conservation-law.js';
@@ -14,7 +14,7 @@ import type { Invariant } from './invariant.js';
 /**
  * Auto-incrementing counter for factory-generated invariant IDs.
  * Prevents ID collisions when multiple factories are called for the same resource.
- * (Bridgebuilder F11 — hardcoded singleton IDs)
+ * (code review F11 — hardcoded singleton IDs)
  */
 let _factoryCounter = 0;
 function nextFactoryId(): string {
@@ -100,7 +100,7 @@ export function buildNonNegativeInvariant(
 /**
  * Create a bounded invariant: floor <= field <= ceiling.
  *
- * Maps to loa-dixie's freshness bounds: 0 <= freshness_score <= 100.
+ * Common usage: freshness-bounds patterns (e.g., 0 <= freshness_score <= 100).
  *
  * @param id - Invariant ID
  * @param name - Human-readable name
@@ -192,7 +192,7 @@ export function createNonNegativeConservation(
 /**
  * Create a bounded conservation law for a numeric field.
  *
- * Maps to loa-dixie's freshness decay bounds pattern.
+ * Common usage: freshness-decay-bounds pattern.
  *
  * @param field - Field to bound
  * @param floor - Minimum value (inclusive)

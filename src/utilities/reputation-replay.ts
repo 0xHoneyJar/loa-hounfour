@@ -6,10 +6,10 @@
  * these functions can reconstruct aggregate state, verify consistency,
  * and produce deterministic hashes for Oracle attestation.
  *
- * @see Bridgebuilder C2 — "Event sourcing isn't optional for an
+ * @see code review C2 — "Event sourcing isn't optional for an
  *   auditable economic protocol — it's the only way to prove the
  *   aggregate state is correct."
- * @see Dixie Oracle (loa-dixie#2) — Oracle verification requires replay
+ * @see Oracle agent — Oracle verification requires replay over the event stream
  * @since v7.3.0
  */
 import { sha256 } from '@noble/hashes/sha2.js';
@@ -244,7 +244,7 @@ export function reconstructAggregateFromEvents(
  * @param tolerance - Floating-point comparison tolerance (default 0.001)
  * @returns Consistency report with drift details
  *
- * @see Dixie Oracle attestation — "trust, but verify"
+ * @see Oracle-agent attestation — "trust, but verify"
  * @since v7.3.0
  */
 export function verifyAggregateConsistency(

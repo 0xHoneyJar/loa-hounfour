@@ -1,5 +1,5 @@
 /**
- * AccessPolicy evaluation helper (v7.2.0, FR-6 + Bridgebuilder F1).
+ * AccessPolicy evaluation helper (v7.2.0, FR-6 + code review F1).
  *
  * Evaluates an AccessPolicy against a runtime context to determine
  * whether an action is permitted.
@@ -27,7 +27,7 @@ export interface AccessPolicyContext {
    * to enforce `time_limited` expiry when paired with `duration_hours`.
    * When absent, expiry enforcement falls back to consumer responsibility.
    *
-   * @since v7.2.0 — Bridgebuilder Finding F1
+   * @since v7.2.0 — code review Finding F1
    */
   policy_created_at?: string;
   /** Current reputation state of the requesting personality (v7.3.0). */
@@ -40,7 +40,7 @@ export interface AccessPolicyContext {
    * or `revoke_below_state`, the evaluator uses the lower revoke threshold
    * instead of the grant threshold — preventing oscillation (hysteresis).
    *
-   * @since v7.4.0 — Bridgebuilder Vision B-V1
+   * @since v7.4.0 — internal review vision B-V1
    */
   previously_granted?: boolean;
 }

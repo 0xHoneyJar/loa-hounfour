@@ -38,7 +38,7 @@ export type ReputationTransition = Static<typeof ReputationTransitionSchema>;
  * multi-model agent shouldn't have one reputation score when different
  * models produce measurably different quality.
  *
- * @since v7.3.0 — Bridgebuilder C5 + Spec I
+ * @since v7.3.0 — code review C5 + Spec I
  */
 export const ModelCohortSchema = Type.Object({
   ...COHORT_BASE_FIELDS,
@@ -87,7 +87,7 @@ export const ReputationAggregateSchema = Type.Object({
   last_updated: Type.String({ format: 'date-time' }),
   transition_history: Type.Array(ReputationTransitionSchema),
 
-  // Model-aware cohorts (v7.3.0 — Bridgebuilder C5 + Spec I)
+  // Model-aware cohorts (v7.3.0 — code review C5 + Spec I)
   model_cohorts: Type.Optional(Type.Array(ModelCohortSchema, {
     description: 'Per-model reputation cohorts. When present, each entry tracks quality '
       + 'observations for a specific model alias. The top-level personal_score and '
@@ -214,7 +214,7 @@ export function computeBlendedScore(
 }
 
 // ---------------------------------------------------------------------------
-// Temporal Decay (v7.2.0 — Bridgebuilder Finding F5)
+// Temporal Decay (v7.2.0 — code review Finding F5)
 // ---------------------------------------------------------------------------
 
 /**
@@ -233,7 +233,7 @@ export function computeBlendedScore(
  * @param halfLifeDays - Decay half-life in days (default: REPUTATION_DECAY.half_life_days = 30)
  * @returns Effective sample count after decay, minimum 0
  *
- * @since v7.2.0 — Bridgebuilder Finding F5
+ * @since v7.2.0 — code review Finding F5
  */
 export function computeDecayedSampleCount(
   sampleCount: number,
@@ -247,7 +247,7 @@ export function computeDecayedSampleCount(
 }
 
 // ---------------------------------------------------------------------------
-// Cross-Model Meta-Scoring (v7.3.0 — Bridgebuilder C5 + Spec I)
+// Cross-Model Meta-Scoring (v7.3.0 — code review C5 + Spec I)
 // ---------------------------------------------------------------------------
 
 /**
@@ -262,7 +262,7 @@ export function computeDecayedSampleCount(
  * Formula: Σ(score_i * n_i) / Σ(n_i)
  *
  * @see Netflix parallel: per-user-context scores with meta-score blending
- * @since v7.3.0 — Deep Bridgebuilder Review C5 + Spec I
+ * @since v7.3.0 — code review C5 + Spec I
  */
 export function computeCrossModelScore(
   cohorts: ReadonlyArray<{
@@ -284,7 +284,7 @@ export function computeCrossModelScore(
 }
 
 // ---------------------------------------------------------------------------
-// Model Cohort Lookup (v7.4.0 — Bridgebuilder Vision B-V3)
+// Model Cohort Lookup (v7.4.0 — internal review vision B-V3)
 // ---------------------------------------------------------------------------
 
 /**
@@ -297,7 +297,7 @@ export function computeCrossModelScore(
  * @param modelId - The model alias to look up (e.g. "native", "gpt-4o")
  * @returns The matching ModelCohort, or undefined if not found
  *
- * @since v7.4.0 — Bridgebuilder Vision B-V3
+ * @since v7.4.0 — internal review vision B-V3
  */
 export function getModelCohort(
   aggregate: ReputationAggregate,
@@ -307,7 +307,7 @@ export function getModelCohort(
 }
 
 // ---------------------------------------------------------------------------
-// Aggregate Snapshot (v7.3.0 — Bridgebuilder C2 + Spec V)
+// Aggregate Snapshot (v7.3.0 — code review C2 + Spec V)
 // ---------------------------------------------------------------------------
 
 /**
@@ -316,7 +316,7 @@ export function getModelCohort(
  * Used for Oracle attestation and cross-collection credential issuance.
  * The event_stream_hash allows verification without replaying all events.
  *
- * @see Bridgebuilder Spec V — Dixie Oracle verifiable reputation
+ * @see code review Spec V — Oracle-agent verifiable reputation
  * @since v7.3.0
  */
 export const AggregateSnapshotSchema = Type.Object({

@@ -152,8 +152,9 @@ const RequestContextSchema = Type.Object(
  *
  * Carries full model attribution (model_id, provider, pool_id) alongside
  * a structured quality observation. Closes the autopoietic feedback loop:
- * Dixie emits this event → cross-model scoring updates → routing signal
- * adjusts → Finn routes next request → Dixie evaluates again.
+ * a scoring agent emits this event → cross-model scoring updates → routing
+ * signal adjusts → the routing gateway routes next request → the scoring
+ * agent evaluates again.
  *
  * Unlike quality_signal, task_type is REQUIRED — every model performance
  * observation inherently has a task context.

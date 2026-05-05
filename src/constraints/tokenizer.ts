@@ -5,7 +5,7 @@
  * Single source of truth for token types, tokenization rules, and lexical analysis.
  *
  * @see constraints/GRAMMAR.md — PEG grammar specification
- * @see S10-T1 — Shared Tokenizer extraction (Bridgebuilder structural debt fix)
+ * @see S10-T1 — Shared Tokenizer extraction (code review structural debt fix)
  */
 
 // ── Token types ─────────────────────────────────────────────────────────────
