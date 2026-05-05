@@ -60,10 +60,20 @@ const SCHEMAS = {
   SuccessionPolicy: SuccessionPolicySchema,
 } as const;
 
-// Re-export the canonical constraint-level invalid set so this driver and
-// tests/vectors/v840-governance-vectors.test.ts share one source of truth
-// (resolves bridge iter-1 F8 — DRY across the two consumers).
-import { CONSTRAINT_LEVEL_INVALIDS } from '../tests/vectors/v840-constraint-level-invalids.js';
+// Constraint-level invalid set is committed metadata at
+// `vectors/_meta/constraint-level-invalids.json` so consumers in any
+// language can read it (resolves bridge iter-2 F4 + F6).
+const CONSTRAINT_LEVEL_INVALIDS_PATH = join(
+  fileURLToPath(import.meta.url),
+  '..',
+  '..',
+  'vectors',
+  '_meta',
+  'constraint-level-invalids.json',
+);
+const CONSTRAINT_LEVEL_INVALIDS = new Set<string>(
+  (JSON.parse(readFileSync(CONSTRAINT_LEVEL_INVALIDS_PATH, 'utf8')) as { fixtures: string[] }).fixtures,
+);
 
 interface ManifestEntry {
   schema: string;
@@ -80,6 +90,21 @@ function listJsonFiles(dir: string): string[] {
   return readdirSync(dir).filter((f) => f.endsWith('.json') && !f.endsWith('.trace.json')).sort();
 }
 
+/**
+ * Read + JSON-parse a fixture file, returning a typed result that callers
+ * convert into a manifest "fail" entry on parse error rather than aborting
+ * the sweep (resolves bridge iter-2 F-001). One malformed fixture in one
+ * subtree should not kill diagnostic signal for the rest.
+ */
+function readJsonFixture(path: string): { ok: true; data: unknown } | { ok: false; error: string } {
+  try {
+    const data = JSON.parse(readFileSync(path, 'utf8'));
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
+  }
+}
+
 // -----------------------------------------------------------------------
 // Schema vectors: vectors/<Schema>/{valid,invalid}/*.json
 // -----------------------------------------------------------------------
@@ -87,12 +112,19 @@ for (const [schemaName, schema] of Object.entries(SCHEMAS)) {
   for (const validity of ['valid', 'invalid'] as const) {
     const dir = join(VECTORS_ROOT, schemaName, validity);
     for (const f of listJsonFiles(dir)) {
-      const data = JSON.parse(readFileSync(join(dir, f), 'utf8'));
-      const ok = Value.Check(schema, data);
-      // F-001: `expected` is the manifest contract; keep it a string literal
-      // so cross-language consumers parse the manifest into a discriminated
-      // union without polymorphism. `okMatchesExpected` is the local boolean.
       const expected: 'valid' | 'invalid' = validity;
+      const parsed = readJsonFixture(join(dir, f));
+      if (!parsed.ok) {
+        manifest.push({
+          schema: schemaName,
+          vector: `${validity}/${f}`,
+          expected,
+          result: 'fail',
+          diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
+        });
+        continue;
+      }
+      const ok = Value.Check(schema, parsed.data);
       const okMatchesExpected = ok === (validity === 'valid');
       const key = `${schemaName}/${validity}/${f}`;
       let result: ManifestEntry['result'];
@@ -112,9 +144,20 @@ for (const [schemaName, schema] of Object.entries(SCHEMAS)) {
 for (const validity of ['valid', 'invalid'] as const) {
   const dir = join(VECTORS_ROOT, 'is-valid-dag', validity);
   for (const f of listJsonFiles(dir)) {
-    const data = JSON.parse(readFileSync(join(dir, f), 'utf8'));
-    const result = evaluateIsValidDag(data.items, data.id_field, data.ref_fields ?? []);
     const expected: 'valid' | 'invalid' = validity;
+    const parsed = readJsonFixture(join(dir, f));
+    if (!parsed.ok) {
+      manifest.push({
+        schema: 'is_valid_dag',
+        vector: `${validity}/${f}`,
+        expected,
+        result: 'fail',
+        diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
+      });
+      continue;
+    }
+    const data = parsed.data as { items: unknown[]; id_field: string; ref_fields?: string[] };
+    const result = evaluateIsValidDag(data.items, data.id_field, data.ref_fields ?? []);
     const okMatches = result.valid === (validity === 'valid');
     manifest.push({
       schema: 'is_valid_dag',
@@ -132,7 +175,19 @@ for (const validity of ['valid', 'invalid'] as const) {
 for (const validity of ['valid', 'invalid'] as const) {
   const dir = join(VECTORS_ROOT, 'extract-path', validity);
   for (const f of listJsonFiles(dir)) {
-    const data = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
+    const expected: 'valid' | 'invalid' = validity;
+    const parsed = readJsonFixture(join(dir, f));
+    if (!parsed.ok) {
+      manifest.push({
+        schema: 'extract_path',
+        vector: `${validity}/${f}`,
+        expected,
+        result: 'fail',
+        diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
+      });
+      continue;
+    }
+    const data = parsed.data as {
       input: unknown;
       path: string;
       expected_status: 'extracted' | 'undefined' | 'rejected';
@@ -142,7 +197,6 @@ for (const validity of ['valid', 'invalid'] as const) {
     let pass: boolean;
     if (data.expected_status === 'extracted') pass = out === data.expected_value;
     else pass = out === undefined;
-    const expected: 'valid' | 'invalid' = validity;
     manifest.push({
       schema: 'extract_path',
       vector: `${validity}/${f}`,
@@ -172,14 +226,24 @@ function safeMatch(pattern: string, value: string): { ok: boolean; reason?: stri
 for (const validity of ['valid', 'invalid'] as const) {
   const dir = join(VECTORS_ROOT, 'signing', 'ed25519-pattern', validity);
   for (const f of listJsonFiles(dir)) {
-    const data = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
-      value: string;
-      pattern: string;
-      expected_match: boolean;
-    };
+    // F1 (iter-2): expected is derived from directory across every section,
+    // not from `data.expected_match`. expected_match is checked against the
+    // computed match result and contributes to the pass/fail verdict.
+    const expected: 'valid' | 'invalid' = validity;
+    const parsed = readJsonFixture(join(dir, f));
+    if (!parsed.ok) {
+      manifest.push({
+        schema: 'ed25519_pattern',
+        vector: `${validity}/${f}`,
+        expected,
+        result: 'fail',
+        diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
+      });
+      continue;
+    }
+    const data = parsed.data as { value: string; pattern: string; expected_match: boolean };
     const { ok: matched, reason } = safeMatch(data.pattern, data.value);
     const pass = matched === data.expected_match;
-    const expected: 'valid' | 'invalid' = data.expected_match ? 'valid' : 'invalid';
     manifest.push({
       schema: 'ed25519_pattern',
       vector: `${validity}/${f}`,
@@ -201,7 +265,19 @@ const SEMVER_PATTERN = /^[1-9][0-9]*\.[0-9]+\.[0-9]+$/;
 for (const validity of ['valid', 'invalid'] as const) {
   const dir = join(VECTORS_ROOT, 'signing', 'contract-version-binding', validity);
   for (const f of listJsonFiles(dir)) {
-    const data = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
+    const expected: 'valid' | 'invalid' = validity;
+    const parsed = readJsonFixture(join(dir, f));
+    if (!parsed.ok) {
+      manifest.push({
+        schema: 'contract_version_binding',
+        vector: `${validity}/${f}`,
+        expected,
+        result: 'fail',
+        diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
+      });
+      continue;
+    }
+    const data = parsed.data as {
       value?: string;
       envelope?: { signing_context: { contract_version: string }; contract_version: string };
       expected_match: boolean;
@@ -215,7 +291,6 @@ for (const validity of ['valid', 'invalid'] as const) {
       matched = false;
     }
     const pass = matched === data.expected_match;
-    const expected: 'valid' | 'invalid' = data.expected_match ? 'valid' : 'invalid';
     manifest.push({
       schema: 'contract_version_binding',
       vector: `${validity}/${f}`,

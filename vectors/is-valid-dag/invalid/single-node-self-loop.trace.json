@@ -1,7 +1,5 @@
 {
   "expected": "invalid",
-  "ops": 3,
-  "phase": "dfs",
   "diagnostic": {
     "code": "DAG_CYCLE_DETECTED",
     "context": {

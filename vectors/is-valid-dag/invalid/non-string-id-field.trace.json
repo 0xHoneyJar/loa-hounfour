@@ -1,7 +1,5 @@
 {
   "expected": "invalid",
-  "ops": 1,
-  "phase": "indexing",
   "diagnostic": {
     "code": "DAG_NON_STRING_ID_FIELD",
     "context": {

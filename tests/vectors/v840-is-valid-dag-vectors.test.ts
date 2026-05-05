@@ -81,12 +81,13 @@ describe('v8.4.0 is_valid_dag vectors', () => {
           if (c.trace.diagnostic?.code) {
             expect(result.diagnostic.code).toBe(c.trace.diagnostic.code);
           }
-          // For DAG_OP_CAP_EXCEEDED, the trace records a lower bound on ops
-          // (`ops_at_least`); for the structured diagnostic shape, ops + phase
-          // are present in context per SDD section 6.5 §6.3.
+          // Per SDD section 6.5 only DAG_OP_CAP_EXCEEDED carries `phase`
+          // in its diagnostic context. F12 (iter-2): assert strict equality
+          // — no test-side coalescing — so the trace contract is enforced
+          // exactly. Traces for other codes intentionally omit `phase`.
           if (c.trace.phase && c.trace.phase !== 'pre-guard') {
             const ctx = result.diagnostic.context as Record<string, unknown>;
-            expect(ctx.phase ?? c.trace.phase).toBe(c.trace.phase);
+            expect(ctx.phase).toBe(c.trace.phase);
           }
         }
       });

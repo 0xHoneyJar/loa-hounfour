@@ -32,10 +32,14 @@ import { OrgIdentitySchema } from '../../src/governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../../src/governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../../src/governance/succession-policy.js';
 import '../../src/validators/index.js';
-import { CONSTRAINT_LEVEL_INVALIDS } from './v840-constraint-level-invalids.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VECTORS_ROOT = join(__dirname, '..', '..', 'vectors');
+const CONSTRAINT_LEVEL_INVALIDS = new Set<string>(
+  (JSON.parse(
+    readFileSync(join(VECTORS_ROOT, '_meta', 'constraint-level-invalids.json'), 'utf8'),
+  ) as { fixtures: string[] }).fixtures,
+);
 
 const SCHEMAS = {
   PanelDecisionArtifact: PanelDecisionArtifactSchema,
