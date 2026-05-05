@@ -70,11 +70,18 @@ describe('v8.4.0 extract_path vectors', () => {
     }
   });
 
-  // iter-3 extract-path-comparison-test-vs-script-divergence (MEDIUM):
-  // assert that the test-side comparator (`toEqual`, deep) and the
-  // script-side comparator (`JSON.stringify` round-trip) agree on every
-  // fixture. Catches future divergence between this suite and
-  // `scripts/cross-runner.ts`.
+  // iter-4 F-001/F002 (MEDIUM): the iter-3 parity test was tautological —
+  // both sides used `JSON.stringify`. Real divergence shows up only when
+  // the comparators are genuinely different. Script side uses a canonical
+  // serializer (sorted keys, RFC 8785-style); test side uses Vitest's
+  // deep-equality `toEqual`. They agree iff both produce the same verdict
+  // for every fixture.
+  function canonicalJson(v: unknown): string {
+    if (v === null || typeof v !== 'object') return JSON.stringify(v);
+    if (Array.isArray(v)) return '[' + v.map(canonicalJson).join(',') + ']';
+    const keys = Object.keys(v as Record<string, unknown>).sort();
+    return '{' + keys.map((k) => JSON.stringify(k) + ':' + canonicalJson((v as Record<string, unknown>)[k])).join(',') + '}';
+  }
   describe('test/script comparator parity', () => {
     for (const c of [...validCases, ...invalidCases]) {
       it(`${c.name} comparators agree`, () => {
@@ -82,8 +89,16 @@ describe('v8.4.0 extract_path vectors', () => {
         let scriptVerdict: boolean;
         let testVerdict: boolean;
         if (c.case.expected_status === 'extracted') {
-          scriptVerdict = JSON.stringify(out) === JSON.stringify(c.case.expected_value);
-          testVerdict = JSON.stringify(out) === JSON.stringify(c.case.expected_value);
+          // Script path: canonical-JSON equality (deterministic, sortable).
+          scriptVerdict = canonicalJson(out) === canonicalJson(c.case.expected_value);
+          // Test path: Vitest `toEqual` deep-equality, captured here as a
+          // boolean by attempting the assertion in a tolerant way.
+          try {
+            expect(out).toEqual(c.case.expected_value);
+            testVerdict = true;
+          } catch {
+            testVerdict = false;
+          }
         } else {
           scriptVerdict = out === undefined;
           testVerdict = out === undefined;

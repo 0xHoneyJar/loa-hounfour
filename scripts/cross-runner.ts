@@ -72,6 +72,24 @@ const CONSTRAINT_LEVEL_INVALIDS = new Set<string>(
   (JSON.parse(readFileSync(CONSTRAINT_LEVEL_INVALIDS_PATH, 'utf8')) as { fixtures: string[] }).fixtures,
 );
 
+// iter-4 F014: every entry in the constraint-level-invalid registry must
+// resolve to a real fixture file, otherwise a rename would silently flip
+// expected outcomes ("passes schema, fails constraint" → "must fail
+// schema") with no failure surface.
+{
+  const missing: string[] = [];
+  for (const entry of CONSTRAINT_LEVEL_INVALIDS) {
+    if (!existsSync(join(VECTORS_ROOT, entry))) {
+      missing.push(entry);
+    }
+  }
+  if (missing.length > 0) {
+    console.error(`FAIL: constraint-level-invalid registry references files that do not exist:`);
+    for (const m of missing) console.error(`  ${m}`);
+    process.exit(1);
+  }
+}
+
 interface ManifestEntry {
   schema: string;
   vector: string;
@@ -100,6 +118,24 @@ function readJsonFixture(path: string): { ok: true; data: unknown } | { ok: fals
   } catch (err) {
     return { ok: false, error: (err as Error).message };
   }
+}
+
+/**
+ * Canonical = recursively sorted keys, primitives in JSON form, no extraneous
+ * whitespace. Cross-runner comparator must agree on insertion-order-insensitive
+ * equality for object-valued payloads (resolves bridge iter-4 F001 — the
+ * order-sensitive JSON.stringify path could diverge from the test suite's
+ * `toEqual` deep-equality for any future object-valued extract-path fixture).
+ *
+ * Downstream Go / Python / Rust runners MUST implement the same canonical
+ * form: sort keys lexicographically by UTF-16 code units (RFC 8785), encode
+ * primitives in JSON, omit whitespace.
+ */
+function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
+  const keys = Object.keys(value as Record<string, unknown>).sort();
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + canonicalJson((value as Record<string, unknown>)[k])).join(',') + '}';
 }
 
 // -----------------------------------------------------------------------
@@ -155,6 +191,29 @@ for (const validity of ['valid', 'invalid'] as const) {
     }
     const data = parsed.data as { items: unknown[]; id_field: string; ref_fields?: string[] };
     const result = evaluateIsValidDag(data.items, data.id_field, data.ref_fields ?? []);
+
+    // iter-4 F-002: enforce the trace contract from the TS reference itself.
+    // Each invalid fixture has a `<base>.trace.json` companion declaring the
+    // expected diagnostic.code (per SDD section 6.5). The reference runner
+    // MUST self-validate against its own published trace, otherwise the
+    // contract drifts silently and other-language runners diff against a
+    // moving target.
+    const tracePath = join(dir, f.replace(/\.json$/, '.trace.json'));
+    const traceParsed = readJsonFixture(tracePath);
+    if (validity === 'invalid' && traceParsed.ok) {
+      const trace = traceParsed.data as { diagnostic?: { code?: string } };
+      if (trace.diagnostic?.code && (result.valid || result.diagnostic.code !== trace.diagnostic.code)) {
+        manifest.push({
+          schema: 'is_valid_dag',
+          vector: `${validity}/${f}`,
+          expected,
+          result: 'fail',
+          diagnostic: { code: 'TRACE_CONTRACT_VIOLATION', path: '$.diagnostic.code' },
+        });
+        continue;
+      }
+    }
+
     const okMatches = result.valid === (validity === 'valid');
     manifest.push({
       schema: 'is_valid_dag',
@@ -203,7 +262,7 @@ for (const validity of ['valid', 'invalid'] as const) {
       out !== undefined ? 'extracted' : data.expected_status === 'rejected' ? 'rejected' : 'undefined';
     let pass: boolean;
     if (data.expected_status === 'extracted') {
-      pass = JSON.stringify(out) === JSON.stringify(data.expected_value);
+      pass = canonicalJson(out) === canonicalJson(data.expected_value);
     } else if (data.expected_status === 'undefined' || data.expected_status === 'rejected') {
       pass = out === undefined;
     } else {

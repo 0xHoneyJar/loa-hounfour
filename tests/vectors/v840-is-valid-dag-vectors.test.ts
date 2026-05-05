@@ -71,20 +71,18 @@ describe('v8.4.0 is_valid_dag vectors', () => {
   describe('invalid/', () => {
     for (const c of invalidCases) {
       it(`evaluates ${c.name} as invalid (${c.trace.diagnostic?.code ?? 'unspecified'})`, () => {
+        // F009 (iter-4): every invalid fixture's trace MUST declare
+        // diagnostic.code per SDD section 6.5. Assert the invariant up-front
+        // instead of conditionally — a missing trace.diagnostic.code is a
+        // contract violation, not a "skip the assertion" signal.
+        expect(c.trace.diagnostic?.code, `trace.diagnostic.code missing on ${c.name}`).toBeDefined();
         const result = evaluateIsValidDag(c.input.items, c.input.id_field, c.input.ref_fields);
         expect(result.valid).toBe(false);
         if (!result.valid) {
-          // F-009: assert the structured diagnostic shape, not just `code`.
-          // The .trace.json companion is the cross-runner contract — every
-          // language runner that touches this corpus MUST emit byte-identical
-          // (code, phase, ops-bound) tuples per SDD section 6.5.
-          if (c.trace.diagnostic?.code) {
-            expect(result.diagnostic.code).toBe(c.trace.diagnostic.code);
-          }
+          expect(result.diagnostic.code).toBe(c.trace.diagnostic!.code);
           // Per SDD section 6.5 only DAG_OP_CAP_EXCEEDED carries `phase`
-          // in its diagnostic context. F12 (iter-2): assert strict equality
-          // — no test-side coalescing — so the trace contract is enforced
-          // exactly. Traces for other codes intentionally omit `phase`.
+          // in its diagnostic context; trace fixtures for other codes omit
+          // `phase`. Strict equality, no test-side coalescing.
           if (c.trace.phase && c.trace.phase !== 'pre-guard') {
             const ctx = result.diagnostic.context as Record<string, unknown>;
             expect(ctx.phase).toBe(c.trace.phase);
