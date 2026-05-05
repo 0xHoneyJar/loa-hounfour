@@ -1,0 +1,6 @@
+{
+  "value": "08.4.0",
+  "expected_match": false,
+  "expected_pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
+  "note": "leading-zero major rejected per SDD section 3.6 (PV-4 rationale)"
+}

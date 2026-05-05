@@ -1,0 +1,7 @@
+{
+  "input": {
+    "s": "caf\u00e9"
+  },
+  "expected_canonical": "{\"s\":\"caf\u00e9\"}",
+  "note": "NFC-normalized unicode passes through unescaped; library-not-runtime declares the contract"
+}

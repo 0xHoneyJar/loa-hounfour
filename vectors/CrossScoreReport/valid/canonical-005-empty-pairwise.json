@@ -1,0 +1,16 @@
+{
+  "report_id": "550e8400-e29b-41d4-a716-000000000205",
+  "pairwise_scores": [],
+  "mode": "shadow",
+  "signature": "ed25519:KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
+  "signed_by": "ed25519-pub:KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
+  "signing_key_id": "score-key-2026-05",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T00:05:00Z",
+  "signing_context": {
+    "audience": "score-runner-v1",
+    "scope": "cross-score/shadow",
+    "contract_version": "8.4.0"
+  },
+  "resolved_at": "2026-05-05T00:06:00Z"
+}

@@ -1,0 +1,7 @@
+{
+  "input": {},
+  "path": "claim_id",
+  "expected_status": "undefined",
+  "expected_value": null,
+  "note": "missing key returns undefined; NOT null, NOT thrown"
+}

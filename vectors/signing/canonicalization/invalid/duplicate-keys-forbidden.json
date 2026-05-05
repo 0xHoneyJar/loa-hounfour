@@ -1,0 +1,5 @@
+{
+  "input_description": "object literal with duplicate key 'a': {\"a\":1,\"a\":2}",
+  "expected_status": "rejected",
+  "expected_reason": "RFC 8785 / NF-1b forbid duplicate keys"
+}

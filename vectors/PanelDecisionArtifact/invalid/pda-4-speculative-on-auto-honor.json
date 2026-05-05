@@ -1,0 +1,31 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440014",
+  "proposed_action": {
+    "action_type": "experimental_action",
+    "target_id": "experiment-001",
+    "payload": {}
+  },
+  "trust_context": {
+    "routing_decision": "auto-honor",
+    "scope": "governance/experimental",
+    "reason": "PDA-4: speculative claim cannot ride auto-honor path"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-speculative",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "confidence": "speculative"
+    }
+  ],
+  "question": "speculative on auto-honor should be rejected",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T10:03:00Z",
+  "contract_version": "8.4.0"
+}

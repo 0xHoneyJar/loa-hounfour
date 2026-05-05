@@ -1,0 +1,39 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440005",
+  "proposed_action": {
+    "action_type": "experimental_action",
+    "target_id": "experiment-001",
+    "payload": { "rollout": "phase-1" }
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/experimental",
+    "reason": "speculative claims require panel routing per PDA-4"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-speculative",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+      },
+      "confidence": "speculative"
+    },
+    {
+      "claim_id": "claim-supporting",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      "confidence": "plausible"
+    }
+  ],
+  "question": "kick off experimental phase?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T04:00:00Z",
+  "contract_version": "8.4.0"
+}

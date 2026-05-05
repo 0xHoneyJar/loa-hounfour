@@ -1,0 +1,12 @@
+{
+  "input": {
+    "claims": [
+      {
+        "id": "x"
+      }
+    ]
+  },
+  "path": "claims[0].id",
+  "expected_status": "rejected",
+  "expected_reason": "array-index syntax [N] is NOT SUPPORTED in v8.4.0; extract_path is dot-only"
+}

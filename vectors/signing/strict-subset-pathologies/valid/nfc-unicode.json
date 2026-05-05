@@ -1,0 +1,7 @@
+{
+  "input": {
+    "s": "caf\u00e9"
+  },
+  "expected_status": "accepted",
+  "note": "NFC pre-composed \u00e9"
+}

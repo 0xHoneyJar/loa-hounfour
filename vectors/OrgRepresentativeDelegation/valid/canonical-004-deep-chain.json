@@ -1,0 +1,38 @@
+{
+  "delegation_id": "550e8400-e29b-41d4-a716-000000000504",
+  "org_id": "550e8400-e29b-41d4-a716-000000000301",
+  "representative": {
+    "agent_id": "agent-rep-1",
+    "display_name": "Agent rep-1",
+    "agent_type": "human",
+    "capabilities": [
+      "governance"
+    ],
+    "trust_scopes": {
+      "scopes": {},
+      "default_level": "trusted"
+    },
+    "delegation_authority": [
+      "invoke"
+    ],
+    "max_delegation_depth": 2,
+    "governance_weight": 1.0,
+    "contract_version": "8.4.0"
+  },
+  "capability_scope": {
+    "governance": "vote-and-propose"
+  },
+  "expiry": "2027-05-05T00:00:00Z",
+  "granted_by": "550e8400-e29b-41d4-a716-000000000503",
+  "chain_depth": 5,
+  "signature": "ed25519:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+  "signed_by": "ed25519-pub:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+  "signing_key_id": "org-cold-key-2026",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T00:00:00Z",
+  "signing_context": {
+    "audience": "550e8400-e29b-41d4-a716-000000000301",
+    "scope": "org-delegation/grant",
+    "contract_version": "8.4.0"
+  }
+}

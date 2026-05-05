@@ -1,0 +1,12 @@
+{
+  "expected": "invalid",
+  "ops": 3,
+  "phase": "ref-resolve",
+  "diagnostic": {
+    "code": "DAG_DANGLING_REF",
+    "context": {
+      "from": "A",
+      "ref": "missing-X"
+    }
+  }
+}

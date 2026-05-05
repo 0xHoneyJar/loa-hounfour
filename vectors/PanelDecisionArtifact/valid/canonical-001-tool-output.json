@@ -1,0 +1,31 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440001",
+  "proposed_action": {
+    "action_type": "mint_token",
+    "target_id": "asset-001",
+    "payload": { "amount": "1000", "recipient": "addr-xyz" }
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/mint",
+    "reason": "speculative claim requires panel review"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-root",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "confidence": "high_confidence"
+    }
+  ],
+  "question": "should this mint proceed?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T00:00:00Z",
+  "contract_version": "8.4.0"
+}

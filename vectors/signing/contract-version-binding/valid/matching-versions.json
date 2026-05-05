@@ -1,0 +1,12 @@
+{
+  "envelope": {
+    "signing_context": {
+      "audience": "x",
+      "scope": "y",
+      "contract_version": "8.4.0"
+    },
+    "contract_version": "8.4.0"
+  },
+  "expected_match": true,
+  "note": "outer schema contract_version matches signing_context.contract_version"
+}

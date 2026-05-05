@@ -1,0 +1,6 @@
+{
+  "value": "rsa:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "kind": "signature",
+  "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
+  "expected_match": false
+}

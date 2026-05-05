@@ -1,0 +1,6 @@
+{
+  "value": "0.4.0",
+  "expected_match": false,
+  "expected_pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
+  "note": "major must be >= 1"
+}

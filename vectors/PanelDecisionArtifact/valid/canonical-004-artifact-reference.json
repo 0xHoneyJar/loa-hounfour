@@ -1,0 +1,39 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440004",
+  "proposed_action": {
+    "action_type": "ratify_amendment",
+    "target_id": "amendment-001",
+    "payload": { "section": "succession", "version": "2" }
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/constitution",
+    "reason": "amendment depends on prior artifact"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-prior-ref",
+      "grounding": {
+        "type": "artifact_reference",
+        "artifact_id": "550e8400-e29b-41d4-a716-446655440001"
+      },
+      "confidence": "high_confidence"
+    },
+    {
+      "claim_id": "claim-current",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      "confidence": "plausible"
+    }
+  ],
+  "question": "ratify amendment given prior?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T03:00:00Z",
+  "contract_version": "8.4.0"
+}

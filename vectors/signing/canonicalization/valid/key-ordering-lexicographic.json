@@ -1,0 +1,9 @@
+{
+  "input": {
+    "b": 2,
+    "a": 1,
+    "c": 3
+  },
+  "expected_canonical": "{\"a\":1,\"b\":2,\"c\":3}",
+  "note": "RFC 8785 sorts object keys lexicographically by UTF-16 code units"
+}

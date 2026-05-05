@@ -1,0 +1,28 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440011",
+  "proposed_action": {
+    "action_type": "mint_token",
+    "target_id": "asset-001",
+    "payload": {}
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/mint",
+    "reason": "PDA-1: claim grounding null"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-bad",
+      "grounding": null,
+      "confidence": "high_confidence"
+    }
+  ],
+  "question": "should this be rejected?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T10:00:00Z",
+  "contract_version": "8.4.0"
+}

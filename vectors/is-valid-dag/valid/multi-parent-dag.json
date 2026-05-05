@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "claim_id": "root",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:01"
+      }
+    },
+    {
+      "claim_id": "child-1",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "root"
+      }
+    },
+    {
+      "claim_id": "child-2",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "root"
+      }
+    }
+  ],
+  "id_field": "claim_id",
+  "ref_fields": [
+    "grounding.claim_id"
+  ]
+}

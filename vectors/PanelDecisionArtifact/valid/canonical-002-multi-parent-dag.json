@@ -1,0 +1,55 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440002",
+  "proposed_action": {
+    "action_type": "policy_update",
+    "target_id": "policy-001",
+    "payload": { "field": "threshold", "value": "0.7" }
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/policy",
+    "reason": "multi-claim grounded deliberation"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-evidence-1",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "confidence": "high_confidence"
+    },
+    {
+      "claim_id": "claim-evidence-2",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "confidence": "high_confidence"
+    },
+    {
+      "claim_id": "claim-derived",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "claim-evidence-1"
+      },
+      "confidence": "plausible"
+    },
+    {
+      "claim_id": "claim-derived-2",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "claim-evidence-2"
+      },
+      "confidence": "plausible"
+    }
+  ],
+  "question": "policy threshold lift to 0.7?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.5 },
+    "reasoning_score": { "weight": 0.3 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T01:00:00Z",
+  "contract_version": "8.4.0"
+}

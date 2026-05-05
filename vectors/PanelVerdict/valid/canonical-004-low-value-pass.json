@@ -1,0 +1,19 @@
+{
+  "verdict_id": "550e8400-e29b-41d4-a716-446655440104",
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440004",
+  "bucket": "LOW_VALUE",
+  "verdict": "low_value_pass",
+  "juror_verdicts": [
+    {"juror": {"agent_id": "juror-1", "display_name": "J1", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-1", "vote": "abstain", "result": {"decision": "low_value_pass"}, "confidence": 0.5}, "score": 300, "voted_at": "2026-05-05T03:00:30Z"},
+    {"juror": {"agent_id": "juror-2", "display_name": "J2", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-2", "vote": "abstain", "result": {"decision": "low_value_pass"}, "confidence": 0.45}, "score": 280, "voted_at": "2026-05-05T03:00:31Z"},
+    {"juror": {"agent_id": "juror-3", "display_name": "J3", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-3", "vote": "abstain", "result": {"decision": "low_value_pass"}, "confidence": 0.55}, "score": 320, "voted_at": "2026-05-05T03:00:32Z"},
+    {"juror": {"agent_id": "juror-4", "display_name": "J4", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-4", "vote": "abstain", "result": {"decision": "low_value_pass"}, "confidence": 0.5}, "score": 310, "voted_at": "2026-05-05T03:00:33Z"}
+  ],
+  "signature": "ed25519:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+  "signed_by": "ed25519-pub:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+  "signing_key_id": "panel-key-2026-05",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T03:01:00Z",
+  "resolved_at": "2026-05-05T03:02:00Z",
+  "signing_context": {"audience": "panel-runner-v1", "scope": "panel-v1/low-value", "contract_version": "8.4.0"}
+}

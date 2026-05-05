@@ -1,0 +1,8 @@
+{
+  "input": {
+    "x": 1
+  },
+  "path": "",
+  "expected_status": "rejected",
+  "expected_reason": "empty path is rejected as malformed"
+}

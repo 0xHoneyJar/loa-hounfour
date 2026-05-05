@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "claim_id": "A",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:00"
+      }
+    }
+  ],
+  "id_field": "claim_id",
+  "ref_fields": [
+    "grounding.claim_id"
+  ]
+}

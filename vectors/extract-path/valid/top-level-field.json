@@ -1,0 +1,8 @@
+{
+  "input": {
+    "claim_id": "c1"
+  },
+  "path": "claim_id",
+  "expected_status": "extracted",
+  "expected_value": "c1"
+}

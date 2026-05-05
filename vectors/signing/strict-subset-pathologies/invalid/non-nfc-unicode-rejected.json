@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: non-NFC unicode forbidden (decomposed combining mark)",
+  "raw_file": "non-nfc-unicode-rejected.raw.txt"
+}

@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: hex literal forbidden",
+  "raw_file": "hex-literal-rejected.raw.txt"
+}

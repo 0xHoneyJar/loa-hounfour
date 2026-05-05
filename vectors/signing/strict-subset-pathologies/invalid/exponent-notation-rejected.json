@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: exponent notation forbidden",
+  "raw_file": "exponent-notation-rejected.raw.txt"
+}
