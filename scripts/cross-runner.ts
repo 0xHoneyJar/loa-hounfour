@@ -62,15 +62,12 @@ const SCHEMAS = {
 
 // Constraint-level invalid set is committed metadata at
 // `vectors/_meta/constraint-level-invalids.json` so consumers in any
-// language can read it (resolves bridge iter-2 F4 + F6).
-const CONSTRAINT_LEVEL_INVALIDS_PATH = join(
-  fileURLToPath(import.meta.url),
-  '..',
-  '..',
-  'vectors',
-  '_meta',
-  'constraint-level-invalids.json',
-);
+// language read the same file (resolves bridge iter-2 F4 + F6).
+// F001 iter-3: the path is computed from VECTORS_ROOT (which is itself
+// derived from import.meta.url's *directory*) so symlinks and sandboxed
+// builds resolve correctly without leaning on POSIX `..` tolerance for
+// file-path inputs.
+const CONSTRAINT_LEVEL_INVALIDS_PATH = join(VECTORS_ROOT, '_meta', 'constraint-level-invalids.json');
 const CONSTRAINT_LEVEL_INVALIDS = new Set<string>(
   (JSON.parse(readFileSync(CONSTRAINT_LEVEL_INVALIDS_PATH, 'utf8')) as { fixtures: string[] }).fixtures,
 );
@@ -194,14 +191,30 @@ for (const validity of ['valid', 'invalid'] as const) {
       expected_value?: unknown;
     };
     const out = extractPath(data.input, data.path);
+    // iter-3 cross-runner-extract-path-strict-equality (HIGH): use canonical-
+    // JSON deep equality for `extracted` cases so object/array values match
+    // by structure, not reference. iter-3 F002: track the derived status
+    // (extracted | undefined | rejected) on the manifest so cross-runner
+    // divergence between "missing" and "rejected" semantics is visible.
+    // The library returns `undefined` in both branches; we recover the
+    // intent from the fixture's expected_status and emit it as the manifest
+    // diagnostic for downstream comparison.
+    const derivedStatus: 'extracted' | 'undefined' | 'rejected' =
+      out !== undefined ? 'extracted' : data.expected_status === 'rejected' ? 'rejected' : 'undefined';
     let pass: boolean;
-    if (data.expected_status === 'extracted') pass = out === data.expected_value;
-    else pass = out === undefined;
+    if (data.expected_status === 'extracted') {
+      pass = JSON.stringify(out) === JSON.stringify(data.expected_value);
+    } else if (data.expected_status === 'undefined' || data.expected_status === 'rejected') {
+      pass = out === undefined;
+    } else {
+      pass = false;
+    }
     manifest.push({
       schema: 'extract_path',
       vector: `${validity}/${f}`,
       expected,
       result: pass ? 'pass' : 'fail',
+      diagnostic: { code: `EXTRACT_PATH_STATUS_${derivedStatus.toUpperCase()}`, path: '$' },
     });
   }
 }
@@ -298,6 +311,29 @@ for (const validity of ['valid', 'invalid'] as const) {
       result: pass ? 'pass' : 'fail',
     });
   }
+}
+
+// -----------------------------------------------------------------------
+// Per-section non-empty guard (iter-3 cross-runner-fixture-corpus-empty-not-flagged):
+// a directory rename or deletion would otherwise produce a green sweep
+// with a hollowed corpus. Fail loudly with the section name on violation.
+// -----------------------------------------------------------------------
+const REQUIRED_SECTIONS = [
+  ...Object.keys(SCHEMAS),
+  'is_valid_dag',
+  'extract_path',
+  'ed25519_pattern',
+  'contract_version_binding',
+];
+const sectionCounts = manifest.reduce<Record<string, number>>((acc, m) => {
+  acc[m.schema] = (acc[m.schema] ?? 0) + 1;
+  return acc;
+}, {});
+const emptySections = REQUIRED_SECTIONS.filter((s) => (sectionCounts[s] ?? 0) === 0);
+if (emptySections.length > 0) {
+  console.error(`FAIL: cross-runner sweep produced empty manifest sections: ${emptySections.join(', ')}`);
+  console.error(`Each registered section must have at least one fixture entry.`);
+  process.exit(1);
 }
 
 // -----------------------------------------------------------------------
