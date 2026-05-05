@@ -16,7 +16,7 @@
  * `native_enforcement` field documents exactly what runtime consumers
  * must enforce and provides a machine-readable strategy.
  *
- * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+ * @since v7.10.1 — code review Finding 2 (ADR-002)
  */
 export interface NativeEnforcement {
   /** Named strategy pattern (e.g. 'composite_key_uniqueness'). */
@@ -74,7 +74,7 @@ export interface Constraint {
    * - `'native'`: the `expression` field is ignored; `native_enforcement` provides the spec.
    *
    * Omitted = `'expression'` for backward compatibility.
-   * @since v7.11.0 — Bridgebuilder Meditation IV
+   * @since v7.11.0 — code review Meditation IV
    */
   evaluation_geometry?: 'expression' | 'native';
   /**
@@ -82,7 +82,7 @@ export interface Constraint {
    * When present, `evaluation_geometry` SHOULD be `"native"` and this field
    * provides the machine-readable enforcement specification.
    *
-   * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
+   * @since v7.10.1 — code review Finding 2 (ADR-002)
    */
   native_enforcement?: NativeEnforcement;
   /**

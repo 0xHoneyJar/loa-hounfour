@@ -3,7 +3,7 @@
  *
  * Each model has a cost structure, quality yield, and routing weight that
  * determines its share in the composite economic basket. This is the
- * "multi-model as multi-currency" insight from Bridgebuilder Part 1 §III
+ * "multi-model as multi-currency" insight from code review Part 1 §III
  * made concrete: the routing_weight IS the exchange rate.
  *
  * @see DR-S10 — Economic membrane cross-layer schemas

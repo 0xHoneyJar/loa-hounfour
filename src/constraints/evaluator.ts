@@ -174,12 +174,12 @@ class Parser {
       ['saga_timeout_valid', () => this.parseSagaTimeoutValid()],
       ['proposal_weights_normalized', () => this.parseProposalWeightsNormalized()],
 
-      // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+      // Timestamp comparison builtins (v7.4.0 — internal review vision)
       ['is_after', () => this.parseTimestampCmp('after')],
       ['is_before', () => this.parseTimestampCmp('before')],
       ['is_between', () => this.parseTimestampBetween()],
 
-      // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+      // Temporal governance builtins (v7.5.0 — code review GAP)
       ['is_stale', () => this.parseTimestampStaleness('stale')],
       ['is_within', () => this.parseTimestampStaleness('within')],
 
@@ -1716,7 +1716,7 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
-  // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+  // Timestamp comparison builtins (v7.4.0 — internal review vision)
   // ---------------------------------------------------------------------------
 
   /** ISO 8601 date-time prefix pattern for cross-language consistency. */
@@ -1777,7 +1777,7 @@ class Parser {
   }
 
   // ---------------------------------------------------------------------------
-  // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+  // Temporal governance builtins (v7.5.0 — code review GAP)
   // ---------------------------------------------------------------------------
 
   /**

@@ -3,9 +3,9 @@
  *
  * Provides type-safe construction of well-known conservation law invariants
  * rather than relying on hand-written runtime strings. Each factory maps to
- * a real-world pattern from the loa ecosystem.
+ * a recurring real-world pattern in agent-economy resource accounting.
  *
- * @see Bridgebuilder Finding F7 — Static checking for conservation expressions
+ * @see code review Finding F7 — Static checking for conservation expressions
  * @since v8.1.0
  */
 import type { ConservationLaw } from './conservation-law.js';
@@ -14,7 +14,7 @@ import type { Invariant } from './invariant.js';
 /**
  * Auto-incrementing counter for factory-generated invariant IDs.
  * Prevents ID collisions when multiple factories are called for the same resource.
- * (Bridgebuilder F11 — hardcoded singleton IDs)
+ * (code review F11 — hardcoded singleton IDs)
  */
 let _factoryCounter = 0;
 function nextFactoryId(): string {
@@ -31,7 +31,7 @@ export function resetFactoryCounter(): void {
 /**
  * Create a sum-conservation invariant: field1 + field2 + ... == total_field.
  *
- * Maps to loa-freeside's lot_invariant (I-1): balance + reserved + consumed == original_allocation.
+ * Canonical use: lot_invariant (I-1): balance + reserved + consumed == original_allocation.
  *
  * @param id - Invariant ID (e.g., 'CL-01')
  * @param name - Human-readable name
@@ -67,7 +67,7 @@ export function buildSumInvariant(
 /**
  * Create a non-negative invariant for one or more fields.
  *
- * Maps to loa-freeside's I-2 through I-4: balance >= 0, reserved >= 0, consumed >= 0.
+ * Canonical use: lot_invariant I-2 through I-4 (balance >= 0, reserved >= 0, consumed >= 0).
  *
  * @param id - Invariant ID
  * @param name - Human-readable name
@@ -100,7 +100,7 @@ export function buildNonNegativeInvariant(
 /**
  * Create a bounded invariant: floor <= field <= ceiling.
  *
- * Maps to loa-dixie's freshness bounds: 0 <= freshness_score <= 100.
+ * Common usage: freshness-bounds patterns (e.g., 0 <= freshness_score <= 100).
  *
  * @param id - Invariant ID
  * @param name - Human-readable name
@@ -137,8 +137,9 @@ export function buildBoundedInvariant(
 /**
  * Create a balance conservation law: sum of component fields must equal total.
  *
- * This is the canonical pattern from loa-freeside's lot_invariant system.
- * Produces both the sum conservation invariant and non-negative invariants.
+ * This is the canonical pattern from the lot_invariant family of resource-
+ * accounting laws. Produces both the sum conservation invariant and
+ * non-negative invariants.
  *
  * @param sumFields - Fields whose sum must equal the total
  * @param totalField - Field that holds the expected total
@@ -192,7 +193,7 @@ export function createNonNegativeConservation(
 /**
  * Create a bounded conservation law for a numeric field.
  *
- * Maps to loa-dixie's freshness decay bounds pattern.
+ * Common usage: freshness-decay-bounds pattern.
  *
  * @param field - Field to bound
  * @param floor - Minimum value (inclusive)

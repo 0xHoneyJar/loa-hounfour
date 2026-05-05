@@ -9,7 +9,7 @@
  * that defines the structure of governance parameters. How these parameters
  * are proposed, debated, and adopted is out of scope for v5.3.0.
  *
- * @see SPEC-V52-001 — Bridgebuilder Review III finding
+ * @see SPEC-V52-001 — code review iteration III finding
  * @see RESERVATION_TIER_MAP — default values
  * @see ADVISORY_WARNING_THRESHOLD_PERCENT — default advisory threshold
  */

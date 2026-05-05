@@ -5,7 +5,7 @@
  * consistent with `reputation-replay.ts:computeEventStreamHash()`.
  * Serialization uses RFC 8785 canonical JSON for determinism.
  *
- * @see ADR-003 — Bridgebuilder Meditation III (Ostrom Principle 4)
+ * @see ADR-003 — code review Meditation III (Ostrom Principle 4)
  * @since v7.11.0
  */
 import { sha256 } from '@noble/hashes/sha2.js';

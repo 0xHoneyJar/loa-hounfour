@@ -7,7 +7,7 @@
  * Bridges the existing AccessPolicy evaluation (v7.2.0) with the
  * Commons Protocol GovernanceMutation boundary.
  *
- * @see Bridgebuilder Finding F6 — Authorization at the mutation boundary
+ * @see code review Finding F6 — Authorization at the mutation boundary
  * @since v8.1.0
  */
 import { evaluateAccessPolicy, type AccessPolicyContext, type AccessPolicyResult } from '../utilities/access-policy.js';
