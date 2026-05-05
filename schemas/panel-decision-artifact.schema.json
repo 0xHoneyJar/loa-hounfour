@@ -1,0 +1,509 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/panel-decision-artifact",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json.",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "proposed_action",
+    "trust_context",
+    "claims",
+    "question",
+    "scoring_rubric",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "artifact_id": {
+      "format": "uuid",
+      "description": "Deliberation correlation key (UUID v4).",
+      "type": "string"
+    },
+    "proposed_action": {
+      "$id": "ProposedAction",
+      "additionalProperties": false,
+      "description": "Action proposed for deliberation; payload is consumer-defined.",
+      "type": "object",
+      "required": [
+        "action_type",
+        "target_id",
+        "payload"
+      ],
+      "properties": {
+        "action_type": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Consumer-defined action category.",
+          "type": "string"
+        },
+        "target_id": {
+          "minLength": 1,
+          "description": "Identifier of the entity the action targets.",
+          "type": "string"
+        },
+        "payload": {
+          "description": "Pass-through action data; library does not constrain payload shape.",
+          "type": "object",
+          "patternProperties": {
+            "^(.*)$": {}
+          }
+        }
+      }
+    },
+    "trust_context": {
+      "$id": "TrustContext",
+      "additionalProperties": false,
+      "description": "Routing decision + scope + reason for a deliberation.",
+      "type": "object",
+      "required": [
+        "routing_decision",
+        "scope",
+        "reason"
+      ],
+      "properties": {
+        "routing_decision": {
+          "description": "Routing path for this artifact.",
+          "anyOf": [
+            {
+              "const": "panel",
+              "type": "string"
+            },
+            {
+              "const": "auto-honor",
+              "type": "string"
+            },
+            {
+              "const": "auto-reject",
+              "type": "string"
+            }
+          ]
+        },
+        "scope": {
+          "minLength": 1,
+          "description": "Domain or capability scope the deliberation falls under.",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "description": "Human-readable rationale for the routing decision.",
+          "type": "string"
+        }
+      }
+    },
+    "claims": {
+      "description": "Grounded claim DAG; cross-field DAG validity enforced by constraint file (is_valid_dag).",
+      "type": "array",
+      "items": {
+        "$id": "Claim",
+        "additionalProperties": false,
+        "description": "Single grounded claim; node in the PanelDecisionArtifact claim DAG.",
+        "type": "object",
+        "required": [
+          "claim_id",
+          "grounding",
+          "confidence"
+        ],
+        "properties": {
+          "claim_id": {
+            "minLength": 1,
+            "description": "Stable identifier within the artifact; serves as the DAG node key.",
+            "type": "string"
+          },
+          "grounding": {
+            "$id": "ClaimGrounding",
+            "additionalProperties": false,
+            "description": "Provenance for a single Claim. Type-specific field requirements enforced by constraint file.",
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "description": "Grounding category determining which auxiliary fields apply.",
+                "anyOf": [
+                  {
+                    "const": "tool_output",
+                    "type": "string"
+                  },
+                  {
+                    "const": "acknowledged_judgment",
+                    "type": "string"
+                  },
+                  {
+                    "const": "claim_reference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "artifact_reference",
+                    "type": "string"
+                  }
+                ]
+              },
+              "artifact_id": {
+                "minLength": 1,
+                "description": "Parent artifact reference for DAG closure (used by is_valid_dag).",
+                "type": "string"
+              },
+              "claim_id": {
+                "minLength": 1,
+                "description": "Parent claim reference for DAG closure (used by is_valid_dag).",
+                "type": "string"
+              },
+              "output_hash": {
+                "pattern": "^sha256:[a-f0-9]{64}$",
+                "description": "Canonical sha256:<64-hex> hash; required when type=tool_output.",
+                "type": "string"
+              },
+              "source": {
+                "$id": "AgentIdentity",
+                "additionalProperties": false,
+                "x-cross-field-validated": true,
+                "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING).",
+                "type": "object",
+                "required": [
+                  "agent_id",
+                  "display_name",
+                  "agent_type",
+                  "capabilities",
+                  "trust_scopes",
+                  "delegation_authority",
+                  "max_delegation_depth",
+                  "governance_weight",
+                  "contract_version"
+                ],
+                "properties": {
+                  "agent_id": {
+                    "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+                    "description": "Unique agent identifier (lowercase, 3-64 chars).",
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "Human-readable agent display name.",
+                    "type": "string"
+                  },
+                  "agent_type": {
+                    "$id": "AgentType",
+                    "description": "Classification of agent type in the protocol.",
+                    "anyOf": [
+                      {
+                        "const": "model",
+                        "type": "string"
+                      },
+                      {
+                        "const": "orchestrator",
+                        "type": "string"
+                      },
+                      {
+                        "const": "human",
+                        "type": "string"
+                      },
+                      {
+                        "const": "service",
+                        "type": "string"
+                      },
+                      {
+                        "const": "composite",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "capabilities": {
+                    "minItems": 1,
+                    "description": "Non-empty list of agent capabilities.",
+                    "type": "array",
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "trust_scopes": {
+                    "$id": "CapabilityScopedTrust",
+                    "additionalProperties": false,
+                    "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+                    "type": "object",
+                    "required": [
+                      "scopes",
+                      "default_level"
+                    ],
+                    "properties": {
+                      "scopes": {
+                        "additionalProperties": false,
+                        "description": "Per-scope trust levels. Missing scopes fall back to default_level.",
+                        "type": "object",
+                        "properties": {
+                          "billing": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "governance": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "inference": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "delegation": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "audit": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "composition": {
+                            "$id": "TrustLevel",
+                            "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                            "anyOf": [
+                              {
+                                "const": "untrusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "basic",
+                                "type": "string"
+                              },
+                              {
+                                "const": "verified",
+                                "type": "string"
+                              },
+                              {
+                                "const": "trusted",
+                                "type": "string"
+                              },
+                              {
+                                "const": "sovereign",
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "default_level": {
+                        "$id": "TrustLevel",
+                        "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                        "anyOf": [
+                          {
+                            "const": "untrusted",
+                            "type": "string"
+                          },
+                          {
+                            "const": "basic",
+                            "type": "string"
+                          },
+                          {
+                            "const": "verified",
+                            "type": "string"
+                          },
+                          {
+                            "const": "trusted",
+                            "type": "string"
+                          },
+                          {
+                            "const": "sovereign",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "delegation_authority": {
+                    "description": "Permissions this agent may delegate. Requires delegation scope >= verified.",
+                    "type": "array",
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "max_delegation_depth": {
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Maximum delegation chain depth this agent may create.",
+                    "type": "integer"
+                  },
+                  "governance_weight": {
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Voting weight in governance proposals (0-1).",
+                    "type": "number"
+                  },
+                  "metadata": {
+                    "description": "Extensible metadata key-value store.",
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  },
+                  "contract_version": {
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "description": "Protocol contract version.",
+                    "type": "string"
+                  }
+                }
+              },
+              "justification": {
+                "minLength": 1,
+                "description": "Human-readable rationale; required when type=acknowledged_judgment.",
+                "type": "string"
+              }
+            }
+          },
+          "confidence": {
+            "description": "Asserted confidence level. speculative forces panel routing per PDA-4.",
+            "anyOf": [
+              {
+                "const": "high_confidence",
+                "type": "string"
+              },
+              {
+                "const": "plausible",
+                "type": "string"
+              },
+              {
+                "const": "speculative",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "question": {
+      "minLength": 1,
+      "description": "The deliberation question.",
+      "type": "string"
+    },
+    "scoring_rubric": {
+      "description": "Per-dimension scoring config. Conventional keys (per CrossScoreReport dimensions): `output_score`, `reasoning_score`, `grounding_score` — each typically `{ weight: number 0..1, description?: string }`. The schema accepts any keys to avoid pinning a tight v8.4.0 shape; a stricter `Type.Object` form MAY land additively in a later release.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "created_at": {
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 creation timestamp.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol contract version pinned at artifact creation.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+}

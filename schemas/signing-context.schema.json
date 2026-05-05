@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/signing-context",
+  "additionalProperties": false,
+  "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection.",
+  "type": "object",
+  "required": [
+    "audience",
+    "scope",
+    "contract_version"
+  ],
+  "properties": {
+    "audience": {
+      "minLength": 1,
+      "description": "Consumer-defined identifier the signature is bound to (e.g., the org_id or service principal).",
+      "type": "string"
+    },
+    "scope": {
+      "minLength": 1,
+      "description": "Deliberation- or lifecycle-context binding (e.g., \"panel-v1/security-review\", \"org-delegation/grant\").",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver-formatted protocol contract version pinned to the signing event.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+}

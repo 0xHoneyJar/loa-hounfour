@@ -169,6 +169,12 @@ import { ConsumerContractSchema, ConsumerContractEntrypointSchema } from '../src
 import { FeedbackDampeningConfigSchema } from '../src/commons/feedback-dampening.js';
 // v8.3.0 — GovernedResource Runtime
 import { TransitionResultSchema, InvariantResultSchema, MutationContextSchema } from '../src/commons/governed-resource-runtime.js';
+// v8.4.0 — Deliberation Set (FR-A1..FR-A4) + shared SigningContext
+import { SigningContextSchema } from '../src/governance/signing-context.js';
+import { PanelDecisionArtifactSchema } from '../src/governance/panel-decision-artifact.js';
+import { PanelVerdictSchema } from '../src/governance/panel-verdict.js';
+import { DeliberationDissentSchema } from '../src/governance/deliberation-dissent.js';
+import { CrossScoreReportSchema } from '../src/governance/cross-score-report.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -429,6 +435,12 @@ const schemas = [
   { name: 'transition-result', schema: TransitionResultSchema },
   { name: 'invariant-result', schema: InvariantResultSchema },
   { name: 'mutation-context', schema: MutationContextSchema },
+  // v8.4.0 — Deliberation Set (FR-A1..FR-A4) + shared SigningContext envelope
+  { name: 'signing-context', schema: SigningContextSchema },
+  { name: 'panel-decision-artifact', schema: PanelDecisionArtifactSchema },
+  { name: 'panel-verdict', schema: PanelVerdictSchema },
+  { name: 'deliberation-dissent', schema: DeliberationDissentSchema },
+  { name: 'cross-score-report', schema: CrossScoreReportSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

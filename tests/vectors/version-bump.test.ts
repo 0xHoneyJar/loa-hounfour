@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('8.3.0');
+    expect(CONTRACT_VERSION).toBe('8.3.1');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('8.3.0');
+    expect(pkg.version).toBe('8.3.1');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('8.3.0');
+    expect(index.version).toBe('8.3.1');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('8.3.0');
+    expect(version).toBe('8.3.1');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -126,10 +126,10 @@ describe('version bump', () => {
     expect(names).toContain('reputation-credential');
   });
 
-  it('schemas/index.json schema $ids all use 7.11.0', () => {
+  it('schemas/index.json schema $ids all use the current contract version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/8\.3\.0\//);
+      expect(schema.$id).toMatch(/\/8\.3\.1\//);
     }
   });
 
@@ -242,8 +242,13 @@ describe('version bump', () => {
     expect(names).toContain('model-performance-event');
   });
 
-  it('schemas/index.json has 191 schemas', () => {
+  it('schemas/index.json schema count tracks the generator output', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(201);
+    // Hardcoded count is a per-release snapshot — the assertion intentionally
+    // tightens after each additive PR so accidental schema removal is caught.
+    // Count = 206 after PR-A1.1 (4 deliberation top-levels + SigningContext +
+    // auto-registered sub-schemas with $id). Subsequent additive PRs update
+    // this number; v8.4.0 release reconciliation lands the final count.
+    expect(index.schemas).toHaveLength(206);
   });
 });
