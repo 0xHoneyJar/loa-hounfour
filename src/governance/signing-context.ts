@@ -23,8 +23,8 @@ export const SigningContextSchema = Type.Object(
       description: 'Deliberation- or lifecycle-context binding (e.g., "panel-v1/security-review", "org-delegation/grant").',
     }),
     contract_version: Type.String({
-      pattern: '^\\d+\\.\\d+\\.\\d+$',
-      description: 'Semver-formatted protocol contract version pinned to the signing event.',
+      pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$',
+      description: 'Semver-formatted protocol contract version pinned to the signing event. Major version must be >= 1; leading-zero majors are rejected per SDD section 3.6 PV-4.',
     }),
   },
   {

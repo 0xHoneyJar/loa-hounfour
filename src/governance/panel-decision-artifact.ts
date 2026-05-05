@@ -193,8 +193,8 @@ export const PanelDecisionArtifactSchema = Type.Object(
       description: 'ISO 8601 / RFC 3339 creation timestamp.',
     }),
     contract_version: Type.String({
-      pattern: '^\\d+\\.\\d+\\.\\d+$',
-      description: 'Protocol contract version pinned at artifact creation.',
+      pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$',
+      description: 'Protocol contract version pinned at artifact creation. Major version must be >= 1; leading-zero majors are rejected per SDD section 3.6.',
     }),
   },
   {
