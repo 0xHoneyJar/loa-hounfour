@@ -845,6 +845,42 @@ registerCrossFieldValidator('AuditTrailEntry', (data) => {
   return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
 
+// --- v8.4.0 — Deliberation set + OrgOverseer constraint-file-only registrations ---
+//
+// The substantive cross-field surface for these seven schemas is the
+// constraint-file rule set in `constraints/<SchemaName>.constraints.json`,
+// not a TypeScript-resident validator function. The stubs below register the
+// schema $ids in `crossFieldRegistry` so that:
+//   * `getCrossFieldValidatorSchemas()` returns them, allowing
+//     `npm run check:constraints` to detect that a constraint file exists for
+//     each of these schemas (closes the "constraint file for X does not match
+//     any registered schema" warning for the v8.4.0 schemas);
+//   * the registry shape stays uniform across schemas with mixed validation
+//     surfaces (TS-resident validators for transactional flows like
+//     `BillingEntry`; constraint-file-only validators for declarative
+//     contract sets like the deliberation primitives).
+//
+// Returning `{ valid: true, errors: [], warnings: [] }` is honest: the TS
+// pipeline does NOT enforce these rules — consumers MUST evaluate the
+// constraint files via `evaluateConstraint(...)` (or the equivalent
+// cross-language runner) to enforce PDA-1..5, PV-1..4, DD-1..2, CSR-1, OI-1,
+// ORD-3, SP-1..2. ORD-1 and ORD-2 carry their consumer obligation in the
+// UnverifiedObligationsManifest emitted at validate() time per SDD section 5.8.
+
+const constraintFileOnlyValidator: CrossFieldValidator = () => ({
+  valid: true,
+  errors: [],
+  warnings: [],
+});
+
+registerCrossFieldValidator('PanelDecisionArtifact', constraintFileOnlyValidator);
+registerCrossFieldValidator('PanelVerdict', constraintFileOnlyValidator);
+registerCrossFieldValidator('DeliberationDissent', constraintFileOnlyValidator);
+registerCrossFieldValidator('CrossScoreReport', constraintFileOnlyValidator);
+registerCrossFieldValidator('OrgIdentity', constraintFileOnlyValidator);
+registerCrossFieldValidator('OrgRepresentativeDelegation', constraintFileOnlyValidator);
+registerCrossFieldValidator('SuccessionPolicy', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

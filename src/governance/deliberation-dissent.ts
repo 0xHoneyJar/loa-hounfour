@@ -53,8 +53,8 @@ export const DeliberationDissentSchema = Type.Object(
       description: 'ISO 8601 timestamp at which the dissent was raised.',
     }),
     contract_version: Type.String({
-      pattern: '^\\d+\\.\\d+\\.\\d+$',
-      description: 'Protocol contract version pinned at dissent time.',
+      pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$',
+      description: 'Protocol contract version pinned at dissent time. Major version must be >= 1; leading-zero majors are rejected per SDD section 3.6.',
     }),
   },
   {

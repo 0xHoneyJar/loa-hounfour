@@ -54,6 +54,15 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'AgentCapacityReservation',
     // v5.2.0 — Audit Trail
     'AuditTrailEntry',
+    // v8.4.0 — Deliberation set + OrgOverseer (constraint-file-only validators;
+    // substantive cross-field surface is constraints/<SchemaName>.constraints.json)
+    'PanelDecisionArtifact',
+    'PanelVerdict',
+    'DeliberationDissent',
+    'CrossScoreReport',
+    'OrgIdentity',
+    'OrgRepresentativeDelegation',
+    'SuccessionPolicy',
   ];
 
   it('returns an array of strings', () => {
