@@ -41,10 +41,10 @@ describe('OrgRepresentativeDelegation constraint file structure', () => {
     expect(constraintFile.contract_version).toBe('8.4.0');
   });
 
-  it('contains exactly 3 constraints (ORD-1, ORD-2, ORD-3)', () => {
-    expect(constraintFile.constraints).toHaveLength(3);
+  it('contains exactly 4 constraints (ORD-1, ORD-2, ORD-3, ORD-4)', () => {
+    expect(constraintFile.constraints).toHaveLength(4);
     const ids = constraintFile.constraints.map((c) => c.id);
-    expect(ids).toEqual(['ORD-1', 'ORD-2', 'ORD-3']);
+    expect(ids).toEqual(['ORD-1', 'ORD-2', 'ORD-3', 'ORD-4']);
   });
 });
 
@@ -94,13 +94,52 @@ describe('ORD-2 — runtime-deferred revocation append-only invariant', () => {
   });
 });
 
-describe('ORD-1 + ORD-2 manifest emission shape', () => {
-  it('emits exactly two runtime-deferred entries (ORD-1, ORD-2)', () => {
+describe('ORD-1 + ORD-2 + ORD-4 manifest emission shape', () => {
+  it('emits exactly three runtime-deferred entries (ORD-1, ORD-2, ORD-4)', () => {
     const manifest = buildUnverifiedObligationsManifest(constraintFile, FROZEN_TIMESTAMP);
     expect(manifest).toBeDefined();
-    expect(manifest!.unverified_rules).toHaveLength(2);
+    expect(manifest!.unverified_rules).toHaveLength(3);
     const ids = manifest!.unverified_rules.map((e) => e.rule_id).sort();
-    expect(ids).toEqual(['ORD-1', 'ORD-2']);
+    expect(ids).toEqual(['ORD-1', 'ORD-2', 'ORD-4']);
+  });
+
+  it('every manifest entry pins consumer_acknowledgment_required to literal true', () => {
+    const manifest = buildUnverifiedObligationsManifest(constraintFile, FROZEN_TIMESTAMP);
+    expect(manifest).toBeDefined();
+    for (const entry of manifest!.unverified_rules) {
+      expect(entry.consumer_acknowledgment_required).toBe(true);
+    }
+  });
+});
+
+describe('ORD-4 — runtime-deferred asserted-vs-traversed depth reconciliation', () => {
+  it('marks ORD-4 evaluator as runtime-deferred', () => {
+    expect(rule('ORD-4').evaluator).toBe('runtime-deferred');
+  });
+
+  it('carries a non-empty evaluation_note describing the depth-reconciliation obligation', () => {
+    const note = rule('ORD-4').evaluation_note ?? '';
+    expect(note.length).toBeGreaterThan(0);
+    expect(note).toContain('NF-1');
+    expect(note).toContain('asserted');
+    expect(note).toContain('traversed');
+    expect(note).toContain('chain_depth');
+  });
+
+  it('explains why the reconciliation is not promoted to a library check in v8.4.0', () => {
+    const note = rule('ORD-4').evaluation_note ?? '';
+    expect(note).toContain('FR-C1');
+    expect(note).toContain('counted-traversal');
+  });
+
+  it('appears in the unverified-obligations manifest with the correct shape', () => {
+    const manifest = buildUnverifiedObligationsManifest(constraintFile, FROZEN_TIMESTAMP);
+    expect(manifest).toBeDefined();
+    const ord4 = manifest!.unverified_rules.find((e) => e.rule_id === 'ORD-4');
+    expect(ord4).toBeDefined();
+    expect(ord4!.evaluator).toBe('runtime-deferred');
+    expect(ord4!.consumer_acknowledgment_required).toBe(true);
+    expect(ord4!.evaluation_note.length).toBeGreaterThan(0);
   });
 });
 
