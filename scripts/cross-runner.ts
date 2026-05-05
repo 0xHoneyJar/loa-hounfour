@@ -395,6 +395,14 @@ if (emptySections.length > 0) {
   process.exit(1);
 }
 
+// iter-5 F-001 (MEDIUM): emit manifest in stably-sorted order so cross-CI
+// diffs are semantic rather than driven by traversal order. The (schema,
+// vector) pair is the natural primary key.
+manifest.sort((a, b) => {
+  if (a.schema !== b.schema) return a.schema < b.schema ? -1 : 1;
+  return a.vector < b.vector ? -1 : a.vector > b.vector ? 1 : 0;
+});
+
 // -----------------------------------------------------------------------
 // Output + exit
 // -----------------------------------------------------------------------

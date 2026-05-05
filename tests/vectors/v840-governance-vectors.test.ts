@@ -97,7 +97,11 @@ describe.each(Object.entries(SCHEMAS))('v8.4.0 vectors: %s', (schemaName, schema
         // Constraint-level invalids pass schema check by design; the constraint
         // evaluator handles them. Verify the fixture is at least schema-valid
         // so the constraint-evaluator path is the one that fails.
-        it(`${fx.name} (constraint-level — passes schema, fails constraint)`, () => {
+        // iter-5 F006 (MEDIUM): the assertion is explicit — if a future
+        // schema tightening catches one of these at the schema layer, the
+        // test fails fast and the registry entry must move. The wrong
+        // direction (silent registry drift) is impossible.
+        it(`${fx.name} (constraint-level — must pass schema; constraint evaluator handles)`, () => {
           expect(Value.Check(schema, fx.data)).toBe(true);
         });
       } else {
