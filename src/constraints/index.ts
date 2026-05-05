@@ -22,6 +22,27 @@ export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';
 
+// is_valid_dag builtin (v8.4.0, FR-C1)
+export {
+  evaluateIsValidDag,
+  extractPath,
+  IS_VALID_DAG_OP_CAP,
+  IS_VALID_DAG_ITEMS_CAP,
+  IS_VALID_DAG_BYTES_CAP,
+  type IsValidDagDiagnostic,
+  type IsValidDagErrorCode,
+  type IsValidDagPhase,
+  type IsValidDagResult,
+} from './is-valid-dag.js';
+
+// Unverified-Obligations Manifest (v8.4.0, FR-C1)
+export {
+  buildUnverifiedObligationsManifest,
+  hasUnverifiedObligations,
+  type UnverifiedObligationEntry,
+  type UnverifiedObligationsManifest,
+} from './unverified-obligations.js';
+
 // Evaluator Builtin Specification Registry (v5.5.0, FR-5)
 export {
   EVALUATOR_BUILTIN_SPECS,
