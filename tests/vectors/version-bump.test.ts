@@ -246,9 +246,9 @@ describe('version bump', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     // Hardcoded count is a per-release snapshot — the assertion intentionally
     // tightens after each additive PR so accidental schema removal is caught.
-    // Count = 206 after PR-A1.1 (4 deliberation top-levels + SigningContext +
-    // auto-registered sub-schemas with $id). Subsequent additive PRs update
-    // this number; v8.4.0 release reconciliation lands the final count.
-    expect(index.schemas).toHaveLength(206);
+    // Count = 209 after PR-A1.2 (PR-A1.1's 206 + 3 OrgOverseer schemas).
+    // Subsequent additive PRs update this number; v8.4.0 release reconciliation
+    // (PR-A1.6) lands the final count.
+    expect(index.schemas).toHaveLength(209);
   });
 });
