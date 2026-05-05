@@ -23,6 +23,7 @@
  */
 
 import { tokenize, type Token } from './tokenizer.js';
+import { evaluateIsValidDag } from './is-valid-dag.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -126,6 +127,9 @@ class Parser {
       ['delegation_budget_conserved', () => this.parseDelegationBudgetConserved()],
       ['links_temporally_ordered', () => this.parseLinksTemporallyOrdered()],
       ['links_form_chain', () => this.parseLinksFormChain()],
+
+      // DAG validation (v8.4.0, FR-C1)
+      ['is_valid_dag', () => this.parseIsValidDag()],
 
       // Ensemble capability functions
       ['no_emergent_in_individual', () => this.parseNoEmergentInIndividual()],
@@ -847,6 +851,46 @@ class Parser {
       if (links[i]?.delegatee !== links[i + 1]?.delegator) return false;
     }
     return true;
+  }
+
+  /**
+   * Parse is_valid_dag(items, id_field, ...ref_fields).
+   *
+   * Variadic in `ref_fields` (zero or more). Returns a boolean for the
+   * constraint-DSL surface — `true` when the items form a valid DAG (no
+   * cycles, no dangling refs, all ids present and string-typed, within size
+   * and op budgets), `false` otherwise.
+   *
+   * The structured diagnostic from the underlying algorithm is surfaced via
+   * the standalone `evaluateIsValidDag()` function in `is-valid-dag.ts`;
+   * direct callers wanting an `ErrorEnvelope` should use that entry point.
+   *
+   * @see SDD section 5.5.1 — Op-counting algorithm (NORMATIVE)
+   * @see SDD section 6.3 — Structured diagnostic cases
+   * @since v8.4.0 (FR-C1)
+   */
+  private parseIsValidDag(): boolean {
+    this.advance(); // consume 'is_valid_dag'
+    this.expect('paren', '(');
+
+    const items = this.parseExpr();
+    this.expect('comma');
+    const idField = this.parseExpr();
+
+    const refFields: string[] = [];
+    while (this.peek()?.type === 'comma') {
+      this.expect('comma');
+      const refField = this.parseExpr();
+      if (typeof refField !== 'string') return false;
+      refFields.push(refField);
+    }
+
+    this.expect('paren', ')');
+
+    if (typeof idField !== 'string') return false;
+
+    const result = evaluateIsValidDag(items, idField, refFields);
+    return result.valid;
   }
 
   /**
@@ -1845,6 +1889,8 @@ export const EVALUATOR_BUILTINS = [
   'execution_checkpoint_valid',
   // Audit trail chain (v8.0.0)
   'audit_trail_chain_valid',
+  // DAG validation (v8.4.0, FR-C1)
+  'is_valid_dag',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

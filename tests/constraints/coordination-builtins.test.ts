@@ -15,11 +15,11 @@ import { EVALUATOR_BUILTIN_SPECS } from '../../src/constraints/evaluator-spec.js
 
 describe('EVALUATOR_BUILTINS count (41 builtins — v7.8.0)', () => {
   it('EVALUATOR_BUILTINS contains 41 functions', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(43);
+    expect(EVALUATOR_BUILTINS).toHaveLength(44);
   });
 
   it('EVALUATOR_BUILTIN_SPECS has 41 entries', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(43);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(44);
   });
 
   it('new builtins are registered', () => {

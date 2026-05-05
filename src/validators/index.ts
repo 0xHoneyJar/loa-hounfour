@@ -76,6 +76,30 @@ import { OrgIdentitySchema } from '../governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../governance/succession-policy.js';
 
+import type { UnverifiedObligationsManifest } from '../constraints/unverified-obligations.js';
+
+/**
+ * Outcome of `validate(schema, data)`. Additively extended in v8.4.0 to carry
+ * an optional `unverified_obligations` manifest per SDD section 5.8 — when
+ * the schema's constraint file contains `evaluator: 'runtime-deferred'`
+ * rules, the field is populated; otherwise it is absent (NOT `null`, NOT
+ * `undefined`-via-key) so pre-v8.4.0 consumers see byte-identical output.
+ *
+ * @since v8.4.0 — FR-C1 (manifest field), pre-existing for `valid` / `errors` / `warnings`
+ */
+export type ValidationResult =
+  | {
+    valid: true;
+    warnings?: string[];
+    unverified_obligations?: UnverifiedObligationsManifest;
+  }
+  | {
+    valid: false;
+    errors: string[];
+    warnings?: string[];
+    unverified_obligations?: UnverifiedObligationsManifest;
+  };
+
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
 // consumer-supplied schemas (BB-V3-003).
@@ -840,16 +864,29 @@ export function getCrossFieldValidatorSchemas(): string[] {
  * Schemas without `$id` are compiled per-call (no caching) — suitable
  * for one-off validation but not high-throughput loops.
  *
+ * @remarks v8.4.0 — return type is additively extended with an optional
+ * `unverified_obligations` field. When the schema's constraint file (loaded
+ * elsewhere in the runtime; see SDD section 5.8) contains rules tagged
+ * `evaluator: 'runtime-deferred'`, an `UnverifiedObligationsManifest` is
+ * surfaced on the result. When no such rules apply, the field is **omitted**
+ * entirely from the result object — consumers derive "no obligations" from
+ * absence (`'unverified_obligations' in result` or `if (result.unverified_obligations)`).
+ * The base `validate()` here does not load constraint files; it carries the
+ * field shape so callers that DO load constraint files can attach the
+ * manifest before returning to user code without widening the type.
+ *
  * @param schema - TypeBox schema to validate against
  * @param data - Unknown data to validate
  * @param options - Optional: skip cross-field validation with `{ crossField: false }`
- * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings`
+ * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
+ *
+ * @see SDD section 5.8 — Unverified-Obligations Manifest Emission Contract
  */
 export function validate<T extends TSchema>(
   schema: T,
   data: unknown,
   options?: { crossField?: boolean },
-): { valid: true; warnings?: string[] } | { valid: false; errors: string[]; warnings?: string[] } {
+): ValidationResult {
   const compiled = getOrCompile(schema);
   if (!compiled.Check(data)) {
     const errors = [...compiled.Errors(data)].map(

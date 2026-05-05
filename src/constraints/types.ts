@@ -85,6 +85,40 @@ export interface Constraint {
    * @since v7.10.1 — Bridgebuilder Finding 2 (ADR-002)
    */
   native_enforcement?: NativeEnforcement;
+  /**
+   * Two-tier evaluator strategy.
+   *
+   * - `'library'` (default): the rule is library-evaluated by the constraint
+   *   engine. Standard constraint expression behaviour applies.
+   * - `'runtime-deferred'`: the rule documents a consumer-side obligation that
+   *   the library cannot evaluate (cryptographic verification, cross-record
+   *   state, temporal append-only invariants, etc.). The library evaluator
+   *   SKIPS such rules during validation but surfaces them in the
+   *   `UnverifiedObligationsManifest` returned by `validate(...)`.
+   *
+   * Omitted = `'library'` for backward compatibility — pre-v8.4.0 constraint
+   * files have no `evaluator` key and continue to be library-evaluated.
+   *
+   * @see SDD section 3.6.0 — Two-tier evaluator pattern
+   * @since v8.4.0 — FR-C1 (deliberation + OrgOverseer constraint files
+   * use `runtime-deferred` for ORD-1, ORD-2)
+   */
+  evaluator?: 'library' | 'runtime-deferred';
+  /**
+   * Human-readable explanation of the consumer obligation. REQUIRED when
+   * `evaluator === 'runtime-deferred'`; surfaced verbatim in the
+   * `UnverifiedObligationsManifest` so consumers see the obligation text at
+   * validation time.
+   *
+   * Authors of `runtime-deferred` rules MUST describe what the consumer's
+   * runtime is expected to enforce, where the verification profile is
+   * documented, and why the rule cannot be library-evaluated. Pure narrative
+   * is acceptable; the field carries documentation, not a parseable
+   * expression.
+   *
+   * @since v8.4.0 — FR-C1
+   */
+  evaluation_note?: string;
 }
 
 /**
