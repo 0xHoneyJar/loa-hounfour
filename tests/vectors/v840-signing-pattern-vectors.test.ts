@@ -34,16 +34,37 @@ function loadCases(subdir: string, kind: 'valid' | 'invalid'): { name: string; d
   }));
 }
 
+// F-003: bound pattern source length and wrap RegExp compilation. The fixture
+// files are committed (trusted), but the cross-runner contract is that all
+// runners reject pathological patterns identically — a try/catch matches the
+// behavior the Go/Python/Rust runners will emit.
+const MAX_PATTERN_LEN = 1024;
+function safeRegExpTest(pattern: string, value: string): boolean {
+  if (pattern.length > MAX_PATTERN_LEN) return false;
+  try {
+    return new RegExp(pattern).test(value);
+  } catch {
+    return false;
+  }
+}
+
 describe('v8.4.0 ed25519-pattern vectors', () => {
   const validCases = loadCases('ed25519-pattern', 'valid');
   const invalidCases = loadCases('ed25519-pattern', 'invalid');
+
+  // F-007: silent zero-fixture passes are a false-confidence vector — assert
+  // the corpus is non-empty so a directory rename or test misconfiguration
+  // surfaces instead of producing a green CI with no work done.
+  it('publishes a non-empty corpus', () => {
+    expect(validCases.length + invalidCases.length).toBeGreaterThan(0);
+  });
 
   describe('valid/', () => {
     for (const c of validCases) {
       const value = c.data.value as string;
       const pattern = c.data.pattern as string;
       it(`${c.name} matches ${pattern}`, () => {
-        expect(new RegExp(pattern).test(value)).toBe(true);
+        expect(safeRegExpTest(pattern, value)).toBe(true);
       });
     }
   });
@@ -53,7 +74,7 @@ describe('v8.4.0 ed25519-pattern vectors', () => {
       const value = c.data.value as string;
       const pattern = c.data.pattern as string;
       it(`${c.name} does NOT match ${pattern}`, () => {
-        expect(new RegExp(pattern).test(value)).toBe(false);
+        expect(safeRegExpTest(pattern, value)).toBe(false);
       });
     }
   });
@@ -64,11 +85,21 @@ describe('v8.4.0 contract-version-binding vectors', () => {
   const validCases = loadCases('contract-version-binding', 'valid');
   const invalidCases = loadCases('contract-version-binding', 'invalid');
 
+  it('publishes a non-empty corpus', () => {
+    expect(validCases.length + invalidCases.length).toBeGreaterThan(0);
+  });
+
   describe('valid/', () => {
     for (const c of validCases) {
       if (typeof c.data.value === 'string') {
         it(`${c.name} matches semver pattern`, () => {
           expect(SEMVER_PATTERN.test(c.data.value as string)).toBe(true);
+        });
+      } else if (c.data.envelope) {
+        // F-002 mirror: envelope-shape fixtures assert outer/inner version equality.
+        const env = c.data.envelope as { signing_context: { contract_version: string }; contract_version: string };
+        it(`${c.name} envelope outer/inner contract_version match`, () => {
+          expect(env.signing_context.contract_version).toBe(env.contract_version);
         });
       }
     }
@@ -79,6 +110,11 @@ describe('v8.4.0 contract-version-binding vectors', () => {
       if (typeof c.data.value === 'string') {
         it(`${c.name} does NOT match semver pattern`, () => {
           expect(SEMVER_PATTERN.test(c.data.value as string)).toBe(false);
+        });
+      } else if (c.data.envelope) {
+        const env = c.data.envelope as { signing_context: { contract_version: string }; contract_version: string };
+        it(`${c.name} envelope outer/inner contract_version differ`, () => {
+          expect(env.signing_context.contract_version).not.toBe(env.contract_version);
         });
       }
     }

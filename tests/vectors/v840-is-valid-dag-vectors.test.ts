@@ -73,8 +73,21 @@ describe('v8.4.0 is_valid_dag vectors', () => {
       it(`evaluates ${c.name} as invalid (${c.trace.diagnostic?.code ?? 'unspecified'})`, () => {
         const result = evaluateIsValidDag(c.input.items, c.input.id_field, c.input.ref_fields);
         expect(result.valid).toBe(false);
-        if (!result.valid && c.trace.diagnostic?.code) {
-          expect(result.diagnostic?.code).toBe(c.trace.diagnostic.code);
+        if (!result.valid) {
+          // F-009: assert the structured diagnostic shape, not just `code`.
+          // The .trace.json companion is the cross-runner contract — every
+          // language runner that touches this corpus MUST emit byte-identical
+          // (code, phase, ops-bound) tuples per SDD section 6.5.
+          if (c.trace.diagnostic?.code) {
+            expect(result.diagnostic.code).toBe(c.trace.diagnostic.code);
+          }
+          // For DAG_OP_CAP_EXCEEDED, the trace records a lower bound on ops
+          // (`ops_at_least`); for the structured diagnostic shape, ops + phase
+          // are present in context per SDD section 6.5 §6.3.
+          if (c.trace.phase && c.trace.phase !== 'pre-guard') {
+            const ctx = result.diagnostic.context as Record<string, unknown>;
+            expect(ctx.phase ?? c.trace.phase).toBe(c.trace.phase);
+          }
         }
       });
     }

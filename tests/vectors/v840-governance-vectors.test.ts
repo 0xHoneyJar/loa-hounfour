@@ -32,6 +32,7 @@ import { OrgIdentitySchema } from '../../src/governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../../src/governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../../src/governance/succession-policy.js';
 import '../../src/validators/index.js';
+import { CONSTRAINT_LEVEL_INVALIDS } from './v840-constraint-level-invalids.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VECTORS_ROOT = join(__dirname, '..', '..', 'vectors');
@@ -45,20 +46,6 @@ const SCHEMAS = {
   OrgRepresentativeDelegation: OrgRepresentativeDelegationSchema,
   SuccessionPolicy: SuccessionPolicySchema,
 } as const;
-
-// Fixtures targeting constraint-level rules (not enforced by TypeBox structural check).
-// These fixtures pass the schema check; cross-runner conformance for them is asserted
-// by the constraint-evaluator tests (tests/constraints/*.constraints.test.ts).
-const CONSTRAINT_LEVEL_INVALIDS = new Set<string>([
-  'PanelDecisionArtifact/invalid/pda-2-claim-dag-cycle.json',
-  'PanelDecisionArtifact/invalid/pda-4-speculative-on-auto-honor.json',
-  'PanelDecisionArtifact/invalid/pda-5-acknowledged-judgment-no-source.json',
-  'PanelVerdict/invalid/pv-1-bucket-verdict-mismatch.json',
-  'PanelVerdict/invalid/pv-3-asymmetric-blocker-inconsistent.json',
-  'CrossScoreReport/invalid/csr-1-self-scoring.json',
-  'SuccessionPolicy/invalid/sp-1-asymmetric-ladder-violation.json',
-  'SuccessionPolicy/invalid/sp-2-cooldown-decreasing.json',
-]);
 
 function loadFixtures(schema: string, kind: 'valid' | 'invalid'): { name: string; data: unknown }[] {
   const dir = join(VECTORS_ROOT, schema, kind);

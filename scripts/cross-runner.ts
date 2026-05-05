@@ -60,19 +60,10 @@ const SCHEMAS = {
   SuccessionPolicy: SuccessionPolicySchema,
 } as const;
 
-// Constraint-level invalids: TypeBox structural check passes; the constraint
-// evaluator (PDA-1..5, PV-1..4, DD-1..2, CSR-1, OI-1, SP-1..2) handles them.
-// See tests/vectors/v840-governance-vectors.test.ts for the mirrored set.
-const CONSTRAINT_LEVEL_INVALIDS = new Set<string>([
-  'PanelDecisionArtifact/invalid/pda-2-claim-dag-cycle.json',
-  'PanelDecisionArtifact/invalid/pda-4-speculative-on-auto-honor.json',
-  'PanelDecisionArtifact/invalid/pda-5-acknowledged-judgment-no-source.json',
-  'PanelVerdict/invalid/pv-1-bucket-verdict-mismatch.json',
-  'PanelVerdict/invalid/pv-3-asymmetric-blocker-inconsistent.json',
-  'CrossScoreReport/invalid/csr-1-self-scoring.json',
-  'SuccessionPolicy/invalid/sp-1-asymmetric-ladder-violation.json',
-  'SuccessionPolicy/invalid/sp-2-cooldown-decreasing.json',
-]);
+// Re-export the canonical constraint-level invalid set so this driver and
+// tests/vectors/v840-governance-vectors.test.ts share one source of truth
+// (resolves bridge iter-1 F8 — DRY across the two consumers).
+import { CONSTRAINT_LEVEL_INVALIDS } from '../tests/vectors/v840-constraint-level-invalids.js';
 
 interface ManifestEntry {
   schema: string;
@@ -98,13 +89,17 @@ for (const [schemaName, schema] of Object.entries(SCHEMAS)) {
     for (const f of listJsonFiles(dir)) {
       const data = JSON.parse(readFileSync(join(dir, f), 'utf8'));
       const ok = Value.Check(schema, data);
-      const expected = validity === 'valid';
+      // F-001: `expected` is the manifest contract; keep it a string literal
+      // so cross-language consumers parse the manifest into a discriminated
+      // union without polymorphism. `okMatchesExpected` is the local boolean.
+      const expected: 'valid' | 'invalid' = validity;
+      const okMatchesExpected = ok === (validity === 'valid');
       const key = `${schemaName}/${validity}/${f}`;
       let result: ManifestEntry['result'];
       if (CONSTRAINT_LEVEL_INVALIDS.has(key)) {
         result = ok ? 'pass-constraint-level' : 'fail';
       } else {
-        result = ok === expected ? 'pass' : 'fail';
+        result = okMatchesExpected ? 'pass' : 'fail';
       }
       manifest.push({ schema: schemaName, vector: `${validity}/${f}`, expected, result });
     }
@@ -119,8 +114,8 @@ for (const validity of ['valid', 'invalid'] as const) {
   for (const f of listJsonFiles(dir)) {
     const data = JSON.parse(readFileSync(join(dir, f), 'utf8'));
     const result = evaluateIsValidDag(data.items, data.id_field, data.ref_fields ?? []);
-    const expected = validity === 'valid';
-    const okMatches = result.valid === expected;
+    const expected: 'valid' | 'invalid' = validity;
+    const okMatches = result.valid === (validity === 'valid');
     manifest.push({
       schema: 'is_valid_dag',
       vector: `${validity}/${f}`,
@@ -147,10 +142,11 @@ for (const validity of ['valid', 'invalid'] as const) {
     let pass: boolean;
     if (data.expected_status === 'extracted') pass = out === data.expected_value;
     else pass = out === undefined;
+    const expected: 'valid' | 'invalid' = validity;
     manifest.push({
       schema: 'extract_path',
       vector: `${validity}/${f}`,
-      expected: validity === 'valid' ? 'valid' : 'invalid',
+      expected,
       result: pass ? 'pass' : 'fail',
     });
   }
@@ -158,7 +154,21 @@ for (const validity of ['valid', 'invalid'] as const) {
 
 // -----------------------------------------------------------------------
 // signing/ed25519-pattern: pattern recognition only (no crypto per NF-1)
+// F-003: pattern is read from a vector file; wrap RegExp construction in
+// a try-catch + bound the source length so a malformed-pattern fixture
+// fails the entry instead of crashing the sweep.
 // -----------------------------------------------------------------------
+const MAX_PATTERN_LEN = 1024;
+
+function safeMatch(pattern: string, value: string): { ok: boolean; reason?: string } {
+  if (pattern.length > MAX_PATTERN_LEN) return { ok: false, reason: 'pattern-too-long' };
+  try {
+    return { ok: new RegExp(pattern).test(value) };
+  } catch (err) {
+    return { ok: false, reason: `regex-compile-error:${(err as Error).message}` };
+  }
+}
+
 for (const validity of ['valid', 'invalid'] as const) {
   const dir = join(VECTORS_ROOT, 'signing', 'ed25519-pattern', validity);
   for (const f of listJsonFiles(dir)) {
@@ -167,12 +177,49 @@ for (const validity of ['valid', 'invalid'] as const) {
       pattern: string;
       expected_match: boolean;
     };
-    const matched = new RegExp(data.pattern).test(data.value);
+    const { ok: matched, reason } = safeMatch(data.pattern, data.value);
     const pass = matched === data.expected_match;
+    const expected: 'valid' | 'invalid' = data.expected_match ? 'valid' : 'invalid';
     manifest.push({
       schema: 'ed25519_pattern',
       vector: `${validity}/${f}`,
-      expected: data.expected_match ? 'valid' : 'invalid',
+      expected,
+      result: pass ? 'pass' : 'fail',
+      ...(reason ? { diagnostic: { code: 'PATTERN_COMPILE_FAILURE', path: `$.pattern` } } : {}),
+    });
+  }
+}
+
+// -----------------------------------------------------------------------
+// signing/contract-version-binding: semver pattern recognition (F-002)
+// Fixtures with `value`+`expected_match` exercise the schema-layer pattern
+// `^[1-9][0-9]*\.[0-9]+\.[0-9]+$`. Envelope-shape fixtures (with
+// `envelope.signing_context.contract_version`) compare outer vs inner
+// version pinning; for those, the manifest records the equality result.
+// -----------------------------------------------------------------------
+const SEMVER_PATTERN = /^[1-9][0-9]*\.[0-9]+\.[0-9]+$/;
+for (const validity of ['valid', 'invalid'] as const) {
+  const dir = join(VECTORS_ROOT, 'signing', 'contract-version-binding', validity);
+  for (const f of listJsonFiles(dir)) {
+    const data = JSON.parse(readFileSync(join(dir, f), 'utf8')) as {
+      value?: string;
+      envelope?: { signing_context: { contract_version: string }; contract_version: string };
+      expected_match: boolean;
+    };
+    let matched: boolean;
+    if (typeof data.value === 'string') {
+      matched = SEMVER_PATTERN.test(data.value);
+    } else if (data.envelope) {
+      matched = data.envelope.signing_context.contract_version === data.envelope.contract_version;
+    } else {
+      matched = false;
+    }
+    const pass = matched === data.expected_match;
+    const expected: 'valid' | 'invalid' = data.expected_match ? 'valid' : 'invalid';
+    manifest.push({
+      schema: 'contract_version_binding',
+      vector: `${validity}/${f}`,
+      expected,
       result: pass ? 'pass' : 'fail',
     });
   }
