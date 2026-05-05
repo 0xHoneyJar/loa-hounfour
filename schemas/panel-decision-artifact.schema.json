@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-decision-artifact",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/panel-decision-artifact",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json.",
@@ -505,5 +505,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-verdict",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/panel-verdict",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Deliberation output: bucket + per-juror verdicts + Ed25519-signed envelope. Cross-field rules in constraints/PanelVerdict.constraints.json.",
@@ -549,5 +549,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
 }

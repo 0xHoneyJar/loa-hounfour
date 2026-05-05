@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/transition-result",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/transition-result",
   "additionalProperties": false,
   "description": "Result of a GovernedResource state transition.",
   "type": "object",
@@ -27,5 +27,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.3.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
 }
