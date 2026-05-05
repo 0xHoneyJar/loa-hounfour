@@ -1,10 +1,12 @@
 /**
  * Tests for the OrgRepresentativeDelegation constraint file (PR-A1.4, v8.4.0).
  *
- * Covers ORD-1, ORD-2, ORD-3 from SDD section 3.6:
+ * Covers ORD-1, ORD-2, ORD-3, ORD-4 from SDD section 3.6:
  *   - ORD-1 (runtime-deferred): Ed25519 signature verification — consumer-side per NF-1
  *   - ORD-2 (runtime-deferred): revocation append-only invariant — temporal, single-record-stateless
  *   - ORD-3 (library): chain depth bound + is_valid_dag DAG check + genesis-sentinel termination
+ *   - ORD-4 (runtime-deferred): asserted-vs-traversed chain_depth reconciliation — consumer walks
+ *     granted_by edges and rejects records whose asserted depth differs from the traversed count
  *
  * Runtime-deferred rules carry their obligation in the evaluation_note rather than
  * a parseable DSL expression. The library evaluator skips them and surfaces them
