@@ -1,8 +1,160 @@
-<!-- docs-version: 8.3.0 -->
+<!-- docs-version: 8.4.0 -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## v8.3.x → v8.4.0 (Minor — Additive Only)
+
+**No breaking changes.** v8.4.0 adds 7 net-new TypeBox schemas, 1 new constraint builtin, 7 new constraint files, and the cross-runner parity contract. Existing code continues to work unchanged. Consumers adopt the new surface by adding imports.
+
+### New deliberation schemas (governance module)
+
+```typescript
+import {
+  PanelDecisionArtifactSchema,
+  PanelVerdictSchema,
+  DeliberationDissentSchema,
+  CrossScoreReportSchema,
+  // Inline sub-schemas exported alongside the parent records:
+  ClaimSchema,
+  ClaimGroundingSchema,
+  JurorVerdictSchema,
+  AsymmetricBlockerSignalSchema,
+  PairwiseScoreSchema,
+} from '@0xhoneyjar/loa-hounfour/governance';
+
+import type {
+  PanelDecisionArtifact,
+  PanelVerdict,
+  DeliberationDissent,
+  CrossScoreReport,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+See `docs/architecture/panel-protocol.md` for the consumer-facing protocol overview, including the bucket↔verdict (PV-1) and asymmetric-blocker (PV-3) rules.
+
+### New org-overseer schemas (governance module)
+
+```typescript
+import {
+  OrgIdentitySchema,
+  OrgRepresentativeDelegationSchema,
+  SuccessionPolicySchema,
+  ORG_DELEGATION_GENESIS_SENTINEL,        // = 'genesis:org-public-key'
+} from '@0xhoneyjar/loa-hounfour/governance';
+
+import type {
+  OrgIdentity,
+  OrgRepresentativeDelegation,
+  SuccessionPolicy,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+See `docs/architecture/org-overseer.md` for the org-as-principal model, the chain-of-trust verification, and the asymmetric-ladder succession policy (SP-1, SP-2).
+
+### New signing-context envelope (shared)
+
+`SigningContextSchema` is the audience/scope/contract_version envelope bound under signature on `PanelVerdict`, `CrossScoreReport`, and `OrgRepresentativeDelegation`. Reuse it directly when building consumer-side records that adopt the same replay-protection pattern.
+
+```typescript
+import { SigningContextSchema } from '@0xhoneyjar/loa-hounfour/governance';
+import type { SigningContext } from '@0xhoneyjar/loa-hounfour/governance';
+
+const sigCtx: SigningContext = {
+  audience: '<your-org-id-or-service-principal>',
+  scope: 'panel-v1/security-review',
+  contract_version: '8.4.0',
+};
+```
+
+### New constraint builtin: `is_valid_dag`
+
+The `is_valid_dag(items, id_field, ...ref_fields)` builtin lands in the constraint DSL surface. The structured-diagnostic API (separate from the boolean DSL surface) is exported for consumers building custom validators:
+
+```typescript
+import {
+  evaluateIsValidDag,
+  extractPath,
+  IS_VALID_DAG_OP_CAP,
+  IS_VALID_DAG_ITEMS_CAP,
+  IS_VALID_DAG_BYTES_CAP,
+} from '@0xhoneyjar/loa-hounfour/constraints';
+
+import type {
+  IsValidDagResult,
+  IsValidDagDiagnostic,
+  IsValidDagErrorCode,
+  IsValidDagPhase,
+} from '@0xhoneyjar/loa-hounfour/constraints';
+
+const result = evaluateIsValidDag(claimsArray, 'claim_id', ['grounding.claim_id']);
+if (!result.valid) {
+  // result.diagnostic is the cross-runner-stable ErrorEnvelope
+  console.error(result.diagnostic.code, result.diagnostic.path, result.diagnostic.context);
+}
+```
+
+Reference algorithm and op-counting rules are pinned in `docs/architecture/parity-protocol.md` §4.1; structured diagnostic shapes are in `docs/architecture/error-codes.md` §4.1.
+
+### Consumer obligation: chain-context for ORD-3
+
+The library validator picks up `granted_by_chain_records` from the validation context — **not** from the `OrgRepresentativeDelegation` record itself. Consumers integrating the org-overseer set MUST construct a context object that supplies the chain plus a synthetic genesis terminator:
+
+```typescript
+const validationContext = {
+  ...orgRepresentativeDelegationFields,
+  granted_by_chain_records: [
+    /* the record under validation */,
+    /* every ancestor back to and including the genesis-rooted record */,
+    { delegation_id: 'genesis:org-public-key' },  // synthetic terminator
+  ],
+};
+```
+
+When the chain context is omitted, ORD-3 evaluates to vacuous-true (open-fail). Consumers SHOULD treat absence as a configuration error in their integration test suite. See `docs/architecture/org-overseer.md` §2 for the complete walk-through.
+
+### Consumer obligations: the `UnverifiedObligationsManifest`
+
+The library's `validate(...)` return shape is extended additively with an optional `unverified_obligations` field. When the validated record carries runtime-deferred constraint rules (signature verification, revocation append-only, asserted-vs-traversed-depth reconciliation), the manifest names them so the consumer cannot silently miss the obligation:
+
+```typescript
+const result = validate(OrgRepresentativeDelegationSchema, record);
+if (result.valid && result.unverified_obligations) {
+  for (const obligation of result.unverified_obligations.unverified_rules) {
+    // obligation.rule_id ∈ { 'ORD-1', 'ORD-2', 'ORD-4' }
+    // Dispatch to the consumer's verifier for each named rule.
+  }
+}
+```
+
+`unverified_obligations` is **omitted** from the result when no runtime-deferred rules apply — pre-v8.4.0 consumers see byte-identical JSON output for any schema without runtime-deferred rules.
+
+### Cross-runner error taxonomy
+
+The closed `ErrorCode` enumeration plus per-code `context` shapes are published in `docs/architecture/error-codes.md`. Cross-runner sweeps gate on `code` + `path` + `context` equality (`message` is locale-affordant). Consumer-side verifiers SHOULD emit envelopes from the unified taxonomy so cross-runner comparison surfaces include the consumer's verification stream.
+
+### Trust-degradation event (dual-emit window)
+
+For consumers running a `TrustDegradationEvent`-equivalent during the v8.4.0 → v8.5.0 window, the dual-emit envelope SHOULD be carried under the existing `AuditTrailEntrySchema` shape with `event_type: 'trust-degradation-v8-4-shim'`. The shim retires when v8.5.0 publishes the dedicated schema. Consumers that do not run this event flow are unaffected.
+
+### What does **not** change
+
+- No required-field additions to any pre-v8.4.0 schema.
+- No type changes to any pre-v8.4.0 field.
+- No removed exports.
+- `MIN_SUPPORTED_VERSION` unchanged at `6.0.0`.
+- All v8.3.x consumer code paths continue to work.
+
+### Recommended adoption sequence
+
+1. Update `package.json` to `"@0xhoneyjar/loa-hounfour": "^8.4.0"`.
+2. Add imports for whichever new schemas the consumer integrates (deliberation set and/or org-overseer set).
+3. Wire the consumer's verifier to read `result.unverified_obligations` and dispatch to runtime-deferred rule handlers as named.
+4. If integrating the org-overseer set, ensure ORD-3 validation contexts include the chain plus the synthetic genesis terminator.
+5. Co-sign the parity-protocol handoff (`docs/architecture/parity-protocol.handoff.json`) per `docs/architecture/parity-protocol.md` §7.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/cross-score-report",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/cross-score-report",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Signed pairwise cross-scoring attestation. Cross-field rule (no-self-scoring) in constraints/CrossScoreReport.constraints.json.",
@@ -717,8 +717,8 @@
           "type": "string"
         },
         "contract_version": {
-          "pattern": "^\\d+\\.\\d+\\.\\d+$",
-          "description": "Semver-formatted protocol contract version pinned to the signing event.",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
+          "description": "Semver-formatted protocol contract version pinned to the signing event. Major version must be >= 1; leading-zero majors are rejected per SDD section 3.6 PV-4.",
           "type": "string"
         }
       }
@@ -729,5 +729,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
 }

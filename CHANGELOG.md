@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.4.0] — 2026-05-06
+
+**Theme:** Synthetic-deliberation protocol + organization-level governance primitives. Strict additive MINOR — no breaking changes.
+
+### Added
+
+- **Deliberation set (4 schemas)** — `PanelDecisionArtifact` (FR-A1), `PanelVerdict` (FR-A2), `DeliberationDissent` (FR-A3), `CrossScoreReport` (FR-A4). Bucket↔verdict normative pairing (PV-1), `[4, 16]` per-juror verdict bounds (PV-2), asymmetric-blocker two-condition consistency (PV-3), signing-context format guard (PV-4). Inline `JurorVerdictSchema`, `AsymmetricBlockerSignalSchema`, `ClaimSchema`, `ClaimGroundingSchema`, `ProposedActionSchema`, `TrustContextSchema`, `PairwiseScoreSchema` sub-records.
+- **Org-overseer set (3 schemas)** — `OrgIdentity` (FR-B1), `OrgRepresentativeDelegation` (FR-B2), `SuccessionPolicy` (FR-B3). Cold-storage `org_public_key` model; append-only delegation log chained to the literal genesis sentinel `"genesis:org-public-key"`; constitutional ladder with asymmetric thresholds (SP-1: `amend ≥ rotate ≥ add ≥ remove`) and non-decreasing cooldowns (SP-2). New 4-rule constraint set on `OrgRepresentativeDelegation` (ORD-1..ORD-4).
+- **`SigningContextSchema`** — shared audience/scope/contract_version envelope bound under signature on `PanelVerdict`, `CrossScoreReport`, and `OrgRepresentativeDelegation`. Closes the cross-context replay surface.
+- **`is_valid_dag` constraint builtin (FR-C1)** — post-order DFS with explicit op-counter (cap: 100,000 ops). Pre-guards at 10,000-item count and 1 MiB serialized payload. Structured diagnostic envelope with 7 error codes (`DAG_OP_CAP_EXCEEDED`, `DAG_CYCLE_DETECTED`, `DAG_DANGLING_REF`, `DAG_MISSING_ID_FIELD`, `DAG_NON_STRING_ID_FIELD`, `DAG_DUPLICATE_ID`, `DAG_INPUT_OVERSIZE`). Reused by `PanelDecisionArtifact.PDA-2` and `OrgRepresentativeDelegation.ORD-3`. Reference: [`src/constraints/is-valid-dag.ts`](./src/constraints/is-valid-dag.ts).
+- **7 new constraint files** (PR-A1.4) — `PanelDecisionArtifact.constraints.json` (PDA-1..PDA-5), `PanelVerdict.constraints.json` (PV-1..PV-4), `DeliberationDissent.constraints.json`, `CrossScoreReport.constraints.json` (CSR-1), `OrgIdentity.constraints.json` (OI-1), `OrgRepresentativeDelegation.constraints.json` (ORD-1..ORD-4), `SuccessionPolicy.constraints.json` (SP-1, SP-2). Constraint corpus: 100 files (was 93).
+- **Parity-protocol contract (`parity-protocol-version: 1.0.0`)** — published in [`docs/architecture/parity-protocol.md`](./docs/architecture/parity-protocol.md). Pins cross-runner expectations across TypeScript / Go / Python / Rust on schema validation, constraint evaluation, `is_valid_dag` traces, `extract_path` reference behavior, and the error envelope shape. Co-signed handoff record at [`docs/architecture/parity-protocol.handoff.json`](./docs/architecture/parity-protocol.handoff.json).
+- **Cross-runner error taxonomy** — closed `ErrorCode` enum + per-code `context` shapes published in [`docs/architecture/error-codes.md`](./docs/architecture/error-codes.md). 6 net-new codes: `DAG_INPUT_OVERSIZE`, `CONFORMANCE_OBLIGATION_UNACK`, `CONFORMANCE_OBLIGATION_FAIL`, `SIGNING_CONTEXT_AUDIENCE_MISMATCH`, `SIGNING_CONTEXT_SCOPE_MISMATCH`, `SIGNING_CONTEXT_VERSION_INCOMPATIBLE`. Cross-runner comparison rule: `code` + `path` + `context` equality; `message` is locale-affordant.
+- **`UnverifiedObligationsManifest` emission contract** — `validate(...)` return shape extended additively with an optional `unverified_obligations` field. Library names runtime-deferred rules (ORD-1, ORD-2, ORD-4) so consumers cannot silently miss them. Field is OMITTED when no runtime-deferred rules apply — pre-v8.4.0 byte-equal JSON output guaranteed for any schema without runtime-deferred rules.
+- **3 new architecture documents** — [`docs/architecture/panel-protocol.md`](./docs/architecture/panel-protocol.md) (consumer-facing deliberation set), [`docs/architecture/org-overseer.md`](./docs/architecture/org-overseer.md) (org-as-principal model + chain-of-trust + succession policy), [`docs/architecture/parity-protocol.md`](./docs/architecture/parity-protocol.md) (cross-runner conformance contract). Plus [`docs/architecture/error-codes.md`](./docs/architecture/error-codes.md).
+- **171 new conformance vectors** — 91 governance fixtures (5 valid + 8 invalid per schema) + `is-valid-dag` corpus with 11 `.trace.json` op-count companions + `extract-path` corpus + 4 signing corpora. New driver at [`scripts/cross-runner.ts`](./scripts/cross-runner.ts) and meta files at `vectors/_meta/{constraint-level-invalids.json,regex-subset.md}`. Test suite: 7,119 tests (was 6,944).
+
+### Changed
+
+- **`CONTRACT_VERSION` bumped to `'8.4.0'`** — `src/version.ts:13`. Also resolves prior `'8.3.0'` lag observed in earlier cycles; `src/version.ts` now matches `package.json` exactly.
+- **`package.json` `version` bumped to `"8.4.0"`**.
+- **`vectors/VERSION` bumped to `8.4.0`**.
+- **`RELEASE-INTEGRITY.json`** — regenerated via `npm run integrity:generate`.
+- **`MIN_SUPPORTED_VERSION` unchanged at `'6.0.0'`** — N/N-1 compatibility window covers v7.x and v8.x consumers.
+
+### Release notes
+
+- Released under the parity-protocol **deferred-co-sign window** (`signature_basis: 'maintainer-override'`). The sponsoring consumer's release lead was unreachable within the standard 7-business-day window; the maintainer commits the handoff alone with the consumer co-signing retroactively when available. Failure to co-sign within 30 days post-tag triggers a parity-protocol PATCH bump (1.0.0 → 1.0.1) recording the asymmetric ratification. See [`docs/architecture/parity-protocol.handoff.json`](./docs/architecture/parity-protocol.handoff.json) and [`docs/architecture/parity-protocol.md`](./docs/architecture/parity-protocol.md) §8.
+
+### Source
+
+Issue [#61](https://github.com/0xHoneyJar/loa-hounfour/issues/61) — Synthetic-Deliberation Protocol + Governance Primitives RFC. Six PRs (PR-A1.1 through PR-A1.6) merged across the cycle.
+
+---
+
 ## [8.3.0] — 2026-02-28
 
 ### Added

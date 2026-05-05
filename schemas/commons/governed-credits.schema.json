@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/commons/governed-credits",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/governed-credits",
   "additionalProperties": false,
-  "description": "Governed credit lot — maps to loa-freeside lot_invariant (I-1 through I-5). Conservation law: balance + reserved + consumed == original_allocation.",
+  "description": "Governed credit lot — wire shape for the lot_invariant pattern (I-1 through I-5). Conservation law: balance + reserved + consumed == original_allocation.",
   "type": "object",
   "required": [
     "lot_id",
@@ -194,7 +194,7 @@
               },
               "hash_domain_tag": {
                 "minLength": 1,
-                "description": "The exact domain tag used when computing entry_hash. Format: \"loa-commons:audit:<schema_$id>:<contract_version>\". Persisted at write time so cross-version verification is unambiguous. (Flatline SKP-002)",
+                "description": "The exact domain tag used when computing entry_hash. Format: \"loa-commons:audit:<schema_$id>:<contract_version>\". Persisted at write time so cross-version verification is unambiguous. (code review SKP-002)",
                 "type": "string"
               }
             }
@@ -352,12 +352,12 @@
     },
     "version": {
       "minimum": 0,
-      "description": "Monotonic resource version for optimistic concurrency (CAS). Required for all GovernedResource instantiations (Flatline SKP-005). All mutations MUST present the expected version. Version mismatch returns PARTIAL_APPLICATION error. Starts at 0 for new resources, increments on each successful mutation.",
+      "description": "Monotonic resource version for optimistic concurrency (CAS). Required for all GovernedResource instantiations (code review SKP-005). All mutations MUST present the expected version. Version mismatch returns PARTIAL_APPLICATION error. Starts at 0 for new resources, increments on each successful mutation.",
       "type": "integer"
     },
     "access_policy_ref": {
       "minLength": 1,
-      "description": "Reference to an AccessPolicy governing mutations to this resource. When present, mutation evaluation SHOULD check the actor's context against this policy before applying changes. (Bridgebuilder F6 — authorization at the governance boundary)",
+      "description": "Reference to an AccessPolicy governing mutations to this resource. When present, mutation evaluation SHOULD check the actor's context against this policy before applying changes. (code review F6 — authorization at the governance boundary)",
       "type": "string"
     },
     "governance_extensions": {
@@ -372,5 +372,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
 }
