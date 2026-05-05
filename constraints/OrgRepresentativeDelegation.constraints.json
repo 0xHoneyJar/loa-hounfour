@@ -46,6 +46,20 @@
         "granted_by": "string",
         "granted_by_chain_records": "array"
       }
+    },
+    {
+      "id": "ORD-4",
+      "expression": "consumer reconciles the asserted chain_depth on each OrgRepresentativeDelegation record with the depth measured by traversing granted_by_chain_records back to the genesis-rooted record; when asserted depth differs from traversed depth, the consumer MUST reject the record",
+      "severity": "error",
+      "message": "Asserted chain_depth must equal the depth measured by traversing the granted_by chain back to the genesis-rooted record.",
+      "fields": ["chain_depth", "granted_by", "granted_by_chain_records"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Asserted-vs-traversed depth reconciliation is consumer-side per NF-1. ORD-3 (library-evaluated via is_valid_dag) verifies that the chain forms a valid DAG, terminates at the genesis sentinel, and that the asserted chain_depth is bounded above by 20 — but it does NOT cross-check that the asserted chain_depth equals the depth a consumer would measure by walking granted_by edges back to the genesis-rooted record. The reconciliation is library-feasible in principle (the consumer supplies granted_by_chain_records, and is_valid_dag's traversal already visits every ancestor), but exposing the traversed depth would require the builtin to return a counted-traversal artifact instead of a boolean — which would expand the FR-C1 surface beyond what v8.4.0 freezes. Consumers MUST therefore implement the reconciliation themselves: walk granted_by edges from the validating record back to the synthetic terminator (or until granted_by == 'genesis:org-public-key' is reached on a real record), count the steps, and reject the record when the count differs from the asserted chain_depth. This rule is surfaced in the UnverifiedObligationsManifest emitted by validate() so the obligation cannot be silently missed; it is recorded here in declarative form rather than as a parseable DSL expression because runtime-deferred rules carry their obligation in the evaluation_note.",
+      "type_signature": {
+        "chain_depth": "integer",
+        "granted_by": "string",
+        "granted_by_chain_records": "array"
+      }
     }
   ]
 }
