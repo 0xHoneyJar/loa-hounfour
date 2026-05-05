@@ -48,7 +48,12 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
       description:
         'Domain-specific capability scope. Keys are consumer-defined. '
         + 'Library does not interpret the contents; consumer-side authorization '
-        + 'evaluates against this object.',
+        + 'evaluates against this object. JSON Schema emits `patternProperties` '
+        + 'for this field by design — consumers MUST NOT add '
+        + '`additionalProperties: false` here, which would over-constrain '
+        + 'otherwise-valid records. This is the only field in the schema '
+        + 'that is intentionally open at the wire level; tightening will '
+        + 'come (if needed) via a future MINOR addition.',
     }),
     expiry: Type.String({
       format: 'date-time',
@@ -73,7 +78,10 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
           }),
           revoked_by: Type.String({
             pattern: '^[a-z][a-z0-9_-]{2,63}$',
-            description: 'agent_id of the actor that issued the revocation.',
+            description:
+              'Pattern matches `AgentIdentity.agent_id` (`^[a-z][a-z0-9_-]{2,63}$`) — '
+              + 'this field references an agent in the consumer-side agent registry. '
+              + 'Cross-record existence is consumer-enforced per NF-1.',
           }),
           reason: Type.Optional(
             Type.String({
