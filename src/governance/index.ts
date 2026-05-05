@@ -437,3 +437,22 @@ export {
   type PairwiseScore,
   type CrossScoreReport,
 } from './cross-score-report.js';
+
+// Schemas — OrgIdentity (v8.4.0, FR-B1)
+export {
+  OrgIdentitySchema,
+  type OrgIdentity,
+} from './org-identity.js';
+
+// Schemas — OrgRepresentativeDelegation (v8.4.0, FR-B2)
+export {
+  OrgRepresentativeDelegationSchema,
+  ORG_DELEGATION_GENESIS_SENTINEL,
+  type OrgRepresentativeDelegation,
+} from './org-representative-delegation.js';
+
+// Schemas — SuccessionPolicy (v8.4.0, FR-B3)
+export {
+  SuccessionPolicySchema,
+  type SuccessionPolicy,
+} from './succession-policy.js';

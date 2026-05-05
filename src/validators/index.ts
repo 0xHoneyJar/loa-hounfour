@@ -72,6 +72,9 @@ import { PanelDecisionArtifactSchema } from '../governance/panel-decision-artifa
 import { PanelVerdictSchema } from '../governance/panel-verdict.js';
 import { DeliberationDissentSchema } from '../governance/deliberation-dissent.js';
 import { CrossScoreReportSchema } from '../governance/cross-score-report.js';
+import { OrgIdentitySchema } from '../governance/org-identity.js';
+import { OrgRepresentativeDelegationSchema } from '../governance/org-representative-delegation.js';
+import { SuccessionPolicySchema } from '../governance/succession-policy.js';
 
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
@@ -970,4 +973,9 @@ export const validators = {
   panelVerdict: () => getOrCompile(PanelVerdictSchema),
   deliberationDissent: () => getOrCompile(DeliberationDissentSchema),
   crossScoreReport: () => getOrCompile(CrossScoreReportSchema),
+
+  // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
+  orgIdentity: () => getOrCompile(OrgIdentitySchema),
+  orgRepresentativeDelegation: () => getOrCompile(OrgRepresentativeDelegationSchema),
+  successionPolicy: () => getOrCompile(SuccessionPolicySchema),
 } as const;
