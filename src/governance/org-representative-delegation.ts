@@ -17,6 +17,23 @@
  *   - ORD-2: revocation lifecycle append-only — *runtime-deferred* (single-record stateless)
  *   - ORD-3: chain validity + depth bound — *library*, via `is_valid_dag` (PR-A1.3)
  *
+ * **ORD-3 chain-context obligation (consumer-supplied).** ORD-3 references
+ * `granted_by_chain_records` — a name that is NOT a field on this schema.
+ * The library evaluator picks up this name only when the consumer constructs
+ * a validation-context object of the form
+ * `{ ...orgRepresentativeDelegationFields, granted_by_chain_records: [...] }`
+ * and passes it to the validator. The chain array MUST contain the record
+ * under validation plus all ancestors back to (and including) the genesis-
+ * rooted record, AND a synthetic terminator entry of the form
+ * `{ delegation_id: 'genesis:org-public-key' }` so that `is_valid_dag` can
+ * resolve the genesis-rooted record's `granted_by` reference against its
+ * id-index (without the synthetic terminator the dangling-ref check would
+ * misclassify the sentinel pointer). When `granted_by_chain_records` is
+ * omitted, ORD-3 evaluates to vacuous-true; consumers SHOULD treat absence-
+ * of-context as a configuration error in their integration suite, not
+ * permission to skip enforcement. Reference walk-through and worked example
+ * land in `docs/architecture/org-overseer.md` (PR-A1.6).
+ *
  * @see SDD section 3.4.2 — OrgRepresentativeDelegation required fields, signing_context binding
  * @see SDD section 3.6 — ORD-3 genesis sentinel encoding
  * @see Issue #61 — Source RFC

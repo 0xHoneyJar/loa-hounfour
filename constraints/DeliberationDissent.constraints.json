@@ -1,0 +1,33 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "DeliberationDissent",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "DD-1",
+      "expression": "narrative.length >= 1 && narrative.length <= 16384",
+      "severity": "error",
+      "message": "narrative length must be between 1 and 16384 characters (matches DelegationVote.reasoning bounds).",
+      "fields": ["narrative"],
+      "evaluator": "library",
+      "evaluation_note": "Bounds check on dissent rationale text; matches DelegationVoteSchema reasoning convention.",
+      "type_signature": {
+        "narrative": "string"
+      }
+    },
+    {
+      "id": "DD-2",
+      "expression": "cited_claim_ids.every(id => id.length >= 1)",
+      "severity": "error",
+      "message": "Each cited_claim_ids entry must be a non-empty string.",
+      "fields": ["cited_claim_ids"],
+      "evaluator": "library",
+      "evaluation_note": "Optional grounding citations; if present, each must be a non-empty string. Cross-record existence (does the claim_id resolve to a PanelDecisionArtifact.claims entry?) is NOT enforced — consumer-side per NF-1 (library/runtime boundary) and R6 (cross-record existence is consumer state-store responsibility).",
+      "type_signature": {
+        "cited_claim_ids": "string[]"
+      }
+    }
+  ]
+}

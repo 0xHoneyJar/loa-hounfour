@@ -1,5 +1,6 @@
 /**
- * Tests for ConstraintOrigin type and the 72-file origin annotation.
+ * Tests for ConstraintOrigin type and the genesis-origin annotation across
+ * the constraint-file corpus.
  *
  * @see FR-6 v7.9.0 — ConstraintOrigin field
  * @since v7.9.0
@@ -20,11 +21,11 @@ describe('ConstraintOrigin', () => {
     }
   });
 
-  it('all 72 constraint files have origin: "genesis"', () => {
+  it('all constraint files have origin: "genesis"', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(93); // 77 existing + 10 new v8.0.0 + 6 new v8.3.0 (FeedbackDampening, ChainBoundHash, AuditTimestamp, ConsumerContract, GovernedResourceRuntime, MutationContext)
+    expect(files.length).toBe(100); // 77 existing + 10 new v8.0.0 + 6 new v8.3.0 + 7 new v8.4.0 (PanelDecisionArtifact, PanelVerdict, DeliberationDissent, CrossScoreReport, OrgIdentity, OrgRepresentativeDelegation, SuccessionPolicy)
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

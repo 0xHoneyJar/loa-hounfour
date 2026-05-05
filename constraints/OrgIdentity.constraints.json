@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "OrgIdentity",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "OI-1",
+      "expression": "current_representatives.length >= 1",
+      "severity": "error",
+      "message": "current_representatives must contain at least one entry (SP-007 minimum-rep cardinality).",
+      "fields": ["current_representatives"],
+      "evaluator": "library",
+      "evaluation_note": "SP-007 invariant. Belt-and-braces with the schema's minItems: 1; this rule binds cross-runner conformance and gives consumers a stable rule-id to reference. The cross-record append-only obligation (a state-store write that would drain this array MUST be rejected) is consumer-side per NF-1.",
+      "type_signature": {
+        "current_representatives": "array"
+      }
+    }
+  ]
+}

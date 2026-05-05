@@ -1,0 +1,39 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SuccessionPolicy",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SP-1",
+      "expression": "amend.threshold >= rotate.threshold && rotate.threshold >= add.threshold && add.threshold >= remove.threshold",
+      "severity": "error",
+      "message": "Action thresholds must follow the asymmetric ladder: amend >= rotate >= add >= remove.",
+      "fields": ["amend", "rotate", "add", "remove"],
+      "evaluator": "library",
+      "evaluation_note": "Asymmetric-ladder invariant: the most consequential action (amend, which alters the constitution itself) requires the highest quorum; the least consequential (remove) requires the lowest. This ordering prevents constitutional capture via low-quorum amendments.",
+      "type_signature": {
+        "amend": "object",
+        "rotate": "object",
+        "add": "object",
+        "remove": "object"
+      }
+    },
+    {
+      "id": "SP-2",
+      "expression": "amend.cooldown_seconds >= rotate.cooldown_seconds && rotate.cooldown_seconds >= add.cooldown_seconds && add.cooldown_seconds >= remove.cooldown_seconds",
+      "severity": "error",
+      "message": "Action cooldowns must be non-decreasing across the ladder: amend >= rotate >= add >= remove.",
+      "fields": ["amend", "rotate", "add", "remove"],
+      "evaluator": "library",
+      "evaluation_note": "Non-decreasing-cooldown invariant: amendments must wait at least as long as rotations, which must wait at least as long as adds, which must wait at least as long as removes. Mirrors the threshold ordering and prevents rapid-fire constitutional churn.",
+      "type_signature": {
+        "amend": "object",
+        "rotate": "object",
+        "add": "object",
+        "remove": "object"
+      }
+    }
+  ]
+}
