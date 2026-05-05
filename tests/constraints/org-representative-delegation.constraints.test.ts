@@ -172,9 +172,26 @@ describe('ORD-3 — library is_valid_dag chain validation', () => {
     }, expr)).toBe(false);
   });
 
-  it('fails when no record in the chain is rooted at the genesis sentinel', () => {
+  it('fails on a self-cycle when no record is rooted at the genesis sentinel', () => {
     const chain = [
       { delegation_id: 'd1', granted_by: 'd1' },
+    ];
+    expect(evaluateConstraint({
+      chain_depth: 1,
+      granted_by: 'd1',
+      granted_by_chain_records: chain,
+    }, expr)).toBe(false);
+  });
+
+  it('fails on a clean DAG that has no genesis sentinel anywhere (clause-3 isolated)', () => {
+    // Clean acyclic chain with no genesis sentinel — exercises the genesis-
+    // termination disjunction independently of cycle / dangling-ref detection.
+    // d1 has no granted_by at all (no edge); d2 -> d1. Both pass is_valid_dag.
+    // The validating record's granted_by is 'd1' (not the sentinel), and
+    // no record in the chain carries `granted_by == 'genesis:org-public-key'`.
+    const chain = [
+      { delegation_id: 'd1' },
+      { delegation_id: 'd2', granted_by: 'd1' },
     ];
     expect(evaluateConstraint({
       chain_depth: 1,
@@ -190,5 +207,19 @@ describe('ORD-3 — evaluation_note documents the synthetic-genesis-terminator p
     expect(note).toContain('synthetic terminator');
     expect(note).toContain("genesis:org-public-key");
     expect(note).toContain('granted_by_chain_records');
+  });
+
+  it('discloses the context-absent open-fail behavior so consumers do not misread the rule', () => {
+    const note = rule('ORD-3').evaluation_note ?? '';
+    expect(note).toContain('CONTEXT-ABSENT BEHAVIOR');
+    expect(note).toContain('vacuous');
+    expect(note).toContain('configuration error');
+  });
+
+  it('documents the De Morgan transformation used in the third clause', () => {
+    const note = rule('ORD-3').evaluation_note ?? '';
+    expect(note).toContain('De Morgan');
+    expect(note).toContain('.every()');
+    expect(note).toContain('.some()');
   });
 });
