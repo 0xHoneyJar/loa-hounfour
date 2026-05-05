@@ -302,7 +302,7 @@ describe('saga_timeout_valid', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Spec examples cross-check (all 34 builtins)
+// Spec examples cross-check (every registered builtin)
 // ---------------------------------------------------------------------------
 
 describe('All 34 builtin spec examples evaluate correctly', () => {
