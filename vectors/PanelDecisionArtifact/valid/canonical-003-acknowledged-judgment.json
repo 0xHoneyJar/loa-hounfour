@@ -1,0 +1,52 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440003",
+  "proposed_action": {
+    "action_type": "delegate_authority",
+    "target_id": "agent-target-001",
+    "payload": { "permissions": "invoke" }
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/delegation",
+    "reason": "human juror weighing precedent"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-judgment",
+      "grounding": {
+        "type": "acknowledged_judgment",
+        "source": {
+          "agent_id": "juror-1",
+          "display_name": "Juror One",
+          "agent_type": "human",
+          "capabilities": ["governance"],
+          "trust_scopes": {
+            "scopes": {
+              "billing": "trusted",
+              "governance": "trusted",
+              "inference": "trusted",
+              "delegation": "trusted",
+              "audit": "trusted",
+              "composition": "trusted"
+            },
+            "default_level": "trusted"
+          },
+          "delegation_authority": ["invoke"],
+          "max_delegation_depth": 2,
+          "governance_weight": 0.5,
+          "contract_version": "8.4.0"
+        },
+        "justification": "reviewed precedent and concur"
+      },
+      "confidence": "plausible"
+    }
+  ],
+  "question": "approve delegation?",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T02:00:00Z",
+  "contract_version": "8.4.0"
+}

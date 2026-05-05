@@ -1,0 +1,31 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440013",
+  "proposed_action": {
+    "action_type": "mint_token",
+    "target_id": "asset-001",
+    "payload": {}
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/mint",
+    "reason": "PDA-3: tool_output output_hash length not 71"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-short-hash",
+      "grounding": {
+        "type": "tool_output",
+        "output_hash": "sha256:abc123"
+      },
+      "confidence": "high_confidence"
+    }
+  ],
+  "question": "short hash should be rejected",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T10:02:00Z",
+  "contract_version": "8.4.0"
+}

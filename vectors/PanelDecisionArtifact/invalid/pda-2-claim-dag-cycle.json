@@ -1,0 +1,39 @@
+{
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440012",
+  "proposed_action": {
+    "action_type": "policy_update",
+    "target_id": "policy-001",
+    "payload": {}
+  },
+  "trust_context": {
+    "routing_decision": "panel",
+    "scope": "governance/policy",
+    "reason": "PDA-2: claim DAG has cycle A->B->A"
+  },
+  "claims": [
+    {
+      "claim_id": "claim-A",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "claim-B"
+      },
+      "confidence": "plausible"
+    },
+    {
+      "claim_id": "claim-B",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "claim-A"
+      },
+      "confidence": "plausible"
+    }
+  ],
+  "question": "cycle should be rejected by is_valid_dag",
+  "scoring_rubric": {
+    "output_score": { "weight": 0.4 },
+    "reasoning_score": { "weight": 0.4 },
+    "grounding_score": { "weight": 0.2 }
+  },
+  "created_at": "2026-05-05T10:01:00Z",
+  "contract_version": "8.4.0"
+}

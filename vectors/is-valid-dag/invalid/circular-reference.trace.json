@@ -1,0 +1,13 @@
+{
+  "expected": "invalid",
+  "diagnostic": {
+    "code": "DAG_CYCLE_DETECTED",
+    "context": {
+      "cycle": [
+        "A",
+        "B",
+        "A"
+      ]
+    }
+  }
+}

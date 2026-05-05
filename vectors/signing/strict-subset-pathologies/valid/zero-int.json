@@ -1,0 +1,7 @@
+{
+  "input": {
+    "x": 0
+  },
+  "expected_status": "accepted",
+  "note": "integer zero is fine; only -0 is forbidden"
+}

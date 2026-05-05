@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: NaN forbidden in strict subset",
+  "raw_file": "nan-rejected.raw.txt"
+}

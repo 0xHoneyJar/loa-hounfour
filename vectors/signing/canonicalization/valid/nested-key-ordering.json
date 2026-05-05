@@ -1,0 +1,10 @@
+{
+  "input": {
+    "outer": {
+      "y": 2,
+      "x": 1
+    }
+  },
+  "expected_canonical": "{\"outer\":{\"x\":1,\"y\":2}}",
+  "note": "Nested objects are also sorted"
+}

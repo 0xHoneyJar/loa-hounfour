@@ -1,0 +1,7 @@
+{
+  "items": [],
+  "id_field": "claim_id",
+  "ref_fields": [
+    "grounding.claim_id"
+  ]
+}

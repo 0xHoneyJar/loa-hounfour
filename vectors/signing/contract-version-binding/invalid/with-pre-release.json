@@ -1,0 +1,5 @@
+{
+  "value": "8.4.0-beta",
+  "expected_match": false,
+  "expected_pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$"
+}

@@ -1,0 +1,20 @@
+{
+  "dissent_id": "01HY1Z7ABCDEFGHJKMNPQRSTV0",
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440001",
+  "juror": {
+    "agent_id": "juror-1",
+    "display_name": "Juror One",
+    "agent_type": "human",
+    "capabilities": ["governance"],
+    "trust_scopes": {"scopes": {}, "default_level": "trusted"},
+    "delegation_authority": [],
+    "max_delegation_depth": 0,
+    "governance_weight": 0.25,
+    "contract_version": "8.4.0"
+  },
+  "concern_type": "minority_verdict",
+  "narrative": "Disagree with majority: evidence in claim-evidence-2 was not sufficiently weighted.",
+  "cited_claim_ids": ["claim-evidence-2"],
+  "raised_at": "2026-05-05T00:01:30Z",
+  "contract_version": "8.4.0"
+}

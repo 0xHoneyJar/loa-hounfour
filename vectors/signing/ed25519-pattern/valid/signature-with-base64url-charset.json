@@ -1,0 +1,7 @@
+{
+  "value": "ed25519:abc-_DEF_-abc-_DEF_-abc-_DEF_-abc-_DEF_-abc-_DEF_-abc-_DEF_-abc-_DEF_-abc-_DEF_-AAAA-_",
+  "kind": "signature",
+  "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
+  "expected_match": true,
+  "note": "uses every char in [A-Za-z0-9_-]"
+}

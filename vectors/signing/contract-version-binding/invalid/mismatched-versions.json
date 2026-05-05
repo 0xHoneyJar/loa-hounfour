@@ -1,0 +1,12 @@
+{
+  "envelope": {
+    "signing_context": {
+      "audience": "x",
+      "scope": "y",
+      "contract_version": "8.4.0"
+    },
+    "contract_version": "8.3.0"
+  },
+  "expected_match": false,
+  "note": "outer contract_version differs from signing_context.contract_version \u2014 replay/version drift detected"
+}

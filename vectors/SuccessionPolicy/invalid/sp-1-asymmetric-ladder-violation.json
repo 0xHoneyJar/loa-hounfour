@@ -1,0 +1,21 @@
+{
+  "policy_id": "550e8400-e29b-41d4-a716-000000000411",
+  "org_id": "550e8400-e29b-41d4-a716-000000000301",
+  "amend": {
+    "threshold": 0.4,
+    "cooldown_seconds": 604800
+  },
+  "rotate": {
+    "threshold": 0.7,
+    "cooldown_seconds": 86400
+  },
+  "add": {
+    "threshold": 0.5,
+    "cooldown_seconds": 3600
+  },
+  "remove": {
+    "threshold": 0.5,
+    "cooldown_seconds": 3600
+  },
+  "effective_at": "2026-05-05T00:00:00Z"
+}

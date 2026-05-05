@@ -1,0 +1,7 @@
+{
+  "input": {
+    "s": "line1\nline2\t\"quoted\"\\backslash"
+  },
+  "expected_canonical": "{\"s\":\"line1\\nline2\\t\\\"quoted\\\"\\\\backslash\"}",
+  "note": "RFC 8785 escapes control chars + double-quote + backslash; no other escapes"
+}

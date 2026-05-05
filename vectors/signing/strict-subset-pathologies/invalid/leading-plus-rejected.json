@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: leading + forbidden",
+  "raw_file": "leading-plus-rejected.raw.txt"
+}

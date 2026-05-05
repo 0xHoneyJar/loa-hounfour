@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: -0 forbidden (cross-language inconsistent)",
+  "raw_file": "negative-zero-rejected.raw.txt"
+}

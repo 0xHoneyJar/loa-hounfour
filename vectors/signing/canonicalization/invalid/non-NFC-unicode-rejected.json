@@ -1,0 +1,6 @@
+{
+  "input_description": "string containing decomposed unicode (e + combining acute accent) instead of NFC pre-composed \u00e9",
+  "input_codepoints": "U+0065 U+0301",
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: strict-subset requires NFC-normalized strings"
+}

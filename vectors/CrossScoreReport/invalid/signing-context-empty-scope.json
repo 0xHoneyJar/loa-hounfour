@@ -1,0 +1,54 @@
+{
+  "report_id": "550e8400-e29b-41d4-a716-000000000218",
+  "pairwise_scores": [
+    {
+      "scorer": {
+        "agent_id": "agent-scorer-a",
+        "display_name": "Agent scorer-a",
+        "agent_type": "model",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "scored": {
+        "agent_id": "agent-scored-x",
+        "display_name": "Agent scored-x",
+        "agent_type": "model",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "output_score": 800,
+      "reasoning_score": 750,
+      "grounding_score": 820
+    }
+  ],
+  "mode": "shadow",
+  "signature": "ed25519:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "signed_by": "ed25519-pub:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "signing_key_id": "score-key-2026-05",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T00:05:00Z",
+  "signing_context": {
+    "audience": "score-runner-v1",
+    "scope": "",
+    "contract_version": "8.4.0"
+  },
+  "resolved_at": "2026-05-05T00:06:00Z"
+}

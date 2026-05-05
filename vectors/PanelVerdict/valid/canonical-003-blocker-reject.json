@@ -1,0 +1,22 @@
+{
+  "verdict_id": "550e8400-e29b-41d4-a716-446655440103",
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440003",
+  "bucket": "BLOCKER",
+  "verdict": "reject",
+  "juror_verdicts": [
+    {"juror": {"agent_id": "juror-1", "display_name": "J1", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-1", "vote": "disagree", "result": {"decision": "reject"}, "confidence": 0.95}, "score": 100, "voted_at": "2026-05-05T02:00:30Z"},
+    {"juror": {"agent_id": "juror-2", "display_name": "J2", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-2", "vote": "disagree", "result": {"decision": "reject"}, "confidence": 0.92}, "score": 120, "voted_at": "2026-05-05T02:00:31Z"},
+    {"juror": {"agent_id": "juror-3", "display_name": "J3", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-3", "vote": "disagree", "result": {"decision": "reject"}, "confidence": 0.9}, "score": 140, "voted_at": "2026-05-05T02:00:32Z"},
+    {"juror": {"agent_id": "juror-4", "display_name": "J4", "agent_type": "human", "capabilities": ["governance"], "trust_scopes": {"scopes": {}, "default_level": "trusted"}, "delegation_authority": [], "max_delegation_depth": 0, "governance_weight": 0.2, "contract_version": "8.4.0"}, "vote": {"voter_id": "juror-4", "vote": "disagree", "result": {"decision": "reject"}, "confidence": 0.88}, "score": 110, "voted_at": "2026-05-05T02:00:33Z"}
+  ],
+  "asymmetric_blocker_signal": {
+    "cross_validation": {"validated": true, "cross_model_agreement": 0.85, "same_model_reviewer_score": 750}
+  },
+  "signature": "ed25519:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+  "signed_by": "ed25519-pub:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+  "signing_key_id": "panel-key-2026-05",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T02:01:00Z",
+  "resolved_at": "2026-05-05T02:02:00Z",
+  "signing_context": {"audience": "panel-runner-v1", "scope": "panel-v1/security-review", "contract_version": "8.4.0"}
+}

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "grounding": {
+      "claim_id": "c2"
+    }
+  },
+  "path": "grounding.claim_id",
+  "expected_status": "extracted",
+  "expected_value": "c2"
+}

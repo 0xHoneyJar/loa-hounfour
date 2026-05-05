@@ -1,0 +1,14 @@
+{
+  "expected": "invalid",
+  "ops": 0,
+  "phase": "pre-guard",
+  "diagnostic": {
+    "code": "DAG_INPUT_OVERSIZE",
+    "context": {
+      "kind": "items_count",
+      "limit": 10000,
+      "actual": 10001
+    }
+  },
+  "note": "input pre-guard rejects oversized items array; 0 ops consumed"
+}

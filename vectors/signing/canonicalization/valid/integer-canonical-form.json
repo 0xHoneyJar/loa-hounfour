@@ -1,0 +1,7 @@
+{
+  "input": {
+    "n": 42
+  },
+  "expected_canonical": "{\"n\":42}",
+  "note": "Integer in JS-safe range serializes as plain decimal; no .0, no exponent"
+}

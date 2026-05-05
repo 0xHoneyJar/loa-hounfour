@@ -1,0 +1,6 @@
+{
+  "expected": "valid",
+  "ops": 9,
+  "phase": "ref-resolve",
+  "note": "3 index + 3 dfs enter + 3 ref-resolve (root has no ref; child-1, child-2 each resolve root once)"
+}

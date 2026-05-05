@@ -1,0 +1,10 @@
+{
+  "expected": "invalid",
+  "diagnostic": {
+    "code": "DAG_DANGLING_REF",
+    "context": {
+      "from": "A",
+      "ref": "missing-X"
+    }
+  }
+}

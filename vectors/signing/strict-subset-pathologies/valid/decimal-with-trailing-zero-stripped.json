@@ -1,0 +1,8 @@
+{
+  "input": {
+    "x": 0.5
+  },
+  "expected_status": "accepted",
+  "expected_canonical": "{\"x\":0.5}",
+  "note": "fractional in finite decimal form"
+}

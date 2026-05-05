@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "claim_id": "A",
+      "grounding": {
+        "type": "claim_reference",
+        "claim_id": "A"
+      }
+    }
+  ],
+  "id_field": "claim_id",
+  "ref_fields": [
+    "grounding.claim_id"
+  ]
+}

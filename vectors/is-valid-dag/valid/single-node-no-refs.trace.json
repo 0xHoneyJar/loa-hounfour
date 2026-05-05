@@ -1,0 +1,6 @@
+{
+  "expected": "valid",
+  "ops": 3,
+  "phase": "ref-resolve",
+  "note": "1 index + 1 dfs enter + 1 ref-resolve (ref_value undefined => skip)"
+}

@@ -1,0 +1,7 @@
+{
+  "input": {
+    "x": 42
+  },
+  "expected_status": "accepted",
+  "note": "JS-safe integer in canonical form"
+}

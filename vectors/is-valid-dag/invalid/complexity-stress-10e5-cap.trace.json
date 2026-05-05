@@ -1,0 +1,9 @@
+{
+  "expected": "invalid",
+  "ops_at_least": 100001,
+  "phase": "ref-resolve",
+  "diagnostic": {
+    "code": "DAG_OP_CAP_EXCEEDED"
+  },
+  "note": "chain of 9000 items \u00d7 10 ref_fields = 108000 total ops; OP_CAP=100000 reached during ref-resolve phase"
+}

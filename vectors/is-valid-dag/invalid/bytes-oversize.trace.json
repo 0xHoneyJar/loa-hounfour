@@ -1,0 +1,13 @@
+{
+  "expected": "invalid",
+  "ops": 0,
+  "phase": "pre-guard",
+  "diagnostic": {
+    "code": "DAG_INPUT_OVERSIZE",
+    "context": {
+      "kind": "bytes",
+      "limit": 1048576
+    }
+  },
+  "note": "input pre-guard rejects oversized serialized bytes; 0 ops consumed"
+}

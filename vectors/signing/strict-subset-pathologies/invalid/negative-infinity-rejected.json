@@ -1,0 +1,5 @@
+{
+  "expected_status": "rejected",
+  "expected_reason": "NF-1b: -Infinity forbidden",
+  "raw_file": "negative-infinity-rejected.raw.txt"
+}

@@ -1,0 +1,9 @@
+{
+  "input": {
+    "grounding": null
+  },
+  "path": "grounding.claim_id",
+  "expected_status": "undefined",
+  "expected_value": null,
+  "note": "intermediate is null; traversal short-circuits to undefined"
+}

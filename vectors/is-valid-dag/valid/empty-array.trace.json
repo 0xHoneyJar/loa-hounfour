@@ -1,0 +1,6 @@
+{
+  "expected": "valid",
+  "ops": 0,
+  "phase": "indexing",
+  "note": "empty input \u2014 vacuously valid; no traversal"
+}
