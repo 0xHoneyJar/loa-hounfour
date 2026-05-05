@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.3.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-04T22:37:22.051Z",
+  "generated_at": "2026-05-05T00:20:39.645Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1209,6 +1209,12 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/mutation-context",
       "file": "mutation-context.schema.json",
       "description": "Context for a governed resource mutation — actor identity, type, and access policy. Generalized from freeside's CreditMutationContext (6-witness pattern)."
+    },
+    {
+      "name": "signing-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/signing-context",
+      "file": "signing-context.schema.json",
+      "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection."
     },
     {
       "name": "panel-decision-artifact",

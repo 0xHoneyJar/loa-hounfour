@@ -2,7 +2,7 @@
 
 **Contract version:** 8.3.0
 **Min supported:** 6.0.0
-**Schemas:** 205
+**Schemas:** 206
 
 ## Schemas
 
@@ -209,6 +209,7 @@
 | transition-result | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/transition-result` | [transition-result.schema.json](transition-result.schema.json) |
 | invariant-result | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/invariant-result` | [invariant-result.schema.json](invariant-result.schema.json) |
 | mutation-context | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/mutation-context` | [mutation-context.schema.json](mutation-context.schema.json) |
+| signing-context | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/signing-context` | [signing-context.schema.json](signing-context.schema.json) |
 | panel-decision-artifact | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-decision-artifact` | [panel-decision-artifact.schema.json](panel-decision-artifact.schema.json) |
 | panel-verdict | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/panel-verdict` | [panel-verdict.schema.json](panel-verdict.schema.json) |
 | deliberation-dissent | `https://schemas.0xhoneyjar.com/loa-hounfour/8.3.0/deliberation-dissent` | [deliberation-dissent.schema.json](deliberation-dissent.schema.json) |

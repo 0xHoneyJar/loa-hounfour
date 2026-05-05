@@ -242,8 +242,13 @@ describe('version bump', () => {
     expect(names).toContain('model-performance-event');
   });
 
-  it('schemas/index.json has 191 schemas', () => {
+  it('schemas/index.json schema count tracks the generator output', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.schemas).toHaveLength(201);
+    // Hardcoded count is a per-release snapshot — the assertion intentionally
+    // tightens after each additive PR so accidental schema removal is caught.
+    // Count = 206 after PR-A1.1 (4 deliberation top-levels + SigningContext +
+    // auto-registered sub-schemas with $id). Subsequent additive PRs update
+    // this number; v8.4.0 release reconciliation lands the final count.
+    expect(index.schemas).toHaveLength(206);
   });
 });
