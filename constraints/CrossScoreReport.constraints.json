@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CrossScoreReport",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CSR-1",
+      "expression": "pairwise_scores.every(s => s.scorer.agent_id != s.scored.agent_id)",
+      "severity": "error",
+      "message": "Self-scoring is rejected: scorer.agent_id and scored.agent_id must differ in every pairwise entry.",
+      "fields": ["pairwise_scores"],
+      "evaluator": "library",
+      "evaluation_note": "Cross-scoring integrity: an agent must never score itself. The check is local to each pairwise entry; cross-record uniqueness (e.g., one report per scorer-scored ordered pair per deliberation) is consumer-side per NF-1.",
+      "type_signature": {
+        "pairwise_scores": "array"
+      }
+    }
+  ]
+}

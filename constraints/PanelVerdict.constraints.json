@@ -1,0 +1,58 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "PanelVerdict",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "PV-1",
+      "expression": "(bucket == 'HIGH_CONSENSUS' && verdict == 'proceed') || (bucket == 'DISPUTED' && verdict == 'defer') || (bucket == 'BLOCKER' && verdict == 'reject') || (bucket == 'LOW_VALUE' && (verdict == 'proceed' || verdict == 'defer' || verdict == 'low_value_pass'))",
+      "severity": "error",
+      "message": "bucket and verdict must satisfy the normative pairing table: HIGH_CONSENSUS->proceed; DISPUTED->defer; BLOCKER->reject; LOW_VALUE->{proceed|defer|low_value_pass}.",
+      "fields": ["bucket", "verdict"],
+      "evaluator": "library",
+      "evaluation_note": "Normative bucket-verdict table pinned in v8.4.0. LOW_VALUE is intentionally permissive (consumer decides pass-through verdict per its threshold policy); other buckets are single-pair.",
+      "type_signature": {
+        "bucket": "string",
+        "verdict": "string"
+      }
+    },
+    {
+      "id": "PV-2",
+      "expression": "juror_verdicts.length >= 4 && juror_verdicts.length <= 16",
+      "severity": "error",
+      "message": "juror_verdicts must contain between 4 and 16 entries (panel size bounds).",
+      "fields": ["juror_verdicts"],
+      "evaluator": "library",
+      "evaluation_note": "Belt-and-braces with the schema's minItems/maxItems; constraint check binds cross-runner conformance.",
+      "type_signature": {
+        "juror_verdicts": "array"
+      }
+    },
+    {
+      "id": "PV-3",
+      "expression": "asymmetric_blocker_signal == null || asymmetric_blocker_signal.cross_validation.validated == (asymmetric_blocker_signal.cross_validation.cross_model_agreement >= 0.7 || asymmetric_blocker_signal.cross_validation.same_model_reviewer_score >= 600)",
+      "severity": "error",
+      "message": "asymmetric_blocker_signal.validated must equal the disjunction of (cross_model_agreement >= 0.7) OR (same_model_reviewer_score >= 600).",
+      "fields": ["asymmetric_blocker_signal"],
+      "evaluator": "library",
+      "evaluation_note": "Two-condition veto consistency: the resolved boolean and its underlying threshold disjunction must agree.",
+      "type_signature": {
+        "asymmetric_blocker_signal": "AsymmetricBlockerSignal"
+      }
+    },
+    {
+      "id": "PV-4",
+      "expression": "signing_context.audience.length >= 1 && signing_context.scope.length >= 1 && signing_context.contract_version.length >= 5",
+      "severity": "error",
+      "message": "signing_context must carry non-empty audience and scope, and a well-formed semver contract_version.",
+      "fields": ["signing_context"],
+      "evaluator": "library",
+      "evaluation_note": "Pass-3 fix (resolves SDD section 3.6 PV-4). Well-formed semver pattern is enforced at the schema layer via SigningContextSchema.contract_version (^d+\\.\\d+\\.\\d+$); the DSL grammar v2.0 has no regex builtin, so this expression bounds the field lengths and the schema pattern carries the format check at validate-time. Cross-version compatibility (MIN_SUPPORTED_VERSION semver-tuple comparison) is consumer-side per NF-1; the library validates only the format.",
+      "type_signature": {
+        "signing_context": "SigningContext"
+      }
+    }
+  ]
+}

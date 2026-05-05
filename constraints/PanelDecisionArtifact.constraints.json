@@ -1,0 +1,70 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "PanelDecisionArtifact",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "PDA-1",
+      "expression": "claims.every(c => c.grounding != null)",
+      "severity": "error",
+      "message": "Every claim must carry a non-null grounding record (provenance is mandatory).",
+      "fields": ["claims"],
+      "evaluator": "library",
+      "evaluation_note": "Provenance gate: a claim without grounding cannot participate in the deliberation DAG.",
+      "type_signature": {
+        "claims": "array"
+      }
+    },
+    {
+      "id": "PDA-2",
+      "expression": "is_valid_dag(claims, 'claim_id', 'grounding.artifact_id', 'grounding.claim_id')",
+      "severity": "error",
+      "message": "Claims must form a valid DAG keyed by claim_id with edges through grounding.artifact_id and grounding.claim_id (no cycles, no dangling references, depth bounded).",
+      "fields": ["claims"],
+      "evaluator": "library",
+      "evaluation_note": "Reuses the is_valid_dag builtin (FR-C1). Edge fields use the dot-path form; extract_path resolves nested grounding references uniformly across runners.",
+      "type_signature": {
+        "claims": "array"
+      }
+    },
+    {
+      "id": "PDA-3",
+      "expression": "claims.every(c => c.grounding.type != 'tool_output' || c.grounding.output_hash.length == 71)",
+      "severity": "error",
+      "message": "tool_output groundings must carry a canonical sha256:<64-hex> output_hash (length 71).",
+      "fields": ["claims"],
+      "evaluator": "library",
+      "evaluation_note": "Length 71 = len('sha256:') + 64 hex chars. Pattern is also enforced at the schema layer via ClaimGroundingSchema.output_hash; this rule is the cross-runner conformance check.",
+      "type_signature": {
+        "claims": "array"
+      }
+    },
+    {
+      "id": "PDA-4",
+      "expression": "claims.every(c => c.confidence != 'speculative' || trust_context.routing_decision == 'panel')",
+      "severity": "error",
+      "message": "Speculative claims require panel routing; auto-honor and auto-reject paths cannot carry speculative confidence.",
+      "fields": ["claims", "trust_context"],
+      "evaluator": "library",
+      "evaluation_note": "Confidence-vs-routing coupling: a speculative claim must reach a panel deliberation, never a fast path.",
+      "type_signature": {
+        "claims": "array",
+        "trust_context": "TrustContext"
+      }
+    },
+    {
+      "id": "PDA-5",
+      "expression": "claims.every(c => c.grounding.type != 'acknowledged_judgment' || (c.grounding.source != null && c.grounding.justification.length > 0))",
+      "severity": "error",
+      "message": "acknowledged_judgment groundings must carry a non-null source (AgentIdentity) and a non-empty justification.",
+      "fields": ["claims"],
+      "evaluator": "library",
+      "evaluation_note": "Acknowledged judgments record human or agent subjective input; source attribution and rationale are required for audit reconstruction.",
+      "type_signature": {
+        "claims": "array"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "OrgRepresentativeDelegation",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ORD-1",
+      "expression": "consumer verifies Ed25519 signature over RFC 8785 canonical JSON of all-other-fields using signing_key_id and signed_by",
+      "severity": "error",
+      "message": "Ed25519 signature over RFC 8785 canonical JSON of all-other-fields MUST verify against signing_key_id and signed_by.",
+      "fields": ["signature", "signing_key_id", "signed_by", "signing_algorithm", "signing_context"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic signature verification is consumer-side per NF-1 (library/runtime boundary). The library evaluator SKIPS this rule and surfaces it in the UnverifiedObligationsManifest. Consumers MUST: (1) reconstruct RFC 8785 canonical JSON of all fields except `signature`; (2) verify the Ed25519 signature against the public key referenced by `signed_by` and `signing_key_id`; (3) reject the record on signature mismatch or stale key identifier. Verification profile published in docs/architecture/org-overseer.md. The expression carries the narrative obligation rather than a parseable DSL expression because the rule is runtime-deferred.",
+      "type_signature": {
+        "signature": "string",
+        "signing_key_id": "string",
+        "signed_by": "string",
+        "signing_algorithm": "string",
+        "signing_context": "SigningContext"
+      }
+    },
+    {
+      "id": "ORD-2",
+      "expression": "revocation.revoked is append-only: once true, MUST NOT be set back to false in any subsequent OrgRepresentativeDelegation record sharing this delegation_id",
+      "severity": "error",
+      "message": "revocation.revoked is append-only: once revoked (envelope present, revoked == true), no later record sharing this delegation_id may be written without the revocation envelope.",
+      "fields": ["revocation"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Temporal append-only invariant unprovable from a single record's state. The library evaluator SKIPS this rule and surfaces it in the UnverifiedObligationsManifest. The schema layer subsumes the per-record half of the invariant (revoked is pinned to literal true, so a record cannot represent revoked == false). The cross-record half — that no later record sharing this delegation_id may drop the revocation envelope — requires the consumer's state-store to reject writes that un-revoke. Documented as a consumer obligation in docs/architecture/org-overseer.md (chain-of-trust section). The expression carries the narrative obligation rather than a parseable DSL expression because the rule is runtime-deferred.",
+      "type_signature": {
+        "revocation": "object"
+      }
+    },
+    {
+      "id": "ORD-3",
+      "expression": "chain_depth <= 20 && is_valid_dag(granted_by_chain_records, 'delegation_id', 'granted_by') && (granted_by == 'genesis:org-public-key' || !granted_by_chain_records.every(r => r.granted_by != 'genesis:org-public-key'))",
+      "severity": "error",
+      "message": "Delegation chain must form a valid DAG keyed by delegation_id, terminate at the genesis sentinel 'genesis:org-public-key', and have chain_depth <= 20.",
+      "fields": ["chain_depth", "granted_by", "granted_by_chain_records"],
+      "evaluator": "library",
+      "evaluation_note": "Reuses the is_valid_dag builtin (FR-C1). The genesis sentinel is encoded as the literal string 'genesis:org-public-key' (stable across runners per SDD section 3.6). Library evaluation is gated on the consumer supplying `granted_by_chain_records` in the validation context — a single OrgRepresentativeDelegation record cannot be chain-validated in isolation. Consumers MUST assemble the full chain (the record under validation plus all ancestors back to and including the genesis-rooted record) and SHOULD include a synthetic terminator record with `delegation_id == 'genesis:org-public-key'` so that the is_valid_dag builtin's id-index resolves the genesis-rooted record's granted_by reference (otherwise the dangling-ref check would misclassify the genesis pointer). The single-record's `chain_depth` is the asserted depth; the rule cross-checks that chain_depth <= 20 and that the chain reaches genesis. When granted_by_chain_records is not supplied, this rule fails — the schema-level chain_depth bound (Type.Integer minimum 0 maximum 20) and the granted_by union (UUID v4 OR genesis sentinel literal) remain the structural floor.",
+      "type_signature": {
+        "chain_depth": "integer",
+        "granted_by": "string",
+        "granted_by_chain_records": "array"
+      }
+    }
+  ]
+}
