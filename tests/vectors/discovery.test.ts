@@ -157,7 +157,7 @@ describe('Discovery → Capability Integration (BB-POST-003)', () => {
 
     // Step 4: Validate a mock CapabilityResponse
     const response = {
-      agent_id: 'agent-loa-001',
+      agent_id: 'agent-001',
       capabilities: [
         { skill_id: 'text-generation', input_modes: ['text'], output_modes: ['text'] },
         { skill_id: 'code-review', input_modes: ['text', 'code'], output_modes: ['text'] },

@@ -41,19 +41,19 @@ describe('validateDomainTag', () => {
   });
 
   it('rejects fewer than 3 segments', () => {
-    const result = validateDomainTag('loa:audit');
+    const result = validateDomainTag('consumer-a:audit');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('3 colon-separated');
   });
 
   it('rejects empty segments', () => {
-    const result = validateDomainTag('loa::audit:test');
+    const result = validateDomainTag('consumer-a::audit:test');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('empty');
   });
 
   it('rejects uppercase segments', () => {
-    const result = validateDomainTag('Loa:Audit:Test');
+    const result = validateDomainTag('Consumer-A:Audit:Test');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('lowercase');
   });

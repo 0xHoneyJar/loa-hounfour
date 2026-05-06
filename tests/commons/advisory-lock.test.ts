@@ -53,14 +53,14 @@ describe('computeAdvisoryLockKey', () => {
 
   describe('Unicode handling', () => {
     it('handles Unicode tags deterministically', () => {
-      const key1 = computeAdvisoryLockKey('loa:审计:测试');
-      const key2 = computeAdvisoryLockKey('loa:审计:测试');
+      const key1 = computeAdvisoryLockKey('consumer-a:审计:测试');
+      const key2 = computeAdvisoryLockKey('consumer-a:审计:测试');
       expect(key1).toBe(key2);
     });
 
     it('Unicode differs from ASCII equivalent', () => {
-      const key1 = computeAdvisoryLockKey('loa:audit:test');
-      const key2 = computeAdvisoryLockKey('loa:审计:测试');
+      const key1 = computeAdvisoryLockKey('consumer-a:audit:test');
+      const key2 = computeAdvisoryLockKey('consumer-a:审计:测试');
       expect(key1).not.toBe(key2);
     });
   });
