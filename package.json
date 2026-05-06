@@ -83,7 +83,9 @@
     "schemas:validate": "tsx scripts/validate-schemas.ts",
     "check:constraints": "tsx scripts/generate-constraints.ts --validate",
     "integrity:generate": "tsx scripts/generate-release-integrity.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints",
+    "author:vector": "tsx scripts/author-vectors.ts",
+    "check:class-policy-boundary": "tsx scripts/check-class-policy-boundary.ts",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"

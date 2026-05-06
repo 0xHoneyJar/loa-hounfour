@@ -1,0 +1,165 @@
+{
+  "schema": "_canonicalization-edge-cases",
+  "description": "Edge-case corpus exercising safeCanonicalize() (NFC + RFC 8785 + 100KB cap) across Unicode normalization, deep nesting, IEEE-754 numeric edges, null vs absent permutations, key ordering, and string-escape minimization. Pairs marked hash_equal_with MUST produce byte-identical canonical output and SHA-256 hashes — that is the determinism contract this corpus locks in.",
+  "authored_at": "2026-05-06",
+  "fixtures": [
+    {
+      "category": "key-order",
+      "case": "forward-alpha",
+      "description": "Forward-alphabetical input order. Hash MUST match reverse-alpha.",
+      "hash_equal_with": "key-order/reverse-alpha"
+    },
+    {
+      "category": "key-order",
+      "case": "reverse-alpha",
+      "description": "Reverse-alphabetical input order — canonical form sorts alphabetically.",
+      "hash_equal_with": "key-order/forward-alpha"
+    },
+    {
+      "category": "key-order",
+      "case": "unicode-keys",
+      "description": "Unicode key sorting — RFC 8785 sorts by Unicode code point order (ä = U+00E4 sorts after z = U+007A)."
+    },
+    {
+      "category": "nesting",
+      "case": "depth-10",
+      "description": "10-level \"nested\" chain ending in a string leaf."
+    },
+    {
+      "category": "nesting",
+      "case": "depth-25",
+      "description": "25-level \"nested\" chain ending in a numeric leaf."
+    },
+    {
+      "category": "nesting",
+      "case": "depth-mixed-12",
+      "description": "12-level chain ending in a mixed-type array."
+    },
+    {
+      "category": "null-absent",
+      "case": "absent",
+      "description": "Object without b — canonicalizes to {\"a\":1}. Hash differs from null-present."
+    },
+    {
+      "category": "null-absent",
+      "case": "all-null",
+      "description": "All-null object — every key serialized."
+    },
+    {
+      "category": "null-absent",
+      "case": "array-with-null",
+      "description": "Array literal with null element — preserved."
+    },
+    {
+      "category": "null-absent",
+      "case": "empty-vs-null",
+      "description": "Empty object vs null — semantically distinct, hashes differ."
+    },
+    {
+      "category": "null-absent",
+      "case": "nested-null",
+      "description": "Null inside a nested object."
+    },
+    {
+      "category": "null-absent",
+      "case": "null-present",
+      "description": "Object with explicit null b — canonicalizes to {\"a\":1,\"b\":null}."
+    },
+    {
+      "category": "numeric",
+      "case": "integer-negative",
+      "description": "Negative integer — must serialize without trailing decimal."
+    },
+    {
+      "category": "numeric",
+      "case": "integer-positive",
+      "description": "Integer 100 — must serialize without trailing decimal."
+    },
+    {
+      "category": "numeric",
+      "case": "integer-zero",
+      "description": "Integer zero — must serialize as \"0\", not \"0.0\" or \"-0\"."
+    },
+    {
+      "category": "numeric",
+      "case": "large-magnitude",
+      "description": "Large magnitude — RFC 8785 emits scientific notation when |x| >= 1e21."
+    },
+    {
+      "category": "numeric",
+      "case": "rounding-pair",
+      "description": "Floating-point sum 0.1 + 0.2 — verifies short IEEE-754 representation (0.30000000000000004)."
+    },
+    {
+      "category": "numeric",
+      "case": "small-magnitude",
+      "description": "Small magnitude — RFC 8785 emits scientific notation when |x| < 1e-6."
+    },
+    {
+      "category": "string-escape",
+      "case": "control-newline",
+      "description": "Newline (U+000A) — escaped as \\n."
+    },
+    {
+      "category": "string-escape",
+      "case": "control-tab",
+      "description": "Tab character (U+0009) — escaped as \\t."
+    },
+    {
+      "category": "string-escape",
+      "case": "forward-slash-bare",
+      "description": "Forward slash — RFC 8785 does NOT escape /; output stays literal."
+    },
+    {
+      "category": "string-escape",
+      "case": "simple-backslash",
+      "description": "Internal backslash — escaped as \\\\."
+    },
+    {
+      "category": "string-escape",
+      "case": "simple-quote",
+      "description": "Internal double-quote — escaped as \\\"."
+    },
+    {
+      "category": "string-escape",
+      "case": "unicode-non-bmp",
+      "description": "Non-BMP emoji 😀 (U+1F600) — emitted as a surrogate pair, no \\u escape (unless control)."
+    },
+    {
+      "category": "unicode",
+      "case": "nfc-cafe",
+      "description": "café in NFC (precomposed é, U+00E9).",
+      "hash_equal_with": "unicode/nfd-cafe"
+    },
+    {
+      "category": "unicode",
+      "case": "nfc-korean",
+      "description": "한국 in NFC (precomposed Hangul syllables).",
+      "hash_equal_with": "unicode/nfd-korean"
+    },
+    {
+      "category": "unicode",
+      "case": "nfc-vietnamese",
+      "description": "tiếng in NFC (single ế codepoint).",
+      "hash_equal_with": "unicode/nfd-vietnamese"
+    },
+    {
+      "category": "unicode",
+      "case": "nfd-cafe",
+      "description": "café in NFD (e + combining acute U+0301). Hash MUST match nfc-cafe.",
+      "hash_equal_with": "unicode/nfc-cafe"
+    },
+    {
+      "category": "unicode",
+      "case": "nfd-korean",
+      "description": "한국 in NFD (jamo decomposition). Hash MUST match nfc-korean.",
+      "hash_equal_with": "unicode/nfc-korean"
+    },
+    {
+      "category": "unicode",
+      "case": "nfd-vietnamese",
+      "description": "tiếng in NFD (e + combining circumflex + combining acute). Hash MUST match nfc-vietnamese.",
+      "hash_equal_with": "unicode/nfc-vietnamese"
+    }
+  ]
+}

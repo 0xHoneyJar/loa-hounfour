@@ -201,3 +201,14 @@ This hybrid approach gives event consumers forward compatibility while maintaini
 2. **Consumer-side strip-then-validate** is the recommended forward compatibility pattern
 3. **v4.0.0 may relax envelopes** — but only after measuring adoption friction
 4. **Always document new fields** in SCHEMA-CHANGELOG.md and MIGRATION.md
+
+## Class-vs-policy boundary
+
+What `loa-hounfour` ships is shape; what consumers ship is authority. The
+hard line is recorded in
+[ADR-010](docs/adr/ADR-010-class-vs-policy-boundary.md): no signature
+verifiers, no authorization engines, no transition adjudicators in this
+package. Crypto-bearing schemas (v8.5.0+) default to `valid: false`
+unless the caller passes `{ acceptDeferred: true }`, which is the
+forced-explicit mechanism that prevents "shape valid means trusted"
+from being writable by accident.
