@@ -66,7 +66,14 @@ interface CryptoBearingSchema {
  * package-wide rather than subpath-local.
  */
 function pascalToKebab(s: string): string {
-  return s.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  // Two-pass conversion handles both transitions:
+  //   1. lowercase→uppercase: "FooBar" → "Foo-Bar"
+  //   2. UPPERCASE→Camel: "URLEncoder" → "URL-Encoder"
+  // Final .toLowerCase() normalizes the boundaries inserted in either pass.
+  return s
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+    .toLowerCase();
 }
 
 function collectCryptoBearingSchemas(): CryptoBearingSchema[] {

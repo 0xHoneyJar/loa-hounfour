@@ -73,7 +73,9 @@ export declare function getCrossFieldValidatorSchemas(): string[];
  * @param data - Unknown data to validate
  * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
  *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
- *   (per ADR-010 / G1 — see safe-by-default note below).
+ *   (per ADR-010 / G1 — see safe-by-default note below); inject a deterministic
+ *   `manifest_emitted_at` via `{ now: '<ISO8601>' }` for snapshot / golden-file
+ *   parity (otherwise defaults to `new Date().toISOString()`).
  * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
  *
  * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
@@ -109,6 +111,7 @@ export declare function getCrossFieldValidatorSchemas(): string[];
 export declare function validate<T extends TSchema>(schema: T, data: unknown, options?: {
     crossField?: boolean;
     acceptDeferred?: boolean;
+    now?: string;
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{

@@ -19,8 +19,19 @@
  *
  * // EXPLICIT OPT-IN — consumer acknowledges deferred verification + checks obligations
  * const r = validate(SignatureEnvelopeSchema, payload, { acceptDeferred: true });
- * if (r.valid && r.unverified_obligations.every(verifyDownstream)) { authorize(); }
+ * if (
+ *   r.valid &&
+ *   r.unverified_obligations?.unverified_rules.every(verifyDownstream)
+ * ) { authorize(); }
  * ```
+ *
+ * The manifest shape is `{ schema_id, contract_version, manifest_emitted_at,
+ * unverified_rules: [{ rule_id, rule, evaluator, evaluation_note,
+ * consumer_acknowledgment_required }, ...] }` — iterate over
+ * `unverified_rules` (NOT the manifest object itself). The optional chain on
+ * `unverified_obligations?.unverified_rules` covers the path where the
+ * payload was crypto-bearing-shape-OK but the manifest entry is omitted by
+ * a future runtime configuration.
  *
  * The `signed_payload_hash` is a SHA-256 over the NFC-normalized
  * RFC 8785 canonical JSON form of the payload being signed (per the

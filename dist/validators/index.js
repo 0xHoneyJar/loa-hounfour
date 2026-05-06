@@ -811,19 +811,27 @@ registerCrossFieldValidator('Keyring', (data) => {
     // typically a misconfiguration (rotation didn't drop the prior entry),
     // but is sometimes legitimate (active + retiring overlap window). The
     // schema cannot decide; surfacing as warning lets the consumer decide.
-    const seenRefs = new Map();
+    // Dedup: emit ONE warning per shared key_ref, listing every offending
+    // index. A keyring with 3+ signers sharing a key_ref produces one
+    // KR-2 warning naming all of them, not N-1 separate warnings.
+    const refIndices = new Map();
     signers.forEach((entry, idx) => {
         const ref = entry?.key_ref;
         if (typeof ref !== 'string')
             return;
-        const prior = seenRefs.get(ref);
-        if (prior !== undefined) {
-            warnings.push(`KR-2: duplicate key_ref "${ref}" at signers[${idx}] (first seen at signers[${prior}]). Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`);
+        const arr = refIndices.get(ref);
+        if (arr) {
+            arr.push(idx);
         }
         else {
-            seenRefs.set(ref, idx);
+            refIndices.set(ref, [idx]);
         }
     });
+    for (const [ref, indices] of refIndices) {
+        if (indices.length < 2)
+            continue;
+        warnings.push(`KR-2: duplicate key_ref "${ref}" at signers[${indices.join(', ')}]. Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`);
+    }
     return errors.length > 0
         ? { valid: false, errors, warnings }
         : { valid: true, errors: [], warnings };
@@ -869,7 +877,9 @@ export function getCrossFieldValidatorSchemas() {
  * @param data - Unknown data to validate
  * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
  *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
- *   (per ADR-010 / G1 — see safe-by-default note below).
+ *   (per ADR-010 / G1 — see safe-by-default note below); inject a deterministic
+ *   `manifest_emitted_at` via `{ now: '<ISO8601>' }` for snapshot / golden-file
+ *   parity (otherwise defaults to `new Date().toISOString()`).
  * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
  *
  * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
@@ -961,7 +971,10 @@ export function validate(schema, data, options) {
             unverified_obligations: {
                 schema_id: schema.$id ?? '<crypto-bearing>',
                 contract_version: CONTRACT_VERSION,
-                manifest_emitted_at: new Date().toISOString(),
+                // F2 mitigation: accept an injected timestamp via options.now so
+                // snapshot / golden-file parity tests can reproduce manifest output
+                // byte-for-byte across runs. Falls through to wall-clock when absent.
+                manifest_emitted_at: options?.now ?? new Date().toISOString(),
                 unverified_rules: [
                     {
                         rule_id: 'CRYPTO_DEFERRED',
