@@ -28,7 +28,7 @@
   ],
   "obligations_acked": ["ORD-1", "ORD-2"],
   "warn_window_closes_at": "2026-05-12T00:00:00Z",
-  "warn_window_basis": "Conservative upper bound: 48 hours after the expected v8.4.0 tag fire (target merge week of 2026-05-10). The actual close-time is the earlier of (PR-A1.6 merged + 48h) OR signed v8.4.0 tag fire per parity-protocol.md section 6; this timestamp is a worst-case ceiling.",
-  "deferred_co_sign_deadline": "2026-06-05T00:00:00Z",
-  "deferred_co_sign_note": "Consumer co-signature accepted any time before this date. Past this date, the asymmetric ratification is recorded via a parity-protocol PATCH bump."
+  "warn_window_basis": "(PR-A1.6 merged + 48h) OR signed v8.4.0 tag fire — whichever first; per parity-protocol.md section 6. CI gates on this exact ISO-8601 timestamp; no recomputation occurs after the handoff is committed.",
+  "deferred_co_sign_deadline": "2026-07-05T00:00:00Z",
+  "deferred_co_sign_note": "60 days from co_signed_at. Consumer co-signature accepted any time before this date. Past this date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1) per parity-protocol.md section 8. The 60-day window absorbs typical holiday + on-call rotation gaps that a 30-day window does not."
 }

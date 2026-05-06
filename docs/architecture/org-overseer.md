@@ -74,7 +74,19 @@ The third clause uses De Morgan's equivalent of "some record in the chain reache
 
 The synthetic terminator is required because `is_valid_dag` builds an id-index up front; without an entry keyed `'genesis:org-public-key'`, the genesis-rooted record's `granted_by` would resolve to a dangling reference. A worked example lives in the schema's TSDoc and in the FR-C1 reference test corpus under `vectors/is-valid-dag/`.
 
-When `granted_by_chain_records` is omitted, ORD-3 evaluates to vacuous-true (open-fail behavior). Consumers **SHOULD** treat the absence of chain context as a configuration error in their integration test suite, not as permission to skip enforcement.
+### ORD-3 open-fail caveat — mandatory consumer-side mitigation
+
+When `granted_by_chain_records` is omitted from the validation context, ORD-3 evaluates to vacuous-true. This **open-fail** behavior is a deliberate choice driven by the constraint DSL grammar (the `is_valid_dag` builtin treats non-array inputs as vacuously valid; the De Morgan `!chain.every(...)` clause on a non-array also evaluates to true), but it is a sharp edge. A consumer that wires `validate(...)` against an `OrgRepresentativeDelegation` record without supplying the chain context **silently accepts an unrooted delegation** — the structural floor (depth bound, `granted_by` union shape) holds, but the chain-of-trust check is bypassed.
+
+The fail-open default is **incompatible** with treating the library's `validate(...)` as the chain-of-trust gate by itself. Consumers integrating the org-overseer set MUST take at least one of these mitigations before promoting the integration to production:
+
+1. **(Strongly recommended)** Wrap `validate(OrgRepresentativeDelegationSchema, ...)` in a consumer-side helper that *constructs* the validation context — pulling `granted_by_chain_records` from the consumer's append-only delegation log — and rejects the record when the chain cannot be assembled. A generic `validateWithChainContext(record, log)` helper sidesteps the open-fail entirely.
+2. **(Minimum)** Lint the consumer's integration suite to assert that *every* call to `validate(OrgRepresentativeDelegationSchema, ...)` passes a non-empty `granted_by_chain_records`. This is enforceable in TypeScript with a typed wrapper that doesn't expose the bare `validate(...)` overload.
+3. **(Audit)** Add a fixture to the consumer's integration tests that omits `granted_by_chain_records` and asserts the consumer's wrapper rejects the record. Library output without context is `valid: true` — the wrapper's job is to fail-closed.
+
+A future MINOR release MAY surface ORD-3 in the `UnverifiedObligationsManifest` when `granted_by_chain_records` is missing, mirroring how ORD-1, ORD-2, and ORD-4 surface today. That promotion is tracked as a v8.5.0+ enhancement so the open-fail cannot be silently missed even by consumers who do not implement the wrapper.
+
+The library's reasoning for not failing closed at `validate(...)` time: failing closed would require breaking the strict additive-MINOR contract (rejecting payloads that would have validated under v8.3.x). The structured, explicit wrapper is the right place to fail-closed in v8.4.0; the manifest-promotion path covers consumers who do not implement the wrapper.
 
 ### ORD-4: asserted-vs-traversed depth (consumer-side)
 

@@ -25,7 +25,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **`CONTRACT_VERSION` bumped to `'8.4.0'`** — `src/version.ts:13`. Also resolves prior `'8.3.0'` lag observed in earlier cycles; `src/version.ts` now matches `package.json` exactly.
 - **`package.json` `version` bumped to `"8.4.0"`**.
 - **`vectors/VERSION` bumped to `8.4.0`**.
-- **`RELEASE-INTEGRITY.json`** — regenerated via `npm run integrity:generate`.
+- **`RELEASE-INTEGRITY.json`** — regenerated via `npm run integrity:generate`. Integrity generator scoped to `*.schema.json` so the `schemas` totals match `schemas/README.md` (209 schemas, 233 vectors, 100 constraints, 542 files). Auto-generated `schemas/index.json` and `schemas/schemastore-catalog.json` manifests are derivatives of the schema set and excluded from the integrity surface.
+- **`contract_version` field pattern (3 new schemas) tightened to strict semver 2.0.0** — `SigningContextSchema`, `PanelDecisionArtifactSchema`, and `DeliberationDissentSchema` now reject leading zeros in minor and patch components in addition to major. Net effect on consumers: none — the schemas are net-new in v8.4.0 and no v8.3.x record was ever emitted under the looser pattern by these schemas. See `SCHEMA-CHANGELOG.md` v8.4.0 for the full pattern delta.
 - **`MIN_SUPPORTED_VERSION` unchanged at `'6.0.0'`** — N/N-1 compatibility window covers v7.x and v8.x consumers.
 
 ### Release notes

@@ -112,7 +112,16 @@ In English: when the optional signal is present, the recorded `validated` boolea
 }
 ```
 
-When `bucket == 'BLOCKER'`, consumers SHOULD treat absence of `asymmetric_blocker_signal` as a missing audit trail and escalate per their policy; the library does not reject this combination because the rule that mandates the blocker signal is consumer-side workflow, not protocol-level structural.
+### BLOCKER-without-signal caveat — mandatory consumer-side check
+
+When `bucket == 'BLOCKER'`, the library does **not** reject a record whose `asymmetric_blocker_signal` is absent. This is a deliberate scope choice: the rule "BLOCKER bucket implies signal present" is structurally expressible (a sibling to PV-1 / PV-3) but is not bound by the v8.4.0 constraint surface. The intent is to keep the library's bucket-vs-signal coupling at the level of *consistency* (PV-3) rather than *presence* — a panel that resolves to BLOCKER without satisfying the asymmetric-blocker rule should never have been resolved that way in the first place, but the library does not police that workflow rule today.
+
+Consumers integrating `PanelVerdict` MUST take at least one of these mitigations before treating verdicts as authoritative on the BLOCKER path:
+
+1. **(Strongly recommended)** Wrap `validate(PanelVerdictSchema, ...)` in a consumer-side helper that asserts: `verdict.bucket !== 'BLOCKER' || verdict.asymmetric_blocker_signal != null`. Reject any verdict that fails this conjunction.
+2. **(Audit)** Add a fixture to the consumer's integration tests that records a BLOCKER verdict with no signal and asserts the consumer's wrapper rejects it. Library output without the signal is `valid: true` — the wrapper's job is to fail-closed on the missing audit trail.
+
+A future MINOR release MAY add a structural rule (call it PV-5) that codifies the conjunction in the constraint file. For v8.4.0 the workflow gate is consumer-side. The asymmetric ratification — that the library admits a record the consumer's wrapper rejects — is a deliberate split between contract validity (library) and workflow validity (consumer).
 
 ## 5. Panel Deliberation Lifecycle
 

@@ -1,12 +1,12 @@
 {
   "release_version": "8.4.0",
-  "generated_at": "2026-05-05T14:16:17.646Z",
+  "generated_at": "2026-05-05T22:44:09.572Z",
   "generator": "generate-release-integrity.ts",
   "totals": {
-    "schemas": 211,
+    "schemas": 209,
     "vectors": 233,
     "constraints": 100,
-    "total": 544
+    "total": 542
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -348,8 +348,8 @@
       },
       {
         "path": "schemas/cross-score-report.schema.json",
-        "sha256": "98107ec0d57397f5399980593cc4a8c9935c78b59180a7bf19f9cd3cb5882120",
-        "size_bytes": 27148
+        "sha256": "4ed28d51f7cb8317b58fbc9d127e87ef798ad127ca381089c6619eec6dae4ad4",
+        "size_bytes": 27361
       },
       {
         "path": "schemas/delegation-chain.schema.json",
@@ -378,8 +378,8 @@
       },
       {
         "path": "schemas/deliberation-dissent.schema.json",
-        "sha256": "697ecbc58ef084a8da78c48c1b6d6217449e5dfffdad6cb099cb5ebc4285b93c",
-        "size_bytes": 11928
+        "sha256": "faa98d7c148119f72d602408b8bad8c36357ed0c514fc127a4463728441faddd",
+        "size_bytes": 11962
       },
       {
         "path": "schemas/delivery-method.schema.json",
@@ -537,11 +537,6 @@
         "size_bytes": 1810
       },
       {
-        "path": "schemas/index.json",
-        "sha256": "cf7eff2973f1ccfb39573be49396affbc412b152a50a8f6a47525718ddae420f",
-        "size_bytes": 56219
-      },
-      {
         "path": "schemas/inter-agent-transaction-audit.schema.json",
         "sha256": "be0e1bb1c58b2d4bb21cc9b8398f086a4d2e3d95bd961041b733f92abcb15183",
         "size_bytes": 4664
@@ -633,8 +628,8 @@
       },
       {
         "path": "schemas/org-representative-delegation.schema.json",
-        "sha256": "7390874432e94a80c13e65ebc3862a3a6d4e4651ce2e08cc67505e76515034ea",
-        "size_bytes": 16114
+        "sha256": "d1ec8c5df6ae74015fd085141ed975e07d9ee474d9836310da9c5d1dc9b45746",
+        "size_bytes": 16327
       },
       {
         "path": "schemas/outbound-claims.schema.json",
@@ -648,13 +643,13 @@
       },
       {
         "path": "schemas/panel-decision-artifact.schema.json",
-        "sha256": "10437f3689a162dc891409fe2a65693e8b7ef3b03d1717756bf610b73673f14d",
-        "size_bytes": 19496
+        "sha256": "6adfb0b9e9017f3a580b0913eb043a3c3d3ddbf69c112b617bd628182bdfa946",
+        "size_bytes": 19609
       },
       {
         "path": "schemas/panel-verdict.schema.json",
-        "sha256": "f4eb6463035184b9b210d6a8d1fd0535ec4006c3df04c10e0e8055a437ba77a3",
-        "size_bytes": 19440
+        "sha256": "28065391831a4f1786acf4a9ae364ff413da2cb1ff69498f61d5d623a6b28453",
+        "size_bytes": 19653
       },
       {
         "path": "schemas/performance-outcome-type.schema.json",
@@ -922,11 +917,6 @@
         "size_bytes": 4159
       },
       {
-        "path": "schemas/schemastore-catalog.json",
-        "sha256": "41fcc6d4db2b01272060d4d409f84ed859fe123f3503fe1bda9ab925f357b903",
-        "size_bytes": 1588
-      },
-      {
         "path": "schemas/scoring-path-log.schema.json",
         "sha256": "4fe28ce3da8d126e9ee7d8b7586bc088e56c96a5ef748708d16026a730216222",
         "size_bytes": 2568
@@ -943,8 +933,8 @@
       },
       {
         "path": "schemas/signing-context.schema.json",
-        "sha256": "850bd7ed8aa12757de825b8d0e9a01509035dfdf436aadc3cd0c22553c5bfedc",
-        "size_bytes": 1149
+        "sha256": "e71ebc4b3b9381d774f1a6fc0d2247447650e34fd832d2bbfaa37e84c344b808",
+        "size_bytes": 1362
       },
       {
         "path": "schemas/stake-position.schema.json",

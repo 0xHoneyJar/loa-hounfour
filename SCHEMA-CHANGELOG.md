@@ -108,7 +108,10 @@ Plus `scripts/cross-runner.ts` driver and `vectors/_meta/{constraint-level-inval
 
 ### Schema Modifications
 
-None. v8.4.0 is strict additive MINOR — no field type changes, no required-field additions, no enum modifications, no breaking shape changes to any existing schema.
+**Strict additive MINOR.** No required-field additions, no enum modifications, no field-type changes that would reject any v8.3.x-valid record.
+
+- **`contract_version` pattern tightened to strict semver 2.0.0** — three new schemas (`SigningContext`, `PanelDecisionArtifact`, `DeliberationDissent`) carry a `contract_version` field. The regex moved from `^[1-9][0-9]*\.[0-9]+\.[0-9]+$` to `^[1-9][0-9]*\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$` so leading zeros in minor and patch components (e.g., `8.04.0`, `8.0.01`) are rejected as well as leading-zero majors. The schemas are net-new in v8.4.0; no v8.3.x record was ever produced under the looser pattern by these schemas. Major-zero pre-1.0 versions remain rejected (out of `MIN_SUPPORTED_VERSION 6.0.0` floor regardless).
+- **Schema description normalization** — generated description fields shed references to internal codenames in the v8.4.0 emit cycle. No schema-shape changes; descriptions are non-normative documentation. Cross-runner conformance is unaffected.
 
 ### Version Bump
 
