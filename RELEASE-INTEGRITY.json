@@ -1,12 +1,13 @@
 {
   "release_version": "8.4.0",
-  "generated_at": "2026-05-05T22:44:09.572Z",
+  "generated_at": "2026-05-06T00:11:08.698Z",
   "generator": "generate-release-integrity.ts",
   "totals": {
     "schemas": 209,
     "vectors": 233,
     "constraints": 100,
-    "total": 542
+    "manifests": 2,
+    "total": 544
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -2724,6 +2725,18 @@
         "path": "constraints/TaskTypeCohort.constraints.json",
         "sha256": "bc20e6459cdfc68b6cdae1016cb6454b3e0e164bfde272282502c9ca98dc37f9",
         "size_bytes": 1880
+      }
+    ],
+    "manifests": [
+      {
+        "path": "schemas/index.json",
+        "sha256": "0309a87343edc6273c7aadb0c33eeb4935961cde2b7811ddfccb9c690d08c5e1",
+        "size_bytes": 56219
+      },
+      {
+        "path": "schemas/schemastore-catalog.json",
+        "sha256": "41fcc6d4db2b01272060d4d409f84ed859fe123f3503fe1bda9ab925f357b903",
+        "size_bytes": 1588
       }
     ]
   }

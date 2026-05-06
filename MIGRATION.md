@@ -140,6 +140,36 @@ The closed `ErrorCode` enumeration plus per-code `context` shapes are published 
 
 For consumers running a `TrustDegradationEvent`-equivalent during the v8.4.0 → v8.5.0 window, the dual-emit envelope SHOULD be carried under the existing `AuditTrailEntrySchema` shape with `event_type: 'trust-degradation-v8-4-shim'`. The shim retires when v8.5.0 publishes the dedicated schema. Consumers that do not run this event flow are unaffected.
 
+### Threat model: ORD-3 open-fail when chain context is omitted
+
+ORD-3 (delegation chain validity, library-evaluated via `is_valid_dag`) requires the consumer to supply `granted_by_chain_records` in the validation context. When the field is omitted, ORD-3 evaluates to vacuous-true: the library returns `valid: true` and the chain-of-trust check is silently bypassed.
+
+**At-risk integrations.** Any consumer that calls `validate(OrgRepresentativeDelegationSchema, record)` without first assembling the chain context. The structural floor — `granted_by` literal-or-UUID union, `chain_depth` ≤ 20 — still holds, but the chain itself is not verified.
+
+**Compensating controls expected of every consumer.**
+
+1. **Wrap the validator.** Construct a `validateWithChainContext(record, log)` helper that pulls every ancestor of `record` from the consumer's append-only delegation log, plus the synthetic `{ delegation_id: 'genesis:org-public-key' }` terminator, and calls `validate(...)` with the assembled context. Reject the record when the chain cannot be assembled (missing ancestors, broken edges, or zero records returned from the log lookup).
+2. **Type-narrow the surface.** In TypeScript, expose only the wrapper from your integration module; do not re-export the bare `validate(OrgRepresentativeDelegationSchema, ...)` form. This makes the bare-call class of bug structurally unrepresentable.
+3. **Audit fixture.** Add an integration test that calls `validate(...)` without the chain context and asserts `valid === true` — confirming the open-fail behavior is what the library does — paired with a wrapper test that calls `validateWithChainContext(...)` without an assembled chain and asserts the wrapper rejects. Together these tests fail-loudly if a future library upgrade changes the open-fail surface or if the wrapper regresses.
+
+**Planned promotion (v8.5.0+).** The library may surface ORD-3 in `UnverifiedObligationsManifest` when `granted_by_chain_records` is absent at validate time, mirroring how ORD-1, ORD-2, and ORD-4 surface today. The promotion is additive and does not require a MAJOR bump. Consumers that have already implemented the wrapper see no behavior change; consumers that have not implemented the wrapper gain a visible signal that the chain check was skipped. Tracking issue lands with the v8.5.0 sprint.
+
+### Threat model: PV-3 BLOCKER-without-signal
+
+`PanelVerdict` PV-3 enforces consistency *when* `asymmetric_blocker_signal` is present. It does not require the signal to be present when `bucket == 'BLOCKER'`. A verdict with `bucket: 'BLOCKER'`, `verdict: 'reject'`, and no signal is currently `valid: true` at the library boundary.
+
+**At-risk integrations.** Any consumer that treats `validate(...)` returning `valid: true` as authoritative on the BLOCKER path without a workflow gate.
+
+**Compensating control.** Wrap `validate(PanelVerdictSchema, ...)` in a consumer-side helper that asserts:
+
+```typescript
+verdict.bucket !== 'BLOCKER' || verdict.asymmetric_blocker_signal != null
+```
+
+Reject any verdict that fails this conjunction.
+
+**Planned promotion (v8.5.0+).** A structural rule (call it PV-5) may codify the conjunction in the constraint file. The promotion is additive (no MAJOR bump). Consumer-side wrappers continue to work; consumers without the wrapper gain library-side enforcement.
+
 ### What does **not** change
 
 - No required-field additions to any pre-v8.4.0 schema.

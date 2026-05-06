@@ -4,7 +4,7 @@
   "co_signed_at": "2026-05-06T00:00:00Z",
   "co_signers": ["@janitooor"],
   "signature_basis": "maintainer-override",
-  "override_reason": "Sponsoring consumer release lead unreachable within the 7-business-day window per parity-protocol.md §8 timeout policy. No designated alternate available. Maintainer commits the handoff alone under the deferred-co-sign window; consumer co-signs retroactively when available. Failure to co-sign within 30 days post-tag triggers a parity-protocol PATCH bump (1.0.0 -> 1.0.1) recording the asymmetric ratification.",
+  "override_reason": "Sponsoring consumer release lead unreachable within the 7-business-day window per parity-protocol.md section 8 timeout policy. No designated alternate available. Maintainer commits the handoff alone under the deferred-co-sign window; consumer co-signs retroactively any time before deferred_co_sign_deadline (60 days from co_signed_at). Past that date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1).",
   "scope_acknowledged": [
     "vectors/PanelDecisionArtifact/valid",
     "vectors/PanelDecisionArtifact/invalid",
@@ -27,8 +27,14 @@
     "vectors/signing"
   ],
   "obligations_acked": ["ORD-1", "ORD-2"],
-  "warn_window_closes_at": "2026-05-12T00:00:00Z",
-  "warn_window_basis": "(PR-A1.6 merged + 48h) OR signed v8.4.0 tag fire — whichever first; per parity-protocol.md section 6. CI gates on this exact ISO-8601 timestamp; no recomputation occurs after the handoff is committed.",
+  "warn_window_closes_at_upper_bound": "2026-05-12T00:00:00Z",
+  "warn_window_basis": "(PR-A1.6 merged + 48h) OR signed v8.4.0 tag fire — whichever first; per parity-protocol.md section 6. The actual close time is derived at CI evaluation time from observed event timestamps; warn_window_closes_at_upper_bound is an upper-bound forecast for human reading, not the gating value.",
+  "warn_window_event_inputs": {
+    "pr_a1_6_merged_at": null,
+    "pr_a1_6_merge_plus_48h": null,
+    "signed_tag_v840_at": null,
+    "note": "Each field is filled in by CI when the corresponding event lands. The earliest non-null timestamp across pr_a1_6_merge_plus_48h and signed_tag_v840_at is the closing event."
+  },
   "deferred_co_sign_deadline": "2026-07-05T00:00:00Z",
   "deferred_co_sign_note": "60 days from co_signed_at. Consumer co-signature accepted any time before this date. Past this date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1) per parity-protocol.md section 8. The 60-day window absorbs typical holiday + on-call rotation gaps that a 30-day window does not."
 }
