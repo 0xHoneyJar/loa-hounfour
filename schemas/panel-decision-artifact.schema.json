@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/panel-decision-artifact",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/panel-decision-artifact",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json.",
@@ -500,10 +500,10 @@
       "type": "string"
     },
     "contract_version": {
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Protocol contract version pinned at artifact creation.",
+      "pattern": "^[1-9][0-9]*\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "description": "Semver 2.0.0-formatted protocol contract version pinned at artifact creation. Major version must be >= 1 (no major-zero pre-1.0 versions); leading zeros are rejected on every component (e.g., \"8.04.0\" and \"8.0.01\" are invalid).",
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
 }

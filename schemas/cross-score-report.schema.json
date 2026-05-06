@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.3.1/cross-score-report",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/cross-score-report",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Signed pairwise cross-scoring attestation. Cross-field rule (no-self-scoring) in constraints/CrossScoreReport.constraints.json.",
@@ -717,8 +717,8 @@
           "type": "string"
         },
         "contract_version": {
-          "pattern": "^\\d+\\.\\d+\\.\\d+$",
-          "description": "Semver-formatted protocol contract version pinned to the signing event.",
+          "pattern": "^[1-9][0-9]*\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+          "description": "Semver 2.0.0-formatted protocol contract version pinned to the signing event. Major version must be >= 1 (no major-zero pre-1.0 versions); leading zeros are rejected on every component (e.g., \"8.04.0\" and \"8.0.01\" are invalid). MIN_SUPPORTED_VERSION (6.0.0) sets the floor for runtime compatibility checks; the schema layer enforces the format only.",
           "type": "string"
         }
       }
@@ -729,5 +729,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.3.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
 }

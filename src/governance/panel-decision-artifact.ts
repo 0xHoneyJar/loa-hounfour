@@ -193,8 +193,8 @@ export const PanelDecisionArtifactSchema = Type.Object(
       description: 'ISO 8601 / RFC 3339 creation timestamp.',
     }),
     contract_version: Type.String({
-      pattern: '^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$',
-      description: 'Protocol contract version pinned at artifact creation. Major version must be >= 1; leading-zero majors are rejected per SDD section 3.6.',
+      pattern: '^[1-9][0-9]*\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$',
+      description: 'Semver 2.0.0-formatted protocol contract version pinned at artifact creation. Major version must be >= 1 (no major-zero pre-1.0 versions); leading zeros are rejected on every component (e.g., "8.04.0" and "8.0.01" are invalid).',
     }),
   },
   {

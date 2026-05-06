@@ -1,10 +1,126 @@
-<!-- docs-version: 7.0.0 -->
+<!-- docs-version: 8.4.0 -->
 
 # Schema Changelog
 
 Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records what changed, when, and why — enabling consumers to answer "what's different between versions?" at the schema level.
 
 > Inspired by Confluent's Schema Registry for Kafka, which tracks schema evolution across versions and enforces compatibility rules.
+
+---
+
+## v8.4.0
+
+**Theme:** Synthetic-deliberation protocol + organization-level governance primitives. Strict additive MINOR — no required-field additions, no breaking changes.
+
+### New Schemas (7 net-new)
+
+#### `PanelDecisionArtifact` (governance) — FR-A1
+- Deliberation input envelope: proposed action, trust context (routing decision + scope + reason), grounded claim DAG, deliberation question, per-dimension scoring rubric.
+- Inline `ClaimSchema`, `ClaimGroundingSchema`, `ProposedActionSchema`, `TrustContextSchema` sub-schemas.
+- 5 cross-field rules (PDA-1..PDA-5): provenance gate, DAG validity (via `is_valid_dag`), tool-output hash format, confidence-vs-routing coupling, acknowledged-judgment attribution.
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+#### `PanelVerdict` (governance) — FR-A2
+- Deliberation output envelope: bucket × verdict pairing, `[4, 16]` per-juror verdicts, Ed25519-signed envelope with bound `signing_context`.
+- Inline `JurorVerdictSchema` (juror + reused `DelegationVoteSchema` + score 0..1000 + voted_at).
+- Inline `AsymmetricBlockerSignalSchema` for the two-condition veto.
+- 4 cross-field rules (PV-1..PV-4): bucket↔verdict table, juror count bounds, asymmetric-blocker consistency, signing-context format.
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+#### `DeliberationDissent` (governance) — FR-A3
+- Mid-deliberation concern, minority verdict, or process objection (distinct from the post-decision `DissentRecord` lifecycle).
+- ULID `dissent_id`; `concern_type` enum; bounded `narrative` text; optional `cited_claim_ids`.
+- `additionalProperties: false`.
+
+#### `CrossScoreReport` (governance) — FR-A4
+- Signed pairwise cross-scoring attestation with mode (`shadow` | `enforced`).
+- `PairwiseScoreSchema` enforces `output_score`, `reasoning_score`, `grounding_score` (each 0..1000).
+- 1 cross-field rule (CSR-1): no self-scoring.
+- Same Ed25519 + signing-context envelope as `PanelVerdict`.
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+#### `OrgIdentity` (governance) — FR-B1
+- Org root identity: cold-storage `org_public_key`, `current_representatives` snapshot (≥ 1), `constitutional_hash`.
+- 1 cross-field rule (OI-1): minimum-rep cardinality (SP-007 invariant).
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+#### `OrgRepresentativeDelegation` (governance) — FR-B2
+- Append-only delegation log binding org → representative; chains to genesis via `granted_by` reaching the literal sentinel `"genesis:org-public-key"`.
+- Bounded chain depth (`maximum: 20`); revocation envelope with `revoked` pinned to literal `true` (envelope-presence is the semantic signal).
+- 4 cross-field rules: ORD-1 (signature verification, runtime-deferred), ORD-2 (revocation append-only, runtime-deferred), ORD-3 (chain validity via `is_valid_dag`, library-evaluated), ORD-4 (asserted-vs-traversed depth, runtime-deferred).
+- Same signing-context envelope as `PanelVerdict`; `audience` binds to `org_id`, `scope` distinguishes `org-delegation/grant` from `org-delegation/revoke`.
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+#### `SuccessionPolicy` (governance) — FR-B3
+- Constitutional thresholds for representative-set actions: `amend`, `rotate`, `add`, `remove`.
+- Each action carries `threshold` (quorum fraction in [0, 1]) and `cooldown_seconds`.
+- 2 cross-field rules: SP-1 (asymmetric ladder: `amend ≥ rotate ≥ add ≥ remove` for thresholds), SP-2 (non-decreasing cooldowns in the same order).
+- `'x-cross-field-validated': true`; `additionalProperties: false`.
+
+### Inline Sub-Schemas (additional new `$id`-named records)
+
+`SigningContext`, `JurorVerdict`, `AsymmetricBlockerSignal`, `Claim`, `ClaimGrounding`, `ProposedAction`, `TrustContext`, `PairwiseScore`. Each emits its own `schemas/<Name>.json` artifact and is consumed via the parent schema.
+
+### New Constraint Builtin (1 net-new)
+
+#### `is_valid_dag(items, id_field, ...ref_fields)` — FR-C1
+- Post-order DFS with explicit op-counter; 100,000-op cap; pre-guards at 10,000-item count and 1 MiB serialized payload.
+- Structured diagnostic envelope per `docs/architecture/error-codes.md` §4.1: `DAG_OP_CAP_EXCEEDED`, `DAG_CYCLE_DETECTED`, `DAG_DANGLING_REF`, `DAG_MISSING_ID_FIELD`, `DAG_NON_STRING_ID_FIELD`, `DAG_DUPLICATE_ID`, `DAG_INPUT_OVERSIZE`.
+- Reused by `PanelDecisionArtifact` (PDA-2) and `OrgRepresentativeDelegation` (ORD-3).
+- TypeScript reference: `src/constraints/is-valid-dag.ts`. Cross-runner parity gated by `vectors/is-valid-dag/` corpus + `.trace.json` op-count companions.
+
+### New Constraint Files (7 net-new)
+
+- `constraints/PanelDecisionArtifact.constraints.json` — PDA-1..PDA-5
+- `constraints/PanelVerdict.constraints.json` — PV-1..PV-4
+- `constraints/DeliberationDissent.constraints.json`
+- `constraints/CrossScoreReport.constraints.json` — CSR-1
+- `constraints/OrgIdentity.constraints.json` — OI-1
+- `constraints/OrgRepresentativeDelegation.constraints.json` — ORD-1..ORD-4
+- `constraints/SuccessionPolicy.constraints.json` — SP-1, SP-2
+
+### New Error Codes (cross-runner taxonomy)
+
+Six net-new codes added to the `ErrorCode` enum (full surface in `docs/architecture/error-codes.md`):
+
+- `CONFORMANCE_OBLIGATION_UNACK`, `CONFORMANCE_OBLIGATION_FAIL` — emitted by consumer CI on the `UnverifiedObligationsManifest` reconciliation.
+- `SIGNING_CONTEXT_AUDIENCE_MISMATCH`, `SIGNING_CONTEXT_SCOPE_MISMATCH`, `SIGNING_CONTEXT_VERSION_INCOMPATIBLE` — consumer-emitted on signing-context binding failures.
+- `DAG_INPUT_OVERSIZE` — emitted by `is_valid_dag` on the pre-guard caps.
+
+(`DAG_OP_CAP_EXCEEDED`, `DAG_CYCLE_DETECTED`, `DAG_DANGLING_REF`, `DAG_MISSING_ID_FIELD`, `DAG_NON_STRING_ID_FIELD`, `DAG_DUPLICATE_ID` are the existing-but-now-formalized codes for the new builtin.)
+
+### New Documentation Artifacts
+
+- `docs/architecture/panel-protocol.md` — consumer-facing translation of the deliberation set.
+- `docs/architecture/org-overseer.md` — org-as-principal model, chain-of-trust verification, succession policy.
+- `docs/architecture/parity-protocol.md` — cross-runner conformance contract; `parity-protocol-version: 1.0.0`.
+- `docs/architecture/parity-protocol.handoff.json` — co-signed handoff record gating the signed `v8.4.0` tag.
+- `docs/architecture/error-codes.md` — closed enumeration of `ErrorCode` strings + per-code `context` shapes + cross-runner comparison rule.
+
+### Conformance Vectors (171 net-new)
+
+- 91 governance fixtures (5 valid + 8 invalid per schema, across 7 new schemas)
+- `is-valid-dag` corpus + 11 `.trace.json` companions
+- `extract-path` corpus
+- 4 signing corpora (canonicalization, signature pattern, signing-context binding, replay rejection)
+
+Plus `scripts/cross-runner.ts` driver and `vectors/_meta/{constraint-level-invalids.json,regex-subset.md}`.
+
+### Schema Modifications
+
+**Strict additive MINOR.** No required-field additions, no enum modifications, no field-type changes that would reject any v8.3.x-valid record.
+
+- **`contract_version` pattern tightened to strict semver 2.0.0** — three new schemas (`SigningContext`, `PanelDecisionArtifact`, `DeliberationDissent`) carry a `contract_version` field. The regex moved from `^[1-9][0-9]*\.[0-9]+\.[0-9]+$` to `^[1-9][0-9]*\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$` so leading zeros in minor and patch components (e.g., `8.04.0`, `8.0.01`) are rejected as well as leading-zero majors. The schemas are net-new in v8.4.0; no v8.3.x record was ever produced under the looser pattern by these schemas. Major-zero pre-1.0 versions remain rejected (out of `MIN_SUPPORTED_VERSION 6.0.0` floor regardless).
+- **Schema description normalization** — generated description fields shed references to internal codenames in the v8.4.0 emit cycle. No schema-shape changes; descriptions are non-normative documentation. Cross-runner conformance is unaffected.
+
+### Version Bump
+
+- `CONTRACT_VERSION`: `8.3.1` → `8.4.0` (also resolves prior `8.3.0` lag)
+- `package.json` `version`: `8.3.1` → `8.4.0`
+- `vectors/VERSION`: `8.3.1` → `8.4.0`
+- `RELEASE-INTEGRITY.json`: regenerated via `npm run integrity:generate`
+
+`MIN_SUPPORTED_VERSION` unchanged at `6.0.0`.
 
 ---
 

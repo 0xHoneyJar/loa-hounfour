@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('8.3.1');
+    expect(CONTRACT_VERSION).toBe('8.4.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('8.3.1');
+    expect(pkg.version).toBe('8.4.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('8.3.1');
+    expect(index.version).toBe('8.4.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('8.3.1');
+    expect(version).toBe('8.4.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,7 +129,7 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use the current contract version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/8\.3\.1\//);
+      expect(schema.$id).toMatch(/\/8\.4\.0\//);
     }
   });
 
