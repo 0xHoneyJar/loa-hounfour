@@ -1,0 +1,24 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SignatureEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SE-1",
+      "expression": "consumer verifies Ed25519 signature_value over sha256:safeCanonicalize(payload-minus-signatures-minus-signed_payload_hash) using the public_key referenced by SignerEntry.key_ref; consumer recomputes signed_payload_hash via safeCanonicalize and rejects on mismatch",
+      "severity": "error",
+      "message": "SignatureEnvelope cryptographic verification is consumer-side per ADR-010 / G1; library does NOT verify and emits CRYPTO_DEFERRED on default validate() calls.",
+      "fields": ["signature_value", "signed_payload_hash", "key_ref", "signature_type"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Crypto-bearing per the v8.5.0 boundary (ADR-010). validate(SignatureEnvelopeSchema, payload) defaults to { valid: false, errors: [{ code: 'CRYPTO_DEFERRED' }] }; consumer opt-in via { acceptDeferred: true } returns { valid: true, unverified_obligations: [...] } with the obligation manifest entry. Consumer obligations: (1) recompute the signed_payload_hash via safeCanonicalize over the wire artifact's other fields (excluding signatures[] and the hash field itself); (2) reject if the recomputed hash differs from the carried signed_payload_hash; (3) verify the Ed25519 signature_value against the public key referenced by the matching SignerEntry; (4) confirm the signer's CapabilityScopedTrust profile satisfies the action's SignerCompetenceRule.required_capability_scopes per the configured match_strategy.",
+      "type_signature": {
+        "signature_value": "string",
+        "signed_payload_hash": "string",
+        "key_ref": "string",
+        "signature_type": "string"
+      }
+    }
+  ]
+}

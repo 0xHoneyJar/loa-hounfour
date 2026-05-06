@@ -1,69 +1,60 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-identity",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-entry",
   "additionalProperties": false,
-  "x-cross-field-validated": true,
-  "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING).",
+  "description": "Cryptographic-material entry inside a Keyring. Binds signer_id + key_ref to a public key, signature kind, scoped trust profile, and lifecycle status.",
   "type": "object",
   "required": [
-    "agent_id",
-    "display_name",
-    "agent_type",
-    "capabilities",
-    "trust_scopes",
-    "delegation_authority",
-    "max_delegation_depth",
-    "governance_weight",
-    "contract_version"
+    "signer_id",
+    "key_ref",
+    "public_key",
+    "signature_type",
+    "scoped_trust",
+    "signer_status"
   ],
   "properties": {
-    "agent_id": {
+    "signer_id": {
       "pattern": "^[a-z][a-z0-9_-]{2,63}$",
-      "description": "Unique agent identifier (lowercase, 3-64 chars).",
+      "description": "Stable opaque identifier for the signer within its keyring. Lowercase, hyphens / underscores; 3-64 chars.",
       "type": "string"
     },
-    "display_name": {
+    "key_ref": {
       "minLength": 1,
-      "maxLength": 128,
-      "description": "Human-readable agent display name.",
+      "description": "Consumer-side reference for the underlying secret material (HSM slot, KMS handle, file path, etc.). Hounfour never sees the secret.",
       "type": "string"
     },
-    "agent_type": {
-      "$id": "AgentType",
-      "description": "Classification of agent type in the protocol.",
+    "public_key": {
+      "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43,44}$",
+      "description": "Ed25519 public key, base64url-encoded, prefixed with \"ed25519-pub:\".",
+      "type": "string"
+    },
+    "signature_type": {
+      "$id": "SignatureType",
+      "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
       "anyOf": [
         {
-          "const": "model",
+          "description": "Signer is asserting a fact they observed or vouch for.",
+          "const": "attestation",
           "type": "string"
         },
         {
-          "const": "orchestrator",
+          "description": "Signer is granting permission for a downstream action.",
+          "const": "authorization",
           "type": "string"
         },
         {
-          "const": "human",
+          "description": "Signer is binding themselves to a future action or state.",
+          "const": "commitment",
           "type": "string"
         },
         {
-          "const": "service",
-          "type": "string"
-        },
-        {
-          "const": "composite",
+          "description": "Dev-only marker. NOT a cryptographic guarantee — consumers MUST reject in production.",
+          "const": "dev_signature",
           "type": "string"
         }
       ]
     },
-    "capabilities": {
-      "minItems": 1,
-      "description": "Non-empty list of agent capabilities.",
-      "type": "array",
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      }
-    },
-    "trust_scopes": {
+    "scoped_trust": {
       "$id": "CapabilityScopedTrust",
       "additionalProperties": false,
       "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
@@ -287,37 +278,26 @@
         }
       }
     },
-    "delegation_authority": {
-      "description": "Permissions this agent may delegate. Requires delegation scope >= verified.",
-      "type": "array",
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      }
-    },
-    "max_delegation_depth": {
-      "minimum": 0,
-      "maximum": 10,
-      "description": "Maximum delegation chain depth this agent may create.",
-      "type": "integer"
-    },
-    "governance_weight": {
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Voting weight in governance proposals (0-1).",
-      "type": "number"
-    },
-    "metadata": {
-      "description": "Extensible metadata key-value store.",
-      "type": "object",
-      "patternProperties": {
-        "^(.*)$": {}
-      }
-    },
-    "contract_version": {
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Protocol contract version.",
-      "type": "string"
+    "signer_status": {
+      "$id": "SignerStatus",
+      "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState.",
+      "anyOf": [
+        {
+          "description": "Signer is current and may produce signatures.",
+          "const": "active",
+          "type": "string"
+        },
+        {
+          "description": "Signer is permanently invalidated (key compromise, intentional rotation, or sanction).",
+          "const": "revoked",
+          "type": "string"
+        },
+        {
+          "description": "Signer has aged out per the keyring policy. Past signatures remain verifiable; new ones are not accepted.",
+          "const": "expired",
+          "type": "string"
+        }
+      ]
     }
   },
   "$comment": "contract_version=8.4.0, min_supported=6.0.0"

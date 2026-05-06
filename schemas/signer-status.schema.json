@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-status",
+  "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState.",
+  "anyOf": [
+    {
+      "description": "Signer is current and may produce signatures.",
+      "const": "active",
+      "type": "string"
+    },
+    {
+      "description": "Signer is permanently invalidated (key compromise, intentional rotation, or sanction).",
+      "const": "revoked",
+      "type": "string"
+    },
+    {
+      "description": "Signer has aged out per the keyring policy. Past signatures remain verifiable; new ones are not accepted.",
+      "const": "expired",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

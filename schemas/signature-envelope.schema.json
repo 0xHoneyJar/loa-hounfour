@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-envelope",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "description": "Crypto-bearing envelope wrapping a signed payload hash. validate() defaults to { valid: false, errors: [{ code: CRYPTO_DEFERRED }] } unless { acceptDeferred: true } is passed; that opt-in is the safety mechanism preventing \"shape valid means trusted\" by accident.",
+  "type": "object",
+  "required": [
+    "envelope_id",
+    "signature_type",
+    "key_ref",
+    "signed_payload_hash",
+    "signature_value",
+    "signed_at",
+    "contract_version"
+  ],
+  "properties": {
+    "envelope_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this envelope instance (UUID v4).",
+      "type": "string"
+    },
+    "signature_type": {
+      "$id": "SignatureType",
+      "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
+      "anyOf": [
+        {
+          "description": "Signer is asserting a fact they observed or vouch for.",
+          "const": "attestation",
+          "type": "string"
+        },
+        {
+          "description": "Signer is granting permission for a downstream action.",
+          "const": "authorization",
+          "type": "string"
+        },
+        {
+          "description": "Signer is binding themselves to a future action or state.",
+          "const": "commitment",
+          "type": "string"
+        },
+        {
+          "description": "Dev-only marker. NOT a cryptographic guarantee — consumers MUST reject in production.",
+          "const": "dev_signature",
+          "type": "string"
+        }
+      ]
+    },
+    "key_ref": {
+      "minLength": 1,
+      "description": "Consumer-side reference to the SignerEntry.key_ref that produced this signature. Hounfour does not dereference; the consumer resolves it against its own Keyring.",
+      "type": "string"
+    },
+    "signed_payload_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest (lowercase) of safeCanonicalize(payload) where payload is the wire artifact being signed minus its own signatures[] and minus any field literally named signed_payload_hash. NFC + RFC 8785 + 100KB cap per the hashing-spec freeze.",
+      "type": "string"
+    },
+    "signature_value": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
+      "description": "Ed25519 signature value, base64url-encoded, prefixed with \"ed25519:\". Hounfour does NOT verify; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).",
+      "type": "string"
+    },
+    "signed_at": {
+      "format": "date-time",
+      "description": "When the signer produced this signature.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this envelope instance was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

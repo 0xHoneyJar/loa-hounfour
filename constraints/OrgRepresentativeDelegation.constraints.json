@@ -60,6 +60,18 @@
         "granted_by": "string",
         "granted_by_chain_records": "array"
       }
+    },
+    {
+      "id": "ORD-5",
+      "expression": "capability_scope MUST bind to a member of the canonical CapabilityScope set — billing, governance, inference, delegation, audit, composition — consumer-side scope keys NOT in the set trigger a warning manifest entry and require coordination with the vocabulary maintainer for cycle-005 escalation",
+      "severity": "warning",
+      "message": "capability_scope key '<scope>' is not in the canonical CapabilityScope vocabulary; emitted as a vocabulary_drift warning. The constraint is in soak mode for v8.5.0; cycle-005 escalates to error after the soak window.",
+      "fields": ["capability_scope"],
+      "evaluator": "library",
+      "evaluation_note": "Vocabulary harmonization plug-point (Phase 4 lock per the cycle-004 PRD). Soak window per R3. The canonical CapabilityScope vocabulary lives in src/schemas/agent-identity.ts and is consumed identically by Layer-2 SignerEntry.scoped_trust and Layer-3 SignerCompetenceRule.required_capability_scopes — consumers passing non-canonical keys here will see ORD-5 fire as a warning, indicating their downstream Layer-2 / Layer-3 evaluators will silently treat the key as the default trust level (a potential authorization drift). The library evaluator emits a manifest entry under `evaluator: 'library'` (NOT 'runtime-deferred') because the vocabulary check IS performed by the library; the manifest carries `reason: 'vocabulary_drift'` so consumers can detect non-canonical keys without parsing warnings strings. Cycle-005 escalates this rule to error severity after a soak window per R3 — track on v8_6_0_backlog.md.",
+      "type_signature": {
+        "capability_scope": "string"
+      }
     }
   ]
 }

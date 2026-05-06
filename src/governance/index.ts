@@ -456,3 +456,49 @@ export {
   SuccessionPolicySchema,
   type SuccessionPolicy,
 } from './succession-policy.js';
+
+// Schemas — Authority Cascade Layer 2 + 3 (v8.5.0, PR-A2.2)
+export {
+  KeyringSchema,
+  type Keyring,
+} from './keyring.js';
+
+export {
+  SignerEntrySchema,
+  type SignerEntry,
+} from './signer-entry.js';
+
+export {
+  SignerCompetenceRuleSchema,
+  type SignerCompetenceRule,
+} from './signer-competence-rule.js';
+
+export {
+  SignerCompetenceResultSchema,
+  type SignerCompetenceResult,
+} from './signer-competence-result.js';
+
+export {
+  SignatureEnvelopeSchema,
+  type SignatureEnvelope,
+} from './signature-envelope.js';
+
+export {
+  SignerTypeSchema,
+  type SignerType,
+} from './signer-type.js';
+
+export {
+  SignatureTypeSchema,
+  type SignatureType,
+} from './signature-type.js';
+
+export {
+  SignerStatusSchema,
+  type SignerStatus,
+} from './signer-status.js';
+
+export {
+  PolicyDecisionOutcomeSchema,
+  type PolicyDecisionOutcome,
+} from './policy-decision-outcome.js';

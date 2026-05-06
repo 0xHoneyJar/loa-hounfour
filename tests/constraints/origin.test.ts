@@ -25,7 +25,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(100); // 77 existing + 10 new v8.0.0 + 6 new v8.3.0 + 7 new v8.4.0 (PanelDecisionArtifact, PanelVerdict, DeliberationDissent, CrossScoreReport, OrgIdentity, OrgRepresentativeDelegation, SuccessionPolicy)
+    expect(files.length).toBe(109); // 100 pre-PR-A2.2 + 9 new authority-cascade constraint files
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

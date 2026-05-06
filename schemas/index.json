@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-06T11:14:45.586Z",
+  "generated_at": "2026-05-06T12:30:20.825Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -434,7 +434,7 @@
       "name": "capability-scoped-trust",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/capability-scoped-trust",
       "file": "capability-scoped-trust.schema.json",
-      "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING)."
+      "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6)."
     },
     {
       "name": "constraint-type",
@@ -812,7 +812,7 @@
       "name": "access-decision",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/access-decision",
       "file": "access-decision.schema.json",
-      "description": "Result of an access evaluation at the economic boundary."
+      "description": "Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition."
     },
     {
       "name": "economic-boundary",
@@ -1257,6 +1257,60 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/succession-policy",
       "file": "succession-policy.schema.json",
       "description": "Constitutional thresholds enforcing the asymmetric ladder + non-decreasing cooldown invariants. Cross-field rules SP-1..2 in constraints/SuccessionPolicy.constraints.json."
+    },
+    {
+      "name": "keyring",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/keyring",
+      "file": "keyring.schema.json",
+      "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade."
+    },
+    {
+      "name": "signer-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-entry",
+      "file": "signer-entry.schema.json",
+      "description": "Cryptographic-material entry inside a Keyring. Binds signer_id + key_ref to a public key, signature kind, scoped trust profile, and lifecycle status."
+    },
+    {
+      "name": "signer-competence-rule",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-competence-rule",
+      "file": "signer-competence-rule.schema.json",
+      "description": "Layer-3 rule pairing an action pattern with the capability-scope set required to authorize matching actions. Composes with Layer-2 SignerEntry.scoped_trust."
+    },
+    {
+      "name": "signer-competence-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-competence-result",
+      "file": "signer-competence-result.schema.json",
+      "description": "Outcome record from evaluating a SignerEntry against an action via SignerCompetenceRule. Threaded into AccessDecision.signer_competence_result via the v8.5.0 EXTEND."
+    },
+    {
+      "name": "signature-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-envelope",
+      "file": "signature-envelope.schema.json",
+      "description": "Crypto-bearing envelope wrapping a signed payload hash. validate() defaults to { valid: false, errors: [{ code: CRYPTO_DEFERRED }] } unless { acceptDeferred: true } is passed; that opt-in is the safety mechanism preventing \"shape valid means trusted\" by accident."
+    },
+    {
+      "name": "signer-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-type",
+      "file": "signer-type.schema.json",
+      "description": "Classification of the entity that produced a signature. Paired with SignatureEnvelope.signer_type and SignerEntry."
+    },
+    {
+      "name": "signature-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-type",
+      "file": "signature-type.schema.json",
+      "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm."
+    },
+    {
+      "name": "signer-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-status",
+      "file": "signer-status.schema.json",
+      "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState."
+    },
+    {
+      "name": "policy-decision-outcome",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/policy-decision-outcome",
+      "file": "policy-decision-outcome.schema.json",
+      "description": "Outcome enum for policy-decision shapes (AccessDecision.outcome, SignerCompetenceResult.outcome). 5 substrate-agnostic members."
     }
   ]
 }

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/policy-decision-outcome",
+  "description": "Outcome enum for policy-decision shapes (AccessDecision.outcome, SignerCompetenceResult.outcome). 5 substrate-agnostic members.",
+  "anyOf": [
+    {
+      "description": "Action is permitted; consumer may proceed.",
+      "const": "allow",
+      "type": "string"
+    },
+    {
+      "description": "Action is denied; consumer MUST NOT proceed.",
+      "const": "deny",
+      "type": "string"
+    },
+    {
+      "description": "Decision deferred to a human or higher-trust process. Consumer holds the action.",
+      "const": "needs_review",
+      "type": "string"
+    },
+    {
+      "description": "Cryptographic / class-validation step succeeded. Pair with another field for the policy verdict.",
+      "const": "verified",
+      "type": "string"
+    },
+    {
+      "description": "Cryptographic / class-validation step failed. Distinct from policy-level deny.",
+      "const": "rejected",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

@@ -43,10 +43,10 @@ describe('OrgRepresentativeDelegation constraint file structure', () => {
     expect(constraintFile.contract_version).toBe('8.4.0');
   });
 
-  it('contains exactly 4 constraints (ORD-1, ORD-2, ORD-3, ORD-4)', () => {
-    expect(constraintFile.constraints).toHaveLength(4);
+  it('contains exactly 5 constraints (ORD-1, ORD-2, ORD-3, ORD-4, ORD-5)', () => {
+    expect(constraintFile.constraints).toHaveLength(5);
     const ids = constraintFile.constraints.map((c) => c.id);
-    expect(ids).toEqual(['ORD-1', 'ORD-2', 'ORD-3', 'ORD-4']);
+    expect(ids).toEqual(['ORD-1', 'ORD-2', 'ORD-3', 'ORD-4', 'ORD-5']);
   });
 });
 

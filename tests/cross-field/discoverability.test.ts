@@ -138,6 +138,16 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'StateMachineConfig',
     'TaskType',
     'TaskTypeCohort',
+    // v8.5.0 PR-A2.2 — Authority Cascade Layer 2 + 3
+    'Keyring',
+    'SignerEntry',
+    'SignerCompetenceRule',
+    'SignerCompetenceResult',
+    'SignatureEnvelope',
+    'SignerType',
+    'SignatureType',
+    'SignerStatus',
+    'PolicyDecisionOutcome',
   ];
 
   it('returns an array of strings', () => {

@@ -961,6 +961,21 @@ registerCrossFieldValidator('StateMachineConfig', constraintFileOnlyValidator);
 registerCrossFieldValidator('TaskType', constraintFileOnlyValidator);
 registerCrossFieldValidator('TaskTypeCohort', constraintFileOnlyValidator);
 
+// v8.5.0 PR-A2.2 — Authority Cascade Layer 2 + 3.
+// Constraint-file-only by design: hounfour ships shape; consumers
+// own the policy that applies these schemas. SignatureEnvelope is
+// crypto-bearing and gets the safe-by-default opt-in path through
+// validate() rather than a non-trivial cross-field validator here.
+registerCrossFieldValidator('Keyring', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerEntry', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceRule', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceResult', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerStatus', constraintFileOnlyValidator);
+registerCrossFieldValidator('PolicyDecisionOutcome', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -993,15 +1008,28 @@ export function getCrossFieldValidatorSchemas(): string[] {
  *
  * @param schema - TypeBox schema to validate against
  * @param data - Unknown data to validate
- * @param options - Optional: skip cross-field validation with `{ crossField: false }`
+ * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
+ *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
+ *   (per ADR-010 / G1 — see safe-by-default note below).
  * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
  *
+ * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
+ *   options carry `'x-crypto-bearing': true` (e.g. `SignatureEnvelope`), the
+ *   call returns `{ valid: false, errors: [{ code: 'CRYPTO_DEFERRED' }] }`
+ *   unless the caller passes `{ acceptDeferred: true }`. The opt-in flag IS
+ *   the safety mechanism — it forces the consumer to acknowledge that the
+ *   library has NOT verified the signature and that downstream verification
+ *   is required. With the opt-in, the call returns
+ *   `{ valid: true, unverified_obligations: [{ evaluator: 'consumer',
+ *   reason: 'crypto_deferred' }] }` (assuming the structural shape passed).
+ *
  * @see SDD section 5.8 — Unverified-Obligations Manifest Emission Contract
+ * @see ADR-010 — Class-vs-Policy Boundary
  */
 export function validate<T extends TSchema>(
   schema: T,
   data: unknown,
-  options?: { crossField?: boolean },
+  options?: { crossField?: boolean; acceptDeferred?: boolean },
 ): ValidationResult {
   const compiled = getOrCompile(schema);
   if (!compiled.Check(data)) {
@@ -1028,6 +1056,57 @@ export function validate<T extends TSchema>(
         return { valid: true, warnings: crossResult.warnings };
       }
     }
+  }
+
+  // Safe-by-default crypto-bearing API (G1, per ADR-010).
+  // When the schema is flagged x-crypto-bearing, the consumer MUST
+  // explicitly opt in to shape-only validation. Returning structurally-
+  // valid {valid: true} would let consumers write
+  //   if (validate(SignatureEnvelopeSchema, p).valid) { authorize(); }
+  // and treat shape-validity as crypto authority. The opt-in flag is
+  // the forced acknowledgment that downstream verification is the
+  // consumer's responsibility.
+  const isCryptoBearing =
+    (schema as Record<string, unknown>)['x-crypto-bearing'] === true;
+  if (isCryptoBearing && options?.acceptDeferred !== true) {
+    return {
+      valid: false,
+      errors: [
+        'CRYPTO_DEFERRED: Crypto-bearing schema requires { acceptDeferred: true } ' +
+          'to receive shape-only valid: true. The library does not verify the ' +
+          'signature; downstream verification is the consumer\'s responsibility. ' +
+          'See ADR-010 (Class-vs-Policy Boundary).',
+      ],
+    };
+  }
+  if (isCryptoBearing && options?.acceptDeferred === true) {
+    // The full NF-2 shape (evaluator: 'consumer' + reason vocabulary)
+    // lands in PR-A2.3 along with the consumer-evaluator extension.
+    // For PR-A2.2 we emit a manifest entry under the existing v8.4.0
+    // schema with a CRYPTO_DEFERRED rule_id, so consumers can detect
+    // the obligation without waiting for the type widening.
+    return {
+      valid: true,
+      unverified_obligations: {
+        schema_id: schema.$id ?? '<crypto-bearing>',
+        contract_version: '8.5.0',
+        manifest_emitted_at: new Date().toISOString(),
+        unverified_rules: [
+          {
+            rule_id: 'CRYPTO_DEFERRED',
+            rule:
+              'Signature value present in payload — library does NOT verify; consumer responsibility per ADR-010.',
+            evaluator: 'runtime-deferred',
+            evaluation_note:
+              'Signature value present in payload was NOT verified by the library. ' +
+              'Consumer MUST verify the signature against the public key referenced ' +
+              'by the SignerEntry that produced it before treating the envelope as ' +
+              'cryptographically authoritative.',
+            consumer_acknowledgment_required: true,
+          },
+        ],
+      },
+    };
   }
 
   return { valid: true };

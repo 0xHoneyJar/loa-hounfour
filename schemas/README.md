@@ -2,7 +2,7 @@
 
 **Contract version:** 8.4.0
 **Min supported:** 6.0.0
-**Schemas:** 209
+**Schemas:** 218
 
 ## Schemas
 
@@ -217,6 +217,15 @@
 | org-identity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/org-identity` | [org-identity.schema.json](org-identity.schema.json) |
 | org-representative-delegation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/org-representative-delegation` | [org-representative-delegation.schema.json](org-representative-delegation.schema.json) |
 | succession-policy | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/succession-policy` | [succession-policy.schema.json](succession-policy.schema.json) |
+| keyring | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/keyring` | [keyring.schema.json](keyring.schema.json) |
+| signer-entry | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-entry` | [signer-entry.schema.json](signer-entry.schema.json) |
+| signer-competence-rule | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-competence-rule` | [signer-competence-rule.schema.json](signer-competence-rule.schema.json) |
+| signer-competence-result | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-competence-result` | [signer-competence-result.schema.json](signer-competence-result.schema.json) |
+| signature-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-envelope` | [signature-envelope.schema.json](signature-envelope.schema.json) |
+| signer-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-type` | [signer-type.schema.json](signer-type.schema.json) |
+| signature-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-type` | [signature-type.schema.json](signature-type.schema.json) |
+| signer-status | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-status` | [signer-status.schema.json](signer-status.schema.json) |
+| policy-decision-outcome | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/policy-decision-outcome` | [policy-decision-outcome.schema.json](policy-decision-outcome.schema.json) |
 
 ## Usage
 
