@@ -43,7 +43,6 @@
       "type": "string"
     },
     "scope": {
-      "$id": "PortabilityScope",
       "description": "Scope of reputation data to transfer: full (score + state + history), score_only, or state_only.",
       "anyOf": [
         {

@@ -42,7 +42,6 @@
       "type": "string"
     },
     "circuit_state": {
-      "$id": "CircuitState",
       "anyOf": [
         {
           "const": "closed",

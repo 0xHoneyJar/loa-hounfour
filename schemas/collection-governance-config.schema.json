@@ -61,7 +61,6 @@
       }
     },
     "decay_policy": {
-      "$id": "ReputationDecayPolicy",
       "additionalProperties": false,
       "description": "Temporal decay and demotion policy for collection reputation.",
       "type": "object",
@@ -81,7 +80,6 @@
           "description": "Per-state inactivity demotion rules. Each rule defines when a specific state should be demoted.",
           "type": "array",
           "items": {
-            "$id": "DemotionRule",
             "additionalProperties": false,
             "description": "Rule for time-based reputation state demotion due to inactivity.",
             "type": "object",
@@ -92,7 +90,6 @@
             ],
             "properties": {
               "from_state": {
-                "$id": "ReputationState",
                 "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {
@@ -114,7 +111,6 @@
                 ]
               },
               "to_state": {
-                "$id": "ReputationState",
                 "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {

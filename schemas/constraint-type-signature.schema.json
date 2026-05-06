@@ -16,7 +16,6 @@
       "type": "string"
     },
     "output_type": {
-      "$id": "ConstraintType",
       "description": "Type universe for constraint expression operands (v6.0.0).",
       "anyOf": [
         {
@@ -58,7 +57,6 @@
       "type": "object",
       "patternProperties": {
         "^(.*)$": {
-          "$id": "ConstraintType",
           "description": "Type universe for constraint expression operands (v6.0.0).",
           "anyOf": [
             {

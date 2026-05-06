@@ -7,7 +7,6 @@
   },
   "anyOf": [
     {
-      "$id": "StreamStart",
       "additionalProperties": true,
       "type": "object",
       "required": [
@@ -59,7 +58,6 @@
       }
     },
     {
-      "$id": "StreamChunk",
       "additionalProperties": true,
       "type": "object",
       "required": [
@@ -88,7 +86,6 @@
       }
     },
     {
-      "$id": "StreamToolCall",
       "additionalProperties": true,
       "type": "object",
       "required": [
@@ -133,7 +130,6 @@
       }
     },
     {
-      "$id": "StreamUsage",
       "additionalProperties": true,
       "type": "object",
       "required": [
@@ -166,7 +162,6 @@
       }
     },
     {
-      "$id": "StreamEnd",
       "additionalProperties": true,
       "type": "object",
       "required": [
@@ -228,7 +223,6 @@
       }
     },
     {
-      "$id": "StreamError",
       "additionalProperties": true,
       "type": "object",
       "required": [

@@ -18,7 +18,6 @@
       "type": "string"
     },
     "policy_type": {
-      "$id": "PolicyType",
       "description": "Category of versioned policy.",
       "anyOf": [
         {

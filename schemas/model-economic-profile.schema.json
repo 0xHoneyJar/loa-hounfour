@@ -25,7 +25,6 @@
       "type": "string"
     },
     "cost_per_token": {
-      "$id": "CostPerToken",
       "additionalProperties": false,
       "description": "Token-level pricing for a model.",
       "type": "object",

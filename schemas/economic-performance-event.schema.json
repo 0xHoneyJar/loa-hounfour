@@ -35,7 +35,6 @@
       "type": "string"
     },
     "outcome_type": {
-      "$id": "PerformanceOutcomeType",
       "description": "Classification of how a model invocation performed against expectations.",
       "anyOf": [
         {

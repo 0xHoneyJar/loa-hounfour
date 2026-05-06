@@ -25,7 +25,6 @@
       "type": "string"
     },
     "signal_type": {
-      "$id": "RoutingSignalType",
       "description": "Type of reputation-based routing signal.",
       "anyOf": [
         {
@@ -43,7 +42,6 @@
       ]
     },
     "qualifying_state": {
-      "$id": "ReputationState",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {

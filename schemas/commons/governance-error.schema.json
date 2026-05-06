@@ -3,7 +3,6 @@
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/governance-error",
   "anyOf": [
     {
-      "$id": "InvariantViolation",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -60,7 +59,6 @@
       }
     },
     {
-      "$id": "InvalidTransition",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -117,7 +115,6 @@
       }
     },
     {
-      "$id": "GuardFailure",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -168,7 +165,6 @@
       }
     },
     {
-      "$id": "EvaluationError",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -225,7 +221,6 @@
       }
     },
     {
-      "$id": "HashDiscontinuityError",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -287,7 +282,6 @@
       }
     },
     {
-      "$id": "PartialApplication",
       "additionalProperties": false,
       "type": "object",
       "required": [

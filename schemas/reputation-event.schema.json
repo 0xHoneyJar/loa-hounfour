@@ -54,7 +54,6 @@
           "type": "number"
         },
         "task_type": {
-          "$id": "TaskType",
           "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
           "anyOf": [
             {
@@ -149,7 +148,6 @@
           "type": "string"
         },
         "task_type": {
-          "$id": "TaskType",
           "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
           "anyOf": [
             {
@@ -335,7 +333,6 @@
           "type": "string"
         },
         "task_type": {
-          "$id": "TaskType",
           "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
           "anyOf": [
             {
@@ -370,7 +367,6 @@
           ]
         },
         "quality_observation": {
-          "$id": "QualityObservation",
           "additionalProperties": false,
           "description": "Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity.",
           "type": "object",

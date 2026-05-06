@@ -138,7 +138,6 @@
       "type": "string"
     },
     "severity_level": {
-      "$id": "SanctionSeverity",
       "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity.",
       "anyOf": [
         {

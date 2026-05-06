@@ -27,7 +27,6 @@
       "description": "Capability scopes a signer's trust profile MUST satisfy for this rule to authorize. Bind to the canonical CapabilityScope vocabulary; consumer-side extensions trigger an ORD-5 vocabulary_drift manifest entry (warn mode).",
       "type": "array",
       "items": {
-        "$id": "CapabilityScope",
         "description": "Domain within which a trust level applies (v6.0.0).",
         "anyOf": [
           {

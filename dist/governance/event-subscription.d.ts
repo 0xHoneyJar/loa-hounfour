@@ -6,7 +6,7 @@
  * or score thresholds. Supports webhook and SSE delivery with cursor-based
  * pagination for replay.
  *
- * @see DR-S1 — Deep Bridgebuilder Review SPECULATION finding
+ * @see DR-S1 — code review SPECULATION finding
  * @since v7.5.0
  */
 import { type Static } from '@sinclair/typebox';

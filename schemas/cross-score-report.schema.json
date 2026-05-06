@@ -27,7 +27,6 @@
       "description": "Per-pair score entries; cross-field no-self-scoring rule in constraint file.",
       "type": "array",
       "items": {
-        "$id": "PairwiseScore",
         "additionalProperties": false,
         "description": "A single scorer/scored pair with three dimensional scores. Self-scoring rejected by CSR-1.",
         "type": "object",
@@ -40,7 +39,6 @@
         ],
         "properties": {
           "scorer": {
-            "$id": "AgentIdentity",
             "additionalProperties": false,
             "x-cross-field-validated": true,
             "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING).",
@@ -69,7 +67,6 @@
                 "type": "string"
               },
               "agent_type": {
-                "$id": "AgentType",
                 "description": "Classification of agent type in the protocol.",
                 "anyOf": [
                   {
@@ -104,7 +101,6 @@
                 }
               },
               "trust_scopes": {
-                "$id": "CapabilityScopedTrust",
                 "additionalProperties": false,
                 "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
                 "type": "object",
@@ -119,7 +115,6 @@
                     "type": "object",
                     "properties": {
                       "billing": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -145,7 +140,6 @@
                         ]
                       },
                       "governance": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -171,7 +165,6 @@
                         ]
                       },
                       "inference": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -197,7 +190,6 @@
                         ]
                       },
                       "delegation": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -223,7 +215,6 @@
                         ]
                       },
                       "audit": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -249,7 +240,6 @@
                         ]
                       },
                       "composition": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -277,7 +267,6 @@
                     }
                   },
                   "default_level": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -362,7 +351,6 @@
             }
           },
           "scored": {
-            "$id": "AgentIdentity",
             "additionalProperties": false,
             "x-cross-field-validated": true,
             "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING).",
@@ -391,7 +379,6 @@
                 "type": "string"
               },
               "agent_type": {
-                "$id": "AgentType",
                 "description": "Classification of agent type in the protocol.",
                 "anyOf": [
                   {
@@ -426,7 +413,6 @@
                 }
               },
               "trust_scopes": {
-                "$id": "CapabilityScopedTrust",
                 "additionalProperties": false,
                 "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
                 "type": "object",
@@ -441,7 +427,6 @@
                     "type": "object",
                     "properties": {
                       "billing": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -467,7 +452,6 @@
                         ]
                       },
                       "governance": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -493,7 +477,6 @@
                         ]
                       },
                       "inference": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -519,7 +502,6 @@
                         ]
                       },
                       "delegation": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -545,7 +527,6 @@
                         ]
                       },
                       "audit": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -571,7 +552,6 @@
                         ]
                       },
                       "composition": {
-                        "$id": "TrustLevel",
                         "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                         "anyOf": [
                           {
@@ -599,7 +579,6 @@
                     }
                   },
                   "default_level": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -742,7 +721,6 @@
       "type": "string"
     },
     "signing_context": {
-      "$id": "SigningContext",
       "additionalProperties": false,
       "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection.",
       "type": "object",

@@ -21,7 +21,7 @@ export declare const METADATA_NAMESPACES: {
      * Qwen3-Coder-Next), the producing agent can annotate with model.* keys.
      *
      * @see {@link MODEL_METADATA_KEYS} for documented keys
-     * @see {@link https://github.com/0xHoneyJar/loa-finn/issues/31 | The Hounfour RFC}
+     * @see The Hounfour multi-model routing RFC (see docs/RFC-v9-cross-repo-extraction.md)
      */
     readonly MODEL: "model.";
     /**
@@ -45,7 +45,7 @@ export type MetadataNamespace = typeof METADATA_NAMESPACES[keyof typeof METADATA
  * SHOULD populate them when model provenance matters (e.g., multi-model
  * routing, billing reconciliation, debugging tool call fidelity).
  *
- * @see {@link https://github.com/0xHoneyJar/loa-finn/issues/31 | The Hounfour RFC}
+ * @see The Hounfour multi-model routing RFC (see docs/RFC-v9-cross-repo-extraction.md)
  * @see BB-C4-ADV-004 — No metadata namespace for model reasoning traces
  */
 export declare const MODEL_METADATA_KEYS: {

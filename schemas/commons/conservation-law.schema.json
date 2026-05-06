@@ -13,7 +13,6 @@
       "description": "Named expressions that must hold before/after state transitions. When enforcement is strict, at least one invariant is required.",
       "type": "array",
       "items": {
-        "$id": "Invariant",
         "additionalProperties": false,
         "type": "object",
         "required": [

@@ -28,8 +28,9 @@ export const SignerEntrySchema = Type.Object(
         'Consumer-side reference for the underlying secret material (HSM slot, KMS handle, file path, etc.). Hounfour never sees the secret.',
     }),
     public_key: Type.String({
-      pattern: '^ed25519-pub:[A-Za-z0-9_-]{43,44}$',
-      description: 'Ed25519 public key, base64url-encoded, prefixed with "ed25519-pub:".',
+      pattern: '^ed25519-pub:[A-Za-z0-9_-]{43}$',
+      description:
+        'Ed25519 public key, unpadded base64url-encoded (RFC 4648 §5), prefixed with "ed25519-pub:". A 32-byte Ed25519 key encodes to exactly 43 unpadded characters; padded forms with "=" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url.',
     }),
     signature_type: SignatureTypeSchema,
     scoped_trust: CapabilityScopedTrustSchema,

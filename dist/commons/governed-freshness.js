@@ -1,8 +1,9 @@
 /**
  * GovernedFreshness — governed freshness schema.
  *
- * Maps to loa-dixie's ResourceGovernor<T> adaptive decay pattern.
- * Conservation law: freshness_score >= minimum_freshness while not expired.
+ * Wire shape for the adaptive-decay ResourceGovernor<T> pattern used by
+ * scoring-agent consumers. Conservation law: freshness_score >=
+ * minimum_freshness while not expired.
  *
  * @see SDD §4.5.3 — GovernedFreshness
  * @since v8.0.0
@@ -32,7 +33,7 @@ export const GovernedFreshnessSchema = Type.Object({
 }, {
     $id: 'GovernedFreshness',
     additionalProperties: false,
-    description: 'Governed freshness — maps to loa-dixie adaptive decay weights. '
+    description: 'Governed freshness — wire shape for adaptive-decay weights. '
         + 'Conservation law: freshness_score >= minimum_freshness while not expired.',
 });
 //# sourceMappingURL=governed-freshness.js.map

@@ -89,6 +89,14 @@ for (const [schemaName, schema] of Object.entries(SCHEMAS)) {
     );
 
     if (CRYPTO_BEARING.has(schemaName)) {
+      // F5: a zero-length valid set would silently SKIP the entire G1 safe-
+      // by-default check (it.each over an empty array runs zero cases and
+      // reports green). Guard with an explicit assertion so a missing fixture
+      // directory or rename surfaces here instead of producing a false-green.
+      it('has at least one valid fixture exercising the G1 safe-by-default check', () => {
+        expect(valid.length).toBeGreaterThan(0);
+      });
+
       it.each(valid.map((f) => [f.name, f.data]))(
         'valid/%s — assertCryptoBearingFailsByDefault (G1 safe-by-default)',
         (_name, data) => {

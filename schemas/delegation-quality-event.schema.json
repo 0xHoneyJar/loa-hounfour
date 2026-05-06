@@ -47,7 +47,6 @@
       "type": "string"
     },
     "outcome_type": {
-      "$id": "OutcomeType",
       "description": "Classification of a delegation outcome.",
       "anyOf": [
         {
@@ -69,7 +68,6 @@
       ]
     },
     "quality_signal": {
-      "$id": "QualitySignalLevel",
       "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
       "anyOf": [
         {
@@ -97,7 +95,6 @@
       "type": "number"
     },
     "mapping_used": {
-      "$id": "OutcomeQualityMapping",
       "additionalProperties": false,
       "description": "Maps each OutcomeType to a QualitySignalLevel. Collections may override defaults.",
       "type": "object",
@@ -109,7 +106,6 @@
       ],
       "properties": {
         "unanimous": {
-          "$id": "QualitySignalLevel",
           "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
           "anyOf": [
             {
@@ -131,7 +127,6 @@
           ]
         },
         "majority": {
-          "$id": "QualitySignalLevel",
           "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
           "anyOf": [
             {
@@ -153,7 +148,6 @@
           ]
         },
         "deadlock": {
-          "$id": "QualitySignalLevel",
           "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
           "anyOf": [
             {
@@ -175,7 +169,6 @@
           ]
         },
         "escalation": {
-          "$id": "QualitySignalLevel",
           "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range.",
           "anyOf": [
             {

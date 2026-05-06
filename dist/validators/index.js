@@ -8,6 +8,7 @@
  */
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import { FormatRegistry } from '@sinclair/typebox';
+import { CONTRACT_VERSION } from '../version.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -63,6 +64,13 @@ import { ConformanceLevelSchema } from '../schemas/model/conformance-level.js';
 import { AgentCapacityReservationSchema } from '../schemas/model/routing/agent-capacity-reservation.js';
 import { RESERVATION_TIER_MAP } from '../vocabulary/reservation-tier.js';
 import { AuditTrailEntrySchema } from '../schemas/audit-trail-entry.js';
+import { PanelDecisionArtifactSchema } from '../governance/panel-decision-artifact.js';
+import { PanelVerdictSchema } from '../governance/panel-verdict.js';
+import { DeliberationDissentSchema } from '../governance/deliberation-dissent.js';
+import { CrossScoreReportSchema } from '../governance/cross-score-report.js';
+import { OrgIdentitySchema } from '../governance/org-identity.js';
+import { OrgRepresentativeDelegationSchema } from '../governance/org-representative-delegation.js';
+import { SuccessionPolicySchema } from '../governance/succession-policy.js';
 // Compile cache — lazily populated on first use.
 // Only caches schemas with $id to prevent unbounded growth from
 // consumer-supplied schemas (BB-V3-003).
@@ -658,6 +666,176 @@ registerCrossFieldValidator('AuditTrailEntry', (data) => {
     }
     return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
+// --- v8.4.0 — Deliberation set + OrgOverseer constraint-file-only registrations ---
+//
+// The substantive cross-field surface for these seven schemas is the
+// constraint-file rule set in `constraints/<SchemaName>.constraints.json`,
+// not a TypeScript-resident validator function. The stubs below register the
+// schema $ids in `crossFieldRegistry` so that:
+//   * `getCrossFieldValidatorSchemas()` returns them, allowing
+//     `npm run check:constraints` to detect that a constraint file exists for
+//     each of these schemas (closes the "constraint file for X does not match
+//     any registered schema" warning for the v8.4.0 schemas);
+//   * the registry shape stays uniform across schemas with mixed validation
+//     surfaces (TS-resident validators for transactional flows like
+//     `BillingEntry`; constraint-file-only validators for declarative
+//     contract sets like the deliberation primitives).
+//
+// Returning `{ valid: true, errors: [], warnings: [] }` is honest: the TS
+// pipeline does NOT enforce these rules — consumers MUST evaluate the
+// constraint files via `evaluateConstraint(...)` (or the equivalent
+// cross-language runner) to enforce PDA-1..5, PV-1..4, DD-1..2, CSR-1, OI-1,
+// ORD-3, SP-1..2. ORD-1 and ORD-2 carry their consumer obligation in the
+// UnverifiedObligationsManifest emitted at validate() time per SDD section 5.8.
+const constraintFileOnlyValidator = () => ({
+    valid: true,
+    errors: [],
+    warnings: [],
+});
+registerCrossFieldValidator('PanelDecisionArtifact', constraintFileOnlyValidator);
+registerCrossFieldValidator('PanelVerdict', constraintFileOnlyValidator);
+registerCrossFieldValidator('DeliberationDissent', constraintFileOnlyValidator);
+registerCrossFieldValidator('CrossScoreReport', constraintFileOnlyValidator);
+registerCrossFieldValidator('OrgIdentity', constraintFileOnlyValidator);
+registerCrossFieldValidator('OrgRepresentativeDelegation', constraintFileOnlyValidator);
+registerCrossFieldValidator('SuccessionPolicy', constraintFileOnlyValidator);
+// PR-A2.0 hygiene — register every schema that already ships a constraint
+// file under `constraints/<schema_id>.constraints.json`. The vast majority
+// of these have no TS-resident cross-field logic; the registration is
+// purely a declaration that the constraint file is canonical for the
+// schema, closing `npm run check:constraints` against drift between the
+// registry and the on-disk constraint corpus. Where a schema later grows
+// real cross-field invariants, the registration here can be replaced with
+// a non-trivial `CrossFieldValidator` without changing the registry shape.
+registerCrossFieldValidator('AgentIdentity', constraintFileOnlyValidator);
+registerCrossFieldValidator('AuditTimestamp', constraintFileOnlyValidator);
+registerCrossFieldValidator('AuditTrail', constraintFileOnlyValidator);
+registerCrossFieldValidator('BasketComposition', constraintFileOnlyValidator);
+registerCrossFieldValidator('BridgeTransferSaga', constraintFileOnlyValidator);
+registerCrossFieldValidator('ChainBoundHash', constraintFileOnlyValidator);
+registerCrossFieldValidator('CollectionGovernanceConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('CollectionScoreUpdatedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('CommunityEngagementSignal', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConservationLaw', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConservationPropertyRegistry', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConstraintCandidate', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConstraintLifecycleEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConsumerContract', constraintFileOnlyValidator);
+registerCrossFieldValidator('ContractNegotiation', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationChain', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationOutcome', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationQualityEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationTree', constraintFileOnlyValidator);
+registerCrossFieldValidator('DynamicContract', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicBoundary', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicBoundaryEvaluationResult', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicPerformanceEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('EnsembleCapabilityProfile', constraintFileOnlyValidator);
+registerCrossFieldValidator('EpistemicTristate', constraintFileOnlyValidator);
+registerCrossFieldValidator('EventSubscription', constraintFileOnlyValidator);
+registerCrossFieldValidator('ExecutionCheckpoint', constraintFileOnlyValidator);
+registerCrossFieldValidator('FeedbackDampeningConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernanceConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernanceProposal', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedCredits', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedFreshness', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedReputation', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedResourceRuntime', constraintFileOnlyValidator);
+registerCrossFieldValidator('HashChainDiscontinuity', constraintFileOnlyValidator);
+registerCrossFieldValidator('InterAgentTransactionAudit', constraintFileOnlyValidator);
+registerCrossFieldValidator('JwtBoundarySpec', constraintFileOnlyValidator);
+registerCrossFieldValidator('LivenessProperty', constraintFileOnlyValidator);
+registerCrossFieldValidator('MicroUSDC', constraintFileOnlyValidator);
+registerCrossFieldValidator('MintingPolicy', constraintFileOnlyValidator);
+registerCrossFieldValidator('ModelEconomicProfile', constraintFileOnlyValidator);
+registerCrossFieldValidator('MonetaryPolicy', constraintFileOnlyValidator);
+registerCrossFieldValidator('MutationContext', constraintFileOnlyValidator);
+registerCrossFieldValidator('PerformanceQualityBridge', constraintFileOnlyValidator);
+registerCrossFieldValidator('PermissionBoundary', constraintFileOnlyValidator);
+registerCrossFieldValidator('PersonalityAssignment', constraintFileOnlyValidator);
+registerCrossFieldValidator('PolicyVersion', constraintFileOnlyValidator);
+registerCrossFieldValidator('PortabilityResponse', constraintFileOnlyValidator);
+registerCrossFieldValidator('ProposalExecution', constraintFileOnlyValidator);
+registerCrossFieldValidator('ProposalOutcomeEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('QualityEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('QualityEventRecordedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('QuarantineRecord', constraintFileOnlyValidator);
+registerCrossFieldValidator('QueryReputationCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RecordQualityEventCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RegistryBridge', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationAggregate', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationCredential', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationEconomicImpact', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationPortabilityRequest', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationRoutingSignal', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationStateChangedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReservationArithmetic', constraintFileOnlyValidator);
+registerCrossFieldValidator('ResetReputationCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RollbackScope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RoutingRebalanceEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ScoringPathLog', constraintFileOnlyValidator);
+registerCrossFieldValidator('StateMachineConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('TaskType', constraintFileOnlyValidator);
+registerCrossFieldValidator('TaskTypeCohort', constraintFileOnlyValidator);
+// v8.5.0 PR-A2.2 — Authority Cascade Layer 2 + 3.
+// Constraint-file-only by design: hounfour ships shape; consumers
+// own the policy that applies these schemas. SignatureEnvelope is
+// crypto-bearing and gets the safe-by-default opt-in path through
+// validate() rather than a non-trivial cross-field validator here.
+// Exception: Keyring carries a structural-uniqueness check (KR-1 +
+// KR-2) that the schema layer cannot express — duplicate signer_id
+// or key_ref entries within the same keyring create ambiguous key
+// resolution at consumption time.
+registerCrossFieldValidator('Keyring', (data) => {
+    const errors = [];
+    const warnings = [];
+    const keyring = data;
+    const signers = Array.isArray(keyring.signers) ? keyring.signers : [];
+    // KR-1: signer_id MUST be unique within signers[]
+    const seenIds = new Map();
+    signers.forEach((entry, idx) => {
+        const id = entry?.signer_id;
+        if (typeof id !== 'string')
+            return;
+        const prior = seenIds.get(id);
+        if (prior !== undefined) {
+            errors.push(`KR-1: duplicate signer_id "${id}" at signers[${idx}] (first seen at signers[${prior}]). Each signer_id MUST be unique within a keyring; duplicates create ambiguous key resolution at consumption time.`);
+        }
+        else {
+            seenIds.set(id, idx);
+        }
+    });
+    // KR-2: duplicate key_ref entries trigger a warning (not an error). Two
+    // SignerEntry rows pointing at the same underlying key material is
+    // typically a misconfiguration (rotation didn't drop the prior entry),
+    // but is sometimes legitimate (active + retiring overlap window). The
+    // schema cannot decide; surfacing as warning lets the consumer decide.
+    const seenRefs = new Map();
+    signers.forEach((entry, idx) => {
+        const ref = entry?.key_ref;
+        if (typeof ref !== 'string')
+            return;
+        const prior = seenRefs.get(ref);
+        if (prior !== undefined) {
+            warnings.push(`KR-2: duplicate key_ref "${ref}" at signers[${idx}] (first seen at signers[${prior}]). Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`);
+        }
+        else {
+            seenRefs.set(ref, idx);
+        }
+    });
+    return errors.length > 0
+        ? { valid: false, errors, warnings }
+        : { valid: true, errors: [], warnings };
+});
+registerCrossFieldValidator('SignerEntry', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceRule', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceResult', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerStatus', constraintFileOnlyValidator);
+registerCrossFieldValidator('PolicyDecisionOutcome', constraintFileOnlyValidator);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -676,10 +854,53 @@ export function getCrossFieldValidatorSchemas() {
  * Schemas without `$id` are compiled per-call (no caching) — suitable
  * for one-off validation but not high-throughput loops.
  *
+ * @remarks v8.4.0 — return type is additively extended with an optional
+ * `unverified_obligations` field. When the schema's constraint file (loaded
+ * elsewhere in the runtime; see SDD section 5.8) contains rules tagged
+ * `evaluator: 'runtime-deferred'`, an `UnverifiedObligationsManifest` is
+ * surfaced on the result. When no such rules apply, the field is **omitted**
+ * entirely from the result object — consumers derive "no obligations" from
+ * absence (`'unverified_obligations' in result` or `if (result.unverified_obligations)`).
+ * The base `validate()` here does not load constraint files; it carries the
+ * field shape so callers that DO load constraint files can attach the
+ * manifest before returning to user code without widening the type.
+ *
  * @param schema - TypeBox schema to validate against
  * @param data - Unknown data to validate
- * @param options - Optional: skip cross-field validation with `{ crossField: false }`
- * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings`
+ * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
+ *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
+ *   (per ADR-010 / G1 — see safe-by-default note below).
+ * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
+ *
+ * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
+ *   options carry `'x-crypto-bearing': true` (e.g. `SignatureEnvelope`), the
+ *   call's behavior depends on whether the data is structurally valid AND
+ *   whether `{ acceptDeferred: true }` is passed:
+ *
+ *   - Structural failure (any schema/format violation): the call returns the
+ *     usual `{ valid: false, errors: [<schema errors>] }` regardless of
+ *     `acceptDeferred`. Structural failures take precedence and surface as
+ *     normal — `CRYPTO_DEFERRED` is NOT emitted in this branch.
+ *   - Structural success + `acceptDeferred` ABSENT: the call returns
+ *     `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }`. Each error string
+ *     is prefixed with the literal token `CRYPTO_DEFERRED:` so consumers can
+ *     match by `error.startsWith('CRYPTO_DEFERRED:')`. The opt-in flag IS the
+ *     safety mechanism — it forces the consumer to acknowledge that the
+ *     library has NOT verified the signature.
+ *   - Structural success + `acceptDeferred: true`: the call returns
+ *     `{ valid: true, unverified_obligations: { ..., unverified_rules: [{
+ *     rule_id: 'CRYPTO_DEFERRED', evaluator: 'runtime-deferred', ... }] } }`.
+ *     PR-A2.3 widens `evaluator` to carry `'consumer'` alongside a `reason`
+ *     vocabulary (`'crypto_deferred'`, `'pattern_matching'`, etc.).
+ *
+ *   The error contract is currently `string[]`, so the prefix `CRYPTO_DEFERRED:`
+ *   is the binding token. v8.6.0 is expected to migrate to a structured
+ *   `{ code, message }[]` form (per docs/architecture/authority-cascade.md
+ *   roadmap); consumers should prefer prefix matching over substring matching
+ *   to ease that transition.
+ *
+ * @see SDD section 5.8 — Unverified-Obligations Manifest Emission Contract
+ * @see ADR-010 — Class-vs-Policy Boundary
  */
 export function validate(schema, data, options) {
     const compiled = getOrCompile(schema);
@@ -704,6 +925,57 @@ export function validate(schema, data, options) {
                 return { valid: true, warnings: crossResult.warnings };
             }
         }
+    }
+    // Safe-by-default crypto-bearing API (G1, per ADR-010).
+    // When the schema is flagged x-crypto-bearing, the consumer MUST
+    // explicitly opt in to shape-only validation. Returning structurally-
+    // valid {valid: true} would let consumers write
+    //   if (validate(SignatureEnvelopeSchema, p).valid) { authorize(); }
+    // and treat shape-validity as crypto authority. The opt-in flag is
+    // the forced acknowledgment that downstream verification is the
+    // consumer's responsibility.
+    const isCryptoBearing = schema['x-crypto-bearing'] === true;
+    if (isCryptoBearing && options?.acceptDeferred !== true) {
+        return {
+            valid: false,
+            errors: [
+                'CRYPTO_DEFERRED: Crypto-bearing schema requires { acceptDeferred: true } ' +
+                    'to receive shape-only valid: true. The library does not verify the ' +
+                    'signature; downstream verification is the consumer\'s responsibility. ' +
+                    'See ADR-010 (Class-vs-Policy Boundary).',
+            ],
+        };
+    }
+    if (isCryptoBearing && options?.acceptDeferred === true) {
+        // The full NF-2 shape (evaluator: 'consumer' + reason vocabulary)
+        // lands in PR-A2.3 along with the consumer-evaluator extension.
+        // For PR-A2.2 we emit a manifest entry under the existing v8.4.0
+        // schema with a CRYPTO_DEFERRED rule_id, so consumers can detect
+        // the obligation without waiting for the type widening.
+        // contract_version sources from CONTRACT_VERSION so that the runtime
+        // emission, schemas/index.json, and the published $id namespace stay
+        // aligned through the dev cycle (per cycle-003 D-005 precedent: the
+        // namespace bumps in the version-bump sprint, not mid-cycle).
+        return {
+            valid: true,
+            unverified_obligations: {
+                schema_id: schema.$id ?? '<crypto-bearing>',
+                contract_version: CONTRACT_VERSION,
+                manifest_emitted_at: new Date().toISOString(),
+                unverified_rules: [
+                    {
+                        rule_id: 'CRYPTO_DEFERRED',
+                        rule: 'Signature value present in payload — library does NOT verify; consumer responsibility per ADR-010.',
+                        evaluator: 'runtime-deferred',
+                        evaluation_note: 'Signature value present in payload was NOT verified by the library. ' +
+                            'Consumer MUST verify the signature against the public key referenced ' +
+                            'by the SignerEntry that produced it before treating the envelope as ' +
+                            'cryptographically authoritative.',
+                        consumer_acknowledgment_required: true,
+                    },
+                ],
+            },
+        };
     }
     return { valid: true };
 }
@@ -778,5 +1050,14 @@ export const validators = {
     agentCapacityReservation: () => getOrCompile(AgentCapacityReservationSchema),
     // v5.2.0 — Audit Trail
     auditTrailEntry: () => getOrCompile(AuditTrailEntrySchema),
+    // v8.4.0 — Deliberation Set (FR-A1..FR-A4)
+    panelDecisionArtifact: () => getOrCompile(PanelDecisionArtifactSchema),
+    panelVerdict: () => getOrCompile(PanelVerdictSchema),
+    deliberationDissent: () => getOrCompile(DeliberationDissentSchema),
+    crossScoreReport: () => getOrCompile(CrossScoreReportSchema),
+    // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
+    orgIdentity: () => getOrCompile(OrgIdentitySchema),
+    orgRepresentativeDelegation: () => getOrCompile(OrgRepresentativeDelegationSchema),
+    successionPolicy: () => getOrCompile(SuccessionPolicySchema),
 };
 //# sourceMappingURL=index.js.map

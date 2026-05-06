@@ -9,7 +9,6 @@
   ],
   "properties": {
     "path": {
-      "$id": "ScoringPath",
       "description": "Which tier of the scoring cascade was used for a reputation decision.",
       "anyOf": [
         {
@@ -32,7 +31,6 @@
       "type": "string"
     },
     "task_type": {
-      "$id": "TaskType",
       "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
       "anyOf": [
         {

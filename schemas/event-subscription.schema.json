@@ -30,7 +30,6 @@
       "type": "string"
     },
     "filter": {
-      "$id": "EventFilter",
       "additionalProperties": false,
       "description": "Filter criteria for event subscription. All filters are AND-combined.",
       "type": "object",
@@ -93,7 +92,6 @@
       ],
       "properties": {
         "method": {
-          "$id": "DeliveryMethod",
           "description": "Delivery mechanism for subscribed events.",
           "anyOf": [
             {
@@ -133,7 +131,6 @@
       }
     },
     "cursor": {
-      "$id": "EventCursor",
       "additionalProperties": false,
       "description": "Cursor for event replay and pagination. Specify at most one of after_event_id or after_timestamp.",
       "type": "object",

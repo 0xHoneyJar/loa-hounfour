@@ -83,11 +83,16 @@ export function assertCryptoBearingFailsByDefault<T extends TSchema>(
       `assertCryptoBearingFailsByDefault: ${String(id)} returned valid: true without { acceptDeferred: true } — safe-by-default contract violated.`,
     );
   }
-  const hasDeferredCode = result.errors.some((e) => e.includes('CRYPTO_DEFERRED'));
+  // Match against the literal token at the start of the error string. The
+  // CRYPTO_DEFERRED error contract is "the error string starts with the token
+  // 'CRYPTO_DEFERRED:'" — substring matching against `includes()` would yield
+  // false positives if a future structural error mentions the token in its
+  // message body (e.g., "expected CRYPTO_DEFERRED was not present").
+  const hasDeferredCode = result.errors.some((e) => e.startsWith('CRYPTO_DEFERRED:'));
   if (!hasDeferredCode) {
     const id = (schema as Record<string, unknown>).$id ?? '<anonymous>';
     throw new Error(
-      `assertCryptoBearingFailsByDefault: ${String(id)} failed for the wrong reason — expected CRYPTO_DEFERRED, got: ${result.errors.join('; ')}`,
+      `assertCryptoBearingFailsByDefault: ${String(id)} failed for the wrong reason — expected error to start with 'CRYPTO_DEFERRED:', got: ${result.errors.join('; ')}`,
     );
   }
 }

@@ -32,7 +32,6 @@
     "vectors": {
       "type": "array",
       "items": {
-        "$id": "VectorManifestEntry",
         "additionalProperties": false,
         "type": "object",
         "required": [

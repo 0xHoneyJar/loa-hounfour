@@ -51,7 +51,7 @@ export interface AuditTrailVerificationResult {
     actual_hash?: string;
 }
 /**
- * Two-phase audit trail integrity verification (Flatline IMP-004).
+ * Two-phase audit trail integrity verification (code review IMP-004).
  *
  * Phase 1 (content): Recompute entry_hash for each entry using domain tag.
  * Phase 2 (chain): Verify previous_hash linkage.

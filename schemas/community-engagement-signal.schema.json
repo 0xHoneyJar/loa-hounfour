@@ -29,7 +29,6 @@
       "type": "string"
     },
     "signal_type": {
-      "$id": "EngagementSignalType",
       "description": "Category of community engagement signal.",
       "anyOf": [
         {

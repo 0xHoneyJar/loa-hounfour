@@ -21,7 +21,6 @@
       "type": "string"
     },
     "strategy": {
-      "$id": "EnsembleStrategy",
       "$comment": "Multi-model coordination strategies.",
       "anyOf": [
         {
@@ -47,7 +46,6 @@
       ]
     },
     "selected": {
-      "$id": "CompletionResult",
       "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
       "additionalProperties": false,
       "x-cross-field-validated": true,
@@ -214,7 +212,6 @@
     "candidates": {
       "type": "array",
       "items": {
-        "$id": "CompletionResult",
         "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
         "additionalProperties": false,
         "x-cross-field-validated": true,
@@ -403,7 +400,6 @@
             "type": "string"
           },
           "response": {
-            "$id": "CompletionResult",
             "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
             "additionalProperties": false,
             "x-cross-field-validated": true,

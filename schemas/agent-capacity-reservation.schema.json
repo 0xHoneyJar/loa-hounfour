@@ -25,7 +25,6 @@
       "type": "string"
     },
     "conformance_level": {
-      "$id": "ConformanceLevel",
       "description": "Trust level assigned to a provider based on conformance verification depth.",
       "anyOf": [
         {
@@ -49,7 +48,6 @@
       "type": "integer"
     },
     "state": {
-      "$id": "ReservationState",
       "description": "Current lifecycle state of a capacity reservation.",
       "anyOf": [
         {

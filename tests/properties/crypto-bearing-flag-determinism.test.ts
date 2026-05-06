@@ -33,7 +33,12 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as rootIndex from '../../src/index.js';
 import * as governance from '../../src/governance/index.js';
+import * as economy from '../../src/economy/index.js';
+import * as core from '../../src/core/index.js';
+import * as commons from '../../src/commons/index.js';
+import { RULE_4_CRYPTO_BEARING_NAMES } from '../../scripts/check-class-policy-boundary.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..');
@@ -49,43 +54,71 @@ interface CryptoBearingSchema {
 }
 
 /**
- * Walk the governance subpath (where v8.5.0 crypto-bearing schemas
- * live) for entries flagged `'x-crypto-bearing': true`. Returns the
+ * Walk every public-API subpath (root + governance + economy + core +
+ * commons) for entries flagged `'x-crypto-bearing': true`. Returns the
  * source-side flag and the generated-JSON-Schema flag for each.
  *
- * If/when crypto-bearing schemas land outside src/governance/ in a
- * later cycle, extend the imported namespace list.
+ * Prior versions narrowed to `src/governance/` only — that drifted out
+ * from under the determinism contract because future crypto-bearing
+ * schemas could land in any module. The full-surface enumeration here
+ * de-duplicates by `$id` (TypeBox barrel re-exports surface the same
+ * schema multiple times) so the property test remains
+ * package-wide rather than subpath-local.
  */
+function pascalToKebab(s: string): string {
+  return s.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
 function collectCryptoBearingSchemas(): CryptoBearingSchema[] {
+  const seenIds = new Set<string>();
   const out: CryptoBearingSchema[] = [];
-  const PascalToKebab = (s: string): string =>
-    s.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
-  for (const value of Object.values(governance)) {
-    if (
-      value === null ||
-      typeof value !== 'object' ||
-      !('$id' in value) ||
-      typeof (value as Record<string, unknown>).$id !== 'string'
-    ) {
-      continue;
-    }
-    const schema = value as Record<string, unknown> & { $id: string };
-    const fromSource = schema['x-crypto-bearing'] === true;
-    if (!fromSource) continue;
+  // All public-API surfaces. Adding a new module here when a new subpath
+  // ships is the explicit registration point for the determinism contract.
+  const surfaces = [rootIndex, governance, economy, core, commons];
 
-    const fileName = `${PascalToKebab(schema.$id)}.schema.json`;
-    let fromGenerated = false;
-    try {
-      const content = JSON.parse(
-        readFileSync(join(generatedSchemasDir, fileName), 'utf-8'),
-      ) as Record<string, unknown>;
-      fromGenerated = content['x-crypto-bearing'] === true;
-    } catch {
-      // generated file missing — treated as fromGenerated=false so
-      // the assertion below catches the silent-divergence case.
+  for (const ns of surfaces) {
+    for (const value of Object.values(ns)) {
+      if (
+        value === null ||
+        typeof value !== 'object' ||
+        !('$id' in value) ||
+        typeof (value as Record<string, unknown>).$id !== 'string'
+      ) {
+        continue;
+      }
+      const schema = value as Record<string, unknown> & { $id: string };
+      const fromSource = schema['x-crypto-bearing'] === true;
+      if (!fromSource) continue;
+      if (seenIds.has(schema.$id)) continue;
+      seenIds.add(schema.$id);
+
+      const fileName = `${pascalToKebab(schema.$id)}.schema.json`;
+      const filePath = join(generatedSchemasDir, fileName);
+      let fromGenerated = false;
+      let generatedFileMissing = false;
+      try {
+        const content = JSON.parse(readFileSync(filePath, 'utf-8')) as Record<
+          string,
+          unknown
+        >;
+        fromGenerated = content['x-crypto-bearing'] === true;
+      } catch {
+        // F4 mitigation: distinguish "generated file missing" from
+        // "file present without flag". Missing-file is treated as a
+        // structural failure with an explicit error message rather
+        // than silently rolled into fromGenerated=false.
+        generatedFileMissing = true;
+      }
+      if (generatedFileMissing) {
+        throw new Error(
+          `crypto-bearing-flag-determinism: schema ${schema.$id} declared 'x-crypto-bearing': true in source ` +
+            `but the generated file is missing at ${filePath}. Run ` +
+            `'npm run schema:generate' and re-run the test. (Silent absence is the failure mode this assertion is designed to catch.)`,
+        );
+      }
+      out.push({ $id: schema.$id, fromSource, fromGenerated });
     }
-    out.push({ $id: schema.$id, fromSource, fromGenerated });
   }
   return out;
 }
@@ -114,8 +147,9 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
       key_ref: 'kms://example/key-1',
       signed_payload_hash:
         'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      // Pattern {86} per F2 reconciliation — exactly 86 unpadded base64url chars.
       signature_value:
-        'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+        'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       signed_at: '2026-05-06T00:00:00Z',
       contract_version: '8.5.0',
     };
@@ -123,7 +157,8 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
     const defaultResult = validate(SignatureEnvelopeSchema, validShape);
     expect(defaultResult.valid).toBe(false);
     if (!defaultResult.valid) {
-      expect(defaultResult.errors.some((e) => e.includes('CRYPTO_DEFERRED'))).toBe(true);
+      // F7: match against the literal token at start-of-string, not substring.
+      expect(defaultResult.errors.some((e) => e.startsWith('CRYPTO_DEFERRED:'))).toBe(true);
     }
     // Opt-in returns valid + manifest entry.
     const optInResult = validate(SignatureEnvelopeSchema, validShape, {
@@ -138,21 +173,46 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
     }
   });
 
-  it('structural lint RULE-4 catches assertValid() against crypto-bearing schemas (verified by tests/scripts/check-class-policy-boundary.test.ts)', () => {
-    // RULE-4 unit-test coverage lives in
-    // tests/scripts/check-class-policy-boundary.test.ts; this assertion
-    // documents that the lint stays coherent with the runtime by
-    // sharing the same crypto-bearing schema list.
+  it('structural lint RULE-4 list is set-equal to the discovered crypto-bearing schemas', () => {
+    // F3 mitigation: import the actual RULE_4_CRYPTO_BEARING_NAMES from the
+    // lint script and assert SET-EQUALITY (both directions) with the schemas
+    // discovered via TypeBox source inspection. This is the round-trip the
+    // determinism contract requires — a hard-coded local list could drift
+    // forever without surfacing the divergence.
     const schemas = collectCryptoBearingSchemas();
-    const idsThatLintWatches = ['SignatureEnvelopeSchema'];
-    for (const s of schemas) {
-      const expectedIdent = `${s.$id}Schema`;
-      expect(
-        idsThatLintWatches.includes(expectedIdent),
-        `${expectedIdent} is crypto-bearing in TypeBox but RULE-4 of ` +
-          `scripts/check-class-policy-boundary.ts does not list it. Update ` +
-          `RULE_4_CRYPTO_BEARING_NAMES so the lint stays in sync.`,
-      ).toBe(true);
-    }
+    const discoveredIdents = new Set(schemas.map((s) => `${s.$id}Schema`));
+    const lintIdents = new Set(RULE_4_CRYPTO_BEARING_NAMES);
+
+    // Schemas in TypeBox but not watched by the lint:
+    const lintMissing = [...discoveredIdents].filter((i) => !lintIdents.has(i));
+    expect(
+      lintMissing,
+      `These schemas are crypto-bearing in TypeBox but RULE_4_CRYPTO_BEARING_NAMES ` +
+        `in scripts/check-class-policy-boundary.ts does not list them: ${lintMissing.join(', ')}. ` +
+        `Add them to RULE_4_CRYPTO_BEARING_NAMES so the lint catches assertValid() ` +
+        `calls against them.`,
+    ).toEqual([]);
+
+    // Identifiers watched by the lint but not actually crypto-bearing:
+    // (PR-A2.2 lands SignatureEnvelope. RecallReceipt + CommitmentRoot +
+    // Assertion are forward-looking entries for PR-A2.3 — the lint pre-arms
+    // for them. Those are accepted here; we only require that every
+    // DISCOVERED schema is watched. Strict set-equality lands once PR-A2.3
+    // ships those schemas.)
+    const sourceMissing = [...lintIdents].filter((i) => !discoveredIdents.has(i));
+    const knownForwardLooking = new Set([
+      'RecallReceiptSchema',
+      'CommitmentRootSchema',
+      'AssertionSchema',
+    ]);
+    const unexpected = sourceMissing.filter((i) => !knownForwardLooking.has(i));
+    expect(
+      unexpected,
+      `These identifiers are watched by RULE-4 but are not present in any ` +
+        `module's exported schemas: ${unexpected.join(', ')}. Either remove ` +
+        `them from RULE_4_CRYPTO_BEARING_NAMES (if the schema was renamed/dropped) ` +
+        `or update the knownForwardLooking allowlist if they are intentionally ` +
+        `pre-armed for an upcoming PR.`,
+    ).toEqual([]);
   });
 });

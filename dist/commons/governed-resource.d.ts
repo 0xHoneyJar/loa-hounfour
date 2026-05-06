@@ -6,7 +6,7 @@
  * instantiations spread these into their Type.Object definitions.
  *
  * @see SDD §4.1 — GovernedResource Governance Fields (FR-1.1)
- * @see SDD §4.7 — GovernanceMutation (Flatline SKP-004)
+ * @see SDD §4.7 — GovernanceMutation (code review SKP-004)
  * @since v8.0.0
  */
 import { type Static } from '@sinclair/typebox';
@@ -88,7 +88,7 @@ export declare const GOVERNED_RESOURCE_FIELDS: {
  * Every mutation to a GovernedResource<T> is wrapped in this envelope
  * for idempotency and optimistic concurrency control.
  *
- * @see SDD §4.7 — Concurrency Model (Flatline SKP-004)
+ * @see SDD §4.7 — Concurrency Model (code review SKP-004)
  */
 export declare const GovernanceMutationSchema: import("@sinclair/typebox").TObject<{
     mutation_id: import("@sinclair/typebox").TString;

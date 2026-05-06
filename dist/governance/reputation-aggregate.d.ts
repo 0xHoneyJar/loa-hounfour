@@ -25,7 +25,7 @@ export type ReputationTransition = Static<typeof ReputationTransitionSchema>;
  * multi-model agent shouldn't have one reputation score when different
  * models produce measurably different quality.
  *
- * @since v7.3.0 — Bridgebuilder C5 + Spec I
+ * @since v7.3.0 — code review C5 + Spec I
  */
 export declare const ModelCohortSchema: import("@sinclair/typebox").TObject<{
     model_id: import("@sinclair/typebox").TString;
@@ -135,7 +135,7 @@ export declare function computeBlendedScore(personalScore: number | null, collec
  * @param halfLifeDays - Decay half-life in days (default: REPUTATION_DECAY.half_life_days = 30)
  * @returns Effective sample count after decay, minimum 0
  *
- * @since v7.2.0 — Bridgebuilder Finding F5
+ * @since v7.2.0 — code review Finding F5
  */
 export declare function computeDecayedSampleCount(sampleCount: number, daysSinceLastUpdate: number, halfLifeDays?: number): number;
 /**
@@ -150,7 +150,7 @@ export declare function computeDecayedSampleCount(sampleCount: number, daysSince
  * Formula: Σ(score_i * n_i) / Σ(n_i)
  *
  * @see Netflix parallel: per-user-context scores with meta-score blending
- * @since v7.3.0 — Deep Bridgebuilder Review C5 + Spec I
+ * @since v7.3.0 — code review C5 + Spec I
  */
 export declare function computeCrossModelScore(cohorts: ReadonlyArray<{
     personal_score: number | null;
@@ -166,7 +166,7 @@ export declare function computeCrossModelScore(cohorts: ReadonlyArray<{
  * @param modelId - The model alias to look up (e.g. "native", "gpt-4o")
  * @returns The matching ModelCohort, or undefined if not found
  *
- * @since v7.4.0 — Bridgebuilder Vision B-V3
+ * @since v7.4.0 — internal review vision B-V3
  */
 export declare function getModelCohort(aggregate: ReputationAggregate, modelId: string): ModelCohort | undefined;
 /**
@@ -175,7 +175,7 @@ export declare function getModelCohort(aggregate: ReputationAggregate, modelId: 
  * Used for Oracle attestation and cross-collection credential issuance.
  * The event_stream_hash allows verification without replaying all events.
  *
- * @see Bridgebuilder Spec V — Dixie Oracle verifiable reputation
+ * @see code review Spec V — Oracle-agent verifiable reputation
  * @since v7.3.0
  */
 export declare const AggregateSnapshotSchema: import("@sinclair/typebox").TObject<{

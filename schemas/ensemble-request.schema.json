@@ -19,7 +19,6 @@
       "type": "string"
     },
     "strategy": {
-      "$id": "EnsembleStrategy",
       "$comment": "Multi-model coordination strategies.",
       "anyOf": [
         {
@@ -59,7 +58,6 @@
       "type": "string"
     },
     "request": {
-      "$id": "CompletionRequest",
       "$comment": "Financial amounts (budget_limit_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts. Strict schema (additionalProperties: false) prevents silent field injection — see SCHEMA-EVOLUTION.md for version-skew patterns.",
       "additionalProperties": false,
       "x-cross-field-validated": true,
@@ -122,7 +120,6 @@
           "minItems": 1,
           "type": "array",
           "items": {
-            "$id": "ProviderWireMessage",
             "additionalProperties": false,
             "x-cross-field-validated": true,
             "description": "Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id.",
@@ -227,7 +224,6 @@
         "tools": {
           "type": "array",
           "items": {
-            "$id": "ToolDefinition",
             "additionalProperties": false,
             "description": "Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools.",
             "type": "object",

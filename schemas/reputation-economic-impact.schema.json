@@ -29,7 +29,6 @@
       "type": "string"
     },
     "trigger_event": {
-      "$id": "ReputationTriggerEvent",
       "additionalProperties": false,
       "description": "The reputation event that triggered economic consequences.",
       "type": "object",
@@ -59,7 +58,6 @@
           ]
         },
         "from_state": {
-          "$id": "ReputationState",
           "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {
@@ -81,7 +79,6 @@
           ]
         },
         "to_state": {
-          "$id": "ReputationState",
           "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {
@@ -113,7 +110,6 @@
       "description": "Economic consequences (at least one required).",
       "type": "array",
       "items": {
-        "$id": "EconomicImpactEntry",
         "additionalProperties": false,
         "description": "A single economic consequence of a reputation change.",
         "type": "object",
@@ -123,7 +119,6 @@
         ],
         "properties": {
           "impact_type": {
-            "$id": "EconomicImpactType",
             "description": "Category of economic consequence from a reputation change.",
             "anyOf": [
               {

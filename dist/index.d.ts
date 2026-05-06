@@ -17,7 +17,7 @@ export * from './constraints/index.js';
 export * from './integrity/index.js';
 export * from './commons/index.js';
 export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
-export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator } from './validators/index.js';
+export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator, type ValidationResult } from './validators/index.js';
 export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
 export { validateBillingEntryFull } from './validators/billing.js';
 export { extractReferences, buildSchemaGraph, type SchemaReference, type SchemaGraphNode } from './utilities/schema-graph.js';
@@ -27,4 +27,6 @@ export { computeCredentialPrior, isCredentialExpired, CREDENTIAL_CONFIDENCE_THRE
 export { detectReservedNameCollisions, type NameCollision } from './utilities/constraint-validation.js';
 export { evaluateEconomicBoundary, evaluateFromBoundary, parseMicroUsd, type ParseMicroUsdResult, } from './utilities/economic-boundary.js';
 export { REPUTATION_STATE_ORDER, REPUTATION_STATES, isKnownReputationState, type ReputationStateName, } from './vocabulary/reputation.js';
+export { AUDIT_EVENT_TYPES_KNOWN_PREFIXES, isThreeSegmentEventType, extractEventTypePrefix, } from './vocabulary/audit-event-types.js';
+export { safeCanonicalize, SAFE_CANONICALIZE_DEFAULT_MAX_BYTES, CanonicalizeSizeError, CanonicalizeNFCError, type SafeCanonicalizeOptions, } from './utilities/safe-canonicalize.js';
 //# sourceMappingURL=index.d.ts.map

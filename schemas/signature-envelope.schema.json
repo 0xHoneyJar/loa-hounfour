@@ -21,7 +21,6 @@
       "type": "string"
     },
     "signature_type": {
-      "$id": "SignatureType",
       "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
       "anyOf": [
         {
@@ -57,8 +56,8 @@
       "type": "string"
     },
     "signature_value": {
-      "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
-      "description": "Ed25519 signature value, base64url-encoded, prefixed with \"ed25519:\". Hounfour does NOT verify; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).",
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature value, unpadded base64url-encoded (RFC 4648 §5), prefixed with \"ed25519:\". A 64-byte Ed25519 signature encodes to exactly 86 unpadded characters; padded forms with \"==\" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url. Hounfour does NOT verify the signature; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).",
       "type": "string"
     },
     "signed_at": {

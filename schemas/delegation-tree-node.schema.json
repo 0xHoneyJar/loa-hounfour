@@ -45,7 +45,6 @@
       }
     },
     "fork_type": {
-      "$id": "ForkType",
       "description": "How child delegations are executed: in parallel, sequentially, or conditionally.",
       "anyOf": [
         {
@@ -67,7 +66,6 @@
       "type": "string"
     },
     "status": {
-      "$id": "TreeNodeStatus",
       "description": "Status of a delegation tree node.",
       "anyOf": [
         {

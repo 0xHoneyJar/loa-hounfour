@@ -5,7 +5,7 @@
  * instances. The schema declares expires_at but the protocol needs a
  * programmatic check to enforce it.
  *
- * @see Bridgebuilder Finding F9 — TTL declared but no clock authority
+ * @see code review Finding F9 — TTL declared but no clock authority
  * @since v8.1.0
  */
 import type { ContractNegotiation } from './contract-negotiation.js';

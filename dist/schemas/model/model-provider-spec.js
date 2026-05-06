@@ -99,5 +99,6 @@ export const ModelProviderSpecSchema = Type.Object({
     $comment: 'Provider registration/identity document. Financial amounts use string-encoded BigInt (MicroUSD). See vocabulary/currency.ts.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Provider registration / identity document. Describes a model provider as a whole — its model roster, endpoints, SLA targets, conformance level, vector results, and reservation policy.',
 });
 //# sourceMappingURL=model-provider-spec.js.map

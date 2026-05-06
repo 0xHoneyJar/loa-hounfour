@@ -6,5 +6,9 @@ export const ToolDefinitionSchema = Type.Object({
         description: Type.String(),
         parameters: Type.Optional(Type.Unknown()),
     }),
-}, { $id: 'ToolDefinition', additionalProperties: false });
+}, {
+    $id: 'ToolDefinition',
+    additionalProperties: false,
+    description: 'Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools.',
+});
 //# sourceMappingURL=tool-definition.js.map

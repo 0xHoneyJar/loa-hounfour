@@ -28,5 +28,6 @@ export const EnsembleRequestSchema = Type.Object({
     $comment: 'Contains embedded CompletionRequest with MicroUSD financial fields (budget_limit_micro). See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Multi-model ensemble execution request. Wraps a base CompletionRequest with an ensemble strategy, the participating model list, optional timeout / consensus threshold, and optional dialogue configuration.',
 });
 //# sourceMappingURL=ensemble-request.js.map

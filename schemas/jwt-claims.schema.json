@@ -45,7 +45,6 @@
       "type": "string"
     },
     "tier": {
-      "$id": "Tier",
       "description": "Tenant subscription tier",
       "anyOf": [
         {
@@ -81,7 +80,6 @@
       }
     },
     "byok": {
-      "$id": "ByokClaims",
       "additionalProperties": false,
       "type": "object",
       "required": [

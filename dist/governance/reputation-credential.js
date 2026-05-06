@@ -9,8 +9,8 @@
  * Architectural parallel: TLS Certificate Authority trust model.
  * A CA with strong reputation issues more trustworthy credentials.
  *
- * @see Bridgebuilder C1 — cross-collection reputation portability
- * @see Bridgebuilder Spec IV — the reputation portable credential
+ * @see code review C1 — cross-collection reputation portability
+ * @see code review Spec IV — the reputation portable credential
  * @see W3C Verifiable Credentials — standard for signed portable claims
  * @since v7.3.0
  */
@@ -43,5 +43,6 @@ export const ReputationCredentialSchema = Type.Object({
 }, {
     $id: 'ReputationCredential',
     additionalProperties: false,
+    description: 'Portable, attested snapshot of a personality\'s reputation in a source collection. Carries source provenance, the issuing collection\'s score (analogous to CA reputation in TLS), and optional attestation hash for snapshot-free verification.',
 });
 //# sourceMappingURL=reputation-credential.js.map

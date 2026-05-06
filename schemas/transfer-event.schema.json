@@ -23,7 +23,6 @@
       "type": "string"
     },
     "nft_id": {
-      "$id": "NftId",
       "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
       "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
       "type": "string"
@@ -37,7 +36,6 @@
       "type": "string"
     },
     "scenario": {
-      "$id": "TransferScenario",
       "anyOf": [
         {
           "const": "sale",
@@ -58,7 +56,6 @@
       ]
     },
     "result": {
-      "$id": "TransferResult",
       "anyOf": [
         {
           "const": "completed",
@@ -75,7 +72,6 @@
       ]
     },
     "sealing_policy": {
-      "$id": "ConversationSealingPolicy",
       "additionalProperties": false,
       "x-cross-field-validated": true,
       "$comment": "Cross-field invariants: (1) When encryption_scheme !== \"none\", key_derivation must be non-\"none\" and key_reference must be provided. (2) When access_policy.type is \"time_limited\", duration_hours must be set. (3) When access_policy.type is \"role_based\", roles must be non-empty. Enforced by validateSealingPolicy() in TypeScript. Cross-language consumers should implement equivalent validation.",
@@ -118,7 +114,6 @@
           "type": "boolean"
         },
         "access_policy": {
-          "$id": "T0",
           "additionalProperties": false,
           "x-cross-field-validated": true,
           "$comment": "Cross-field invariants: (1) time_limited requires duration_hours. (2) role_based requires roles array. (3) reputation_gated requires at least one of min_reputation_score or min_reputation_state. (4) compound requires operator and non-empty policies array (no nested compound). (5) revoke_below_score must be <= min_reputation_score when both present. Enforced by validateAccessPolicy() in TypeScript.",
@@ -180,7 +175,6 @@
               "type": "number"
             },
             "min_reputation_state": {
-              "$id": "ReputationState",
               "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
               "anyOf": [
                 {
@@ -208,7 +202,6 @@
               "type": "number"
             },
             "revoke_below_state": {
-              "$id": "ReputationState",
               "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
               "anyOf": [
                 {

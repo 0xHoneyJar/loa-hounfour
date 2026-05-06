@@ -23,7 +23,6 @@
       "type": "string"
     },
     "event_type": {
-      "$id": "ProposalEventType",
       "description": "Type of governance proposal lifecycle event.",
       "anyOf": [
         {

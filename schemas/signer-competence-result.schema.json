@@ -27,7 +27,6 @@
       "type": "string"
     },
     "outcome": {
-      "$id": "PolicyDecisionOutcome",
       "description": "Outcome enum for policy-decision shapes (AccessDecision.outcome, SignerCompetenceResult.outcome). 5 substrate-agnostic members.",
       "anyOf": [
         {

@@ -28,7 +28,6 @@
       "description": "At least one signer must be enrolled. Empty keyrings are not meaningful.",
       "type": "array",
       "items": {
-        "$id": "SignerEntry",
         "additionalProperties": false,
         "description": "Cryptographic-material entry inside a Keyring. Binds signer_id + key_ref to a public key, signature kind, scoped trust profile, and lifecycle status.",
         "type": "object",
@@ -52,12 +51,11 @@
             "type": "string"
           },
           "public_key": {
-            "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43,44}$",
-            "description": "Ed25519 public key, base64url-encoded, prefixed with \"ed25519-pub:\".",
+            "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
+            "description": "Ed25519 public key, unpadded base64url-encoded (RFC 4648 §5), prefixed with \"ed25519-pub:\". A 32-byte Ed25519 key encodes to exactly 43 unpadded characters; padded forms with \"=\" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url.",
             "type": "string"
           },
           "signature_type": {
-            "$id": "SignatureType",
             "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
             "anyOf": [
               {
@@ -83,7 +81,6 @@
             ]
           },
           "scoped_trust": {
-            "$id": "CapabilityScopedTrust",
             "additionalProperties": false,
             "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
             "type": "object",
@@ -98,7 +95,6 @@
                 "type": "object",
                 "properties": {
                   "billing": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -124,7 +120,6 @@
                     ]
                   },
                   "governance": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -150,7 +145,6 @@
                     ]
                   },
                   "inference": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -176,7 +170,6 @@
                     ]
                   },
                   "delegation": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -202,7 +195,6 @@
                     ]
                   },
                   "audit": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -228,7 +220,6 @@
                     ]
                   },
                   "composition": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -256,7 +247,6 @@
                 }
               },
               "default_level": {
-                "$id": "TrustLevel",
                 "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                 "anyOf": [
                   {
@@ -307,7 +297,6 @@
             }
           },
           "signer_status": {
-            "$id": "SignerStatus",
             "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState.",
             "anyOf": [
               {

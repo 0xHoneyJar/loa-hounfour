@@ -37,7 +37,6 @@
       "type": "string"
     },
     "direction": {
-      "$id": "QualityBridgeDirection",
       "description": "Whether the economic outcome helped or hurt the model reputation.",
       "anyOf": [
         {

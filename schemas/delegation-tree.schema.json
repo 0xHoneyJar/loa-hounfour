@@ -21,7 +21,6 @@
       "type": "string"
     },
     "root": {
-      "$id": "DelegationTreeNode",
       "additionalProperties": false,
       "description": "A node in the delegation tree representing a single agent delegation.",
       "type": "object",
@@ -66,7 +65,6 @@
           }
         },
         "fork_type": {
-          "$id": "ForkType",
           "description": "How child delegations are executed: in parallel, sequentially, or conditionally.",
           "anyOf": [
             {
@@ -88,7 +86,6 @@
           "type": "string"
         },
         "status": {
-          "$id": "TreeNodeStatus",
           "description": "Status of a delegation tree node.",
           "anyOf": [
             {
@@ -170,7 +167,6 @@
       }
     },
     "strategy": {
-      "$id": "TreeStrategy",
       "description": "Strategy for combining results from child delegations.",
       "anyOf": [
         {
@@ -197,7 +193,6 @@
       "type": "string"
     },
     "budget_allocation": {
-      "$id": "BudgetAllocation",
       "description": "How budget is distributed among child delegations.",
       "anyOf": [
         {

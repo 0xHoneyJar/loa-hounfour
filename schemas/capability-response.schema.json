@@ -20,7 +20,6 @@
       "description": "List of capabilities this agent provides",
       "type": "array",
       "items": {
-        "$id": "Capability",
         "additionalProperties": false,
         "description": "A single capability an agent can provide",
         "type": "object",

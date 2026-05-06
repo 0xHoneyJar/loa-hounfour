@@ -20,7 +20,6 @@
       "type": "string"
     },
     "ensemble_strategy": {
-      "$id": "EnsembleStrategy",
       "$comment": "Multi-model coordination strategies.",
       "anyOf": [
         {

@@ -19,7 +19,7 @@ export const ProviderTypeSchema = Type.Union([
     Type.Literal('custom'),
 ], {
     $id: 'ProviderType',
-    $comment: 'Provider type vocabulary for model routing. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31',
+    $comment: 'Provider type vocabulary for model routing.',
 });
 /** All known provider type values. */
 export const KNOWN_PROVIDER_TYPES = [

@@ -30,7 +30,6 @@
       "type": "string"
     },
     "trust_layer": {
-      "$id": "TrustLayerSnapshot",
       "additionalProperties": false,
       "description": "Point-in-time snapshot of the trust layer for access evaluation.",
       "type": "object",
@@ -41,7 +40,6 @@
       ],
       "properties": {
         "reputation_state": {
-          "$id": "ReputationState",
           "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {
@@ -76,7 +74,6 @@
       }
     },
     "capital_layer": {
-      "$id": "CapitalLayerSnapshot",
       "additionalProperties": false,
       "description": "Point-in-time snapshot of the capital layer for access evaluation.",
       "type": "object",
@@ -104,7 +101,6 @@
       }
     },
     "access_decision": {
-      "$id": "AccessDecision",
       "additionalProperties": false,
       "description": "Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition.",
       "type": "object",
@@ -144,7 +140,6 @@
       "type": "string"
     },
     "qualification_criteria": {
-      "$id": "QualificationCriteria",
       "additionalProperties": false,
       "description": "Threshold criteria for evaluating economic boundary access.",
       "type": "object",
@@ -161,7 +156,6 @@
           "type": "number"
         },
         "min_reputation_state": {
-          "$id": "ReputationState",
           "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {

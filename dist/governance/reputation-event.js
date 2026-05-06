@@ -56,6 +56,7 @@ const QualitySignalPayloadSchema = Type.Object({
     dimensions: Type.Optional(Type.Record(Type.String({ pattern: '^[a-z][a-z0-9_]{0,31}$' }), Type.Number({ minimum: 0, maximum: 1 }), { maxProperties: 20, additionalProperties: false, description: 'Named quality dimensions (e.g., coherence, safety).' })),
 }, {
     additionalProperties: false,
+    description: 'Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update.',
 });
 export const QualitySignalEventSchema = QualitySignalPayloadSchema;
 // ---------------------------------------------------------------------------
@@ -79,6 +80,7 @@ const TaskCompletedPayloadSchema = Type.Object({
     })),
 }, {
     additionalProperties: false,
+    description: 'Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring.',
 });
 export const TaskCompletedEventSchema = TaskCompletedPayloadSchema;
 // ---------------------------------------------------------------------------
@@ -101,6 +103,7 @@ const CredentialUpdatePayloadSchema = Type.Object({
     ], { description: 'What happened to the credential.' }),
 }, {
     additionalProperties: false,
+    description: 'Reputation event variant: credential lifecycle change. Emitted when an agent reputation credential is issued, revoked, renewed, or suspended.',
 });
 export const CredentialUpdateEventSchema = CredentialUpdatePayloadSchema;
 // ---------------------------------------------------------------------------
@@ -128,8 +131,9 @@ const RequestContextSchema = Type.Object({
  *
  * Carries full model attribution (model_id, provider, pool_id) alongside
  * a structured quality observation. Closes the autopoietic feedback loop:
- * Dixie emits this event → cross-model scoring updates → routing signal
- * adjusts → Finn routes next request → Dixie evaluates again.
+ * a scoring agent emits this event → cross-model scoring updates → routing
+ * signal adjusts → the routing gateway routes next request → the scoring
+ * agent evaluates again.
  *
  * Unlike quality_signal, task_type is REQUIRED — every model performance
  * observation inherently has a task context.
@@ -161,6 +165,7 @@ const ModelPerformancePayloadSchema = Type.Object({
     request_context: Type.Optional(RequestContextSchema),
 }, {
     additionalProperties: false,
+    description: 'Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing.',
 });
 export const ModelPerformanceEventSchema = ModelPerformancePayloadSchema;
 // ---------------------------------------------------------------------------

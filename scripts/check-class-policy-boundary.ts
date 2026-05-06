@@ -80,7 +80,13 @@ const RULE_2_PATTERN =
 
 const RULE_3_PATTERN = /(?:Evaluator|Verifier|Engine|Matcher)$/;
 
-const RULE_4_CRYPTO_BEARING_NAMES = [
+// Exported so the determinism property test in
+// tests/properties/crypto-bearing-flag-determinism.test.ts can assert set-
+// equality between this list and the schemas actually flagged
+// `'x-crypto-bearing': true` in the TypeBox source. The hard-coded list and
+// the runtime discovery MUST agree — silent drift here is exactly the
+// scenario RULE-4 is designed to prevent.
+export const RULE_4_CRYPTO_BEARING_NAMES = [
   'SignatureEnvelopeSchema',
   'RecallReceiptSchema',
   'CommitmentRootSchema',

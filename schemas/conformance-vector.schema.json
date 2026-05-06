@@ -20,7 +20,6 @@
       "type": "string"
     },
     "category": {
-      "$id": "ConformanceCategory",
       "description": "Category of conformance vector for provider verification.",
       "anyOf": [
         {

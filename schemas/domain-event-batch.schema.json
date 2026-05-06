@@ -28,7 +28,6 @@
       "description": "Ordered list of domain events",
       "type": "array",
       "items": {
-        "$id": "DomainEvent",
         "description": "Cross-cutting event envelope for aggregate state changes",
         "additionalProperties": true,
         "type": "object",
@@ -213,7 +212,6 @@
       }
     },
     "saga": {
-      "$id": "SagaContext",
       "additionalProperties": false,
       "description": "Saga execution context for multi-step distributed operations",
       "type": "object",

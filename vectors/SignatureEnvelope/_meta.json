@@ -30,10 +30,10 @@
       "authored_at": "2026-05-06"
     },
     {
-      "case": "edge-signature-88",
-      "intent": "valid",
+      "case": "edge-signature-88-rejected",
+      "intent": "invalid",
       "validation_layer": "shape",
-      "description": "Signature value at the upper boundary (88 chars).",
+      "description": "Signature value with 88 unpadded base64url chars. Rejected by the canonical {86} pattern (32-byte key / 64-byte sig encode to exactly 86 chars unpadded; padded forms with '=' are not in the character class).",
       "authored_at": "2026-05-06"
     },
     {

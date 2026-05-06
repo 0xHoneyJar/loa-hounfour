@@ -6,7 +6,7 @@
  * instantiations spread these into their Type.Object definitions.
  *
  * @see SDD §4.1 — GovernedResource Governance Fields (FR-1.1)
- * @see SDD §4.7 — GovernanceMutation (Flatline SKP-004)
+ * @see SDD §4.7 — GovernanceMutation (code review SKP-004)
  * @since v8.0.0
  */
 import { Type } from '@sinclair/typebox';
@@ -45,7 +45,7 @@ export const GOVERNED_RESOURCE_FIELDS = {
     version: Type.Integer({
         minimum: 0,
         description: 'Monotonic resource version for optimistic concurrency (CAS). '
-            + 'Required for all GovernedResource instantiations (Flatline SKP-005). '
+            + 'Required for all GovernedResource instantiations (code review SKP-005). '
             + 'All mutations MUST present the expected version. '
             + 'Version mismatch returns PARTIAL_APPLICATION error. '
             + 'Starts at 0 for new resources, increments on each successful mutation.',
@@ -55,7 +55,7 @@ export const GOVERNED_RESOURCE_FIELDS = {
         description: 'Reference to an AccessPolicy governing mutations to this resource. '
             + 'When present, mutation evaluation SHOULD check the actor\'s context '
             + 'against this policy before applying changes. '
-            + '(Bridgebuilder F6 — authorization at the governance boundary)',
+            + '(code review F6 — authorization at the governance boundary)',
     })),
     governance_extensions: Type.Optional(Type.Record(Type.String(), Type.Unknown(), {
         description: 'Extension point for future governance fields. '
@@ -72,7 +72,7 @@ export const GOVERNED_RESOURCE_FIELDS = {
  * Every mutation to a GovernedResource<T> is wrapped in this envelope
  * for idempotency and optimistic concurrency control.
  *
- * @see SDD §4.7 — Concurrency Model (Flatline SKP-004)
+ * @see SDD §4.7 — Concurrency Model (code review SKP-004)
  */
 export const GovernanceMutationSchema = Type.Object({
     mutation_id: Type.String({
@@ -88,7 +88,7 @@ export const GovernanceMutationSchema = Type.Object({
         minLength: 1,
         description: 'Identity of the actor performing this mutation. Required for audit trail '
             + 'attribution and access policy evaluation. '
-            + '(Bridgebuilder F6 — authorization at the mutation boundary)',
+            + '(code review F6 — authorization at the mutation boundary)',
     }),
 }, { $id: 'GovernanceMutation', additionalProperties: false });
 //# sourceMappingURL=governed-resource.js.map

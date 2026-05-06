@@ -39,13 +39,11 @@
       "type": "string"
     },
     "nft_id": {
-      "$id": "NftId",
       "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
       "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
       "type": "string"
     },
     "cost_type": {
-      "$id": "CostType",
       "description": "Billing cost category",
       "anyOf": [
         {
@@ -147,7 +145,6 @@
       "description": "Multi-party cost attribution",
       "type": "array",
       "items": {
-        "$id": "BillingRecipient",
         "additionalProperties": false,
         "type": "object",
         "required": [
@@ -217,7 +214,6 @@
       "type": "string"
     },
     "usage": {
-      "$id": "Usage",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -270,7 +266,6 @@
       }
     },
     "reconciliation_mode": {
-      "$id": "ReconciliationMode",
       "description": "Billing reconciliation mode — determines cost source of truth.",
       "anyOf": [
         {

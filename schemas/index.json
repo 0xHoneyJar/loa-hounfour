@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-06T12:30:20.825Z",
+  "generated_at": "2026-05-06T23:04:42.891Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1028,37 +1028,37 @@
       "name": "commons/invariant",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/invariant",
       "file": "commons/invariant.schema.json",
-      "description": "Invariant"
+      "description": "commons/invariant"
     },
     {
       "name": "commons/conservation-law",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/conservation-law",
       "file": "commons/conservation-law.schema.json",
-      "description": "ConservationLaw"
+      "description": "commons/conservation-law"
     },
     {
       "name": "commons/audit-entry",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/audit-entry",
       "file": "commons/audit-entry.schema.json",
-      "description": "AuditEntry"
+      "description": "commons/audit-entry"
     },
     {
       "name": "commons/audit-trail",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/audit-trail",
       "file": "commons/audit-trail.schema.json",
-      "description": "AuditTrail"
+      "description": "commons/audit-trail"
     },
     {
       "name": "commons/state",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/state",
       "file": "commons/state.schema.json",
-      "description": "State"
+      "description": "commons/state"
     },
     {
       "name": "commons/transition",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/transition",
       "file": "commons/transition.schema.json",
-      "description": "Transition"
+      "description": "commons/transition"
     },
     {
       "name": "commons/state-machine-config",
@@ -1070,7 +1070,7 @@
       "name": "commons/governance-class",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/governance-class",
       "file": "commons/governance-class.schema.json",
-      "description": "GovernanceClass"
+      "description": "commons/governance-class"
     },
     {
       "name": "commons/governance-mutation",
@@ -1124,7 +1124,7 @@
       "name": "commons/protocol-surface",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/protocol-surface",
       "file": "commons/protocol-surface.schema.json",
-      "description": "ProtocolSurface"
+      "description": "commons/protocol-surface"
     },
     {
       "name": "commons/dynamic-contract",
@@ -1142,7 +1142,7 @@
       "name": "commons/vector-manifest-entry",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/vector-manifest-entry",
       "file": "commons/vector-manifest-entry.schema.json",
-      "description": "VectorManifestEntry"
+      "description": "commons/vector-manifest-entry"
     },
     {
       "name": "commons/vector-manifest",

@@ -22,6 +22,7 @@
  * @see FR-4 v4.6.0 — Cross-Language Constraints
  */
 import { tokenize } from './tokenizer.js';
+import { evaluateIsValidDag } from './is-valid-dag.js';
 export const MAX_EXPRESSION_DEPTH = 32;
 /**
  * Resolve a dotted field path on a data object.
@@ -85,6 +86,8 @@ class Parser {
             ['delegation_budget_conserved', () => this.parseDelegationBudgetConserved()],
             ['links_temporally_ordered', () => this.parseLinksTemporallyOrdered()],
             ['links_form_chain', () => this.parseLinksFormChain()],
+            // DAG validation (v8.4.0, FR-C1)
+            ['is_valid_dag', () => this.parseIsValidDag()],
             // Ensemble capability functions
             ['no_emergent_in_individual', () => this.parseNoEmergentInIndividual()],
             ['all_emergent_have_evidence', () => this.parseAllEmergentHaveEvidence()],
@@ -117,11 +120,11 @@ class Parser {
             // Bridge iteration 2 builtins (v7.0.0)
             ['saga_timeout_valid', () => this.parseSagaTimeoutValid()],
             ['proposal_weights_normalized', () => this.parseProposalWeightsNormalized()],
-            // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+            // Timestamp comparison builtins (v7.4.0 — internal review vision)
             ['is_after', () => this.parseTimestampCmp('after')],
             ['is_before', () => this.parseTimestampCmp('before')],
             ['is_between', () => this.parseTimestampBetween()],
-            // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+            // Temporal governance builtins (v7.5.0 — code review GAP)
             ['is_stale', () => this.parseTimestampStaleness('stale')],
             ['is_within', () => this.parseTimestampStaleness('within')],
             // Constraint lifecycle governance (v7.6.0 — DR-S4)
@@ -793,6 +796,42 @@ class Parser {
                 return false;
         }
         return true;
+    }
+    /**
+     * Parse is_valid_dag(items, id_field, ...ref_fields).
+     *
+     * Variadic in `ref_fields` (zero or more). Returns a boolean for the
+     * constraint-DSL surface — `true` when the items form a valid DAG (no
+     * cycles, no dangling refs, all ids present and string-typed, within size
+     * and op budgets), `false` otherwise.
+     *
+     * The structured diagnostic from the underlying algorithm is surfaced via
+     * the standalone `evaluateIsValidDag()` function in `is-valid-dag.ts`;
+     * direct callers wanting an `ErrorEnvelope` should use that entry point.
+     *
+     * @see SDD section 5.5.1 — Op-counting algorithm (NORMATIVE)
+     * @see SDD section 6.3 — Structured diagnostic cases
+     * @since v8.4.0 (FR-C1)
+     */
+    parseIsValidDag() {
+        this.advance(); // consume 'is_valid_dag'
+        this.expect('paren', '(');
+        const items = this.parseExpr();
+        this.expect('comma');
+        const idField = this.parseExpr();
+        const refFields = [];
+        while (this.peek()?.type === 'comma') {
+            this.expect('comma');
+            const refField = this.parseExpr();
+            if (typeof refField !== 'string')
+                return false;
+            refFields.push(refField);
+        }
+        this.expect('paren', ')');
+        if (typeof idField !== 'string')
+            return false;
+        const result = evaluateIsValidDag(items, idField, refFields);
+        return result.valid;
     }
     /**
      * Parse no_emergent_in_individual(emergent, individual).
@@ -1591,7 +1630,7 @@ class Parser {
         return true;
     }
     // ---------------------------------------------------------------------------
-    // Timestamp comparison builtins (v7.4.0 — Bridgebuilder Vision)
+    // Timestamp comparison builtins (v7.4.0 — internal review vision)
     // ---------------------------------------------------------------------------
     /** ISO 8601 date-time prefix pattern for cross-language consistency. */
     static ISO_8601_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
@@ -1644,7 +1683,7 @@ class Parser {
         return lowerMs <= valueMs && valueMs <= upperMs;
     }
     // ---------------------------------------------------------------------------
-    // Temporal governance builtins (v7.5.0 — Deep Bridgebuilder Review GAP)
+    // Temporal governance builtins (v7.5.0 — code review GAP)
     // ---------------------------------------------------------------------------
     /**
      * Parse is_stale(timestamp, max_age_seconds, reference_timestamp) or
@@ -1751,6 +1790,8 @@ export const EVALUATOR_BUILTINS = [
     'execution_checkpoint_valid',
     // Audit trail chain (v8.0.0)
     'audit_trail_chain_valid',
+    // DAG validation (v8.4.0, FR-C1)
+    'is_valid_dag',
 ];
 /**
  * Reserved names in the evaluator namespace.

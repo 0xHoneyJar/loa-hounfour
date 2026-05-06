@@ -26,21 +26,18 @@
       ],
       "properties": {
         "self_declared": {
-          "$id": "ReservationTier",
           "minimum": 0,
           "maximum": 10000,
           "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
           "type": "integer"
         },
         "community_verified": {
-          "$id": "ReservationTier",
           "minimum": 0,
           "maximum": 10000,
           "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",
           "type": "integer"
         },
         "protocol_certified": {
-          "$id": "ReservationTier",
           "minimum": 0,
           "maximum": 10000,
           "description": "Reserved capacity in basis points (0-10000). 10000 = 100%.",

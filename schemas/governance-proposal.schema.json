@@ -44,7 +44,6 @@
       "description": "Proposed changes (at least one required).",
       "type": "array",
       "items": {
-        "$id": "ProposedChange",
         "additionalProperties": false,
         "description": "A single proposed change within a governance proposal.",
         "type": "object",
@@ -97,7 +96,6 @@
       }
     },
     "status": {
-      "$id": "ProposalStatus",
       "description": "Lifecycle status of a governance proposal.",
       "anyOf": [
         {
@@ -123,7 +121,6 @@
       ]
     },
     "voting": {
-      "$id": "VotingRecord",
       "additionalProperties": false,
       "description": "Record of voting on a governance proposal.",
       "type": "object",
@@ -144,7 +141,6 @@
           "description": "Votes cast so far.",
           "type": "array",
           "items": {
-            "$id": "GovernanceVote",
             "additionalProperties": false,
             "description": "A vote cast on a governance proposal.",
             "type": "object",

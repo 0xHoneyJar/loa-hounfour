@@ -3,8 +3,8 @@ import { Type } from '@sinclair/typebox';
  * Schema for agent-authored constraint proposals.
  *
  * Agents propose new constraints as structured data that goes through
- * multi-model adversarial review (Flatline Protocol) before acceptance.
- * The proposal captures the wire format; the review pipeline is a runtime concern.
+ * multi-model adversarial review before acceptance. The proposal captures
+ * the wire format; the review pipeline is a runtime concern.
  */
 export const ConstraintProposalSchema = Type.Object({
     proposal_id: Type.String({ format: 'uuid' }),
@@ -41,8 +41,9 @@ export const ConstraintProposalSchema = Type.Object({
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
 }, {
     $id: 'ConstraintProposal',
-    $comment: 'Agent-authored constraint proposals for Flatline Protocol review. See RFC #31: https://github.com/0xHoneyJar/loa-finn/issues/31',
+    $comment: 'Agent-authored constraint proposals for multi-model adversarial review before acceptance.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Wire format for an agent-authored proposal to add cross-field constraints to a target schema. The proposal carries the proposed constraint set, rationale, grammar version, and optional review-state metadata (status, scores, consensus category).',
 });
 //# sourceMappingURL=constraint-proposal.js.map

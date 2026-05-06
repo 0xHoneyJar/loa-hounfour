@@ -1,6 +1,6 @@
 {
   "value": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
   "kind": "signature",
-  "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
+  "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
   "expected_match": false
 }

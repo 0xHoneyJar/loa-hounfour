@@ -23,6 +23,7 @@ export const ReputationStateChangedPayloadSchema = Type.Object({
 }, {
     $id: 'ReputationStateChangedPayload',
     additionalProperties: false,
+    description: 'Payload emitted when a personality\'s reputation state machine transitions between states (cold / warming / established / authoritative).',
 });
 // ---------------------------------------------------------------------------
 // QualityEventRecordedPayload
@@ -38,6 +39,7 @@ export const QualityEventRecordedPayloadSchema = Type.Object({
 }, {
     $id: 'QualityEventRecordedPayload',
     additionalProperties: false,
+    description: 'Payload emitted when a quality observation is ingested into the reputation aggregate. Carries the new sample count and updated blended score.',
 });
 // ---------------------------------------------------------------------------
 // CollectionScoreUpdatedPayload
@@ -64,5 +66,6 @@ export const CollectionScoreUpdatedPayloadSchema = Type.Object({
 }, {
     $id: 'CollectionScoreUpdatedPayload',
     additionalProperties: false,
+    description: 'Payload emitted when a collection\'s trimmed-mean score is recalculated. Acts as a monetary-policy signal in the Web4 social-monies framing — the score proxies for the collection\'s monetary credibility.',
 });
 //# sourceMappingURL=reputation-events.js.map

@@ -54,9 +54,9 @@ export const SignatureEnvelopeSchema = Type.Object(
         'SHA-256 hex digest (lowercase) of safeCanonicalize(payload) where payload is the wire artifact being signed minus its own signatures[] and minus any field literally named signed_payload_hash. NFC + RFC 8785 + 100KB cap per the hashing-spec freeze.',
     }),
     signature_value: Type.String({
-      pattern: '^ed25519:[A-Za-z0-9_-]{86,88}$',
+      pattern: '^ed25519:[A-Za-z0-9_-]{86}$',
       description:
-        'Ed25519 signature value, base64url-encoded, prefixed with "ed25519:". Hounfour does NOT verify; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).',
+        'Ed25519 signature value, unpadded base64url-encoded (RFC 4648 §5), prefixed with "ed25519:". A 64-byte Ed25519 signature encodes to exactly 86 unpadded characters; padded forms with "==" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url. Hounfour does NOT verify the signature; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).',
     }),
     signed_at: Type.String({
       format: 'date-time',

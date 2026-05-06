@@ -31,7 +31,6 @@
       "type": "string"
     },
     "enforcement": {
-      "$id": "BridgeEnforcement",
       "description": "How a bridge invariant is enforced: atomically, eventually, or manually.",
       "anyOf": [
         {
