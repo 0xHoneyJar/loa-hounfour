@@ -52,7 +52,11 @@
         "coverage": "Record<string, integer>",
         "total_count": "integer"
       },
-      "message": "Sum of all coverage values must equal total_count"
+      "message": "Sum of all coverage values must equal total_count",
+      "fields": [
+        "coverage",
+        "total_count"
+      ]
     },
     {
       "id": "conservation-registry-liveness-count-matches",
@@ -63,7 +67,11 @@
         "liveness_count": "integer",
         "liveness_properties": "LivenessProperty[]"
       },
-      "message": "liveness_count must equal liveness_properties array length (v6.0.0)"
+      "message": "liveness_count must equal liveness_properties array length (v6.0.0)",
+      "fields": [
+        "liveness_count",
+        "liveness_properties"
+      ]
     },
     {
       "id": "conservation-liveness-unique-ids",
@@ -73,7 +81,10 @@
       "type_signature": {
         "liveness_properties": "LivenessProperty[]"
       },
-      "message": "All liveness_id values must be unique (v6.0.0)"
+      "message": "All liveness_id values must be unique (v6.0.0)",
+      "fields": [
+        "liveness_properties"
+      ]
     },
     {
       "id": "conservation-registry-coverage-keys-valid",
@@ -83,7 +94,10 @@
       "type_signature": {
         "coverage": "Record<InvariantUniverse, integer>"
       },
-      "message": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)"
+      "message": "Coverage map keys must be InvariantUniverse literals (medium-2 resolution)",
+      "fields": [
+        "coverage"
+      ]
     }
   ]
 }

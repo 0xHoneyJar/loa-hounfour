@@ -14,7 +14,11 @@
         "delegation_authority": "string[]",
         "trust_scopes": "CapabilityScopedTrust"
       },
-      "message": "Agents with delegation authority must have delegation scope trust >= verified"
+      "message": "Agents with delegation authority must have delegation scope trust >= verified",
+      "fields": [
+        "delegation_authority",
+        "trust_scopes"
+      ]
     },
     {
       "id": "agent-identity-sovereign-max-depth",
@@ -25,7 +29,11 @@
         "trust_scopes": "CapabilityScopedTrust",
         "max_delegation_depth": "integer"
       },
-      "message": "Agents with sovereign delegation scope must have max_delegation_depth >= 1"
+      "message": "Agents with sovereign delegation scope must have max_delegation_depth >= 1",
+      "fields": [
+        "trust_scopes",
+        "max_delegation_depth"
+      ]
     },
     {
       "id": "agent-identity-capabilities-non-empty",
@@ -35,7 +43,10 @@
       "type_signature": {
         "capabilities": "string[]"
       },
-      "message": "Capabilities array must be non-empty"
+      "message": "Capabilities array must be non-empty",
+      "fields": [
+        "capabilities"
+      ]
     },
     {
       "id": "agent-identity-scope-coverage",
@@ -45,7 +56,10 @@
       "type_signature": {
         "trust_scopes": "CapabilityScopedTrust"
       },
-      "message": "Billing and inference scopes must be explicitly specified"
+      "message": "Billing and inference scopes must be explicitly specified",
+      "fields": [
+        "trust_scopes"
+      ]
     }
   ]
 }

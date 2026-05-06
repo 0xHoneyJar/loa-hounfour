@@ -29,5 +29,6 @@
       ],
       "message": "Execution must have at least one change application result."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

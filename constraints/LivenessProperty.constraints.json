@@ -13,7 +13,10 @@
       "type_signature": {
         "ltl_formula": "string"
       },
-      "message": "LTL formula must contain F_t (bounded eventually) operator"
+      "message": "LTL formula must contain F_t (bounded eventually) operator",
+      "fields": [
+        "ltl_formula"
+      ]
     }
   ]
 }

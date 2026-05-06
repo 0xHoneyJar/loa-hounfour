@@ -114,7 +114,7 @@
     {
       "id": "reputation-temporal-decay-expectation",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "Implementations SHOULD apply computeDecayedSampleCount() before reading blended_score. An aggregate with last_updated > 60 days ago should be treated as effectively cold regardless of stored state.",
       "fields": [
         "last_updated",
@@ -128,7 +128,7 @@
     {
       "id": "reputation-transition-rate-limit",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "Implementations SHOULD NOT permit more than one state transition per evaluation cycle. The progression cold→warming→established→authoritative should reflect genuine observation accumulation, not batch ingestion.",
       "fields": [
         "state",
@@ -142,7 +142,7 @@
     {
       "id": "reputation-authoritative-duration",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "Implementations SHOULD track time-in-state for authoritative aggregates. An aggregate that has been authoritative for > 90 days with continued quality events represents stable excellence and should contribute proportionally more to collection_score.",
       "fields": [
         "state",
@@ -193,7 +193,10 @@
       "evaluation_geometry": "native",
       "native_enforcement": {
         "strategy": "composite_key_uniqueness",
-        "fields": ["model_id", "task_type"],
+        "fields": [
+          "model_id",
+          "task_type"
+        ],
         "scope": "task_cohorts",
         "reference_impl": "validateTaskCohortUniqueness()"
       }

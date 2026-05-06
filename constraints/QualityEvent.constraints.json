@@ -92,7 +92,7 @@
     {
       "id": "quality-composite-derivation-trust",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "composite_score derivation is a trust assumption — producers compute the weighted average, consumers cannot verify the weights. See Bridgebuilder Finding F6.",
       "fields": [
         "composite_score"

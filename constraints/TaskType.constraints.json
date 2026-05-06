@@ -8,7 +8,7 @@
     {
       "id": "task-type-protocol-values",
       "expression": "value == 'code_review' || value == 'creative_writing' || value == 'analysis' || value == 'summarization' || value == 'general'",
-      "severity": "info",
+      "severity": "warning",
       "message": "Protocol-defined TaskType values are: code_review, creative_writing, analysis, summarization, general. Community types use namespace:type format (ADR-003).",
       "fields": [
         "value"
@@ -31,7 +31,9 @@
       "evaluation_geometry": "native",
       "native_enforcement": {
         "strategy": "open_enum_validation",
-        "fields": ["value"],
+        "fields": [
+          "value"
+        ],
         "reference_impl": "TaskTypeSchema (TypeBox Union with pattern branch)"
       }
     }

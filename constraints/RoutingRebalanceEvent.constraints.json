@@ -31,5 +31,6 @@
       ],
       "message": "If both window dates are present, end must be after start."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

@@ -14,7 +14,7 @@
         "health_status",
         "proceed_decision"
       ],
-      "message": "Health status and proceed decision must be consistent: healthy\u2192continue, degraded\u2192continue|pause, failing\u2192rollback."
+      "message": "Health status and proceed decision must be consistent: healthy→continue, degraded→continue|pause, failing→rollback."
     },
     {
       "id": "checkpoint-counts-nonnegative",
@@ -29,5 +29,6 @@
       ],
       "message": "Applied and remaining counts must be non-negative."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

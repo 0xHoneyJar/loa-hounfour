@@ -13,7 +13,10 @@
       "type_signature": {
         "delivery": "object"
       },
-      "message": "Webhook delivery requires a non-null endpoint URL"
+      "message": "Webhook delivery requires a non-null endpoint URL",
+      "fields": [
+        "delivery"
+      ]
     },
     {
       "id": "subscription-cursor-exclusive",
@@ -23,7 +26,10 @@
       "type_signature": {
         "cursor": "object"
       },
-      "message": "Cursor must not specify both after_event_id and after_timestamp"
+      "message": "Cursor must not specify both after_event_id and after_timestamp",
+      "fields": [
+        "cursor"
+      ]
     }
   ]
 }

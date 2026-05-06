@@ -13,7 +13,10 @@
       "type_signature": {
         "steps": "array"
       },
-      "message": "Steps must have non-empty step_ids"
+      "message": "Steps must have non-empty step_ids",
+      "fields": [
+        "steps"
+      ]
     },
     {
       "id": "saga-amount-conserved",
@@ -23,7 +26,10 @@
       "type_signature": {
         "saga": "BridgeTransferSaga"
       },
-      "message": "Source debit equals target credit after exchange rate"
+      "message": "Source debit equals target credit after exchange rate",
+      "fields": [
+        "saga"
+      ]
     },
     {
       "id": "saga-timeout-positive",
@@ -33,7 +39,10 @@
       "type_signature": {
         "timeout": "object"
       },
-      "message": "Timeout values must be positive"
+      "message": "Timeout values must be positive",
+      "fields": [
+        "timeout"
+      ]
     },
     {
       "id": "saga-participants-include-initiator",
@@ -43,7 +52,10 @@
       "type_signature": {
         "participants": "array"
       },
-      "message": "At least one participant must exist"
+      "message": "At least one participant must exist",
+      "fields": [
+        "participants"
+      ]
     },
     {
       "id": "saga-settled-has-timestamp",
@@ -54,7 +66,11 @@
         "status": "string",
         "settled_at": "string"
       },
-      "message": "Settled sagas must have settled_at timestamp"
+      "message": "Settled sagas must have settled_at timestamp",
+      "fields": [
+        "status",
+        "settled_at"
+      ]
     },
     {
       "id": "saga-timeout-valid",
@@ -64,7 +80,10 @@
       "type_signature": {
         "saga": "BridgeTransferSaga"
       },
-      "message": "Completed saga steps must complete within per_step_seconds timeout"
+      "message": "Completed saga steps must complete within per_step_seconds timeout",
+      "fields": [
+        "saga"
+      ]
     }
   ]
 }

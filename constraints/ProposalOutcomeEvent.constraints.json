@@ -15,5 +15,6 @@
       ],
       "message": "Outcome events must have a non-empty actor ID."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

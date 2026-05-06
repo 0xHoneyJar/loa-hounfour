@@ -20,7 +20,7 @@
     {
       "id": "delegation-quality-signal-score-consistency",
       "expression": "quality_signal != null",
-      "severity": "info",
+      "severity": "warning",
       "fields": [
         "quality_signal"
       ],

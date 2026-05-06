@@ -27,5 +27,6 @@
       ],
       "message": "Sum of entry weights must be approximately 1.0 (within 0.001 tolerance)."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

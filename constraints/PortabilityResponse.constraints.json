@@ -14,7 +14,11 @@
         "decision": "string",
         "credential_id": "string"
       },
-      "message": "Accepted responses must include a credential_id"
+      "message": "Accepted responses must include a credential_id",
+      "fields": [
+        "decision",
+        "credential_id"
+      ]
     },
     {
       "id": "portability-rejected-needs-reason",
@@ -25,7 +29,11 @@
         "decision": "string",
         "rejection_reason": "string"
       },
-      "message": "Rejected responses must include a rejection_reason"
+      "message": "Rejected responses must include a rejection_reason",
+      "fields": [
+        "decision",
+        "rejection_reason"
+      ]
     },
     {
       "id": "portability-governance-needs-proposal",
@@ -36,7 +44,11 @@
         "decision": "string",
         "governance_proposal_id": "string"
       },
-      "message": "Pending governance responses must include a governance_proposal_id"
+      "message": "Pending governance responses must include a governance_proposal_id",
+      "fields": [
+        "decision",
+        "governance_proposal_id"
+      ]
     }
   ]
 }

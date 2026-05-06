@@ -31,5 +31,6 @@
       ],
       "message": "Token counts must be non-negative."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }
