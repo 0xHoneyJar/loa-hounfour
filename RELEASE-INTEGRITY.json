@@ -1,6 +1,6 @@
 {
   "release_version": "8.4.0",
-  "generated_at": "2026-05-06T00:11:08.698Z",
+  "generated_at": "2026-05-06T00:24:16.769Z",
   "generator": "generate-release-integrity.ts",
   "totals": {
     "schemas": 209,

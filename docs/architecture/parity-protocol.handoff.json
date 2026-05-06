@@ -4,7 +4,10 @@
   "co_signed_at": "2026-05-06T00:00:00Z",
   "co_signers": ["@janitooor"],
   "signature_basis": "maintainer-override",
-  "override_reason": "Sponsoring consumer release lead unreachable within the 7-business-day window per parity-protocol.md section 8 timeout policy. No designated alternate available. Maintainer commits the handoff alone under the deferred-co-sign window; consumer co-signs retroactively any time before deferred_co_sign_deadline (60 days from co_signed_at). Past that date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1).",
+  "override_window_opened_at": "2026-04-25T00:00:00Z",
+  "override_window_open_event": "PR-A1.6 design freeze; sponsoring consumer release lead pinged at this timestamp on the coordination channel and on Issue #61 thread, with a 7-business-day window per parity-protocol.md section 8 timeout policy.",
+  "override_window_closed_at": "2026-05-06T00:00:00Z",
+  "override_reason": "7-business-day window opened at override_window_opened_at and closed at override_window_closed_at without consumer release lead response. No designated alternate available within the same window. Maintainer commits the handoff alone under the deferred-co-sign window; consumer co-signs retroactively any time before deferred_co_sign_deadline (60 days from co_signed_at). Past that date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1). Reviewers verify the override invocation by confirming override_window_opened_at + 7 business days <= override_window_closed_at and that consumer release lead has no response on Issue #61 thread between those timestamps.",
   "scope_acknowledged": [
     "vectors/PanelDecisionArtifact/valid",
     "vectors/PanelDecisionArtifact/invalid",

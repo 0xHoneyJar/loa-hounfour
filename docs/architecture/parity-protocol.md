@@ -152,8 +152,32 @@ The co-signed handoff is recorded as JSON. Fields and their meanings:
   // attests to having implemented. v8.4.0 introduces ORD-1, ORD-2.
   "obligations_acked": ["ORD-1", "ORD-2"],
 
-  // ISO 8601 timestamp at which warn-only parity-check transitions to fail-CI.
-  "warn_window_closes_at": "<ISO 8601 of (PR-A1.6 merged + 48h) OR tag fire>",
+  // OPTIONAL: upper-bound forecast for human reading. The actual close time
+  // is derived at CI evaluation time from the event timestamps below — this
+  // field is informational, not the gating value.
+  "warn_window_closes_at_upper_bound": "<ISO 8601>" /* optional */,
+
+  // OPTIONAL: human-readable explanation of the warn-window close rule.
+  "warn_window_basis": "<text>" /* optional */,
+
+  // OPTIONAL: per-event timestamps that feed the actual warn-window close
+  // computation. CI fills each field when the corresponding event lands;
+  // the earliest non-null timestamp across the merge+48h and tag-fire fields
+  // is the closing event.
+  "warn_window_event_inputs": {
+    "pr_a1_6_merged_at": "<ISO 8601 | null>",
+    "pr_a1_6_merge_plus_48h": "<ISO 8601 | null>",
+    "signed_tag_v840_at": "<ISO 8601 | null>",
+    "note": "<text>"
+  } /* optional */,
+
+  // OPTIONAL: deferred-cosign deadline for the override path (60 days from
+  // co_signed_at). Past this date, asymmetric ratification is recorded via
+  // a parity-protocol PATCH bump.
+  "deferred_co_sign_deadline": "<ISO 8601>" /* optional, override path only */,
+
+  // OPTIONAL: human-readable explanation of the deferred-cosign window.
+  "deferred_co_sign_note": "<text>" /* optional */,
 
   // OPTIONAL: present only on override path. One of:
   //   "co-signed"             — both maintainer and consumer lead signed
@@ -161,11 +185,31 @@ The co-signed handoff is recorded as JSON. Fields and their meanings:
   //   "maintainer-override"   — maintainer signed alone; deferred-co-sign window opens
   "signature_basis": "co-signed" /* optional */,
 
+  // OPTIONAL: ISO 8601 timestamp at which the 7-business-day override window
+  // opened (sponsoring consumer release lead pinged). Required when
+  // signature_basis == 'maintainer-override' so reviewers can verify the
+  // window elapsed before invocation.
+  "override_window_opened_at": "<ISO 8601>" /* optional, override path only */,
+
+  // OPTIONAL: human-readable description of the event that opened the
+  // 7-business-day override window (e.g., the PR thread or coordination
+  // channel ping). Required when signature_basis == 'maintainer-override'.
+  "override_window_open_event": "<text>" /* optional, override path only */,
+
+  // OPTIONAL: ISO 8601 timestamp at which the 7-business-day override window
+  // closed without consumer response (= co_signed_at on the override path).
+  // Required when signature_basis == 'maintainer-override'.
+  "override_window_closed_at": "<ISO 8601>" /* optional, override path only */,
+
   // OPTIONAL: required when signature_basis == 'maintainer-override'.
-  // Free-text rationale for invoking the override path.
-  "override_reason": "<text>" /* optional */
+  // Free-text rationale for invoking the override path. Cites the
+  // override_window_opened_at + 7-business-day arithmetic so reviewers can
+  // verify the override is well-formed.
+  "override_reason": "<text>" /* optional, override path only */
 }
 ```
+
+**Field-rename note.** Earlier drafts of this section referenced a single `warn_window_closes_at` field. Pass-3 replaced that with `warn_window_closes_at_upper_bound` plus `warn_window_event_inputs` after the consensus reviewer flagged a static-precompute-of-a-dynamic-rule conflict: a single timestamp cannot honor "first-of (PR-A1.6 merged + 48h) OR tag fire" semantics. The new shape lets CI compute the real close time from observed events while the upper bound stays human-readable. Implementations parsing pre-pass-3 handoffs SHOULD map the legacy `warn_window_closes_at` to `warn_window_closes_at_upper_bound`.
 
 Both repositories — `loa-hounfour` and the consumer integration repo — commit the handoff JSON before the signed `v8.4.0` tag fires. The hounfour-side artifact lives at `docs/architecture/parity-protocol.handoff.json`.
 

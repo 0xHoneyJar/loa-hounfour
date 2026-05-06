@@ -20,6 +20,19 @@ type ErrorEnvelope = {
 
 The library's own envelope-emitting surface is the `is_valid_dag` builtin (`evaluateIsValidDag` in `src/constraints/is-valid-dag.ts`). Constraint-DSL rule failures surface through the validator pipeline as `CONSTRAINT_RULE_FAILED` envelopes carrying the failing `rule_id`. Schema-level structural rejections (TypeBox `additionalProperties: false`, `pattern`, `enum`) currently surface through the runtime's existing TypeBox error reporter; consumers building cross-runner sweeps SHOULD wrap those into `SCHEMA_*` envelopes before comparison.
 
+### Cross-runner parity scope (v8.4.0)
+
+The error codes in this document are partitioned into two scopes for the v8.4.0 parity contract:
+
+| Scope | Codes | Cross-runner parity in v8.4.0? |
+|---|---|---|
+| **Library-emitted** | `DAG_*` (7 codes), `CONSTRAINT_RULE_FAILED`, `CONSTRAINT_PARSE_ERROR` | **In-scope.** All four runners (TS / Go / Python / Rust) MUST emit byte-equal envelopes (`code`, `path`, `context`) on the corresponding fixtures. |
+| **Consumer-wrapped** | `SCHEMA_*` (6 codes), `SIG_*` (4 codes), `CROSS_RECORD_*` (2 codes), `CONFORMANCE_*` (2 codes), `SIGNING_CONTEXT_*` (3 codes) | **Out-of-scope.** The library does not emit these envelopes natively; consumers wrap their language-native error reporters (TypeBox in TS, equivalents in Go/Python/Rust) into the unified envelope shape before downstream comparison. The codes are reserved in the taxonomy so cross-runner streams stay unified. |
+
+A v8.5.0+ release MAY ship a library-emitted TypeBox-to-envelope adapter for the `SCHEMA_*` family, promoting it from consumer-wrapped to library-emitted scope and bringing it into the parity contract. The `SIG_*`, `CROSS_RECORD_*`, `CONFORMANCE_*`, and `SIGNING_CONTEXT_*` families remain consumer-emitted by design (per NF-1 library-not-runtime) and are unlikely to be promoted to library-emitted scope at any point.
+
+Consumers running cross-runner sweeps in v8.4.0 should treat library-emitted divergences as release blockers and consumer-wrapped divergences as integration-side issues that surface in their own conformance suite.
+
 ## 2. Path Format
 
 `path` is RFC 9535 JSONPath dot-notation:
