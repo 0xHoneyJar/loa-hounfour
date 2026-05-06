@@ -1,7 +1,7 @@
 /**
  * Tests for DynamicContract monotonic expansion verification.
  *
- * @see Bridgebuilder Finding F10 — Monotonic expansion declared but not enforced
+ * @see Finding F10 — Monotonic expansion declared but not enforced
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

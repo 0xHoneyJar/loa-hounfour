@@ -1,7 +1,7 @@
 /**
  * Tests for audit trail checkpointing utilities.
  *
- * @see Bridgebuilder Finding F8 — Checkpoint fields without operational logic
+ * @see Finding F8 — Checkpoint fields without operational logic
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

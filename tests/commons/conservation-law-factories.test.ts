@@ -1,7 +1,7 @@
 /**
  * Tests for conservation law factory functions.
  *
- * @see Bridgebuilder Finding F7 — Canonical factories for conservation patterns
+ * @see Finding F7 — Canonical factories for conservation patterns
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

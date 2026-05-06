@@ -4,7 +4,7 @@
  * Covers edge cases: empty input, whitespace-only, escape sequences,
  * consecutive operators, long numbers, and error conditions.
  *
- * @see S12-T6 — Bridgebuilder iteration 2 (tokenizer test coverage)
+ * @see S12-T6 — iteration 2 (tokenizer test coverage)
  */
 import { describe, it, expect } from 'vitest';
 import { tokenize, TokenizerError } from '../../src/constraints/tokenizer.js';

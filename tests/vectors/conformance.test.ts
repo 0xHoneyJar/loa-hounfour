@@ -8,7 +8,7 @@
  * Transforms vectors from "does the schema accept this?" to
  * "does the system behave correctly with this input?"
  *
- * @see S11-T2 — Bridgebuilder structural concern #2
+ * @see S11-T2 — structural concern #2
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';

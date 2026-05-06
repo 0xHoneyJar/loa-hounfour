@@ -104,7 +104,7 @@ describe('QueryReputationCommandSchema', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, pool_id: '' })).toBe(false);
   });
 
-  // v7.2.0 — collection_id (Bridgebuilder Finding F2)
+  // v7.2.0 — collection_id (Finding F2)
   it('validates with optional collection_id present', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, collection_id: 'honeycomb' })).toBe(true);
   });
@@ -117,7 +117,7 @@ describe('QueryReputationCommandSchema', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, collection_id: '' })).toBe(false);
   });
 
-  // v7.3.0 — model_id (Bridgebuilder C5 + Spec I)
+  // v7.3.0 — model_id (C5 + Spec I)
   it('validates with optional model_id present', () => {
     expect(Value.Check(QueryReputationCommandSchema, { ...valid, model_id: 'native' })).toBe(true);
   });

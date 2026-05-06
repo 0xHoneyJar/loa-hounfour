@@ -1,7 +1,7 @@
 /**
  * Tests for ScoringPathLog hash chain utilities (v7.11.0).
  *
- * @see Bridgebuilder Meditation III — Ostrom Principle 4
+ * @see Meditation III — Ostrom Principle 4
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -58,7 +58,7 @@ describe('computeScoringPathHash', () => {
     expect(hash).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
 
-  // Bridgebuilder HIGH-1: extra fields must be stripped at runtime
+  // HIGH-1: extra fields must be stripped at runtime
   it('strips extra fields (structural subtyping safety)', () => {
     const cleanEntry: ScoringPathHashInput = {
       path: 'task_cohort',

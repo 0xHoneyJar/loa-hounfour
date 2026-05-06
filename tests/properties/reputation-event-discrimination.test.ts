@@ -4,7 +4,7 @@
  * Verifies:
  * - Exactly one variant matches per valid event (no ambiguity)
  * - model_id roundtrip (encode → decode preserves value)
- * - No payload can match two variants simultaneously (Flatline SKP-002)
+ * - No payload can match two variants simultaneously (SKP-002)
  *
  * @see Sprint T1.17 — discrimination completeness property test
  * @since v8.2.0

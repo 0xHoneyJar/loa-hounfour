@@ -8,7 +8,7 @@
  * - Unknown type forward compatibility
  *
  * @see Sprint T2.5–T2.8
- * @see Flatline SKP-002, SKP-003, IMP-005
+ * @see SKP-002, SKP-003, IMP-005
  * @since v8.2.0
  */
 import { describe, it, expect } from 'vitest';
@@ -56,7 +56,7 @@ const MODEL_PERF_EVENT: ModelPerformanceEvent = {
 
 // ---------------------------------------------------------------------------
 // T2.5: Pipeline acceptance — model_performance event validates, fields
-// extractable as cohort keys (Flatline SKP-003)
+// extractable as cohort keys (SKP-003)
 // ---------------------------------------------------------------------------
 
 describe('pipeline acceptance', () => {
@@ -126,7 +126,7 @@ describe('pipeline acceptance', () => {
 
 // ---------------------------------------------------------------------------
 // T2.6: Variant exhaustiveness — all 4 type discriminators have handlers
-// (Flatline IMP-005)
+// (IMP-005)
 // ---------------------------------------------------------------------------
 
 describe('variant exhaustiveness', () => {
@@ -204,7 +204,7 @@ describe('variant exhaustiveness', () => {
 });
 
 // ---------------------------------------------------------------------------
-// T2.7: Duplicate event_id detection (Flatline SKP-002)
+// T2.7: Duplicate event_id detection (SKP-002)
 // ---------------------------------------------------------------------------
 
 // These tests document the dedup *contract* for consumers (schema layer).
@@ -264,7 +264,7 @@ describe('duplicate event_id detection', () => {
 
 // ---------------------------------------------------------------------------
 // T2.8: Unknown type forward compat — future_variant rejected by schema,
-// consumer handles gracefully (Flatline IMP-005)
+// consumer handles gracefully (IMP-005)
 // ---------------------------------------------------------------------------
 
 describe('unknown type forward compatibility', () => {

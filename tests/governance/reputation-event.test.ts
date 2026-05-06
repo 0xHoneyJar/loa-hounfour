@@ -315,7 +315,7 @@ describe('ReputationEvent', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Cross-variant rejection (Flatline SKP-003)
+  // Cross-variant rejection (SKP-003)
   // -------------------------------------------------------------------------
   describe('cross-variant rejection', () => {
     it('rejects quality_signal payload on task_completed type', () => {
