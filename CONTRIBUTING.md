@@ -95,6 +95,25 @@ If the schema has cross-field validation rules (e.g., "endDate must be after sta
 
 Add test vectors in `vectors/` that cover valid and invalid instances of your schema. These serve as golden tests that guard against regressions.
 
+The `npm run author:vector` helper scaffolds a fixture file plus
+its `_meta.json` annotation in one step:
+
+```bash
+npm run author:vector -- --schema PanelVerdict --intent valid --case minimal --layer shape
+npm run author:vector -- --schema PanelVerdict --intent invalid --case missing-bucket --layer shape --description "rejects payloads that omit the bucket discriminator"
+```
+
+The skeleton fixture contains an explicit `__TODO__` marker; replace
+it with the real fixture body before committing. The `--layer` flag
+records which validation layer the fixture exercises:
+
+- `shape` — the JSON Schema alone catches the (in)validity
+- `shape+constraint` — the schema accepts but the constraint file rejects (default)
+- `shape+constraint+manifest` — surfaces an `unverified_obligations` entry that the consumer must verify downstream
+
+The `_meta.json` per-schema log lets reviewers see at a glance which
+layers the fixture corpus exercises and where coverage gaps live.
+
 ### 6. Register in the schema generator
 
 Add your schema to `scripts/generate-schemas.ts` so it is included in the JSON Schema output.
