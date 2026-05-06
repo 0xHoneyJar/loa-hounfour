@@ -3,7 +3,7 @@
 > **Status:** Frozen for v8.5.0
 > **Date:** 2026-05-06
 > **Hard pre-condition:** must commit before PR-A2.2 implementation work begins.
-> **Source:** flatline F5 (canonicalization-mode freeze) + G3 (size cap) + G4 (NFC mandate) + J1 (hash-domain contract)
+> **Source:** F5 (canonicalization-mode freeze) + G3 (size cap) + G4 (NFC mandate) + J1 (hash-domain contract)
 > **See also:** [ADR-010](../adr/ADR-010-class-vs-policy-boundary.md), `src/utilities/safe-canonicalize.ts`, `vectors/_canonicalization-edge-cases/`
 
 This document freezes the canonical-JSON-hash semantics for the v8.5.0

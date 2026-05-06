@@ -21,7 +21,7 @@
  * Allowlist: scripts/check-class-policy-boundary.allowlist.json.
  *
  * @see docs/adr/ADR-010-class-vs-policy-boundary.md
- * @since v8.5.0 (PR-A2.1; G1 + G3 additions per flatline run-2)
+ * @since v8.5.0 (PR-A2.1; G1 + G3 additions per discovery run-2)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative, posix } from 'node:path';
