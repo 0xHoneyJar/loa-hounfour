@@ -123,6 +123,15 @@ The co-signed handoff is recorded as JSON. Fields and their meanings:
   // The hounfour release this handoff is gating.
   "hounfour_release": "v8.4.0",
 
+  // OPTIONAL: marks this handoff as the first invocation under
+  // parity_protocol_version 1.0.0. Bootstrap handoffs are flagged so the
+  // legitimacy of the framework can be re-examined under the standard
+  // co-signed path in the next release that ships parity changes.
+  "inaugural": true /* optional, true only on the first 1.0.0 handoff */,
+
+  // OPTIONAL: human-readable explanation when `inaugural: true`.
+  "inaugural_note": "<text>" /* optional */,
+
   // The consumer's release tag that consumes the matching hounfour release.
   // May be omitted under the override path; recorded retroactively when known.
   "consumer_release": "<consumer-tag>" /* optional */,
