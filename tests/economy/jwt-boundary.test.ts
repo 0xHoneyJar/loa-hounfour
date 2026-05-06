@@ -29,7 +29,7 @@ const validStep: JwtVerificationStep = {
 
 const validSpec: JwtBoundarySpec = {
   spec_id: '550e8400-e29b-41d4-a716-446655440010',
-  boundary_name: 'arrakis-to-loa-finn',
+  boundary_name: 'runtime-a-to-consumer-a',
   steps: CANONICAL_JWT_BOUNDARY_STEPS.map(s => ({ ...s })),
   algorithm_whitelist: ['EdDSA'],
   claims_schema_ref: 'OutboundClaims',
@@ -39,8 +39,8 @@ const validSpec: JwtBoundarySpec = {
 
 const validOutbound: OutboundClaims = {
   sub: 'agent-alice',
-  iss: 'arrakis',
-  aud: 'loa-finn',
+  iss: 'runtime-a',
+  aud: 'consumer-a',
   jti: '550e8400-e29b-41d4-a716-446655440020',
   iat: 1708171200,
   exp: 1708174800,

@@ -11,14 +11,14 @@ import { computeAdvisoryLockKey } from '../../src/commons/advisory-lock.js';
 describe('computeAdvisoryLockKey', () => {
   describe('determinism', () => {
     it('same input → same output', () => {
-      const key1 = computeAdvisoryLockKey('loa-finn:audit:agent-lifecycle');
-      const key2 = computeAdvisoryLockKey('loa-finn:audit:agent-lifecycle');
+      const key1 = computeAdvisoryLockKey('consumer-a:audit:agent-lifecycle');
+      const key2 = computeAdvisoryLockKey('consumer-a:audit:agent-lifecycle');
       expect(key1).toBe(key2);
     });
 
     it('different inputs → different outputs', () => {
-      const key1 = computeAdvisoryLockKey('loa-finn:audit:agent-lifecycle');
-      const key2 = computeAdvisoryLockKey('loa-dixie:governance:reputation');
+      const key1 = computeAdvisoryLockKey('consumer-a:audit:agent-lifecycle');
+      const key2 = computeAdvisoryLockKey('consumer-b:governance:reputation');
       expect(key1).not.toBe(key2);
     });
   });

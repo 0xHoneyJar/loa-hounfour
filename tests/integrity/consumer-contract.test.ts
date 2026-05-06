@@ -16,7 +16,7 @@ import {
 } from '../../src/integrity/consumer-contract.js';
 
 const VALID_CONTRACT: ConsumerContract = {
-  consumer: 'loa-finn',
+  consumer: 'consumer-a',
   provider: '@0xhoneyjar/loa-hounfour',
   provider_version_range: '>=8.3.0',
   entrypoints: {
