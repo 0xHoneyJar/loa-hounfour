@@ -1,0 +1,50 @@
+{
+  "$comment": "Allowlist for scripts/check-class-policy-boundary.ts. Each entry waives one rule for one file path with a justification. Bypassing a rule is a stop-the-world signal in code review; entries here are the documented exceptions.",
+  "entries": [
+    {
+      "path": "src/validators/index.ts",
+      "rule": "RULE-1",
+      "reason": "Cross-field validator infrastructure legitimately returns ValidationResult unions (the boundary type itself). RULE-1 targets the boundary's clients, not the boundary."
+    },
+    {
+      "path": "src/utilities/access-policy.ts",
+      "rule": "RULE-1",
+      "reason": "evaluateAccessPolicy() returns 'allow' | 'deny' as part of v7.2.0's policy-evaluation surface (predates ADR-010). Substrate utility per ADR-008; consumers compose it. Migration to a constraint-driven shape tracked for v9."
+    },
+    {
+      "path": "src/utilities/economic-boundary.ts",
+      "rule": "RULE-1",
+      "reason": "evaluateEconomicBoundary() returns AccessDecision { granted: bool } shape. Substrate per ADR-008 — the AccessDecision shape is a contract, not a verifier output."
+    },
+    {
+      "path": "src/utilities/signature.ts",
+      "rule": "RULE-5",
+      "reason": "Pre-v8.5.0 (v8.4.0) hash domain. NFC normalization NOT applied (consistent with shipped consumer hashes). Migration to safeCanonicalize would change shipped hashes — see SDD R15."
+    },
+    {
+      "path": "src/governance/scoring-path-hash.ts",
+      "rule": "RULE-5",
+      "reason": "Pre-v8.5.0 (v7.11.0) scoring-path hash domain. Same legacy-hash-stability rationale as signature.ts."
+    },
+    {
+      "path": "src/utilities/reputation-replay.ts",
+      "rule": "RULE-5",
+      "reason": "Pre-v8.5.0 reputation replay hash domain. Same legacy-hash-stability rationale as signature.ts."
+    },
+    {
+      "path": "src/commons/audit-trail-hash.ts",
+      "rule": "RULE-5",
+      "reason": "Pre-v8.5.0 audit-trail hash domain (v8.0.0). Same legacy-hash-stability rationale as signature.ts."
+    },
+    {
+      "path": "tests/scripts/check-class-policy-boundary.test.ts",
+      "rule": "RULE-5",
+      "reason": "Synthetic-violation fixtures. The test asserts the lint flags template-literal strings that look like real canonicalize imports — those strings would otherwise self-trigger the rule."
+    },
+    {
+      "path": "tests/scripts/check-class-policy-boundary.test.ts",
+      "rule": "RULE-4",
+      "reason": "Synthetic-violation fixtures. The test asserts the lint flags template-literal strings that look like real assertValid(SignatureEnvelopeSchema, ...) call sites — those strings would otherwise self-trigger the rule."
+    }
+  ]
+}
