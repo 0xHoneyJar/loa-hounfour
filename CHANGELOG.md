@@ -31,6 +31,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Release notes
 
+- **Inaugural parity-protocol handoff** (`parity_protocol_version: 1.0.0`). The handoff JSON carries `inaugural: true`; the protocol contract being ratified is itself net-new in PR-A1.6, so cross-runner implementers had no prior review window. Re-ratification under the standard co-signed path is expected at v8.5.0. The 2026-07-05 deferred-co-sign deadline is also tracked as a release follow-up.
 - Released under the parity-protocol **deferred-co-sign window** (`signature_basis: 'maintainer-override'`). The sponsoring consumer's release lead was unreachable within the standard 7-business-day window; the maintainer commits the handoff alone with the consumer co-signing retroactively when available. Failure to co-sign within 60 days post-tag triggers a parity-protocol PATCH bump (1.0.0 → 1.0.1) recording the asymmetric ratification — the 60-day window absorbs typical holiday and on-call rotation gaps. The deadline is sourced from `parity-protocol.md` §8 and the `deferred_co_sign_deadline` field of the handoff JSON; all three artifacts MUST agree. See [`docs/architecture/parity-protocol.handoff.json`](./docs/architecture/parity-protocol.handoff.json) and [`docs/architecture/parity-protocol.md`](./docs/architecture/parity-protocol.md) §8.
 
 ### Source

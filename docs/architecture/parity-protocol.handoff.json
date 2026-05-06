@@ -1,6 +1,8 @@
 {
   "parity_protocol_version": "1.0.0",
   "hounfour_release": "v8.4.0",
+  "inaugural": true,
+  "inaugural_note": "First handoff under parity-protocol-version 1.0.0. The protocol contract being ratified is itself net-new in PR-A1.6, so cross-runner implementers had no prior review window. Bootstrap signature; the framework's legitimacy is established by this first invocation. Re-ratification under standard co-signed path expected for v8.5.0+.",
   "co_signed_at": "2026-05-06T00:00:00Z",
   "co_signers": ["@janitooor"],
   "signature_basis": "maintainer-override",

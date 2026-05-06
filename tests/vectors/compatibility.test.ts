@@ -10,8 +10,21 @@ describe('Version Compatibility (v7.0.0)', () => {
   });
 
   it('patch difference is fully compatible', () => {
-    const result = validateCompatibility('8.4.5');
+    // Same major + minor as CONTRACT_VERSION (8.4.0); only patch differs.
+    // Holds the minor axis constant so the test exercises only patch-difference
+    // behavior, matching its name.
+    const result = validateCompatibility('8.4.1');
     expect(result.compatible).toBe(true);
+    expect('warning' in result).toBe(false);
+  });
+
+  it('older minor (within MIN_SUPPORTED) is compatible with warning', () => {
+    // Older minor on the same major exercises the cross-minor compatibility
+    // path that the patch-difference test no longer covers after the v8.4.0
+    // bump (current contract is 8.4.0; 8.1.1 is older minor + patch).
+    const result = validateCompatibility('8.1.1');
+    expect(result.compatible).toBe(true);
+    expect('warning' in result && result.warning).toContain('Minor version mismatch');
   });
 
   it('MIN_SUPPORTED_VERSION (cross-major) is compatible with warning', () => {
