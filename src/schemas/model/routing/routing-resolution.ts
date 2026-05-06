@@ -18,7 +18,11 @@ export const RoutingResolutionSchema = Type.Object(
     latency_ms: Type.Integer({ minimum: 0 }),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'RoutingResolution', additionalProperties: false }
+  {
+    $id: 'RoutingResolution',
+    additionalProperties: false,
+    description: 'Outcome record for a model-routing decision. Captures the resolved model, the original requested model, the resolution reason, and observed latency.',
+  }
 );
 
 export type RoutingResolution = Static<typeof RoutingResolutionSchema>;

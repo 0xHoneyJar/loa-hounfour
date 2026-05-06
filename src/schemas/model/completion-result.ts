@@ -45,6 +45,7 @@ export const CompletionResultSchema = Type.Object(
     $comment: 'Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot.',
   },
 );
 

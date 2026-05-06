@@ -9,7 +9,11 @@ export const ToolDefinitionSchema = Type.Object(
       parameters: Type.Optional(Type.Unknown()),
     }),
   },
-  { $id: 'ToolDefinition', additionalProperties: false },
+  {
+    $id: 'ToolDefinition',
+    additionalProperties: false,
+    description: 'Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools.',
+  },
 );
 
 export type ToolDefinition = Static<typeof ToolDefinitionSchema>;

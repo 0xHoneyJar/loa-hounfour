@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-settlement-status",
+  "description": "Lifecycle state of an x402 settlement: pending / confirmed / failed / refunded.",
   "anyOf": [
     {
       "const": "pending",

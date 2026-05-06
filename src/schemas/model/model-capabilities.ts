@@ -31,6 +31,7 @@ export const ModelCapabilitiesSchema = Type.Object(
     $id: 'ModelCapabilities',
     $comment: 'Financial amounts (input_per_million_micro, output_per_million_micro, thinking_per_million_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
+    description: 'Per-model capability and limits descriptor. Lists which features (thinking traces, vision, tool calling, streaming, JSON mode, native runtime) the model supports plus its context/output ceilings and optional pricing.',
   },
 );
 

@@ -1,5 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Audit-trail entry recording a single reputation state-machine transition: from-state, to-state, timestamp, and trigger reason.",
   "type": "object",
   "required": [
     "from",
@@ -10,6 +11,7 @@
   "properties": {
     "from": {
       "$id": "ReputationState",
+      "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
           "const": "cold",
@@ -31,6 +33,7 @@
     },
     "to": {
       "$id": "ReputationState",
+      "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
           "const": "cold",

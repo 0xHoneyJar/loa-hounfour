@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-event",
   "additionalProperties": false,
+  "description": "Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id).",
   "type": "object",
   "required": [
     "event_id",

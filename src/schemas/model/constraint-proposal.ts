@@ -58,6 +58,7 @@ export const ConstraintProposalSchema = Type.Object(
     $comment: 'Agent-authored constraint proposals for multi-model adversarial review before acceptance.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Wire format for an agent-authored proposal to add cross-field constraints to a target schema. The proposal carries the proposed constraint set, rationale, grammar version, and optional review-state metadata (status, scores, consensus category).',
   }
 );
 

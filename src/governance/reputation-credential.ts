@@ -47,6 +47,7 @@ export const ReputationCredentialSchema = Type.Object({
 }, {
   $id: 'ReputationCredential',
   additionalProperties: false,
+  description: 'Portable, attested snapshot of a personality\'s reputation in a source collection. Carries source provenance, the issuing collection\'s score (analogous to CA reputation in TLS), and optional attestation hash for snapshot-free verification.',
 });
 
 export type ReputationCredential = Static<typeof ReputationCredentialSchema>;

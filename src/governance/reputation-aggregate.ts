@@ -14,7 +14,10 @@ export const ReputationStateSchema = Type.Union([
   Type.Literal('warming'),
   Type.Literal('established'),
   Type.Literal('authoritative'),
-], { $id: 'ReputationState' });
+], {
+  $id: 'ReputationState',
+  description: 'Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.',
+});
 
 export type ReputationState = Static<typeof ReputationStateSchema>;
 
@@ -26,6 +29,8 @@ export const ReputationTransitionSchema = Type.Object({
   to: ReputationStateSchema,
   at: Type.String({ format: 'date-time' }),
   trigger: Type.String({ minLength: 1 }),
+}, {
+  description: 'Audit-trail entry recording a single reputation state-machine transition: from-state, to-state, timestamp, and trigger reason.',
 });
 
 export type ReputationTransition = Static<typeof ReputationTransitionSchema>;
@@ -109,6 +114,7 @@ export const ReputationAggregateSchema = Type.Object({
 }, {
   $id: 'ReputationAggregate',
   additionalProperties: false,
+  description: 'DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts.',
 });
 
 export type ReputationAggregate = Static<typeof ReputationAggregateSchema>;
@@ -332,6 +338,7 @@ export const AggregateSnapshotSchema = Type.Object({
 }, {
   $id: 'AggregateSnapshot',
   additionalProperties: false,
+  description: 'Point-in-time snapshot of a ReputationAggregate. Carries the snapshotted aggregate, snapshot timestamp, event count, and optional SHA-256 hash of the ordered event stream for snapshot-free replay verification.',
 });
 
 export type AggregateSnapshot = Static<typeof AggregateSnapshotSchema>;

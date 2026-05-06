@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/routing-resolution",
   "additionalProperties": false,
+  "description": "Outcome record for a model-routing decision. Captures the resolved model, the original requested model, the resolution reason, and observed latency.",
   "type": "object",
   "required": [
     "resolved_model",

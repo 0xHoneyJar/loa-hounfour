@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/task-type-cohort",
   "additionalProperties": false,
+  "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate.",
   "type": "object",
   "required": [
     "model_id",

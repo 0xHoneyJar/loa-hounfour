@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-payment-proof",
   "additionalProperties": false,
+  "description": "x402 payment evidence submitted with a paid request. Carries the HTTP 402 payment header, the originating quote_id, and an optional on-chain transaction hash.",
   "type": "object",
   "required": [
     "payment_header",

@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-event-recorded-payload",
   "additionalProperties": false,
+  "description": "Payload emitted when a quality observation is ingested into the reputation aggregate. Carries the new sample count and updated blended score.",
   "type": "object",
   "required": [
     "personality_id",

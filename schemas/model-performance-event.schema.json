@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "description": "Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing.",
   "type": "object",
   "required": [
     "event_id",
@@ -102,6 +103,7 @@
     "quality_observation": {
       "$id": "QualityObservation",
       "additionalProperties": false,
+      "description": "Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity.",
       "type": "object",
       "required": [
         "score"

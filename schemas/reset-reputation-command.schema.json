@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reset-reputation-command",
   "additionalProperties": false,
+  "description": "Write-intent command to reset a reputation aggregate back to the cold state. Carries the reset reason and actor identity for audit.",
   "type": "object",
   "required": [
     "command_id",

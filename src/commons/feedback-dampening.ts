@@ -69,6 +69,7 @@ export const FeedbackDampeningConfigSchema = Type.Object(
   {
     $id: 'FeedbackDampeningConfig',
     additionalProperties: false,
+    description: 'Tunable parameters for adaptive feedback dampening: min/max learning rates, ramp-sample count, and Bayesian pseudo-count for cold-start smoothing.',
   },
 );
 

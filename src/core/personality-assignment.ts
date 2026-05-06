@@ -10,7 +10,10 @@ export const PersonalityTierSchema = Type.Union([
   Type.Literal('basic'),
   Type.Literal('standard'),
   Type.Literal('premium'),
-], { $id: 'PersonalityTier' });
+], {
+  $id: 'PersonalityTier',
+  description: 'Personality tier classification (basic / standard / premium) used to gate capability tiers for agent bears.',
+});
 
 export type PersonalityTier = Static<typeof PersonalityTierSchema>;
 
@@ -55,6 +58,7 @@ export const PersonalityAssignmentSchema = Type.Object({
 }, {
   $id: 'PersonalityAssignment',
   additionalProperties: false,
+  description: 'Binding between an NFT token and its personality configuration. Carries archetype / ancestor / era / element / tier (extensible strings; consumer defines vocabulary) plus a SHA-256 fingerprint of the personality config.',
 });
 
 export type PersonalityAssignment = Static<typeof PersonalityAssignmentSchema>;

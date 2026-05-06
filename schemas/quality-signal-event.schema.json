@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "description": "Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update.",
   "type": "object",
   "required": [
     "event_id",

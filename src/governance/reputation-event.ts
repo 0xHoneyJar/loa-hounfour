@@ -64,6 +64,7 @@ const QualitySignalPayloadSchema = Type.Object({
   )),
 }, {
   additionalProperties: false,
+  description: 'Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update.',
 });
 
 export const QualitySignalEventSchema = QualitySignalPayloadSchema;
@@ -91,6 +92,7 @@ const TaskCompletedPayloadSchema = Type.Object({
   })),
 }, {
   additionalProperties: false,
+  description: 'Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring.',
 });
 
 export const TaskCompletedEventSchema = TaskCompletedPayloadSchema;
@@ -117,6 +119,7 @@ const CredentialUpdatePayloadSchema = Type.Object({
   ], { description: 'What happened to the credential.' }),
 }, {
   additionalProperties: false,
+  description: 'Reputation event variant: credential lifecycle change. Emitted when an agent reputation credential is issued, revoked, renewed, or suspended.',
 });
 
 export const CredentialUpdateEventSchema = CredentialUpdatePayloadSchema;
@@ -186,6 +189,7 @@ const ModelPerformancePayloadSchema = Type.Object({
   request_context: Type.Optional(RequestContextSchema),
 }, {
   additionalProperties: false,
+  description: 'Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing.',
 });
 
 export const ModelPerformanceEventSchema = ModelPerformancePayloadSchema;

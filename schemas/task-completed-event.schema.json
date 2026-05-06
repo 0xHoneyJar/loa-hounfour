@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "description": "Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring.",
   "type": "object",
   "required": [
     "event_id",

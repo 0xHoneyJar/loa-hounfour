@@ -40,6 +40,7 @@ export const TaskTypeCohortSchema = Type.Object(
   {
     $id: 'TaskTypeCohort',
     additionalProperties: false,
+    description: 'Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate.',
   },
 );
 

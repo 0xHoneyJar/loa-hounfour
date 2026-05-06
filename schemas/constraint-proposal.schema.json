@@ -4,6 +4,7 @@
   "$comment": "contract_version=8.4.0, min_supported=6.0.0. Agent-authored constraint proposals for multi-model adversarial review before acceptance.",
   "additionalProperties": false,
   "x-cross-field-validated": true,
+  "description": "Wire format for an agent-authored proposal to add cross-field constraints to a target schema. The proposal carries the proposed constraint set, rationale, grammar version, and optional review-state metadata (status, scores, consensus category).",
   "type": "object",
   "required": [
     "proposal_id",

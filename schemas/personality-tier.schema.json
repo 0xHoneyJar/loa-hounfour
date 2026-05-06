@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/personality-tier",
+  "description": "Personality tier classification (basic / standard / premium) used to gate capability tiers for agent bears.",
   "anyOf": [
     {
       "const": "basic",

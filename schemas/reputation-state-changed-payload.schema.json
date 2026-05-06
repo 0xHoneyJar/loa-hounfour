@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-state-changed-payload",
   "additionalProperties": false,
+  "description": "Payload emitted when a personality's reputation state machine transitions between states (cold / warming / established / authoritative).",
   "type": "object",
   "required": [
     "personality_id",
@@ -27,6 +28,7 @@
     },
     "from_state": {
       "$id": "ReputationState",
+      "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
           "const": "cold",
@@ -48,6 +50,7 @@
     },
     "to_state": {
       "$id": "ReputationState",
+      "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
           "const": "cold",

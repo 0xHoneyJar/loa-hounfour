@@ -5,6 +5,7 @@
   "anyOf": [
     {
       "additionalProperties": false,
+      "description": "Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update.",
       "type": "object",
       "required": [
         "event_id",
@@ -104,6 +105,7 @@
     },
     {
       "additionalProperties": false,
+      "description": "Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring.",
       "type": "object",
       "required": [
         "event_id",
@@ -195,6 +197,7 @@
     },
     {
       "additionalProperties": false,
+      "description": "Reputation event variant: credential lifecycle change. Emitted when an agent reputation credential is issued, revoked, renewed, or suspended.",
       "type": "object",
       "required": [
         "event_id",
@@ -267,6 +270,7 @@
     },
     {
       "additionalProperties": false,
+      "description": "Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing.",
       "type": "object",
       "required": [
         "event_id",
@@ -368,6 +372,7 @@
         "quality_observation": {
           "$id": "QualityObservation",
           "additionalProperties": false,
+          "description": "Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity.",
           "type": "object",
           "required": [
             "score"
