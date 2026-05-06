@@ -2,7 +2,7 @@
 
 **Status**: Accepted
 **Date**: 2026-02-24
-**Source**: Bridgebuilder Second Reading — PR #36, Meditation VI (Protocol Completeness)
+**Source**: Second Reading — PR #36, Meditation VI (Protocol Completeness)
 
 ## Context
 

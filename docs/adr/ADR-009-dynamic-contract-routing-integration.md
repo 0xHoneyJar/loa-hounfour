@@ -3,28 +3,28 @@
 **Status**: Accepted
 **Date**: 2026-02-25
 **Deciders**: soju + Claude
-**Source**: Bridgebuilder Review — PR #37, Strategic Questions Q3 + Q4
+**Source**: Review — PR #37, Strategic Questions Q3 + Q4
 
 ## Context
 
-The Bridgebuilder review raised two connected questions:
+The review raised two connected questions:
 
 > **Q3 (Conway question)**: How does the payment protocol (x402/Conway) integrate with commons governance? An agent's payment capacity affects what protocol surface it can access.
 >
 > **Q4 (Routing governance)**: Multi-model routing currently uses static configuration. DynamicContract maps reputation → protocol surface. How do these connect?
 
-`DynamicContract` (v8.0.0) maps `ReputationState → ProtocolSurface`, defining what schemas, capabilities, and rate limits each model accesses. The model routing system in loa-finn selects models based on task requirements, cost estimates, and ensemble strategies. These systems must coordinate without coupling.
+`DynamicContract` (v8.0.0) maps `ReputationState → ProtocolSurface`, defining what schemas, capabilities, and rate limits each model accesses. The model routing system in consumer-a selects models based on task requirements, cost estimates, and ensemble strategies. These systems must coordinate without coupling.
 
 ## Decision
 
-DynamicContract surfaces **inform but do not replace** loa-finn's routing logic. The integration is data-driven, not control-driven.
+DynamicContract surfaces **inform but do not replace** consumer-a's routing logic. The integration is data-driven, not control-driven.
 
 ### Integration Model
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │ DynamicContract  │────>│ ContractNegotiation │───>│ Routing Decision │
-│ (hounfour)       │     │ (hounfour schema) │     │ (loa-finn logic) │
+│ (hounfour)       │     │ (hounfour schema) │     │ (consumer-a logic) │
 │                  │     │                    │     │                  │
 │ Reputation →     │     │ Granted surface    │     │ Task requirements│
 │ ProtocolSurface  │     │ = available models │     │ + surface filter │
@@ -32,9 +32,9 @@ DynamicContract surfaces **inform but do not replace** loa-finn's routing logic.
 ```
 
 1. **hounfour** defines the `DynamicContract` mapping and `ContractNegotiation` schema
-2. **loa-finn** performs negotiation at runtime, receiving a `granted_surface`
-3. **loa-finn** filters its model pool by the granted surface (only models with sufficient capabilities)
-4. **loa-finn** applies its own routing logic (cost, quality, ensemble strategy) within the filtered pool
+2. **consumer-a** performs negotiation at runtime, receiving a `granted_surface`
+3. **consumer-a** filters its model pool by the granted surface (only models with sufficient capabilities)
+4. **consumer-a** applies its own routing logic (cost, quality, ensemble strategy) within the filtered pool
 
 ### What hounfour provides (this repo)
 
@@ -46,10 +46,10 @@ DynamicContract surfaces **inform but do not replace** loa-finn's routing logic.
 
 ### What hounfour does NOT provide
 
-- Runtime negotiation service (loa-finn's responsibility)
-- Model selection logic (loa-finn's responsibility)
+- Runtime negotiation service (consumer-a's responsibility)
+- Model selection logic (consumer-a's responsibility)
 - Payment integration (x402/Conway — future, separate ADR)
-- Rate limit enforcement (arrakis gateway's responsibility)
+- Rate limit enforcement (runtime-a gateway's responsibility)
 
 ## Consequences
 
@@ -73,7 +73,7 @@ DynamicContract surfaces **inform but do not replace** loa-finn's routing logic.
 
 ## References
 
-- Bridgebuilder Review, PR #37 — "The Conway question" and "Multi-model routing connection"
+- Review, PR #37 — "The Conway question" and "Multi-model routing connection"
 - `src/commons/dynamic-contract.ts` — DynamicContract + ProtocolSurface schemas
 - `src/commons/contract-negotiation.ts` — ContractNegotiation schema
 - `src/commons/dynamic-contract-monotonic.ts` — monotonic expansion verification (v8.1.0)

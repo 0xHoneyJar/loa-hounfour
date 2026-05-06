@@ -28,8 +28,8 @@ from weighted national currencies, our `computeCompositeBasketWeights` normalize
 model routing weights into a probability distribution. Each model is a "currency"
 in the agent economy; the routing weight is its exchange rate.
 
-This parallel was identified in the Bridgebuilder deep review (PR #22, Part 1 SIII)
-and formalized as loa-finn #31.
+This parallel was identified in the deep review (PR #22, Part 1 SIII)
+and formalized as consumer-a #31.
 
 ## Schema Architecture
 
@@ -115,8 +115,8 @@ The Economic Membrane maintains two key conservation properties:
 
 ## Integration Points
 
-- **loa-finn**: Consumes routing utilities for model selection (#31)
-- **arrakis**: Uses EconomicBoundary for access control decisions
+- **consumer-a**: Consumes routing utilities for model selection (#31)
+- **runtime-a**: Uses EconomicBoundary for access control decisions
 - **Constraint evaluator**: `model_routing_eligible` and `proposal_execution_valid`
   enable constraint-level validation of economic and governance flows
 

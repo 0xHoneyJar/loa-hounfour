@@ -20,7 +20,7 @@ When `verifyAuditTrailIntegrity()` detects a discontinuity:
 4. **Investigate**: Manual or automated investigation determines root cause
 5. **Resolve**: Either reconcile (reintegrate) or dismiss (permanently reject) quarantined entries
 
-### Two-Phase Verification (Flatline IMP-004)
+### Two-Phase Verification (IMP-004)
 
 Verification runs in two phases for diagnostic clarity:
 
@@ -38,15 +38,15 @@ hash = sha256(domain_tag + canonical_json(content_fields))
 domain_tag = "loa-commons:audit:<schema_$id>:<contract_version>"
 ```
 
-The `hash_domain_tag` is persisted on each `AuditEntry` at write time (Flatline SKP-002), ensuring cross-version verification is unambiguous.
+The `hash_domain_tag` is persisted on each `AuditEntry` at write time (SKP-002), ensuring cross-version verification is unambiguous.
 
 ### Per-Consumer Integration
 
 | Consumer | Hash Library | JCS Library | Notes |
 |----------|-------------|-------------|-------|
 | TypeScript (loa-hounfour) | `@noble/hashes` | `canonicalize` (RFC 8785) | Reference implementation |
-| Python (loa-dixie) | `hashlib` | `canonicaljson` | Verify with cross-language vectors |
-| Go (arrakis) | `crypto/sha256` | `github.com/nicktrav/canonicaljson` | Verify with cross-language vectors |
+| Python (consumer-b) | `hashlib` | `canonicaljson` | Verify with cross-language vectors |
+| Go (runtime-a) | `crypto/sha256` | `github.com/nicktrav/canonicaljson` | Verify with cross-language vectors |
 | Rust (future) | `sha2` crate | `serde_json_canonicalizer` | Verify with cross-language vectors |
 
 ### Threat Model

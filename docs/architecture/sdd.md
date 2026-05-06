@@ -1,10 +1,7 @@
 # SDD: loa-hounfour v7.0.0 — The Coordination-Aware Protocol
 
 **Status:** Draft
-**Author:** Bridgebuilder (Field Report #42)
 **Date:** 2026-02-17
-**PRD:** `grimoires/loa/prd.md` (v7.0.0)
-**Cycle:** cycle-016
 **Sources:**
 - PRD section 4 (FR-1 through FR-7)
 - Existing codebase: `src/economy/registry-composition.ts`, `src/governance/delegation-tree.ts`, `src/constraints/evaluator.ts`
@@ -1119,5 +1116,4 @@ Using fast-check for:
 
 ---
 
-*— Bridgebuilder*
 *SDD v7.0.0 — The Coordination-Aware Protocol*
