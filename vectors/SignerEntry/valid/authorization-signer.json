@@ -1,0 +1,13 @@
+{
+  "signer_id": "auth-bot",
+  "key_ref": "kms://example/key-1",
+  "public_key": "ed25519-pub:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signature_type": "authorization",
+  "scoped_trust": {
+    "scopes": {
+      "inference": "verified"
+    },
+    "default_level": "basic"
+  },
+  "signer_status": "active"
+}

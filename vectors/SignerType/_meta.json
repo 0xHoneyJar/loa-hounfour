@@ -1,0 +1,68 @@
+{
+  "schema": "SignerType",
+  "fixtures": [
+    {
+      "case": "agent-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"agent\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "delegate-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"delegate\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "device-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"device\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "human-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"human\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "oracle-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"oracle\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "organization-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"organization\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "system-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"system\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "witness-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"witness\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Rejects member \"consumer-extension\" not in the substrate-agnostic core set.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

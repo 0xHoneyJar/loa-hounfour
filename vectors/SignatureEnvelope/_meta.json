@@ -1,0 +1,54 @@
+{
+  "schema": "SignatureEnvelope",
+  "fixtures": [
+    {
+      "case": "attestation-shape-only",
+      "intent": "valid",
+      "validation_layer": "shape+constraint+manifest",
+      "description": "Minimal attestation envelope; validate() requires { acceptDeferred: true } (G1).",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "authorization-envelope",
+      "intent": "valid",
+      "validation_layer": "shape+constraint+manifest",
+      "description": "Authorization-kind envelope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "commitment-envelope",
+      "intent": "valid",
+      "validation_layer": "shape+constraint+manifest",
+      "description": "Commitment-kind envelope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "dev-signature-envelope",
+      "intent": "valid",
+      "validation_layer": "shape+constraint+manifest",
+      "description": "Dev-only envelope; consumers MUST reject in production.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "edge-signature-88",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Signature value at the upper boundary (88 chars).",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signed_payload_hash violates the sha256:[0-9a-f]{64} pattern.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-signature-prefix",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signature_value missing the ed25519: prefix.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

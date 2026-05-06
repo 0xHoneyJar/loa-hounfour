@@ -1,0 +1,40 @@
+{
+  "schema": "SignerCompetenceResult",
+  "fixtures": [
+    {
+      "case": "allow-with-rule",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Successful match producing allow outcome.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "deny-with-rule",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Rule matched but signer trust profile insufficient — deny.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "needs-review",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Outcome deferred to human review.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "no-rule-match",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "No rule matched the action; rule_id_matched omitted; outcome \"rejected\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signer_id contains uppercase + space — pattern violation.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

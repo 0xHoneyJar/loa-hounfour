@@ -1,0 +1,54 @@
+{
+  "schema": "Keyring",
+  "fixtures": [
+    {
+      "case": "all-statuses-coverage",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Coverage of all three SignerStatus members in a single keyring.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "minimal-single-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Keyring with a single active signer; minimal fields populated.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "multi-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Keyring with three signers, one revoked. Status orthogonality with AgentLifecycleState.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-match-strategy-exact",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Signer carrying the v8.5.0 EXTEND fields (D-007): match_strategy=exact, precedence_score=800.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-match-strategy-superset",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Signer with match_strategy=superset; rule applies when its required scopes are a subset of the trust profile.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "empty-signers",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty signers array — minItems:1 violation.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-org-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "org_id is not a UUID v4 — format violation.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

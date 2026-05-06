@@ -1,0 +1,47 @@
+{
+  "schema": "PolicyDecisionOutcome",
+  "fixtures": [
+    {
+      "case": "allow-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"allow\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "deny-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"deny\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "needs-review-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"needs_review\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "rejected-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"rejected\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "verified-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"verified\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Rejects member \"maybe\" not in the substrate-agnostic core set.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

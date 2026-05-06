@@ -1,0 +1,54 @@
+{
+  "schema": "SignerEntry",
+  "fixtures": [
+    {
+      "case": "authorization-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "SignerEntry whose role is authorization (permission-grant) signing.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "commitment-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "SignerEntry whose role is commitment (binding-promise) signing.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "dev-signer-marked",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Dev-only marker — consumers MUST reject in production. Used for local-test signer entries.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimal SignerEntry with a single trust scope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "sovereign-trust-default",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Empty scopes map; default_level \"sovereign\" applies to every CapabilityScope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-public-key",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "public_key violates the ed25519-pub: prefix pattern.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "short-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signer_id below the minLength bound.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

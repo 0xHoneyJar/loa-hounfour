@@ -1,0 +1,9 @@
+{
+  "rule_id": "550e8400-e29b-41d4-a716-446655440021",
+  "action_pattern": "governance.proposal.*",
+  "required_capability_scopes": [
+    "governance",
+    "audit"
+  ],
+  "contract_version": "8.5.0"
+}

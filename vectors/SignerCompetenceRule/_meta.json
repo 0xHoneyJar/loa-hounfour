@@ -1,0 +1,47 @@
+{
+  "schema": "SignerCompetenceRule",
+  "fixtures": [
+    {
+      "case": "minimal-inference",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimal rule matching every inference action; requires the inference capability.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "multi-scope",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Rule requiring two scopes; ORD-5 vocabulary check passes (both canonical).",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "revoked",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Revoked rule — consumer treats as if absent.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-threshold",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Rule with precedence threshold (matched against signer profile precedence_score).",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "empty-scopes",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "required_capability_scopes empty — minItems:1 violation.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "oversize-action-pattern",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "action_pattern exceeds maxLength 256.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}
