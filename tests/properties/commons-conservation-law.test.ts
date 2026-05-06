@@ -4,7 +4,7 @@
  * Uses fast-check to verify that factory-produced conservation laws
  * maintain their invariants across arbitrary mutation sequences.
  *
- * @see Bridgebuilder Q5 — Environment enrichment (property tests)
+ * @see Q5 — Environment enrichment (property tests)
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

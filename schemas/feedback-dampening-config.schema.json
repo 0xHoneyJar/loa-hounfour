@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/feedback-dampening-config",
   "additionalProperties": false,
+  "description": "Tunable parameters for adaptive feedback dampening: min/max learning rates, ramp-sample count, and Bayesian pseudo-count for cold-start smoothing.",
   "type": "object",
   "required": [
     "alpha_min",

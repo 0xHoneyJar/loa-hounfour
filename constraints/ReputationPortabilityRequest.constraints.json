@@ -14,7 +14,11 @@
         "source_collection_id": "string",
         "target_collection_id": "string"
       },
-      "message": "Source and target collections must differ"
+      "message": "Source and target collections must differ",
+      "fields": [
+        "source_collection_id",
+        "target_collection_id"
+      ]
     },
     {
       "id": "portability-expiry-after-request",
@@ -25,7 +29,11 @@
         "expires_at": "string",
         "requested_at": "string"
       },
-      "message": "Expiry timestamp must be after request timestamp"
+      "message": "Expiry timestamp must be after request timestamp",
+      "fields": [
+        "expires_at",
+        "requested_at"
+      ]
     }
   ]
 }

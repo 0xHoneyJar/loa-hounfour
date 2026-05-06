@@ -15,7 +15,11 @@ export const AgentRequirementsSchema = Type.Object(
     min_context_tokens: Type.Optional(Type.Integer({ minimum: 1 })),
     contract_version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+$' }),
   },
-  { $id: 'AgentRequirements', additionalProperties: false }
+  {
+    $id: 'AgentRequirements',
+    additionalProperties: false,
+    description: 'Capability requirements an agent declares it needs from a model to function correctly. Drives capability-based routing.',
+  }
 );
 
 export type AgentRequirements = Static<typeof AgentRequirementsSchema>;

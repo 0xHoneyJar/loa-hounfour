@@ -252,7 +252,7 @@ describe('ScoringPathLog constraint evaluation', () => {
     })).toBe(true);
   });
 
-  // v7.11.0 — Hash chain constraints (Bridgebuilder Meditation III)
+  // v7.11.0 — Hash chain constraints (Meditation III)
   it('accepts both hash fields present', () => {
     expect(evalById(file, 'scoring-path-hash-pair', {
       entry_hash: 'sha256:abc123',
@@ -342,7 +342,7 @@ describe('ReputationAggregate task_cohort constraints', () => {
     expect(c.native_enforcement.fields).toEqual(['model_id', 'task_type']);
     expect(c.native_enforcement.scope).toBe('task_cohorts');
     expect(c.native_enforcement.reference_impl).toBe('validateTaskCohortUniqueness()');
-    // v7.11.0: evaluation_geometry is now first-class (Bridgebuilder Meditation IV)
+    // v7.11.0: evaluation_geometry is now first-class (Meditation IV)
     expect(c.evaluation_geometry).toBe('native');
   });
 

@@ -53,7 +53,7 @@ describe('ScoringPathLog', () => {
       })).toBe(true);
     });
 
-    // v7.11.0 — Hash chain fields (Bridgebuilder Meditation III)
+    // v7.11.0 — Hash chain fields (Meditation III)
     it('accepts log with hash chain fields', () => {
       expect(Value.Check(ScoringPathLogSchema, {
         path: 'task_cohort',

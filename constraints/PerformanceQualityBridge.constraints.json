@@ -15,5 +15,6 @@
       ],
       "message": "Weight adjustment suggestion must not exceed 1. Lower bound (-1) enforced by schema minimum."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

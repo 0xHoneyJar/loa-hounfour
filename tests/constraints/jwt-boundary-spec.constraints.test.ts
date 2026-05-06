@@ -20,7 +20,7 @@ function findConstraint(id: string) {
 
 const validSpec = {
   spec_id: '550e8400-e29b-41d4-a716-446655440010',
-  boundary_name: 'arrakis-to-loa-finn',
+  boundary_name: 'runtime-a-to-consumer-a',
   steps: [
     { step_number: 1, name: 'Signature verification', description: 'Verify EdDSA/Ed25519 signature', error_code: 'JWT_SIGNATURE_INVALID', is_blocking: true },
     { step_number: 2, name: 'Algorithm whitelist', description: 'Verify signing algorithm is permitted', error_code: 'JWT_ALGORITHM_REJECTED', is_blocking: true },

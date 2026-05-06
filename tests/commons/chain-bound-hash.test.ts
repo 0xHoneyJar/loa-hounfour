@@ -15,7 +15,7 @@ import { buildDomainTag, computeAuditEntryHash } from '../../src/commons/audit-t
 import type { AuditEntryHashInput } from '../../src/commons/audit-trail-hash.js';
 
 const GENESIS = AUDIT_TRAIL_GENESIS_HASH;
-const DOMAIN_TAG = 'loa-finn:audit:agent-lifecycle';
+const DOMAIN_TAG = 'consumer-a:audit:agent-lifecycle';
 
 const SAMPLE_ENTRY: AuditEntryHashInput = {
   entry_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -27,7 +27,7 @@ const SAMPLE_ENTRY: AuditEntryHashInput = {
 
 describe('validateDomainTag', () => {
   it('accepts valid 3-segment tag', () => {
-    expect(validateDomainTag('loa-finn:audit:agent-lifecycle')).toEqual({ valid: true });
+    expect(validateDomainTag('consumer-a:audit:agent-lifecycle')).toEqual({ valid: true });
   });
 
   it('accepts valid 4-segment tag', () => {
@@ -41,25 +41,25 @@ describe('validateDomainTag', () => {
   });
 
   it('rejects fewer than 3 segments', () => {
-    const result = validateDomainTag('loa:audit');
+    const result = validateDomainTag('consumer-a:audit');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('3 colon-separated');
   });
 
   it('rejects empty segments', () => {
-    const result = validateDomainTag('loa::audit:test');
+    const result = validateDomainTag('consumer-a::audit:test');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('empty');
   });
 
   it('rejects uppercase segments', () => {
-    const result = validateDomainTag('Loa:Audit:Test');
+    const result = validateDomainTag('Consumer-A:Audit:Test');
     expect(result.valid).toBe(false);
     expect(result.error).toContain('lowercase');
   });
 
   it('allows hyphens and underscores', () => {
-    expect(validateDomainTag('loa-finn:audit_trail:agent-life_cycle')).toEqual({ valid: true });
+    expect(validateDomainTag('consumer-a:audit_trail:agent-life_cycle')).toEqual({ valid: true });
   });
 });
 
@@ -89,8 +89,8 @@ describe('computeChainBoundHash', () => {
   });
 
   it('varies with different domain tag', () => {
-    const hash1 = computeChainBoundHash(SAMPLE_ENTRY, 'loa-finn:audit:agent-lifecycle', GENESIS);
-    const hash2 = computeChainBoundHash(SAMPLE_ENTRY, 'loa-dixie:audit:reputation', GENESIS);
+    const hash1 = computeChainBoundHash(SAMPLE_ENTRY, 'consumer-a:audit:agent-lifecycle', GENESIS);
+    const hash2 = computeChainBoundHash(SAMPLE_ENTRY, 'consumer-b:audit:reputation', GENESIS);
     expect(hash1).not.toBe(hash2);
   });
 

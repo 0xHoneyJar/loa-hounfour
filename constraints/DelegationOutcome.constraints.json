@@ -13,7 +13,10 @@
       "type_signature": {
         "votes": "array"
       },
-      "message": "Number of votes must meet or exceed consensus threshold"
+      "message": "Number of votes must meet or exceed consensus threshold",
+      "fields": [
+        "votes"
+      ]
     },
     {
       "id": "outcome-consensus-consistent",
@@ -24,7 +27,11 @@
         "outcome_type": "string",
         "votes": "array"
       },
-      "message": "Unanimous outcome requires all votes to be agree"
+      "message": "Unanimous outcome requires all votes to be agree",
+      "fields": [
+        "outcome_type",
+        "votes"
+      ]
     },
     {
       "id": "outcome-deadlock-no-result",
@@ -35,7 +42,11 @@
         "outcome_type": "string",
         "result": "unknown"
       },
-      "message": "Deadlock outcomes must have null result"
+      "message": "Deadlock outcomes must have null result",
+      "fields": [
+        "outcome_type",
+        "result"
+      ]
     },
     {
       "id": "outcome-escalation-has-target",
@@ -46,7 +57,11 @@
         "outcome_type": "string",
         "escalated_to": "string"
       },
-      "message": "Escalation outcomes must specify escalated_to"
+      "message": "Escalation outcomes must specify escalated_to",
+      "fields": [
+        "outcome_type",
+        "escalated_to"
+      ]
     },
     {
       "id": "outcome-dissent-has-reasoning",
@@ -56,7 +71,10 @@
       "type_signature": {
         "dissent_records": "array"
       },
-      "message": "Every dissent record must have non-empty reasoning"
+      "message": "Every dissent record must have non-empty reasoning",
+      "fields": [
+        "dissent_records"
+      ]
     }
   ]
 }

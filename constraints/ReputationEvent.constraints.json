@@ -60,7 +60,7 @@
     {
       "id": "reputation-event-dedup-guidance",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "Implementations SHOULD deduplicate by event_id. Duplicate event_id with matching payload is idempotent (safe to replay). Duplicate event_id with mismatched payload SHOULD be rejected with a conflict error. Storage key recommendation: event_id alone.",
       "fields": [
         "event_id"

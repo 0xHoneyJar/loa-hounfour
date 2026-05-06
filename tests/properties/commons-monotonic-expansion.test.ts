@@ -4,7 +4,7 @@
  * Uses fast-check to verify that contracts built by progressively
  * adding capabilities always pass verifyMonotonicExpansion().
  *
- * @see Bridgebuilder Finding F14 — Missing property tests for monotonic expansion
+ * @see Finding F14 — Missing property tests for monotonic expansion
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

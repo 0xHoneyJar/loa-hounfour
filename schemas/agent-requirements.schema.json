@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-requirements",
   "additionalProperties": false,
+  "description": "Capability requirements an agent declares it needs from a model to function correctly. Drives capability-based routing.",
   "type": "object",
   "required": [
     "agent_id",

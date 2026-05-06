@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/record-quality-event-command",
   "additionalProperties": false,
+  "description": "Write-intent command to ingest a quality observation into the reputation aggregate. Drives sample-count increment and blended-score update.",
   "type": "object",
   "required": [
     "command_id",
@@ -16,6 +17,7 @@
     "quality_event": {
       "$id": "QualityEvent",
       "additionalProperties": false,
+      "description": "Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id).",
       "type": "object",
       "required": [
         "event_id",

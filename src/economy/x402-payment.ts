@@ -51,6 +51,7 @@ export const X402QuoteSchema = Type.Object(
   {
     $id: 'X402Quote',
     additionalProperties: false,
+    description: 'x402 pricing offer from a model provider. Carries the max-cost ceiling, settlement chain / token / address, expiration, and optional per-token rates for downstream metering.',
   },
 );
 
@@ -76,6 +77,7 @@ export const X402PaymentProofSchema = Type.Object(
   {
     $id: 'X402PaymentProof',
     additionalProperties: false,
+    description: 'x402 payment evidence submitted with a paid request. Carries the HTTP 402 payment header, the originating quote_id, and an optional on-chain transaction hash.',
   },
 );
 
@@ -93,6 +95,7 @@ export const X402SettlementStatusSchema = Type.Union(
   ],
   {
     $id: 'X402SettlementStatus',
+    description: 'Lifecycle state of an x402 settlement: pending / confirmed / failed / refunded.',
   },
 );
 
@@ -120,6 +123,7 @@ export const X402SettlementSchema = Type.Object(
   {
     $id: 'X402Settlement',
     additionalProperties: false,
+    description: 'Final settlement record for an x402 payment. Pairs payment_id with the originating quote_id, the actual settled cost, settlement-chain context, and current status.',
   },
 );
 
@@ -139,6 +143,7 @@ export const X402ErrorCodeSchema = Type.Union(
   ],
   {
     $id: 'X402ErrorCode',
+    description: 'Machine-parseable error code for x402 payment failures (PAYMENT_REQUIRED / NOT_ALLOWLISTED / INFERENCE_FAILED / FEATURE_DISABLED / QUOTE_EXPIRED / INSUFFICIENT_FUNDS).',
   },
 );
 

@@ -98,7 +98,7 @@ describe('evaluateAccessPolicy — time_limited', () => {
 });
 
 // ---------------------------------------------------------------------------
-// type: 'time_limited' — Expiry enforcement (v7.2.0 — Bridgebuilder Finding F1)
+// type: 'time_limited' — Expiry enforcement (v7.2.0 — Finding F1)
 // ---------------------------------------------------------------------------
 
 describe('evaluateAccessPolicy — time_limited expiry (v7.2.0)', () => {
@@ -214,7 +214,7 @@ describe('evaluateAccessPolicy — role_based', () => {
 });
 
 // ---------------------------------------------------------------------------
-// type: 'reputation_gated' — Hysteresis (v7.4.0 — Bridgebuilder Vision B-V1)
+// type: 'reputation_gated' — Hysteresis (v7.4.0 — Vision B-V1)
 // ---------------------------------------------------------------------------
 
 describe('evaluateAccessPolicy — reputation_gated hysteresis', () => {
@@ -321,7 +321,7 @@ describe('evaluateAccessPolicy — reputation_gated hysteresis', () => {
 });
 
 // ---------------------------------------------------------------------------
-// type: 'compound' — AND/OR composition (v7.4.0 — Bridgebuilder Vision B-V2)
+// type: 'compound' — AND/OR composition (v7.4.0 — Vision B-V2)
 // ---------------------------------------------------------------------------
 
 describe('evaluateAccessPolicy — compound', () => {

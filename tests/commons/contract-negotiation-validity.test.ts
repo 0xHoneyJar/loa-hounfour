@@ -1,7 +1,7 @@
 /**
  * Tests for ContractNegotiation TTL validation utilities.
  *
- * @see Bridgebuilder Finding F9 — TTL declared but no clock authority
+ * @see Finding F9 — TTL declared but no clock authority
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

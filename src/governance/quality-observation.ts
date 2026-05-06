@@ -48,6 +48,7 @@ export const QualityObservationSchema = Type.Object(
   {
     $id: 'QualityObservation',
     additionalProperties: false,
+    description: 'Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity.',
   },
 );
 

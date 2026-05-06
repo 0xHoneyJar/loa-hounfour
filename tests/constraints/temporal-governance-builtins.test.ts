@@ -1,7 +1,7 @@
 /**
  * Tests for temporal governance builtins: is_stale and is_within.
  *
- * @see v7.5.0 — Deep Bridgebuilder Review GAP finding
+ * @see v7.5.0 — Deep Review GAP finding
  */
 import { describe, it, expect } from 'vitest';
 import { evaluateConstraint } from '../../src/constraints/evaluator.js';

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "AgentCapacityReservation",
+  "origin": "genesis",
+  "contract_version": "8.4.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "reservation-temporal-ordering",
+      "expression": "effective_until == null || effective_from == null || effective_until > effective_from",
+      "severity": "error",
+      "message": "effective_until must be after effective_from when both are present",
+      "fields": ["effective_until", "effective_from"],
+      "type_signature": {
+        "effective_until": "string",
+        "effective_from": "string"
+      }
+    },
+    {
+      "id": "reservation-tier-minimum",
+      "expression": "true",
+      "severity": "warning",
+      "message": "reserved_capacity_bps should meet the minimum for the declared conformance_level (tier-floor map enforced by cross-field validator)",
+      "fields": ["reserved_capacity_bps", "conformance_level"],
+      "type_signature": {
+        "reserved_capacity_bps": "number",
+        "conformance_level": "string"
+      }
+    },
+    {
+      "id": "reservation-active-positive-capacity",
+      "expression": "state != 'active' || reserved_capacity_bps > 0",
+      "severity": "warning",
+      "message": "active reservation with 0 bps provides no capacity guarantee",
+      "fields": ["state", "reserved_capacity_bps"],
+      "type_signature": {
+        "state": "string",
+        "reserved_capacity_bps": "number"
+      }
+    }
+  ]
+}

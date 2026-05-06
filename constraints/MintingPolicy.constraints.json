@@ -13,7 +13,10 @@
       "type_signature": {
         "max_mint_per_epoch": "bigint_coercible"
       },
-      "message": "Maximum mint per epoch must be positive"
+      "message": "Maximum mint per epoch must be positive",
+      "fields": [
+        "max_mint_per_epoch"
+      ]
     },
     {
       "id": "minting-policy-governance-requires-constraints",
@@ -24,7 +27,11 @@
         "requires_governance_approval": "boolean",
         "mint_constraints": "array"
       },
-      "message": "Governance-approved minting must have at least one mint constraint"
+      "message": "Governance-approved minting must have at least one mint constraint",
+      "fields": [
+        "requires_governance_approval",
+        "mint_constraints"
+      ]
     },
     {
       "id": "minting-policy-epoch-minimum",
@@ -34,7 +41,10 @@
       "type_signature": {
         "epoch_seconds": "number"
       },
-      "message": "Minting epoch must be at least 60 seconds to prevent governance approval flooding"
+      "message": "Minting epoch must be at least 60 seconds to prevent governance approval flooding",
+      "fields": [
+        "epoch_seconds"
+      ]
     }
   ]
 }

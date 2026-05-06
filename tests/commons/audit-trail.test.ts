@@ -2,7 +2,7 @@
  * Tests for AuditEntry, AuditTrail schemas and AUDIT_TRAIL_GENESIS_HASH.
  *
  * @see SDD §4.3 — AuditTrail (FR-1.3)
- * @see SDD §4.3.1 — Audit Trail Checkpointing (Flatline IMP-003)
+ * @see SDD §4.3.1 — Audit Trail Checkpointing (IMP-003)
  */
 import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';

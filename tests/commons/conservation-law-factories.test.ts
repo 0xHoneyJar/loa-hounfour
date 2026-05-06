@@ -1,7 +1,7 @@
 /**
  * Tests for conservation law factory functions.
  *
- * @see Bridgebuilder Finding F7 — Canonical factories for conservation patterns
+ * @see Finding F7 — Canonical factories for conservation patterns
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';
@@ -139,7 +139,7 @@ describe('createBalanceConservation', () => {
   it('maps to freeside lot_invariant pattern', () => {
     const law = createBalanceConservation(['balance', 'reserved', 'consumed'], 'original_allocation');
     const sumInv = law.invariants[0];
-    // Verify the expression matches the loa-freeside I-1 pattern
+    // Verify the expression matches the consumer-c I-1 pattern
     expect(sumInv.expression).toContain('bigint_sum');
     expect(sumInv.expression).toContain('bigint_eq');
     expect(sumInv.expression).toContain('balance');

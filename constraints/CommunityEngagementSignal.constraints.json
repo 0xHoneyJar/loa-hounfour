@@ -27,5 +27,6 @@
       ],
       "message": "Engagement signal must reference a non-empty personality_id."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

@@ -1,5 +1,5 @@
 /**
- * Tests for timestamp comparison evaluator builtins (v7.4.0 — Bridgebuilder Vision).
+ * Tests for timestamp comparison evaluator builtins (v7.4.0 — Vision).
  */
 import { describe, it, expect } from 'vitest';
 import { evaluateConstraint } from '../../src/constraints/evaluator.js';

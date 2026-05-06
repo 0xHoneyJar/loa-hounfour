@@ -76,7 +76,7 @@ describe('TaskTypeCohort', () => {
   });
 
   // -------------------------------------------------------------------------
-  // confidence_threshold (v7.11.0, Bridgebuilder Meditation V Q3)
+  // confidence_threshold (v7.11.0, Meditation V Q3)
   // -------------------------------------------------------------------------
   describe('confidence_threshold', () => {
     it('accepts cohort with confidence_threshold', () => {
@@ -128,7 +128,7 @@ describe('TaskTypeCohort', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Flat JSON Schema (Flatline SKP-002)
+  // Flat JSON Schema (SKP-002)
   // -------------------------------------------------------------------------
   describe('flat JSON Schema output', () => {
     it('has a properties block (not wrapped in allOf)', () => {

@@ -13,7 +13,10 @@
       "type_signature": {
         "root": "DelegationTreeNode"
       },
-      "message": "At every node in the tree, children budget sum must not exceed parent budget"
+      "message": "At every node in the tree, children budget sum must not exceed parent budget",
+      "fields": [
+        "root"
+      ]
     },
     {
       "id": "delegation-tree-authority-narrowing",
@@ -23,7 +26,10 @@
       "type_signature": {
         "root": "DelegationTreeNode"
       },
-      "message": "At every node in the tree, children authority scopes must be subsets of parent scope"
+      "message": "At every node in the tree, children authority scopes must be subsets of parent scope",
+      "fields": [
+        "root"
+      ]
     },
     {
       "id": "delegation-tree-consensus-minimum",
@@ -34,7 +40,11 @@
         "strategy": "string",
         "root": "DelegationTreeNode"
       },
-      "message": "Consensus strategy requires at least 3 children at root"
+      "message": "Consensus strategy requires at least 3 children at root",
+      "fields": [
+        "strategy",
+        "root"
+      ]
     },
     {
       "id": "delegation-tree-root-budget-match",
@@ -45,7 +55,11 @@
         "root": "DelegationTreeNode",
         "total_budget_micro": "bigint_coercible"
       },
-      "message": "Root node budget must equal tree total budget"
+      "message": "Root node budget must equal tree total budget",
+      "fields": [
+        "root",
+        "total_budget_micro"
+      ]
     }
   ]
 }

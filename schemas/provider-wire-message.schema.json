@@ -3,6 +3,7 @@
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/provider-wire-message",
   "additionalProperties": false,
   "x-cross-field-validated": true,
+  "description": "Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id.",
   "type": "object",
   "required": [
     "role"

@@ -13,7 +13,10 @@
       "type_signature": {
         "reporting": "ReportingRequirement"
       },
-      "message": "Permission boundary must specify reporting requirements"
+      "message": "Permission boundary must specify reporting requirements",
+      "fields": [
+        "reporting"
+      ]
     },
     {
       "id": "permission-boundary-has-revocation",
@@ -23,7 +26,10 @@
       "type_signature": {
         "revocation": "RevocationPolicy"
       },
-      "message": "Permission boundary must specify a revocation policy"
+      "message": "Permission boundary must specify a revocation policy",
+      "fields": [
+        "revocation"
+      ]
     },
     {
       "id": "permission-scope-unique",
@@ -33,7 +39,10 @@
       "type_signature": {
         "scope": "string"
       },
-      "message": "Permission boundary scope must be non-empty"
+      "message": "Permission boundary scope must be non-empty",
+      "fields": [
+        "scope"
+      ]
     }
   ]
 }

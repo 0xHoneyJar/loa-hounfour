@@ -4,7 +4,7 @@
  * Uses fast-check to verify safety properties hold regardless of
  * input sequence, inspired by Amazon's TLA+ formal methods approach.
  *
- * @see S4-T2 — Bridgebuilder Part 5 §6
+ * @see S4-T2 — Part 5 §6
  */
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';

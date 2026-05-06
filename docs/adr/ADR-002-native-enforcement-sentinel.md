@@ -2,7 +2,7 @@
 
 **Status**: Accepted
 **Date**: 2026-02-24
-**Source**: Bridgebuilder Review — PR #36, Finding 2
+**Source**: Review — PR #36, Finding 2
 
 ## Context
 

@@ -27,5 +27,6 @@
       ],
       "message": "Rollback reason must be non-empty."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

@@ -13,7 +13,10 @@
       "type_signature": {
         "conservation_ceiling": "string"
       },
-      "message": "Conservation ceiling must be positive"
+      "message": "Conservation ceiling must be positive",
+      "fields": [
+        "conservation_ceiling"
+      ]
     },
     {
       "id": "monetary-policy-collateral-minimum",
@@ -23,7 +26,10 @@
       "type_signature": {
         "collateral_ratio_bps": "integer"
       },
-      "message": "Collateral ratio must be at least 10000 bps (100%)"
+      "message": "Collateral ratio must be at least 10000 bps (100%)",
+      "fields": [
+        "collateral_ratio_bps"
+      ]
     },
     {
       "id": "monetary-policy-coupling-references-both",
@@ -33,7 +39,10 @@
       "type_signature": {
         "coupling_invariant": "string"
       },
-      "message": "Coupling invariant expression must be non-empty"
+      "message": "Coupling invariant expression must be non-empty",
+      "fields": [
+        "coupling_invariant"
+      ]
     },
     {
       "id": "monetary-policy-has-trigger",
@@ -43,7 +52,10 @@
       "type_signature": {
         "review_trigger": "ReviewTrigger"
       },
-      "message": "Must have a review trigger configured"
+      "message": "Must have a review trigger configured",
+      "fields": [
+        "review_trigger"
+      ]
     }
   ]
 }

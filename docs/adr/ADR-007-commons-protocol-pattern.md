@@ -2,17 +2,17 @@
 
 **Status**: Accepted
 **Date**: 2026-02-25
-**Source**: Bridgebuilder Deep Review — loa-finn #66 comment (Ostrom isomorphism discovery)
+**Source**: Deep Review — consumer-a #66 comment (Ostrom isomorphism discovery)
 
 ## Context
 
-The protocol manages three distinct but structurally isomorphic economic primitives across three repositories: credits (loa-freeside), reputation (loa-hounfour/loa-dixie), and freshness (loa-dixie). Each has:
+The protocol manages three distinct but structurally isomorphic economic primitives across three repositories: credits (consumer-c), reputation (loa-hounfour/consumer-b), and freshness (consumer-b). Each has:
 
 - **Conservation laws**: Named invariants that must hold (lot_invariant I-1 through I-5, reputation state machine rules, adaptive decay bounds)
 - **Audit trails**: Append-only event logs with integrity verification (scoring-path-hash chains, billing audit entries)
 - **State machines**: Lifecycle states with guarded transitions (escrow states, reputation cold→authoritative, credit extended→settled)
 
-This isomorphism was first identified by Bridgebuilder Deep Review as mapping to Elinor Ostrom's 8 principles for governing commons. Rather than continuing to implement these patterns separately in each repository, we extract the common substrate as a generic `GovernedResource<T>` primitive.
+This isomorphism was first identified by Deep Review as mapping to Elinor Ostrom's 8 principles for governing commons. Rather than continuing to implement these patterns separately in each repository, we extract the common substrate as a generic `GovernedResource<T>` primitive.
 
 ## Decision
 
@@ -53,7 +53,7 @@ All Commons Protocol schemas live in `src/commons/`, a new module parallel to ex
 
 ### 4. Version Field Semantics
 
-The `version` field on `GOVERNED_RESOURCE_FIELDS` is a required integer (Flatline SKP-005) for optimistic concurrency (CAS). All mutations present the expected version; mismatches return `PARTIAL_APPLICATION` error. Starts at 0 for new resources, increments on each successful mutation.
+The `version` field on `GOVERNED_RESOURCE_FIELDS` is a required integer (SKP-005) for optimistic concurrency (CAS). All mutations present the expected version; mismatches return `PARTIAL_APPLICATION` error. Starts at 0 for new resources, increments on each successful mutation.
 
 ## Developer Guide: Adding a New Governed Resource
 

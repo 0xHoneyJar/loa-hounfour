@@ -2,7 +2,7 @@
  * Tests for GovernanceClass, GOVERNED_RESOURCE_FIELDS, and GovernanceMutation.
  *
  * @see SDD §4.1 — GovernedResource Governance Fields (FR-1.1)
- * @see SDD §4.7 — GovernanceMutation (Flatline SKP-004)
+ * @see SDD §4.7 — GovernanceMutation (SKP-004)
  */
 import { describe, it, expect } from 'vitest';
 import { Type, type Static } from '@sinclair/typebox';

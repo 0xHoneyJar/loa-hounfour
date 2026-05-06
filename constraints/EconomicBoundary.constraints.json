@@ -29,5 +29,6 @@
       ],
       "message": "Trust layer blended score must be between 0 and 1."
     }
-  ]
+  ],
+  "contract_version": "8.4.0"
 }

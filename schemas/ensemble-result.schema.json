@@ -4,6 +4,7 @@
   "$comment": "contract_version=8.4.0, min_supported=6.0.0. Financial amounts (total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
   "additionalProperties": false,
   "x-cross-field-validated": true,
+  "description": "Outcome of an ensemble execution. Carries the selected completion, the candidate set, optional consensus score, optional dialogue-round audit trail, termination reason, total cost and latency.",
   "type": "object",
   "required": [
     "ensemble_id",
@@ -50,6 +51,7 @@
       "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
       "additionalProperties": false,
       "x-cross-field-validated": true,
+      "description": "Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot.",
       "type": "object",
       "required": [
         "request_id",
@@ -216,6 +218,7 @@
         "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
         "additionalProperties": false,
         "x-cross-field-validated": true,
+        "description": "Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot.",
         "type": "object",
         "required": [
           "request_id",
@@ -404,6 +407,7 @@
             "$comment": "Financial amounts (cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.",
             "additionalProperties": false,
             "x-cross-field-validated": true,
+            "description": "Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot.",
             "type": "object",
             "required": [
               "request_id",

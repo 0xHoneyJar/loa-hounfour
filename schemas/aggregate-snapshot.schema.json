@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/aggregate-snapshot",
   "additionalProperties": false,
+  "description": "Point-in-time snapshot of a ReputationAggregate. Carries the snapshotted aggregate, snapshot timestamp, event count, and optional SHA-256 hash of the ordered event stream for snapshot-free replay verification.",
   "type": "object",
   "required": [
     "aggregate",
@@ -13,6 +14,7 @@
     "aggregate": {
       "$id": "ReputationAggregate",
       "additionalProperties": false,
+      "description": "DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts.",
       "type": "object",
       "required": [
         "personality_id",
@@ -46,6 +48,7 @@
         },
         "state": {
           "$id": "ReputationState",
+          "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {
               "const": "cold",
@@ -117,6 +120,7 @@
         "transition_history": {
           "type": "array",
           "items": {
+            "description": "Audit-trail entry recording a single reputation state-machine transition: from-state, to-state, timestamp, and trigger reason.",
             "type": "object",
             "required": [
               "from",
@@ -127,6 +131,7 @@
             "properties": {
               "from": {
                 "$id": "ReputationState",
+                "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {
                     "const": "cold",
@@ -148,6 +153,7 @@
               },
               "to": {
                 "$id": "ReputationState",
+                "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {
                     "const": "cold",
@@ -230,6 +236,7 @@
           "items": {
             "$id": "TaskTypeCohort",
             "additionalProperties": false,
+            "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate.",
             "type": "object",
             "required": [
               "model_id",

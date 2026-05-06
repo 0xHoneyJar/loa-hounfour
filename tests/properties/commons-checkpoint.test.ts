@@ -4,8 +4,8 @@
  * Uses fast-check to verify that checkpoint → prune → verify
  * round-trips correctly for arbitrary audit trails.
  *
- * @see Bridgebuilder Finding F8 — Checkpoint operational logic
- * @see Bridgebuilder Q5 — Environment enrichment (property tests)
+ * @see Finding F8 — Checkpoint operational logic
+ * @see Q5 — Environment enrichment (property tests)
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

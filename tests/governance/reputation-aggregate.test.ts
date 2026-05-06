@@ -234,7 +234,7 @@ describe('Bayesian Computation', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Temporal Decay (v7.2.0 — Bridgebuilder Finding F5)
+// Temporal Decay (v7.2.0 — Finding F5)
 // ---------------------------------------------------------------------------
 
 describe('computeDecayedSampleCount', () => {
@@ -319,7 +319,7 @@ describe('QualityEventSchema', () => {
     expect(Value.Check(QualityEventSchema, boundary)).toBe(true);
   });
 
-  // v7.2.0 — model_id (Bridgebuilder Finding F4)
+  // v7.2.0 — model_id (Finding F4)
   it('validates with optional model_id present', () => {
     const withModel = { ...VALID_QUALITY_EVENT, model_id: 'native' };
     expect(Value.Check(QualityEventSchema, withModel)).toBe(true);
@@ -360,7 +360,7 @@ describe('Reputation Vocabulary', () => {
     expect(REPUTATION_STATES).toEqual(['cold', 'warming', 'established', 'authoritative']);
   });
 
-  // v7.2.0 — Deprecated exports still available (Bridgebuilder Finding F3)
+  // v7.2.0 — Deprecated exports still available (Finding F3)
   it('REPUTATION_WEIGHTS still exported (deprecated)', async () => {
     const { REPUTATION_WEIGHTS } = await import('../../src/vocabulary/reputation.js');
     expect(REPUTATION_WEIGHTS).toBeDefined();
@@ -380,7 +380,7 @@ describe('Reputation Vocabulary', () => {
 });
 
 // ---------------------------------------------------------------------------
-// ModelCohortSchema (v7.3.0 — Bridgebuilder C5 + Spec I)
+// ModelCohortSchema (v7.3.0 — C5 + Spec I)
 // ---------------------------------------------------------------------------
 
 describe('ModelCohortSchema', () => {
@@ -470,7 +470,7 @@ describe('ReputationAggregateSchema — model_cohorts', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cross-Model Meta-Scoring (v7.3.0 — Bridgebuilder C5 + Spec I)
+// Cross-Model Meta-Scoring (v7.3.0 — C5 + Spec I)
 // ---------------------------------------------------------------------------
 
 describe('computeCrossModelScore', () => {
@@ -539,7 +539,7 @@ describe('computeCrossModelScore', () => {
 });
 
 // ---------------------------------------------------------------------------
-// getModelCohort (v7.4.0 — Bridgebuilder Vision B-V3)
+// getModelCohort (v7.4.0 — Vision B-V3)
 // ---------------------------------------------------------------------------
 
 describe('getModelCohort', () => {

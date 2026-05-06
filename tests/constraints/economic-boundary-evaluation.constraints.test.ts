@@ -12,7 +12,7 @@ import { evaluateConstraint } from '../../src/constraints/evaluator.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..', '..');
-const constraintPath = join(rootDir, 'constraints', 'EconomicBoundaryEvaluation.constraints.json');
+const constraintPath = join(rootDir, 'constraints', 'EconomicBoundaryEvaluationResult.constraints.json');
 const constraintFile = JSON.parse(readFileSync(constraintPath, 'utf-8'));
 
 const grantedResult = {

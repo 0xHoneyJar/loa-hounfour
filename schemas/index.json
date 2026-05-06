@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-05T22:44:09.310Z",
+  "generated_at": "2026-05-06T11:14:45.586Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -224,79 +224,79 @@
       "name": "completion-request",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/completion-request",
       "file": "completion-request.schema.json",
-      "description": "CompletionRequest"
+      "description": "Provider-agnostic completion request envelope. Carries the message stream, tool definitions, sampling parameters, optional thinking budget, optional spend cap, and routing identifiers (request, tenant, NFT, trace, session)."
     },
     {
       "name": "completion-result",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/completion-result",
       "file": "completion-result.schema.json",
-      "description": "CompletionResult"
+      "description": "Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot."
     },
     {
       "name": "model-capabilities",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/model-capabilities",
       "file": "model-capabilities.schema.json",
-      "description": "ModelCapabilities"
+      "description": "Per-model capability and limits descriptor. Lists which features (thinking traces, vision, tool calling, streaming, JSON mode, native runtime) the model supports plus its context/output ceilings and optional pricing."
     },
     {
       "name": "provider-wire-message",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/provider-wire-message",
       "file": "provider-wire-message.schema.json",
-      "description": "ProviderWireMessage"
+      "description": "Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id."
     },
     {
       "name": "tool-definition",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/tool-definition",
       "file": "tool-definition.schema.json",
-      "description": "ToolDefinition"
+      "description": "Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools."
     },
     {
       "name": "tool-result",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/tool-result",
       "file": "tool-result.schema.json",
-      "description": "ToolResult"
+      "description": "Wire envelope for a tool-call result message: role tag, the originating tool_call_id, and the result content string."
     },
     {
       "name": "ensemble-request",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/ensemble-request",
       "file": "ensemble-request.schema.json",
-      "description": "EnsembleRequest"
+      "description": "Multi-model ensemble execution request. Wraps a base CompletionRequest with an ensemble strategy, the participating model list, optional timeout / consensus threshold, and optional dialogue configuration."
     },
     {
       "name": "ensemble-result",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/ensemble-result",
       "file": "ensemble-result.schema.json",
-      "description": "EnsembleResult"
+      "description": "Outcome of an ensemble execution. Carries the selected completion, the candidate set, optional consensus score, optional dialogue-round audit trail, termination reason, total cost and latency."
     },
     {
       "name": "agent-requirements",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-requirements",
       "file": "agent-requirements.schema.json",
-      "description": "AgentRequirements"
+      "description": "Capability requirements an agent declares it needs from a model to function correctly. Drives capability-based routing."
     },
     {
       "name": "budget-scope",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/budget-scope",
       "file": "budget-scope.schema.json",
-      "description": "BudgetScope"
+      "description": "Spending-limit envelope for a routing decision. Tracks limit, spent, action-on-exceed and optional capacity reservation."
     },
     {
       "name": "routing-resolution",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/routing-resolution",
       "file": "routing-resolution.schema.json",
-      "description": "RoutingResolution"
+      "description": "Outcome record for a model-routing decision. Captures the resolved model, the original requested model, the resolution reason, and observed latency."
     },
     {
       "name": "constraint-proposal",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/constraint-proposal",
       "file": "constraint-proposal.schema.json",
-      "description": "ConstraintProposal"
+      "description": "Wire format for an agent-authored proposal to add cross-field constraints to a target schema. The proposal carries the proposed constraint set, rationale, grammar version, and optional review-state metadata (status, scores, consensus category)."
     },
     {
       "name": "model-provider-spec",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/model-provider-spec",
       "file": "model-provider-spec.schema.json",
-      "description": "ModelProviderSpec"
+      "description": "Provider registration / identity document. Describes a model provider as a whole — its model roster, endpoints, SLA targets, conformance level, vector results, and reservation policy."
     },
     {
       "name": "conformance-level",
@@ -566,85 +566,85 @@
       "name": "personality-tier",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/personality-tier",
       "file": "personality-tier.schema.json",
-      "description": "PersonalityTier"
+      "description": "Personality tier classification (basic / standard / premium) used to gate capability tiers for agent bears."
     },
     {
       "name": "personality-assignment",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/personality-assignment",
       "file": "personality-assignment.schema.json",
-      "description": "PersonalityAssignment"
+      "description": "Binding between an NFT token and its personality configuration. Carries archetype / ancestor / era / element / tier (extensible strings; consumer defines vocabulary) plus a SHA-256 fingerprint of the personality config."
     },
     {
       "name": "reputation-state",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-state",
       "file": "reputation-state.schema.json",
-      "description": "ReputationState"
+      "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed."
     },
     {
       "name": "reputation-transition",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-transition",
       "file": "reputation-transition.schema.json",
-      "description": "reputation-transition"
+      "description": "Audit-trail entry recording a single reputation state-machine transition: from-state, to-state, timestamp, and trigger reason."
     },
     {
       "name": "reputation-aggregate",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-aggregate",
       "file": "reputation-aggregate.schema.json",
-      "description": "ReputationAggregate"
+      "description": "DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts."
     },
     {
       "name": "aggregate-snapshot",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/aggregate-snapshot",
       "file": "aggregate-snapshot.schema.json",
-      "description": "AggregateSnapshot"
+      "description": "Point-in-time snapshot of a ReputationAggregate. Carries the snapshotted aggregate, snapshot timestamp, event count, and optional SHA-256 hash of the ordered event stream for snapshot-free replay verification."
     },
     {
       "name": "quality-event",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-event",
       "file": "quality-event.schema.json",
-      "description": "QualityEvent"
+      "description": "Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id)."
     },
     {
       "name": "record-quality-event-command",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/record-quality-event-command",
       "file": "record-quality-event-command.schema.json",
-      "description": "RecordQualityEventCommand"
+      "description": "Write-intent command to ingest a quality observation into the reputation aggregate. Drives sample-count increment and blended-score update."
     },
     {
       "name": "query-reputation-command",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/query-reputation-command",
       "file": "query-reputation-command.schema.json",
-      "description": "QueryReputationCommand"
+      "description": "Read-intent command for reputation aggregates. With collection_id, performs a single-aggregate lookup; without, returns all aggregates for personality+pool across collections."
     },
     {
       "name": "reset-reputation-command",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reset-reputation-command",
       "file": "reset-reputation-command.schema.json",
-      "description": "ResetReputationCommand"
+      "description": "Write-intent command to reset a reputation aggregate back to the cold state. Carries the reset reason and actor identity for audit."
     },
     {
       "name": "reputation-state-changed-payload",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-state-changed-payload",
       "file": "reputation-state-changed-payload.schema.json",
-      "description": "ReputationStateChangedPayload"
+      "description": "Payload emitted when a personality's reputation state machine transitions between states (cold / warming / established / authoritative)."
     },
     {
       "name": "quality-event-recorded-payload",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-event-recorded-payload",
       "file": "quality-event-recorded-payload.schema.json",
-      "description": "QualityEventRecordedPayload"
+      "description": "Payload emitted when a quality observation is ingested into the reputation aggregate. Carries the new sample count and updated blended score."
     },
     {
       "name": "collection-score-updated-payload",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/collection-score-updated-payload",
       "file": "collection-score-updated-payload.schema.json",
-      "description": "CollectionScoreUpdatedPayload"
+      "description": "Payload emitted when a collection's trimmed-mean score is recalculated. Acts as a monetary-policy signal in the Web4 social-monies framing — the score proxies for the collection's monetary credibility."
     },
     {
       "name": "reputation-credential",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/reputation-credential",
       "file": "reputation-credential.schema.json",
-      "description": "ReputationCredential"
+      "description": "Portable, attested snapshot of a personality's reputation in a source collection. Carries source provenance, the issuing collection's score (analogous to CA reputation in TLS), and optional attestation hash for snapshot-free verification."
     },
     {
       "name": "event-filter",
@@ -974,25 +974,25 @@
       "name": "task-type-cohort",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/task-type-cohort",
       "file": "task-type-cohort.schema.json",
-      "description": "TaskTypeCohort"
+      "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate."
     },
     {
       "name": "quality-signal-event",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-signal-event",
       "file": "quality-signal-event.schema.json",
-      "description": "quality-signal-event"
+      "description": "Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update."
     },
     {
       "name": "task-completed-event",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/task-completed-event",
       "file": "task-completed-event.schema.json",
-      "description": "task-completed-event"
+      "description": "Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring."
     },
     {
       "name": "credential-update-event",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/credential-update-event",
       "file": "credential-update-event.schema.json",
-      "description": "credential-update-event"
+      "description": "Reputation event variant: credential lifecycle change. Emitted when an agent reputation credential is issued, revoked, renewed, or suspended."
     },
     {
       "name": "reputation-event",
@@ -1016,13 +1016,13 @@
       "name": "quality-observation",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/quality-observation",
       "file": "quality-observation.schema.json",
-      "description": "QualityObservation"
+      "description": "Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity."
     },
     {
       "name": "model-performance-event",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/model-performance-event",
       "file": "model-performance-event.schema.json",
-      "description": "model-performance-event"
+      "description": "Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing."
     },
     {
       "name": "commons/invariant",
@@ -1154,31 +1154,31 @@
       "name": "x402-quote",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-quote",
       "file": "x402-quote.schema.json",
-      "description": "X402Quote"
+      "description": "x402 pricing offer from a model provider. Carries the max-cost ceiling, settlement chain / token / address, expiration, and optional per-token rates for downstream metering."
     },
     {
       "name": "x402-payment-proof",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-payment-proof",
       "file": "x402-payment-proof.schema.json",
-      "description": "X402PaymentProof"
+      "description": "x402 payment evidence submitted with a paid request. Carries the HTTP 402 payment header, the originating quote_id, and an optional on-chain transaction hash."
     },
     {
       "name": "x402-settlement-status",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-settlement-status",
       "file": "x402-settlement-status.schema.json",
-      "description": "X402SettlementStatus"
+      "description": "Lifecycle state of an x402 settlement: pending / confirmed / failed / refunded."
     },
     {
       "name": "x402-settlement",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-settlement",
       "file": "x402-settlement.schema.json",
-      "description": "X402Settlement"
+      "description": "Final settlement record for an x402 payment. Pairs payment_id with the originating quote_id, the actual settled cost, settlement-chain context, and current status."
     },
     {
       "name": "x402-error-code",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/x402-error-code",
       "file": "x402-error-code.schema.json",
-      "description": "X402ErrorCode"
+      "description": "Machine-parseable error code for x402 payment failures (PAYMENT_REQUIRED / NOT_ALLOWLISTED / INFERENCE_FAILED / FEATURE_DISABLED / QUOTE_EXPIRED / INSUFFICIENT_FUNDS)."
     },
     {
       "name": "consumer-contract",
@@ -1190,7 +1190,7 @@
       "name": "feedback-dampening-config",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/feedback-dampening-config",
       "file": "feedback-dampening-config.schema.json",
-      "description": "FeedbackDampeningConfig"
+      "description": "Tunable parameters for adaptive feedback dampening: min/max learning rates, ramp-sample count, and Bayesian pseudo-count for cold-start smoothing."
     },
     {
       "name": "transition-result",

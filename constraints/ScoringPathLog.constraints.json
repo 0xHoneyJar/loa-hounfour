@@ -50,7 +50,7 @@
     {
       "id": "scoring-path-cascade-ordering",
       "expression": "true",
-      "severity": "info",
+      "severity": "warning",
       "message": "The scoring cascade evaluates in order: task_cohort → aggregate → tier_default. Implementations SHOULD attempt the most specific path first and fall back only when data is insufficient.",
       "fields": [
         "path"
@@ -113,7 +113,15 @@
       "evaluation_geometry": "native",
       "native_enforcement": {
         "strategy": "hash_chain_verification",
-        "fields": ["entry_hash", "previous_hash", "path", "model_id", "task_type", "reason", "scored_at"],
+        "fields": [
+          "entry_hash",
+          "previous_hash",
+          "path",
+          "model_id",
+          "task_type",
+          "reason",
+          "scored_at"
+        ],
         "reference_impl": "computeScoringPathHash() + SCORING_PATH_GENESIS_HASH"
       }
     }

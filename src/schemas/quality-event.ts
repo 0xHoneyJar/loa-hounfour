@@ -35,6 +35,7 @@ export const QualityEventSchema = Type.Object({
 }, {
   $id: 'QualityEvent',
   additionalProperties: false,
+  description: 'Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id).',
 });
 
 export type QualityEvent = Static<typeof QualityEventSchema>;

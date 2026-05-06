@@ -1,7 +1,7 @@
 /**
  * Tests for evaluateGovernanceMutation() utility.
  *
- * @see Bridgebuilder Finding F6 — Authorization at the mutation boundary
+ * @see Finding F6 — Authorization at the mutation boundary
  * @since v8.1.0
  */
 import { describe, it, expect } from 'vitest';

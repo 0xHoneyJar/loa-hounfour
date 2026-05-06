@@ -881,6 +881,86 @@ registerCrossFieldValidator('OrgIdentity', constraintFileOnlyValidator);
 registerCrossFieldValidator('OrgRepresentativeDelegation', constraintFileOnlyValidator);
 registerCrossFieldValidator('SuccessionPolicy', constraintFileOnlyValidator);
 
+// PR-A2.0 hygiene — register every schema that already ships a constraint
+// file under `constraints/<schema_id>.constraints.json`. The vast majority
+// of these have no TS-resident cross-field logic; the registration is
+// purely a declaration that the constraint file is canonical for the
+// schema, closing `npm run check:constraints` against drift between the
+// registry and the on-disk constraint corpus. Where a schema later grows
+// real cross-field invariants, the registration here can be replaced with
+// a non-trivial `CrossFieldValidator` without changing the registry shape.
+registerCrossFieldValidator('AgentIdentity', constraintFileOnlyValidator);
+registerCrossFieldValidator('AuditTimestamp', constraintFileOnlyValidator);
+registerCrossFieldValidator('AuditTrail', constraintFileOnlyValidator);
+registerCrossFieldValidator('BasketComposition', constraintFileOnlyValidator);
+registerCrossFieldValidator('BridgeTransferSaga', constraintFileOnlyValidator);
+registerCrossFieldValidator('ChainBoundHash', constraintFileOnlyValidator);
+registerCrossFieldValidator('CollectionGovernanceConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('CollectionScoreUpdatedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('CommunityEngagementSignal', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConservationLaw', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConservationPropertyRegistry', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConstraintCandidate', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConstraintLifecycleEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ConsumerContract', constraintFileOnlyValidator);
+registerCrossFieldValidator('ContractNegotiation', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationChain', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationOutcome', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationQualityEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('DelegationTree', constraintFileOnlyValidator);
+registerCrossFieldValidator('DynamicContract', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicBoundary', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicBoundaryEvaluationResult', constraintFileOnlyValidator);
+registerCrossFieldValidator('EconomicPerformanceEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('EnsembleCapabilityProfile', constraintFileOnlyValidator);
+registerCrossFieldValidator('EpistemicTristate', constraintFileOnlyValidator);
+registerCrossFieldValidator('EventSubscription', constraintFileOnlyValidator);
+registerCrossFieldValidator('ExecutionCheckpoint', constraintFileOnlyValidator);
+registerCrossFieldValidator('FeedbackDampeningConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernanceConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernanceProposal', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedCredits', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedFreshness', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedReputation', constraintFileOnlyValidator);
+registerCrossFieldValidator('GovernedResourceRuntime', constraintFileOnlyValidator);
+registerCrossFieldValidator('HashChainDiscontinuity', constraintFileOnlyValidator);
+registerCrossFieldValidator('InterAgentTransactionAudit', constraintFileOnlyValidator);
+registerCrossFieldValidator('JwtBoundarySpec', constraintFileOnlyValidator);
+registerCrossFieldValidator('LivenessProperty', constraintFileOnlyValidator);
+registerCrossFieldValidator('MicroUSDC', constraintFileOnlyValidator);
+registerCrossFieldValidator('MintingPolicy', constraintFileOnlyValidator);
+registerCrossFieldValidator('ModelEconomicProfile', constraintFileOnlyValidator);
+registerCrossFieldValidator('MonetaryPolicy', constraintFileOnlyValidator);
+registerCrossFieldValidator('MutationContext', constraintFileOnlyValidator);
+registerCrossFieldValidator('PerformanceQualityBridge', constraintFileOnlyValidator);
+registerCrossFieldValidator('PermissionBoundary', constraintFileOnlyValidator);
+registerCrossFieldValidator('PersonalityAssignment', constraintFileOnlyValidator);
+registerCrossFieldValidator('PolicyVersion', constraintFileOnlyValidator);
+registerCrossFieldValidator('PortabilityResponse', constraintFileOnlyValidator);
+registerCrossFieldValidator('ProposalExecution', constraintFileOnlyValidator);
+registerCrossFieldValidator('ProposalOutcomeEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('QualityEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('QualityEventRecordedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('QuarantineRecord', constraintFileOnlyValidator);
+registerCrossFieldValidator('QueryReputationCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RecordQualityEventCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RegistryBridge', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationAggregate', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationCredential', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationEconomicImpact', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationPortabilityRequest', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationRoutingSignal', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReputationStateChangedPayload', constraintFileOnlyValidator);
+registerCrossFieldValidator('ReservationArithmetic', constraintFileOnlyValidator);
+registerCrossFieldValidator('ResetReputationCommand', constraintFileOnlyValidator);
+registerCrossFieldValidator('RollbackScope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RoutingRebalanceEvent', constraintFileOnlyValidator);
+registerCrossFieldValidator('ScoringPathLog', constraintFileOnlyValidator);
+registerCrossFieldValidator('StateMachineConfig', constraintFileOnlyValidator);
+registerCrossFieldValidator('TaskType', constraintFileOnlyValidator);
+registerCrossFieldValidator('TaskTypeCohort', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
