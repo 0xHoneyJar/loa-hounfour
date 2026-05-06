@@ -132,3 +132,19 @@ export {
   isKnownReputationState,
   type ReputationStateName,
 } from './vocabulary/reputation.js';
+
+// Audit event-type 3-segment namespace spec (v8.5.0 — F6 + G5)
+export {
+  AUDIT_EVENT_TYPES_KNOWN_PREFIXES,
+  isThreeSegmentEventType,
+  extractEventTypePrefix,
+} from './vocabulary/audit-event-types.js';
+
+// Sanctioned canonicalization helper (v8.5.0 — G3 + G4)
+export {
+  safeCanonicalize,
+  SAFE_CANONICALIZE_DEFAULT_MAX_BYTES,
+  CanonicalizeSizeError,
+  CanonicalizeNFCError,
+  type SafeCanonicalizeOptions,
+} from './utilities/safe-canonicalize.js';
