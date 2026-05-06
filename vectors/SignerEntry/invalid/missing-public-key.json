@@ -1,0 +1,12 @@
+{
+  "signer_id": "bot-001",
+  "key_ref": "kms://example/key-1",
+  "signature_type": "attestation",
+  "scoped_trust": {
+    "scopes": {
+      "inference": "verified"
+    },
+    "default_level": "basic"
+  },
+  "signer_status": "active"
+}

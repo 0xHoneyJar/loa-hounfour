@@ -9,11 +9,25 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "duplicate-key-ref-warning",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Two signers referencing the same key_ref \u2014 KR-2 fires as a soft warning (rotation overlap windows are legitimate). Distinct signer_id keeps KR-1 satisfied.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "minimal-single-signer",
       "intent": "valid",
       "validation_layer": "shape",
       "description": "Keyring with a single active signer; minimal fields populated.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "multi-signature-types",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Coverage of all 4 SignatureType members in a single keyring (attestation, authorization, commitment, dev_signature). dev_signature MUST be rejected by consumers in production environments per the SignerEntry doc-comment.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "multi-signer",
@@ -23,11 +37,25 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "weekly-rotation-pattern",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Active + expired pair representing a weekly key rotation: the prior key is expired (no new signatures accepted) but its past signatures remain verifiable.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "with-match-strategy-exact",
       "intent": "valid",
       "validation_layer": "shape",
       "description": "Signer carrying the v8.5.0 EXTEND fields (D-007): match_strategy=exact, precedence_score=800.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-match-strategy-subset",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Signer carrying match_strategy=subset (the v8.4.0-compat default; trust profile must include every required scope).",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "with-match-strategy-superset",
@@ -37,18 +65,81 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "with-precedence-tiebreaker",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Two signers with distinct precedence_score values (900 vs 200) \u2014 consumer policy resolves rule overlap by preferring the higher score.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "additional-property",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Unknown top-level property \u2014 additionalProperties: false rejects it.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "duplicate-signer-id-kr1",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Two signers with identical signer_id \u2014 KR-1 cross-field validator fails-closed at error severity.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "empty-signers",
       "intent": "invalid",
       "validation_layer": "shape",
-      "description": "Empty signers array — minItems:1 violation.",
+      "description": "Empty signers array \u2014 minItems:1 violation.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-contract-version",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "contract_version violates the semver pattern ^\\d+\\.\\d+\\.\\d+$ (missing PATCH).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-created-at",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "created_at violates the date-time format (not ISO 8601).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-keyring-id-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "keyring_id is not a UUID v4 format.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "malformed-org-id",
       "intent": "invalid",
       "validation_layer": "shape",
-      "description": "org_id is not a UUID v4 — format violation.",
+      "description": "org_id is not a UUID v4 \u2014 format violation.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "missing-keyring-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "keyring_id field omitted \u2014 schema requires the field.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-org-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "org_id field omitted \u2014 schema requires the field.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signers",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signers field omitted \u2014 schema requires the field.",
+      "authored_at": "2026-05-07"
     }
   ]
 }

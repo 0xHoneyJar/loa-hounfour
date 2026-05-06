@@ -1,0 +1,7 @@
+{
+  "action_pattern": "inference.*",
+  "required_capability_scopes": [
+    "inference"
+  ],
+  "contract_version": "8.5.0"
+}

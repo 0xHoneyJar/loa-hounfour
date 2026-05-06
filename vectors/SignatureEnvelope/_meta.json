@@ -2,6 +2,20 @@
   "schema": "SignatureEnvelope",
   "fixtures": [
     {
+      "case": "alternate-hash-payload",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Envelope with a non-zero signed_payload_hash \u2014 round-trip vector covering hex variability.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "alternate-sig-value-b",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Envelope with a B-pattern signature_value \u2014 round-trip vector covering ed25519 character variability.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "attestation-shape-only",
       "intent": "valid",
       "validation_layer": "shape+constraint+manifest",
@@ -16,11 +30,25 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "authorization-future",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Authorization envelope with a future signed_at, exercising signature_type orthogonality.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "commitment-envelope",
       "intent": "valid",
       "validation_layer": "shape+constraint+manifest",
       "description": "Commitment-kind envelope.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "commitment-with-bb-sig",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Commitment envelope using B-pattern signature_value.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "dev-signature-envelope",
@@ -30,11 +58,32 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "future-signed-at",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Envelope with future-dated signed_at \u2014 schema does not bound the timestamp; consumer policy decides drift handling.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "minimal-attestation",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Minimal attestation envelope \u2014 fewest non-zero fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "edge-signature-88-rejected",
       "intent": "invalid",
       "validation_layer": "shape",
       "description": "Signature value with 88 unpadded base64url chars. Rejected by the canonical {86} pattern (32-byte key / 64-byte sig encode to exactly 86 chars unpadded; padded forms with '=' are not in the character class).",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-envelope-id-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "envelope_id is not a UUID v4 format.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "malformed-hash",
@@ -49,6 +98,48 @@
       "validation_layer": "shape",
       "description": "signature_value missing the ed25519: prefix.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "missing-envelope-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field envelope_id omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-key-ref",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field key_ref omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signature-type",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signature_type omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signature-value",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signature_value omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signed-at",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signed_at omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signed-payload-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signed_payload_hash omitted.",
+      "authored_at": "2026-05-07"
     }
   ]
 }

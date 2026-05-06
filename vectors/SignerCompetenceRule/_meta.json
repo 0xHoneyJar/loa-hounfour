@@ -2,6 +2,20 @@
   "schema": "SignerCompetenceRule",
   "fixtures": [
     {
+      "case": "minimal-billing",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Minimal billing rule \u2014 single scope, no threshold or revocation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "minimal-governance",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Minimal governance rule \u2014 single scope, no threshold or revocation.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "minimal-inference",
       "intent": "valid",
       "validation_layer": "shape",
@@ -19,8 +33,36 @@
       "case": "revoked",
       "intent": "valid",
       "validation_layer": "shape",
-      "description": "Revoked rule — consumer treats as if absent.",
+      "description": "Revoked rule \u2014 consumer treats as if absent.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-action-pattern-glob",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Action pattern with glob-style wildcard. Hounfour does not interpret; consumer-defined.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-action-pattern-regex",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Action pattern using regex syntax \u2014 consumer's matcher decides. Library passes through.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-multi-scope-and-threshold",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Rule requiring multiple scopes with a precedence threshold of 600.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-prefix-pattern",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Action pattern using a colon-delimited prefix convention \u2014 common in capability tokens.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "with-threshold",
@@ -30,11 +72,60 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "empty-action-pattern",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "action_pattern is empty string \u2014 minLength: 1 violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "empty-scopes",
       "intent": "invalid",
       "validation_layer": "shape",
-      "description": "required_capability_scopes empty — minItems:1 violation.",
+      "description": "required_capability_scopes empty \u2014 minItems:1 violation.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-contract-version",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "contract_version has 'v' prefix; semver pattern is digits-only.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-rule-id-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "rule_id is not a UUID v4 format.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-action-pattern",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field action_pattern omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-contract-version",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field contract_version omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-required-capability-scopes",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field required_capability_scopes omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-rule-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field rule_id omitted.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "oversize-action-pattern",
@@ -42,6 +133,20 @@
       "validation_layer": "shape",
       "description": "action_pattern exceeds maxLength 256.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "threshold-out-of-range-high",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "threshold above maximum (1000) \u2014 schema constrains to 1..1000 inclusive.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "threshold-out-of-range-low",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "threshold below minimum (1) \u2014 schema constrains to 1..1000 inclusive.",
+      "authored_at": "2026-05-07"
     }
   ]
 }

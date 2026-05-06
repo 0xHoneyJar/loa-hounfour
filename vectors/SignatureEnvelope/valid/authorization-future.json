@@ -1,0 +1,9 @@
+{
+  "envelope_id": "550e8400-e29b-41d4-a716-446655440045",
+  "signature_type": "authorization",
+  "key_ref": "kms://example/key-45",
+  "signed_payload_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "signature_value": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "signed_at": "2027-01-01T00:00:00Z",
+  "contract_version": "8.5.0"
+}

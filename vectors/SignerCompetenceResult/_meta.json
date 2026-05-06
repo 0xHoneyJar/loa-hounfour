@@ -9,11 +9,32 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "deny-no-rule",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "deny without a matching rule \u2014 fail-closed default when no rule applies.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "deny-with-rule",
       "intent": "valid",
       "validation_layer": "shape",
-      "description": "Rule matched but signer trust profile insufficient — deny.",
+      "description": "Rule matched but signer trust profile insufficient \u2014 deny.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "future-evaluated-at",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Result with future-dated evaluated_at \u2014 schema does not constrain the timestamp epoch; consumers handle drift policy.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "minimal-no-rule",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Minimal result without rule_id_matched \u2014 outcomes that did NOT engage the rule set (e.g., dev_signature short-circuit) omit the rule reference.",
+      "authored_at": "2026-05-07"
     },
     {
       "case": "needs-review",
@@ -23,6 +44,13 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "needs-review-no-rule",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "needs_review without a matching rule \u2014 typical of escalated checks awaiting human disposition.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "no-rule-match",
       "intent": "valid",
       "validation_layer": "shape",
@@ -30,11 +58,95 @@
       "authored_at": "2026-05-06"
     },
     {
+      "case": "rejected-outcome",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "outcome=rejected \u2014 cryptographic / class-validation step failed (distinct from policy-level deny).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "verified-outcome",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "outcome=verified \u2014 cryptographic / class-validation step succeeded; pair with another field for the policy verdict.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "additional-property",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Unknown top-level property reasoning \u2014 additionalProperties: false rejects it.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-evaluated-at",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "evaluated_at violates the date-time format (date-only string).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-result-id-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "result_id is not a UUID v4 format.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-rule-id-matched-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "rule_id_matched is not a UUID v4 format.",
+      "authored_at": "2026-05-07"
+    },
+    {
       "case": "malformed-signer-id",
       "intent": "invalid",
       "validation_layer": "shape",
-      "description": "signer_id contains uppercase + space — pattern violation.",
+      "description": "signer_id contains uppercase + space \u2014 pattern violation.",
       "authored_at": "2026-05-06"
+    },
+    {
+      "case": "missing-evaluated-at",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field evaluated_at omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-outcome",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field outcome omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-result-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field result_id omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signer_id omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "outcome-not-in-union",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "outcome value 'maybe' is not in the PolicyDecisionOutcome 5-member enum.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "uppercase-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signer_id has uppercase characters \u2014 pattern requires lowercase.",
+      "authored_at": "2026-05-07"
     }
   ]
 }

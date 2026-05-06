@@ -242,6 +242,72 @@ describe('ORD-3 — library is_valid_dag chain validation', () => {
   });
 });
 
+describe('ORD-5 — library-evaluated capability_scope vocabulary harmonization (PR-A2.2)', () => {
+  it('marks ORD-5 evaluator as library', () => {
+    expect(rule('ORD-5').evaluator).toBe('library');
+  });
+
+  it('declares severity warning (soak mode); cycle-005 escalates to error', () => {
+    expect(rule('ORD-5').severity).toBe('warning');
+  });
+
+  it('targets the capability_scope field', () => {
+    expect(rule('ORD-5').fields).toEqual(['capability_scope']);
+  });
+
+  it('evaluation_note describes vocabulary harmonization + the canonical 6-member set', () => {
+    const note = rule('ORD-5').evaluation_note ?? '';
+    expect(note.length).toBeGreaterThan(0);
+    expect(note).toContain('CapabilityScope');
+    expect(note).toContain('vocabulary');
+  });
+
+  it('evaluation_note explicitly distinguishes library evaluator from runtime-deferred', () => {
+    // ORD-5 IS library-evaluated (the vocabulary check is performed by the
+    // library), so its manifest emission semantics differ from ORD-1 / ORD-2 /
+    // ORD-4 which all carry consumer obligations the library cannot evaluate.
+    const note = rule('ORD-5').evaluation_note ?? '';
+    expect(note).toContain("'library'");
+    expect(note).toContain("'runtime-deferred'");
+  });
+
+  it('evaluation_note pins the cycle-005 escalation path + R3 soak-window reference', () => {
+    const note = rule('ORD-5').evaluation_note ?? '';
+    expect(note.toLowerCase()).toContain('cycle-005');
+    expect(note).toContain('R3');
+    expect(note).toContain('error');
+  });
+
+  it("evaluation_note carries the vocabulary_drift manifest reason vocabulary token", () => {
+    const note = rule('ORD-5').evaluation_note ?? '';
+    expect(note).toContain('vocabulary_drift');
+  });
+
+  it('does NOT appear in the unverified-obligations manifest (library-evaluated rules are not deferred)', () => {
+    // The manifest is the runtime-deferred catalogue: rules the library
+    // CANNOT evaluate. ORD-5 IS library-evaluated, so by construction it must
+    // not surface in the manifest. Concretely: only ORD-1, ORD-2, ORD-4
+    // (runtime-deferred) appear; ORD-3 and ORD-5 (library-evaluated) do not.
+    const manifest = buildUnverifiedObligationsManifest(constraintFile, FROZEN_TIMESTAMP);
+    expect(manifest).toBeDefined();
+    const ord5 = manifest!.unverified_rules.find((e) => e.rule_id === 'ORD-5');
+    expect(ord5).toBeUndefined();
+    const ord3 = manifest!.unverified_rules.find((e) => e.rule_id === 'ORD-3');
+    expect(ord3).toBeUndefined();
+  });
+
+  it('shares the canonical CapabilityScope vocabulary with Layer-2 and Layer-3 (Phase 4 plug-point)', () => {
+    // The full evaluation_note text MUST reference both layers — vocabulary
+    // harmonization is the cross-layer contract that PRD Phase 4 locked in,
+    // and any consumer-side scope-key drift in ORD-5 is the same drift Layer
+    // 2 (SignerEntry.scoped_trust) and Layer 3 (SignerCompetenceRule
+    // .required_capability_scopes) will silently inherit.
+    const note = rule('ORD-5').evaluation_note ?? '';
+    expect(note).toContain('SignerEntry');
+    expect(note).toContain('SignerCompetenceRule');
+  });
+});
+
 describe('ORD-3 — evaluation_note documents the synthetic-genesis-terminator pattern', () => {
   it('records the synthetic-genesis-terminator pattern + chain assembly obligation', () => {
     const note = rule('ORD-3').evaluation_note ?? '';
