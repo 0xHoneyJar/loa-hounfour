@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/exchange-rate-spec",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/exchange-rate-spec",
   "additionalProperties": false,
   "description": "Specification for how exchange rates are determined and maintained.",
   "type": "object",
@@ -49,5 +49,5 @@
       "type": "integer"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

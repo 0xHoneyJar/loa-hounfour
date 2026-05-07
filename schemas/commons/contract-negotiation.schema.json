@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/contract-negotiation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/commons/contract-negotiation",
   "additionalProperties": false,
   "description": "Runtime handshake for dynamic contract negotiation. Model presents reputation state, receives allowed protocol surface. Reputation MUST be server-derived or signed — self-assertion is non-conformant.",
   "type": "object",
@@ -223,5 +223,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

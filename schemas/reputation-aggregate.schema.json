@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-aggregate",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/reputation-aggregate",
   "additionalProperties": false,
   "description": "DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts.",
   "type": "object",
@@ -305,5 +305,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

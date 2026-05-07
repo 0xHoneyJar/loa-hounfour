@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governed-reputation",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/commons/governed-reputation",
   "additionalProperties": false,
   "description": "Governed reputation — maps to ReputationAggregate state machine (cold → warming → established → authoritative).",
   "type": "object",
@@ -394,5 +394,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

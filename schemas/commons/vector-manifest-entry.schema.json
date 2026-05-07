@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/vector-manifest-entry",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/commons/vector-manifest-entry",
   "additionalProperties": false,
   "type": "object",
   "required": [
@@ -51,5 +51,5 @@
       "type": "boolean"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

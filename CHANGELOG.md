@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.5.2] — 2026-05-07
+
+**Theme:** Single-purpose TypeScript 6.0.x migration chore. No source changes; tooling-only. Deferred from the v8.4.0 / v8.5.0 line (TS6 was originally scoped out of those releases to keep the schema-intake work focused) and from v8.5.1 (which absorbed the [Issue #76](https://github.com/0xHoneyJar/loa-hounfour/issues/76) release-hygiene fixes).
+
+### Changed
+
+- **`typescript` devDependency `^5.9.3` → `^6.0.3`**. The codebase typechecks + builds + tests cleanly under TS6 with no source-level changes (verified at v8.5.2 cut).
+- **`tsconfig.json` adds `"types": ["node"]`**. TS6 deprecates the implicit `lib` types behavior — without an explicit `types` array, `@types/node` ambient types would no longer auto-load. Pinning to `["node"]` matches the actual single-platform-types runtime ambient surface and keeps `tsc` output identical to TS5.
+- **`CONTRACT_VERSION` bumped to `'8.5.2'`** — `src/version.ts:13`. `package.json` `version` and `vectors/VERSION` match.
+- **`schemas/index.json`** — version metadata + all 234 published `$id`s now publish under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/` namespace. Schema content is byte-identical to v8.5.1; only the `$id` URL changed.
+- **`RELEASE-INTEGRITY.json`** — regenerated (234 schemas / 124 constraints / 233 vectors / 593 files at v8.5.2 namespace).
+
+### Source
+
+Original deferral: v8.4.0 PRD F1 (TS6 → post-v8.5.0 chore). v8.5.1 absorbed Issue #76 release-hygiene; v8.5.2 carries the originally-planned TS6 migration as the next single-purpose release.
+
+---
+
 ## [8.5.1] — 2026-05-07
 
 **Theme:** Release-hygiene patch addressing five findings from the v8.4.0 / v8.5.0 retrospective audit ([Issue #76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). No schema changes; strict-additive on the v8.5.0 surface.
