@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/surface-context",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/surface-context",
   "description": "Environment selector for recall machinery. Closed 5-member core (public | private | system | demo | test) plus a 3-segment consumer namespace fallback. The combined regex (^([a-z]+|[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+)$) matches either form for cross-runner parity.",
   "anyOf": [
     {
@@ -34,5 +34,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }

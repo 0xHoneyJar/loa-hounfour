@@ -30,6 +30,34 @@ TASK_TYPES, TaskTypeCohortSchema, validateTaskCohortUniqueness, ReputationEventS
 // their unaliased names; governance variants get the Governance* prefix.
 export { TaskTypeSchema as GovernanceTaskTypeSchema, } from './governance/task-type.js';
 export { ReputationEventSchema as GovernanceReputationEventSchema, } from './governance/reputation-event.js';
+// v8.4.0 — Synthetic-deliberation set + OrgOverseer (FR-A1..FR-A4 + FR-B1..FR-B3).
+// v8.5.0 — Authority cascade Layer 2 + 3 (PR-A2.2) + Recall machinery + Forget /
+// Commit / Estate + Assertion family (PR-A2.3). Re-exported at root for
+// discoverability per Issue #76 F2 (the v8.4.0 / v8.5.0 governance surface
+// previously required a `/governance` subpath import). The `/governance`
+// subpath remains supported and emits identical bindings — root surface
+// is the convenience path.
+export { 
+// FR-A1 Panel deliberation input
+PanelDecisionArtifactSchema, ClaimSchema, ClaimGroundingSchema, ProposedActionSchema, TrustContextSchema, 
+// FR-A2 Panel verdict
+PanelVerdictSchema, JurorVerdictSchema, AsymmetricBlockerSignalSchema, 
+// FR-A3 Deliberation dissent
+DeliberationDissentSchema, 
+// FR-A4 Cross-score report + PairwiseScore (PR-A2.2 promotion)
+CrossScoreReportSchema, PairwiseScoreSchema, 
+// FR-B1..B3 Org-overseer
+OrgIdentitySchema, OrgRepresentativeDelegationSchema, ORG_DELEGATION_GENESIS_SENTINEL, SuccessionPolicySchema, 
+// Shared signing-context envelope
+SigningContextSchema, 
+// v8.5.0 PR-A2.2 Authority cascade Layer 2 + 3
+KeyringSchema, SignerEntrySchema, SignerCompetenceRuleSchema, SignerCompetenceResultSchema, SignatureEnvelopeSchema, SignerTypeSchema, SignatureTypeSchema, SignerStatusSchema, PolicyDecisionOutcomeSchema, 
+// v8.5.0 PR-A2.3 Recall machinery
+ReceiptDetailLevelSchema, SurfaceContextSchema, RecallRequestSchema, RecallPackSchema, RecallReceiptSchema, 
+// v8.5.0 PR-A2.3 Forget / Commit / Estate
+ForgetRecordSchema, CommitmentTypeSchema, CommitmentRootSchema, AgentEstateStatusSchema, AgentEstateSchema, 
+// v8.5.0 PR-A2.3 Assertion family
+PrivacyScopeSchema, RiskLevelSchema, AssertionStatusSchema, AssertionClassSchema, AssertionSchema, } from './governance/index.js';
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 // v8.0.0 — Commons Protocol
@@ -58,5 +86,5 @@ export { REPUTATION_STATE_ORDER, REPUTATION_STATES, isKnownReputationState, } fr
 // Audit event-type 3-segment namespace spec (v8.5.0 — F6 + G5)
 export { AUDIT_EVENT_TYPES_KNOWN_PREFIXES, isThreeSegmentEventType, extractEventTypePrefix, } from './vocabulary/audit-event-types.js';
 // Sanctioned canonicalization helper (v8.5.0 — G3 + G4)
-export { safeCanonicalize, SAFE_CANONICALIZE_DEFAULT_MAX_BYTES, CanonicalizeSizeError, CanonicalizeNFCError, } from './utilities/safe-canonicalize.js';
+export { safeCanonicalize, SAFE_CANONICALIZE_DEFAULT_MAX_BYTES, CanonicalizeSizeError, CanonicalizeNFCError, CanonicalizeKeyCollisionError, } from './utilities/safe-canonicalize.js';
 //# sourceMappingURL=index.js.map

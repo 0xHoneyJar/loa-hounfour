@@ -3,6 +3,7 @@ import {
   safeCanonicalize,
   CanonicalizeSizeError,
   CanonicalizeNFCError,
+  CanonicalizeKeyCollisionError,
   SAFE_CANONICALIZE_DEFAULT_MAX_BYTES,
 } from '../../src/utilities/safe-canonicalize.js';
 
@@ -143,5 +144,67 @@ describe('safeCanonicalize — error types', () => {
     const err = new CanonicalizeNFCError('test');
     expect(err.code).toBe('CANONICALIZE_NFC_FAILED');
     expect(err.name).toBe('CanonicalizeNFCError');
+  });
+
+  it('CanonicalizeKeyCollisionError has a stable code', () => {
+    const err = new CanonicalizeKeyCollisionError('café', ['café', 'café']);
+    expect(err.code).toBe('CANONICALIZE_KEY_COLLISION');
+    expect(err.name).toBe('CanonicalizeKeyCollisionError');
+    expect(err.normalizedKey).toBe('café');
+    expect(err.originalKeys).toEqual(['café', 'café']);
+  });
+});
+
+describe('safeCanonicalize — NFC key-collision rejection (Issue #76 F5)', () => {
+  // 'café' as NFC (precomposed é, U+00E9) vs NFD (e + U+0301).
+  // Both fold to the same NFC string; an object containing BOTH as
+  // distinct keys is structurally ambiguous after canonicalization.
+  // Use explicit codepoint escapes so the editor / source-file encoding
+  // does not silently fold the two forms into the same bytes.
+  const nfc = 'café';            // precomposed é
+  const nfd = 'café';           // e + combining acute
+
+  it('throws CanonicalizeKeyCollisionError when distinct input keys NFC-fold identically', () => {
+    expect(nfc).not.toBe(nfd); // sanity: distinct input strings
+    expect(() => safeCanonicalize({ [nfc]: 1, [nfd]: 2 })).toThrow(
+      CanonicalizeKeyCollisionError,
+    );
+  });
+
+  it('error carries the normalized form and both original input keys', () => {
+    try {
+      safeCanonicalize({ [nfc]: 1, [nfd]: 2 });
+    } catch (e) {
+      expect(e).toBeInstanceOf(CanonicalizeKeyCollisionError);
+      const err = e as CanonicalizeKeyCollisionError;
+      expect(err.normalizedKey.normalize('NFC')).toBe(err.normalizedKey);
+      // Both original keys must appear in the error context. The order
+      // matches insertion order: nfc first, nfd second.
+      expect(err.originalKeys).toEqual([nfc, nfd]);
+    }
+  });
+
+  it('detects collisions in deeply-nested objects', () => {
+    expect(() =>
+      safeCanonicalize({ outer: { [nfc]: 1, [nfd]: 2 } }),
+    ).toThrow(CanonicalizeKeyCollisionError);
+  });
+
+  it('does NOT throw when the same key is present only once (idempotence)', () => {
+    expect(() => safeCanonicalize({ [nfc]: 1 })).not.toThrow();
+    expect(() => safeCanonicalize({ [nfd]: 1 })).not.toThrow();
+  });
+
+  it('does NOT throw when collision-prone keys live in different objects', () => {
+    expect(() =>
+      safeCanonicalize({ first: { [nfc]: 1 }, second: { [nfd]: 2 } }),
+    ).not.toThrow();
+  });
+
+  it('preserves the existing single-key NFC-folding contract', () => {
+    // The pre-existing behavior — that {nfc:1} and {nfd:1} produce the
+    // same canonical bytes — MUST continue to hold. Collision detection
+    // only fires when both forms appear in the same object.
+    expect(safeCanonicalize({ [nfc]: 1 })).toBe(safeCanonicalize({ [nfd]: 1 }));
   });
 });

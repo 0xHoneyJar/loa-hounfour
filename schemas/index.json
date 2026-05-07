@@ -1,1410 +1,1410 @@
 {
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
-  "version": "8.5.0",
+  "version": "8.5.1",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-07T02:06:57.692Z",
+  "generated_at": "2026-05-07T03:19:10.566Z",
   "schemas": [
     {
       "name": "jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/jwt-claims",
       "file": "jwt-claims.schema.json",
       "description": "Canonical JWT claims for loa-finn ↔ arrakis protocol"
     },
     {
       "name": "s2s-jwt-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/s2s-jwt-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/s2s-jwt-claims",
       "file": "s2s-jwt-claims.schema.json",
       "description": "Service-to-service JWT claims"
     },
     {
       "name": "invoke-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/invoke-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/invoke-response",
       "file": "invoke-response.schema.json",
       "description": "Response from an AI agent invocation with billing reference"
     },
     {
       "name": "usage-report",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/usage-report",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/usage-report",
       "file": "usage-report.schema.json",
       "description": "Token usage report for billing and rate limiting"
     },
     {
       "name": "stream-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/stream-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/stream-event",
       "file": "stream-event.schema.json",
       "description": "SSE stream event discriminated union for real-time model responses"
     },
     {
       "name": "routing-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/routing-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/routing-policy",
       "file": "routing-policy.schema.json",
       "description": "Policy for routing requests to agent pools"
     },
     {
       "name": "agent-descriptor",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-descriptor",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-descriptor",
       "file": "agent-descriptor.schema.json",
       "description": "Canonical agent representation for content negotiation"
     },
     {
       "name": "agent-lifecycle-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-lifecycle-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-lifecycle-state",
       "file": "agent-lifecycle-state.schema.json",
       "description": "Agent lifecycle state"
     },
     {
       "name": "billing-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/billing-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/billing-entry",
       "file": "billing-entry.schema.json",
       "description": "Multi-party billing entry replacing CostBreakdown"
     },
     {
       "name": "credit-note",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/credit-note",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/credit-note",
       "file": "credit-note.schema.json",
       "description": "Billing reversal/refund referencing an original BillingEntry"
     },
     {
       "name": "conversation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/conversation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/conversation",
       "file": "conversation.schema.json",
       "description": "NFT-owned conversation with sealing policy and access control"
     },
     {
       "name": "message",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/message",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/message",
       "file": "message.schema.json",
       "description": "Individual message within an NFT-owned conversation"
     },
     {
       "name": "transfer-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/transfer-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/transfer-spec",
       "file": "transfer-spec.schema.json",
       "description": "Specification for NFT ownership transfers between parties"
     },
     {
       "name": "transfer-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/transfer-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/transfer-event",
       "file": "transfer-event.schema.json",
       "description": "Record of a completed NFT ownership transfer"
     },
     {
       "name": "domain-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/domain-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/domain-event",
       "file": "domain-event.schema.json",
       "description": "Cross-cutting event envelope for aggregate state changes"
     },
     {
       "name": "domain-event-batch",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/domain-event-batch",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/domain-event-batch",
       "file": "domain-event-batch.schema.json",
       "description": "Atomic multi-event delivery with shared correlation"
     },
     {
       "name": "lifecycle-transition-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/lifecycle-transition-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/lifecycle-transition-payload",
       "file": "lifecycle-transition-payload.schema.json",
       "description": "Payload for agent lifecycle state transitions"
     },
     {
       "name": "capability",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capability",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capability",
       "file": "capability.schema.json",
       "description": "A single capability an agent can provide"
     },
     {
       "name": "capability-query",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capability-query",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capability-query",
       "file": "capability-query.schema.json",
       "description": "Query to discover agents with specific capabilities"
     },
     {
       "name": "capability-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capability-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capability-response",
       "file": "capability-response.schema.json",
       "description": "Response to a capability query"
     },
     {
       "name": "protocol-discovery",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/protocol-discovery",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/protocol-discovery",
       "file": "protocol-discovery.schema.json",
       "description": "Protocol discovery document for /.well-known/loa-hounfour"
     },
     {
       "name": "saga-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/saga-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/saga-context",
       "file": "saga-context.schema.json",
       "description": "Saga execution context for multi-step distributed operations"
     },
     {
       "name": "health-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/health-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/health-status",
       "file": "health-status.schema.json",
       "description": "Health status report for a model provider endpoint"
     },
     {
       "name": "thinking-trace",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/thinking-trace",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/thinking-trace",
       "file": "thinking-trace.schema.json",
       "description": "Normalized thinking/reasoning trace from a model provider"
     },
     {
       "name": "tool-call",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/tool-call",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/tool-call",
       "file": "tool-call.schema.json",
       "description": "Canonical tool/function call made by a model"
     },
     {
       "name": "routing-constraint",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/routing-constraint",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/routing-constraint",
       "file": "routing-constraint.schema.json",
       "description": "Agent routing constraint for task dispatch — all present fields AND-combined"
     },
     {
       "name": "performance-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/performance-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/performance-record",
       "file": "performance-record.schema.json",
       "description": "Record of agent performance for a billing entry with optional outcome validation"
     },
     {
       "name": "contribution-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/contribution-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/contribution-record",
       "file": "contribution-record.schema.json",
       "description": "Record of an agent contribution to the commons or ecosystem"
     },
     {
       "name": "sanction",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/sanction",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/sanction",
       "file": "sanction.schema.json",
       "description": "Sanction imposed on an agent for policy violations"
     },
     {
       "name": "dispute-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/dispute-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/dispute-record",
       "file": "dispute-record.schema.json",
       "description": "Dispute filed against an agent or outcome with evidence and resolution tracking"
     },
     {
       "name": "validated-outcome",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/validated-outcome",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/validated-outcome",
       "file": "validated-outcome.schema.json",
       "description": "Peer-validated outcome with stake commitment and optional dispute resolution"
     },
     {
       "name": "reputation-score",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-score",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-score",
       "file": "reputation-score.schema.json",
       "description": "Composite reputation score for an agent with weighted component sub-scores"
     },
     {
       "name": "escrow-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/escrow-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/escrow-entry",
       "file": "escrow-entry.schema.json",
       "description": "Escrow holding for bilateral agent transactions with state machine lifecycle"
     },
     {
       "name": "stake-position",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/stake-position",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/stake-position",
       "file": "stake-position.schema.json",
       "description": "Staked position representing conviction, delegation, or validation commitment"
     },
     {
       "name": "commons-dividend",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons-dividend",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons-dividend",
       "file": "commons-dividend.schema.json",
       "description": "Commons dividend declaration and distribution to eligible recipients"
     },
     {
       "name": "mutual-credit",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/mutual-credit",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/mutual-credit",
       "file": "mutual-credit.schema.json",
       "description": "Mutual credit line between agents with settlement tracking"
     },
     {
       "name": "completion-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/completion-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/completion-request",
       "file": "completion-request.schema.json",
       "description": "Provider-agnostic completion request envelope. Carries the message stream, tool definitions, sampling parameters, optional thinking budget, optional spend cap, and routing identifiers (request, tenant, NFT, trace, session)."
     },
     {
       "name": "completion-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/completion-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/completion-result",
       "file": "completion-result.schema.json",
       "description": "Provider-agnostic completion result paired with a CompletionRequest by request_id. Carries the model output (content, thinking, tool calls), finish reason, token usage, latency, and optional pricing-applied snapshot."
     },
     {
       "name": "model-capabilities",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/model-capabilities",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/model-capabilities",
       "file": "model-capabilities.schema.json",
       "description": "Per-model capability and limits descriptor. Lists which features (thinking traces, vision, tool calling, streaming, JSON mode, native runtime) the model supports plus its context/output ceilings and optional pricing."
     },
     {
       "name": "provider-wire-message",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/provider-wire-message",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/provider-wire-message",
       "file": "provider-wire-message.schema.json",
       "description": "Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id."
     },
     {
       "name": "tool-definition",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/tool-definition",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/tool-definition",
       "file": "tool-definition.schema.json",
       "description": "Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools."
     },
     {
       "name": "tool-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/tool-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/tool-result",
       "file": "tool-result.schema.json",
       "description": "Wire envelope for a tool-call result message: role tag, the originating tool_call_id, and the result content string."
     },
     {
       "name": "ensemble-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/ensemble-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/ensemble-request",
       "file": "ensemble-request.schema.json",
       "description": "Multi-model ensemble execution request. Wraps a base CompletionRequest with an ensemble strategy, the participating model list, optional timeout / consensus threshold, and optional dialogue configuration."
     },
     {
       "name": "ensemble-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/ensemble-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/ensemble-result",
       "file": "ensemble-result.schema.json",
       "description": "Outcome of an ensemble execution. Carries the selected completion, the candidate set, optional consensus score, optional dialogue-round audit trail, termination reason, total cost and latency."
     },
     {
       "name": "agent-requirements",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-requirements",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-requirements",
       "file": "agent-requirements.schema.json",
       "description": "Capability requirements an agent declares it needs from a model to function correctly. Drives capability-based routing."
     },
     {
       "name": "budget-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/budget-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/budget-scope",
       "file": "budget-scope.schema.json",
       "description": "Spending-limit envelope for a routing decision. Tracks limit, spent, action-on-exceed and optional capacity reservation."
     },
     {
       "name": "routing-resolution",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/routing-resolution",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/routing-resolution",
       "file": "routing-resolution.schema.json",
       "description": "Outcome record for a model-routing decision. Captures the resolved model, the original requested model, the resolution reason, and observed latency."
     },
     {
       "name": "constraint-proposal",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-proposal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-proposal",
       "file": "constraint-proposal.schema.json",
       "description": "Wire format for an agent-authored proposal to add cross-field constraints to a target schema. The proposal carries the proposed constraint set, rationale, grammar version, and optional review-state metadata (status, scores, consensus category)."
     },
     {
       "name": "model-provider-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/model-provider-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/model-provider-spec",
       "file": "model-provider-spec.schema.json",
       "description": "Provider registration / identity document. Describes a model provider as a whole — its model roster, endpoints, SLA targets, conformance level, vector results, and reservation policy."
     },
     {
       "name": "conformance-level",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/conformance-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/conformance-level",
       "file": "conformance-level.schema.json",
       "description": "Trust level assigned to a provider based on conformance verification depth."
     },
     {
       "name": "conformance-vector",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/conformance-vector",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/conformance-vector",
       "file": "conformance-vector.schema.json",
       "description": "Cross-language conformance test vector for adapter verification."
     },
     {
       "name": "sanction-severity",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/sanction-severity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/sanction-severity",
       "file": "sanction-severity.schema.json",
       "description": "Graduated sanction severity level (v5.1.0). Does not include \"terminated\" — termination is a separate permanent action, not a graduated severity."
     },
     {
       "name": "reconciliation-mode",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reconciliation-mode",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reconciliation-mode",
       "file": "reconciliation-mode.schema.json",
       "description": "Billing reconciliation mode — determines cost source of truth."
     },
     {
       "name": "agent-capacity-reservation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-capacity-reservation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-capacity-reservation",
       "file": "agent-capacity-reservation.schema.json",
       "description": "Capacity reservation that guarantees an agent a minimum fraction of budget."
     },
     {
       "name": "reservation-tier",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reservation-tier",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reservation-tier",
       "file": "reservation-tier.schema.json",
       "description": "Reserved capacity in basis points (0-10000). 10000 = 100%."
     },
     {
       "name": "reservation-enforcement",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reservation-enforcement",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reservation-enforcement",
       "file": "reservation-enforcement.schema.json",
       "description": "How reservation guarantees are enforced by the provider."
     },
     {
       "name": "reservation-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reservation-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reservation-state",
       "file": "reservation-state.schema.json",
       "description": "Current lifecycle state of a capacity reservation."
     },
     {
       "name": "conservation-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/conservation-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/conservation-status",
       "file": "conservation-status.schema.json",
       "description": "Tristate result of pricing conservation verification."
     },
     {
       "name": "audit-trail-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/audit-trail-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/audit-trail-entry",
       "file": "audit-trail-entry.schema.json",
       "description": "Bidirectional provenance entry linking completion → billing → conservation status."
     },
     {
       "name": "governance-config",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/governance-config",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/governance-config",
       "file": "governance-config.schema.json",
       "description": "Protocol governance parameters. Overrides hardcoded defaults when provided."
     },
     {
       "name": "delegation-chain",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delegation-chain",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delegation-chain",
       "file": "delegation-chain.schema.json",
       "description": "Authority delegation chain with depth limits and conservation invariants."
     },
     {
       "name": "inter-agent-transaction-audit",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/inter-agent-transaction-audit",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/inter-agent-transaction-audit",
       "file": "inter-agent-transaction-audit.schema.json",
       "description": "Protocol-standard audit trail for agent-to-agent economic transactions."
     },
     {
       "name": "ensemble-capability-profile",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/ensemble-capability-profile",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/ensemble-capability-profile",
       "file": "ensemble-capability-profile.schema.json",
       "description": "Collective capability declaration for model ensembles (patchwork AGI hypothesis)."
     },
     {
       "name": "conservation-property-registry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/conservation-property-registry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/conservation-property-registry",
       "file": "conservation-property-registry.schema.json",
       "description": "Registry of conservation invariants with LTL specifications, enforcement classification, and liveness properties (v6.0.0)."
     },
     {
       "name": "jwt-boundary-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/jwt-boundary-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/jwt-boundary-spec",
       "file": "jwt-boundary-spec.schema.json",
       "description": "Cross-system JWT boundary verification protocol specification (6-step pipeline)."
     },
     {
       "name": "outbound-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/outbound-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/outbound-claims",
       "file": "outbound-claims.schema.json",
       "description": "JWT claims for outbound economic requests."
     },
     {
       "name": "inbound-claims",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/inbound-claims",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/inbound-claims",
       "file": "inbound-claims.schema.json",
       "description": "JWT claims for inbound economic responses with actual cost data."
     },
     {
       "name": "agent-identity",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-identity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-identity",
       "file": "agent-identity.schema.json",
       "description": "Canonical agent identity with capability-scoped trust (v6.0.0, BREAKING)."
     },
     {
       "name": "liveness-property",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/liveness-property",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/liveness-property",
       "file": "liveness-property.schema.json",
       "description": "F_t-bounded liveness property with companion safety invariant reference."
     },
     {
       "name": "timeout-behavior",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/timeout-behavior",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/timeout-behavior",
       "file": "timeout-behavior.schema.json",
       "description": "Action taken when a liveness property timeout expires."
     },
     {
       "name": "capability-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capability-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capability-scope",
       "file": "capability-scope.schema.json",
       "description": "Domain within which a trust level applies (v6.0.0)."
     },
     {
       "name": "capability-scoped-trust",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capability-scoped-trust",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capability-scoped-trust",
       "file": "capability-scoped-trust.schema.json",
       "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6)."
     },
     {
       "name": "constraint-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-type",
       "file": "constraint-type.schema.json",
       "description": "Type universe for constraint expression operands (v6.0.0)."
     },
     {
       "name": "constraint-type-signature",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-type-signature",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-type-signature",
       "file": "constraint-type-signature.schema.json",
       "description": "Static type signature for a constraint expression (v6.0.0)."
     },
     {
       "name": "bridge-enforcement",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/bridge-enforcement",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/bridge-enforcement",
       "file": "bridge-enforcement.schema.json",
       "description": "How a bridge invariant is enforced: atomically, eventually, or manually."
     },
     {
       "name": "bridge-invariant",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/bridge-invariant",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/bridge-invariant",
       "file": "bridge-invariant.schema.json",
       "description": "A formally specified invariant for a registry bridge."
     },
     {
       "name": "exchange-rate-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/exchange-rate-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/exchange-rate-type",
       "file": "exchange-rate-type.schema.json",
       "description": "How the exchange rate between registries is determined."
     },
     {
       "name": "exchange-rate-spec",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/exchange-rate-spec",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/exchange-rate-spec",
       "file": "exchange-rate-spec.schema.json",
       "description": "Specification for how exchange rates are determined and maintained."
     },
     {
       "name": "settlement-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/settlement-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/settlement-policy",
       "file": "settlement-policy.schema.json",
       "description": "How cross-registry transfers are settled."
     },
     {
       "name": "registry-bridge",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/registry-bridge",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/registry-bridge",
       "file": "registry-bridge.schema.json",
       "description": "A bridge enabling value transfer between two economy registries."
     },
     {
       "name": "minting-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/minting-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/minting-policy",
       "file": "minting-policy.schema.json",
       "description": "Policy governing token creation within an economy registry."
     },
     {
       "name": "fork-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/fork-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/fork-type",
       "file": "fork-type.schema.json",
       "description": "How child delegations are executed: in parallel, sequentially, or conditionally."
     },
     {
       "name": "tree-node-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/tree-node-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/tree-node-status",
       "file": "tree-node-status.schema.json",
       "description": "Status of a delegation tree node."
     },
     {
       "name": "tree-strategy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/tree-strategy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/tree-strategy",
       "file": "tree-strategy.schema.json",
       "description": "Strategy for combining results from child delegations."
     },
     {
       "name": "budget-allocation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/budget-allocation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/budget-allocation",
       "file": "budget-allocation.schema.json",
       "description": "How budget is distributed among child delegations."
     },
     {
       "name": "delegation-tree-node",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delegation-tree-node",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delegation-tree-node",
       "file": "delegation-tree-node.schema.json",
       "description": "A node in the delegation tree representing a single agent delegation."
     },
     {
       "name": "delegation-tree",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delegation-tree",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delegation-tree",
       "file": "delegation-tree.schema.json",
       "description": "A tree-structured delegation enabling concurrent multi-model orchestration."
     },
     {
       "name": "bridge-transfer-saga",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/bridge-transfer-saga",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/bridge-transfer-saga",
       "file": "bridge-transfer-saga.schema.json",
       "description": "A saga orchestrating cross-registry bridge transfer with compensation semantics."
     },
     {
       "name": "monetary-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/monetary-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/monetary-policy",
       "file": "monetary-policy.schema.json",
       "description": "Monetary policy regime coupling minting to conservation invariants."
     },
     {
       "name": "delegation-outcome",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delegation-outcome",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delegation-outcome",
       "file": "delegation-outcome.schema.json",
       "description": "The outcome of a delegated governance decision with vote and dissent tracking."
     },
     {
       "name": "permission-boundary",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/permission-boundary",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/permission-boundary",
       "file": "permission-boundary.schema.json",
       "description": "A permission boundary defining MAY semantics for capability-scoped authorization."
     },
     {
       "name": "governance-proposal",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/governance-proposal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/governance-proposal",
       "file": "governance-proposal.schema.json",
       "description": "A formal governance proposal with voting lifecycle."
     },
     {
       "name": "micro-usdc",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/micro-usdc",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/micro-usdc",
       "file": "micro-usdc.schema.json",
       "description": "On-chain USDC amount in micro-units (6 decimal places). String-encoded unsigned bigint."
     },
     {
       "name": "personality-tier",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/personality-tier",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/personality-tier",
       "file": "personality-tier.schema.json",
       "description": "Personality tier classification (basic / standard / premium) used to gate capability tiers for agent bears."
     },
     {
       "name": "personality-assignment",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/personality-assignment",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/personality-assignment",
       "file": "personality-assignment.schema.json",
       "description": "Binding between an NFT token and its personality configuration. Carries archetype / ancestor / era / element / tier (extensible strings; consumer defines vocabulary) plus a SHA-256 fingerprint of the personality config."
     },
     {
       "name": "reputation-state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-state",
       "file": "reputation-state.schema.json",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed."
     },
     {
       "name": "reputation-transition",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-transition",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-transition",
       "file": "reputation-transition.schema.json",
       "description": "Audit-trail entry recording a single reputation state-machine transition: from-state, to-state, timestamp, and trigger reason."
     },
     {
       "name": "reputation-aggregate",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-aggregate",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-aggregate",
       "file": "reputation-aggregate.schema.json",
       "description": "DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts."
     },
     {
       "name": "aggregate-snapshot",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/aggregate-snapshot",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/aggregate-snapshot",
       "file": "aggregate-snapshot.schema.json",
       "description": "Point-in-time snapshot of a ReputationAggregate. Carries the snapshotted aggregate, snapshot timestamp, event count, and optional SHA-256 hash of the ordered event stream for snapshot-free replay verification."
     },
     {
       "name": "quality-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-event",
       "file": "quality-event.schema.json",
       "description": "Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id)."
     },
     {
       "name": "record-quality-event-command",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/record-quality-event-command",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/record-quality-event-command",
       "file": "record-quality-event-command.schema.json",
       "description": "Write-intent command to ingest a quality observation into the reputation aggregate. Drives sample-count increment and blended-score update."
     },
     {
       "name": "query-reputation-command",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/query-reputation-command",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/query-reputation-command",
       "file": "query-reputation-command.schema.json",
       "description": "Read-intent command for reputation aggregates. With collection_id, performs a single-aggregate lookup; without, returns all aggregates for personality+pool across collections."
     },
     {
       "name": "reset-reputation-command",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reset-reputation-command",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reset-reputation-command",
       "file": "reset-reputation-command.schema.json",
       "description": "Write-intent command to reset a reputation aggregate back to the cold state. Carries the reset reason and actor identity for audit."
     },
     {
       "name": "reputation-state-changed-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-state-changed-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-state-changed-payload",
       "file": "reputation-state-changed-payload.schema.json",
       "description": "Payload emitted when a personality's reputation state machine transitions between states (cold / warming / established / authoritative)."
     },
     {
       "name": "quality-event-recorded-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-event-recorded-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-event-recorded-payload",
       "file": "quality-event-recorded-payload.schema.json",
       "description": "Payload emitted when a quality observation is ingested into the reputation aggregate. Carries the new sample count and updated blended score."
     },
     {
       "name": "collection-score-updated-payload",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/collection-score-updated-payload",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/collection-score-updated-payload",
       "file": "collection-score-updated-payload.schema.json",
       "description": "Payload emitted when a collection's trimmed-mean score is recalculated. Acts as a monetary-policy signal in the Web4 social-monies framing — the score proxies for the collection's monetary credibility."
     },
     {
       "name": "reputation-credential",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-credential",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-credential",
       "file": "reputation-credential.schema.json",
       "description": "Portable, attested snapshot of a personality's reputation in a source collection. Carries source provenance, the issuing collection's score (analogous to CA reputation in TLS), and optional attestation hash for snapshot-free verification."
     },
     {
       "name": "event-filter",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/event-filter",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/event-filter",
       "file": "event-filter.schema.json",
       "description": "Filter criteria for event subscription. All filters are AND-combined."
     },
     {
       "name": "delivery-method",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delivery-method",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delivery-method",
       "file": "delivery-method.schema.json",
       "description": "Delivery mechanism for subscribed events."
     },
     {
       "name": "event-cursor",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/event-cursor",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/event-cursor",
       "file": "event-cursor.schema.json",
       "description": "Cursor for event replay and pagination. Specify at most one of after_event_id or after_timestamp."
     },
     {
       "name": "event-subscription",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/event-subscription",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/event-subscription",
       "file": "event-subscription.schema.json",
       "description": "A subscription to reputation events with filter, delivery, and cursor configuration."
     },
     {
       "name": "portability-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/portability-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/portability-scope",
       "file": "portability-scope.schema.json",
       "description": "Scope of reputation data to transfer: full (score + state + history), score_only, or state_only."
     },
     {
       "name": "reputation-portability-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-portability-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-portability-request",
       "file": "reputation-portability-request.schema.json",
       "description": "A request to transfer reputation data between collections."
     },
     {
       "name": "portability-response",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/portability-response",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/portability-response",
       "file": "portability-response.schema.json",
       "description": "Response to a reputation portability request."
     },
     {
       "name": "quality-signal-level",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-signal-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-signal-level",
       "file": "quality-signal-level.schema.json",
       "description": "Quality signal derived from a delegation outcome. Maps to a numeric score range."
     },
     {
       "name": "outcome-quality-mapping",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/outcome-quality-mapping",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/outcome-quality-mapping",
       "file": "outcome-quality-mapping.schema.json",
       "description": "Maps each OutcomeType to a QualitySignalLevel. Collections may override defaults."
     },
     {
       "name": "delegation-quality-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/delegation-quality-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/delegation-quality-event",
       "file": "delegation-quality-event.schema.json",
       "description": "Event recording a quality signal derived from a delegation outcome, feeding into reputation."
     },
     {
       "name": "demotion-rule",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/demotion-rule",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/demotion-rule",
       "file": "demotion-rule.schema.json",
       "description": "Rule for time-based reputation state demotion due to inactivity."
     },
     {
       "name": "reputation-decay-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-decay-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-decay-policy",
       "file": "reputation-decay-policy.schema.json",
       "description": "Temporal decay and demotion policy for collection reputation."
     },
     {
       "name": "collection-governance-config",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/collection-governance-config",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/collection-governance-config",
       "file": "collection-governance-config.schema.json",
       "description": "Per-collection governance configuration for the Bayesian reputation system."
     },
     {
       "name": "constraint-lifecycle-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-lifecycle-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-lifecycle-status",
       "file": "constraint-lifecycle-status.schema.json",
       "description": "Lifecycle status of a protocol constraint within governance."
     },
     {
       "name": "constraint-candidate",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-candidate",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-candidate",
       "file": "constraint-candidate.schema.json",
       "description": "A constraint candidate proposed for governance enactment."
     },
     {
       "name": "constraint-lifecycle-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/constraint-lifecycle-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/constraint-lifecycle-event",
       "file": "constraint-lifecycle-event.schema.json",
       "description": "State transition event in a constraint lifecycle."
     },
     {
       "name": "routing-signal-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/routing-signal-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/routing-signal-type",
       "file": "routing-signal-type.schema.json",
       "description": "Type of reputation-based routing signal."
     },
     {
       "name": "reputation-routing-signal",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-routing-signal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-routing-signal",
       "file": "reputation-routing-signal.schema.json",
       "description": "Reputation-based routing signal for meritocratic resource allocation."
     },
     {
       "name": "policy-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/policy-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/policy-type",
       "file": "policy-type.schema.json",
       "description": "Category of versioned policy."
     },
     {
       "name": "policy-version",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/policy-version",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/policy-version",
       "file": "policy-version.schema.json",
       "description": "Versioned policy record with migration support."
     },
     {
       "name": "execution-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/execution-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/execution-status",
       "file": "execution-status.schema.json",
       "description": "Lifecycle status of a governance proposal execution."
     },
     {
       "name": "change-application-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/change-application-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/change-application-result",
       "file": "change-application-result.schema.json",
       "description": "Result of applying a single proposed change during execution."
     },
     {
       "name": "proposal-execution",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/proposal-execution",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/proposal-execution",
       "file": "proposal-execution.schema.json",
       "description": "Execution record for a ratified governance proposal."
     },
     {
       "name": "proposal-event-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/proposal-event-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/proposal-event-type",
       "file": "proposal-event-type.schema.json",
       "description": "Type of governance proposal lifecycle event."
     },
     {
       "name": "proposal-outcome-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/proposal-outcome-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/proposal-outcome-event",
       "file": "proposal-outcome-event.schema.json",
       "description": "Lifecycle event for a governance proposal."
     },
     {
       "name": "trust-layer-snapshot",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/trust-layer-snapshot",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/trust-layer-snapshot",
       "file": "trust-layer-snapshot.schema.json",
       "description": "Point-in-time snapshot of the trust layer for access evaluation."
     },
     {
       "name": "capital-layer-snapshot",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/capital-layer-snapshot",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/capital-layer-snapshot",
       "file": "capital-layer-snapshot.schema.json",
       "description": "Point-in-time snapshot of the capital layer for access evaluation."
     },
     {
       "name": "access-decision",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/access-decision",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/access-decision",
       "file": "access-decision.schema.json",
       "description": "Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition."
     },
     {
       "name": "economic-boundary",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/economic-boundary",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/economic-boundary",
       "file": "economic-boundary.schema.json",
       "description": "Economic membrane: trust × capital → access decision."
     },
     {
       "name": "economic-impact-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/economic-impact-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/economic-impact-type",
       "file": "economic-impact-type.schema.json",
       "description": "Category of economic consequence from a reputation change."
     },
     {
       "name": "reputation-trigger-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-trigger-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-trigger-event",
       "file": "reputation-trigger-event.schema.json",
       "description": "The reputation event that triggered economic consequences."
     },
     {
       "name": "economic-impact-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/economic-impact-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/economic-impact-entry",
       "file": "economic-impact-entry.schema.json",
       "description": "A single economic consequence of a reputation change."
     },
     {
       "name": "reputation-economic-impact",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-economic-impact",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-economic-impact",
       "file": "reputation-economic-impact.schema.json",
       "description": "Economic consequences of a reputation change."
     },
     {
       "name": "cost-per-token",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/cost-per-token",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/cost-per-token",
       "file": "cost-per-token.schema.json",
       "description": "Token-level pricing for a model."
     },
     {
       "name": "model-economic-profile",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/model-economic-profile",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/model-economic-profile",
       "file": "model-economic-profile.schema.json",
       "description": "Per-model economic profile for the SDR routing basket."
     },
     {
       "name": "engagement-signal-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/engagement-signal-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/engagement-signal-type",
       "file": "engagement-signal-type.schema.json",
       "description": "Category of community engagement signal."
     },
     {
       "name": "community-engagement-signal",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/community-engagement-signal",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/community-engagement-signal",
       "file": "community-engagement-signal.schema.json",
       "description": "Community engagement signal for reputation and governance weighting."
     },
     {
       "name": "performance-outcome-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/performance-outcome-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/performance-outcome-type",
       "file": "performance-outcome-type.schema.json",
       "description": "Classification of how a model invocation performed against expectations."
     },
     {
       "name": "economic-performance-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/economic-performance-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/economic-performance-event",
       "file": "economic-performance-event.schema.json",
       "description": "Captures the outcome of a model invocation following an EconomicBoundary access decision. This is the return signal that closes the unidirectional membrane gap."
     },
     {
       "name": "quality-bridge-direction",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-bridge-direction",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-bridge-direction",
       "file": "quality-bridge-direction.schema.json",
       "description": "Whether the economic outcome helped or hurt the model reputation."
     },
     {
       "name": "performance-quality-bridge",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/performance-quality-bridge",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/performance-quality-bridge",
       "file": "performance-quality-bridge.schema.json",
       "description": "Connects economic performance outcomes to reputation quality events. This is the return path through the membrane — economic outcomes become trust signals."
     },
     {
       "name": "basket-composition-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/basket-composition-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/basket-composition-entry",
       "file": "basket-composition-entry.schema.json",
       "description": "A single model entry in a basket composition snapshot."
     },
     {
       "name": "basket-composition",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/basket-composition",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/basket-composition",
       "file": "basket-composition.schema.json",
       "description": "Point-in-time snapshot of the SDR basket — the weight distribution across models at a moment in time."
     },
     {
       "name": "rebalance-trigger-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/rebalance-trigger-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/rebalance-trigger-type",
       "file": "rebalance-trigger-type.schema.json",
       "description": "What triggered a basket rebalancing event."
     },
     {
       "name": "routing-rebalance-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/routing-rebalance-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/routing-rebalance-event",
       "file": "routing-rebalance-event.schema.json",
       "description": "Records a basket rebalancing — what triggered it, what changed, and the before/after composition state."
     },
     {
       "name": "execution-strategy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/execution-strategy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/execution-strategy",
       "file": "execution-strategy.schema.json",
       "description": "Strategy for executing governance proposal changes."
     },
     {
       "name": "checkpoint-health",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/checkpoint-health",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/checkpoint-health",
       "file": "checkpoint-health.schema.json",
       "description": "Health assessment at a governance execution checkpoint."
     },
     {
       "name": "proceed-decision",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/proceed-decision",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/proceed-decision",
       "file": "proceed-decision.schema.json",
       "description": "Decision made at a governance execution checkpoint."
     },
     {
       "name": "execution-checkpoint",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/execution-checkpoint",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/execution-checkpoint",
       "file": "execution-checkpoint.schema.json",
       "description": "Health check recorded during progressive or canary governance execution."
     },
     {
       "name": "rollback-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/rollback-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/rollback-scope",
       "file": "rollback-scope.schema.json",
       "description": "Scope and audit trail for a governance execution rollback."
     },
     {
       "name": "denial-code",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/denial-code",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/denial-code",
       "file": "denial-code.schema.json",
       "description": "Machine-parseable denial codes for agent consumers."
     },
     {
       "name": "evaluation-gap",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/evaluation-gap",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/evaluation-gap",
       "file": "evaluation-gap.schema.json",
       "description": "Structured gap information for denied evaluations — actionable feedback for agents."
     },
     {
       "name": "economic-boundary-evaluation-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/economic-boundary-evaluation-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/economic-boundary-evaluation-event",
       "file": "economic-boundary-evaluation-event.schema.json",
       "description": "Event recording an economic boundary evaluation for the feedback loop."
     },
     {
       "name": "task-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/task-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/task-type",
       "file": "task-type.schema.json",
       "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format."
     },
     {
       "name": "task-type-cohort",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/task-type-cohort",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/task-type-cohort",
       "file": "task-type-cohort.schema.json",
       "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate."
     },
     {
       "name": "quality-signal-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-signal-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-signal-event",
       "file": "quality-signal-event.schema.json",
       "description": "Reputation event variant: quality signal observation. When task_type is absent, the signal updates aggregate-only scoring; when present, both task-cohort and aggregate scoring update."
     },
     {
       "name": "task-completed-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/task-completed-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/task-completed-event",
       "file": "task-completed-event.schema.json",
       "description": "Reputation event variant: task completion record. Pairs the completed task_type with success/duration metadata for cohort scoring."
     },
     {
       "name": "credential-update-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/credential-update-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/credential-update-event",
       "file": "credential-update-event.schema.json",
       "description": "Reputation event variant: credential lifecycle change. Emitted when an agent reputation credential is issued, revoked, renewed, or suspended."
     },
     {
       "name": "reputation-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/reputation-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/reputation-event",
       "file": "reputation-event.schema.json",
       "description": "Discriminated union of reputation event variants. Discriminator: type."
     },
     {
       "name": "scoring-path",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/scoring-path",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/scoring-path",
       "file": "scoring-path.schema.json",
       "description": "Which tier of the scoring cascade was used for a reputation decision."
     },
     {
       "name": "scoring-path-log",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/scoring-path-log",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/scoring-path-log",
       "file": "scoring-path-log.schema.json",
       "description": "Audit record of which scoring cascade tier was used. Optional hash chain for tamper-evident audit."
     },
     {
       "name": "quality-observation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/quality-observation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/quality-observation",
       "file": "quality-observation.schema.json",
       "description": "Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity."
     },
     {
       "name": "model-performance-event",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/model-performance-event",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/model-performance-event",
       "file": "model-performance-event.schema.json",
       "description": "Reputation event variant: model performance observation. Carries full model attribution (model_id, provider, pool_id) plus a structured quality observation; closes the autopoietic feedback loop between scoring and routing."
     },
     {
       "name": "commons/invariant",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/invariant",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/invariant",
       "file": "commons/invariant.schema.json",
       "description": "commons/invariant"
     },
     {
       "name": "commons/conservation-law",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/conservation-law",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/conservation-law",
       "file": "commons/conservation-law.schema.json",
       "description": "commons/conservation-law"
     },
     {
       "name": "commons/audit-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/audit-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/audit-entry",
       "file": "commons/audit-entry.schema.json",
       "description": "commons/audit-entry"
     },
     {
       "name": "commons/audit-trail",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/audit-trail",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/audit-trail",
       "file": "commons/audit-trail.schema.json",
       "description": "commons/audit-trail"
     },
     {
       "name": "commons/state",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/state",
       "file": "commons/state.schema.json",
       "description": "commons/state"
     },
     {
       "name": "commons/transition",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/transition",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/transition",
       "file": "commons/transition.schema.json",
       "description": "commons/transition"
     },
     {
       "name": "commons/state-machine-config",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/state-machine-config",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/state-machine-config",
       "file": "commons/state-machine-config.schema.json",
       "description": "State machine configuration for a governed resource. Complements the existing StateMachineDefinition interface in vocabulary/state-machines.ts with schema-level validation and constraint DSL guards."
     },
     {
       "name": "commons/governance-class",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governance-class",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governance-class",
       "file": "commons/governance-class.schema.json",
       "description": "commons/governance-class"
     },
     {
       "name": "commons/governance-mutation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governance-mutation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governance-mutation",
       "file": "commons/governance-mutation.schema.json",
       "description": "GovernanceMutation"
     },
     {
       "name": "commons/governed-credits",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governed-credits",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governed-credits",
       "file": "commons/governed-credits.schema.json",
       "description": "Governed credit lot — wire shape for the lot_invariant pattern (I-1 through I-5). Conservation law: balance + reserved + consumed == original_allocation."
     },
     {
       "name": "commons/governed-reputation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governed-reputation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governed-reputation",
       "file": "commons/governed-reputation.schema.json",
       "description": "Governed reputation — maps to ReputationAggregate state machine (cold → warming → established → authoritative)."
     },
     {
       "name": "commons/governed-freshness",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governed-freshness",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governed-freshness",
       "file": "commons/governed-freshness.schema.json",
       "description": "Governed freshness — wire shape for adaptive-decay weights. Conservation law: freshness_score >= minimum_freshness while not expired."
     },
     {
       "name": "commons/hash-chain-discontinuity",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/hash-chain-discontinuity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/hash-chain-discontinuity",
       "file": "commons/hash-chain-discontinuity.schema.json",
       "description": "Event recording a detected hash chain discontinuity in an audit trail. Triggers halt-and-reconcile protocol (ADR-006)."
     },
     {
       "name": "commons/quarantine-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/quarantine-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/quarantine-status",
       "file": "commons/quarantine-status.schema.json",
       "description": "active: entries under investigation. reconciled: entries verified and reintegrated. dismissed: entries permanently rejected."
     },
     {
       "name": "commons/quarantine-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/quarantine-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/quarantine-record",
       "file": "commons/quarantine-record.schema.json",
       "description": "Record of quarantined audit trail entries after hash chain discontinuity."
     },
     {
       "name": "commons/governance-error",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governance-error",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/governance-error",
       "file": "commons/governance-error.schema.json",
       "description": "GovernanceError"
     },
     {
       "name": "commons/protocol-surface",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/protocol-surface",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/protocol-surface",
       "file": "commons/protocol-surface.schema.json",
       "description": "commons/protocol-surface"
     },
     {
       "name": "commons/dynamic-contract",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/dynamic-contract",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/dynamic-contract",
       "file": "commons/dynamic-contract.schema.json",
       "description": "Maps reputation state to protocol surface. A model at cold state accesses different protocol features than one at authoritative."
     },
     {
       "name": "commons/contract-negotiation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/contract-negotiation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/contract-negotiation",
       "file": "commons/contract-negotiation.schema.json",
       "description": "Runtime handshake for dynamic contract negotiation. Model presents reputation state, receives allowed protocol surface. Reputation MUST be server-derived or signed — self-assertion is non-conformant."
     },
     {
       "name": "commons/vector-manifest-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/vector-manifest-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/vector-manifest-entry",
       "file": "commons/vector-manifest-entry.schema.json",
       "description": "commons/vector-manifest-entry"
     },
     {
       "name": "commons/vector-manifest",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/vector-manifest",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/vector-manifest",
       "file": "commons/vector-manifest.schema.json",
       "description": "Self-describing manifest for conformance test vectors. Cross-language consumers use this to discover and load vectors."
     },
     {
       "name": "x402-quote",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-quote",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-quote",
       "file": "x402-quote.schema.json",
       "description": "x402 pricing offer from a model provider. Carries the max-cost ceiling, settlement chain / token / address, expiration, and optional per-token rates for downstream metering."
     },
     {
       "name": "x402-payment-proof",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-payment-proof",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-payment-proof",
       "file": "x402-payment-proof.schema.json",
       "description": "x402 payment evidence submitted with a paid request. Carries the HTTP 402 payment header, the originating quote_id, and an optional on-chain transaction hash."
     },
     {
       "name": "x402-settlement-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-settlement-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-settlement-status",
       "file": "x402-settlement-status.schema.json",
       "description": "Lifecycle state of an x402 settlement: pending / confirmed / failed / refunded."
     },
     {
       "name": "x402-settlement",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-settlement",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-settlement",
       "file": "x402-settlement.schema.json",
       "description": "Final settlement record for an x402 payment. Pairs payment_id with the originating quote_id, the actual settled cost, settlement-chain context, and current status."
     },
     {
       "name": "x402-error-code",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-error-code",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-error-code",
       "file": "x402-error-code.schema.json",
       "description": "Machine-parseable error code for x402 payment failures (PAYMENT_REQUIRED / NOT_ALLOWLISTED / INFERENCE_FAILED / FEATURE_DISABLED / QUOTE_EXPIRED / INSUFFICIENT_FUNDS)."
     },
     {
       "name": "consumer-contract",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/consumer-contract",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/consumer-contract",
       "file": "consumer-contract.schema.json",
       "description": "Consumer-driven contract declaring imported symbols per entrypoint."
     },
     {
       "name": "feedback-dampening-config",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/feedback-dampening-config",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/feedback-dampening-config",
       "file": "feedback-dampening-config.schema.json",
       "description": "Tunable parameters for adaptive feedback dampening: min/max learning rates, ramp-sample count, and Bayesian pseudo-count for cold-start smoothing."
     },
     {
       "name": "transition-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/transition-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/transition-result",
       "file": "transition-result.schema.json",
       "description": "Result of a GovernedResource state transition."
     },
     {
       "name": "invariant-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/invariant-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/invariant-result",
       "file": "invariant-result.schema.json",
       "description": "Result of checking a single invariant on a GovernedResource."
     },
     {
       "name": "mutation-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/mutation-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/mutation-context",
       "file": "mutation-context.schema.json",
       "description": "Context for a governed resource mutation — actor identity, type, and access policy. Generalized from freeside's CreditMutationContext (6-witness pattern)."
     },
     {
       "name": "signing-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signing-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signing-context",
       "file": "signing-context.schema.json",
       "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection."
     },
     {
       "name": "panel-decision-artifact",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/panel-decision-artifact",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/panel-decision-artifact",
       "file": "panel-decision-artifact.schema.json",
       "description": "Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json."
     },
     {
       "name": "panel-verdict",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/panel-verdict",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/panel-verdict",
       "file": "panel-verdict.schema.json",
       "description": "Deliberation output: bucket + per-juror verdicts + Ed25519-signed envelope. Cross-field rules in constraints/PanelVerdict.constraints.json."
     },
     {
       "name": "deliberation-dissent",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/deliberation-dissent",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/deliberation-dissent",
       "file": "deliberation-dissent.schema.json",
       "description": "Mid-deliberation concern, minority verdict, or process objection. Distinct lifecycle from governance DissentRecord."
     },
     {
       "name": "pairwise-score",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/pairwise-score",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/pairwise-score",
       "file": "pairwise-score.schema.json",
       "description": "A single scorer/scored pair with three dimensional scores. Self-scoring rejected by CSR-1."
     },
     {
       "name": "cross-score-report",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/cross-score-report",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/cross-score-report",
       "file": "cross-score-report.schema.json",
       "description": "Signed pairwise cross-scoring attestation. Cross-field rule (no-self-scoring) in constraints/CrossScoreReport.constraints.json."
     },
     {
       "name": "org-identity",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/org-identity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/org-identity",
       "file": "org-identity.schema.json",
       "description": "Org root identity: org_id + cold-storage public key + active representatives + constitutional hash. Cross-field rule OI-1 in constraints/OrgIdentity.constraints.json."
     },
     {
       "name": "org-representative-delegation",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/org-representative-delegation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/org-representative-delegation",
       "file": "org-representative-delegation.schema.json",
       "description": "Append-only delegation record binding org → representative, signed under a signing_context envelope. Cross-field rules in constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3)."
     },
     {
       "name": "succession-policy",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/succession-policy",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/succession-policy",
       "file": "succession-policy.schema.json",
       "description": "Constitutional thresholds enforcing the asymmetric ladder + non-decreasing cooldown invariants. Cross-field rules SP-1..2 in constraints/SuccessionPolicy.constraints.json."
     },
     {
       "name": "keyring",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/keyring",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/keyring",
       "file": "keyring.schema.json",
       "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade. Cross-field validation enforces signer_id uniqueness within signers[] (KR-1) and warns on duplicate key_ref entries (KR-2 — duplicate references to the same underlying key are typically a misconfiguration)."
     },
     {
       "name": "signer-entry",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-entry",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-entry",
       "file": "signer-entry.schema.json",
       "description": "Cryptographic-material entry inside a Keyring. Binds signer_id + key_ref to a public key, signature kind, scoped trust profile, and lifecycle status."
     },
     {
       "name": "signer-competence-rule",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-competence-rule",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-competence-rule",
       "file": "signer-competence-rule.schema.json",
       "description": "Layer-3 rule pairing an action pattern with the capability-scope set required to authorize matching actions. Composes with Layer-2 SignerEntry.scoped_trust."
     },
     {
       "name": "signer-competence-result",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-competence-result",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-competence-result",
       "file": "signer-competence-result.schema.json",
       "description": "Outcome record from evaluating a SignerEntry against an action via SignerCompetenceRule. Threaded into AccessDecision.signer_competence_result via the v8.5.0 EXTEND."
     },
     {
       "name": "signature-envelope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signature-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signature-envelope",
       "file": "signature-envelope.schema.json",
       "description": "Crypto-bearing envelope wrapping a signed payload hash. validate() defaults to { valid: false, errors: [{ code: CRYPTO_DEFERRED }] } unless { acceptDeferred: true } is passed; that opt-in is the safety mechanism preventing \"shape valid means trusted\" by accident."
     },
     {
       "name": "signer-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-type",
       "file": "signer-type.schema.json",
       "description": "Classification of the entity that produced a signature. Paired with SignatureEnvelope.signer_type and SignerEntry."
     },
     {
       "name": "signature-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signature-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signature-type",
       "file": "signature-type.schema.json",
       "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm."
     },
     {
       "name": "signer-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-status",
       "file": "signer-status.schema.json",
       "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState."
     },
     {
       "name": "policy-decision-outcome",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/policy-decision-outcome",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/policy-decision-outcome",
       "file": "policy-decision-outcome.schema.json",
       "description": "Outcome enum for policy-decision shapes (AccessDecision.outcome, SignerCompetenceResult.outcome). 5 substrate-agnostic members."
     },
     {
       "name": "receipt-detail-level",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/receipt-detail-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/receipt-detail-level",
       "file": "receipt-detail-level.schema.json",
       "description": "Verbosity selector for RecallReceipt. Three substrate-agnostic levels: minimal | standard | debug. The consumer's audit policy decides what fields populate each level; the library ships only the selector vocabulary."
     },
     {
       "name": "surface-context",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/surface-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/surface-context",
       "file": "surface-context.schema.json",
       "description": "Environment selector for recall machinery. Closed 5-member core (public | private | system | demo | test) plus a 3-segment consumer namespace fallback. The combined regex (^([a-z]+|[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+)$) matches either form for cross-runner parity."
     },
     {
       "name": "recall-request",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/recall-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/recall-request",
       "file": "recall-request.schema.json",
       "description": "Input record for recall machinery. Carries subject_agent_id, surface_context (env scope), detail_level (verbosity selector for the matching RecallReceipt), and an Optional requestor_signer_id for consumer-side signing."
     },
     {
       "name": "recall-pack",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/recall-pack",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/recall-pack",
       "file": "recall-pack.schema.json",
       "description": "Output container for the recall machinery: items + redaction summary + exclusion summary + content-addressed pack_hash. Sub-component shapes inlined per the locked v8.5.0 de-scope decision. Hash verification is a consumer obligation surfaced via the unverified-obligations manifest (integrity_deferred)."
     },
     {
       "name": "recall-receipt",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/recall-receipt",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/recall-receipt",
       "file": "recall-receipt.schema.json",
       "description": "Crypto-bearing signed acknowledgment for a RecallPack. validate() defaults to { valid: false, errors: [CRYPTO_DEFERRED] } unless { acceptDeferred: true } is passed; consumer must verify the wrapped signature_envelope and reconcile pack_hash + receipt_hash before treating the receipt as authoritative."
     },
     {
       "name": "forget-record",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/forget-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/forget-record",
       "file": "forget-record.schema.json",
       "description": "First-class forgetting primitive distinct from Sanction/revocation. Four-variant discriminated union over forget_scope. The crypto_full_destruction variant requires a legal_mandate_reference field; the other three variants must NOT carry the field (additionalProperties: false enforces). See docs/architecture/forget-record-semantics.md for the verifiability truth table."
     },
     {
       "name": "commitment-type",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commitment-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commitment-type",
       "file": "commitment-type.schema.json",
       "description": "Discriminator vocabulary for CommitmentRoot. Four substrate-agnostic categories: estate_checkpoint | recall_receipt | transition_bundle | revocation_checkpoint."
     },
     {
       "name": "commitment-root",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commitment-root",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commitment-root",
       "file": "commitment-root.schema.json",
       "description": "Content-addressed onchain anchor primitive. Crypto-bearing AND integrity-bearing — validate() defaults to { valid: false, errors: [INTEGRITY_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side."
     },
     {
       "name": "agent-estate-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-estate-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-estate-status",
       "file": "agent-estate-status.schema.json",
       "description": "Lifecycle vocabulary for AgentEstate. Five substrate-agnostic states: provisioning | active | paused | transferring | dissolved. State-machine validity is consumer-side per ADR-010."
     },
     {
       "name": "agent-estate",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-estate",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-estate",
       "file": "agent-estate.schema.json",
       "description": "Estate-as-container primitive: binds a controller_agent_id to a Keyring (Layer 2) and a lifecycle status. Foundation for the cycle-005 EstateTransition surface. State-machine validity is consumer-side per ADR-010."
     },
     {
       "name": "privacy-scope",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/privacy-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/privacy-scope",
       "file": "privacy-scope.schema.json",
       "description": "Privacy classification for Assertion payloads. Four substrate-agnostic levels: public | participants_only | controller_only | compliance_only. Vocabulary only — enforcement is consumer-side."
     },
     {
       "name": "risk-level",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/risk-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/risk-level",
       "file": "risk-level.schema.json",
       "description": "Risk classification for Assertion payloads. Four ordinal levels: routine | elevated | high | severe. Vocabulary only — risk thresholds are consumer-side."
     },
     {
       "name": "assertion-status",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/assertion-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/assertion-status",
       "file": "assertion-status.schema.json",
       "description": "Lifecycle vocabulary for Assertion. Eight states: candidate (pre-admission, non-crypto-bearing) + admitted | superseded | challenged | revoked | forgotten | escrow | archived (post-admission, crypto-bearing)."
     },
     {
       "name": "assertion-class",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/assertion-class",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/assertion-class",
       "file": "assertion-class.schema.json",
       "description": "Illocutionary-force vocabulary for Assertion. Substrate-agnostic core of 7 speech-act categories (attestation | observation | assessment | consent | delegation | commitment | disclosure) plus a 3-segment consumer namespace fallback. Member set locked at PR-A2.1 design-freeze gate per D-006."
     },
     {
       "name": "assertion",
-      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/assertion",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/assertion",
       "file": "assertion.schema.json",
       "description": "Signed-observation-with-lifecycle envelope. 8-variant status-discriminated union. CandidateAssertion folded as status:candidate (F3 fold). Variant-aware crypto-bearing (J3): candidate is NOT crypto-bearing; the other 7 variants ARE — validate() inspects payload status to apply the safe-by-default branch. State-machine rules (A1/A2/A3) live in constraints/Assertion.constraints.json."
     }

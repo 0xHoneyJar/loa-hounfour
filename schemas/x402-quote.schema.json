@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/x402-quote",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-quote",
   "additionalProperties": false,
   "description": "x402 pricing offer from a model provider. Carries the max-cost ceiling, settlement chain / token / address, expiration, and optional per-token rates for downstream metering.",
   "type": "object",
@@ -61,5 +61,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }

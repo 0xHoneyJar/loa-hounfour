@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('8.5.0');
+    expect(CONTRACT_VERSION).toBe('8.5.1');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('8.5.0');
+    expect(pkg.version).toBe('8.5.1');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('8.5.0');
+    expect(index.version).toBe('8.5.1');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('8.5.0');
+    expect(version).toBe('8.5.1');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,7 +129,7 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use the current contract version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/8\.5\.0\//);
+      expect(schema.$id).toMatch(/\/8\.5\.1\//);
     }
   });
 
@@ -248,7 +248,7 @@ describe('version bump', () => {
     // MUST source from the same CONTRACT_VERSION constant as the rest of the
     // version surfaces — any divergence is exactly the inconsistency the
     // bridge findings F1 / F-001 / F-002 raised when the runtime emitted
-    // '8.5.0' while every other surface still said '8.5.0'.
+    // '8.5.1' while every other surface still said '8.5.1'.
     const { validate } = await import('../../src/validators/index.js');
     const { SignatureEnvelopeSchema } = await import(
       '../../src/governance/signature-envelope.js'
@@ -262,7 +262,7 @@ describe('version bump', () => {
       signature_value:
         'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       signed_at: '2026-05-06T00:00:00Z',
-      contract_version: '8.5.0',
+      contract_version: '8.5.1',
     };
     const result = validate(SignatureEnvelopeSchema, validShape, {
       acceptDeferred: true,
