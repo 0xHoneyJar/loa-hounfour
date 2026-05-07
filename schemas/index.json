@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-07T00:56:04.466Z",
+  "generated_at": "2026-05-07T01:33:00.584Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1364,7 +1364,7 @@
       "name": "commitment-root",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-root",
       "file": "commitment-root.schema.json",
-      "description": "Content-addressed onchain anchor primitive. Crypto-bearing — validate() defaults to { valid: false, errors: [CRYPTO_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side."
+      "description": "Content-addressed onchain anchor primitive. Crypto-bearing AND integrity-bearing — validate() defaults to { valid: false, errors: [INTEGRITY_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side."
     },
     {
       "name": "agent-estate-status",

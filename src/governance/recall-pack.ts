@@ -115,6 +115,7 @@ export const RecallPackSchema = Type.Object(
   {
     $id: 'RecallPack',
     additionalProperties: false,
+    'x-integrity-bearing': true,
     description:
       'Output container for the recall machinery: items + redaction summary + exclusion summary + content-addressed pack_hash. Sub-component shapes inlined per the locked v8.5.0 de-scope decision. Hash verification is a consumer obligation surfaced via the unverified-obligations manifest (integrity_deferred).',
   },

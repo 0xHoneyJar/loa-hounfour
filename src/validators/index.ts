@@ -1204,8 +1204,32 @@ export function validate<T extends TSchema>(
       const variantCompiled = getOrCompile(variantSchema);
       if (variantCompiled.Check(data)) {
         isCryptoBearing = true;
-        cryptoBearingVariantId =
-          typeof variant.$id === 'string' ? variant.$id : undefined;
+        // Iter-2 F7 mitigation: surface which variant matched so consumers
+        // / operators can distinguish 'admitted' from 'forgotten' in the
+        // manifest. Prefer an explicit variant-level $id when present;
+        // otherwise synthesize a `<UnionId>#<discriminator-value>` form
+        // by reading the literal `status` (or any single-literal field)
+        // from the matched variant's properties.
+        if (typeof variant.$id === 'string') {
+          cryptoBearingVariantId = variant.$id;
+        } else if (
+          schema.$id &&
+          variant.properties &&
+          typeof variant.properties === 'object'
+        ) {
+          const props = variant.properties as Record<string, Record<string, unknown>>;
+          for (const [name, propSchema] of Object.entries(props)) {
+            if (
+              typeof propSchema === 'object' &&
+              propSchema !== null &&
+              'const' in propSchema &&
+              typeof propSchema.const === 'string'
+            ) {
+              cryptoBearingVariantId = `${schema.$id}#${name}=${propSchema.const}`;
+              break;
+            }
+          }
+        }
         break;
       }
     }
@@ -1233,12 +1257,19 @@ export function validate<T extends TSchema>(
     // schema. The library STILL does not verify any of these; the manifest
     // is the visible-obligation primitive.
     //
+    // PR-A2.3 iter-2 (F3 mitigation): integrity-bearing detection now keys on
+    // the schema-level 'x-integrity-bearing' flag rather than a hardcoded
+    // $id list. New content-addressed schemas only need to set the flag in
+    // their TypeBox options; validate() picks them up via the same property
+    // lookup pattern as 'x-crypto-bearing'. RecallPack and CommitmentRoot
+    // both carry the flag.
+    //
     // contract_version sources from CONTRACT_VERSION so that the runtime
     // emission, schemas/index.json, and the published $id namespace stay
     // aligned through the dev cycle (per cycle-003 D-005 precedent: the
     // namespace bumps in the version-bump sprint, not mid-cycle).
     const isIntegrityBearing =
-      schema.$id === 'CommitmentRoot' || schema.$id === 'RecallPack';
+      schemaRecord['x-integrity-bearing'] === true;
     const ruleId = isIntegrityBearing ? 'INTEGRITY_DEFERRED' : 'CRYPTO_DEFERRED';
     const reason: UnverifiedObligationReason = isIntegrityBearing
       ? 'integrity_deferred'
@@ -1278,16 +1309,26 @@ export function validate<T extends TSchema>(
   }
 
   // ORD-3 manifest promotion (PR-A2.3 — HIGH carry-forward from v8.5.0
-  // backlog). When validate() is called against OrgRepresentativeDelegation
-  // without the consumer-supplied granted_by_chain_records context, ORD-3's
-  // chain-validity check resolves to vacuous-true at the constraint-DSL
-  // level (open-fail). The manifest entry promotes the obligation from
-  // silent-pass to visible-deferred so the consumer cannot accidentally
-  // miss it.
-  if (
-    schema.$id === 'OrgRepresentativeDelegation' &&
-    !hasChainContextRecords(options?.chainContext)
-  ) {
+  // backlog). When validate() is called against OrgRepresentativeDelegation,
+  // emit a manifest entry surfacing the chain-validity obligation in BOTH
+  // context-present and context-absent paths so the audit trail is
+  // unambiguous. (Iter-2 F4 mitigation: silence on the context-present path
+  // would let consumers conflate "library validated chain" with "library
+  // skipped because no context was supplied".)
+  //
+  // - context_absent (granted_by_chain_records missing): consumer must
+  //   assemble the chain or perform the check consumer-side; surfaced
+  //   under reason: 'context_absent'.
+  // - context_present (granted_by_chain_records supplied): the library
+  //   accepts the consumer-supplied chain but does NOT itself run
+  //   is_valid_dag at validate() time — chain-DSL evaluation lives in
+  //   `npm run check:constraints`, not in validate(). Surfaced under
+  //   reason: 'pattern_matching' to distinguish from the absent case;
+  //   consumers that want library-side DAG evaluation as part of
+  //   validate() will gain it in a later cycle alongside the runtime
+  //   constraint-evaluator.
+  if (schema.$id === 'OrgRepresentativeDelegation') {
+    const contextSupplied = hasChainContextRecords(options?.chainContext);
     return {
       valid: true,
       unverified_obligations: {
@@ -1300,14 +1341,19 @@ export function validate<T extends TSchema>(
             rule:
               'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
             evaluator: 'consumer',
-            reason: 'context_absent',
-            evaluation_note:
-              'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
-              'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
-              'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
-              'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
-              'library-side DAG validation, OR perform the chain check consumer-side. See ' +
-              'docs/architecture/org-overseer.md for the verification profile.',
+            reason: contextSupplied ? 'pattern_matching' : 'context_absent',
+            evaluation_note: contextSupplied
+              ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
+                'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
+                'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
+                'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
+                'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
+              : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
+                'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
+                'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
+                'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
+                'library-side DAG validation, OR perform the chain check consumer-side. See ' +
+                'docs/architecture/org-overseer.md for the verification profile.',
             consumer_acknowledgment_required: true,
           },
         ],

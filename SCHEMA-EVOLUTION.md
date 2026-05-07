@@ -223,3 +223,35 @@ for which subject under which mandate is consumer-side. The
 doc carries the verifiability truth table (10 verifications × 4 scopes)
 so consumers can reason about which audit-non-repudiation properties
 each scope preserves.
+
+## Manifest contract (v8.5.0 widening)
+
+The `UnverifiedObligationsManifest` shape was widened in v8.5.0
+PR-A2.3 strict-additively from the v8.4.0 baseline:
+
+| Field | v8.4.0 | v8.5.0 |
+|---|---|---|
+| `unverified_rules[].evaluator` | `'runtime-deferred'` (literal) | `'runtime-deferred' \| 'consumer' \| 'library'` |
+| `unverified_rules[].reason` | (absent) | optional: `'context_absent' \| 'crypto_deferred' \| 'integrity_deferred' \| 'pattern_matching' \| 'vocabulary_drift'` |
+
+**Backwards compatibility**: TypeScript narrowing on the v8.4.0
+`'runtime-deferred'` literal continues to type-check against the
+widened union (the literal is a subtype of the union). Runtime entries
+that pre-date v8.5.0 (ORD-1, ORD-2, ORD-4) continue to emit
+`evaluator: 'runtime-deferred'` byte-identically. New entries
+introduced in v8.5.0 (`CRYPTO_DEFERRED`, `INTEGRITY_DEFERRED`, ORD-3
+manifest promotion) populate the new `'consumer'` value with an
+explicit `reason`.
+
+**Migration guidance for consumers**: prefer pattern-matching by
+`rule_id` (stable across versions) and `reason` (controlled
+vocabulary) rather than by `evaluator` literal. Consumers that need
+to detect "any deferred obligation" should match against the
+`reason` vocabulary; consumers that need rule-specific behavior
+should match against `rule_id`.
+
+The [authority-cascade.md](docs/architecture/authority-cascade.md)
+doc has the worked verification trace; the
+[forget-record-semantics.md](docs/architecture/forget-record-semantics.md)
+doc references the manifest entries emitted on the
+`crypto_full_destruction` audit-defensibility caveat path.

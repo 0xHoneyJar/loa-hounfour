@@ -59,6 +59,7 @@ export const CommitmentRootSchema = Type.Object({
     $id: 'CommitmentRoot',
     additionalProperties: false,
     'x-crypto-bearing': true,
-    description: 'Content-addressed onchain anchor primitive. Crypto-bearing — validate() defaults to { valid: false, errors: [CRYPTO_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side.',
+    'x-integrity-bearing': true,
+    description: 'Content-addressed onchain anchor primitive. Crypto-bearing AND integrity-bearing — validate() defaults to { valid: false, errors: [INTEGRITY_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side.',
 });
 //# sourceMappingURL=commitment-root.js.map
