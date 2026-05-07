@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-06T23:04:42.891Z",
+  "generated_at": "2026-05-07T00:20:41.626Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1235,6 +1235,12 @@
       "description": "Mid-deliberation concern, minority verdict, or process objection. Distinct lifecycle from governance DissentRecord."
     },
     {
+      "name": "pairwise-score",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/pairwise-score",
+      "file": "pairwise-score.schema.json",
+      "description": "A single scorer/scored pair with three dimensional scores. Self-scoring rejected by CSR-1."
+    },
+    {
       "name": "cross-score-report",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/cross-score-report",
       "file": "cross-score-report.schema.json",
@@ -1262,7 +1268,7 @@
       "name": "keyring",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/keyring",
       "file": "keyring.schema.json",
-      "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade."
+      "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade. Cross-field validation enforces signer_id uniqueness within signers[] (KR-1) and warns on duplicate key_ref entries (KR-2 — duplicate references to the same underlying key are typically a misconfiguration)."
     },
     {
       "name": "signer-entry",

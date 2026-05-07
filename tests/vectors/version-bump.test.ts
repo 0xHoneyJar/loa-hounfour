@@ -280,7 +280,8 @@ describe('version bump', () => {
     // Count = 209 after PR-A1.2 (PR-A1.1's 206 + 3 OrgOverseer schemas).
     // PR-A2.2 adds 9 net-new schemas (Keyring, SignerEntry, SignerCompetenceRule,
     // SignerCompetenceResult, SignatureEnvelope, SignerType, SignatureType,
-    // SignerStatus, PolicyDecisionOutcome) → 218.
-    expect(index.schemas).toHaveLength(218);
+    // SignerStatus, PolicyDecisionOutcome) plus the iter-3 promotion of
+    // PairwiseScore from inline-only to top-level published schema → 219.
+    expect(index.schemas).toHaveLength(219);
   });
 });

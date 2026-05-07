@@ -174,7 +174,7 @@ import { SigningContextSchema } from '../src/governance/signing-context.js';
 import { PanelDecisionArtifactSchema } from '../src/governance/panel-decision-artifact.js';
 import { PanelVerdictSchema } from '../src/governance/panel-verdict.js';
 import { DeliberationDissentSchema } from '../src/governance/deliberation-dissent.js';
-import { CrossScoreReportSchema } from '../src/governance/cross-score-report.js';
+import { CrossScoreReportSchema, PairwiseScoreSchema } from '../src/governance/cross-score-report.js';
 // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
 import { OrgIdentitySchema } from '../src/governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../src/governance/org-representative-delegation.js';
@@ -453,6 +453,7 @@ const schemas = [
   { name: 'panel-decision-artifact', schema: PanelDecisionArtifactSchema },
   { name: 'panel-verdict', schema: PanelVerdictSchema },
   { name: 'deliberation-dissent', schema: DeliberationDissentSchema },
+  { name: 'pairwise-score', schema: PairwiseScoreSchema },
   { name: 'cross-score-report', schema: CrossScoreReportSchema },
   // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
   { name: 'org-identity', schema: OrgIdentitySchema },

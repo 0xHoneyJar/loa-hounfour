@@ -2,7 +2,7 @@
 
 **Contract version:** 8.4.0
 **Min supported:** 6.0.0
-**Schemas:** 218
+**Schemas:** 219
 
 ## Schemas
 
@@ -213,6 +213,7 @@
 | panel-decision-artifact | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/panel-decision-artifact` | [panel-decision-artifact.schema.json](panel-decision-artifact.schema.json) |
 | panel-verdict | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/panel-verdict` | [panel-verdict.schema.json](panel-verdict.schema.json) |
 | deliberation-dissent | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/deliberation-dissent` | [deliberation-dissent.schema.json](deliberation-dissent.schema.json) |
+| pairwise-score | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/pairwise-score` | [pairwise-score.schema.json](pairwise-score.schema.json) |
 | cross-score-report | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/cross-score-report` | [cross-score-report.schema.json](cross-score-report.schema.json) |
 | org-identity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/org-identity` | [org-identity.schema.json](org-identity.schema.json) |
 | org-representative-delegation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/org-representative-delegation` | [org-representative-delegation.schema.json](org-representative-delegation.schema.json) |
