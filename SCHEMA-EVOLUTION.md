@@ -250,6 +250,57 @@ to detect "any deferred obligation" should match against the
 `reason` vocabulary; consumers that need rule-specific behavior
 should match against `rule_id`.
 
+## v8.5.0 EXTEND-pattern decisions
+
+The v8.5.0 reuse audit ([`docs/migrations/v8.5.0-class-validation-intake.md`](docs/migrations/v8.5.0-class-validation-intake.md))
+locked four EXTEND decisions on existing v8.4.0 surface. All are strict-
+additive — `npm run semver:check` PASS on the v8.5.0 merge commit; existing
+v6.0.0 / v7.x consumers compile unchanged.
+
+| Schema | EXTEND | Strict-additive |
+|---|---|---|
+| `AccessDecision` (in `src/economy/economic-boundary.ts`) | + optional `outcome: PolicyDecisionOutcome` and `signer_competence_result: SignerCompetenceResult` fields | yes — both optional |
+| `CapabilityScopedTrust` (in `src/schemas/agent-identity.ts`) | + optional `match_strategy: 'exact' \| 'subset' \| 'superset'` and `precedence_score: integer 0..1000` fields per D-007 | yes — both optional |
+| `ClaimGrounding` (in `src/governance/panel-decision-artifact.ts`) | + 2 substrate-agnostic discriminator members (`external_reference` + `derived_inference`) with corresponding optional fields (`external_uri` + `inference_basis`) | yes — additive on union; new fields optional |
+| `OrgRepresentativeDelegation` constraint set | + ORD-5 capability-scope-vocabulary warning rule (warn-mode in v8.5.0; v8.6.0 escalates to error) | yes — new constraint, soft-warning |
+
+The [reuse audit](docs/migrations/v8.5.0-class-validation-intake.md)
+catalogs all 45 wedge-intake candidates with REUSE / EXTEND / ADD-NEW /
+FOLD / VOCABULARY / DEFER / NO-ACTION decisions. The 21 ADD-NEW
+candidates (15 in PR-A2.3 + 9 in PR-A2.2 — note the PairwiseScore
+promotion in PR-A2.2 also takes one slot) ship under substrate-agnostic
+naming.
+
+## Forward-pointer to v8.6.0
+
+The next minor release (v8.6.0) is committed-as-immediate-follow-on with
+the following deliverables tracked in the maintainer-side backlog (not
+packaged):
+
+- **Challenge layer** — `Challenge` + `ChallengeType` (9 members) +
+  `ChallengeRequestedEffect` (6 members). Carry-forward from prior intake.
+- **Cross-language runner extension** — Go / Python / Rust parity for
+  v8.5.0 schemas. **Hard pre-major-release gate** — v9.0.0 cannot ship
+  without it.
+- **Vocabulary harmonization escalation** — `ORD-5` warn → error after
+  the soak window per R3.
+- **`ORD-3` fail-closed promotion** — the v8.5.0 manifest entry surfaces
+  the obligation but still resolves to vacuous-true at the constraint-DSL
+  level; v8.6.0 promotes it to a fail-closed `CHAIN_CONTEXT_DEFERRED`
+  manifest entry parallel to the G1 `SignatureEnvelope` path.
+- **`ed25519` pattern alignment** — v8.4.0 `OrgRepresentativeDelegation` /
+  `PanelVerdict` / `CrossScoreReport` `signature` patterns use
+  `^ed25519:[A-Za-z0-9_-]{86,88}$` while v8.5.0 `SignatureEnvelope` uses
+  `^ed25519:[A-Za-z0-9_-]{86}$`. v8.6.0 tightens the older patterns
+  (or absorbs in v8.5.x patch if no consumers emit padded signatures).
+
+Plus a **v8.5.1 chore** (single-purpose `chore(typescript): migrate to
+TS 6.0.x`; release window 1-2 weeks post v8.5.0) for the deferred TS6
+migration.
+
+The v8.6.0 calendar is TBD; estimated 4-5 weeks given smaller scope
+(no schema-shape design phase — the deliverables are concrete).
+
 The [authority-cascade.md](docs/architecture/authority-cascade.md)
 doc has the worked verification trace; the
 [forget-record-semantics.md](docs/architecture/forget-record-semantics.md)

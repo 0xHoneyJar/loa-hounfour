@@ -3,6 +3,59 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.5.0] — 2026-05-07
+
+**Theme:** Class-vs-policy boundary + wedge-class-validation schema intake. Strict additive MINOR — no breaking changes to v8.4.0 consumers.
+
+### Added
+
+- **Recall machinery (5 schemas)** — `RecallRequest`, `RecallPack` (integrity-bearing; content-addressed `pack_hash`), `RecallReceipt` (crypto-bearing; signed acknowledgment), `SurfaceContext` (5-member closed core + 3-segment consumer namespace fallback), `ReceiptDetailLevel` (3-member verbosity selector). Sub-component shapes (`items[]` / `redactions` / `exclusions`) inlined within `RecallPack` per the locked v8.5.0 de-scope target.
+- **Forget / Commit / Estate (5 schemas)** — `ForgetRecord` (4-variant discriminated union with structural H1 enforcement: `legal_mandate_reference: Type.String({ minLength: 8 })` required only on the `crypto_full_destruction` variant), `CommitmentType` (4-member enum), `CommitmentRoot` (crypto + integrity-bearing), `AgentEstateStatus` (5-member lifecycle enum), `AgentEstate` (estate-as-container primitive — controller + keyring_id FK + status). The `pii_and_link_to_key` ForgetRecord variant is the GDPR-default scope for "right to be forgotten" while preserving anonymous-key audit non-repudiation.
+- **Assertion family (5 schemas)** — `Assertion` (8-variant status-discriminated union folding `CandidateAssertion` per F3; J3 variant-aware crypto-bearing — candidate is shape-only, the other 7 statuses carry signatures and gate via validate() safe-by-default), `AssertionStatus` (8 members), `AssertionClass` (7 substrate-agnostic core + 3-segment namespace fallback), `PrivacyScope` (4 members), `RiskLevel` (4 members).
+- **`ClaimGrounding` EXTEND** — 2 substrate-agnostic discriminator members folded from the wedge intake's 11-member `ProvenanceSourceType`: `external_reference` (with optional `external_uri`) + `derived_inference` (with optional `inference_basis` array). Strict-additive on the v8.4.0 surface — existing consumers compile unchanged.
+- **`ORD-3` manifest promotion** — HIGH carry-forward from the v8.5.0 backlog. `validate(OrgRepresentativeDelegationSchema, payload)` now emits a manifest entry `{ rule_id: 'ORD-3', evaluator: 'consumer', reason: 'context_absent' }` when the consumer omits `granted_by_chain_records` from `options.chainContext`. The previous v8.4.0 vacuous-true open-fail behavior is closed; consumers cannot silently miss the chain-context obligation. When chainContext IS supplied, the manifest still emits with `reason: 'pattern_matching'` so the audit trail stays unambiguous.
+- **`PV-5` BLOCKER-without-signal rule** — MEDIUM carry-forward from the v8.5.0 backlog. Added to `constraints/PanelVerdict.constraints.json`: `bucket != 'BLOCKER' || asymmetric_blocker_signal != null`. A BLOCKER bucket cannot flow without an `asymmetric_blocker_signal` envelope.
+- **Manifest contract widening** — `UnverifiedObligationsManifest` widened strict-additively. `evaluator` now carries `'runtime-deferred' | 'consumer' | 'library'` (was the literal `'runtime-deferred'` only); an optional controlled-vocabulary `reason` field surfaces *why* the entry is present (`'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'pattern_matching' | 'vocabulary_drift'`). v8.4.0 entries continue to emit byte-identically; new entries (`CRYPTO_DEFERRED`, `INTEGRITY_DEFERRED`, `ORD-3` promoted) populate the new `'consumer'` value with explicit `reason`. Migration guidance: pattern-match by `rule_id + reason` rather than `evaluator` literal. See [`SCHEMA-EVOLUTION.md`](./SCHEMA-EVOLUTION.md#manifest-contract-v850-widening) for the migration table.
+- **`x-integrity-bearing` schema annotation** — content-addressed schemas (`RecallPack`, `CommitmentRoot`) now carry a top-level `'x-integrity-bearing': true` flag mirroring the existing `x-crypto-bearing` annotation pattern. `validate()` keys integrity-deferred manifest emission on the flag rather than a hardcoded `$id` list, so future content-addressed schemas only need to set the flag in their TypeBox options.
+- **`safeCanonicalize` helper** — NFC-normalizing RFC 8785 canonical-JSON serializer with a 100KB normative payload cap. The cap addresses the synchronous-canonicalization DoS surface; consumers may override via `{ maxBytes: N }` with explicit code-site decision. Lint `RULE-5` blocks direct `canonicalize` import in non-utility code so the wrapper is the single canonicalization site for v8.5.0+ schemas.
+- **5-RULE structural lint (`scripts/check-class-policy-boundary.ts`)** — mechanical enforcement of ADR-010. RULE-1 (no allow/deny return unions outside `src/validators/`); RULE-2 (no signature-verification imports); RULE-3 (flag `*Evaluator` / `*Verifier` / `*Engine` `$id`s); RULE-4 (test files must use `assertStructurallyValid` / `assertCryptoBearingFailsByDefault` rather than generic `assertValid()` against crypto-bearing schemas); RULE-5 (no direct `canonicalize` import — must go through `safeCanonicalize`). 9-entry allowlist with per-entry justification.
+- **5 new architecture documents** —
+  - [`docs/adr/ADR-010-class-vs-policy-boundary.md`](./docs/adr/ADR-010-class-vs-policy-boundary.md) — the standalone ADR drawing the line between what hounfour ships (shape) and what consumers ship (authority).
+  - [`docs/migrations/v8.5.0-class-validation-intake.md`](./docs/migrations/v8.5.0-class-validation-intake.md) — 45-candidate Appendix-A reuse audit covering REUSE / EXTEND / ADD-NEW / FOLD / VOCABULARY / DEFER / NO-ACTION decisions for the wedge intake.
+  - [`docs/architecture/hashing-spec-freeze-v8.5.md`](./docs/architecture/hashing-spec-freeze-v8.5.md) — RFC 8785 + NFC + 100KB-cap normative spec for v8.5.0 content-addressed hashes (`pack_hash`, `receipt_hash`, `subject_hash`, `body_hash`, `signed_payload_hash`).
+  - [`docs/architecture/authority-cascade.md`](./docs/architecture/authority-cascade.md) — the three-layer authority composition: Layer 1 (v8.4.0 `OrgIdentity` / `OrgRepresentativeDelegation` / `SuccessionPolicy`) + Layer 2 (`Keyring` / `SignerEntry`) + Layer 3 (`SignerCompetenceRule` / `SignatureEnvelope`) harmonized via the single `CapabilityScope` vocabulary.
+  - [`docs/architecture/forget-record-semantics.md`](./docs/architecture/forget-record-semantics.md) — verifiability truth table (10 verifications × 4 scopes), GDPR / HL7 FHIR / W3C VC alignment, audit-defensibility caveat for `crypto_full_destruction`.
+- **`src/vocabulary/audit-event-types.ts`** — 3-segment namespace registration spec for consumer-defined audit-event-type extensions following the same `<github-org>:<consumer>:<event_type>` pattern as `SurfaceContext`.
+- **Authority cascade Layer 2 + 3 (9 schemas)** — `Keyring`, `SignerEntry`, `SignerCompetenceRule`, `SignerCompetenceResult`, `SignatureEnvelope` (crypto-bearing), `SignerType`, `SignatureType`, `SignerStatus`, `PolicyDecisionOutcome`. KR-1 / KR-2 cross-field uniqueness on `Keyring.signers[]`. `SGE-1` sovereign-default warning on `SignerEntry.scoped_trust`. `PairwiseScore` promoted from inline-only to top-level published `$id`.
+- **2 EXTEND decisions on PR-A2.2 schemas** — `AccessDecisionSchema` (+ optional `outcome` and `signer_competence_result` fields) and `CapabilityScopedTrustSchema` (+ optional `match_strategy` and `precedence_score` fields per D-007). Existing v6.0.0 / v7.x consumers compile unchanged.
+- **`ORD-5` capability-scope-vocabulary warning** — soft-warning constraint on `OrgRepresentativeDelegation.capability_scope` enforces the canonical `CapabilityScope` vocabulary. Manifest entry under `evaluator: 'library', reason: 'vocabulary_drift'`. Initial soak window per R3 — v8.6.0 escalates to error severity.
+- **G1 safe-by-default crypto-bearing API** — `validate(CryptoSchema, payload)` defaults to `{ valid: false, errors: [{ code: 'CRYPTO_DEFERRED' }] }` for any schema flagged `'x-crypto-bearing': true`. Consumers MUST opt in via `{ acceptDeferred: true }` to receive shape-only `valid: true` plus an `unverified_obligations` manifest. The forced-explicit opt-in is the safety mechanism preventing "shape valid means trusted" by accident. **Variant-aware (J3, PR-A2.3)**: `validate()` walks `Type.Union` variants when the top-level schema carries no flag; the matched variant's flag drives the safe-by-default branch. Manifest `schema_id` synthesizes the discriminator-bearing form (e.g. `Assertion#status=admitted`) so operators can identify which variant deferred.
+- **Canonicalization edge-case test corpus** — 30 fixtures across 6 categories (`vectors/_canonicalization-edge-cases/`) validating `safeCanonicalize` round-trip semantics (NFC normalization, key-ordering determinism, numeric edge cases, unicode-escape forms, payload-size cap, error envelope shape).
+- **Vector-authoring helper** — `npm run author:vector -- --schema <Name> --intent <valid|invalid> --case <slug>` scaffolds a fixture file under `vectors/<Schema>/<intent>/<case>.json` and records its `validation_layer` annotation in `vectors/<Schema>/_meta.json`. Authors must replace the `__TODO__` skeleton before committing.
+- **180 net-new conformance vectors for PR-A2.3** — per-schema valid + invalid fixtures across all 15 PR-A2.3 schemas. ForgetRecord coverage: 4 variants × 5 valid + 4 invalid = 36 fixtures. Assertion coverage: 9 valid (1 candidate + 7 status-with-signatures + 2 ClaimGrounding EXTEND demonstrations) + 8 invalid. Plus 128 PR-A2.2 authority-cascade fixtures and 30 canonicalization edge-case fixtures also land in v8.5.0. Test suite: 7,758 tests (was 7,120 baseline; +638 net new across all PR-A2.x sprints).
+
+### Changed
+
+- **`CONTRACT_VERSION` bumped to `'8.5.0'`** — `src/version.ts:13`. `package.json` `version` matches.
+- **`vectors/VERSION`** bumped to `8.5.0`.
+- **`RELEASE-INTEGRITY.json`** — regenerated via `npm run integrity:generate`. Counts updated to reflect the v8.5.0 schema / vector / constraint surface (234 schemas, 124 constraints, 700+ vectors).
+- **`schemas/index.json`** — version metadata updated to `8.5.0`; all 234 published `$id`s now publish under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/` namespace.
+- **`AccessDecision`, `CapabilityScopedTrust`, `ClaimGrounding`** — strict-additive EXTEND per PR-A2.2 / PR-A2.3 (see Added).
+- **`OrgRepresentativeDelegation` ORD-3** — manifest entry promoted from silent vacuous-true to visible-deferred (see Added).
+- **`PanelVerdict` constraint set** — extended from PV-1..PV-4 to PV-1..PV-5 (see Added).
+
+### Release notes
+
+- **rc.1 shadow-integration window** — `v8.5.0-rc.1` lightweight tag fired at PR-A2.3 squash SHA `c94bcd22` on 2026-05-07; 3-5 day shadow window per F9 gave consumers a chance to validate the surface before final tag fires. The rc.1 tag is informational (per R17), not a hard gate.
+- **TS6 chore deferred** — TypeScript 6.0.x migration deliberately NOT in v8.5.0 per F1. Tracked as v8.5.1 chore (single-purpose `chore(typescript): migrate to TS 6.0.x`); release window 1-2 weeks post v8.5.0.
+- **v8.6.0 committed-as-immediate-follow-on** — Challenge layer (Challenge + ChallengeType + ChallengeRequestedEffect; 9-member + 6-member enums) + cross-language runner extension (Go / Python / Rust parity for v8.5.0 schemas; hard pre-major-release gate — v9.0.0 cannot ship without it) + `ORD-3` fail-closed promotion + `ed25519` pattern alignment ({86,88} → {86} on v8.4.0 schemas) + `ORD-5` warn → error escalation. Maintainer backlog tracks the deliverables; not packaged.
+
+### Source
+
+Issue [#70](https://github.com/0xHoneyJar/loa-hounfour/issues/70) — wedge class-validation schema intake by Eileen. Five PRs (PR-A2.0 → PR-A2.4) merged across the cycle.
+
+---
+
 ## [8.4.0] — 2026-05-06
 
 **Theme:** Synthetic-deliberation protocol + organization-level governance primitives. Strict additive MINOR — no breaking changes.

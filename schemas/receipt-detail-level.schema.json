@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/receipt-detail-level",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/receipt-detail-level",
   "description": "Verbosity selector for RecallReceipt. Three substrate-agnostic levels: minimal | standard | debug. The consumer's audit policy decides what fields populate each level; the library ships only the selector vocabulary.",
   "anyOf": [
     {
@@ -19,5 +19,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/forget-record",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/forget-record",
   "description": "First-class forgetting primitive distinct from Sanction/revocation. Four-variant discriminated union over forget_scope. The crypto_full_destruction variant requires a legal_mandate_reference field; the other three variants must NOT carry the field (additionalProperties: false enforces). See docs/architecture/forget-record-semantics.md for the verifiability truth table.",
   "anyOf": [
     {
@@ -190,5 +190,5 @@
       }
     }
   ],
-  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
 }

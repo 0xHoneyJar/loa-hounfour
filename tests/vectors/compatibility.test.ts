@@ -4,24 +4,24 @@ import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 
 describe('Version Compatibility (v7.0.0)', () => {
   it('exact match is fully compatible', () => {
-    const result = validateCompatibility('8.4.0');
+    const result = validateCompatibility('8.5.0');
     expect(result.compatible).toBe(true);
     expect('warning' in result).toBe(false);
   });
 
   it('patch difference is fully compatible', () => {
-    // Same major + minor as CONTRACT_VERSION (8.4.0); only patch differs.
+    // Same major + minor as CONTRACT_VERSION (8.5.0); only patch differs.
     // Holds the minor axis constant so the test exercises only patch-difference
     // behavior, matching its name.
-    const result = validateCompatibility('8.4.1');
+    const result = validateCompatibility('8.5.1');
     expect(result.compatible).toBe(true);
     expect('warning' in result).toBe(false);
   });
 
   it('older minor (within MIN_SUPPORTED) is compatible with warning', () => {
     // Older minor on the same major exercises the cross-minor compatibility
-    // path that the patch-difference test no longer covers after the v8.4.0
-    // bump (current contract is 8.4.0; 8.1.1 is older minor + patch).
+    // path that the patch-difference test no longer covers after the v8.5.0
+    // bump (current contract is 8.5.0; 8.1.1 is older minor + patch).
     const result = validateCompatibility('8.1.1');
     expect(result.compatible).toBe(true);
     expect('warning' in result && result.warning).toContain('Minor version mismatch');
@@ -58,7 +58,7 @@ describe('Version Compatibility (v7.0.0)', () => {
   });
 
   it('future minor version is compatible with warning', () => {
-    const result = validateCompatibility('8.5.0');
+    const result = validateCompatibility('8.6.0');
     expect(result.compatible).toBe(true);
     expect('warning' in result && result.warning).toContain('Minor version mismatch');
   });
@@ -82,7 +82,7 @@ describe('Version Compatibility (v7.0.0)', () => {
 
   // Version canary — if these constants change, update the hardcoded test values above
   it('version constants match expected values', () => {
-    expect(CONTRACT_VERSION).toBe('8.4.0');
+    expect(CONTRACT_VERSION).toBe('8.5.0');
     expect(MIN_SUPPORTED_VERSION).toBe('6.0.0');
   });
 });
