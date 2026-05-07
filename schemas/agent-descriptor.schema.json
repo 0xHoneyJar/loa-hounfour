@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-descriptor",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-descriptor",
   "additionalProperties": false,
   "description": "Canonical agent representation for content negotiation",
   "type": "object",
@@ -202,5 +202,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }

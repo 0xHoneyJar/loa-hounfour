@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.5.1] — 2026-05-07
+
+**Theme:** Release-hygiene patch addressing five findings from the v8.4.0 / v8.5.0 retrospective audit ([Issue #76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). No schema changes; strict-additive on the v8.5.0 surface.
+
+### Added
+
+- **`CanonicalizeKeyCollisionError`** (`src/utilities/safe-canonicalize.ts`) — new error class with stable `code: 'CANONICALIZE_KEY_COLLISION'`, `normalizedKey: string`, and `originalKeys: readonly [string, string]` fields. Re-exported from package root. Thrown when two distinct input keys NFC-fold to the same form.
+
+### Fixed
+
+- **F2 — Root package re-exports for v8.4.0 / v8.5.0 governance schemas** ([#76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). `import { PanelDecisionArtifactSchema, PanelVerdictSchema, SignatureEnvelopeSchema, AssertionSchema, ForgetRecordSchema, CommitmentRootSchema, RecallReceiptSchema, ... } from '@0xhoneyjar/loa-hounfour'` now resolves correctly. The `/governance` subpath continues to work; root surface is now the convenience path. Adds 30+ governance schema re-exports + their TypeScript types covering FR-A1..A4 (panel deliberation), FR-B1..B3 (org-overseer), authority cascade Layer 2 + 3 (PR-A2.2), recall machinery, forget / commit / estate, and the assertion family (PR-A2.3).
+- **F3 — README docs-version + license drift** ([#76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). README was stuck at v7.5.0 (docs-version comment, version badge, schemas badge, inventory table, CONTRACT_VERSION reference) — now bumped to v8.5.1 with current inventory (234 schemas, 124 constraint files, 44 evaluator builtins, 7,758+ tests). `package.json` `license` field corrected from `MIT` → `AGPL-3.0` to align with `LICENSE.md` and the README badge (the package was always intended to be AGPL-3.0; the MIT field was a long-standing metadata bug).
+- **F4 — CI hardening** ([#76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). `.github/workflows/ci.yml` now runs `pnpm run check:constraints`, `pnpm run check:class-policy-boundary`, `pnpm run schemas:validate`, and `pnpm run check:all` (the composite gate) in addition to the previous typecheck / build / test / schema:check / semver:check steps. Local pre-merge `npm run check:all` was already green for every cycle-004 PR; CI now matches local verification posture.
+- **F5 — NFC key-collision rejection in `safeCanonicalize`** ([#76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). The v8.5.0 implementation normalized keys to NFC before canonicalization but wrote them into a plain object accumulator, so two distinct input keys folding to the same NFC form silently overwrote each other. v8.5.1 tracks normalized → original via `Map` and throws `CanonicalizeKeyCollisionError` on duplicate assignment. The error carries the normalized form and both colliding original keys for diagnostic purposes. Collisions are extremely rare in practice (require two distinct Unicode forms in the same object that fold to the same NFC string) but ARE attacker-reachable via crafted JSON; closing the silent-overwrite gap removes a hash-canonicalization ambiguity. 7 new tests under `tests/utilities/safe-canonicalize.test.ts`.
+
+### Changed
+
+- **`CONTRACT_VERSION` bumped to `'8.5.1'`** — `src/version.ts:13`. `package.json` `version` and `vectors/VERSION` match.
+- **`schemas/index.json`** — version metadata + all 234 published `$id`s now publish under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/` namespace. Schema content is byte-identical to v8.5.0; only the `$id` URL changed. Consumers using the `/governance` (or any other) subpath import remain unaffected since they bind by exported name. Consumers vendoring `schemas/*.json` files directly may need to update any hardcoded `/8.5.0/` references in their tooling.
+- **`RELEASE-INTEGRITY.json`** — regenerated via `npm run integrity:generate` (234 schemas / 124 constraints / 233 vectors / 593 files at v8.5.1 namespace).
+
+### Deferred
+
+- **F1 — `validate()` shape-only behavior on constraint-level-invalid fixtures** ([#76](https://github.com/0xHoneyJar/loa-hounfour/issues/76)). Per ADR-010 (class-vs-policy boundary), `validate()` returning `{ valid: true }` for a fixture that the repo classifies as constraint-level-invalid is by design — `validate()` performs shape validation, while constraint-layer evaluation runs via `npm run check:constraints`. The recommendation to split `validateShape()` / `validateProtocol()` is a substantive API redesign that is NOT a release-hygiene patch. Tracked for a future minor release where API truthfulness across both layers can be designed coherently. The v8.5.0 manifest contract widening (`reason: 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | ...`) plus the `acceptDeferred` opt-in for crypto-bearing schemas already surface obligations via the manifest path; the `validateShape` / `validateProtocol` redesign would be the explicit-naming follow-on.
+
+### Source
+
+[Issue #76](https://github.com/0xHoneyJar/loa-hounfour/issues/76) — gpt-5.5-codex retrospective audit on the v8.4.0 → v8.5.0 transition.
+
+---
+
 ## [8.5.0] — 2026-05-07
 
 **Theme:** Class-vs-policy boundary + wedge-class-validation schema intake. Strict additive MINOR — no breaking changes to v8.4.0 consumers.

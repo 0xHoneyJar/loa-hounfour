@@ -45,6 +45,36 @@ export declare class CanonicalizeNFCError extends Error {
     constructor(message: string, cause?: unknown);
 }
 /**
+ * Thrown when two distinct input keys NFC-normalize to the same form,
+ * making the canonical mapping ambiguous.
+ *
+ * v8.5.0 PR-A2.1 normalized object keys to NFC before canonicalization
+ * so that NFD-form vs NFC-form inputs hash identically. The naïve
+ * implementation wrote normalized keys into a plain object, which
+ * silently overwrote earlier entries when a collision occurred. Per
+ * Issue #76 F5, the v8.5.1 implementation tracks normalized keys per
+ * object and throws this error on collision so consumers cannot
+ * accidentally feed an ambiguous payload to the hash function.
+ *
+ * Collisions are extremely rare in practice (they require two distinct
+ * Unicode forms in the SAME object that fold to the same NFC string —
+ * e.g. a precomposed character key alongside its NFD-decomposed
+ * equivalent), but they ARE attacker-reachable via crafted JSON, and
+ * silent overwrite would let two semantically-identical-looking
+ * payloads produce different canonical output depending on iteration
+ * order. The error closes that gap.
+ *
+ * @since v8.5.1 (Issue #76 F5)
+ */
+export declare class CanonicalizeKeyCollisionError extends Error {
+    readonly code: "CANONICALIZE_KEY_COLLISION";
+    /** The NFC-normalized key form that collided. */
+    readonly normalizedKey: string;
+    /** The original input keys that both normalize to `normalizedKey`. */
+    readonly originalKeys: readonly [string, string];
+    constructor(normalizedKey: string, originalKeys: readonly [string, string]);
+}
+/**
  * Sanctioned canonicalization for v8.5.0 hash domains.
  *
  * Pipeline:

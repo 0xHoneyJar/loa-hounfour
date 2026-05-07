@@ -1,12 +1,12 @@
-<!-- docs-version: 7.5.0 -->
+<!-- docs-version: 8.5.1 -->
 
 # @0xhoneyjar/loa-hounfour
 
-[![Version](https://img.shields.io/badge/version-7.5.0-blue.svg)](CHANGELOG.md)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE)
-[![Schemas](https://img.shields.io/badge/schemas-87+-purple.svg)](SCHEMA-CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-8.5.1-blue.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE.md)
+[![Schemas](https://img.shields.io/badge/schemas-234-purple.svg)](SCHEMA-CHANGELOG.md)
 
-> Documentation current as of v7.5.0
+> Documentation current as of v8.5.1
 
 Constitutional protocol contracts for an AI agent economy. TypeBox schemas with dual JSON Schema 2020-12 output.
 
@@ -31,15 +31,15 @@ Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| Schema files | 87+ | `src/schemas/**/*.ts` |
+| Schema files | 234 | `src/schemas/**/*.ts` + `src/governance/**/*.ts` + others |
 | Module barrels | 9 | `src/*/index.ts` (core, economy, model, governance, constraints, integrity, graph, composition, validators) |
 | Package export paths | 10 | `package.json` exports field |
-| Constraint files | 51+ | `constraints/` (`.constraints.json` + `GRAMMAR.md`) |
-| Evaluator builtins | 36 | `src/constraints/evaluator.ts` |
-| Tests | 4,500+ | `pnpm run test` |
-| CONTRACT_VERSION | 7.5.0 | `src/version.ts:13` |
+| Constraint files | 124 | `constraints/` (`.constraints.json` + `GRAMMAR.md`) |
+| Evaluator builtins | 44 | `src/constraints/evaluator.ts` |
+| Tests | 7,758 | `pnpm run test` |
+| CONTRACT_VERSION | 8.5.1 | `src/version.ts:13` |
 | MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
-| Golden test vector dirs | 28+ | `vectors/` (excluding VERSION) |
+| Golden test vector dirs | 90+ | `vectors/` (excluding VERSION) |
 
 ## Installation
 

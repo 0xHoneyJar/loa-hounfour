@@ -100,6 +100,48 @@ export class CanonicalizeNFCError extends Error {
 }
 
 /**
+ * Thrown when two distinct input keys NFC-normalize to the same form,
+ * making the canonical mapping ambiguous.
+ *
+ * v8.5.0 PR-A2.1 normalized object keys to NFC before canonicalization
+ * so that NFD-form vs NFC-form inputs hash identically. The naïve
+ * implementation wrote normalized keys into a plain object, which
+ * silently overwrote earlier entries when a collision occurred. Per
+ * Issue #76 F5, the v8.5.1 implementation tracks normalized keys per
+ * object and throws this error on collision so consumers cannot
+ * accidentally feed an ambiguous payload to the hash function.
+ *
+ * Collisions are extremely rare in practice (they require two distinct
+ * Unicode forms in the SAME object that fold to the same NFC string —
+ * e.g. a precomposed character key alongside its NFD-decomposed
+ * equivalent), but they ARE attacker-reachable via crafted JSON, and
+ * silent overwrite would let two semantically-identical-looking
+ * payloads produce different canonical output depending on iteration
+ * order. The error closes that gap.
+ *
+ * @since v8.5.1 (Issue #76 F5)
+ */
+export class CanonicalizeKeyCollisionError extends Error {
+  readonly code = 'CANONICALIZE_KEY_COLLISION' as const;
+  /** The NFC-normalized key form that collided. */
+  readonly normalizedKey: string;
+  /** The original input keys that both normalize to `normalizedKey`. */
+  readonly originalKeys: readonly [string, string];
+
+  constructor(normalizedKey: string, originalKeys: readonly [string, string]) {
+    super(
+      `NFC normalization key collision on "${normalizedKey}": input keys ` +
+        `${JSON.stringify(originalKeys[0])} and ${JSON.stringify(originalKeys[1])} ` +
+        `both normalize to the same form. Canonical JSON cannot represent ` +
+        `the object unambiguously; reject the payload at the source.`,
+    );
+    this.name = 'CanonicalizeKeyCollisionError';
+    this.normalizedKey = normalizedKey;
+    this.originalKeys = originalKeys;
+  }
+}
+
+/**
  * NFC-normalize every string value in a payload tree. Operates on a
  * structural copy (does not mutate the input) so the caller's object
  * graph is unchanged. Non-string leaves (numbers, booleans, null,
@@ -120,12 +162,22 @@ function nfcNormalizeTree(value: unknown): unknown {
     return value.map(nfcNormalizeTree);
   }
   if (value !== null && typeof value === 'object') {
+    // Collision-detecting NFC accumulator (v8.5.1, Issue #76 F5). Two
+    // distinct input keys that fold to the same NFC string would
+    // silently overwrite each other in a plain-object accumulator;
+    // tracking normalized → original via Map and throwing on duplicate
+    // assignment closes that gap. canonicalize() will lex-sort the
+    // resulting keys afterwards, so ordering stability is preserved.
+    const normalizedToOriginal = new Map<string, string>();
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value)) {
-      // Keys are also strings; normalize them too (relevant when keys
-      // carry combining marks). canonicalize() will lex-sort them
-      // afterwards, so normalizing first guarantees ordering stability.
-      out[k.normalize('NFC')] = nfcNormalizeTree(v);
+      const nk = k.normalize('NFC');
+      const prior = normalizedToOriginal.get(nk);
+      if (prior !== undefined && prior !== k) {
+        throw new CanonicalizeKeyCollisionError(nk, [prior, k]);
+      }
+      normalizedToOriginal.set(nk, k);
+      out[nk] = nfcNormalizeTree(v);
     }
     return out;
   }

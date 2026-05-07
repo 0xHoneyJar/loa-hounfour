@@ -44,3 +44,21 @@ jobs:
 
       - name: Semver check
         run: pnpm run semver:check
+
+      # v8.5.1 — CI hardening per Issue #76 F4. Composite gate runs the
+      # additional checks (check:constraints, class-policy-boundary,
+      # schemas:validate, vectors:check) that were previously local-only.
+      # Local pre-merge `npm run check:all` was already green for every
+      # v8.5.0 PR, but having these gates run in CI prevents drift from
+      # local-only verification posture.
+      - name: Constraint coverage check
+        run: pnpm run check:constraints
+
+      - name: Class-vs-policy boundary lint
+        run: pnpm run check:class-policy-boundary
+
+      - name: Generated JSON Schema validation
+        run: pnpm run schemas:validate
+
+      - name: Composite gate (check:all)
+        run: pnpm run check:all

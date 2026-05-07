@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/mutation-context",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/mutation-context",
   "additionalProperties": false,
   "description": "Context for a governed resource mutation — actor identity, type, and access policy. Generalized from freeside's CreditMutationContext (6-witness pattern).",
   "type": "object",
@@ -47,5 +47,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }

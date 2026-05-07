@@ -27,6 +27,6 @@
       "type": "string"
     }
   ],
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/agent-lifecycle-state",
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/agent-lifecycle-state",
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }

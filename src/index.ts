@@ -78,6 +78,66 @@ export {
   type ReputationEvent as GovernanceReputationEvent,
 } from './governance/reputation-event.js';
 
+// v8.4.0 — Synthetic-deliberation set + OrgOverseer (FR-A1..FR-A4 + FR-B1..FR-B3).
+// v8.5.0 — Authority cascade Layer 2 + 3 (PR-A2.2) + Recall machinery + Forget /
+// Commit / Estate + Assertion family (PR-A2.3). Re-exported at root for
+// discoverability per Issue #76 F2 (the v8.4.0 / v8.5.0 governance surface
+// previously required a `/governance` subpath import). The `/governance`
+// subpath remains supported and emits identical bindings — root surface
+// is the convenience path.
+export {
+  // FR-A1 Panel deliberation input
+  PanelDecisionArtifactSchema, type PanelDecisionArtifact,
+  ClaimSchema, type Claim,
+  ClaimGroundingSchema, type ClaimGrounding,
+  ProposedActionSchema, type ProposedAction,
+  TrustContextSchema, type TrustContext,
+  // FR-A2 Panel verdict
+  PanelVerdictSchema, type PanelVerdict,
+  JurorVerdictSchema, type JurorVerdict,
+  AsymmetricBlockerSignalSchema, type AsymmetricBlockerSignal,
+  // FR-A3 Deliberation dissent
+  DeliberationDissentSchema, type DeliberationDissent,
+  // FR-A4 Cross-score report + PairwiseScore (PR-A2.2 promotion)
+  CrossScoreReportSchema, type CrossScoreReport,
+  PairwiseScoreSchema, type PairwiseScore,
+  // FR-B1..B3 Org-overseer
+  OrgIdentitySchema, type OrgIdentity,
+  OrgRepresentativeDelegationSchema, type OrgRepresentativeDelegation,
+  ORG_DELEGATION_GENESIS_SENTINEL,
+  SuccessionPolicySchema, type SuccessionPolicy,
+  // Shared signing-context envelope
+  SigningContextSchema, type SigningContext,
+  // v8.5.0 PR-A2.2 Authority cascade Layer 2 + 3
+  KeyringSchema, type Keyring,
+  SignerEntrySchema, type SignerEntry,
+  SignerCompetenceRuleSchema, type SignerCompetenceRule,
+  SignerCompetenceResultSchema, type SignerCompetenceResult,
+  SignatureEnvelopeSchema, type SignatureEnvelope,
+  SignerTypeSchema, type SignerType,
+  SignatureTypeSchema, type SignatureType,
+  SignerStatusSchema, type SignerStatus,
+  PolicyDecisionOutcomeSchema, type PolicyDecisionOutcome,
+  // v8.5.0 PR-A2.3 Recall machinery
+  ReceiptDetailLevelSchema, type ReceiptDetailLevel,
+  SurfaceContextSchema, type SurfaceContext,
+  RecallRequestSchema, type RecallRequest,
+  RecallPackSchema, type RecallPack,
+  RecallReceiptSchema, type RecallReceipt,
+  // v8.5.0 PR-A2.3 Forget / Commit / Estate
+  ForgetRecordSchema, type ForgetRecord,
+  CommitmentTypeSchema, type CommitmentType,
+  CommitmentRootSchema, type CommitmentRoot,
+  AgentEstateStatusSchema, type AgentEstateStatus,
+  AgentEstateSchema, type AgentEstate,
+  // v8.5.0 PR-A2.3 Assertion family
+  PrivacyScopeSchema, type PrivacyScope,
+  RiskLevelSchema, type RiskLevel,
+  AssertionStatusSchema, type AssertionStatus,
+  AssertionClassSchema, type AssertionClass,
+  AssertionSchema, type Assertion,
+} from './governance/index.js';
+
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 
@@ -146,5 +206,6 @@ export {
   SAFE_CANONICALIZE_DEFAULT_MAX_BYTES,
   CanonicalizeSizeError,
   CanonicalizeNFCError,
+  CanonicalizeKeyCollisionError,
   type SafeCanonicalizeOptions,
 } from './utilities/safe-canonicalize.js';

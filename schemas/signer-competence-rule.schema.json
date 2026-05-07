@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/signer-competence-rule",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signer-competence-rule",
   "additionalProperties": false,
   "description": "Layer-3 rule pairing an action pattern with the capability-scope set required to authorize matching actions. Composes with Layer-2 SignerEntry.scoped_trust.",
   "type": "object",
@@ -72,5 +72,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
 }
