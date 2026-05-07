@@ -1,8 +1,250 @@
-<!-- docs-version: 8.4.0 -->
+<!-- docs-version: 8.5.0 -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## v8.4.0 → v8.5.0 (Minor — Additive Only)
+
+**No breaking changes.** v8.5.0 adds 15 net-new TypeBox schemas (recall machinery + forget/commit/estate + assertion family), 2 new substrate-agnostic discriminator members on `ClaimGrounding`, manifest contract widening (strict-additive), and the `safeCanonicalize` helper. Existing v8.4.0 code continues to work unchanged. Consumers adopt the new surface by adding imports.
+
+### New schemas — recall machinery (governance module)
+
+```typescript
+import {
+  ReceiptDetailLevelSchema,            // 'minimal' | 'standard' | 'debug'
+  SurfaceContextSchema,                // 5-member core + 3-segment namespace
+  RecallRequestSchema,                 // input record
+  RecallPackSchema,                    // integrity-bearing output container
+  RecallReceiptSchema,                 // crypto-bearing signed acknowledgment
+} from '@0xhoneyjar/loa-hounfour/governance';
+
+import type {
+  ReceiptDetailLevel,
+  SurfaceContext,
+  RecallRequest,
+  RecallPack,
+  RecallReceipt,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+### New schemas — forget / commit / estate (governance module)
+
+```typescript
+import {
+  ForgetRecordSchema,                  // 4-variant discriminated union
+  CommitmentTypeSchema,                // 4-member anchor-category enum
+  CommitmentRootSchema,                // crypto + integrity-bearing
+  AgentEstateStatusSchema,             // 5-member lifecycle enum
+  AgentEstateSchema,                   // estate-as-container primitive
+} from '@0xhoneyjar/loa-hounfour/governance';
+
+import type {
+  ForgetRecord,
+  CommitmentType,
+  CommitmentRoot,
+  AgentEstateStatus,
+  AgentEstate,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+### New schemas — assertion family (governance module)
+
+```typescript
+import {
+  PrivacyScopeSchema,                  // 4-member privacy classification
+  RiskLevelSchema,                     // 4-member ordinal risk classification
+  AssertionStatusSchema,               // 8-member lifecycle enum
+  AssertionClassSchema,                // 7-member core + 3-segment namespace
+  AssertionSchema,                     // 8-variant status-discriminated union
+} from '@0xhoneyjar/loa-hounfour/governance';
+
+import type {
+  PrivacyScope,
+  RiskLevel,
+  AssertionStatus,
+  AssertionClass,
+  Assertion,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+### Authority cascade Layer 2 + 3 schemas (PR-A2.2 — also new in v8.5.0)
+
+```typescript
+import {
+  KeyringSchema,                       // Layer 2 keyring container
+  SignerEntrySchema,                   // Per-signer record
+  SignerCompetenceRuleSchema,          // Layer 3 rule
+  SignerCompetenceResultSchema,        // Layer 3 evaluation outcome
+  SignatureEnvelopeSchema,             // crypto-bearing signature wrapper
+  SignerTypeSchema,
+  SignatureTypeSchema,
+  SignerStatusSchema,
+  PolicyDecisionOutcomeSchema,
+} from '@0xhoneyjar/loa-hounfour/governance';
+```
+
+### Behavioral compatibility matrix (per K1)
+
+The most consequential v8.5.0 change is `validate()` default behavior on schemas flagged `'x-crypto-bearing': true` (G1 safe-by-default). Wrappers and generic validation utilities encountering crypto-bearing schemas MUST pass through `acceptDeferred: true` to receive shape-only validation; the default behavior fails closed with `CRYPTO_DEFERRED:`.
+
+| Schema | x-crypto-bearing | x-integrity-bearing | Default `validate()` behavior | Consumer opt-in |
+|---|---|---|---|---|
+| `ReceiptDetailLevel` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `SurfaceContext` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `RecallRequest` | — | — | `{ valid: true }` (object) | n/a |
+| `RecallPack` | — | ✓ | `{ valid: true }` (object); pass `{ acceptDeferred: true }` to surface `INTEGRITY_DEFERRED` manifest | `{ acceptDeferred: true }` |
+| `RecallReceipt` | ✓ | — | `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }` by default | `{ acceptDeferred: true }` |
+| `ForgetRecord` | — | — | `{ valid: true }` per matched variant | n/a |
+| `CommitmentType` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `CommitmentRoot` | ✓ | ✓ | `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }` by default; opt-in surfaces `INTEGRITY_DEFERRED` manifest | `{ acceptDeferred: true }` |
+| `AgentEstateStatus` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `AgentEstate` | — | — | `{ valid: true }` (object) | n/a |
+| `PrivacyScope` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `RiskLevel` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `AssertionStatus` | — | — | `{ valid: true }` (literal-union) | n/a |
+| `AssertionClass` | — | — | `{ valid: true }` (literal-union) | n/a |
+| **`Assertion`** | **variant-aware (J3)** | — | `{ valid: true }` for `status: 'candidate'`; **`{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }` for `status: 'admitted' \| 'superseded' \| 'challenged' \| 'revoked' \| 'forgotten' \| 'escrow' \| 'archived'`** | `{ acceptDeferred: true }` for non-candidate variants |
+| `Keyring` | — | — | `{ valid: true }` (object); KR-2 may emit warning | n/a |
+| `SignerEntry` | — | — | `{ valid: true }` (object); SGE-1 may emit warning | n/a |
+| `SignerCompetenceRule` | — | — | `{ valid: true }` (object) | n/a |
+| `SignerCompetenceResult` | — | — | `{ valid: true }` (object) | n/a |
+| `SignatureEnvelope` | ✓ | — | `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }` by default | `{ acceptDeferred: true }` |
+
+#### Wrong-pattern vs right-pattern (the K1 worked example)
+
+```typescript
+// WRONG — generic wrapper that treats shape-validity as crypto authority.
+// Compiles fine; runtime returns valid:false on crypto-bearing schemas, so
+// authorize() never fires — but the developer's MENTAL MODEL is broken.
+function isStructurallyValid(schema, payload) {
+  return validate(schema, payload).valid;
+}
+
+if (isStructurallyValid(SignatureEnvelopeSchema, payload)) {
+  authorize();  // never fires — but developer expected it to
+}
+
+// RIGHT — explicit acceptDeferred + downstream verifier composition.
+function isStructurallyValid(schema, payload) {
+  return validate(schema, payload, { acceptDeferred: true }).valid;
+}
+
+const result = validate(SignatureEnvelopeSchema, payload, { acceptDeferred: true });
+if (
+  result.valid &&
+  result.unverified_obligations?.unverified_rules.every(consumerVerifier)
+) {
+  authorize();
+}
+```
+
+Generic wrappers that need to validate any schema (not knowing in advance whether it's crypto-bearing) MUST pass through `{ acceptDeferred: true }` AND check the manifest before treating success as "verified". The forced opt-in is the safety mechanism.
+
+### Manifest contract changes (strict-additive)
+
+`UnverifiedObligationsManifest.unverified_rules[].evaluator` widened from the literal `'runtime-deferred'` to `'runtime-deferred' | 'consumer' | 'library'`. An optional `reason?: 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'pattern_matching' | 'vocabulary_drift'` field surfaces *why* the entry is present.
+
+**v8.4.0 entries (`ORD-1`, `ORD-2`, `ORD-4`)** continue to emit `evaluator: 'runtime-deferred'` byte-identically — no consumer migration needed.
+
+**New v8.5.0 entries** populate the new `'consumer'` value with explicit `reason`:
+
+| Rule | Schema(s) | Evaluator | Reason | When emitted |
+|---|---|---|---|---|
+| `CRYPTO_DEFERRED` | crypto-bearing schemas | `consumer` | `crypto_deferred` | `acceptDeferred: true` opt-in on a crypto-bearing schema |
+| `INTEGRITY_DEFERRED` | content-addressed schemas | `consumer` | `integrity_deferred` | `acceptDeferred: true` opt-in on an integrity-bearing schema (`RecallPack`, `CommitmentRoot`) |
+| `ORD-3` | `OrgRepresentativeDelegation` | `consumer` | `context_absent` | `granted_by_chain_records` not supplied via `options.chainContext` |
+| `ORD-3` | `OrgRepresentativeDelegation` | `consumer` | `pattern_matching` | `granted_by_chain_records` supplied — library still defers DAG evaluation to `npm run check:constraints` |
+| `ORD-5` | `OrgRepresentativeDelegation` | `library` | `vocabulary_drift` | `capability_scope` key outside the canonical vocabulary (warn-mode in v8.5.0; v8.6.0 escalates to error) |
+
+**Migration guidance**: prefer pattern-matching by `rule_id` (stable across versions) and `reason` (controlled vocabulary) rather than by `evaluator` literal. Consumers that need "any deferred obligation" should match the `reason` vocabulary; consumers that need rule-specific behavior should match `rule_id`.
+
+```typescript
+// v8.4.0 pattern (still works in v8.5.0):
+const isDeferred = entry.evaluator === 'runtime-deferred';
+
+// Recommended v8.5.0 pattern (explicit + future-proof):
+const isDeferred = entry.evaluator !== 'library' || entry.reason !== undefined;
+```
+
+### Variant-aware Assertion validation (J3)
+
+`AssertionSchema` is an 8-variant discriminated union over `status`. The `candidate` variant is shape-only (no `signatures[]`); the other 7 variants carry `signatures: Array(SignatureEnvelope, { minItems: 1 })` and ARE crypto-bearing. `validate()` walks `Type.Union` variants at call time to determine the safe-by-default branch:
+
+```typescript
+import { validate } from '@0xhoneyjar/loa-hounfour';
+import { AssertionSchema } from '@0xhoneyjar/loa-hounfour/governance';
+
+// Candidate variant — shape-only, no acceptDeferred needed.
+const candidateResult = validate(AssertionSchema, candidatePayload);
+// candidateResult.valid === true; no manifest entry.
+
+// Admitted variant — crypto-bearing, fails closed without acceptDeferred.
+const admittedDefault = validate(AssertionSchema, admittedPayload);
+// admittedDefault.valid === false; errors[0].startsWith('CRYPTO_DEFERRED:').
+
+// Admitted variant with opt-in.
+const admittedOptIn = validate(AssertionSchema, admittedPayload, { acceptDeferred: true });
+// admittedOptIn.valid === true;
+// admittedOptIn.unverified_obligations.schema_id === 'Assertion#status=admitted';
+// admittedOptIn.unverified_obligations.unverified_rules[0].rule_id === 'CRYPTO_DEFERRED';
+// admittedOptIn.unverified_obligations.unverified_rules[0].reason === 'crypto_deferred'.
+```
+
+The synthesized `schema_id` (`<UnionId>#<discriminator>=<value>`) form lets operators distinguish which lifecycle variant triggered the deferred branch — useful when assertions in `forgotten` or `revoked` state need to be audited differently from fresh `admitted` records.
+
+### ORD-3 chain context
+
+`validate(OrgRepresentativeDelegationSchema, payload)` now ALWAYS emits an `ORD-3` manifest entry (previously the rule resolved to vacuous-true silently when chain context was absent). Consumers reconciling the entry can branch on `reason`:
+
+```typescript
+const result = validate(OrgRepresentativeDelegationSchema, record, {
+  chainContext: { granted_by_chain_records: ancestorRecords },  // optional
+});
+
+const ord3 = result.unverified_obligations?.unverified_rules.find((r) => r.rule_id === 'ORD-3');
+if (ord3?.reason === 'context_absent') {
+  // Consumer didn't supply chain context — assemble the chain and retry, or
+  // perform the chain check consumer-side.
+} else if (ord3?.reason === 'pattern_matching') {
+  // Chain context supplied; the library accepted it but doesn't run is_valid_dag at
+  // validate() time — run the chain check via npm run check:constraints or
+  // consumer-side.
+}
+```
+
+### `safeCanonicalize` is the recommended canonical-JSON-hash path
+
+```typescript
+import { safeCanonicalize } from '@0xhoneyjar/loa-hounfour';
+
+const canonical = safeCanonicalize(payload);              // throws on >100KB
+const canonical = safeCanonicalize(payload, { maxBytes: 256 * 1024 });  // explicit override
+```
+
+Lint `RULE-5` (in the structural lint) blocks direct `canonicalize` import in non-utility code so the wrapper is the single canonicalization site. Existing v8.4.0 hashing code that bypassed the helper continues to work; v8.5.0+ schemas should use `safeCanonicalize`.
+
+### `ClaimGrounding` discriminator extension
+
+Two new substrate-agnostic discriminator members ship strict-additively:
+
+- `external_reference` — pair with optional `external_uri` (off-protocol reference: URL / DOI / chain-transaction id).
+- `derived_inference` — pair with optional `inference_basis: string[]` (sibling `claim_id`s the inference draws from).
+
+Existing v7.x consumers compile unchanged — the new members are additive on the discriminator union and the new fields are optional.
+
+### Strict-additive guarantee
+
+- `npm run semver:check` PASS on the v8.5.0 merge commit.
+- All v8.4.0 schemas compile against v8.5.0 unchanged. Consumers adopt the new surface by adding imports; existing imports remain valid.
+- The 4 EXTEND decisions (`AccessDecision`, `CapabilityScopedTrust`, `ClaimGrounding`, `OrgRepresentativeDelegation` constraint set) all add optional fields / additive members only.
+
+### Forwarded items
+
+- **TS6 chore deferred** to v8.5.1 single-purpose release (1-2 weeks post v8.5.0).
+- **Challenge layer + cross-runner extension + ORD-3 fail-closed promotion + ed25519 pattern alignment + ORD-5 warn → error escalation** committed to v8.6.0 (immediate follow-on).
 
 ---
 

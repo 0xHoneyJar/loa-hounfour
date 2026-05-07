@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commons/governed-credits",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.0/commons/governed-credits",
   "additionalProperties": false,
   "description": "Governed credit lot — wire shape for the lot_invariant pattern (I-1 through I-5). Conservation law: balance + reserved + consumed == original_allocation.",
   "type": "object",
@@ -364,5 +364,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.0, min_supported=6.0.0"
 }
