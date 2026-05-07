@@ -24,10 +24,17 @@ import { AgentIdentitySchema } from '../schemas/agent-identity.js';
  * - `acknowledged_judgment` → `source` is non-null AND `justification.length > 0`. Rule PDA-5.
  * - `claim_reference`     → `claim_id` references a sibling claim (DAG edge). Rule lands with the constraint file in PR-A1.4.
  * - `artifact_reference`  → `artifact_id` references a parent artifact (DAG edge). Rule lands with the constraint file in PR-A1.4.
+ * - `external_reference`  → `external_uri` carries the off-protocol reference (URL / DOI / chain-transaction id). Substrate-agnostic; consumer parses the URI grammar. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
+ * - `derived_inference`   → `inference_basis` lists the claim_ids the inference draws from (DAG edges). Substrate-agnostic; consumer enforces basis-set validity. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
  *
- * The four-type set is **deliberate and closed for v8.4.0**. Consumers MUST NOT
- * silently treat an unknown `type` as valid; extension is a future additive
- * release decision, not a per-consumer choice.
+ * The original four-type set was **deliberate and closed for v8.4.0**. The
+ * v8.5.0 EXTEND lands two new substrate-agnostic discriminator members
+ * (`external_reference`, `derived_inference`) with their corresponding
+ * optional auxiliary fields (`external_uri`, `inference_basis`); existing
+ * v7.x consumers compile unchanged because the new members are additive on
+ * the discriminator union and the new fields are optional. Cross-field
+ * rules for the new members may land in cycle-005 alongside the
+ * Challenge layer.
  *
  * The schema declares the surface; cross-field enforcement is the constraint
  * file's job (and is what `'x-cross-field-validated': true` advertises).
@@ -40,6 +47,8 @@ export const ClaimGroundingSchema = Type.Object(
         Type.Literal('acknowledged_judgment'),
         Type.Literal('claim_reference'),
         Type.Literal('artifact_reference'),
+        Type.Literal('external_reference'),
+        Type.Literal('derived_inference'),
       ],
       { description: 'Grounding category determining which auxiliary fields apply.' },
     ),
@@ -68,11 +77,31 @@ export const ClaimGroundingSchema = Type.Object(
         description: 'Human-readable rationale; required when type=acknowledged_judgment.',
       }),
     ),
+    external_uri: Type.Optional(
+      Type.String({
+        minLength: 1,
+        description:
+          'Off-protocol reference: URL / DOI / chain-transaction id / etc. Substrate-agnostic; consumer parses the URI grammar. Recommended (but not enforced by hounfour) when type=external_reference.',
+      }),
+    ),
+    inference_basis: Type.Optional(
+      Type.Array(
+        Type.String({
+          minLength: 1,
+          description: 'A sibling claim_id that this inference draws from (DAG edge).',
+        }),
+        {
+          description:
+            'Sibling claim_ids the derived inference draws from (DAG edges). Recommended (but not enforced by hounfour) when type=derived_inference. Basis-set validity is consumer-side per ADR-010.',
+        },
+      ),
+    ),
   },
   {
     $id: 'ClaimGrounding',
     additionalProperties: false,
-    description: 'Provenance for a single Claim. Type-specific field requirements enforced by constraint file.',
+    description:
+      'Provenance for a single Claim. Type-specific field requirements enforced by constraint file. v8.5.0 EXTEND: two new substrate-agnostic discriminator members (external_reference, derived_inference) with corresponding optional fields (external_uri, inference_basis); strict-additive on the v8.4.0 surface.',
   },
 );
 export type ClaimGrounding = Static<typeof ClaimGroundingSchema>;

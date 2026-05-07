@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-class",
+  "description": "Illocutionary-force vocabulary for Assertion. Substrate-agnostic core of 7 speech-act categories (attestation | observation | assessment | consent | delegation | commitment | disclosure) plus a 3-segment consumer namespace fallback. Member set locked at PR-A2.1 design-freeze gate per D-006.",
+  "anyOf": [
+    {
+      "description": "Generic \"I sign this fact\"; the most common form, used when the assertion is a witnessed claim.",
+      "const": "attestation",
+      "type": "string"
+    },
+    {
+      "description": "\"I witnessed X\" without a normative judgment; lower-rigor sibling of attestation.",
+      "const": "observation",
+      "type": "string"
+    },
+    {
+      "description": "\"I evaluate Z\" (rating / score / quality); bridges with the reputation domain.",
+      "const": "assessment",
+      "type": "string"
+    },
+    {
+      "description": "\"I authorize Y\" (permission grant); paired with delegation but distinct from authority transfer.",
+      "const": "consent",
+      "type": "string"
+    },
+    {
+      "description": "\"I transfer authority to\" (proxy / agency); composes with v8.4.0 OrgRepresentativeDelegation.",
+      "const": "delegation",
+      "type": "string"
+    },
+    {
+      "description": "\"I bind myself to\" (promise / pledge); composes with the v8.5.0 CommitmentRoot primitive.",
+      "const": "commitment",
+      "type": "string"
+    },
+    {
+      "description": "\"I disclose facts about\" (transparency / report); covers transparency_report / incident_record cases.",
+      "const": "disclosure",
+      "type": "string"
+    },
+    {
+      "pattern": "^[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+$",
+      "description": "3-segment consumer namespace: <github-org>:<consumer>:<class>. Hounfour does not register namespaces; uniqueness is consumer-coordination concern.",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

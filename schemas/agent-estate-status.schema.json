@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate-status",
+  "description": "Lifecycle vocabulary for AgentEstate. Five substrate-agnostic states: provisioning | active | paused | transferring | dissolved. State-machine validity is consumer-side per ADR-010.",
+  "anyOf": [
+    {
+      "description": "Estate is being set up; controller_agent_id + keyring_id are being bound.",
+      "const": "provisioning",
+      "type": "string"
+    },
+    {
+      "description": "Estate is in normal operation; controller may sign and act.",
+      "const": "active",
+      "type": "string"
+    },
+    {
+      "description": "Estate signing is suspended; existing artifacts remain valid.",
+      "const": "paused",
+      "type": "string"
+    },
+    {
+      "description": "Estate is mid-transition to a new controller / keyring; intermediate state.",
+      "const": "transferring",
+      "type": "string"
+    },
+    {
+      "description": "Estate is wound down; no further signing. Historical artifacts remain.",
+      "const": "dissolved",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

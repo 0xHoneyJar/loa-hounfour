@@ -1,0 +1,33 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RecallReceipt",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "RR-1",
+      "expression": "consumer recomputes receipt_hash via safeCanonicalize(receipt-minus-receipt_hash) and rejects the record on mismatch",
+      "severity": "error",
+      "message": "receipt_hash MUST equal SHA-256 over safeCanonicalize(receipt-minus-receipt_hash). The library does NOT recompute or compare; consumer-side reconciliation is required.",
+      "fields": ["receipt_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Content-addressed-hash reconciliation is consumer-side per ADR-010. Same shape as RP-1 for RecallPack — see that rule's evaluation_note for the consumer obligation. The receipt_hash commits to the receipt body minus its own receipt_hash field; pack_hash is referenced by value (not recursed) so the receipt's canonical form is independent of the underlying pack body.",
+      "type_signature": {
+        "receipt_hash": "string"
+      }
+    },
+    {
+      "id": "RR-2",
+      "expression": "consumer verifies signature_envelope.signature_value against the public key referenced by signature_envelope.key_ref + the SignerEntry it resolves to",
+      "severity": "error",
+      "message": "signature_envelope.signature_value MUST verify against the public key referenced by signature_envelope.key_ref. The library does NOT verify; consumer-side verification is required (CRYPTO_DEFERRED).",
+      "fields": ["signature_envelope"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic signature verification is consumer-side per NF-1 + ADR-010. The schema-level x-crypto-bearing flag plus the validate() safe-by-default branch ensure the library refuses to return valid:true unless the consumer explicitly passes acceptDeferred:true. When opted in, the manifest entry surfaces this obligation under reason: 'crypto_deferred'.",
+      "type_signature": {
+        "signature_envelope": "SignatureEnvelope"
+      }
+    }
+  ]
+}

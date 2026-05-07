@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.4.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-07T00:20:41.626Z",
+  "generated_at": "2026-05-07T01:33:00.584Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1317,6 +1317,96 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/policy-decision-outcome",
       "file": "policy-decision-outcome.schema.json",
       "description": "Outcome enum for policy-decision shapes (AccessDecision.outcome, SignerCompetenceResult.outcome). 5 substrate-agnostic members."
+    },
+    {
+      "name": "receipt-detail-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/receipt-detail-level",
+      "file": "receipt-detail-level.schema.json",
+      "description": "Verbosity selector for RecallReceipt. Three substrate-agnostic levels: minimal | standard | debug. The consumer's audit policy decides what fields populate each level; the library ships only the selector vocabulary."
+    },
+    {
+      "name": "surface-context",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/surface-context",
+      "file": "surface-context.schema.json",
+      "description": "Environment selector for recall machinery. Closed 5-member core (public | private | system | demo | test) plus a 3-segment consumer namespace fallback. The combined regex (^([a-z]+|[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+)$) matches either form for cross-runner parity."
+    },
+    {
+      "name": "recall-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-request",
+      "file": "recall-request.schema.json",
+      "description": "Input record for recall machinery. Carries subject_agent_id, surface_context (env scope), detail_level (verbosity selector for the matching RecallReceipt), and an Optional requestor_signer_id for consumer-side signing."
+    },
+    {
+      "name": "recall-pack",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-pack",
+      "file": "recall-pack.schema.json",
+      "description": "Output container for the recall machinery: items + redaction summary + exclusion summary + content-addressed pack_hash. Sub-component shapes inlined per the locked v8.5.0 de-scope decision. Hash verification is a consumer obligation surfaced via the unverified-obligations manifest (integrity_deferred)."
+    },
+    {
+      "name": "recall-receipt",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-receipt",
+      "file": "recall-receipt.schema.json",
+      "description": "Crypto-bearing signed acknowledgment for a RecallPack. validate() defaults to { valid: false, errors: [CRYPTO_DEFERRED] } unless { acceptDeferred: true } is passed; consumer must verify the wrapped signature_envelope and reconcile pack_hash + receipt_hash before treating the receipt as authoritative."
+    },
+    {
+      "name": "forget-record",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/forget-record",
+      "file": "forget-record.schema.json",
+      "description": "First-class forgetting primitive distinct from Sanction/revocation. Four-variant discriminated union over forget_scope. The crypto_full_destruction variant requires a legal_mandate_reference field; the other three variants must NOT carry the field (additionalProperties: false enforces). See docs/architecture/forget-record-semantics.md for the verifiability truth table."
+    },
+    {
+      "name": "commitment-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-type",
+      "file": "commitment-type.schema.json",
+      "description": "Discriminator vocabulary for CommitmentRoot. Four substrate-agnostic categories: estate_checkpoint | recall_receipt | transition_bundle | revocation_checkpoint."
+    },
+    {
+      "name": "commitment-root",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-root",
+      "file": "commitment-root.schema.json",
+      "description": "Content-addressed onchain anchor primitive. Crypto-bearing AND integrity-bearing — validate() defaults to { valid: false, errors: [INTEGRITY_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side."
+    },
+    {
+      "name": "agent-estate-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate-status",
+      "file": "agent-estate-status.schema.json",
+      "description": "Lifecycle vocabulary for AgentEstate. Five substrate-agnostic states: provisioning | active | paused | transferring | dissolved. State-machine validity is consumer-side per ADR-010."
+    },
+    {
+      "name": "agent-estate",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate",
+      "file": "agent-estate.schema.json",
+      "description": "Estate-as-container primitive: binds a controller_agent_id to a Keyring (Layer 2) and a lifecycle status. Foundation for the cycle-005 EstateTransition surface. State-machine validity is consumer-side per ADR-010."
+    },
+    {
+      "name": "privacy-scope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/privacy-scope",
+      "file": "privacy-scope.schema.json",
+      "description": "Privacy classification for Assertion payloads. Four substrate-agnostic levels: public | participants_only | controller_only | compliance_only. Vocabulary only — enforcement is consumer-side."
+    },
+    {
+      "name": "risk-level",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/risk-level",
+      "file": "risk-level.schema.json",
+      "description": "Risk classification for Assertion payloads. Four ordinal levels: routine | elevated | high | severe. Vocabulary only — risk thresholds are consumer-side."
+    },
+    {
+      "name": "assertion-status",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-status",
+      "file": "assertion-status.schema.json",
+      "description": "Lifecycle vocabulary for Assertion. Eight states: candidate (pre-admission, non-crypto-bearing) + admitted | superseded | challenged | revoked | forgotten | escrow | archived (post-admission, crypto-bearing)."
+    },
+    {
+      "name": "assertion-class",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-class",
+      "file": "assertion-class.schema.json",
+      "description": "Illocutionary-force vocabulary for Assertion. Substrate-agnostic core of 7 speech-act categories (attestation | observation | assessment | consent | delegation | commitment | disclosure) plus a 3-segment consumer namespace fallback. Member set locked at PR-A2.1 design-freeze gate per D-006."
+    },
+    {
+      "name": "assertion",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion",
+      "file": "assertion.schema.json",
+      "description": "Signed-observation-with-lifecycle envelope. 8-variant status-discriminated union. CandidateAssertion folded as status:candidate (F3 fold). Variant-aware crypto-bearing (J3): candidate is NOT crypto-bearing; the other 7 variants ARE — validate() inspects payload status to apply the safe-by-default branch. State-machine rules (A1/A2/A3) live in constraints/Assertion.constraints.json."
     }
   ]
 }

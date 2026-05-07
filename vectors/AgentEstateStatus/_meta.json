@@ -1,0 +1,54 @@
+{
+  "schema": "AgentEstateStatus",
+  "fixtures": [
+    {
+      "case": "provisioning-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'provisioning' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "active-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'active' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "paused-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'paused' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "transferring-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'transferring' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "dissolved-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'dissolved' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal 'frozen' is outside the closed core; must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

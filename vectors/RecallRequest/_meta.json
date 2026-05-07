@@ -1,0 +1,75 @@
+{
+  "schema": "RecallRequest",
+  "fixtures": [
+    {
+      "case": "minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimum required fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Optional requestor_signer_id populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "private-surface",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Private surface_context.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "namespace-surface",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Consumer 3-segment namespace surface_context.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "debug-detail",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Debug detail level.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-request-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "request_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-subject-agent-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "subject_agent_id must match ^[a-z][a-z0-9_-]{2,63}$.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unknown-surface",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "surface_context literal outside closed core, also not a 3-segment namespace.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "request_id must be a valid UUID v4.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

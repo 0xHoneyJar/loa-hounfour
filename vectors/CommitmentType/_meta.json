@@ -1,0 +1,47 @@
+{
+  "schema": "CommitmentType",
+  "fixtures": [
+    {
+      "case": "estate-checkpoint-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'estate_checkpoint' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "recall-receipt-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'recall_receipt' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "transition-bundle-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'transition_bundle' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "revocation-checkpoint-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'revocation_checkpoint' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal 'arbitrary_anchor' is outside the closed core; must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

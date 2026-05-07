@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-request",
+  "additionalProperties": false,
+  "description": "Input record for recall machinery. Carries subject_agent_id, surface_context (env scope), detail_level (verbosity selector for the matching RecallReceipt), and an Optional requestor_signer_id for consumer-side signing.",
+  "type": "object",
+  "required": [
+    "request_id",
+    "subject_agent_id",
+    "surface_context",
+    "detail_level",
+    "requested_at",
+    "contract_version"
+  ],
+  "properties": {
+    "request_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this request (UUID v4).",
+      "type": "string"
+    },
+    "subject_agent_id": {
+      "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+      "description": "The agent whose data is being recalled (consumer-coordinated id space).",
+      "type": "string"
+    },
+    "surface_context": {
+      "description": "Environment selector for recall machinery. Closed 5-member core (public | private | system | demo | test) plus a 3-segment consumer namespace fallback. The combined regex (^([a-z]+|[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+)$) matches either form for cross-runner parity.",
+      "anyOf": [
+        {
+          "description": "Consumer-public surface; recipient may share the recall publicly.",
+          "const": "public",
+          "type": "string"
+        },
+        {
+          "description": "Consumer-private surface; recipient must keep the recall internal.",
+          "const": "private",
+          "type": "string"
+        },
+        {
+          "description": "System / infrastructure surface (logs, telemetry, internal control plane).",
+          "const": "system",
+          "type": "string"
+        },
+        {
+          "description": "Demo / showcase surface; not an audit-grade surface.",
+          "const": "demo",
+          "type": "string"
+        },
+        {
+          "description": "Test surface; never an audit-grade surface.",
+          "const": "test",
+          "type": "string"
+        },
+        {
+          "pattern": "^[a-z][a-z0-9]+:[a-z][a-z0-9_-]+:[a-z][a-z0-9_-]+$",
+          "description": "3-segment consumer namespace: <github-org>:<consumer>:<surface>. Hounfour does not register namespaces; uniqueness is consumer-coordination concern.",
+          "type": "string"
+        }
+      ]
+    },
+    "detail_level": {
+      "description": "Verbosity selector for RecallReceipt. Three substrate-agnostic levels: minimal | standard | debug. The consumer's audit policy decides what fields populate each level; the library ships only the selector vocabulary.",
+      "anyOf": [
+        {
+          "description": "Receipt carries only the pack_hash + signature_envelope; no item-level enumeration.",
+          "const": "minimal",
+          "type": "string"
+        },
+        {
+          "description": "Receipt carries item-level acknowledgment + redaction summary; the default verbosity.",
+          "const": "standard",
+          "type": "string"
+        },
+        {
+          "description": "Receipt carries every consumer-side trace point; intended for non-production audit + integration testing.",
+          "const": "debug",
+          "type": "string"
+        }
+      ]
+    },
+    "requested_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the request was minted.",
+      "type": "string"
+    },
+    "requestor_signer_id": {
+      "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+      "description": "Optional consumer-side signer-id reference. Hounfour ships shape only; consumer dereferences against its Keyring + verifies any wrapping signature envelope.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this request was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

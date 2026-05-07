@@ -1,0 +1,75 @@
+{
+  "schema": "RecallPack",
+  "fixtures": [
+    {
+      "case": "minimal-single-item",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimum fields with a single recall item, no redactions/exclusions.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "multi-item",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Multiple recall items in the pack.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-redactions",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Pack with redaction summary populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-exclusions",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Pack with exclusion summary populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-items",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Empty items[] is structurally valid (everything was redacted/excluded).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-pack-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pack_hash must match ^sha256:[0-9a-f]{64}$.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-redactions",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "redactions field is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "item-extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Inline item shape rejects additional properties.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "negative-redacted-count",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "total_redacted has minimum:0 — negative count rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "recall_request_ref must be a valid UUID v4.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

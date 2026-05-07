@@ -1,0 +1,34 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CommitmentRoot",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CR-1",
+      "expression": "consumer recomputes subject_hash via safeCanonicalize(committed-artifact) and rejects the record on mismatch",
+      "severity": "error",
+      "message": "subject_hash MUST equal SHA-256 over safeCanonicalize(committed-artifact). The library does NOT recompute or compare; consumer-side reconciliation is required (INTEGRITY_DEFERRED).",
+      "fields": ["subject_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Content-addressed-hash reconciliation is consumer-side per ADR-010. The library's role is to ship the commitment envelope shape (commitment_id + commitment_type + subject_hash + optional onchain anchor fields); the consumer recomputes the hash over the committed artifact. The schema-level x-crypto-bearing flag forces explicit acceptDeferred opt-in; when opted in, the manifest entry surfaces this under reason: 'integrity_deferred'.",
+      "type_signature": {
+        "subject_hash": "string"
+      }
+    },
+    {
+      "id": "CR-2",
+      "expression": "(anchor_chain_id == null && anchor_tx_hash == null) || (anchor_chain_id != null && anchor_tx_hash != null)",
+      "severity": "error",
+      "message": "anchor_chain_id and anchor_tx_hash are mutually presence-coupled: either both present (commitment is anchored on-chain) or both absent (commitment is local-only).",
+      "fields": ["anchor_chain_id", "anchor_tx_hash"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated structural coupling. A CommitmentRoot record that carries anchor_chain_id without anchor_tx_hash (or vice versa) is structurally incomplete — the on-chain anchor is by-pair (chain id + transaction hash). The DSL expression encodes the biconditional via two-clause disjunction (both null OR both non-null) so cross-language runners (Go/Python/Rust) replicate the rule identically. The library evaluator runs the equivalent check in the cross-field validator; consumer-side workflows that omit the on-chain anchor entirely are valid (both fields absent).",
+      "type_signature": {
+        "anchor_chain_id": "string",
+        "anchor_tx_hash": "string"
+      }
+    }
+  ]
+}

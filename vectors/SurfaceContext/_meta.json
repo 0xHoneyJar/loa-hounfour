@@ -1,0 +1,68 @@
+{
+  "schema": "SurfaceContext",
+  "fixtures": [
+    {
+      "case": "public-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'public' surface.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "private-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'private' surface.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "system-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'system' surface.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "demo-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'demo' surface.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "test-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'test' surface.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "three-segment-namespace",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Consumer-defined 3-segment namespace; valid pattern match.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "uppercase-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Closed-core members are lowercase; uppercase fails the match.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "two-segment-namespace",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Two-segment string fails the 3-segment namespace pattern.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a closed-core member nor a valid namespace.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

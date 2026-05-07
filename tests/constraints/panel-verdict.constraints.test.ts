@@ -1,13 +1,16 @@
 /**
- * Tests for the PanelVerdict constraint file (PR-A1.4, v8.4.0).
+ * Tests for the PanelVerdict constraint file (PR-A1.4, v8.4.0;
+ * PV-5 added in PR-A2.3, v8.5.0).
  *
- * Covers PV-1 .. PV-4 from SDD section 3.6:
+ * Covers PV-1 .. PV-5 from SDD section 3.6 + sprint.md §"Group L":
  *   - PV-1: bucket-verdict normative pairing table
  *   - PV-2: juror_verdicts.length in [4, 16]
  *   - PV-3: asymmetric_blocker_signal.validated equals the disjunction of
  *           cross_model_agreement >= 0.7 OR same_model_reviewer_score >= 600
  *   - PV-4: signing_context audience/scope non-empty + contract_version length >= 5
  *           (well-formed semver pattern enforced at the schema layer per pass-3 fix)
+ *   - PV-5: BLOCKER bucket requires asymmetric_blocker_signal envelope
+ *           (carry-forward MEDIUM from v8.5.0 backlog; PR-A2.3)
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -35,10 +38,10 @@ describe('PanelVerdict constraint file structure', () => {
     expect(constraintFile.contract_version).toBe('8.4.0');
   });
 
-  it('contains exactly 4 constraints (PV-1 .. PV-4)', () => {
-    expect(constraintFile.constraints).toHaveLength(4);
+  it('contains exactly 5 constraints (PV-1 .. PV-5)', () => {
+    expect(constraintFile.constraints).toHaveLength(5);
     const ids = constraintFile.constraints.map((c: { id: string }) => c.id);
-    expect(ids).toEqual(['PV-1', 'PV-2', 'PV-3', 'PV-4']);
+    expect(ids).toEqual(['PV-1', 'PV-2', 'PV-3', 'PV-4', 'PV-5']);
   });
 
   it('marks every constraint evaluator as library', () => {

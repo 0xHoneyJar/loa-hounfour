@@ -1,0 +1,46 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "Assertion",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "A-1",
+      "expression": "status == 'candidate' || (signatures != null && signatures.length >= 1)",
+      "severity": "error",
+      "message": "When status is anything other than 'candidate', signatures[] MUST be present with at least one SignatureEnvelope. Pre-admission candidate variants are the only signatures-optional state.",
+      "fields": ["status", "signatures"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated. The TypeBox 8-variant discriminated union already enforces this structurally — the candidate variant has no signatures field while the other 7 variants carry signatures: Type.Array(SignatureEnvelopeSchema, { minItems: 1 }) — so a misshapen payload fails schema validation before this rule runs. The constraint is restated in DSL form for cross-runner parity (Go/Python/Rust runners that may not represent the discriminated union structurally still enforce the signature requirement at the constraint layer). The candidate variant remains shape-only per J3 + ADR-010; the other 7 variants are crypto-bearing and gate via validate() safe-by-default.",
+      "type_signature": {
+        "status": "string",
+        "signatures": "array"
+      }
+    },
+    {
+      "id": "A-2",
+      "expression": "status != 'forgotten' || consumer correlates assertion_id to a ForgetRecord with matching subject_agent_id",
+      "severity": "error",
+      "message": "When status is 'forgotten', the consumer MUST correlate this assertion to a ForgetRecord (consumer-side state).",
+      "fields": ["status"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer-side correlation per ADR-010. The hounfour-typed Assertion envelope does not carry a forget_record_id field — that correlation is maintained in the consumer's assertion-store row alongside the typed envelope. When status is 'forgotten', the consumer MUST: (1) locate the matching ForgetRecord via its own state index; (2) verify ForgetRecord.subject_agent_id corresponds to the assertion's subject; (3) verify the ForgetRecord's authorized_by_signer_id has policy authority for the chosen forget_scope. Library-side enforcement is structurally infeasible from a single Assertion record; the obligation is surfaced via the manifest under reason: 'context_absent' when the consumer does not supply correlation context.",
+      "type_signature": {
+        "status": "string"
+      }
+    },
+    {
+      "id": "A-3",
+      "expression": "consumer enforces lifecycle state-transition validity (candidate -> admitted -> {superseded|challenged|revoked|forgotten|escrow|archived}; never {admitted -> candidate}; never {revoked -> admitted})",
+      "severity": "error",
+      "message": "Lifecycle state-transition validity is consumer-side. The library accepts any valid status literal on a single record; cross-record state-machine enforcement is the consumer's job.",
+      "fields": ["status"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Lifecycle state-machine validity is unprovable from a single Assertion record's state — it is a temporal cross-record invariant. The library evaluator SKIPS this rule and surfaces it via the UnverifiedObligationsManifest. Consumers MUST: (1) maintain the assertion-store's prior status for each assertion_id; (2) reject writes that violate the state machine (e.g., 'admitted' -> 'candidate' is structurally unrepresentable in a forward-only store, but 'revoked' -> 'admitted' would also re-open a previously-revoked assertion and is forbidden); (3) ensure forwarder workflows respect the discrete-step transitions. The expression captures the canonical forward path; the full transition table lives in docs/architecture/forget-record-semantics.md (alongside the related ForgetRecord verifiability table).",
+      "type_signature": {
+        "status": "string"
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "schema": "Assertion",
+  "fixtures": [
+    {
+      "case": "candidate-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "candidate variant — no signatures[]. NOT crypto-bearing per J3.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "admitted variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "superseded-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "superseded variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "challenged-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "challenged variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "revoked-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "revoked variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "forgotten-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "forgotten variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "escrow-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "escrow variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "archived-with-signatures",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "archived variant — crypto-bearing per J3; signatures[] populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-external-reference-grounding",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "admitted variant with PR-A2.3 ClaimGrounding EXTEND member: external_reference + external_uri.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-derived-inference-grounding",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "admitted variant with PR-A2.3 ClaimGrounding EXTEND member: derived_inference + inference_basis.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "candidate-with-signatures",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "candidate variant must NOT carry signatures[] (additionalProperties:false on the variant).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-without-signatures",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "admitted variant requires signatures[] per A1 (variant declares minItems:1).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unknown-status",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "status literal outside the 8-member set.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-empty-signatures",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "admitted variant requires minItems:1 on signatures[].",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "confidence-out-of-range",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "confidence must be within [0, 1].",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-body-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "body_hash must match the sha256 pattern.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "extra-field-on-candidate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "candidate variant rejects additional properties.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-recall-scope",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "recall_scope must be a closed-core SurfaceContext or 3-segment namespace; uppercase fails.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

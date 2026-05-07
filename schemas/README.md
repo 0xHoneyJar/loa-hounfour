@@ -2,7 +2,7 @@
 
 **Contract version:** 8.4.0
 **Min supported:** 6.0.0
-**Schemas:** 219
+**Schemas:** 234
 
 ## Schemas
 
@@ -227,6 +227,21 @@
 | signature-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-type` | [signature-type.schema.json](signature-type.schema.json) |
 | signer-status | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signer-status` | [signer-status.schema.json](signer-status.schema.json) |
 | policy-decision-outcome | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/policy-decision-outcome` | [policy-decision-outcome.schema.json](policy-decision-outcome.schema.json) |
+| receipt-detail-level | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/receipt-detail-level` | [receipt-detail-level.schema.json](receipt-detail-level.schema.json) |
+| surface-context | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/surface-context` | [surface-context.schema.json](surface-context.schema.json) |
+| recall-request | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-request` | [recall-request.schema.json](recall-request.schema.json) |
+| recall-pack | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-pack` | [recall-pack.schema.json](recall-pack.schema.json) |
+| recall-receipt | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-receipt` | [recall-receipt.schema.json](recall-receipt.schema.json) |
+| forget-record | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/forget-record` | [forget-record.schema.json](forget-record.schema.json) |
+| commitment-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-type` | [commitment-type.schema.json](commitment-type.schema.json) |
+| commitment-root | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-root` | [commitment-root.schema.json](commitment-root.schema.json) |
+| agent-estate-status | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate-status` | [agent-estate-status.schema.json](agent-estate-status.schema.json) |
+| agent-estate | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate` | [agent-estate.schema.json](agent-estate.schema.json) |
+| privacy-scope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/privacy-scope` | [privacy-scope.schema.json](privacy-scope.schema.json) |
+| risk-level | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/risk-level` | [risk-level.schema.json](risk-level.schema.json) |
+| assertion-status | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-status` | [assertion-status.schema.json](assertion-status.schema.json) |
+| assertion-class | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-class` | [assertion-class.schema.json](assertion-class.schema.json) |
+| assertion | `https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion` | [assertion.schema.json](assertion.schema.json) |
 
 ## Usage
 

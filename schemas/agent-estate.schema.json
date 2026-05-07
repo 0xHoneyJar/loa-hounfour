@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/agent-estate",
+  "additionalProperties": false,
+  "description": "Estate-as-container primitive: binds a controller_agent_id to a Keyring (Layer 2) and a lifecycle status. Foundation for the cycle-005 EstateTransition surface. State-machine validity is consumer-side per ADR-010.",
+  "type": "object",
+  "required": [
+    "estate_id",
+    "controller_agent_id",
+    "keyring_id",
+    "status",
+    "created_at",
+    "updated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "estate_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this estate (UUID v4).",
+      "type": "string"
+    },
+    "controller_agent_id": {
+      "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+      "description": "The agent that controls this estate (signer-of-record).",
+      "type": "string"
+    },
+    "keyring_id": {
+      "format": "uuid",
+      "description": "FK to Keyring.keyring_id — the cryptographic-material container backing this estate. Hounfour does not dereference; the consumer resolves it.",
+      "type": "string"
+    },
+    "status": {
+      "description": "Lifecycle vocabulary for AgentEstate. Five substrate-agnostic states: provisioning | active | paused | transferring | dissolved. State-machine validity is consumer-side per ADR-010.",
+      "anyOf": [
+        {
+          "description": "Estate is being set up; controller_agent_id + keyring_id are being bound.",
+          "const": "provisioning",
+          "type": "string"
+        },
+        {
+          "description": "Estate is in normal operation; controller may sign and act.",
+          "const": "active",
+          "type": "string"
+        },
+        {
+          "description": "Estate signing is suspended; existing artifacts remain valid.",
+          "const": "paused",
+          "type": "string"
+        },
+        {
+          "description": "Estate is mid-transition to a new controller / keyring; intermediate state.",
+          "const": "transferring",
+          "type": "string"
+        },
+        {
+          "description": "Estate is wound down; no further signing. Historical artifacts remain.",
+          "const": "dissolved",
+          "type": "string"
+        }
+      ]
+    },
+    "created_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the estate was created.",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the estate was last updated (status change, controller change).",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this estate was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

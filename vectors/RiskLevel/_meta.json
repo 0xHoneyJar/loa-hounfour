@@ -1,0 +1,47 @@
+{
+  "schema": "RiskLevel",
+  "fixtures": [
+    {
+      "case": "routine-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'routine' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "elevated-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'elevated' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "high-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'high' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "severe-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'severe' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal 'critical' is outside the closed core; must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

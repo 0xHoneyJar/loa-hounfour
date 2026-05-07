@@ -1,0 +1,264 @@
+{
+  "schema": "ForgetRecord",
+  "fixtures": [
+    {
+      "case": "pii-only-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — minimum fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-distinct-subject",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — distinct subject_agent_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-distinct-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — distinct authorized_by_signer_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-future-recorded",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — future recorded_at.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-extra-uuid",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — additional UUID exemplar.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-malformed-subject",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — subject_agent_id pattern violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-missing-forget-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_only variant — forget_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-only-stray-mandate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_only variant must NOT carry legal_mandate_reference (H1 enforcement via additionalProperties:false on the variant).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — minimum fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-distinct-subject",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — distinct subject_agent_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-distinct-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — distinct authorized_by_signer_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-future-recorded",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — future recorded_at.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-extra-uuid",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — additional UUID exemplar.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-malformed-subject",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — subject_agent_id pattern violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-missing-forget-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "agent_full variant — forget_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "agent-full-stray-mandate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "agent_full variant must NOT carry legal_mandate_reference (H1 enforcement via additionalProperties:false on the variant).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — minimum fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-distinct-subject",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — distinct subject_agent_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-distinct-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — distinct authorized_by_signer_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-future-recorded",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — future recorded_at.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-extra-uuid",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — additional UUID exemplar.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-malformed-subject",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — subject_agent_id pattern violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-missing-forget-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant — forget_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "pii-and-link-to-key-stray-mandate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pii_and_link_to_key variant must NOT carry legal_mandate_reference (H1 enforcement via additionalProperties:false on the variant).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — minimum fields populated.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-distinct-subject",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — distinct subject_agent_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-distinct-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — distinct authorized_by_signer_id.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-future-recorded",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — future recorded_at.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-extra-uuid",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — additional UUID exemplar.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-malformed-subject",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — subject_agent_id pattern violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-missing-forget-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — forget_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-missing-mandate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant REQUIRES legal_mandate_reference per H1; absence fails.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "crypto-full-destruction-short-mandate",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "crypto_full_destruction variant — legal_mandate_reference minLength is 8; 5-char value rejected.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

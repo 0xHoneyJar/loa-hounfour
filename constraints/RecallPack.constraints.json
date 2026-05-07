@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RecallPack",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "RP-1",
+      "expression": "consumer recomputes pack_hash via safeCanonicalize(pack-minus-pack_hash) and rejects the record on mismatch",
+      "severity": "error",
+      "message": "pack_hash MUST equal SHA-256 over safeCanonicalize(pack-minus-pack_hash). The library does NOT recompute or compare; consumer-side reconciliation is required.",
+      "fields": ["pack_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Content-addressed-hash reconciliation is consumer-side per ADR-010 (class-vs-policy boundary). The schema enforces the sha256:<64-hex> format via the field pattern; the library evaluator does NOT recompute the canonical-JSON form of the pack body and compare against pack_hash. Consumers MUST: (1) run safeCanonicalize() over the pack object minus the pack_hash field; (2) compute SHA-256 of the canonical bytes; (3) reject the record when the computed digest differs from pack_hash. The 100KB normative payload cap (per docs/architecture/hashing-spec-freeze-v8.5.md) applies; safeCanonicalize() throws when the canonical form exceeds the cap. Surfaced via the UnverifiedObligationsManifest as INTEGRITY_DEFERRED when the consumer opts in to shape-only validation.",
+      "type_signature": {
+        "pack_hash": "string"
+      }
+    }
+  ]
+}

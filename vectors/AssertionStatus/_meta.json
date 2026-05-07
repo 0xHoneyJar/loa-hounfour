@@ -1,0 +1,75 @@
+{
+  "schema": "AssertionStatus",
+  "fixtures": [
+    {
+      "case": "candidate-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'candidate' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "admitted-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'admitted' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "superseded-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'superseded' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "challenged-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'challenged' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "revoked-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'revoked' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "forgotten-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'forgotten' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "escrow-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'escrow' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "archived-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'archived' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal 'pending' is outside the closed core; must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

@@ -844,6 +844,28 @@ registerCrossFieldValidator('SignerType', constraintFileOnlyValidator);
 registerCrossFieldValidator('SignatureType', constraintFileOnlyValidator);
 registerCrossFieldValidator('SignerStatus', constraintFileOnlyValidator);
 registerCrossFieldValidator('PolicyDecisionOutcome', constraintFileOnlyValidator);
+// v8.5.0 PR-A2.3 — Recall machinery + Forget/Commit/Estate + Assertion family.
+// Constraint-file-only by design: hounfour ships shape; consumers
+// own the policy. RecallReceipt + CommitmentRoot are crypto-bearing
+// and gate via the safe-by-default opt-in path through validate();
+// AssertionSchema is variant-aware crypto-bearing (J3) — the
+// candidate variant is shape-only, the other 7 carry signatures and
+// gate via validate()'s union-walk.
+registerCrossFieldValidator('ReceiptDetailLevel', constraintFileOnlyValidator);
+registerCrossFieldValidator('SurfaceContext', constraintFileOnlyValidator);
+registerCrossFieldValidator('RecallRequest', constraintFileOnlyValidator);
+registerCrossFieldValidator('RecallPack', constraintFileOnlyValidator);
+registerCrossFieldValidator('RecallReceipt', constraintFileOnlyValidator);
+registerCrossFieldValidator('ForgetRecord', constraintFileOnlyValidator);
+registerCrossFieldValidator('CommitmentType', constraintFileOnlyValidator);
+registerCrossFieldValidator('CommitmentRoot', constraintFileOnlyValidator);
+registerCrossFieldValidator('AgentEstateStatus', constraintFileOnlyValidator);
+registerCrossFieldValidator('AgentEstate', constraintFileOnlyValidator);
+registerCrossFieldValidator('PrivacyScope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RiskLevel', constraintFileOnlyValidator);
+registerCrossFieldValidator('AssertionStatus', constraintFileOnlyValidator);
+registerCrossFieldValidator('AssertionClass', constraintFileOnlyValidator);
+registerCrossFieldValidator('Assertion', constraintFileOnlyValidator);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -944,7 +966,54 @@ export function validate(schema, data, options) {
     // and treat shape-validity as crypto authority. The opt-in flag is
     // the forced acknowledgment that downstream verification is the
     // consumer's responsibility.
-    const isCryptoBearing = schema['x-crypto-bearing'] === true;
+    //
+    // J3 variant-aware crypto-bearing: when the schema is a Type.Union
+    // (e.g. AssertionSchema) the union itself carries no flag, but each
+    // variant's options object MAY carry 'x-crypto-bearing': true. The
+    // matching variant for the payload is found by walking anyOf and
+    // re-checking each variant; if the matched variant is crypto-bearing,
+    // the safe-by-default branch fires (e.g. status: 'admitted'); if the
+    // matched variant is shape-only (e.g. status: 'candidate'), validate()
+    // returns valid: true without acceptDeferred.
+    const schemaRecord = schema;
+    let isCryptoBearing = schemaRecord['x-crypto-bearing'] === true;
+    let cryptoBearingVariantId;
+    if (!isCryptoBearing && Array.isArray(schemaRecord.anyOf)) {
+        const variants = schemaRecord.anyOf;
+        for (const variant of variants) {
+            if (variant['x-crypto-bearing'] !== true)
+                continue;
+            const variantSchema = variant;
+            const variantCompiled = getOrCompile(variantSchema);
+            if (variantCompiled.Check(data)) {
+                isCryptoBearing = true;
+                // Iter-2 F7 mitigation: surface which variant matched so consumers
+                // / operators can distinguish 'admitted' from 'forgotten' in the
+                // manifest. Prefer an explicit variant-level $id when present;
+                // otherwise synthesize a `<UnionId>#<discriminator-value>` form
+                // by reading the literal `status` (or any single-literal field)
+                // from the matched variant's properties.
+                if (typeof variant.$id === 'string') {
+                    cryptoBearingVariantId = variant.$id;
+                }
+                else if (schema.$id &&
+                    variant.properties &&
+                    typeof variant.properties === 'object') {
+                    const props = variant.properties;
+                    for (const [name, propSchema] of Object.entries(props)) {
+                        if (typeof propSchema === 'object' &&
+                            propSchema !== null &&
+                            'const' in propSchema &&
+                            typeof propSchema.const === 'string') {
+                            cryptoBearingVariantId = `${schema.$id}#${name}=${propSchema.const}`;
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
     if (isCryptoBearing && options?.acceptDeferred !== true) {
         return {
             valid: false,
@@ -956,41 +1025,103 @@ export function validate(schema, data, options) {
             ],
         };
     }
+    // PR-A2.3 iter-3 refactor (F1 + F-002 mitigation): manifest entries now
+    // accumulate rather than short-circuit. The previous early-return shape
+    // prevented composition — a hypothetical schema that is BOTH crypto-
+    // bearing AND has a runtime-deferred obligation (e.g., a future
+    // ORD-3-equivalent) would silently emit only the first entry. The
+    // accumulator pattern is forward-compatible: every layer that wants to
+    // surface an obligation pushes onto `obligations`, and the single
+    // closing return assembles the manifest. Cross-field validators still
+    // run BEFORE this section (they short-circuit on invalid as the contract
+    // requires); the accumulator only runs once cross-field has passed.
+    const obligations = [];
+    let manifestSchemaId = cryptoBearingVariantId ?? schema.$id ?? '<unverified-obligations>';
     if (isCryptoBearing && options?.acceptDeferred === true) {
-        // The full NF-2 shape (evaluator: 'consumer' + reason vocabulary)
-        // lands in PR-A2.3 along with the consumer-evaluator extension.
-        // For PR-A2.2 we emit a manifest entry under the existing v8.4.0
-        // schema with a CRYPTO_DEFERRED rule_id, so consumers can detect
-        // the obligation without waiting for the type widening.
-        // contract_version sources from CONTRACT_VERSION so that the runtime
-        // emission, schemas/index.json, and the published $id namespace stay
-        // aligned through the dev cycle (per cycle-003 D-005 precedent: the
-        // namespace bumps in the version-bump sprint, not mid-cycle).
+        // The CRYPTO_DEFERRED / INTEGRITY_DEFERRED path. Integrity-bearing
+        // detection (PR-A2.3 iter-2 F3 mitigation) keys on the schema-level
+        // `'x-integrity-bearing': true` flag rather than a hardcoded $id list,
+        // so new content-addressed schemas only need the flag in TypeBox
+        // options to surface the obligation. RecallPack + CommitmentRoot both
+        // carry it; the manifest discriminates via reason.
+        const isIntegrityBearing = schemaRecord['x-integrity-bearing'] === true;
+        const ruleId = isIntegrityBearing ? 'INTEGRITY_DEFERRED' : 'CRYPTO_DEFERRED';
+        const reason = isIntegrityBearing
+            ? 'integrity_deferred'
+            : 'crypto_deferred';
+        const ruleDescription = isIntegrityBearing
+            ? 'Content-addressed hash present in payload — library does NOT recompute or compare; consumer responsibility per ADR-010.'
+            : 'Signature value present in payload — library does NOT verify; consumer responsibility per ADR-010.';
+        const ruleNote = isIntegrityBearing
+            ? 'Content-addressed hash present in payload was NOT recomputed or compared by the library. ' +
+                'Consumer MUST recompute the hash via safeCanonicalize() over the canonical-JSON payload ' +
+                'and reject the record on hash mismatch before treating the record as integrity-verified.'
+            : 'Signature value present in payload was NOT verified by the library. ' +
+                'Consumer MUST verify the signature against the public key referenced ' +
+                'by the SignerEntry that produced it before treating the envelope as ' +
+                'cryptographically authoritative.';
+        obligations.push({
+            rule_id: ruleId,
+            rule: ruleDescription,
+            evaluator: 'consumer',
+            reason,
+            evaluation_note: ruleNote,
+            consumer_acknowledgment_required: true,
+        });
+    }
+    // ORD-3 manifest promotion (PR-A2.3 — HIGH carry-forward from v8.5.0
+    // backlog). Emits the chain-validity obligation in BOTH context-present
+    // and context-absent paths so the audit trail is unambiguous (PR-A2.3
+    // iter-2 F4 mitigation: silence on the context-present path would let
+    // consumers conflate "library validated chain" with "library skipped
+    // because no context was supplied").
+    if (schema.$id === 'OrgRepresentativeDelegation') {
+        const contextSupplied = hasChainContextRecords(options?.chainContext);
+        obligations.push({
+            rule_id: 'ORD-3',
+            rule: 'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
+            evaluator: 'consumer',
+            reason: contextSupplied ? 'pattern_matching' : 'context_absent',
+            evaluation_note: contextSupplied
+                ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
+                    'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
+                    'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
+                    'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
+                    'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
+                : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
+                    'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
+                    'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
+                    'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
+                    'library-side DAG validation, OR perform the chain check consumer-side. See ' +
+                    'docs/architecture/org-overseer.md for the verification profile.',
+            consumer_acknowledgment_required: true,
+        });
+    }
+    if (obligations.length > 0) {
         return {
             valid: true,
             unverified_obligations: {
-                schema_id: schema.$id ?? '<crypto-bearing>',
+                schema_id: manifestSchemaId,
                 contract_version: CONTRACT_VERSION,
                 // F2 mitigation: accept an injected timestamp via options.now so
                 // snapshot / golden-file parity tests can reproduce manifest output
                 // byte-for-byte across runs. Falls through to wall-clock when absent.
                 manifest_emitted_at: options?.now ?? new Date().toISOString(),
-                unverified_rules: [
-                    {
-                        rule_id: 'CRYPTO_DEFERRED',
-                        rule: 'Signature value present in payload — library does NOT verify; consumer responsibility per ADR-010.',
-                        evaluator: 'runtime-deferred',
-                        evaluation_note: 'Signature value present in payload was NOT verified by the library. ' +
-                            'Consumer MUST verify the signature against the public key referenced ' +
-                            'by the SignerEntry that produced it before treating the envelope as ' +
-                            'cryptographically authoritative.',
-                        consumer_acknowledgment_required: true,
-                    },
-                ],
+                unverified_rules: obligations,
             },
         };
     }
     return { valid: true };
+}
+/**
+ * Detect whether the consumer supplied a non-empty `granted_by_chain_records`
+ * array via the `chainContext` option. An empty array is also treated as
+ * absent — chain validation requires at least one ancestor record (the
+ * genesis-rooted sentinel) to resolve correctly.
+ */
+function hasChainContextRecords(chainContext) {
+    const records = chainContext?.granted_by_chain_records;
+    return Array.isArray(records) && records.length > 0;
 }
 // Pre-built validators for common schemas
 export const validators = {

@@ -1,0 +1,47 @@
+{
+  "schema": "PrivacyScope",
+  "fixtures": [
+    {
+      "case": "public-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'public' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "participants-only-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'participants_only' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "controller-only-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'controller_only' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "compliance-only-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Closed-core 'compliance_only' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal 'TopSecret' is outside the closed core; must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

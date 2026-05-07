@@ -53,6 +53,19 @@
       "type_signature": {
         "signing_context": "SigningContext"
       }
+    },
+    {
+      "id": "PV-5",
+      "expression": "bucket != 'BLOCKER' || asymmetric_blocker_signal != null",
+      "severity": "error",
+      "message": "BLOCKER bucket requires asymmetric_blocker_signal envelope. A BLOCKER verdict without an asymmetric_blocker_signal is structurally insufficient — the two-condition veto must be substantiated for the verdict to flow.",
+      "fields": ["bucket", "asymmetric_blocker_signal"],
+      "evaluator": "library",
+      "evaluation_note": "v8.5.0 PR-A2.3 carry-forward (MEDIUM, BLOCKER-without-signal). PV-1 enforces the bucket->verdict pairing; PV-3 enforces the asymmetric_blocker_signal threshold consistency; PV-5 closes the gap that a BLOCKER bucket can validate WITHOUT supplying the asymmetric_blocker_signal envelope, leaving the BLOCKER verdict unsubstantiated. The DSL expression encodes the implication (bucket == 'BLOCKER' implies asymmetric_blocker_signal != null) via material conditional (P implies Q is equivalent to !P || Q). asymmetric_blocker_signal is Optional on the schema for v8.4.0 backwards compatibility; v8.5.0 tightens enforcement at the constraint layer so BLOCKER-bucket records that omit the signal fail-closed at error severity. Cross-language runners (Go/Python/Rust) replicate the implication check identically.",
+      "type_signature": {
+        "bucket": "string",
+        "asymmetric_blocker_signal": "AsymmetricBlockerSignal"
+      }
     }
   ]
 }

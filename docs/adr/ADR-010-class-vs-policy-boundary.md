@@ -116,3 +116,12 @@ deferred verifications the consumer must perform.
 
 - `CLAUDE.md` (project overview)
 - `SCHEMA-EVOLUTION.md` (versioning + extension policy)
+- [`docs/architecture/forget-record-semantics.md`](../architecture/forget-record-semantics.md)
+  (PR-A2.3 — the `crypto_full_destruction` variant is the only place
+  hounfour ships a primitive that explicitly breaks audit non-repudiation;
+  the boundary discipline keeps that primitive structurally distinct from
+  the default-preserve scopes and forces a `legal_mandate_reference` on
+  every use)
+- [`docs/architecture/authority-cascade.md`](../architecture/authority-cascade.md)
+  (PR-A2.2 — the v8.5.0 three-layer authority cascade, which the
+  forget-record interactions hook into)

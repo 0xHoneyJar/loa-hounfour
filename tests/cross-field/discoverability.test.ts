@@ -148,6 +148,24 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'SignatureType',
     'SignerStatus',
     'PolicyDecisionOutcome',
+    // v8.5.0 PR-A2.3 — Recall machinery
+    'ReceiptDetailLevel',
+    'SurfaceContext',
+    'RecallRequest',
+    'RecallPack',
+    'RecallReceipt',
+    // v8.5.0 PR-A2.3 — Forget / Commit / Estate
+    'ForgetRecord',
+    'CommitmentType',
+    'CommitmentRoot',
+    'AgentEstateStatus',
+    'AgentEstate',
+    // v8.5.0 PR-A2.3 — Assertion Family
+    'PrivacyScope',
+    'RiskLevel',
+    'AssertionStatus',
+    'AssertionClass',
+    'Assertion',
   ];
 
   it('returns an array of strings', () => {

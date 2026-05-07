@@ -1,0 +1,9 @@
+{
+  "commitment_id": "550e8400-e29b-41d4-a716-446655440002",
+  "commitment_type": "recall_receipt",
+  "subject_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "created_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0",
+  "anchor_chain_id": "eip155:8453",
+  "anchor_tx_hash": "0xabcdef0123456789"
+}

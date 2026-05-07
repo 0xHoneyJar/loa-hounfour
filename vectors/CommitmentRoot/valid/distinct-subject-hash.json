@@ -1,0 +1,7 @@
+{
+  "commitment_id": "550e8400-e29b-41d4-a716-446655440005",
+  "commitment_type": "estate_checkpoint",
+  "subject_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "created_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0"
+}

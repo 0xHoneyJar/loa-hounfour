@@ -188,6 +188,22 @@ import { SignerTypeSchema } from '../src/governance/signer-type.js';
 import { SignatureTypeSchema } from '../src/governance/signature-type.js';
 import { SignerStatusSchema } from '../src/governance/signer-status.js';
 import { PolicyDecisionOutcomeSchema } from '../src/governance/policy-decision-outcome.js';
+// v8.5.0 PR-A2.3 — Recall machinery + Forget/Commit/Estate + Assertion family
+import { ReceiptDetailLevelSchema } from '../src/governance/receipt-detail-level.js';
+import { SurfaceContextSchema } from '../src/governance/surface-context.js';
+import { RecallRequestSchema } from '../src/governance/recall-request.js';
+import { RecallPackSchema } from '../src/governance/recall-pack.js';
+import { RecallReceiptSchema } from '../src/governance/recall-receipt.js';
+import { ForgetRecordSchema } from '../src/governance/forget-record.js';
+import { CommitmentTypeSchema } from '../src/governance/commitment-type.js';
+import { CommitmentRootSchema } from '../src/governance/commitment-root.js';
+import { AgentEstateStatusSchema } from '../src/governance/agent-estate-status.js';
+import { AgentEstateSchema } from '../src/governance/agent-estate.js';
+import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
+import { RiskLevelSchema } from '../src/governance/risk-level.js';
+import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
+import { AssertionClassSchema } from '../src/governance/assertion-class.js';
+import { AssertionSchema } from '../src/governance/assertion.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -469,6 +485,24 @@ const schemas = [
   { name: 'signature-type', schema: SignatureTypeSchema },
   { name: 'signer-status', schema: SignerStatusSchema },
   { name: 'policy-decision-outcome', schema: PolicyDecisionOutcomeSchema },
+  // v8.5.0 PR-A2.3 — Recall machinery
+  { name: 'receipt-detail-level', schema: ReceiptDetailLevelSchema },
+  { name: 'surface-context', schema: SurfaceContextSchema },
+  { name: 'recall-request', schema: RecallRequestSchema },
+  { name: 'recall-pack', schema: RecallPackSchema },
+  { name: 'recall-receipt', schema: RecallReceiptSchema },
+  // v8.5.0 PR-A2.3 — Forget / Commit / Estate
+  { name: 'forget-record', schema: ForgetRecordSchema },
+  { name: 'commitment-type', schema: CommitmentTypeSchema },
+  { name: 'commitment-root', schema: CommitmentRootSchema },
+  { name: 'agent-estate-status', schema: AgentEstateStatusSchema },
+  { name: 'agent-estate', schema: AgentEstateSchema },
+  // v8.5.0 PR-A2.3 — Assertion Family
+  { name: 'privacy-scope', schema: PrivacyScopeSchema },
+  { name: 'risk-level', schema: RiskLevelSchema },
+  { name: 'assertion-status', schema: AssertionStatusSchema },
+  { name: 'assertion-class', schema: AssertionClassSchema },
+  { name: 'assertion', schema: AssertionSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
