@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/commons/dynamic-contract",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/commons/dynamic-contract",
   "additionalProperties": false,
   "description": "Maps reputation state to protocol surface. A model at cold state accesses different protocol features than one at authoritative.",
   "type": "object",
@@ -336,5 +336,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

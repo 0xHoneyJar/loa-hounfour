@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/signing-context",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/signing-context",
   "additionalProperties": false,
   "description": "Audience/scope/contract_version envelope bound under signature for cross-context replay protection.",
   "type": "object",
@@ -26,5 +26,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

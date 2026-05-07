@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/assertion",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion",
   "description": "Signed-observation-with-lifecycle envelope. 8-variant status-discriminated union. CandidateAssertion folded as status:candidate (F3 fold). Variant-aware crypto-bearing (J3): candidate is NOT crypto-bearing; the other 7 variants ARE — validate() inspects payload status to apply the safe-by-default branch. State-machine rules (A1/A2/A3) live in constraints/Assertion.constraints.json.",
   "anyOf": [
     {
@@ -5117,5 +5117,5 @@
       }
     }
   ],
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }

@@ -1,12 +1,12 @@
-<!-- docs-version: 8.5.1 -->
+<!-- docs-version: 8.5.2 -->
 
 # @0xhoneyjar/loa-hounfour
 
-[![Version](https://img.shields.io/badge/version-8.5.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-8.5.2-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-green.svg)](LICENSE.md)
 [![Schemas](https://img.shields.io/badge/schemas-234-purple.svg)](SCHEMA-CHANGELOG.md)
 
-> Documentation current as of v8.5.1
+> Documentation current as of v8.5.2
 
 Constitutional protocol contracts for an AI agent economy. TypeBox schemas with dual JSON Schema 2020-12 output.
 
@@ -37,7 +37,7 @@ Reference consumers include [loa-finn](https://github.com/0xHoneyJar/loa-finn) (
 | Constraint files | 124 | `constraints/` (`.constraints.json` + `GRAMMAR.md`) |
 | Evaluator builtins | 44 | `src/constraints/evaluator.ts` |
 | Tests | 7,758 | `pnpm run test` |
-| CONTRACT_VERSION | 8.5.1 | `src/version.ts:13` |
+| CONTRACT_VERSION | 8.5.2 | `src/version.ts:13` |
 | MIN_SUPPORTED_VERSION | 6.0.0 | `src/version.ts:14` |
 | Golden test vector dirs | 90+ | `vectors/` (excluding VERSION) |
 

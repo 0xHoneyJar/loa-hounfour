@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.1/x402-error-code",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/x402-error-code",
   "description": "Machine-parseable error code for x402 payment failures (PAYMENT_REQUIRED / NOT_ALLOWLISTED / INFERENCE_FAILED / FEATURE_DISABLED / QUOTE_EXPIRED / INSUFFICIENT_FUNDS).",
   "anyOf": [
     {
@@ -28,5 +28,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.5.1, min_supported=6.0.0"
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
 }
