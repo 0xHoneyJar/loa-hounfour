@@ -12,6 +12,6 @@ export const EnsembleStrategySchema = Type.Union([
     Type.Literal('dialogue'),
 ], {
     $id: 'EnsembleStrategy',
-    $comment: 'Multi-model coordination strategies. See RFC #31 (The Hounfour RFC): https://github.com/0xHoneyJar/loa-finn/issues/31',
+    $comment: 'Multi-model coordination strategies.',
 });
 //# sourceMappingURL=ensemble-strategy.js.map

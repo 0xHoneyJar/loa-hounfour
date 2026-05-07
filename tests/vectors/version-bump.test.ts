@@ -242,13 +242,46 @@ describe('version bump', () => {
     expect(names).toContain('model-performance-event');
   });
 
+  it('validate() runtime emission of contract_version matches CONTRACT_VERSION', async () => {
+    // F10 mitigation: the unverified_obligations manifest emitted by validate()
+    // for crypto-bearing schemas embeds a contract_version field. That field
+    // MUST source from the same CONTRACT_VERSION constant as the rest of the
+    // version surfaces — any divergence is exactly the inconsistency the
+    // bridge findings F1 / F-001 / F-002 raised when the runtime emitted
+    // '8.5.0' while every other surface still said '8.4.0'.
+    const { validate } = await import('../../src/validators/index.js');
+    const { SignatureEnvelopeSchema } = await import(
+      '../../src/governance/signature-envelope.js'
+    );
+    const validShape = {
+      envelope_id: '550e8400-e29b-41d4-a716-446655440000',
+      signature_type: 'attestation' as const,
+      key_ref: 'kms://example/key-1',
+      signed_payload_hash:
+        'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      signature_value:
+        'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      signed_at: '2026-05-06T00:00:00Z',
+      contract_version: '8.5.0',
+    };
+    const result = validate(SignatureEnvelopeSchema, validShape, {
+      acceptDeferred: true,
+    });
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.unverified_obligations?.contract_version).toBe(CONTRACT_VERSION);
+    }
+  });
+
   it('schemas/index.json schema count tracks the generator output', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     // Hardcoded count is a per-release snapshot — the assertion intentionally
     // tightens after each additive PR so accidental schema removal is caught.
     // Count = 209 after PR-A1.2 (PR-A1.1's 206 + 3 OrgOverseer schemas).
-    // Subsequent additive PRs update this number; v8.4.0 release reconciliation
-    // (PR-A1.6) lands the final count.
-    expect(index.schemas).toHaveLength(209);
+    // PR-A2.2 adds 9 net-new schemas (Keyring, SignerEntry, SignerCompetenceRule,
+    // SignerCompetenceResult, SignatureEnvelope, SignerType, SignatureType,
+    // SignerStatus, PolicyDecisionOutcome) plus the iter-3 promotion of
+    // PairwiseScore from inline-only to top-level published schema → 219.
+    expect(index.schemas).toHaveLength(219);
   });
 });

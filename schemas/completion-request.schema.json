@@ -63,7 +63,6 @@
       "minItems": 1,
       "type": "array",
       "items": {
-        "$id": "ProviderWireMessage",
         "additionalProperties": false,
         "x-cross-field-validated": true,
         "description": "Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id.",
@@ -168,7 +167,6 @@
     "tools": {
       "type": "array",
       "items": {
-        "$id": "ToolDefinition",
         "additionalProperties": false,
         "description": "Provider-agnostic function-tool definition (name, description, parameter schema). Carried alongside CompletionRequest to declare callable tools.",
         "type": "object",

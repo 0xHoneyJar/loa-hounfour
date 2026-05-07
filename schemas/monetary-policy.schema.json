@@ -45,7 +45,6 @@
       "type": "integer"
     },
     "review_trigger": {
-      "$id": "ReviewTrigger",
       "additionalProperties": false,
       "description": "Condition that triggers a monetary policy review.",
       "type": "object",

@@ -50,7 +50,6 @@
       "type": "number"
     },
     "task_type": {
-      "$id": "TaskType",
       "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
       "anyOf": [
         {

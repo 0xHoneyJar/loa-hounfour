@@ -20,6 +20,10 @@ export { evaluateConstraint, resolveConditionalExpression, MAX_EXPRESSION_DEPTH,
 export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed } from './detailed-evaluator.js';
 export { tokenize, TokenizerError } from './tokenizer.js';
+// is_valid_dag builtin (v8.4.0, FR-C1)
+export { evaluateIsValidDag, extractPath, IS_VALID_DAG_OP_CAP, IS_VALID_DAG_ITEMS_CAP, IS_VALID_DAG_BYTES_CAP, } from './is-valid-dag.js';
+// Unverified-Obligations Manifest (v8.4.0, FR-C1)
+export { buildUnverifiedObligationsManifest, hasUnverifiedObligations, } from './unverified-obligations.js';
 // Evaluator Builtin Specification Registry (v5.5.0, FR-5)
 export { EVALUATOR_BUILTIN_SPECS, } from './evaluator-spec.js';
 // Constraint Type System (v6.0.0, FR-3)

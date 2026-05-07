@@ -26,7 +26,6 @@
       ],
       "properties": {
         "cold": {
-          "$id": "ProtocolSurface",
           "additionalProperties": false,
           "type": "object",
           "required": [
@@ -102,7 +101,6 @@
           }
         },
         "warming": {
-          "$id": "ProtocolSurface",
           "additionalProperties": false,
           "type": "object",
           "required": [
@@ -178,7 +176,6 @@
           }
         },
         "established": {
-          "$id": "ProtocolSurface",
           "additionalProperties": false,
           "type": "object",
           "required": [
@@ -254,7 +251,6 @@
           }
         },
         "authoritative": {
-          "$id": "ProtocolSurface",
           "additionalProperties": false,
           "type": "object",
           "required": [

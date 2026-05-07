@@ -8,6 +8,26 @@
  */
 import { type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema } from '@sinclair/typebox';
+import type { UnverifiedObligationsManifest } from '../constraints/unverified-obligations.js';
+/**
+ * Outcome of `validate(schema, data)`. Additively extended in v8.4.0 to carry
+ * an optional `unverified_obligations` manifest per SDD section 5.8 — when
+ * the schema's constraint file contains `evaluator: 'runtime-deferred'`
+ * rules, the field is populated; otherwise it is absent (NOT `null`, NOT
+ * `undefined`-via-key) so pre-v8.4.0 consumers see byte-identical output.
+ *
+ * @since v8.4.0 — FR-C1 (manifest field), pre-existing for `valid` / `errors` / `warnings`
+ */
+export type ValidationResult = {
+    valid: true;
+    warnings?: string[];
+    unverified_obligations?: UnverifiedObligationsManifest;
+} | {
+    valid: false;
+    errors: string[];
+    warnings?: string[];
+    unverified_obligations?: UnverifiedObligationsManifest;
+};
 /**
  * Cross-field validator function signature.
  * Returns errors and warnings for cross-field invariant violations.
@@ -38,21 +58,61 @@ export declare function getCrossFieldValidatorSchemas(): string[];
  * Schemas without `$id` are compiled per-call (no caching) — suitable
  * for one-off validation but not high-throughput loops.
  *
+ * @remarks v8.4.0 — return type is additively extended with an optional
+ * `unverified_obligations` field. When the schema's constraint file (loaded
+ * elsewhere in the runtime; see SDD section 5.8) contains rules tagged
+ * `evaluator: 'runtime-deferred'`, an `UnverifiedObligationsManifest` is
+ * surfaced on the result. When no such rules apply, the field is **omitted**
+ * entirely from the result object — consumers derive "no obligations" from
+ * absence (`'unverified_obligations' in result` or `if (result.unverified_obligations)`).
+ * The base `validate()` here does not load constraint files; it carries the
+ * field shape so callers that DO load constraint files can attach the
+ * manifest before returning to user code without widening the type.
+ *
  * @param schema - TypeBox schema to validate against
  * @param data - Unknown data to validate
- * @param options - Optional: skip cross-field validation with `{ crossField: false }`
- * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings`
+ * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
+ *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
+ *   (per ADR-010 / G1 — see safe-by-default note below); inject a deterministic
+ *   `manifest_emitted_at` via `{ now: '<ISO8601>' }` for snapshot / golden-file
+ *   parity (otherwise defaults to `new Date().toISOString()`).
+ * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
+ *
+ * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
+ *   options carry `'x-crypto-bearing': true` (e.g. `SignatureEnvelope`), the
+ *   call's behavior depends on whether the data is structurally valid AND
+ *   whether `{ acceptDeferred: true }` is passed:
+ *
+ *   - Structural failure (any schema/format violation): the call returns the
+ *     usual `{ valid: false, errors: [<schema errors>] }` regardless of
+ *     `acceptDeferred`. Structural failures take precedence and surface as
+ *     normal — `CRYPTO_DEFERRED` is NOT emitted in this branch.
+ *   - Structural success + `acceptDeferred` ABSENT: the call returns
+ *     `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }`. Each error string
+ *     is prefixed with the literal token `CRYPTO_DEFERRED:` so consumers can
+ *     match by `error.startsWith('CRYPTO_DEFERRED:')`. The opt-in flag IS the
+ *     safety mechanism — it forces the consumer to acknowledge that the
+ *     library has NOT verified the signature.
+ *   - Structural success + `acceptDeferred: true`: the call returns
+ *     `{ valid: true, unverified_obligations: { ..., unverified_rules: [{
+ *     rule_id: 'CRYPTO_DEFERRED', evaluator: 'runtime-deferred', ... }] } }`.
+ *     PR-A2.3 widens `evaluator` to carry `'consumer'` alongside a `reason`
+ *     vocabulary (`'crypto_deferred'`, `'pattern_matching'`, etc.).
+ *
+ *   The error contract is currently `string[]`, so the prefix `CRYPTO_DEFERRED:`
+ *   is the binding token. v8.6.0 is expected to migrate to a structured
+ *   `{ code, message }[]` form (per docs/architecture/authority-cascade.md
+ *   roadmap); consumers should prefer prefix matching over substring matching
+ *   to ease that transition.
+ *
+ * @see SDD section 5.8 — Unverified-Obligations Manifest Emission Contract
+ * @see ADR-010 — Class-vs-Policy Boundary
  */
 export declare function validate<T extends TSchema>(schema: T, data: unknown, options?: {
     crossField?: boolean;
-}): {
-    valid: true;
-    warnings?: string[];
-} | {
-    valid: false;
-    errors: string[];
-    warnings?: string[];
-};
+    acceptDeferred?: boolean;
+    now?: string;
+}): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{
         iss: import("@sinclair/typebox").TString;
@@ -1168,6 +1228,318 @@ export declare const validators: {
         conservation_status: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"conserved">, import("@sinclair/typebox").TLiteral<"violated">, import("@sinclair/typebox").TLiteral<"unverifiable">]>;
         contract_version: import("@sinclair/typebox").TString;
         metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+    }>>;
+    readonly panelDecisionArtifact: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        artifact_id: import("@sinclair/typebox").TString;
+        proposed_action: import("@sinclair/typebox").TObject<{
+            action_type: import("@sinclair/typebox").TString;
+            target_id: import("@sinclair/typebox").TString;
+            payload: import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>;
+        }>;
+        trust_context: import("@sinclair/typebox").TObject<{
+            routing_decision: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"panel">, import("@sinclair/typebox").TLiteral<"auto-honor">, import("@sinclair/typebox").TLiteral<"auto-reject">]>;
+            scope: import("@sinclair/typebox").TString;
+            reason: import("@sinclair/typebox").TString;
+        }>;
+        claims: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+            claim_id: import("@sinclair/typebox").TString;
+            grounding: import("@sinclair/typebox").TObject<{
+                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">]>;
+                artifact_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+                claim_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+                output_hash: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+                source: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+                    agent_id: import("@sinclair/typebox").TString;
+                    display_name: import("@sinclair/typebox").TString;
+                    agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+                    capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                    trust_scopes: import("@sinclair/typebox").TObject<{
+                        scopes: import("@sinclair/typebox").TObject<{
+                            billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                            governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                            inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                            delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                            audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                            composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        }>;
+                        default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                        match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                        precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+                    }>;
+                    delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                    max_delegation_depth: import("@sinclair/typebox").TInteger;
+                    governance_weight: import("@sinclair/typebox").TNumber;
+                    metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+                    contract_version: import("@sinclair/typebox").TString;
+                }>>;
+                justification: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+            }>;
+            confidence: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"high_confidence">, import("@sinclair/typebox").TLiteral<"plausible">, import("@sinclair/typebox").TLiteral<"speculative">]>;
+        }>>;
+        question: import("@sinclair/typebox").TString;
+        scoring_rubric: import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>;
+        created_at: import("@sinclair/typebox").TString;
+        contract_version: import("@sinclair/typebox").TString;
+    }>>;
+    readonly panelVerdict: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        verdict_id: import("@sinclair/typebox").TString;
+        artifact_id: import("@sinclair/typebox").TString;
+        bucket: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"HIGH_CONSENSUS">, import("@sinclair/typebox").TLiteral<"DISPUTED">, import("@sinclair/typebox").TLiteral<"LOW_VALUE">, import("@sinclair/typebox").TLiteral<"BLOCKER">]>;
+        verdict: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"proceed">, import("@sinclair/typebox").TLiteral<"defer">, import("@sinclair/typebox").TLiteral<"reject">, import("@sinclair/typebox").TLiteral<"low_value_pass">]>;
+        juror_verdicts: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+            juror: import("@sinclair/typebox").TObject<{
+                agent_id: import("@sinclair/typebox").TString;
+                display_name: import("@sinclair/typebox").TString;
+                agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+                capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                trust_scopes: import("@sinclair/typebox").TObject<{
+                    scopes: import("@sinclair/typebox").TObject<{
+                        billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    }>;
+                    default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                    match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                    precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+                }>;
+                delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                max_delegation_depth: import("@sinclair/typebox").TInteger;
+                governance_weight: import("@sinclair/typebox").TNumber;
+                metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+                contract_version: import("@sinclair/typebox").TString;
+            }>;
+            vote: import("@sinclair/typebox").TObject<{
+                voter_id: import("@sinclair/typebox").TString;
+                vote: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"agree">, import("@sinclair/typebox").TLiteral<"disagree">, import("@sinclair/typebox").TLiteral<"abstain">]>;
+                result: import("@sinclair/typebox").TUnknown;
+                confidence: import("@sinclair/typebox").TNumber;
+                reasoning: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+            }>;
+            score: import("@sinclair/typebox").TInteger;
+            voted_at: import("@sinclair/typebox").TString;
+        }>>;
+        asymmetric_blocker_signal: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+            cross_validation: import("@sinclair/typebox").TObject<{
+                validated: import("@sinclair/typebox").TBoolean;
+                cross_model_agreement: import("@sinclair/typebox").TNumber;
+                same_model_reviewer_score: import("@sinclair/typebox").TInteger;
+            }>;
+        }>>;
+        signature: import("@sinclair/typebox").TString;
+        signed_by: import("@sinclair/typebox").TString;
+        signing_key_id: import("@sinclair/typebox").TString;
+        signing_algorithm: import("@sinclair/typebox").TLiteral<"ed25519">;
+        signed_at: import("@sinclair/typebox").TString;
+        resolved_at: import("@sinclair/typebox").TString;
+        signing_context: import("@sinclair/typebox").TObject<{
+            audience: import("@sinclair/typebox").TString;
+            scope: import("@sinclair/typebox").TString;
+            contract_version: import("@sinclair/typebox").TString;
+        }>;
+    }>>;
+    readonly deliberationDissent: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        dissent_id: import("@sinclair/typebox").TString;
+        artifact_id: import("@sinclair/typebox").TString;
+        juror: import("@sinclair/typebox").TObject<{
+            agent_id: import("@sinclair/typebox").TString;
+            display_name: import("@sinclair/typebox").TString;
+            agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+            capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            trust_scopes: import("@sinclair/typebox").TObject<{
+                scopes: import("@sinclair/typebox").TObject<{
+                    billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                }>;
+                default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+            }>;
+            delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            max_delegation_depth: import("@sinclair/typebox").TInteger;
+            governance_weight: import("@sinclair/typebox").TNumber;
+            metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+            contract_version: import("@sinclair/typebox").TString;
+        }>;
+        concern_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"minority_verdict">, import("@sinclair/typebox").TLiteral<"process_objection">, import("@sinclair/typebox").TLiteral<"mid_deliberation_concern">]>;
+        narrative: import("@sinclair/typebox").TString;
+        cited_claim_ids: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+        raised_at: import("@sinclair/typebox").TString;
+        contract_version: import("@sinclair/typebox").TString;
+    }>>;
+    readonly crossScoreReport: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        report_id: import("@sinclair/typebox").TString;
+        pairwise_scores: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+            scorer: import("@sinclair/typebox").TObject<{
+                agent_id: import("@sinclair/typebox").TString;
+                display_name: import("@sinclair/typebox").TString;
+                agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+                capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                trust_scopes: import("@sinclair/typebox").TObject<{
+                    scopes: import("@sinclair/typebox").TObject<{
+                        billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    }>;
+                    default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                    match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                    precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+                }>;
+                delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                max_delegation_depth: import("@sinclair/typebox").TInteger;
+                governance_weight: import("@sinclair/typebox").TNumber;
+                metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+                contract_version: import("@sinclair/typebox").TString;
+            }>;
+            scored: import("@sinclair/typebox").TObject<{
+                agent_id: import("@sinclair/typebox").TString;
+                display_name: import("@sinclair/typebox").TString;
+                agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+                capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                trust_scopes: import("@sinclair/typebox").TObject<{
+                    scopes: import("@sinclair/typebox").TObject<{
+                        billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                        composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    }>;
+                    default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                    match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                    precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+                }>;
+                delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+                max_delegation_depth: import("@sinclair/typebox").TInteger;
+                governance_weight: import("@sinclair/typebox").TNumber;
+                metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+                contract_version: import("@sinclair/typebox").TString;
+            }>;
+            output_score: import("@sinclair/typebox").TInteger;
+            reasoning_score: import("@sinclair/typebox").TInteger;
+            grounding_score: import("@sinclair/typebox").TInteger;
+        }>>;
+        mode: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"shadow">, import("@sinclair/typebox").TLiteral<"enforced">]>;
+        signature: import("@sinclair/typebox").TString;
+        signed_by: import("@sinclair/typebox").TString;
+        signing_key_id: import("@sinclair/typebox").TString;
+        signing_algorithm: import("@sinclair/typebox").TLiteral<"ed25519">;
+        signed_at: import("@sinclair/typebox").TString;
+        signing_context: import("@sinclair/typebox").TObject<{
+            audience: import("@sinclair/typebox").TString;
+            scope: import("@sinclair/typebox").TString;
+            contract_version: import("@sinclair/typebox").TString;
+        }>;
+        resolved_at: import("@sinclair/typebox").TString;
+    }>>;
+    readonly orgIdentity: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        org_id: import("@sinclair/typebox").TString;
+        org_public_key: import("@sinclair/typebox").TString;
+        current_representatives: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+            agent_id: import("@sinclair/typebox").TString;
+            display_name: import("@sinclair/typebox").TString;
+            agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+            capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            trust_scopes: import("@sinclair/typebox").TObject<{
+                scopes: import("@sinclair/typebox").TObject<{
+                    billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                }>;
+                default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+            }>;
+            delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            max_delegation_depth: import("@sinclair/typebox").TInteger;
+            governance_weight: import("@sinclair/typebox").TNumber;
+            metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+            contract_version: import("@sinclair/typebox").TString;
+        }>>;
+        constitutional_hash: import("@sinclair/typebox").TString;
+        created_at: import("@sinclair/typebox").TString;
+        updated_at: import("@sinclair/typebox").TString;
+    }>>;
+    readonly orgRepresentativeDelegation: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        delegation_id: import("@sinclair/typebox").TString;
+        org_id: import("@sinclair/typebox").TString;
+        representative: import("@sinclair/typebox").TObject<{
+            agent_id: import("@sinclair/typebox").TString;
+            display_name: import("@sinclair/typebox").TString;
+            agent_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"model">, import("@sinclair/typebox").TLiteral<"orchestrator">, import("@sinclair/typebox").TLiteral<"human">, import("@sinclair/typebox").TLiteral<"service">, import("@sinclair/typebox").TLiteral<"composite">]>;
+            capabilities: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            trust_scopes: import("@sinclair/typebox").TObject<{
+                scopes: import("@sinclair/typebox").TObject<{
+                    billing: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    governance: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    inference: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    delegation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    audit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                    composition: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>>;
+                }>;
+                default_level: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"untrusted">, import("@sinclair/typebox").TLiteral<"basic">, import("@sinclair/typebox").TLiteral<"verified">, import("@sinclair/typebox").TLiteral<"trusted">, import("@sinclair/typebox").TLiteral<"sovereign">]>;
+                match_strategy: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"exact">, import("@sinclair/typebox").TLiteral<"subset">, import("@sinclair/typebox").TLiteral<"superset">]>>;
+                precedence_score: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TInteger>;
+            }>;
+            delegation_authority: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
+            max_delegation_depth: import("@sinclair/typebox").TInteger;
+            governance_weight: import("@sinclair/typebox").TNumber;
+            metadata: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>>;
+            contract_version: import("@sinclair/typebox").TString;
+        }>;
+        capability_scope: import("@sinclair/typebox").TRecord<import("@sinclair/typebox").TString, import("@sinclair/typebox").TUnknown>;
+        expiry: import("@sinclair/typebox").TString;
+        revocation: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{
+            revoked: import("@sinclair/typebox").TLiteral<true>;
+            revoked_at: import("@sinclair/typebox").TString;
+            revoked_by: import("@sinclair/typebox").TString;
+            reason: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+        }>>;
+        granted_by: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TLiteral<"genesis:org-public-key">]>;
+        chain_depth: import("@sinclair/typebox").TInteger;
+        signature: import("@sinclair/typebox").TString;
+        signed_by: import("@sinclair/typebox").TString;
+        signing_key_id: import("@sinclair/typebox").TString;
+        signing_algorithm: import("@sinclair/typebox").TLiteral<"ed25519">;
+        signed_at: import("@sinclair/typebox").TString;
+        signing_context: import("@sinclair/typebox").TObject<{
+            audience: import("@sinclair/typebox").TString;
+            scope: import("@sinclair/typebox").TString;
+            contract_version: import("@sinclair/typebox").TString;
+        }>;
+    }>>;
+    readonly successionPolicy: () => TypeCheck<import("@sinclair/typebox").TObject<{
+        policy_id: import("@sinclair/typebox").TString;
+        org_id: import("@sinclair/typebox").TString;
+        amend: import("@sinclair/typebox").TObject<{
+            threshold: import("@sinclair/typebox").TNumber;
+            cooldown_seconds: import("@sinclair/typebox").TInteger;
+        }>;
+        rotate: import("@sinclair/typebox").TObject<{
+            threshold: import("@sinclair/typebox").TNumber;
+            cooldown_seconds: import("@sinclair/typebox").TInteger;
+        }>;
+        add: import("@sinclair/typebox").TObject<{
+            threshold: import("@sinclair/typebox").TNumber;
+            cooldown_seconds: import("@sinclair/typebox").TInteger;
+        }>;
+        remove: import("@sinclair/typebox").TObject<{
+            threshold: import("@sinclair/typebox").TNumber;
+            cooldown_seconds: import("@sinclair/typebox").TInteger;
+        }>;
+        effective_at: import("@sinclair/typebox").TString;
     }>>;
 };
 //# sourceMappingURL=index.d.ts.map

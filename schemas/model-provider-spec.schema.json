@@ -22,7 +22,6 @@
       "type": "string"
     },
     "provider": {
-      "$id": "ProviderType",
       "$comment": "Provider type vocabulary for model routing.",
       "anyOf": [
         {
@@ -231,7 +230,6 @@
       }
     },
     "conformance_level": {
-      "$id": "ConformanceLevel",
       "description": "Trust level assigned to a provider based on conformance verification depth.",
       "anyOf": [
         {
@@ -302,7 +300,6 @@
           "type": "integer"
         },
         "reservation_enforcement": {
-          "$id": "ReservationEnforcement",
           "description": "How reservation guarantees are enforced by the provider.",
           "anyOf": [
             {

@@ -1,9 +1,9 @@
 /**
  * QualityObservation — structured quality result from model performance evaluation.
  *
- * Factored as a standalone schema because it represents Dixie's quality
- * evaluation output — a reusable concept that may appear in batch evaluation
- * reports and other contexts beyond the event pipeline.
+ * Factored as a standalone schema because it represents the scoring agent's
+ * quality evaluation output — a reusable concept that may appear in batch
+ * evaluation reports and other contexts beyond the event pipeline.
  *
  * @see PRD FR-2 — QualityObservation Sub-Schema
  * @see Issue #38 — model_performance variant
@@ -41,5 +41,6 @@ export const QualityObservationSchema = Type.Object({
 }, {
     $id: 'QualityObservation',
     additionalProperties: false,
+    description: 'Reusable structured quality result from a model performance evaluation. Carries an overall score, optional named dimensions, optional latency, and optional evaluator identity.',
 });
 //# sourceMappingURL=quality-observation.js.map

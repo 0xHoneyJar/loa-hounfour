@@ -22,7 +22,6 @@
       "description": "Model entries in the basket.",
       "type": "array",
       "items": {
-        "$id": "BasketCompositionEntry",
         "additionalProperties": false,
         "description": "A single model entry in a basket composition snapshot.",
         "type": "object",

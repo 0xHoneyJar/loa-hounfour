@@ -15,7 +15,6 @@
       "type": "string"
     },
     "quality_event": {
-      "$id": "QualityEvent",
       "additionalProperties": false,
       "description": "Input signal feeding the reputation aggregate. Captures three quality dimensions (satisfaction / coherence / safety), a composite score, and provenance (evaluator and optional model_id).",
       "type": "object",

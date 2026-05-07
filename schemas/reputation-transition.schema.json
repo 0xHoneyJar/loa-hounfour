@@ -10,7 +10,6 @@
   ],
   "properties": {
     "from": {
-      "$id": "ReputationState",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
@@ -32,7 +31,6 @@
       ]
     },
     "to": {
-      "$id": "ReputationState",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {

@@ -81,7 +81,6 @@
             "type": "boolean"
           },
           "reservation_enforcement": {
-            "$id": "ReservationEnforcement",
             "description": "How reservation guarantees are enforced by the provider.",
             "anyOf": [
               {

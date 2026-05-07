@@ -5,7 +5,7 @@
  * across the reputation state ordering (cold → warming → established → authoritative).
  * Capabilities at state N must be a superset of capabilities at state N-1.
  *
- * @see Bridgebuilder Finding F10 — Monotonic expansion declared but not enforced
+ * @see code review Finding F10 — Monotonic expansion declared but not enforced
  * @since v8.1.0
  */
 import type { DynamicContract } from './dynamic-contract.js';

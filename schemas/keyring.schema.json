@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/keyring",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade. Cross-field validation enforces signer_id uniqueness within signers[] (KR-1) and warns on duplicate key_ref entries (KR-2 — duplicate references to the same underlying key are typically a misconfiguration).",
+  "type": "object",
+  "required": [
+    "keyring_id",
+    "org_id",
+    "signers",
+    "created_at",
+    "updated_at",
+    "contract_version"
+  ],
+  "properties": {
+    "keyring_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this keyring (UUID v4).",
+      "type": "string"
+    },
+    "org_id": {
+      "format": "uuid",
+      "description": "Foreign key to OrgIdentity.org_id — the constitutional principal owning this keyring.",
+      "type": "string"
+    },
+    "signers": {
+      "minItems": 1,
+      "description": "At least one signer must be enrolled. Empty keyrings are not meaningful.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "Cryptographic-material entry inside a Keyring. Binds signer_id + key_ref to a public key, signature kind, scoped trust profile, and lifecycle status.",
+        "type": "object",
+        "required": [
+          "signer_id",
+          "key_ref",
+          "public_key",
+          "signature_type",
+          "scoped_trust",
+          "signer_status"
+        ],
+        "properties": {
+          "signer_id": {
+            "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+            "description": "Stable opaque identifier for the signer within its keyring. Lowercase, hyphens / underscores; 3-64 chars.",
+            "type": "string"
+          },
+          "key_ref": {
+            "minLength": 1,
+            "description": "Consumer-side reference for the underlying secret material (HSM slot, KMS handle, file path, etc.). Hounfour never sees the secret.",
+            "type": "string"
+          },
+          "public_key": {
+            "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
+            "description": "Ed25519 public key, unpadded base64url-encoded (RFC 4648 §5), prefixed with \"ed25519-pub:\". A 32-byte Ed25519 key encodes to exactly 43 unpadded characters; padded forms with \"=\" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url.",
+            "type": "string"
+          },
+          "signature_type": {
+            "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
+            "anyOf": [
+              {
+                "description": "Signer is asserting a fact they observed or vouch for.",
+                "const": "attestation",
+                "type": "string"
+              },
+              {
+                "description": "Signer is granting permission for a downstream action.",
+                "const": "authorization",
+                "type": "string"
+              },
+              {
+                "description": "Signer is binding themselves to a future action or state.",
+                "const": "commitment",
+                "type": "string"
+              },
+              {
+                "description": "Dev-only marker. NOT a cryptographic guarantee — consumers MUST reject in production.",
+                "const": "dev_signature",
+                "type": "string"
+              }
+            ]
+          },
+          "scoped_trust": {
+            "additionalProperties": false,
+            "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
+            "type": "object",
+            "required": [
+              "scopes",
+              "default_level"
+            ],
+            "properties": {
+              "scopes": {
+                "additionalProperties": false,
+                "description": "Per-scope trust levels. Missing scopes fall back to default_level.",
+                "type": "object",
+                "properties": {
+                  "billing": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "governance": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "inference": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "delegation": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "audit": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "composition": {
+                    "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                    "anyOf": [
+                      {
+                        "const": "untrusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "basic",
+                        "type": "string"
+                      },
+                      {
+                        "const": "verified",
+                        "type": "string"
+                      },
+                      {
+                        "const": "trusted",
+                        "type": "string"
+                      },
+                      {
+                        "const": "sovereign",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              },
+              "default_level": {
+                "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
+                "anyOf": [
+                  {
+                    "const": "untrusted",
+                    "type": "string"
+                  },
+                  {
+                    "const": "basic",
+                    "type": "string"
+                  },
+                  {
+                    "const": "verified",
+                    "type": "string"
+                  },
+                  {
+                    "const": "trusted",
+                    "type": "string"
+                  },
+                  {
+                    "const": "sovereign",
+                    "type": "string"
+                  }
+                ]
+              },
+              "match_strategy": {
+                "description": "How a SignerCompetenceRule.required_capability_scopes set is compared against this profile's scopes. Default behavior on absence is \"subset\" (the trust profile must include every required scope) — preserves v8.4.0 implicit semantics.",
+                "anyOf": [
+                  {
+                    "const": "exact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "subset",
+                    "type": "string"
+                  },
+                  {
+                    "const": "superset",
+                    "type": "string"
+                  }
+                ]
+              },
+              "precedence_score": {
+                "minimum": 0,
+                "maximum": 1000,
+                "description": "Tiebreaker when multiple SignerCompetenceRules match the same action. Higher score wins. Absence means \"no preference\" — consumers fall back to rule-list order.",
+                "type": "integer"
+              }
+            }
+          },
+          "signer_status": {
+            "description": "Lifecycle state of a SignerEntry within a Keyring. Orthogonal to AgentLifecycleState.",
+            "anyOf": [
+              {
+                "description": "Signer is current and may produce signatures.",
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "description": "Signer is permanently invalidated (key compromise, intentional rotation, or sanction).",
+                "const": "revoked",
+                "type": "string"
+              },
+              {
+                "description": "Signer has aged out per the keyring policy. Past signatures remain verifiable; new ones are not accepted.",
+                "const": "expired",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "created_at": {
+      "format": "date-time",
+      "description": "When the keyring was first published.",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "description": "When the keyring last had a SignerEntry added, removed, or status-changed.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this keyring instance was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

@@ -8,7 +8,7 @@
  * This is the immune system's cross-reactivity analog — partial
  * protection from a structurally similar prior context.
  *
- * @see Bridgebuilder Spec IV — portable reputation credentials
+ * @see code review Spec IV — portable reputation credentials
  * @since v7.3.0
  */
 import type { ReputationCredential } from '../governance/reputation-credential.js';

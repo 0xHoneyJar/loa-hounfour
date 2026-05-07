@@ -23,7 +23,6 @@
       "type": "string"
     },
     "role": {
-      "$id": "MessageRole",
       "anyOf": [
         {
           "const": "user",
@@ -58,7 +57,6 @@
     "tool_calls": {
       "type": "array",
       "items": {
-        "$id": "ToolCall",
         "additionalProperties": false,
         "description": "Canonical tool/function call made by a model",
         "type": "object",

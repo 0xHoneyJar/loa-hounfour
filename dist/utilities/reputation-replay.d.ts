@@ -62,7 +62,7 @@ export declare function reconstructAggregateFromEvents(events: ReadonlyArray<Qua
  * @param tolerance - Floating-point comparison tolerance (default 0.001)
  * @returns Consistency report with drift details
  *
- * @see Dixie Oracle attestation — "trust, but verify"
+ * @see Oracle-agent attestation — "trust, but verify"
  * @since v7.3.0
  */
 export declare function verifyAggregateConsistency(stored: ReputationAggregate, events: ReadonlyArray<QualityEvent>, collectionScore: number, tolerance?: number): ConsistencyReport;

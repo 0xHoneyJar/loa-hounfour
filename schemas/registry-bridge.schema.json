@@ -31,7 +31,6 @@
       "description": "Invariants that must hold for this bridge.",
       "type": "array",
       "items": {
-        "$id": "BridgeInvariant",
         "additionalProperties": false,
         "description": "A formally specified invariant for a registry bridge.",
         "type": "object",
@@ -62,7 +61,6 @@
             "type": "string"
           },
           "enforcement": {
-            "$id": "BridgeEnforcement",
             "description": "How a bridge invariant is enforced: atomically, eventually, or manually.",
             "anyOf": [
               {
@@ -83,7 +81,6 @@
       }
     },
     "exchange_rate": {
-      "$id": "ExchangeRateSpec",
       "additionalProperties": false,
       "description": "Specification for how exchange rates are determined and maintained.",
       "type": "object",
@@ -94,7 +91,6 @@
       ],
       "properties": {
         "rate_type": {
-          "$id": "ExchangeRateType",
           "description": "How the exchange rate between registries is determined.",
           "anyOf": [
             {
@@ -135,7 +131,6 @@
       }
     },
     "settlement": {
-      "$id": "SettlementPolicy",
       "description": "How cross-registry transfers are settled.",
       "anyOf": [
         {

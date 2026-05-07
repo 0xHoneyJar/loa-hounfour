@@ -14,7 +14,6 @@
       "description": "Ordered sequence of audit events. Append-only.",
       "type": "array",
       "items": {
-        "$id": "AuditEntry",
         "additionalProperties": false,
         "type": "object",
         "required": [

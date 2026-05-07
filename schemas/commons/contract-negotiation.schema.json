@@ -24,7 +24,6 @@
       "type": "string"
     },
     "reputation_state": {
-      "$id": "ReputationState",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
@@ -59,7 +58,6 @@
       ]
     },
     "requested_surface": {
-      "$id": "ProtocolSurface",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -135,7 +133,6 @@
       }
     },
     "granted_surface": {
-      "$id": "ProtocolSurface",
       "additionalProperties": false,
       "type": "object",
       "required": [

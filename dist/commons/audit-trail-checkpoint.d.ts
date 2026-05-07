@@ -5,8 +5,8 @@
  * fields on AuditTrailSchema. Enables pruning old entries while maintaining
  * hash chain continuity.
  *
- * @see Bridgebuilder Finding F8 — Checkpoint fields without operational logic
- * @see SDD §4.3.1 — Audit Trail Checkpointing (Flatline IMP-003)
+ * @see code review Finding F8 — Checkpoint fields without operational logic
+ * @see SDD §4.3.1 — Audit Trail Checkpointing (code review IMP-003)
  * @since v8.1.0
  */
 import type { AuditTrail } from './audit-trail.js';

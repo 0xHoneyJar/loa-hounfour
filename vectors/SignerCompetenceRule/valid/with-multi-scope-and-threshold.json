@@ -1,0 +1,10 @@
+{
+  "rule_id": "550e8400-e29b-41d4-a716-446655440024",
+  "action_pattern": "composition.*",
+  "required_capability_scopes": [
+    "composition",
+    "inference"
+  ],
+  "contract_version": "8.5.0",
+  "threshold": 600
+}

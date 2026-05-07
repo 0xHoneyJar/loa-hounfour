@@ -77,7 +77,6 @@
           "minItems": 1,
           "type": "array",
           "items": {
-            "$id": "BillingRecipient",
             "additionalProperties": false,
             "type": "object",
             "required": [

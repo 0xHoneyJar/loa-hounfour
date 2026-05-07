@@ -26,7 +26,7 @@ const MAX_SEGMENT_LENGTH = 256;
  * Input grammar for schemaId.
  * Allows PascalCase, kebab-case, dot-separated, and colon-containing identifiers.
  * Colons are allowed in input but stripped during sanitization (they are structural
- * delimiters in the domain tag format — Flatline IMP-005).
+ * delimiters in the domain tag format — code review IMP-005).
  */
 const SCHEMA_ID_RE = /^[a-zA-Z][a-zA-Z0-9._:-]*$/;
 /**
@@ -112,7 +112,7 @@ export function computeAuditEntryHash(entry, domainTag) {
     return `sha256:${bytesToHex(sha256(new TextEncoder().encode(input)))}`;
 }
 /**
- * Two-phase audit trail integrity verification (Flatline IMP-004).
+ * Two-phase audit trail integrity verification (code review IMP-004).
  *
  * Phase 1 (content): Recompute entry_hash for each entry using domain tag.
  * Phase 2 (chain): Verify previous_hash linkage.

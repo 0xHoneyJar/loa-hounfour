@@ -33,7 +33,6 @@
       "type": "string"
     },
     "reputation_state": {
-      "$id": "ReputationState",
       "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
       "anyOf": [
         {
@@ -76,7 +75,6 @@
       "type": "integer"
     },
     "conservation_law": {
-      "$id": "ConservationLaw",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -89,7 +87,6 @@
           "description": "Named expressions that must hold before/after state transitions. When enforcement is strict, at least one invariant is required.",
           "type": "array",
           "items": {
-            "$id": "Invariant",
             "additionalProperties": false,
             "type": "object",
             "required": [
@@ -166,7 +163,6 @@
       }
     },
     "audit_trail": {
-      "$id": "AuditTrail",
       "additionalProperties": false,
       "type": "object",
       "required": [
@@ -180,7 +176,6 @@
           "description": "Ordered sequence of audit events. Append-only.",
           "type": "array",
           "items": {
-            "$id": "AuditEntry",
             "additionalProperties": false,
             "type": "object",
             "required": [
@@ -271,7 +266,6 @@
       }
     },
     "state_machine": {
-      "$id": "StateMachineConfig",
       "additionalProperties": false,
       "description": "State machine configuration for a governed resource. Complements the existing StateMachineDefinition interface in vocabulary/state-machines.ts with schema-level validation and constraint DSL guards.",
       "type": "object",
@@ -286,7 +280,6 @@
           "minItems": 1,
           "type": "array",
           "items": {
-            "$id": "State",
             "additionalProperties": false,
             "type": "object",
             "required": [
@@ -322,7 +315,6 @@
         "transitions": {
           "type": "array",
           "items": {
-            "$id": "Transition",
             "additionalProperties": false,
             "type": "object",
             "required": [
@@ -365,7 +357,6 @@
       }
     },
     "governance_class": {
-      "$id": "GovernanceClass",
       "anyOf": [
         {
           "const": "protocol-fixed",

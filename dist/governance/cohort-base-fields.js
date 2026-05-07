@@ -6,7 +6,7 @@
  * (reputation-aggregate.ts) and TaskTypeCohortSchema (task-type-cohort.ts)
  * spread from these fields, ensuring a single source of truth.
  *
- * @since v7.10.1 — Bridgebuilder Finding 3 (shared field extraction)
+ * @since v7.10.1 — code review Finding 3 (shared field extraction)
  */
 import { Type } from '@sinclair/typebox';
 /**

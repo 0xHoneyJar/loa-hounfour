@@ -55,4 +55,8 @@ npm run schema:generate # Generate JSON Schema files
 ADRs live under `docs/adr/`. The class-vs-policy boundary that constrains
 what `loa-hounfour` ships (shape, not authority) is in
 [ADR-010](docs/adr/ADR-010-class-vs-policy-boundary.md); ADR-007 / ADR-008
-are its predecessors.
+are its predecessors. The v8.5.0 three-layer authority cascade composes
+under that boundary —
+[authority-cascade.md](docs/architecture/authority-cascade.md) covers
+the consumer-side verification trace, vocabulary harmonization, and
+import surface.

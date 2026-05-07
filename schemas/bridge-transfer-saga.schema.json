@@ -50,7 +50,6 @@
       ]
     },
     "status": {
-      "$id": "SagaStatus",
       "description": "Status of a bridge transfer saga lifecycle.",
       "anyOf": [
         {
@@ -92,7 +91,6 @@
       "description": "Ordered list of saga steps (at least one required).",
       "type": "array",
       "items": {
-        "$id": "BridgeTransferStep",
         "additionalProperties": false,
         "description": "A single step in a bridge transfer saga.",
         "type": "object",
@@ -112,7 +110,6 @@
             "type": "string"
           },
           "step_type": {
-            "$id": "StepType",
             "description": "Type of step within a bridge transfer saga.",
             "anyOf": [
               {
@@ -143,7 +140,6 @@
             "type": "string"
           },
           "status": {
-            "$id": "StepStatus",
             "description": "Status of an individual saga step.",
             "anyOf": [
               {
@@ -174,7 +170,6 @@
             "type": "string"
           },
           "exchange_rate": {
-            "$id": "ExchangeRateSpec",
             "additionalProperties": false,
             "description": "Specification for how exchange rates are determined and maintained.",
             "type": "object",
@@ -185,7 +180,6 @@
             ],
             "properties": {
               "rate_type": {
-                "$id": "ExchangeRateType",
                 "description": "How the exchange rate between registries is determined.",
                 "anyOf": [
                   {
@@ -260,7 +254,6 @@
       "description": "Compensation steps to reverse completed work on failure.",
       "type": "array",
       "items": {
-        "$id": "BridgeTransferStep",
         "additionalProperties": false,
         "description": "A single step in a bridge transfer saga.",
         "type": "object",
@@ -280,7 +273,6 @@
             "type": "string"
           },
           "step_type": {
-            "$id": "StepType",
             "description": "Type of step within a bridge transfer saga.",
             "anyOf": [
               {
@@ -311,7 +303,6 @@
             "type": "string"
           },
           "status": {
-            "$id": "StepStatus",
             "description": "Status of an individual saga step.",
             "anyOf": [
               {
@@ -342,7 +333,6 @@
             "type": "string"
           },
           "exchange_rate": {
-            "$id": "ExchangeRateSpec",
             "additionalProperties": false,
             "description": "Specification for how exchange rates are determined and maintained.",
             "type": "object",
@@ -353,7 +343,6 @@
             ],
             "properties": {
               "rate_type": {
-                "$id": "ExchangeRateType",
                 "description": "How the exchange rate between registries is determined.",
                 "anyOf": [
                   {
@@ -452,7 +441,6 @@
       "description": "Participants involved in this saga (at least one required).",
       "type": "array",
       "items": {
-        "$id": "SagaParticipant",
         "additionalProperties": false,
         "description": "A participant in a bridge transfer saga with their trust profile.",
         "type": "object",
@@ -469,7 +457,6 @@
             "type": "string"
           },
           "role": {
-            "$id": "ParticipantRole",
             "description": "Role of a participant in a bridge transfer saga.",
             "anyOf": [
               {
@@ -496,9 +483,8 @@
             "type": "string"
           },
           "trust_scopes": {
-            "$id": "CapabilityScopedTrust",
             "additionalProperties": false,
-            "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+            "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
             "type": "object",
             "required": [
               "scopes",
@@ -511,7 +497,6 @@
                 "type": "object",
                 "properties": {
                   "billing": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -537,7 +522,6 @@
                     ]
                   },
                   "governance": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -563,7 +547,6 @@
                     ]
                   },
                   "inference": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -589,7 +572,6 @@
                     ]
                   },
                   "delegation": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -615,7 +597,6 @@
                     ]
                   },
                   "audit": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -641,7 +622,6 @@
                     ]
                   },
                   "composition": {
-                    "$id": "TrustLevel",
                     "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                     "anyOf": [
                       {
@@ -669,7 +649,6 @@
                 }
               },
               "default_level": {
-                "$id": "TrustLevel",
                 "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
                 "anyOf": [
                   {
@@ -693,6 +672,29 @@
                     "type": "string"
                   }
                 ]
+              },
+              "match_strategy": {
+                "description": "How a SignerCompetenceRule.required_capability_scopes set is compared against this profile's scopes. Default behavior on absence is \"subset\" (the trust profile must include every required scope) — preserves v8.4.0 implicit semantics.",
+                "anyOf": [
+                  {
+                    "const": "exact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "subset",
+                    "type": "string"
+                  },
+                  {
+                    "const": "superset",
+                    "type": "string"
+                  }
+                ]
+              },
+              "precedence_score": {
+                "minimum": 0,
+                "maximum": 1000,
+                "description": "Tiebreaker when multiple SignerCompetenceRules match the same action. Higher score wins. Absence means \"no preference\" — consumers fall back to rule-list order.",
+                "type": "integer"
               }
             }
           }
@@ -716,7 +718,6 @@
       ]
     },
     "error": {
-      "$id": "SagaError",
       "additionalProperties": false,
       "description": "Error details for a failed or compensating saga.",
       "type": "object",

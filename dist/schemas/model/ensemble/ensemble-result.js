@@ -51,5 +51,6 @@ export const EnsembleResultSchema = Type.Object({
     $comment: 'Financial amounts (total_cost_micro) use string-encoded BigInt (MicroUSD) to prevent floating-point precision loss. See vocabulary/currency.ts for arithmetic utilities.',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Outcome of an ensemble execution. Carries the selected completion, the candidate set, optional consensus score, optional dialogue-round audit trail, termination reason, total cost and latency.',
 });
 //# sourceMappingURL=ensemble-result.js.map

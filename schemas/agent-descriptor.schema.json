@@ -25,7 +25,6 @@
       "type": "string"
     },
     "id": {
-      "$id": "NftId",
       "pattern": "^eip155:[1-9]\\d*\\/0x[a-fA-F0-9]{40}\\/\\d+$",
       "description": "Canonical NFT identifier: eip155:{chainId}/{collectionAddress}/{tokenId}",
       "type": "string"
@@ -77,7 +76,6 @@
       "type": "object",
       "patternProperties": {
         "^(.*)$": {
-          "$id": "PoolId",
           "description": "Canonical pool identifier",
           "anyOf": [
             {
@@ -137,7 +135,6 @@
       "type": "string"
     },
     "stats": {
-      "$id": "AgentStats",
       "additionalProperties": false,
       "description": "Agent statistics",
       "type": "object",
@@ -171,7 +168,6 @@
       }
     },
     "lifecycle_state": {
-      "$id": "AgentLifecycleState",
       "description": "Agent lifecycle state",
       "anyOf": [
         {

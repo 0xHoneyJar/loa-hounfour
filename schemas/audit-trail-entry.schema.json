@@ -73,7 +73,6 @@
       "type": "string"
     },
     "conservation_status": {
-      "$id": "ConservationStatus",
       "description": "Tristate result of pricing conservation verification.",
       "anyOf": [
         {

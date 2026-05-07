@@ -12,7 +12,6 @@
   ],
   "properties": {
     "aggregate": {
-      "$id": "ReputationAggregate",
       "additionalProperties": false,
       "description": "DDD aggregate keyed by (personality_id, collection_id, pool_id) carrying the reputation state machine, Bayesian blend components, anti-manipulation counters, transition history, and optional per-model / per-task cohorts.",
       "type": "object",
@@ -47,7 +46,6 @@
           "type": "string"
         },
         "state": {
-          "$id": "ReputationState",
           "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
           "anyOf": [
             {
@@ -130,7 +128,6 @@
             ],
             "properties": {
               "from": {
-                "$id": "ReputationState",
                 "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {
@@ -152,7 +149,6 @@
                 ]
               },
               "to": {
-                "$id": "ReputationState",
                 "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
                 "anyOf": [
                   {
@@ -188,7 +184,6 @@
           "description": "Per-model reputation cohorts. When present, each entry tracks quality observations for a specific model alias. The top-level personal_score and sample_count represent the cross-model aggregation. Enables model-aware routing decisions per Hounfour RFC #31.",
           "type": "array",
           "items": {
-            "$id": "ModelCohort",
             "additionalProperties": false,
             "type": "object",
             "required": [
@@ -234,7 +229,6 @@
           "description": "Per-(model, task_type) reputation cohorts. Each entry tracks quality observations for a specific (model_id, task_type) pair. Uniqueness invariant: no two entries may share the same (model_id, task_type) key. Max 50 entries to bound storage in hot-path lookups.",
           "type": "array",
           "items": {
-            "$id": "TaskTypeCohort",
             "additionalProperties": false,
             "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate.",
             "type": "object",
@@ -275,7 +269,6 @@
                 "type": "string"
               },
               "task_type": {
-                "$id": "TaskType",
                 "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
                 "anyOf": [
                   {

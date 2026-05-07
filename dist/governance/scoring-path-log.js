@@ -49,7 +49,7 @@ export const ScoringPathLogSchema = Type.Object({
         maxLength: 500,
         description: 'Human-readable explanation of why this path was selected.',
     })),
-    // v7.11.0 — Tamper-evident hash chain fields (Bridgebuilder Meditation III)
+    // v7.11.0 — Tamper-evident hash chain fields (code review Meditation III)
     scored_at: Type.Optional(Type.String({
         format: 'date-time',
         description: 'Timestamp of the scoring decision.',

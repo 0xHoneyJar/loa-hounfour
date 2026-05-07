@@ -1,6 +1,6 @@
 {
   "value": "ed25519-pub:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
   "kind": "pubkey",
-  "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43,44}$",
-  "expected_match": true
+  "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
+  "expected_match": false
 }

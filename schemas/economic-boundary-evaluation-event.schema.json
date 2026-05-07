@@ -33,7 +33,6 @@
       "type": "string"
     },
     "evaluation_result": {
-      "$id": "EconomicBoundaryEvaluationResult",
       "additionalProperties": false,
       "description": "Complete result of evaluating an economic boundary access decision.",
       "type": "object",
@@ -46,9 +45,8 @@
       ],
       "properties": {
         "access_decision": {
-          "$id": "AccessDecision",
           "additionalProperties": false,
-          "description": "Result of an access evaluation at the economic boundary.",
+          "description": "Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition.",
           "type": "object",
           "required": [
             "granted"
@@ -65,11 +63,18 @@
             "denial_reason": {
               "description": "Why access was denied, populated when granted is false.",
               "type": "string"
+            },
+            "outcome": {
+              "description": "Substrate-agnostic outcome enum aligning AccessDecision with the broader v8.5.0 policy-decision vocabulary. Distinct from \"granted\" (which stays boolean for backward compat) — outcome can be e.g. \"needs_review\" while \"granted\" remains false pending review.",
+              "$ref": "PolicyDecisionOutcome"
+            },
+            "signer_competence_result": {
+              "description": "Reference to the Layer-3 evaluation that fed this decision. Threads the authority cascade outcome through the economic boundary so consumers can audit which signer competence decision authorized the access.",
+              "$ref": "SignerCompetenceResult"
             }
           }
         },
         "trust_evaluation": {
-          "$id": "TrustEvaluation",
           "additionalProperties": false,
           "description": "Result of trust layer evaluation within the economic boundary.",
           "type": "object",
@@ -108,7 +113,6 @@
           }
         },
         "capital_evaluation": {
-          "$id": "CapitalEvaluation",
           "additionalProperties": false,
           "description": "Result of capital layer evaluation within the economic boundary.",
           "type": "object",
@@ -135,7 +139,6 @@
           }
         },
         "criteria_used": {
-          "$id": "QualificationCriteria",
           "additionalProperties": false,
           "description": "Threshold criteria for evaluating economic boundary access.",
           "type": "object",
@@ -152,7 +155,6 @@
               "type": "number"
             },
             "min_reputation_state": {
-              "$id": "ReputationState",
               "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
               "anyOf": [
                 {
@@ -194,7 +196,6 @@
           "description": "Machine-parseable denial codes. Present only on denied evaluations.",
           "type": "array",
           "items": {
-            "$id": "DenialCode",
             "description": "Machine-parseable denial codes for agent consumers.",
             "anyOf": [
               {
@@ -237,7 +238,6 @@
           }
         },
         "evaluation_gap": {
-          "$id": "EvaluationGap",
           "additionalProperties": false,
           "description": "Structured gap information for denied evaluations — actionable feedback for agents.",
           "type": "object",

@@ -1,7 +1,7 @@
 /**
  * GovernedCredits — governed credit lot schema.
  *
- * Maps to loa-freeside's lot_invariant (I-1 through I-5).
+ * Wire shape for the lot_invariant pattern (I-1 through I-5).
  * Conservation law: balance + reserved + consumed == original_allocation.
  *
  * @see SDD §4.5.1 — GovernedCredits

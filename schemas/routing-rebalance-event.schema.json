@@ -19,7 +19,6 @@
       "type": "string"
     },
     "trigger_type": {
-      "$id": "RebalanceTriggerType",
       "description": "What triggered a basket rebalancing event.",
       "anyOf": [
         {

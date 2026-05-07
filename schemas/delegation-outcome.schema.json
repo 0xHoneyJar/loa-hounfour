@@ -27,7 +27,6 @@
       "type": "string"
     },
     "outcome_type": {
-      "$id": "OutcomeType",
       "description": "Classification of a delegation outcome.",
       "anyOf": [
         {
@@ -62,7 +61,6 @@
       "description": "Votes cast in this decision (at least one required).",
       "type": "array",
       "items": {
-        "$id": "DelegationVote",
         "additionalProperties": false,
         "description": "A single vote cast in a delegation decision process.",
         "type": "object",
@@ -79,7 +77,6 @@
             "type": "string"
           },
           "vote": {
-            "$id": "VoteChoice",
             "description": "A voter's choice in a delegation decision.",
             "anyOf": [
               {
@@ -126,7 +123,6 @@
       "description": "Records of dissent from the decision.",
       "type": "array",
       "items": {
-        "$id": "DissentRecord",
         "additionalProperties": false,
         "description": "A record of dissent in a delegation outcome.",
         "type": "object",
@@ -145,7 +141,6 @@
             "type": "string"
           },
           "dissent_type": {
-            "$id": "DissentType",
             "description": "Classification of dissent in a delegation outcome.",
             "anyOf": [
               {
@@ -171,7 +166,6 @@
             "type": "string"
           },
           "severity": {
-            "$id": "DissentSeverity",
             "description": "Severity level of a dissent record.",
             "anyOf": [
               {

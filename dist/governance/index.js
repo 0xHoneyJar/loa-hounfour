@@ -81,8 +81,34 @@ export { ReputationEventSchema, QualitySignalEventSchema, TaskCompletedEventSche
 export { QualityObservationSchema, } from './quality-observation.js';
 // Schemas — ScoringPathLog (v7.10.0, Task-Dimensional Reputation)
 export { ScoringPathSchema, ScoringPathLogSchema, } from './scoring-path-log.js';
-// Utilities — ScoringPathLog hash chain (v7.11.0, Bridgebuilder Meditation III)
+// Utilities — ScoringPathLog hash chain (v7.11.0, code review Meditation III)
 export { computeScoringPathHash, SCORING_PATH_GENESIS_HASH, } from './scoring-path-hash.js';
 // Utilities — Tier-to-Reputation mapping (v8.3.0, FR-2)
 export { mapTierToReputationState, } from './tier-reputation-map.js';
+// Sub-schema — Signing Context (v8.4.0, shared by PanelVerdict + CrossScoreReport + OrgRepresentativeDelegation)
+export { SigningContextSchema, } from './signing-context.js';
+// Schemas — PanelDecisionArtifact (v8.4.0, FR-A1)
+export { ClaimGroundingSchema, ClaimSchema, ProposedActionSchema, TrustContextSchema, PanelDecisionArtifactSchema, } from './panel-decision-artifact.js';
+// Schemas — PanelVerdict (v8.4.0, FR-A2)
+export { JurorVerdictSchema, AsymmetricBlockerSignalSchema, PanelVerdictSchema, } from './panel-verdict.js';
+// Schemas — DeliberationDissent (v8.4.0, FR-A3)
+export { DeliberationDissentSchema, } from './deliberation-dissent.js';
+// Schemas — CrossScoreReport (v8.4.0, FR-A4)
+export { PairwiseScoreSchema, CrossScoreReportSchema, } from './cross-score-report.js';
+// Schemas — OrgIdentity (v8.4.0, FR-B1)
+export { OrgIdentitySchema, } from './org-identity.js';
+// Schemas — OrgRepresentativeDelegation (v8.4.0, FR-B2)
+export { OrgRepresentativeDelegationSchema, ORG_DELEGATION_GENESIS_SENTINEL, } from './org-representative-delegation.js';
+// Schemas — SuccessionPolicy (v8.4.0, FR-B3)
+export { SuccessionPolicySchema, } from './succession-policy.js';
+// Schemas — Authority Cascade Layer 2 + 3 (v8.5.0, PR-A2.2)
+export { KeyringSchema, } from './keyring.js';
+export { SignerEntrySchema, } from './signer-entry.js';
+export { SignerCompetenceRuleSchema, } from './signer-competence-rule.js';
+export { SignerCompetenceResultSchema, } from './signer-competence-result.js';
+export { SignatureEnvelopeSchema, } from './signature-envelope.js';
+export { SignerTypeSchema, } from './signer-type.js';
+export { SignatureTypeSchema, } from './signature-type.js';
+export { SignerStatusSchema, } from './signer-status.js';
+export { PolicyDecisionOutcomeSchema, } from './policy-decision-outcome.js';
 //# sourceMappingURL=index.js.map

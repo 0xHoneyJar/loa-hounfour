@@ -17,7 +17,6 @@
       "type": "string"
     },
     "previous_state": {
-      "$id": "AgentLifecycleState",
       "description": "Agent lifecycle state",
       "anyOf": [
         {
@@ -47,7 +46,6 @@
       ]
     },
     "new_state": {
-      "$id": "AgentLifecycleState",
       "description": "Agent lifecycle state",
       "anyOf": [
         {

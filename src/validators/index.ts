@@ -8,6 +8,7 @@
  */
 import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema, FormatRegistry } from '@sinclair/typebox';
+import { CONTRACT_VERSION } from '../version.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -961,6 +962,75 @@ registerCrossFieldValidator('StateMachineConfig', constraintFileOnlyValidator);
 registerCrossFieldValidator('TaskType', constraintFileOnlyValidator);
 registerCrossFieldValidator('TaskTypeCohort', constraintFileOnlyValidator);
 
+// v8.5.0 PR-A2.2 — Authority Cascade Layer 2 + 3.
+// Constraint-file-only by design: hounfour ships shape; consumers
+// own the policy that applies these schemas. SignatureEnvelope is
+// crypto-bearing and gets the safe-by-default opt-in path through
+// validate() rather than a non-trivial cross-field validator here.
+// Exception: Keyring carries a structural-uniqueness check (KR-1 +
+// KR-2) that the schema layer cannot express — duplicate signer_id
+// or key_ref entries within the same keyring create ambiguous key
+// resolution at consumption time.
+registerCrossFieldValidator('Keyring', (data) => {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const keyring = data as { signers?: Array<{ signer_id?: string; key_ref?: string }> };
+  const signers = Array.isArray(keyring.signers) ? keyring.signers : [];
+
+  // KR-1: signer_id MUST be unique within signers[]
+  const seenIds = new Map<string, number>();
+  signers.forEach((entry, idx) => {
+    const id = entry?.signer_id;
+    if (typeof id !== 'string') return;
+    const prior = seenIds.get(id);
+    if (prior !== undefined) {
+      errors.push(
+        `KR-1: duplicate signer_id "${id}" at signers[${idx}] (first seen at signers[${prior}]). Each signer_id MUST be unique within a keyring; duplicates create ambiguous key resolution at consumption time.`,
+      );
+    } else {
+      seenIds.set(id, idx);
+    }
+  });
+
+  // KR-2: duplicate key_ref entries trigger a warning (not an error). Two
+  // SignerEntry rows pointing at the same underlying key material is
+  // typically a misconfiguration (rotation didn't drop the prior entry),
+  // but is sometimes legitimate (active + retiring overlap window). The
+  // schema cannot decide; surfacing as warning lets the consumer decide.
+  // Dedup: emit ONE warning per shared key_ref, listing every offending
+  // index. A keyring with 3+ signers sharing a key_ref produces one
+  // KR-2 warning naming all of them, not N-1 separate warnings.
+  const refIndices = new Map<string, number[]>();
+  signers.forEach((entry, idx) => {
+    const ref = entry?.key_ref;
+    if (typeof ref !== 'string') return;
+    const arr = refIndices.get(ref);
+    if (arr) {
+      arr.push(idx);
+    } else {
+      refIndices.set(ref, [idx]);
+    }
+  });
+  for (const [ref, indices] of refIndices) {
+    if (indices.length < 2) continue;
+    warnings.push(
+      `KR-2: duplicate key_ref "${ref}" at signers[${indices.join(', ')}]. Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`,
+    );
+  }
+
+  return errors.length > 0
+    ? { valid: false, errors, warnings }
+    : { valid: true, errors: [], warnings };
+});
+registerCrossFieldValidator('SignerEntry', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceRule', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerCompetenceResult', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignatureType', constraintFileOnlyValidator);
+registerCrossFieldValidator('SignerStatus', constraintFileOnlyValidator);
+registerCrossFieldValidator('PolicyDecisionOutcome', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -993,15 +1063,47 @@ export function getCrossFieldValidatorSchemas(): string[] {
  *
  * @param schema - TypeBox schema to validate against
  * @param data - Unknown data to validate
- * @param options - Optional: skip cross-field validation with `{ crossField: false }`
+ * @param options - Optional: skip cross-field validation with `{ crossField: false }`;
+ *   opt in to shape-only validation of crypto-bearing schemas with `{ acceptDeferred: true }`
+ *   (per ADR-010 / G1 — see safe-by-default note below); inject a deterministic
+ *   `manifest_emitted_at` via `{ now: '<ISO8601>' }` for snapshot / golden-file
+ *   parity (otherwise defaults to `new Date().toISOString()`).
  * @returns `{ valid: true }` or `{ valid: false, errors: [...] }`, optionally with `warnings` and `unverified_obligations`
  *
+ * @remarks Safe-by-default crypto-bearing API (G1): when the schema's TypeBox
+ *   options carry `'x-crypto-bearing': true` (e.g. `SignatureEnvelope`), the
+ *   call's behavior depends on whether the data is structurally valid AND
+ *   whether `{ acceptDeferred: true }` is passed:
+ *
+ *   - Structural failure (any schema/format violation): the call returns the
+ *     usual `{ valid: false, errors: [<schema errors>] }` regardless of
+ *     `acceptDeferred`. Structural failures take precedence and surface as
+ *     normal — `CRYPTO_DEFERRED` is NOT emitted in this branch.
+ *   - Structural success + `acceptDeferred` ABSENT: the call returns
+ *     `{ valid: false, errors: ['CRYPTO_DEFERRED: ...'] }`. Each error string
+ *     is prefixed with the literal token `CRYPTO_DEFERRED:` so consumers can
+ *     match by `error.startsWith('CRYPTO_DEFERRED:')`. The opt-in flag IS the
+ *     safety mechanism — it forces the consumer to acknowledge that the
+ *     library has NOT verified the signature.
+ *   - Structural success + `acceptDeferred: true`: the call returns
+ *     `{ valid: true, unverified_obligations: { ..., unverified_rules: [{
+ *     rule_id: 'CRYPTO_DEFERRED', evaluator: 'runtime-deferred', ... }] } }`.
+ *     PR-A2.3 widens `evaluator` to carry `'consumer'` alongside a `reason`
+ *     vocabulary (`'crypto_deferred'`, `'pattern_matching'`, etc.).
+ *
+ *   The error contract is currently `string[]`, so the prefix `CRYPTO_DEFERRED:`
+ *   is the binding token. v8.6.0 is expected to migrate to a structured
+ *   `{ code, message }[]` form (per docs/architecture/authority-cascade.md
+ *   roadmap); consumers should prefer prefix matching over substring matching
+ *   to ease that transition.
+ *
  * @see SDD section 5.8 — Unverified-Obligations Manifest Emission Contract
+ * @see ADR-010 — Class-vs-Policy Boundary
  */
 export function validate<T extends TSchema>(
   schema: T,
   data: unknown,
-  options?: { crossField?: boolean },
+  options?: { crossField?: boolean; acceptDeferred?: boolean; now?: string },
 ): ValidationResult {
   const compiled = getOrCompile(schema);
   if (!compiled.Check(data)) {
@@ -1028,6 +1130,64 @@ export function validate<T extends TSchema>(
         return { valid: true, warnings: crossResult.warnings };
       }
     }
+  }
+
+  // Safe-by-default crypto-bearing API (G1, per ADR-010).
+  // When the schema is flagged x-crypto-bearing, the consumer MUST
+  // explicitly opt in to shape-only validation. Returning structurally-
+  // valid {valid: true} would let consumers write
+  //   if (validate(SignatureEnvelopeSchema, p).valid) { authorize(); }
+  // and treat shape-validity as crypto authority. The opt-in flag is
+  // the forced acknowledgment that downstream verification is the
+  // consumer's responsibility.
+  const isCryptoBearing =
+    (schema as Record<string, unknown>)['x-crypto-bearing'] === true;
+  if (isCryptoBearing && options?.acceptDeferred !== true) {
+    return {
+      valid: false,
+      errors: [
+        'CRYPTO_DEFERRED: Crypto-bearing schema requires { acceptDeferred: true } ' +
+          'to receive shape-only valid: true. The library does not verify the ' +
+          'signature; downstream verification is the consumer\'s responsibility. ' +
+          'See ADR-010 (Class-vs-Policy Boundary).',
+      ],
+    };
+  }
+  if (isCryptoBearing && options?.acceptDeferred === true) {
+    // The full NF-2 shape (evaluator: 'consumer' + reason vocabulary)
+    // lands in PR-A2.3 along with the consumer-evaluator extension.
+    // For PR-A2.2 we emit a manifest entry under the existing v8.4.0
+    // schema with a CRYPTO_DEFERRED rule_id, so consumers can detect
+    // the obligation without waiting for the type widening.
+    // contract_version sources from CONTRACT_VERSION so that the runtime
+    // emission, schemas/index.json, and the published $id namespace stay
+    // aligned through the dev cycle (per cycle-003 D-005 precedent: the
+    // namespace bumps in the version-bump sprint, not mid-cycle).
+    return {
+      valid: true,
+      unverified_obligations: {
+        schema_id: schema.$id ?? '<crypto-bearing>',
+        contract_version: CONTRACT_VERSION,
+        // F2 mitigation: accept an injected timestamp via options.now so
+        // snapshot / golden-file parity tests can reproduce manifest output
+        // byte-for-byte across runs. Falls through to wall-clock when absent.
+        manifest_emitted_at: options?.now ?? new Date().toISOString(),
+        unverified_rules: [
+          {
+            rule_id: 'CRYPTO_DEFERRED',
+            rule:
+              'Signature value present in payload — library does NOT verify; consumer responsibility per ADR-010.',
+            evaluator: 'runtime-deferred',
+            evaluation_note:
+              'Signature value present in payload was NOT verified by the library. ' +
+              'Consumer MUST verify the signature against the public key referenced ' +
+              'by the SignerEntry that produced it before treating the envelope as ' +
+              'cryptographically authoritative.',
+            consumer_acknowledgment_required: true,
+          },
+        ],
+      },
+    };
   }
 
   return { valid: true };

@@ -15,7 +15,6 @@
     "personalities": {
       "type": "array",
       "items": {
-        "$id": "PersonalityRouting",
         "type": "object",
         "required": [
           "personality_id",
@@ -38,7 +37,6 @@
             ],
             "properties": {
               "chat": {
-                "$id": "PoolId",
                 "description": "Canonical pool identifier",
                 "anyOf": [
                   {
@@ -64,7 +62,6 @@
                 ]
               },
               "analysis": {
-                "$id": "PoolId",
                 "description": "Canonical pool identifier",
                 "anyOf": [
                   {
@@ -90,7 +87,6 @@
                 ]
               },
               "architecture": {
-                "$id": "PoolId",
                 "description": "Canonical pool identifier",
                 "anyOf": [
                   {
@@ -116,7 +112,6 @@
                 ]
               },
               "code": {
-                "$id": "PoolId",
                 "description": "Canonical pool identifier",
                 "anyOf": [
                   {
@@ -142,7 +137,6 @@
                 ]
               },
               "default": {
-                "$id": "PoolId",
                 "description": "Canonical pool identifier",
                 "anyOf": [
                   {

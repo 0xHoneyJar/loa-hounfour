@@ -19,6 +19,8 @@ export { evaluateConstraint, resolveConditionalExpression, MAX_EXPRESSION_DEPTH,
 export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
 export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
 export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';
+export { evaluateIsValidDag, extractPath, IS_VALID_DAG_OP_CAP, IS_VALID_DAG_ITEMS_CAP, IS_VALID_DAG_BYTES_CAP, type IsValidDagDiagnostic, type IsValidDagErrorCode, type IsValidDagPhase, type IsValidDagResult, } from './is-valid-dag.js';
+export { buildUnverifiedObligationsManifest, hasUnverifiedObligations, type UnverifiedObligationEntry, type UnverifiedObligationsManifest, } from './unverified-obligations.js';
 export { EVALUATOR_BUILTIN_SPECS, type EvaluatorBuiltinSpec, type ArgumentSpec, type EvaluatorExample, } from './evaluator-spec.js';
 export { ConstraintTypeSchema, ConstraintTypeSignatureSchema, CONSTRAINT_TYPES, type ConstraintType, type ConstraintTypeSignature, type ConstraintASTNode, } from './constraint-types.js';
 export { typeCheckConstraintFile, type TypeCheckError, type TypeCheckWarning, type TypeCheckResult, type SchemaRegistryEntry, } from './type-checker.js';

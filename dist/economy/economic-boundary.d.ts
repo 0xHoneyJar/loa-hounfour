@@ -27,6 +27,8 @@ export declare const AccessDecisionSchema: import("@sinclair/typebox").TObject<{
     granted: import("@sinclair/typebox").TBoolean;
     policy_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     denial_reason: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    outcome: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"PolicyDecisionOutcome">>;
+    signer_competence_result: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"SignerCompetenceResult">>;
 }>;
 export type AccessDecision = Static<typeof AccessDecisionSchema>;
 /**
@@ -76,6 +78,8 @@ export declare const EconomicBoundaryEvaluationResultSchema: import("@sinclair/t
         granted: import("@sinclair/typebox").TBoolean;
         policy_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         denial_reason: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+        outcome: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"PolicyDecisionOutcome">>;
+        signer_competence_result: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"SignerCompetenceResult">>;
     }>;
     trust_evaluation: import("@sinclair/typebox").TObject<{
         passed: import("@sinclair/typebox").TBoolean;
@@ -120,6 +124,8 @@ export declare const EconomicBoundaryEvaluationEventSchema: import("@sinclair/ty
             granted: import("@sinclair/typebox").TBoolean;
             policy_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             denial_reason: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+            outcome: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"PolicyDecisionOutcome">>;
+            signer_competence_result: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"SignerCompetenceResult">>;
         }>;
         trust_evaluation: import("@sinclair/typebox").TObject<{
             passed: import("@sinclair/typebox").TBoolean;
@@ -175,6 +181,8 @@ export declare const EconomicBoundarySchema: import("@sinclair/typebox").TObject
         granted: import("@sinclair/typebox").TBoolean;
         policy_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         denial_reason: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+        outcome: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"PolicyDecisionOutcome">>;
+        signer_competence_result: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TRef<"SignerCompetenceResult">>;
     }>;
     evaluated_at: import("@sinclair/typebox").TString;
     contract_version: import("@sinclair/typebox").TString;

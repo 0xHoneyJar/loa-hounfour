@@ -1401,5 +1401,61 @@ export const EVALUATOR_BUILTIN_SPECS = new Map([
             ],
             edge_cases: ['Missing entries field returns false', 'Missing genesis_hash returns false', 'Entry without entry_hash breaks chain for next entry'],
         }],
+    ['is_valid_dag', {
+            name: 'is_valid_dag',
+            signature: 'is_valid_dag(items, id_field, ...ref_fields) → boolean',
+            description: 'Post-order DFS DAG validator with explicit op-counter (cap 10⁵). Returns true when items form a valid DAG: no cycles, no dangling refs, all ids present and string-typed, no duplicates, and within size/op budgets. The constraint-DSL surface returns boolean; the standalone evaluateIsValidDag() exposes the structured ErrorEnvelope diagnostic per SDD section 6.5.',
+            arguments: [
+                { name: 'items', type: 'unknown[]', description: 'Array of records keyed by id_field. Non-array input is treated as vacuously valid (returns true).' },
+                { name: 'id_field', type: 'string', description: 'Field name on each item that uniquely identifies the node.' },
+                { name: '...ref_fields', type: 'string[]', description: 'Zero or more dotted-path field names that resolve to outgoing-edge node ids on each item.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Empty array is vacuously valid',
+                    context: { items: [] },
+                    expression: "is_valid_dag(items, 'id')",
+                    expected: true,
+                },
+                {
+                    description: 'Multi-parent DAG (A → B, A → C, B → D, C → D)',
+                    context: {
+                        items: [
+                            { id: 'A', l: 'B', r: 'C' },
+                            { id: 'B', l: 'D' },
+                            { id: 'C', l: 'D' },
+                            { id: 'D' },
+                        ],
+                    },
+                    expression: "is_valid_dag(items, 'id', 'l', 'r')",
+                    expected: true,
+                },
+                {
+                    description: 'Cycle (A → B → A) is invalid',
+                    context: {
+                        items: [
+                            { id: 'A', n: 'B' },
+                            { id: 'B', n: 'A' },
+                        ],
+                    },
+                    expression: "is_valid_dag(items, 'id', 'n')",
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'Empty items array returns true (vacuous)',
+                'Self-loop (item references itself) returns false (DAG_CYCLE_DETECTED)',
+                'Dangling ref (id not in items) returns false (DAG_DANGLING_REF)',
+                'Missing id_field on any item returns false (DAG_MISSING_ID_FIELD)',
+                'Non-string id_field value returns false (DAG_NON_STRING_ID_FIELD)',
+                'Duplicate ids return false (DAG_DUPLICATE_ID with collision indices)',
+                'Op count exceeding 10⁵ returns false (DAG_OP_CAP_EXCEEDED with phase indicator)',
+                'Items count > 10_000 returns false (DAG_INPUT_OVERSIZE { kind: "items_count" })',
+                'Serialized payload > 1 MiB returns false (DAG_INPUT_OVERSIZE { kind: "bytes" })',
+                'extract_path is dot-only — bracket-syntax `[N]` returns undefined and is treated as no-ref',
+            ],
+        }],
 ]);
 //# sourceMappingURL=evaluator-spec.js.map

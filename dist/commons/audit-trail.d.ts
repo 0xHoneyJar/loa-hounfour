@@ -5,7 +5,7 @@
  * forming a tamper-evident chain. The genesis hash constant anchors new trails.
  *
  * @see SDD §4.3 — AuditTrail (FR-1.3)
- * @see SDD §4.3.1 — Audit Trail Checkpointing (Flatline IMP-003)
+ * @see SDD §4.3.1 — Audit Trail Checkpointing (code review IMP-003)
  * @since v8.0.0
  */
 import { type Static } from '@sinclair/typebox';
@@ -32,7 +32,7 @@ export type AuditEntry = Static<typeof AuditEntrySchema>;
 /**
  * Append-only audit trail with hash chain integrity.
  *
- * Supports optional checkpointing (Flatline IMP-003) to prevent
+ * Supports optional checkpointing (code review IMP-003) to prevent
  * unbounded growth of the entries array.
  */
 export declare const AuditTrailSchema: import("@sinclair/typebox").TObject<{

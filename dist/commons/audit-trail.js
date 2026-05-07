@@ -5,7 +5,7 @@
  * forming a tamper-evident chain. The genesis hash constant anchors new trails.
  *
  * @see SDD §4.3 — AuditTrail (FR-1.3)
- * @see SDD §4.3.1 — Audit Trail Checkpointing (Flatline IMP-003)
+ * @see SDD §4.3.1 — Audit Trail Checkpointing (code review IMP-003)
  * @since v8.0.0
  */
 import { Type } from '@sinclair/typebox';
@@ -44,7 +44,7 @@ export const AuditEntrySchema = Type.Object({
         description: 'The exact domain tag used when computing entry_hash. '
             + 'Format: "loa-commons:audit:<schema_$id>:<contract_version>". '
             + 'Persisted at write time so cross-version verification is unambiguous. '
-            + '(Flatline SKP-002)',
+            + '(code review SKP-002)',
     }),
 }, {
     $id: 'AuditEntry',
@@ -53,7 +53,7 @@ export const AuditEntrySchema = Type.Object({
 /**
  * Append-only audit trail with hash chain integrity.
  *
- * Supports optional checkpointing (Flatline IMP-003) to prevent
+ * Supports optional checkpointing (code review IMP-003) to prevent
  * unbounded growth of the entries array.
  */
 export const AuditTrailSchema = Type.Object({

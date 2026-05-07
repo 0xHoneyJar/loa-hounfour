@@ -15,7 +15,6 @@
       "minItems": 1,
       "type": "array",
       "items": {
-        "$id": "State",
         "additionalProperties": false,
         "type": "object",
         "required": [
@@ -51,7 +50,6 @@
     "transitions": {
       "type": "array",
       "items": {
-        "$id": "Transition",
         "additionalProperties": false,
         "type": "object",
         "required": [

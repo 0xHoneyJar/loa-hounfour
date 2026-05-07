@@ -41,7 +41,6 @@
       "type": "integer"
     },
     "health_status": {
-      "$id": "CheckpointHealth",
       "description": "Health assessment at a governance execution checkpoint.",
       "anyOf": [
         {
@@ -59,7 +58,6 @@
       ]
     },
     "proceed_decision": {
-      "$id": "ProceedDecision",
       "description": "Decision made at a governance execution checkpoint.",
       "anyOf": [
         {

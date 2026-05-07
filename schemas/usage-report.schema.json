@@ -34,7 +34,6 @@
       "type": "string"
     },
     "usage": {
-      "$id": "Usage",
       "additionalProperties": false,
       "type": "object",
       "required": [

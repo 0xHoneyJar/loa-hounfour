@@ -56,7 +56,6 @@
       }
     },
     "outcome": {
-      "$id": "PerformanceOutcome",
       "description": "Outcome metrics from an agent performance evaluation",
       "additionalProperties": false,
       "type": "object",

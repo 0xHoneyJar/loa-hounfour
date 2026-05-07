@@ -20,6 +20,7 @@ export const RecordQualityEventCommandSchema = Type.Object({
 }, {
     $id: 'RecordQualityEventCommand',
     additionalProperties: false,
+    description: 'Write-intent command to ingest a quality observation into the reputation aggregate. Drives sample-count increment and blended-score update.',
 });
 // ---------------------------------------------------------------------------
 // QueryReputationCommand
@@ -50,6 +51,7 @@ export const QueryReputationCommandSchema = Type.Object({
 }, {
     $id: 'QueryReputationCommand',
     additionalProperties: false,
+    description: 'Read-intent command for reputation aggregates. With collection_id, performs a single-aggregate lookup; without, returns all aggregates for personality+pool across collections.',
 });
 // ---------------------------------------------------------------------------
 // ResetReputationCommand
@@ -66,5 +68,6 @@ export const ResetReputationCommandSchema = Type.Object({
 }, {
     $id: 'ResetReputationCommand',
     additionalProperties: false,
+    description: 'Write-intent command to reset a reputation aggregate back to the cold state. Carries the reset reason and actor identity for audit.',
 });
 //# sourceMappingURL=reputation-commands.js.map

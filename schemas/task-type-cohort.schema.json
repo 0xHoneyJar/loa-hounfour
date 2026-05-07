@@ -1,6 +1,5 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/task-type-cohort",
   "additionalProperties": false,
   "description": "Per-(model, task_type) reputation cohort. Inherits the cohort base fields and adds a confidence threshold that consumers use to blend task-specific scores with the aggregate.",
   "type": "object",
@@ -41,7 +40,6 @@
       "type": "string"
     },
     "task_type": {
-      "$id": "TaskType",
       "description": "Task categories for reputation scoring. Protocol types are literals; community types use namespace:type format.",
       "anyOf": [
         {
@@ -82,5 +80,6 @@
       "type": "integer"
     }
   },
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/task-type-cohort",
   "$comment": "contract_version=8.4.0, min_supported=6.0.0"
 }

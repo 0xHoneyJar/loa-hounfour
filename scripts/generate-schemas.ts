@@ -174,11 +174,20 @@ import { SigningContextSchema } from '../src/governance/signing-context.js';
 import { PanelDecisionArtifactSchema } from '../src/governance/panel-decision-artifact.js';
 import { PanelVerdictSchema } from '../src/governance/panel-verdict.js';
 import { DeliberationDissentSchema } from '../src/governance/deliberation-dissent.js';
-import { CrossScoreReportSchema } from '../src/governance/cross-score-report.js';
+import { CrossScoreReportSchema, PairwiseScoreSchema } from '../src/governance/cross-score-report.js';
 // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
 import { OrgIdentitySchema } from '../src/governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../src/governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../src/governance/succession-policy.js';
+import { KeyringSchema } from '../src/governance/keyring.js';
+import { SignerEntrySchema } from '../src/governance/signer-entry.js';
+import { SignerCompetenceRuleSchema } from '../src/governance/signer-competence-rule.js';
+import { SignerCompetenceResultSchema } from '../src/governance/signer-competence-result.js';
+import { SignatureEnvelopeSchema } from '../src/governance/signature-envelope.js';
+import { SignerTypeSchema } from '../src/governance/signer-type.js';
+import { SignatureTypeSchema } from '../src/governance/signature-type.js';
+import { SignerStatusSchema } from '../src/governance/signer-status.js';
+import { PolicyDecisionOutcomeSchema } from '../src/governance/policy-decision-outcome.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -444,11 +453,22 @@ const schemas = [
   { name: 'panel-decision-artifact', schema: PanelDecisionArtifactSchema },
   { name: 'panel-verdict', schema: PanelVerdictSchema },
   { name: 'deliberation-dissent', schema: DeliberationDissentSchema },
+  { name: 'pairwise-score', schema: PairwiseScoreSchema },
   { name: 'cross-score-report', schema: CrossScoreReportSchema },
   // v8.4.0 — OrgOverseer (FR-B1..FR-B3)
   { name: 'org-identity', schema: OrgIdentitySchema },
   { name: 'org-representative-delegation', schema: OrgRepresentativeDelegationSchema },
   { name: 'succession-policy', schema: SuccessionPolicySchema },
+  // v8.5.0 PR-A2.2 — Authority Cascade Layer 2 + 3
+  { name: 'keyring', schema: KeyringSchema },
+  { name: 'signer-entry', schema: SignerEntrySchema },
+  { name: 'signer-competence-rule', schema: SignerCompetenceRuleSchema },
+  { name: 'signer-competence-result', schema: SignerCompetenceResultSchema },
+  { name: 'signature-envelope', schema: SignatureEnvelopeSchema },
+  { name: 'signer-type', schema: SignerTypeSchema },
+  { name: 'signature-type', schema: SignatureTypeSchema },
+  { name: 'signer-status', schema: SignerStatusSchema },
+  { name: 'policy-decision-outcome', schema: PolicyDecisionOutcomeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

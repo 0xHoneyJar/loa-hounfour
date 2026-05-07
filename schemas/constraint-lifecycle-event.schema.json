@@ -29,7 +29,6 @@
       "type": "string"
     },
     "from_status": {
-      "$id": "ConstraintLifecycleStatus",
       "description": "Lifecycle status of a protocol constraint within governance.",
       "anyOf": [
         {
@@ -55,7 +54,6 @@
       ]
     },
     "to_status": {
-      "$id": "ConstraintLifecycleStatus",
       "description": "Lifecycle status of a protocol constraint within governance.",
       "anyOf": [
         {

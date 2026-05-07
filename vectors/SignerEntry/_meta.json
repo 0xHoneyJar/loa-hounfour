@@ -1,0 +1,145 @@
+{
+  "schema": "SignerEntry",
+  "fixtures": [
+    {
+      "case": "authorization-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "SignerEntry whose role is authorization (permission-grant) signing.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "commitment-signer",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "SignerEntry whose role is commitment (binding-promise) signing.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "dev-signer-marked",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Dev-only marker \u2014 consumers MUST reject in production. Used for local-test signer entries.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "expired-signer",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Signer with signer_status=expired \u2014 past signatures verifiable; new ones rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimal SignerEntry with a single trust scope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "multi-scope-trust",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "CapabilityScopedTrust with multiple canonical scope keys at varying trust levels.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "revoked-signer",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Signer with signer_status=revoked \u2014 permanent invalidation (key compromise / sanction).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "sovereign-trust-default",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Empty scopes map; default_level \"sovereign\" applies to every CapabilityScope.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "with-precedence-and-strategy",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "Signer carrying both v8.5.0 EXTEND fields (D-007): match_strategy=exact + precedence_score=750.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "with-trusted-default",
+      "intent": "valid",
+      "validation_layer": "shape+constraint",
+      "description": "default_level=trusted \u2014 second-highest fallback trust for unmatched scopes.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-public-key",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "public_key violates the ed25519-pub: prefix pattern.",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "malformed-signer-id-uppercase",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signer_id has uppercase character \u2014 pattern ^[a-z][a-z0-9_-]{2,63}$ requires lowercase.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-key-ref",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field key_ref omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-public-key",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field public_key omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-scoped-trust",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field scoped_trust omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signature-type",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signature_type omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signer_id omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signer-status",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Required field signer_status omitted.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "public-key-padded-44chars",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "public_key uses '=' padding (44 chars total). The tightened {43} pattern with [A-Za-z0-9_-] character class rejects '='; producers MUST emit unpadded base64url.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "short-signer-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signer_id below the minLength bound.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

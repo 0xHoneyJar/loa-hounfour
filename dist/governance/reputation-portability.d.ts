@@ -5,7 +5,7 @@
  * between collections/pools. Supports full, score-only, and state-only
  * scopes with governance approval workflow.
  *
- * @see DR-S2 — Deep Bridgebuilder Review SPECULATION finding
+ * @see DR-S2 — code review SPECULATION finding
  * @since v7.5.0
  */
 import { type Static } from '@sinclair/typebox';

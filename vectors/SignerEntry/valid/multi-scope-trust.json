@@ -1,0 +1,16 @@
+{
+  "signer_id": "bot-001",
+  "key_ref": "kms://example/key-1",
+  "public_key": "ed25519-pub:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "signature_type": "attestation",
+  "scoped_trust": {
+    "scopes": {
+      "inference": "verified",
+      "billing": "trusted",
+      "governance": "basic",
+      "audit": "untrusted"
+    },
+    "default_level": "basic"
+  },
+  "signer_status": "active"
+}

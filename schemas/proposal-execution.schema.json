@@ -24,7 +24,6 @@
       "type": "string"
     },
     "status": {
-      "$id": "ExecutionStatus",
       "description": "Lifecycle status of a governance proposal execution.",
       "anyOf": [
         {
@@ -54,7 +53,6 @@
       "description": "Results of applying each proposed change.",
       "type": "array",
       "items": {
-        "$id": "ChangeApplicationResult",
         "additionalProperties": false,
         "description": "Result of applying a single proposed change during execution.",
         "type": "object",

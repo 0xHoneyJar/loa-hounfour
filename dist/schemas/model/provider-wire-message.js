@@ -28,5 +28,6 @@ export const ProviderWireMessageSchema = Type.Object({
     $id: 'ProviderWireMessage',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    description: 'Single message in a provider-agnostic chat completion stream. Encodes role, content (text or content blocks), optional thinking trace, and optional tool calls / tool-call id.',
 });
 //# sourceMappingURL=provider-wire-message.js.map

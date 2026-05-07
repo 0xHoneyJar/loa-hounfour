@@ -24,7 +24,6 @@
       "description": "All conservation properties in this registry.",
       "type": "array",
       "items": {
-        "$id": "ConservationProperty",
         "additionalProperties": false,
         "description": "Formalized conservation invariant with LTL temporal logic specification.",
         "type": "object",
@@ -61,7 +60,6 @@
             "type": "string"
           },
           "universe": {
-            "$id": "InvariantUniverse",
             "description": "Scope boundary for conservation property verification.",
             "anyOf": [
               {
@@ -83,7 +81,6 @@
             ]
           },
           "enforcement": {
-            "$id": "EnforcementMechanism",
             "description": "How a conservation invariant is enforced at runtime.",
             "anyOf": [
               {
@@ -163,7 +160,6 @@
       "description": "Liveness properties proving forward progress (v6.0.0, FR-1).",
       "type": "array",
       "items": {
-        "$id": "LivenessProperty",
         "additionalProperties": false,
         "description": "F_t-bounded liveness property with companion safety invariant reference.",
         "type": "object",
@@ -228,7 +224,6 @@
             ]
           },
           "timeout_behavior": {
-            "$id": "TimeoutBehavior",
             "description": "Action taken when a liveness property timeout expires.",
             "anyOf": [
               {

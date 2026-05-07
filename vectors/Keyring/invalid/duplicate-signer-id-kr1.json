@@ -1,0 +1,35 @@
+{
+  "keyring_id": "550e8400-e29b-41d4-a716-446655440010",
+  "org_id": "550e8400-e29b-41d4-a716-446655440011",
+  "signers": [
+    {
+      "signer_id": "bot-001",
+      "key_ref": "kms://example/key-1",
+      "public_key": "ed25519-pub:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "signature_type": "attestation",
+      "scoped_trust": {
+        "scopes": {
+          "inference": "verified"
+        },
+        "default_level": "basic"
+      },
+      "signer_status": "active"
+    },
+    {
+      "signer_id": "bot-001",
+      "key_ref": "kms://example/key-2",
+      "public_key": "ed25519-pub:ccccccccccccccccccccccccccccccccccccccccccc",
+      "signature_type": "attestation",
+      "scoped_trust": {
+        "scopes": {
+          "inference": "verified"
+        },
+        "default_level": "basic"
+      },
+      "signer_status": "active"
+    }
+  ],
+  "created_at": "2026-05-07T00:00:00Z",
+  "updated_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0"
+}

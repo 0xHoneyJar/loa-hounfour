@@ -1,0 +1,33 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "Keyring",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "KR-1",
+      "expression": "signers.every((s, i, arr) => arr.findIndex(o => o.signer_id == s.signer_id) == i)",
+      "severity": "error",
+      "message": "Each signer_id MUST be unique within signers[]; duplicate signer_id entries create ambiguous key resolution at consumption time.",
+      "fields": ["signers"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated structural uniqueness check on signer_id within Keyring.signers[]. Bridge finding F-003 raised this as a missing guard: TypeBox / JSON Schema 2020-12 has no first-class uniqueItems-by-key primitive, so the constraint is enforced by the cross-field validator registered for Keyring (src/validators/index.ts). Failures fail-closed at error severity. The DSL expression form uses .every() + .findIndex() (both supported in constraint-DSL grammar v2.0) so cross-language runners (Go/Python/Rust) can re-implement the check identically; the library evaluator runs the equivalent logic in the cross-field validator.",
+      "type_signature": {
+        "signers": "array"
+      }
+    },
+    {
+      "id": "KR-2",
+      "expression": "signers.every((s, i, arr) => arr.findIndex(o => o.key_ref == s.key_ref) == i)",
+      "severity": "warning",
+      "message": "Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.",
+      "fields": ["signers"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated soft uniqueness on key_ref. Distinct signer_id (KR-1) is hard-required; key_ref duplication is soft-warned because legitimate rotation overlap windows DO exist (active + retiring sharing the same backing key during a brief transition). Surfaced as a warning so consumers can decide whether their integration treats overlap as intentional or as drift. Cross-runner authors implement the same check; the library evaluator runs the equivalent logic in the cross-field validator registered for Keyring.",
+      "type_signature": {
+        "signers": "array"
+      }
+    }
+  ]
+}

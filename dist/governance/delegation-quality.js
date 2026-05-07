@@ -5,7 +5,7 @@
  * quality signals that feed back into the reputation system. This closes
  * the loop between delegation results and personality reputation scores.
  *
- * @see DR-S3 — Deep Bridgebuilder Review SPECULATION finding
+ * @see DR-S3 — code review SPECULATION finding
  * @since v7.5.0
  */
 import { Type } from '@sinclair/typebox';

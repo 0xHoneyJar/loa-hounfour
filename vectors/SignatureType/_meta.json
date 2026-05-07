@@ -1,0 +1,40 @@
+{
+  "schema": "SignatureType",
+  "fixtures": [
+    {
+      "case": "attestation-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"attestation\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "authorization-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"authorization\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "commitment-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"commitment\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "dev-signature-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"dev_signature\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Rejects member \"unknown-kind\" not in the substrate-agnostic core set.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

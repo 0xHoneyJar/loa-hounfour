@@ -28,7 +28,6 @@
       "type": "string"
     },
     "settlement_status": {
-      "$id": "X402SettlementStatus",
       "description": "Lifecycle state of an x402 settlement: pending / confirmed / failed / refunded.",
       "anyOf": [
         {

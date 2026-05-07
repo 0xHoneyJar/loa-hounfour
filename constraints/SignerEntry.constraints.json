@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SignerEntry",
+  "origin": "genesis",
+  "contract_version": "8.5.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SGE-1",
+      "expression": "!(scoped_trust.default_level == 'sovereign' && Object.keys(scoped_trust.scopes).length == 0)",
+      "severity": "warning",
+      "message": "scoped_trust.default_level == 'sovereign' with empty scopes{} grants the highest trust level to every action by fallback — a silent-wildcard pattern that typically indicates a misconfiguration. If intentional (e.g., bootstrap-phase keyring before policy is authored), document the window and downgrade default_level to 'untrusted' once specific scopes are enrolled.",
+      "fields": ["scoped_trust"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated soft warning. The combination 'default_level: sovereign' + scopes:{} is structurally valid — TrustLevel allows 'sovereign' and empty scopes maps are permitted by the v6.0.0 CapabilityScopedTrust schema — but it produces a wildcard authorization profile under any rule comparator that respects default_level on scope-absence. Bridge finding F11 raised this as a security footgun: the pattern is easy to copy from a fixture and forget to tighten before production. The library evaluator emits the warning so consumers can detect the pattern without parsing the warning manifest by hand; cross-language runners implement the same check. The constraint is consciously a warning, not an error, because 'shape, not policy' (ADR-010): hounfour does not adjudicate whether a sovereign-by-default keyring is acceptable for the consumer's use case.",
+      "type_signature": {
+        "scoped_trust": "object"
+      }
+    }
+  ]
+}

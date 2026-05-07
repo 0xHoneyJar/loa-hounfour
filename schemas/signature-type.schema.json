@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Semantic kind of a signature: what the signer is asserting by signing. Orthogonal to the crypto algorithm.",
+  "anyOf": [
+    {
+      "description": "Signer is asserting a fact they observed or vouch for.",
+      "const": "attestation",
+      "type": "string"
+    },
+    {
+      "description": "Signer is granting permission for a downstream action.",
+      "const": "authorization",
+      "type": "string"
+    },
+    {
+      "description": "Signer is binding themselves to a future action or state.",
+      "const": "commitment",
+      "type": "string"
+    },
+    {
+      "description": "Dev-only marker. NOT a cryptographic guarantee — consumers MUST reject in production.",
+      "const": "dev_signature",
+      "type": "string"
+    }
+  ],
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/signature-type",
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

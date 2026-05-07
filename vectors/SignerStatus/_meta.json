@@ -1,0 +1,33 @@
+{
+  "schema": "SignerStatus",
+  "fixtures": [
+    {
+      "case": "active-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"active\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "expired-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"expired\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "revoked-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Accepts the literal \"revoked\".",
+      "authored_at": "2026-05-06"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Rejects member \"pending\" not in the substrate-agnostic core set.",
+      "authored_at": "2026-05-06"
+    }
+  ]
+}

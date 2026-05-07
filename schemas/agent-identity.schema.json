@@ -29,7 +29,6 @@
       "type": "string"
     },
     "agent_type": {
-      "$id": "AgentType",
       "description": "Classification of agent type in the protocol.",
       "anyOf": [
         {
@@ -64,9 +63,8 @@
       }
     },
     "trust_scopes": {
-      "$id": "CapabilityScopedTrust",
       "additionalProperties": false,
-      "description": "Per-capability-scope trust levels with default fallback (v6.0.0, BREAKING).",
+      "description": "Per-capability-scope trust levels with default fallback (v6.0.0; v8.5.0 EXTEND adds optional match_strategy + precedence_score per D-007 / OQ-S6).",
       "type": "object",
       "required": [
         "scopes",
@@ -79,7 +77,6 @@
           "type": "object",
           "properties": {
             "billing": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -105,7 +102,6 @@
               ]
             },
             "governance": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -131,7 +127,6 @@
               ]
             },
             "inference": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -157,7 +152,6 @@
               ]
             },
             "delegation": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -183,7 +177,6 @@
               ]
             },
             "audit": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -209,7 +202,6 @@
               ]
             },
             "composition": {
-              "$id": "TrustLevel",
               "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
               "anyOf": [
                 {
@@ -237,7 +229,6 @@
           }
         },
         "default_level": {
-          "$id": "TrustLevel",
           "description": "Trust level assigned to an agent. Forms a total order from untrusted to sovereign.",
           "anyOf": [
             {
@@ -261,6 +252,29 @@
               "type": "string"
             }
           ]
+        },
+        "match_strategy": {
+          "description": "How a SignerCompetenceRule.required_capability_scopes set is compared against this profile's scopes. Default behavior on absence is \"subset\" (the trust profile must include every required scope) — preserves v8.4.0 implicit semantics.",
+          "anyOf": [
+            {
+              "const": "exact",
+              "type": "string"
+            },
+            {
+              "const": "subset",
+              "type": "string"
+            },
+            {
+              "const": "superset",
+              "type": "string"
+            }
+          ]
+        },
+        "precedence_score": {
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Tiebreaker when multiple SignerCompetenceRules match the same action. Higher score wins. Absence means \"no preference\" — consumers fall back to rule-list order.",
+          "type": "integer"
         }
       }
     },

@@ -29,7 +29,6 @@
       "type": "string"
     },
     "reporting": {
-      "$id": "ReportingRequirement",
       "additionalProperties": false,
       "description": "Reporting requirements for actions under a permission boundary.",
       "type": "object",
@@ -86,7 +85,6 @@
       }
     },
     "revocation": {
-      "$id": "RevocationPolicy",
       "additionalProperties": false,
       "description": "Policy defining when a permission boundary is revoked.",
       "type": "object",

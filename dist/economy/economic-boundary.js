@@ -63,10 +63,20 @@ export const AccessDecisionSchema = Type.Object({
     denial_reason: Type.Optional(Type.String({
         description: 'Why access was denied, populated when granted is false.',
     })),
+    // v8.5.0 — authority-cascade EXTEND fields. Both optional; absent
+    // values preserve v7.x behavior. Consumers that thread the new
+    // authority-cascade primitives carry them; consumers that don't
+    // see byte-identical decision payloads.
+    outcome: Type.Optional(Type.Ref('PolicyDecisionOutcome', {
+        description: 'Substrate-agnostic outcome enum aligning AccessDecision with the broader v8.5.0 policy-decision vocabulary. Distinct from "granted" (which stays boolean for backward compat) — outcome can be e.g. "needs_review" while "granted" remains false pending review.',
+    })),
+    signer_competence_result: Type.Optional(Type.Ref('SignerCompetenceResult', {
+        description: 'Reference to the Layer-3 evaluation that fed this decision. Threads the authority cascade outcome through the economic boundary so consumers can audit which signer competence decision authorized the access.',
+    })),
 }, {
     $id: 'AccessDecision',
     additionalProperties: false,
-    description: 'Result of an access evaluation at the economic boundary.',
+    description: 'Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition.',
 });
 // ---------------------------------------------------------------------------
 // Qualification Criteria — inputs to evaluateEconomicBoundary()

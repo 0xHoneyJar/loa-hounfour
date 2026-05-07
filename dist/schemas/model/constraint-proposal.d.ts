@@ -3,8 +3,8 @@ import { type Static } from '@sinclair/typebox';
  * Schema for agent-authored constraint proposals.
  *
  * Agents propose new constraints as structured data that goes through
- * multi-model adversarial review (Flatline Protocol) before acceptance.
- * The proposal captures the wire format; the review pipeline is a runtime concern.
+ * multi-model adversarial review before acceptance. The proposal captures
+ * the wire format; the review pipeline is a runtime concern.
  */
 export declare const ConstraintProposalSchema: import("@sinclair/typebox").TObject<{
     proposal_id: import("@sinclair/typebox").TString;
