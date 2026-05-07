@@ -1,0 +1,40 @@
+{
+  "schema": "ReceiptDetailLevel",
+  "fixtures": [
+    {
+      "case": "minimal-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimum-disclosure receipt verbosity literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "standard-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Default receipt verbosity literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "debug-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Debug-level receipt verbosity literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unrecognized-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Member literal outside the closed 3-member core. Must be rejected.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a member of the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

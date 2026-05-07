@@ -457,6 +457,84 @@ export {
   type SuccessionPolicy,
 } from './succession-policy.js';
 
+// Schemas — Recall Machinery (v8.5.0, PR-A2.3)
+export {
+  ReceiptDetailLevelSchema,
+  type ReceiptDetailLevel,
+} from './receipt-detail-level.js';
+
+export {
+  SurfaceContextSchema,
+  type SurfaceContext,
+} from './surface-context.js';
+
+export {
+  RecallRequestSchema,
+  type RecallRequest,
+} from './recall-request.js';
+
+export {
+  RecallPackSchema,
+  type RecallPack,
+} from './recall-pack.js';
+
+export {
+  RecallReceiptSchema,
+  type RecallReceipt,
+} from './recall-receipt.js';
+
+// Schemas — Forget / Commit / Estate (v8.5.0, PR-A2.3)
+export {
+  ForgetRecordSchema,
+  type ForgetRecord,
+} from './forget-record.js';
+
+export {
+  CommitmentTypeSchema,
+  type CommitmentType,
+} from './commitment-type.js';
+
+export {
+  CommitmentRootSchema,
+  type CommitmentRoot,
+} from './commitment-root.js';
+
+export {
+  AgentEstateStatusSchema,
+  type AgentEstateStatus,
+} from './agent-estate-status.js';
+
+export {
+  AgentEstateSchema,
+  type AgentEstate,
+} from './agent-estate.js';
+
+// Schemas — Assertion Family (v8.5.0, PR-A2.3)
+export {
+  PrivacyScopeSchema,
+  type PrivacyScope,
+} from './privacy-scope.js';
+
+export {
+  RiskLevelSchema,
+  type RiskLevel,
+} from './risk-level.js';
+
+export {
+  AssertionStatusSchema,
+  type AssertionStatus,
+} from './assertion-status.js';
+
+export {
+  AssertionClassSchema,
+  type AssertionClass,
+} from './assertion-class.js';
+
+export {
+  AssertionSchema,
+  type Assertion,
+} from './assertion.js';
+
 // Schemas — Authority Cascade Layer 2 + 3 (v8.5.0, PR-A2.2)
 export {
   KeyringSchema,

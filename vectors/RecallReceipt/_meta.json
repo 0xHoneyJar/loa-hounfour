@@ -1,0 +1,75 @@
+{
+  "schema": "RecallReceipt",
+  "fixtures": [
+    {
+      "case": "minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimum required fields populated; structurally valid (consumer must opt in to crypto-bearing via acceptDeferred:true).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "minimal-detail",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimal detail level.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "debug-detail",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Debug detail level.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "commitment-signature",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "commitment signature_type used in envelope.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "authorization-signature",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "authorization signature_type used in envelope.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-receipt-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "receipt_hash must match ^sha256:[0-9a-f]{64}$.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-signature-envelope",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "signature_envelope is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-pack-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "pack_hash must match the sha256 pattern.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-detail-level",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "detail_level must be a closed-core member.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "CommitmentRoot",
+  "fixtures": [
+    {
+      "case": "estate-checkpoint-minimal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Minimum fields; estate_checkpoint commitment_type; no on-chain anchor.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "recall-receipt-anchor",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "recall_receipt commitment with on-chain anchor (chain_id + tx_hash both populated).",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "transition-bundle",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "transition_bundle commitment_type; no anchor.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "revocation-checkpoint",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "revocation_checkpoint commitment_type.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "distinct-subject-hash",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Distinct subject_hash exemplar.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-subject-hash",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "subject_hash must match ^sha256:[0-9a-f]{64}$.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-commitment-type",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "commitment_type is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unknown-commitment-type",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "commitment_type literal outside the closed core.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "partial-anchor",
+      "intent": "invalid+constraint",
+      "validation_layer": "constraint",
+      "description": "CR-2: anchor_chain_id and anchor_tx_hash are mutually presence-coupled. Schema accepts the partial state (both fields are Optional); the constraint check rejects it.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

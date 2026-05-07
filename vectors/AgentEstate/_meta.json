@@ -1,0 +1,75 @@
+{
+  "schema": "AgentEstate",
+  "fixtures": [
+    {
+      "case": "provisioning-estate",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Estate in 'provisioning' lifecycle state.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "active-estate",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Estate in 'active' lifecycle state.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "paused-estate",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Estate in 'paused' lifecycle state.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "transferring-estate",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Estate in 'transferring' lifecycle state.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "dissolved-estate",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Estate in 'dissolved' lifecycle state.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "missing-estate-id",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "estate_id is required.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-controller",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "controller_agent_id pattern violation.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "malformed-keyring-uuid",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "keyring_id must be a valid UUID v4.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "extra-field",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "additionalProperties:false rejects unknown fields.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "unknown-status",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "status literal outside the closed core.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

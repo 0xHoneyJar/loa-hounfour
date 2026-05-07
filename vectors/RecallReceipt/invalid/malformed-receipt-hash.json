@@ -1,0 +1,17 @@
+{
+  "receipt_id": "550e8400-e29b-41d4-a716-446655440001",
+  "pack_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "detail_level": "standard",
+  "signature_envelope": {
+    "envelope_id": "550e8400-e29b-41d4-a716-446655440003",
+    "signature_type": "attestation",
+    "key_ref": "kms://example/key-1",
+    "signed_payload_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "signature_value": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "signed_at": "2026-05-07T00:00:00Z",
+    "contract_version": "8.5.0"
+  },
+  "receipt_hash": "sha1:abcdef",
+  "signed_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0"
+}

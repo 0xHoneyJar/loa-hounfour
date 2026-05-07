@@ -22,16 +22,23 @@ import { type Static } from '@sinclair/typebox';
  * - `acknowledged_judgment` → `source` is non-null AND `justification.length > 0`. Rule PDA-5.
  * - `claim_reference`     → `claim_id` references a sibling claim (DAG edge). Rule lands with the constraint file in PR-A1.4.
  * - `artifact_reference`  → `artifact_id` references a parent artifact (DAG edge). Rule lands with the constraint file in PR-A1.4.
+ * - `external_reference`  → `external_uri` carries the off-protocol reference (URL / DOI / chain-transaction id). Substrate-agnostic; consumer parses the URI grammar. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
+ * - `derived_inference`   → `inference_basis` lists the claim_ids the inference draws from (DAG edges). Substrate-agnostic; consumer enforces basis-set validity. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
  *
- * The four-type set is **deliberate and closed for v8.4.0**. Consumers MUST NOT
- * silently treat an unknown `type` as valid; extension is a future additive
- * release decision, not a per-consumer choice.
+ * The original four-type set was **deliberate and closed for v8.4.0**. The
+ * v8.5.0 EXTEND lands two new substrate-agnostic discriminator members
+ * (`external_reference`, `derived_inference`) with their corresponding
+ * optional auxiliary fields (`external_uri`, `inference_basis`); existing
+ * v7.x consumers compile unchanged because the new members are additive on
+ * the discriminator union and the new fields are optional. Cross-field
+ * rules for the new members may land in cycle-005 alongside the
+ * Challenge layer.
  *
  * The schema declares the surface; cross-field enforcement is the constraint
  * file's job (and is what `'x-cross-field-validated': true` advertises).
  */
 export declare const ClaimGroundingSchema: import("@sinclair/typebox").TObject<{
-    type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">]>;
+    type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">, import("@sinclair/typebox").TLiteral<"external_reference">, import("@sinclair/typebox").TLiteral<"derived_inference">]>;
     artifact_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     claim_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
     output_hash: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
@@ -60,6 +67,8 @@ export declare const ClaimGroundingSchema: import("@sinclair/typebox").TObject<{
         contract_version: import("@sinclair/typebox").TString;
     }>>;
     justification: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    external_uri: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+    inference_basis: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
 }>;
 export type ClaimGrounding = Static<typeof ClaimGroundingSchema>;
 /**
@@ -72,7 +81,7 @@ export type ClaimGrounding = Static<typeof ClaimGroundingSchema>;
 export declare const ClaimSchema: import("@sinclair/typebox").TObject<{
     claim_id: import("@sinclair/typebox").TString;
     grounding: import("@sinclair/typebox").TObject<{
-        type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">]>;
+        type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">, import("@sinclair/typebox").TLiteral<"external_reference">, import("@sinclair/typebox").TLiteral<"derived_inference">]>;
         artifact_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         claim_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
         output_hash: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
@@ -101,6 +110,8 @@ export declare const ClaimSchema: import("@sinclair/typebox").TObject<{
             contract_version: import("@sinclair/typebox").TString;
         }>>;
         justification: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+        external_uri: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+        inference_basis: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
     }>;
     confidence: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"high_confidence">, import("@sinclair/typebox").TLiteral<"plausible">, import("@sinclair/typebox").TLiteral<"speculative">]>;
 }>;
@@ -144,7 +155,7 @@ export declare const PanelDecisionArtifactSchema: import("@sinclair/typebox").TO
     claims: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
         claim_id: import("@sinclair/typebox").TString;
         grounding: import("@sinclair/typebox").TObject<{
-            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">]>;
+            type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">, import("@sinclair/typebox").TLiteral<"external_reference">, import("@sinclair/typebox").TLiteral<"derived_inference">]>;
             artifact_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             claim_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
             output_hash: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
@@ -173,6 +184,8 @@ export declare const PanelDecisionArtifactSchema: import("@sinclair/typebox").TO
                 contract_version: import("@sinclair/typebox").TString;
             }>>;
             justification: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+            external_uri: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+            inference_basis: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
         }>;
         confidence: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"high_confidence">, import("@sinclair/typebox").TLiteral<"plausible">, import("@sinclair/typebox").TLiteral<"speculative">]>;
     }>>;

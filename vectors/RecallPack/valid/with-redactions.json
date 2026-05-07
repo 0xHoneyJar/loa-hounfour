@@ -1,0 +1,26 @@
+{
+  "pack_id": "550e8400-e29b-41d4-a716-446655440001",
+  "recall_request_ref": "550e8400-e29b-41d4-a716-446655440002",
+  "items": [
+    {
+      "item_id": "msg-001",
+      "item_type": "message",
+      "payload_ref": "consumer://store/msg-001",
+      "recorded_at": "2026-05-06T00:00:00Z"
+    }
+  ],
+  "redactions": {
+    "total_redacted": 3,
+    "redaction_categories": [
+      "pii",
+      "credentials"
+    ]
+  },
+  "exclusions": {
+    "total_excluded": 0,
+    "exclusion_categories": []
+  },
+  "pack_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "created_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0"
+}

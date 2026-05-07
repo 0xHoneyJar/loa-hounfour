@@ -282,6 +282,11 @@ describe('version bump', () => {
     // SignerCompetenceResult, SignatureEnvelope, SignerType, SignatureType,
     // SignerStatus, PolicyDecisionOutcome) plus the iter-3 promotion of
     // PairwiseScore from inline-only to top-level published schema → 219.
-    expect(index.schemas).toHaveLength(219);
+    // PR-A2.3 adds 15 net-new schemas: recall machinery (5: ReceiptDetailLevel,
+    // SurfaceContext, RecallRequest, RecallPack, RecallReceipt) + Forget/Commit/
+    // Estate (5: ForgetRecord, CommitmentType, CommitmentRoot, AgentEstateStatus,
+    // AgentEstate) + Assertion family (5: PrivacyScope, RiskLevel, AssertionStatus,
+    // AssertionClass, Assertion) → 234.
+    expect(index.schemas).toHaveLength(234);
   });
 });

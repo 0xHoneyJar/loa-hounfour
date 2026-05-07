@@ -180,6 +180,74 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
     }
   });
 
+  it('runtime validate() honors variant-aware crypto-bearing on Assertion (J3)', async () => {
+    const { validate } = await import('../../src/validators/index.js');
+    const { AssertionSchema } = await import(
+      '../../src/governance/assertion.js'
+    );
+    // The candidate variant is shape-only (NOT crypto-bearing).
+    const candidatePayload = {
+      assertion_id: '550e8400-e29b-41d4-a716-446655440001',
+      body_hash:
+        'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      provenance: [],
+      privacy_scope: 'public' as const,
+      risk_level: 'routine' as const,
+      recall_scope: 'public' as const,
+      assertion_class: 'attestation' as const,
+      confidence: 0.9,
+      status: 'candidate' as const,
+      created_at: '2026-05-07T00:00:00Z',
+      contract_version: '8.5.0',
+    };
+    // Default call on candidate MUST pass (no signatures required, no
+    // CRYPTO_DEFERRED gate).
+    const candidateResult = validate(AssertionSchema, candidatePayload);
+    expect(candidateResult.valid).toBe(true);
+
+    // The admitted variant carries signatures[] and IS crypto-bearing.
+    const admittedPayload = {
+      ...candidatePayload,
+      assertion_id: '550e8400-e29b-41d4-a716-446655440002',
+      status: 'admitted' as const,
+      signatures: [
+        {
+          envelope_id: '550e8400-e29b-41d4-a716-446655440003',
+          signature_type: 'attestation' as const,
+          key_ref: 'kms://example/key-1',
+          signed_payload_hash:
+            'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+          signature_value:
+            'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+          signed_at: '2026-05-07T00:00:00Z',
+          contract_version: '8.5.0',
+        },
+      ],
+    };
+    // Default call on admitted MUST fail closed (CRYPTO_DEFERRED).
+    const admittedDefault = validate(AssertionSchema, admittedPayload);
+    expect(admittedDefault.valid).toBe(false);
+    if (!admittedDefault.valid) {
+      expect(
+        admittedDefault.errors.some((e) => e.startsWith('CRYPTO_DEFERRED:')),
+      ).toBe(true);
+    }
+    // Opt-in returns valid + manifest entry under reason: 'crypto_deferred',
+    // and the manifest schema_id resolves to the matched variant ($id is
+    // absent on the variant in this case so it falls back to the union $id).
+    const admittedOptIn = validate(AssertionSchema, admittedPayload, {
+      acceptDeferred: true,
+    });
+    expect(admittedOptIn.valid).toBe(true);
+    if (admittedOptIn.valid) {
+      expect(admittedOptIn.unverified_obligations).toBeDefined();
+      const entry = admittedOptIn.unverified_obligations?.unverified_rules[0];
+      expect(entry?.rule_id).toBe('CRYPTO_DEFERRED');
+      expect(entry?.reason).toBe('crypto_deferred');
+      expect(entry?.evaluator).toBe('consumer');
+    }
+  });
+
   it('structural lint RULE-4 list is set-equal to the discovered crypto-bearing schemas', () => {
     // F3 mitigation: import the actual RULE_4_CRYPTO_BEARING_NAMES from the
     // lint script and assert SET-EQUALITY (both directions) with the schemas
@@ -200,16 +268,23 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
         `calls against them.`,
     ).toEqual([]);
 
-    // Identifiers watched by the lint but not actually crypto-bearing:
-    // (PR-A2.2 lands SignatureEnvelope. RecallReceipt + CommitmentRoot +
-    // Assertion are forward-looking entries for PR-A2.3 — the lint pre-arms
-    // for them. Those are accepted here; we only require that every
-    // DISCOVERED schema is watched. Strict set-equality lands once PR-A2.3
-    // ships those schemas.)
+    // Identifiers watched by the lint but not actually crypto-bearing at
+    // the top-level schema flag:
+    //   - PR-A2.2 lands SignatureEnvelope (top-level x-crypto-bearing).
+    //   - PR-A2.3 lands RecallReceipt + CommitmentRoot (top-level x-crypto-bearing
+    //     — those become DISCOVERED here and drop from the forward-looking set).
+    //   - PR-A2.3 lands Assertion as a *variant-aware* crypto-bearing schema (J3):
+    //     the union itself carries no top-level flag, but each non-`candidate`
+    //     variant carries `'x-crypto-bearing': true` in its options. The
+    //     collector here only walks top-level schema flags, so Assertion is
+    //     intentionally NOT in the discovered set; the runtime's validate()
+    //     applies the variant-aware safe-by-default branch by walking
+    //     anyOf at call time. The lint still flags `assertValid(AssertionSchema)`
+    //     test calls so consumers cannot bypass the variant inspection by
+    //     passing an `admitted` payload through assertValid.
     const sourceMissing = [...lintIdents].filter((i) => !discoveredIdents.has(i));
     const knownForwardLooking = new Set([
-      'RecallReceiptSchema',
-      'CommitmentRootSchema',
+      // Variant-aware crypto-bearing schemas — top-level flag intentionally absent.
       'AssertionSchema',
     ]);
     const unexpected = sourceMissing.filter((i) => !knownForwardLooking.has(i));

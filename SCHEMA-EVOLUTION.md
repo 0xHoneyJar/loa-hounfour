@@ -212,3 +212,14 @@ package. Crypto-bearing schemas (v8.5.0+) default to `valid: false`
 unless the caller passes `{ acceptDeferred: true }`, which is the
 forced-explicit mechanism that prevents "shape valid means trusted"
 from being writable by accident.
+
+The v8.5.0 PR-A2.3 `ForgetRecord` primitive is the most consequential
+example of this boundary in practice: hounfour ships the four-variant
+discriminator (`pii_only` / `agent_full` / `pii_and_link_to_key` /
+`crypto_full_destruction`) and the H1 mandatory `legal_mandate_reference`
+field on the fourth variant; the *policy* of which scope is appropriate
+for which subject under which mandate is consumer-side. The
+[`forget-record-semantics.md`](docs/architecture/forget-record-semantics.md)
+doc carries the verifiability truth table (10 verifications × 4 scopes)
+so consumers can reason about which audit-non-repudiation properties
+each scope preserves.

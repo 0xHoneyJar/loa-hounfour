@@ -112,6 +112,22 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
     crossField?: boolean;
     acceptDeferred?: boolean;
     now?: string;
+    /**
+     * Auxiliary validation context the library evaluator can read for rules
+     * that cannot be checked from a single record in isolation. v8.5.0
+     * surfaces one consumer of this option:
+     *
+     * - `granted_by_chain_records` — array of OrgRepresentativeDelegation
+     *   ancestor records (the record under validation plus all ancestors
+     *   back to the genesis-rooted record, plus the synthetic terminator
+     *   `{ delegation_id: 'genesis:org-public-key' }`). When supplied,
+     *   validate() may library-evaluate ORD-3; when omitted, ORD-3 is
+     *   surfaced via the unverified-obligations manifest with
+     *   `reason: 'context_absent'`.
+     */
+    chainContext?: {
+        granted_by_chain_records?: unknown;
+    };
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{
@@ -1244,7 +1260,7 @@ export declare const validators: {
         claims: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
             claim_id: import("@sinclair/typebox").TString;
             grounding: import("@sinclair/typebox").TObject<{
-                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">]>;
+                type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"tool_output">, import("@sinclair/typebox").TLiteral<"acknowledged_judgment">, import("@sinclair/typebox").TLiteral<"claim_reference">, import("@sinclair/typebox").TLiteral<"artifact_reference">, import("@sinclair/typebox").TLiteral<"external_reference">, import("@sinclair/typebox").TLiteral<"derived_inference">]>;
                 artifact_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
                 claim_id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
                 output_hash: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
@@ -1273,6 +1289,8 @@ export declare const validators: {
                     contract_version: import("@sinclair/typebox").TString;
                 }>>;
                 justification: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+                external_uri: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString>;
+                inference_basis: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>>;
             }>;
             confidence: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"high_confidence">, import("@sinclair/typebox").TLiteral<"plausible">, import("@sinclair/typebox").TLiteral<"speculative">]>;
         }>>;

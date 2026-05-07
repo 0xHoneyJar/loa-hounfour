@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/recall-pack",
+  "additionalProperties": false,
+  "description": "Output container for the recall machinery: items + redaction summary + exclusion summary + content-addressed pack_hash. Sub-component shapes inlined per the locked v8.5.0 de-scope decision. Hash verification is a consumer obligation surfaced via the unverified-obligations manifest (integrity_deferred).",
+  "type": "object",
+  "required": [
+    "pack_id",
+    "recall_request_ref",
+    "items",
+    "redactions",
+    "exclusions",
+    "pack_hash",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "pack_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this pack (UUID v4).",
+      "type": "string"
+    },
+    "recall_request_ref": {
+      "format": "uuid",
+      "description": "FK to RecallRequest.request_id; the request that produced this pack.",
+      "type": "string"
+    },
+    "items": {
+      "description": "Per-item inline records (see RecallItem inline shape above).",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "Inline RecallItem shape. Sub-components are inlined within RecallPack per the locked v8.5.0 de-scope decision; promoting to a standalone $id can land strict-additively in v8.5.x or v8.6.0.",
+        "type": "object",
+        "required": [
+          "item_id",
+          "item_type",
+          "payload_ref",
+          "recorded_at"
+        ],
+        "properties": {
+          "item_id": {
+            "minLength": 1,
+            "description": "Consumer-side identifier for the recalled artifact.",
+            "type": "string"
+          },
+          "item_type": {
+            "minLength": 1,
+            "description": "Consumer-defined artifact category (e.g., \"message\", \"claim\", \"credential\").",
+            "type": "string"
+          },
+          "payload_ref": {
+            "minLength": 1,
+            "description": "Consumer-side reference to the payload bytes. Hounfour does not dereference; the consumer resolves it against its own object store.",
+            "type": "string"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "description": "ISO 8601 timestamp at which the artifact was originally recorded.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "redactions": {
+      "additionalProperties": false,
+      "description": "Inline RedactionSummary shape.",
+      "type": "object",
+      "required": [
+        "total_redacted",
+        "redaction_categories"
+      ],
+      "properties": {
+        "total_redacted": {
+          "minimum": 0,
+          "description": "Count of items redacted from the recall pack.",
+          "type": "integer"
+        },
+        "redaction_categories": {
+          "description": "Consumer-defined category names for the redactions applied.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "exclusions": {
+      "additionalProperties": false,
+      "description": "Inline ExclusionSummary shape.",
+      "type": "object",
+      "required": [
+        "total_excluded",
+        "exclusion_categories"
+      ],
+      "properties": {
+        "total_excluded": {
+          "minimum": 0,
+          "description": "Count of items excluded from the recall pack (e.g., privileged + legal-hold).",
+          "type": "integer"
+        },
+        "exclusion_categories": {
+          "description": "Consumer-defined category names for the exclusions applied.",
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "pack_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest (lowercase) of safeCanonicalize(pack-minus-pack_hash). NFC + RFC 8785 + 100KB cap per the hashing-spec freeze. Library does NOT verify; consumer-side reconciliation is required.",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the pack was assembled.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this pack was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

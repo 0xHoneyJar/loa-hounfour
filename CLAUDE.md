@@ -59,4 +59,9 @@ are its predecessors. The v8.5.0 three-layer authority cascade composes
 under that boundary —
 [authority-cascade.md](docs/architecture/authority-cascade.md) covers
 the consumer-side verification trace, vocabulary harmonization, and
-import surface.
+import surface. The v8.5.0 forgetting primitive (PR-A2.3) is documented
+in [forget-record-semantics.md](docs/architecture/forget-record-semantics.md)
+— four-variant `forget_scope` discriminator, H1 mandatory
+`legal_mandate_reference` on `crypto_full_destruction`, and the
+verifiability truth table that records which audit-non-repudiation
+properties each scope preserves.

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/privacy-scope",
+  "description": "Privacy classification for Assertion payloads. Four substrate-agnostic levels: public | participants_only | controller_only | compliance_only. Vocabulary only — enforcement is consumer-side.",
+  "anyOf": [
+    {
+      "description": "No privacy constraints; assertion may be shared without restriction.",
+      "const": "public",
+      "type": "string"
+    },
+    {
+      "description": "Assertion content visible only to participants in the deliberation.",
+      "const": "participants_only",
+      "type": "string"
+    },
+    {
+      "description": "Assertion content visible only to the subject's controller_agent_id.",
+      "const": "controller_only",
+      "type": "string"
+    },
+    {
+      "description": "Assertion content visible only to compliance / audit roles; sensitive disclosures.",
+      "const": "compliance_only",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

@@ -1,0 +1,8 @@
+{
+  "forget_id": "550e8400-e29b-41d4-a716-446655440001",
+  "subject_agent_id": "agent-001",
+  "authorized_by_signer_id": "signer-001",
+  "recorded_at": "2026-05-07T00:00:00Z",
+  "contract_version": "8.5.0",
+  "forget_scope": "pii_only"
+}

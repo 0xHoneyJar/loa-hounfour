@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/forget-record",
+  "description": "First-class forgetting primitive distinct from Sanction/revocation. Four-variant discriminated union over forget_scope. The crypto_full_destruction variant requires a legal_mandate_reference field; the other three variants must NOT carry the field (additionalProperties: false enforces). See docs/architecture/forget-record-semantics.md for the verifiability truth table.",
+  "anyOf": [
+    {
+      "additionalProperties": false,
+      "description": "pii_only variant — PII redacted; identity shell + key + binding preserved. Past signatures still verify.",
+      "type": "object",
+      "required": [
+        "forget_id",
+        "subject_agent_id",
+        "authorized_by_signer_id",
+        "recorded_at",
+        "contract_version",
+        "forget_scope"
+      ],
+      "properties": {
+        "forget_id": {
+          "format": "uuid",
+          "description": "Stable opaque identifier for this forget record (UUID v4).",
+          "type": "string"
+        },
+        "subject_agent_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The agent whose data is being forgotten.",
+          "type": "string"
+        },
+        "authorized_by_signer_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The signer that authorized this forget operation.",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "description": "ISO 8601 timestamp at which the forget operation was recorded.",
+          "type": "string"
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Hounfour contract version this forget record was authored against.",
+          "type": "string"
+        },
+        "forget_scope": {
+          "description": "PII redacted; identity shell + key + binding preserved. Past signatures still verify.",
+          "const": "pii_only",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "additionalProperties": false,
+      "description": "agent_full variant — identity tombstoned + PII destroyed; key material preserved on SignerEntry. Past signatures verify anonymously.",
+      "type": "object",
+      "required": [
+        "forget_id",
+        "subject_agent_id",
+        "authorized_by_signer_id",
+        "recorded_at",
+        "contract_version",
+        "forget_scope"
+      ],
+      "properties": {
+        "forget_id": {
+          "format": "uuid",
+          "description": "Stable opaque identifier for this forget record (UUID v4).",
+          "type": "string"
+        },
+        "subject_agent_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The agent whose data is being forgotten.",
+          "type": "string"
+        },
+        "authorized_by_signer_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The signer that authorized this forget operation.",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "description": "ISO 8601 timestamp at which the forget operation was recorded.",
+          "type": "string"
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Hounfour contract version this forget record was authored against.",
+          "type": "string"
+        },
+        "forget_scope": {
+          "description": "Identity tombstoned (hash-reference) + PII destroyed; key material preserved on SignerEntry. Past signatures verify anonymously.",
+          "const": "agent_full",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "additionalProperties": false,
+      "description": "pii_and_link_to_key variant — PII destroyed + identity-key binding severed; anonymous public key preserved. GDPR-default scope.",
+      "type": "object",
+      "required": [
+        "forget_id",
+        "subject_agent_id",
+        "authorized_by_signer_id",
+        "recorded_at",
+        "contract_version",
+        "forget_scope"
+      ],
+      "properties": {
+        "forget_id": {
+          "format": "uuid",
+          "description": "Stable opaque identifier for this forget record (UUID v4).",
+          "type": "string"
+        },
+        "subject_agent_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The agent whose data is being forgotten.",
+          "type": "string"
+        },
+        "authorized_by_signer_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The signer that authorized this forget operation.",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "description": "ISO 8601 timestamp at which the forget operation was recorded.",
+          "type": "string"
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Hounfour contract version this forget record was authored against.",
+          "type": "string"
+        },
+        "forget_scope": {
+          "description": "PII destroyed + identity-key binding severed; anonymous public key preserved so past signatures still verify anonymously. GDPR-default scope.",
+          "const": "pii_and_link_to_key",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "additionalProperties": false,
+      "description": "crypto_full_destruction variant — everything destroyed including key material. Breaks audit non-repudiation. Requires legal_mandate_reference (minLength: 8).",
+      "type": "object",
+      "required": [
+        "forget_id",
+        "subject_agent_id",
+        "authorized_by_signer_id",
+        "recorded_at",
+        "contract_version",
+        "forget_scope",
+        "legal_mandate_reference"
+      ],
+      "properties": {
+        "forget_id": {
+          "format": "uuid",
+          "description": "Stable opaque identifier for this forget record (UUID v4).",
+          "type": "string"
+        },
+        "subject_agent_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The agent whose data is being forgotten.",
+          "type": "string"
+        },
+        "authorized_by_signer_id": {
+          "pattern": "^[a-z][a-z0-9_-]{2,63}$",
+          "description": "The signer that authorized this forget operation.",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "description": "ISO 8601 timestamp at which the forget operation was recorded.",
+          "type": "string"
+        },
+        "contract_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Hounfour contract version this forget record was authored against.",
+          "type": "string"
+        },
+        "forget_scope": {
+          "description": "Everything including key material destroyed; BREAKS audit non-repudiation. Requires legal_mandate_reference.",
+          "const": "crypto_full_destruction",
+          "type": "string"
+        },
+        "legal_mandate_reference": {
+          "minLength": 8,
+          "description": "Legal/regulatory mandate compelling key destruction (e.g., \"GDPR-Article-17-Erasure-Order-2026-04-15\"). Required ONLY for crypto_full_destruction scope; minLength 8 forces a non-trivial reference.",
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

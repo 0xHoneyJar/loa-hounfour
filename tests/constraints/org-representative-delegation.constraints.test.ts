@@ -316,11 +316,20 @@ describe('ORD-3 — evaluation_note documents the synthetic-genesis-terminator p
     expect(note).toContain('granted_by_chain_records');
   });
 
-  it('discloses the context-absent open-fail behavior so consumers do not misread the rule', () => {
+  it('discloses the context-absent manifest-promoted behavior so consumers do not misread the rule', () => {
+    // PR-A2.3 (v8.5.0) promoted the v8.4.0 open-fail behavior to a visible
+    // manifest entry. The evaluation_note now describes the manifest
+    // promotion path rather than the old "vacuous-true silent open-fail"
+    // pattern. Tests track the v8.5.0 behavior; "vacuous" still appears
+    // (the constraint-DSL primitives DO still resolve to vacuous-true on
+    // context-absent input — the manifest emission wraps that behavior),
+    // but the "configuration error" language was replaced by the explicit
+    // manifest-promotion contract.
     const note = rule('ORD-3').evaluation_note ?? '';
     expect(note).toContain('CONTEXT-ABSENT BEHAVIOR');
     expect(note).toContain('vacuous');
-    expect(note).toContain('configuration error');
+    expect(note).toContain('manifest-promoted');
+    expect(note).toContain('chainContext');
   });
 
   it('documents the De Morgan transformation used in the third clause', () => {

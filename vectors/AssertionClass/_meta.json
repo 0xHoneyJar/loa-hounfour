@@ -1,0 +1,82 @@
+{
+  "schema": "AssertionClass",
+  "fixtures": [
+    {
+      "case": "attestation-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'attestation' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "observation-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'observation' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "assessment-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'assessment' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "consent-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'consent' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "delegation-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'delegation' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "commitment-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'commitment' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "disclosure-literal",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Substrate-agnostic core 'disclosure' literal.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "three-segment-namespace",
+      "intent": "valid",
+      "validation_layer": "shape",
+      "description": "Consumer-defined 3-segment AssertionClass namespace.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "uppercase-member",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Closed-core members are lowercase; uppercase fails the match.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "two-segment-namespace",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Two-segment string fails the 3-segment namespace pattern.",
+      "authored_at": "2026-05-07"
+    },
+    {
+      "case": "empty-string",
+      "intent": "invalid",
+      "validation_layer": "shape",
+      "description": "Empty string is not a closed-core member nor a valid namespace.",
+      "authored_at": "2026-05-07"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/assertion-status",
+  "description": "Lifecycle vocabulary for Assertion. Eight states: candidate (pre-admission, non-crypto-bearing) + admitted | superseded | challenged | revoked | forgotten | escrow | archived (post-admission, crypto-bearing).",
+  "anyOf": [
+    {
+      "description": "Pre-admission; not yet signed. The only NON-crypto-bearing variant.",
+      "const": "candidate",
+      "type": "string"
+    },
+    {
+      "description": "Signed and accepted into the assertion store.",
+      "const": "admitted",
+      "type": "string"
+    },
+    {
+      "description": "Replaced by a newer admitted assertion; original signatures preserved.",
+      "const": "superseded",
+      "type": "string"
+    },
+    {
+      "description": "Under formal challenge; signatures still meaningful for audit.",
+      "const": "challenged",
+      "type": "string"
+    },
+    {
+      "description": "Invalidated by sanction; original signatures preserved for audit chain.",
+      "const": "revoked",
+      "type": "string"
+    },
+    {
+      "description": "Subject of a ForgetRecord; references forget_record_id (A2 manifest entry).",
+      "const": "forgotten",
+      "type": "string"
+    },
+    {
+      "description": "Awaiting reveal / unsealing; signatures present but content covered.",
+      "const": "escrow",
+      "type": "string"
+    },
+    {
+      "description": "Moved to cold storage; signatures preserved for provenance.",
+      "const": "archived",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

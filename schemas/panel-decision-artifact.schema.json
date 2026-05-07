@@ -110,7 +110,7 @@
           },
           "grounding": {
             "additionalProperties": false,
-            "description": "Provenance for a single Claim. Type-specific field requirements enforced by constraint file.",
+            "description": "Provenance for a single Claim. Type-specific field requirements enforced by constraint file. v8.5.0 EXTEND: two new substrate-agnostic discriminator members (external_reference, derived_inference) with corresponding optional fields (external_uri, inference_basis); strict-additive on the v8.4.0 surface.",
             "type": "object",
             "required": [
               "type"
@@ -133,6 +133,14 @@
                   },
                   {
                     "const": "artifact_reference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "external_reference",
+                    "type": "string"
+                  },
+                  {
+                    "const": "derived_inference",
                     "type": "string"
                   }
                 ]
@@ -468,6 +476,20 @@
                 "minLength": 1,
                 "description": "Human-readable rationale; required when type=acknowledged_judgment.",
                 "type": "string"
+              },
+              "external_uri": {
+                "minLength": 1,
+                "description": "Off-protocol reference: URL / DOI / chain-transaction id / etc. Substrate-agnostic; consumer parses the URI grammar. Recommended (but not enforced by hounfour) when type=external_reference.",
+                "type": "string"
+              },
+              "inference_basis": {
+                "description": "Sibling claim_ids the derived inference draws from (DAG edges). Recommended (but not enforced by hounfour) when type=derived_inference. Basis-set validity is consumer-side per ADR-010.",
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "description": "A sibling claim_id that this inference draws from (DAG edge).",
+                  "type": "string"
+                }
               }
             }
           },

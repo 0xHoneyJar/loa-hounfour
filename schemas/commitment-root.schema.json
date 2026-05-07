@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.4.0/commitment-root",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "description": "Content-addressed onchain anchor primitive. Crypto-bearing — validate() defaults to { valid: false, errors: [CRYPTO_DEFERRED] } unless { acceptDeferred: true } is passed. Per ADR-010 hounfour ships shape; computeCommitmentRoot + onchain anchor adapters stay consumer-side.",
+  "type": "object",
+  "required": [
+    "commitment_id",
+    "commitment_type",
+    "subject_hash",
+    "created_at",
+    "contract_version"
+  ],
+  "properties": {
+    "commitment_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this commitment (UUID v4).",
+      "type": "string"
+    },
+    "commitment_type": {
+      "description": "Discriminator vocabulary for CommitmentRoot. Four substrate-agnostic categories: estate_checkpoint | recall_receipt | transition_bundle | revocation_checkpoint.",
+      "anyOf": [
+        {
+          "description": "Periodic snapshot anchor for an AgentEstate.",
+          "const": "estate_checkpoint",
+          "type": "string"
+        },
+        {
+          "description": "Anchor for a RecallReceipt body hash.",
+          "const": "recall_receipt",
+          "type": "string"
+        },
+        {
+          "description": "Anchor for an estate-transition bundle (cycle-005 EstateTransition successor).",
+          "const": "transition_bundle",
+          "type": "string"
+        },
+        {
+          "description": "Anchor for a sanctions/revocation checkpoint roll-up.",
+          "const": "revocation_checkpoint",
+          "type": "string"
+        }
+      ]
+    },
+    "subject_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 hex digest (lowercase) of safeCanonicalize(committed-artifact). NFC + RFC 8785 + 100KB cap per the hashing-spec freeze. Library does NOT verify; consumer-side reconciliation is required.",
+      "type": "string"
+    },
+    "anchor_chain_id": {
+      "minLength": 1,
+      "description": "Optional onchain identifier for the chain where the commitment was anchored (e.g., a CAIP-2 chain id). Hounfour does not parse the value.",
+      "type": "string"
+    },
+    "anchor_tx_hash": {
+      "minLength": 1,
+      "description": "Optional onchain transaction hash for the anchor. Hounfour does not parse the value.",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "description": "ISO 8601 timestamp at which the commitment was minted.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this commitment was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.4.0, min_supported=6.0.0"
+}

@@ -31,14 +31,50 @@ import type { Constraint, ConstraintFile } from './types.js';
  * `consumer_acknowledgment_required` is pinned to `true` to keep the wire
  * shape uniform; the literal type prevents accidental opt-out by setting it
  * to `false` at the type level.
+ *
+ * **v8.5.0 widening (PR-A2.3)**: `evaluator` now carries `'runtime-deferred'`
+ * | `'consumer'` | `'library'`, and an optional controlled-vocabulary
+ * `reason` field surfaces *why* the rule is in the manifest. This widens
+ * the v8.4.0 contract strict-additively — pre-v8.5.0 entries continue to
+ * appear with `evaluator: 'runtime-deferred'`; new entries (notably the
+ * ORD-3 context-absent manifest promotion + the `CRYPTO_DEFERRED` /
+ * `INTEGRITY_DEFERRED` paths) populate the new values.
  */
+export type UnverifiedObligationReason =
+  | 'context_absent'
+  | 'crypto_deferred'
+  | 'integrity_deferred'
+  | 'pattern_matching'
+  | 'vocabulary_drift';
+
 export interface UnverifiedObligationEntry {
-  /** Stable rule identifier (e.g., `"ORD-1"`, `"ORD-2"`). */
+  /** Stable rule identifier (e.g., `"ORD-1"`, `"ORD-2"`, `"ORD-3"`, `"CRYPTO_DEFERRED"`). */
   rule_id: string;
   /** Verbatim rule text from the constraint file (narrative or DSL). */
   rule: string;
-  /** Always the literal `'runtime-deferred'` for entries in this manifest. */
-  evaluator: 'runtime-deferred';
+  /**
+   * Class-of-evaluator carrying this rule. `'runtime-deferred'` is the v8.4.0
+   * default for cross-record / temporal obligations; `'consumer'` is the
+   * v8.5.0 addition for context-absent or crypto-deferred obligations the
+   * library *could* in principle verify but explicitly does not by ADR-010
+   * boundary; `'library'` is the v8.5.0 transparency entry for rules the
+   * library DID evaluate (currently only emitted in soft-warning mode).
+   */
+  evaluator: 'runtime-deferred' | 'consumer' | 'library';
+  /**
+   * Optional controlled-vocabulary explainer for the entry's *cause*.
+   * `context_absent` — the consumer didn't supply auxiliary validation
+   * context (e.g., granted_by_chain_records for ORD-3).
+   * `crypto_deferred` — the schema is `x-crypto-bearing` and the consumer
+   * opted in to shape-only validation.
+   * `integrity_deferred` — the schema carries a content-addressed hash
+   * (subject_hash / pack_hash / etc.) the library does not recompute.
+   * `pattern_matching` — pattern-matched obligation (reserved for future
+   * pattern-DSL rules).
+   * `vocabulary_drift` — value lies outside a canonical vocabulary
+   * (currently only ORD-5 capability_scope).
+   */
+  reason?: UnverifiedObligationReason;
   /** Human explanation of the consumer obligation. */
   evaluation_note: string;
   /** Always `true` — pinned to keep the wire shape uniform. */
@@ -95,7 +131,7 @@ export function buildUnverifiedObligationsManifest(
   return {
     schema_id: file.schema_id,
     contract_version: file.contract_version,
-    unverified_rules: runtimeDeferred.map((rule) => ({
+    unverified_rules: runtimeDeferred.map((rule): UnverifiedObligationEntry => ({
       rule_id: rule.id,
       rule: rule.expression,
       evaluator: 'runtime-deferred',

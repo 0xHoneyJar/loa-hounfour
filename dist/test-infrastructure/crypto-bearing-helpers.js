@@ -19,21 +19,33 @@ export function assertStructurallyValid(schema, payload) {
     }
 }
 /**
- * Assert that the schema is crypto-bearing AND that calling
- * `validate()` without `{ acceptDeferred: true }` produces the
- * CRYPTO_DEFERRED failure. Used to verify the safe-by-default API
- * stays coherent across the four observation surfaces (TypeBox
- * source, generated JSON Schema, runtime validate(), structural
- * lint).
+ * Assert that the schema (or one of its variants, for variant-aware
+ * unions per J3) is crypto-bearing AND that calling `validate()` without
+ * `{ acceptDeferred: true }` produces the CRYPTO_DEFERRED failure. Used to
+ * verify the safe-by-default API stays coherent across the four observation
+ * surfaces (TypeBox source, generated JSON Schema, runtime validate(),
+ * structural lint).
  *
- * Throws if the schema is NOT crypto-bearing or if the default call
- * unexpectedly returns `{ valid: true }`.
+ * **Variant-aware (J3)**: When the top-level schema does NOT carry
+ * `'x-crypto-bearing': true` (i.e. it's a `Type.Union` like `Assertion`),
+ * the helper walks `schema.anyOf` looking for a variant that carries the
+ * flag. If such a variant exists, the helper proceeds — `validate()`
+ * itself inspects the union at call time and applies the safe-by-default
+ * branch for the matched variant. Throws only when neither the top-level
+ * schema NOR any variant carries the flag.
+ *
+ * Throws if the schema is NOT crypto-bearing (top-level OR variant-aware)
+ * or if the default call unexpectedly returns `{ valid: true }`.
  */
 export function assertCryptoBearingFailsByDefault(schema, payload) {
-    const flag = schema['x-crypto-bearing'];
-    if (flag !== true) {
-        const id = schema.$id ?? '<anonymous>';
-        throw new Error(`assertCryptoBearingFailsByDefault: ${String(id)} is NOT marked x-crypto-bearing — call assertStructurallyValid for non-crypto schemas.`);
+    const schemaRecord = schema;
+    const topLevelFlag = schemaRecord['x-crypto-bearing'] === true;
+    const hasVariantFlag = !topLevelFlag &&
+        Array.isArray(schemaRecord.anyOf) &&
+        schemaRecord.anyOf.some((variant) => variant['x-crypto-bearing'] === true);
+    if (!topLevelFlag && !hasVariantFlag) {
+        const id = schemaRecord.$id ?? '<anonymous>';
+        throw new Error(`assertCryptoBearingFailsByDefault: ${String(id)} is NOT marked x-crypto-bearing (top-level or variant-aware) — call assertStructurallyValid for non-crypto schemas.`);
     }
     const result = validate(schema, payload);
     if (result.valid) {

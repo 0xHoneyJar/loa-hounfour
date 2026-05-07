@@ -101,6 +101,24 @@ export { OrgIdentitySchema, } from './org-identity.js';
 export { OrgRepresentativeDelegationSchema, ORG_DELEGATION_GENESIS_SENTINEL, } from './org-representative-delegation.js';
 // Schemas — SuccessionPolicy (v8.4.0, FR-B3)
 export { SuccessionPolicySchema, } from './succession-policy.js';
+// Schemas — Recall Machinery (v8.5.0, PR-A2.3)
+export { ReceiptDetailLevelSchema, } from './receipt-detail-level.js';
+export { SurfaceContextSchema, } from './surface-context.js';
+export { RecallRequestSchema, } from './recall-request.js';
+export { RecallPackSchema, } from './recall-pack.js';
+export { RecallReceiptSchema, } from './recall-receipt.js';
+// Schemas — Forget / Commit / Estate (v8.5.0, PR-A2.3)
+export { ForgetRecordSchema, } from './forget-record.js';
+export { CommitmentTypeSchema, } from './commitment-type.js';
+export { CommitmentRootSchema, } from './commitment-root.js';
+export { AgentEstateStatusSchema, } from './agent-estate-status.js';
+export { AgentEstateSchema, } from './agent-estate.js';
+// Schemas — Assertion Family (v8.5.0, PR-A2.3)
+export { PrivacyScopeSchema, } from './privacy-scope.js';
+export { RiskLevelSchema, } from './risk-level.js';
+export { AssertionStatusSchema, } from './assertion-status.js';
+export { AssertionClassSchema, } from './assertion-class.js';
+export { AssertionSchema, } from './assertion.js';
 // Schemas — Authority Cascade Layer 2 + 3 (v8.5.0, PR-A2.2)
 export { KeyringSchema, } from './keyring.js';
 export { SignerEntrySchema, } from './signer-entry.js';
