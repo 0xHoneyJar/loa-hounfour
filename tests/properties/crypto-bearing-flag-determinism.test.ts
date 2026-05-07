@@ -233,8 +233,9 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
       ).toBe(true);
     }
     // Opt-in returns valid + manifest entry under reason: 'crypto_deferred',
-    // and the manifest schema_id resolves to the matched variant ($id is
-    // absent on the variant in this case so it falls back to the union $id).
+    // and the manifest schema_id surfaces the matched variant via the
+    // synthesized `<UnionId>#<discriminator>=<value>` form (PR-A2.3 iter-2
+    // F7 mitigation).
     const admittedOptIn = validate(AssertionSchema, admittedPayload, {
       acceptDeferred: true,
     });
@@ -245,6 +246,27 @@ describe('x-crypto-bearing flag determinism (SDD §5.6 / I1)', () => {
       expect(entry?.rule_id).toBe('CRYPTO_DEFERRED');
       expect(entry?.reason).toBe('crypto_deferred');
       expect(entry?.evaluator).toBe('consumer');
+      // S1 mitigation: the synthesized schema_id MUST encode the matched
+      // variant's discriminator literal so operators can distinguish
+      // 'admitted' from 'forgotten' / 'revoked' / etc. without parsing
+      // the rule text.
+      expect(admittedOptIn.unverified_obligations?.schema_id).toBe(
+        'Assertion#status=admitted',
+      );
+    }
+
+    // The 'forgotten' variant should synthesize a different schema_id, so
+    // operators can reason about which lifecycle state triggered the
+    // deferred branch.
+    const forgottenPayload = { ...admittedPayload, status: 'forgotten' as const };
+    const forgottenOptIn = validate(AssertionSchema, forgottenPayload, {
+      acceptDeferred: true,
+    });
+    expect(forgottenOptIn.valid).toBe(true);
+    if (forgottenOptIn.valid) {
+      expect(forgottenOptIn.unverified_obligations?.schema_id).toBe(
+        'Assertion#status=forgotten',
+      );
     }
   });
 

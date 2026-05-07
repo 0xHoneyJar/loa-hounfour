@@ -78,6 +78,7 @@ import { OrgRepresentativeDelegationSchema } from '../governance/org-representat
 import { SuccessionPolicySchema } from '../governance/succession-policy.js';
 
 import type {
+  UnverifiedObligationEntry,
   UnverifiedObligationReason,
   UnverifiedObligationsManifest,
 } from '../constraints/unverified-obligations.js';
@@ -1245,31 +1246,28 @@ export function validate<T extends TSchema>(
       ],
     };
   }
+  // PR-A2.3 iter-3 refactor (F1 + F-002 mitigation): manifest entries now
+  // accumulate rather than short-circuit. The previous early-return shape
+  // prevented composition — a hypothetical schema that is BOTH crypto-
+  // bearing AND has a runtime-deferred obligation (e.g., a future
+  // ORD-3-equivalent) would silently emit only the first entry. The
+  // accumulator pattern is forward-compatible: every layer that wants to
+  // surface an obligation pushes onto `obligations`, and the single
+  // closing return assembles the manifest. Cross-field validators still
+  // run BEFORE this section (they short-circuit on invalid as the contract
+  // requires); the accumulator only runs once cross-field has passed.
+  const obligations: UnverifiedObligationEntry[] = [];
+  let manifestSchemaId: string =
+    cryptoBearingVariantId ?? schema.$id ?? '<unverified-obligations>';
+
   if (isCryptoBearing && options?.acceptDeferred === true) {
-    // PR-A2.3 widens the manifest entry shape: evaluator carries
-    // 'runtime-deferred' | 'consumer' | 'library' (was the literal
-    // 'runtime-deferred' only in PR-A2.2), and an optional `reason`
-    // field surfaces *why* the entry is present. The CRYPTO_DEFERRED
-    // path is the canonical 'reason: crypto_deferred' emission;
-    // INTEGRITY_DEFERRED (CommitmentRoot.subject_hash, RecallPack.pack_hash,
-    // etc.) similarly populates 'reason: integrity_deferred' when the
-    // consumer opts in to shape-only validation of a content-addressed
-    // schema. The library STILL does not verify any of these; the manifest
-    // is the visible-obligation primitive.
-    //
-    // PR-A2.3 iter-2 (F3 mitigation): integrity-bearing detection now keys on
-    // the schema-level 'x-integrity-bearing' flag rather than a hardcoded
-    // $id list. New content-addressed schemas only need to set the flag in
-    // their TypeBox options; validate() picks them up via the same property
-    // lookup pattern as 'x-crypto-bearing'. RecallPack and CommitmentRoot
-    // both carry the flag.
-    //
-    // contract_version sources from CONTRACT_VERSION so that the runtime
-    // emission, schemas/index.json, and the published $id namespace stay
-    // aligned through the dev cycle (per cycle-003 D-005 precedent: the
-    // namespace bumps in the version-bump sprint, not mid-cycle).
-    const isIntegrityBearing =
-      schemaRecord['x-integrity-bearing'] === true;
+    // The CRYPTO_DEFERRED / INTEGRITY_DEFERRED path. Integrity-bearing
+    // detection (PR-A2.3 iter-2 F3 mitigation) keys on the schema-level
+    // `'x-integrity-bearing': true` flag rather than a hardcoded $id list,
+    // so new content-addressed schemas only need the flag in TypeBox
+    // options to surface the obligation. RecallPack + CommitmentRoot both
+    // carry it; the manifest discriminates via reason.
+    const isIntegrityBearing = schemaRecord['x-integrity-bearing'] === true;
     const ruleId = isIntegrityBearing ? 'INTEGRITY_DEFERRED' : 'CRYPTO_DEFERRED';
     const reason: UnverifiedObligationReason = isIntegrityBearing
       ? 'integrity_deferred'
@@ -1285,78 +1283,57 @@ export function validate<T extends TSchema>(
         'Consumer MUST verify the signature against the public key referenced ' +
         'by the SignerEntry that produced it before treating the envelope as ' +
         'cryptographically authoritative.';
+    obligations.push({
+      rule_id: ruleId,
+      rule: ruleDescription,
+      evaluator: 'consumer',
+      reason,
+      evaluation_note: ruleNote,
+      consumer_acknowledgment_required: true,
+    });
+  }
+
+  // ORD-3 manifest promotion (PR-A2.3 — HIGH carry-forward from v8.5.0
+  // backlog). Emits the chain-validity obligation in BOTH context-present
+  // and context-absent paths so the audit trail is unambiguous (PR-A2.3
+  // iter-2 F4 mitigation: silence on the context-present path would let
+  // consumers conflate "library validated chain" with "library skipped
+  // because no context was supplied").
+  if (schema.$id === 'OrgRepresentativeDelegation') {
+    const contextSupplied = hasChainContextRecords(options?.chainContext);
+    obligations.push({
+      rule_id: 'ORD-3',
+      rule:
+        'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
+      evaluator: 'consumer',
+      reason: contextSupplied ? 'pattern_matching' : 'context_absent',
+      evaluation_note: contextSupplied
+        ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
+          'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
+          'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
+          'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
+          'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
+        : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
+          'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
+          'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
+          'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
+          'library-side DAG validation, OR perform the chain check consumer-side. See ' +
+          'docs/architecture/org-overseer.md for the verification profile.',
+      consumer_acknowledgment_required: true,
+    });
+  }
+
+  if (obligations.length > 0) {
     return {
       valid: true,
       unverified_obligations: {
-        schema_id: cryptoBearingVariantId ?? schema.$id ?? '<crypto-bearing>',
+        schema_id: manifestSchemaId,
         contract_version: CONTRACT_VERSION,
         // F2 mitigation: accept an injected timestamp via options.now so
         // snapshot / golden-file parity tests can reproduce manifest output
         // byte-for-byte across runs. Falls through to wall-clock when absent.
         manifest_emitted_at: options?.now ?? new Date().toISOString(),
-        unverified_rules: [
-          {
-            rule_id: ruleId,
-            rule: ruleDescription,
-            evaluator: 'consumer',
-            reason,
-            evaluation_note: ruleNote,
-            consumer_acknowledgment_required: true,
-          },
-        ],
-      },
-    };
-  }
-
-  // ORD-3 manifest promotion (PR-A2.3 — HIGH carry-forward from v8.5.0
-  // backlog). When validate() is called against OrgRepresentativeDelegation,
-  // emit a manifest entry surfacing the chain-validity obligation in BOTH
-  // context-present and context-absent paths so the audit trail is
-  // unambiguous. (Iter-2 F4 mitigation: silence on the context-present path
-  // would let consumers conflate "library validated chain" with "library
-  // skipped because no context was supplied".)
-  //
-  // - context_absent (granted_by_chain_records missing): consumer must
-  //   assemble the chain or perform the check consumer-side; surfaced
-  //   under reason: 'context_absent'.
-  // - context_present (granted_by_chain_records supplied): the library
-  //   accepts the consumer-supplied chain but does NOT itself run
-  //   is_valid_dag at validate() time — chain-DSL evaluation lives in
-  //   `npm run check:constraints`, not in validate(). Surfaced under
-  //   reason: 'pattern_matching' to distinguish from the absent case;
-  //   consumers that want library-side DAG evaluation as part of
-  //   validate() will gain it in a later cycle alongside the runtime
-  //   constraint-evaluator.
-  if (schema.$id === 'OrgRepresentativeDelegation') {
-    const contextSupplied = hasChainContextRecords(options?.chainContext);
-    return {
-      valid: true,
-      unverified_obligations: {
-        schema_id: schema.$id,
-        contract_version: CONTRACT_VERSION,
-        manifest_emitted_at: options?.now ?? new Date().toISOString(),
-        unverified_rules: [
-          {
-            rule_id: 'ORD-3',
-            rule:
-              'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
-            evaluator: 'consumer',
-            reason: contextSupplied ? 'pattern_matching' : 'context_absent',
-            evaluation_note: contextSupplied
-              ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
-                'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
-                'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
-                'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
-                'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
-              : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
-                'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
-                'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
-                'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
-                'library-side DAG validation, OR perform the chain check consumer-side. See ' +
-                'docs/architecture/org-overseer.md for the verification profile.',
-            consumer_acknowledgment_required: true,
-          },
-        ],
+        unverified_rules: obligations,
       },
     };
   }
