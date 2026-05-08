@@ -271,6 +271,92 @@ describe('evaluateSequenceMonotonicPerCluster (standalone)', () => {
     });
   });
 
+  describe('Runtime shape validation (iter-1 HIGH F-002/F-003 mitigation)', () => {
+    it('rejects state.last_sequence as plain object (not Map) → SEQUENCE_INVALID_INPUT', () => {
+      const malformedState = {
+        cluster_id: 'c1',
+        highest_key_version: '0',
+        // Plain object, NOT a Map — common deserialization shape.
+        last_sequence: { 's1|0': '4' } as unknown as ReadonlyMap<string, string>,
+      };
+      const result = evaluateSequenceMonotonicPerCluster(
+        baseRecord,
+        'cluster_id',
+        'signer_id',
+        'sequence',
+        'key_version',
+        malformedState as never,
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('SEQUENCE_INVALID_INPUT');
+      expect(result.diagnostic?.message).toContain('Map instance');
+    });
+
+    it('rejects state.last_sequence as null', () => {
+      const malformedState = {
+        cluster_id: 'c1',
+        highest_key_version: '0',
+        last_sequence: null as unknown as ReadonlyMap<string, string>,
+      };
+      const result = evaluateSequenceMonotonicPerCluster(
+        baseRecord,
+        'cluster_id',
+        'signer_id',
+        'sequence',
+        'key_version',
+        malformedState as never,
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('SEQUENCE_INVALID_INPUT');
+    });
+  });
+
+  describe('Composite-key injectivity (iter-1 MEDIUM CVE-class delimiter fix)', () => {
+    it('JSON-stringify encoding distinguishes "a|0" signer from "a" signer with "0|0" key_version', () => {
+      // Naive `|` delimiter collides: ('a|0', '0') and ('a', '0|0') both
+      // produce "a|0|0". Injective JSON encoding distinguishes them:
+      // ["a|0","0"] != ["a","0|0"]. (key_version stays numeric per CT-03;
+      // signer_id is the field that can carry a `|`.)
+      // For this test, since CT-03 forbids non-numeric key_versions, we
+      // only exercise injectivity on the signer_id axis.
+      const collidingNaiveKey = `a|0|0`;
+      const stateA: SequenceClusterState = {
+        cluster_id: 'c1',
+        highest_key_version: '0',
+        last_sequence: new Map<string, string>([
+          // Stored under signer "a|0" with key_version "0".
+          [composeSequenceKey('a|0', '0'), '99'],
+        ]),
+      };
+      // Lookup with signer "a" — different from "a|0" — should be a
+      // distinct composite key under JSON-stringify, so no collision.
+      const result = evaluateSequenceMonotonicPerCluster(
+        { cluster_id: 'c1', signer_id: 'a', sequence: '1', key_version: '0' },
+        'cluster_id',
+        'signer_id',
+        'sequence',
+        'key_version',
+        stateA,
+      );
+      // With JSON-stringify: lookup key for ('a','0') = '["a","0"]', stored
+      // key for ('a|0','0') = '["a|0","0"]' — distinct → no collision →
+      // fresh sequence → valid. Naive '|' would have produced 'a|0|0' for
+      // BOTH (collision).
+      expect(result.valid).toBe(true);
+      // Also assert directly on the encoding to prove injectivity:
+      expect(composeSequenceKey('a|0', '0')).not.toBe(composeSequenceKey('a', '0|0'));
+      // (Notional naive collision proof — the naive encoding 'a|0|0' would
+      // have been the same for both.)
+      expect(`a|0|0`).toBe(collidingNaiveKey);
+    });
+
+    it('composeSequenceKey produces stable JSON-array form', () => {
+      expect(composeSequenceKey('a', 'b')).toBe('["a","b"]');
+      expect(composeSequenceKey('a|b', 'c')).toBe('["a|b","c"]');
+      expect(composeSequenceKey('with"quote', 'ver')).toBe('["with\\"quote","ver"]');
+    });
+  });
+
   describe('Invalid input', () => {
     it('rejects null record', () => {
       const result = evaluateSequenceMonotonicPerCluster(

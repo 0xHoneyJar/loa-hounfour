@@ -1608,7 +1608,18 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         expected: true,
       },
       {
-        description: 'CT-03: malformed sequence (leading zero) returns false (SEQUENCE_INVALID_INPUT)',
+        // Iter-1 HIGH F1 fix: this example previously expected `true` because
+        // no state was supplied (CT-03 never fires on the deferred path).
+        // The pairing was misleading — readers would infer "007" is accepted
+        // when in fact the implementation rejects it. The fixed example
+        // demonstrates the deferred-state semantics explicitly: with no
+        // state supplied, ALL records pass regardless of CT-03 violations,
+        // because the obligation is consumer-deferred. Consumers wanting
+        // the SEQUENCE_INVALID_INPUT diagnostic must supply state.
+        description:
+          'No state supplied → defers regardless of malformed sequence ("007"). ' +
+          'CT-03 only fires when state is present; the deferred path is ' +
+          'consumer-deferred per ADR-010 and the constraint passes.',
         context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '007', key_version: '0' } },
         expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
         expected: true,

@@ -141,6 +141,25 @@ export function evaluateChainValidatorPrevHash(
     };
   }
 
+  // F-002 mitigation (iter-1 HIGH): runtime shape validation for state.
+  // TypeScript's "ReadonlyMap" type evaporates at runtime; a consumer
+  // passing a plain object or null would throw on `.get` and bypass the
+  // structured CHAIN_INVALID_INPUT diagnostic. Validate the shape before
+  // any field access.
+  if (state !== undefined && !(state.expected_prior_hash instanceof Map)) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'CHAIN_INVALID_INPUT',
+        message:
+          'chain_validator_prev_hash: state.expected_prior_hash must be a Map ' +
+          'instance. Consumer-supplied state crosses a trust boundary; the ' +
+          'library validates the runtime shape rather than relying on ' +
+          'TypeScript type erasure.',
+      },
+    };
+  }
+
   if (state === undefined) {
     return {
       valid: true,
@@ -236,6 +255,19 @@ export function evaluateChainValidatorPrevHash(
     // this index MUST match the chain's on-payload previous_hash. When the
     // ledger has no entry for this index, no cross-check fires (the
     // consumer hasn't recorded an expectation yet).
+    //
+    // Ordering rationale (iter-1 LOW F5): chain-internal checks
+    // (CHAIN_PREV_HASH_MISMATCH, CHAIN_GENESIS_VIOLATION) fire BEFORE the
+    // NA-1 cross-check. Rationale: if the chain itself is internally
+    // inconsistent, the on-payload `previous_hash` is already untrustworthy
+    // and comparing it against the audit ledger would produce a misleading
+    // `CHAIN_LEDGER_MISMATCH` (the chain might "match" the ledger by
+    // coincidence even though it's broken). Surfacing the structural break
+    // first gives operators the right signal: "this chain is malformed"
+    // rather than "this chain disagrees with the ledger." Forensic triage
+    // for tampering signals can still be reached by re-running with the
+    // chain-internal break repaired; the NA-1 path then surfaces the
+    // remaining ledger divergence.
     const expectedPriorHash = state.expected_prior_hash.get(i);
     if (expectedPriorHash !== undefined && expectedPriorHash !== previousHash) {
       return {

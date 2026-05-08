@@ -222,6 +222,38 @@ describe('evaluateChainValidatorPrevHash (standalone)', () => {
     });
   });
 
+  describe('Runtime shape validation (iter-1 HIGH F-002 mitigation)', () => {
+    it('rejects state.expected_prior_hash as plain object → CHAIN_INVALID_INPUT', () => {
+      const malformedState = {
+        // Plain object, NOT a Map — typical JSON-deserialization shape.
+        expected_prior_hash: { 1: 'h0' } as unknown as ReadonlyMap<number, string>,
+      };
+      const result = evaluateChainValidatorPrevHash(
+        validChain,
+        'entry_hash',
+        'previous_hash',
+        malformedState as never,
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('CHAIN_INVALID_INPUT');
+      expect(result.diagnostic?.message).toContain('Map instance');
+    });
+
+    it('rejects state.expected_prior_hash as null', () => {
+      const malformedState = {
+        expected_prior_hash: null as unknown as ReadonlyMap<number, string>,
+      };
+      const result = evaluateChainValidatorPrevHash(
+        validChain,
+        'entry_hash',
+        'previous_hash',
+        malformedState as never,
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('CHAIN_INVALID_INPUT');
+    });
+  });
+
   describe('CHAIN_INVALID_INPUT', () => {
     it('rejects non-array chain', () => {
       const result = evaluateChainValidatorPrevHash(

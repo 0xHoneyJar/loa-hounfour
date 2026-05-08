@@ -6,15 +6,38 @@
  * greater than the last-observed sequence, and that the `key_version`
  * itself never regresses across the cluster's history.
  *
- * **CT-08 hardening (cluster-id mismatch precedes state lookup).** The
- * very first check this builtin performs is whether the validating
- * record's `cluster_id` matches the `cluster_id` declared on the supplied
- * state. A mismatch returns `CLUSTER_ID_MISMATCH` BEFORE any state-map
- * lookup. This prevents a class of bug where a cross-cluster lookup
- * succeeds silently — e.g., consumer calls validate() with state for
- * cluster A but the record's `cluster_id` is cluster B, and the
- * per-cluster Map happens to contain B's history under the same key. The
- * mismatch check is the load-bearing trust boundary.
+ * **Precedence ladder.** The check order inside this builtin is fixed
+ * and load-bearing — each step is a documented gate that must run before
+ * the next can be trusted:
+ *
+ *   1. Record shape validation (record is non-null, non-array object).
+ *   2. Field type validation (signer_id, sequence, key_version etc.
+ *      resolve to strings on the record).
+ *   3. State runtime-shape validation (`state.last_sequence` is a `Map`
+ *      instance; required because TypeScript type erasure can't enforce
+ *      runtime shape across consumer trust boundaries — iter-1 HIGH
+ *      F-002/F-003 mitigation).
+ *   4. **CT-08 cluster-id mismatch** (record cluster_id ≠ state
+ *      cluster_id). Fires BEFORE any state-map `.get` lookup so a
+ *      cross-cluster lookup cannot silently succeed.
+ *   5. State-absent (deferred) branch (returns `valid: true` +
+ *      `SEQUENCE_CONTEXT_DEFERRED` diagnostic when the consumer didn't
+ *      supply state).
+ *   6. CT-03 numeric-regex pre-validation (rejects malformed
+ *      string-encoded BigInts before invoking `BigInt()`).
+ *   7. Key-version monotonicity (`KEY_VERSION_REGRESSION` if record's
+ *      key_version < state's highest_key_version).
+ *   8. Sequence monotonicity (`SEQUENCE_MONOTONIC_VIOLATION` if record's
+ *      sequence ≤ last-observed sequence for the
+ *      `(signer_id, key_version)` composite key).
+ *
+ * Reordering these steps would break load-bearing invariants: shape
+ * validation gates type-safe access; runtime-shape validation gates
+ * `.get` calls; CT-08 gates the state-map lookup; CT-03 gates `BigInt()`
+ * construction. The CT-08 spy-test (`'CT-08 mismatch check fires BEFORE
+ * last_sequence Map.get is called'`) locks the cluster-id-precedes-lookup
+ * ordering structurally — moving CT-08 below the state lookup would fail
+ * the test.
  *
  * **CT-03 string→BigInt parsing.** `sequence` and `key_version` are
  * declared as string-encoded BigInt on the wire (per the cycle-005 RC2
@@ -97,11 +120,28 @@ export interface EvaluateSequenceMonotonicResult {
 
 /**
  * Compose the `(signer_id, key_version)` key used for the per-cluster
- * `last_sequence` map. Keeping this as a single concatenation function
- * makes the cross-runner contract explicit: the format is stable.
+ * `last_sequence` map.
+ *
+ * Uses **`JSON.stringify` injective serialization** rather than a delimiter
+ * character. A naive delimiter (e.g. `${signerId}|${keyVersion}`) is
+ * forgeable when either component admits the delimiter character — e.g.
+ * `('a|b', 'c')` and `('a', 'b|c')` would collide on `"a|b|c"`, producing
+ * a cross-signer state-collision in a security-relevant map. Iter-1
+ * bridge consensus (HIGH F-CVE-class) flagged this as the same bug class
+ * behind CVE-2020-1971 (OpenSSL) and SAML signature-wrapping attacks.
+ *
+ * `JSON.stringify([signerId, keyVersion])` produces an injective encoding
+ * for any string content: the JSON array form preserves ordinal
+ * separation via length-prefixed structure (each string is bracketed by
+ * `"..."` with internal special characters escaped) and the array shape
+ * itself is unambiguous. The encoding is deterministic and stable across
+ * cross-language runners (TS / Go / Python / Rust JSON serializers all
+ * agree on `["a","b"]` for two ASCII strings).
+ *
+ * @see iter-1 bridge finding "Composite key uses a potentially unsafe delimiter"
  */
 export function composeSequenceKey(signerId: string, keyVersion: string): string {
-  return `${signerId}|${keyVersion}`;
+  return JSON.stringify([signerId, keyVersion]);
 }
 
 /**
@@ -149,6 +189,27 @@ export function evaluateSequenceMonotonicPerCluster(
         message:
           'sequence_monotonic_per_cluster: cluster_id, signer_id, sequence, and ' +
           'key_version must all resolve to string values on the record',
+      },
+    };
+  }
+
+  // F-002/F-003 mitigation (iter-1 HIGH): runtime shape validation for
+  // state. TypeScript's structural type "ReadonlyMap" evaporates at runtime;
+  // a consumer passing a plain object, a deserialized JSON shape, or null
+  // would invoke `.get` on a non-Map and throw an uncaught TypeError at a
+  // security boundary. Validate the shape explicitly before any field
+  // access, returning the structured SEQUENCE_INVALID_INPUT diagnostic on
+  // mismatch.
+  if (state !== undefined && !(state.last_sequence instanceof Map)) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'SEQUENCE_INVALID_INPUT',
+        message:
+          'sequence_monotonic_per_cluster: state.last_sequence must be a Map ' +
+          'instance. Consumer-supplied state crosses a trust boundary; the ' +
+          'library validates the runtime shape rather than relying on ' +
+          'TypeScript type erasure.',
       },
     };
   }

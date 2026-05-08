@@ -933,9 +933,24 @@ class Parser {
    * caller via `evaluateConstraint(data, expr, { nonce_window: ... })`).
    * When state is absent, the standalone evaluator returns `{ valid: true,
    * diagnostic: 'NONCE_CONTEXT_DEFERRED' }` — the DSL wrapper here returns
-   * `true` so the constraint passes; consumers wanting the diagnostic
-   * surface should use the standalone evaluator at
-   * `src/constraints/builtins/nonce-unique-per-signer-window.ts`.
+   * `true` so the constraint passes.
+   *
+   * **DSL-vs-standalone diagnostic-loss contract (iter-1 MEDIUM F3).**
+   * The constraint-DSL surface is intentionally boolean-only; the parser
+   * methods discard the structured diagnostic returned by the standalone
+   * evaluator. This is by design — the constraint-DSL is the cross-runner
+   * conformance surface and must produce identical boolean output across
+   * TS / Go / Python / Rust. Threading structured diagnostics through the
+   * DSL would (a) widen the cross-runner contract beyond what's currently
+   * specified, and (b) couple every cross-language runner author to the
+   * exact diagnostic-code taxonomy (which evolves separately from the DSL
+   * grammar). **Operators investigating a DSL-driven failure MUST call
+   * the standalone `evaluateNonceUniquePerSignerWindow` (or the sibling
+   * evaluator for sequence/chain) to get the actionable code.** The
+   * eventual diagnostic-bus design (where the parser threads diagnostics
+   * via an `EvaluationContext.diagnostics` sink) is a v8.7.0+ candidate;
+   * scoping it into FR-C1 would couple the runtime layer to the cross-
+   * runner contract without precedent.
    *
    * @since v8.6.0 — FR-C1 (PR-A3.3)
    */
