@@ -22,9 +22,17 @@
  * operators can size the producer budget correctly without re-running
  * the validation.
  *
+ * **Runtime portability** — the implementation uses `TextEncoder`, the
+ * web-standard surface available in every modern JS runtime (Node ≥
+ * 11, Cloudflare Workers, Vercel Edge, Deno, browsers). Cross-runner
+ * conformance equivalents: Go `len([]byte(s))`; Python
+ * `len(s.encode('utf-8'))`; Rust `s.len()` (for valid UTF-8). All four
+ * yield byte-identical counts for valid UTF-8 input, which the
+ * cross-runner conformance harness asserts.
+ *
  * @see SDD §3.5 — FR-B3 OracleDigest.telegram_variant_md_below_4kb
  * @see SDD §4.6 — LOCAL helper builtins
- * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002)
+ * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F-003 portability)
  */
 
 export type Utf8ByteLengthErrorCode =
@@ -86,7 +94,13 @@ export function evaluateUtf8ByteLengthMax(
     };
   }
 
-  const actualBytes = Buffer.byteLength(value, 'utf8');
+  // PR-A3.5 iter-2 F-003: use the web-standard TextEncoder API rather than
+  // Node-only `Buffer.byteLength` so the builtin runs unchanged in
+  // Cloudflare Workers, Vercel Edge, Deno (default), and browsers. Both
+  // surfaces yield byte-identical counts for valid UTF-8 input; TextEncoder
+  // is the Cloudflare/MDN-recommended portability choice and does not
+  // require a Node polyfill in non-Node runtimes.
+  const actualBytes = new TextEncoder().encode(value).length;
   if (actualBytes > byteCap) {
     return {
       valid: false,

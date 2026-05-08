@@ -1154,7 +1154,16 @@ class Parser {
    * emoji). Used on `OracleDigest.telegram_variant_md_below_4kb` to
    * enforce the Telegram 4 KB byte cap correctly.
    *
-   * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002)
+   * iter-2 F8: rather than short-circuit on a non-numeric byteCap (which
+   * would conflate "malformed expression" with "value exceeds cap"), the
+   * DSL wrapper hands the argument straight to the standalone evaluator,
+   * which emits the structured `UTF8_BYTE_LENGTH_INVALID_INPUT`
+   * diagnostic. The boolean surface still returns `false`, but the
+   * underlying diagnostic taxonomy is preserved for direct callers and
+   * for any future evaluator path that surfaces diagnostics through the
+   * UnverifiedObligationsManifest.
+   *
+   * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F8 diagnostic)
    */
   private parseUtf8ByteLengthMax(): boolean {
     this.advance(); // consume 'utf8_byte_length_max'
@@ -1164,8 +1173,12 @@ class Parser {
     const byteCap = this.parseExpr();
     this.expect('paren', ')');
 
-    if (typeof byteCap !== 'number') return false;
-    const result = evaluateUtf8ByteLengthMax(value, byteCap);
+    // Hand both arguments to the standalone evaluator unconditionally;
+    // its input-validation path emits UTF8_BYTE_LENGTH_INVALID_INPUT for
+    // non-numeric / non-positive-integer byteCap (preserving the
+    // structural-error vs constraint-violation distinction even though
+    // the DSL wrapper itself can only return a boolean).
+    const result = evaluateUtf8ByteLengthMax(value, byteCap as number);
     return result.valid;
   }
 

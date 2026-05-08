@@ -9,6 +9,7 @@
 import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema, FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
+import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1081,7 +1082,33 @@ registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidat
 // the only schema with a library-evaluated invariant (FR-B7
 // percentiles_monotonic_nondecreasing); the rest are pure-shape +
 // pattern-validated by TypeBox structurally.
-registerCrossFieldValidator('OracleDigest', constraintFileOnlyValidator);
+//
+// PR-A3.5 iter-2 F-002: OracleDigest carries an inline byte-cap
+// invariant (OD-2) on `telegram_variant_md_below_4kb`. JSON Schema's
+// `maxLength` keyword counts UTF-16 code units, not UTF-8 bytes, so a
+// structural-only consumer (e.g., `Value.Check(OracleDigestSchema, x)`)
+// would accept a 4096-emoji string that encodes to ~16 KB on the wire
+// — past Telegram's 4 KB cap. The validator wired below runs the byte
+// cap inline so any call into the library's `validate()` surface
+// catches the bypass without requiring the consumer to invoke
+// `evaluateConstraint()` separately.
+registerCrossFieldValidator('OracleDigest', (data) => {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const digest = data as { telegram_variant_md_below_4kb?: unknown };
+  const telegramBody = digest.telegram_variant_md_below_4kb;
+  if (typeof telegramBody === 'string') {
+    const result = evaluateUtf8ByteLengthMax(telegramBody, 4096);
+    if (!result.valid && result.diagnostic) {
+      errors.push(
+        `OD-2 (telegram_variant_md_below_4kb): ${result.diagnostic.message}`,
+      );
+    }
+  }
+  return errors.length > 0
+    ? { valid: false, errors, warnings }
+    : { valid: true, errors: [], warnings };
+});
 registerCrossFieldValidator('OracleHealthEnvelope', constraintFileOnlyValidator);
 registerCrossFieldValidator('EscalationEnvelope', constraintFileOnlyValidator);
 registerCrossFieldValidator('RollbackPlan', constraintFileOnlyValidator);
