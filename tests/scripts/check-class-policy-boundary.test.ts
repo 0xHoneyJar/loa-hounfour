@@ -316,4 +316,20 @@ export { safeCanonicalize } from '../utilities/safe-canonicalize.js';
     const content = `export * from './a.js';\nexport * as ns from './b.js';\n`;
     expect(checkRule6('src/utilities/index.ts', content, noAllow)).toHaveLength(0);
   });
+
+  // F-003 (iter-2) — type-only re-exports. `export type { } from` was a
+  // bypass for the original regex; a canonicalize-named type-only re-export
+  // without an annotation must still be flagged.
+  it('flags `export type { } from` re-exports of canonicalize-named types', () => {
+    const content = `export type { CanonicalizeOptions } from '../utilities/safe-canonicalize.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('accepts `export type { } from` when @experimental is adjacent', () => {
+    const content = `
+// @experimental — type-only re-export under canonicalization-spec governance.
+export type { CanonicalizeOptions } from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
 });

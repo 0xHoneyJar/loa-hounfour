@@ -64,9 +64,11 @@ This step preserves shape parity with `JSON.stringify` output. The reference TS 
 
 ## 5. Object key ordering
 
-Within each object, keys are sorted **lexicographically by Unicode code point** (NOT by UTF-16 code unit; NOT by collation). RFC 8785 §3.2.3 specifies this explicitly. Surrogates participate as their code-point value.
+Within each object, keys are sorted **lexicographically by UTF-16 code unit of the JSON member name**, exactly as RFC 8785 §3.2.3 prescribes. For Basic Multilingual Plane characters (the vast majority of schema field names — ASCII, Latin-1, CJK ideographs ≤ U+FFFF) this ordering is identical to Unicode-code-point ordering. For characters above U+FFFF (e.g. emoji, ancient scripts, supplementary planes) the UTF-16 surrogate pair encoding governs order, NOT the underlying code point. Two strings whose only difference is a supplementary character may sort differently under UTF-16 code units than under code points; cross-language runners MUST reproduce the UTF-16-code-unit ordering byte-exact.
 
 Empty objects produce `{}`; the order rule is vacuous for them.
+
+Rationale: RFC 8785 chose UTF-16 code units for symmetry with ECMAScript string-comparison semantics (`String.prototype.localeCompare(other, undefined, { sensitivity: 'variant' })` semantics, plus JS array-sort default). Diverging from RFC 8785 here would break cross-language hash parity with any consumer that mirrored the published reference. Schema-author guidance: avoid non-BMP characters in JSON keys — the conformance window for cross-language UTF-16 ordering is hardest to defend at the surrogate boundary.
 
 ## 6. RFC 8785 serialization
 

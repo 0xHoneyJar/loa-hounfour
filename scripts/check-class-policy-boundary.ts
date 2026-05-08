@@ -118,7 +118,11 @@ const RULE_5_PATTERN = /(?:from|require\()\s*['"]canonicalize['"]/g;
 // canonicalization-helper exports, not arbitrary hash-named symbols (which
 // are stable utilities under v8.5.x semver). Pattern matches the canonical
 // English-and-American spellings.
-const RULE_6_EXPORT_BLOCK_PATTERN = /^export\s+\{([^}]*)\}\s+from\s+['"][^'"]+['"]\s*;/gm;
+// Matches both `export { ... } from '...'` and the type-only re-export form
+// `export type { ... } from '...'`. The optional `type` keyword sits between
+// `export` and `{`. ASI-omitted-semicolon variants are not matched — the
+// codebase consistently terminates exports with semicolons.
+const RULE_6_EXPORT_BLOCK_PATTERN = /^export\s+(?:type\s+)?\{([^}]*)\}\s+from\s+['"][^'"]+['"]\s*;/gm;
 const RULE_6_BARRED_NAME_PATTERN = /canonicaliz/i;
 // `export * from '...'` and `export * as ns from '...'` are forbidden in
 // the guarded path entirely: they bypass name-level inspection, so a

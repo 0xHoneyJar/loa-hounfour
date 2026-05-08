@@ -26,16 +26,28 @@ jobs:
       - name: Determine diff base
         id: base
         run: |
+          set -euo pipefail
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             base="${{ github.event.pull_request.base.sha }}"
           else
-            # push-to-main: diff the current commit against its parent.
             base="${{ github.event.before }}"
-            # github.event.before is all-zeros on first commit to a new branch.
             if [[ "$base" == "0000000000000000000000000000000000000000" ]]; then
               base="$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)"
             fi
           fi
+
+          # Validate base is reachable in the local clone. Force-pushes can
+          # leave `before` unreachable; fall back to merge-base against
+          # origin/main rather than silently passing.
+          if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "warn: diff base $base unreachable in this checkout — falling back to merge-base origin/main"
+            base="$(git merge-base origin/main HEAD 2>/dev/null || echo "")"
+            if [[ -z "$base" ]] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+              echo "::error::Cannot resolve a valid diff base; refusing to silent-pass."
+              exit 1
+            fi
+          fi
+
           echo "diff_base=$base" >> "$GITHUB_OUTPUT"
           echo "Diff base: $base"
 
@@ -47,20 +59,25 @@ jobs:
           # for rationale (avoids false-positives on the npm scope substring).
           pattern='\bLoa\b|\b[Ss]pirals?\b|\b[Ss]imstim\b|\b[Ff]latline\b|\b[Bb]ridgebuilder\b|\b[Bb]utterfreezone\b|\b[Gg]rimoires?\b|\bbeads\b|\brun-mode\b|\balways-on-vps\b'
 
-          # Diff content-bearing lines only; exclude --- / +++ headers.
-          diff_output="$(git diff --no-color "$base"...HEAD 2>/dev/null || true)"
+          # Fail loud if git diff itself fails — `|| true` would mask a real
+          # error and produce a silent green.
+          diff_output="$(git diff --no-color "$base"...HEAD)"
+
+          # Inspect ADDITIONS only (lines starting with `+`, excluding `+++`
+          # file headers). Deletions are exempt so cleanup commits that
+          # remove a previously-introduced term aren't blocked.
           forbidden="$(printf '%s\n' "$diff_output" \
-            | grep -E '^[+-]' \
-            | grep -vE '^(---|\+\+\+)' \
+            | grep -E '^\+' \
+            | grep -vE '^\+\+\+' \
             | grep -E "$pattern" \
             || true)"
 
           if [[ -n "$forbidden" ]]; then
-            echo "::error::pollution-grep: committed diff contains forbidden framework-internal term(s)."
+            echo "::error::pollution-grep: committed diff adds forbidden framework-internal term(s)."
             echo "$forbidden" | head -50
             echo ""
-            echo "The committed surface must contain ZERO references to framework-internal concepts."
+            echo "The committed surface must contain ZERO net additions of framework-internal concepts."
             exit 1
           fi
 
-          echo "OK: committed diff clean of pollution terms."
+          echo "OK: committed diff clean of pollution-term additions."

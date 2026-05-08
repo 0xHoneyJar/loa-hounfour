@@ -50,11 +50,12 @@ set -euo pipefail
 # insensitively. See CLAUDE.local.md for the full term list and rationale.
 pattern='\bLoa\b|\b[Ss]pirals?\b|\b[Ss]imstim\b|\b[Ff]latline\b|\b[Bb]ridgebuilder\b|\b[Bb]utterfreezone\b|\b[Gg]rimoires?\b|\bbeads\b|\brun-mode\b|\balways-on-vps\b'
 
-# Inspect content-bearing lines only (lines starting with + or -, excluding
-# the --- / +++ file headers).
+# Inspect ADDITIONS only (lines starting with `+`, excluding `+++` file
+# headers). Matching deletions would block legitimate cleanup commits that
+# remove a previously-introduced forbidden term.
 forbidden="$(git diff --cached --no-color 2>/dev/null \
-  | grep -E '^[+-]' \
-  | grep -vE '^(---|\+\+\+)' \
+  | grep -E '^\+' \
+  | grep -vE '^\+\+\+' \
   | grep -E "$pattern" \
   || true)"
 
