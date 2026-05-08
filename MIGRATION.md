@@ -1,4 +1,4 @@
-<!-- docs-version: 8.6.0 -->
+<!-- docs-version: 8.6.0-inflight -->
 
 # Migration & Schema Evolution Guide
 
@@ -49,6 +49,33 @@ must reference both the four required artifacts AND the strength of the
 impossibility proof. The first invocation (FR-A5, this document) sets
 precedent. Future invocations citing this policy must demonstrate
 equally bulletproof impossibility — the bar does not lower with usage.
+
+### Acceptable proof classes
+
+To prevent norm decay through subjective proof-strength judgment, the
+classes of impossibility proof that qualify under this policy are
+enumerated:
+
+| Proof class | Qualifying example | Disqualifying example |
+|---|---|---|
+| **RFC-mandated byte-length encoding math** | "Ed25519 signatures are 64 bytes; RFC 4648 §5 unpadded base64url encodes 64 bytes to exactly 86 characters" (FR-A5) | "Most signatures we've seen are 86 chars" |
+| **Cryptographic-primitive output size** | "SHA-256 outputs 32 bytes; hex-encoded `^[a-f0-9]{64}$` cannot accept any other length" | "Our consumers all use SHA-256" |
+| **Formal protocol invariants** | "RFC 8785 forbids whitespace in canonical JSON; `\s` characters cannot appear in any spec-conformant payload" | "We've never seen whitespace in payloads" |
+
+**Disqualifying proof classes** (NOT acceptable under this policy):
+
+- "No observed consumer use" alone — corpus-survey evidence is
+  corroborative only; it is not a proof class on its own.
+- "We control the producer side" — controlling current producers does
+  not constrain future producers or non-conformant third-party libraries.
+- "The narrowed-out range is ambiguous in the spec" — ambiguity is not
+  impossibility; spec-disambiguation work belongs in a major bump.
+
+**Second-reviewer requirement.** Any future MIGRATION.md entry invoking
+`PSEUDO-MAJOR-EQUIVALENT-NULL` must include a named second-reviewer
+sign-off line confirming the impossibility proof falls into one of the
+qualifying proof classes above. The first invocation (FR-A5) serves as
+the reviewed precedent; subsequent invocations carry their own sign-off.
 
 The first invocation is FR-A5 below; subsequent narrowings must satisfy
 the same bar.
@@ -132,6 +159,21 @@ validate. Producers emitting `{87}` or `{88}` padded forms — observed
 nowhere as of the audit — would need to switch to unpadded encoding;
 this is the canonical RFC 4648 §5 form for ed25519 as used elsewhere
 in the surface.
+
+**Forward pointer — `ed25519-pub` follow-up.** The same impossibility
+argument that gates this signature narrowing also applies to the
+`signed_by` field's `ed25519-pub` pattern. By RFC 4648 §5 math, ed25519
+public keys (32 bytes) encode to exactly 43 unpadded base64url
+characters (`ceil(32 * 8 / 6) = 43`, no remainder, no `=` padding). The
+present `^ed25519-pub:[A-Za-z0-9_-]{43,44}$` pattern admits a `{44}`
+form that is mathematically unreachable for any spec-conformant
+producer. A follow-up FR in v8.7.0 would narrow this under the same
+`PSEUDO-MAJOR-EQUIVALENT-NULL` framework — same proof class
+(RFC-mandated byte-length), same artifact requirements, same audit
+template. FR-A5 was deliberately scoped to the `signature` field only
+to avoid bundling a second narrowing into a precedent-setting first
+invocation; the framework now enables the public-key narrowing as a
+clean follow-up.
 
 **Forward pointer to v9.0.0.** If at any point during the v8.6.x line a
 consumer surfaces a real `{87,88}` payload, it is captured as a
