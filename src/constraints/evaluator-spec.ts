@@ -1831,7 +1831,7 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Exact-cap (actual_bytes === byte_cap) passes (≤ check)',
       'Non-string value returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
       'Non-positive or non-integer byte_cap returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
-      'Cross-runner: TS Buffer.byteLength(s, "utf8"); Go len([]byte(s)); Python len(s.encode("utf-8")); Rust s.len() — all yield the same byte count for valid UTF-8 input',
+      'Cross-runner: TS new TextEncoder().encode(s).length (web-standard, runs in Node/Workers/Edge/Deno/browsers); Go len([]byte(s)); Python len(s.encode("utf-8")); Rust s.len() — all yield the same byte count for valid UTF-8 input',
     ],
   }],
 ]);

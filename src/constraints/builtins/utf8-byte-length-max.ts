@@ -6,13 +6,16 @@
  * UTF-8 byte length is ≤ the configured cap; `valid: false` with a
  * `UTF8_BYTE_LENGTH_EXCEEDED` diagnostic otherwise.
  *
- * **Why this is distinct from `maxLength`** — JSON Schema's `maxLength`
- * keyword counts UTF-16 code units (in JS) or codepoints (in some
- * implementations); it does NOT count UTF-8 bytes. A 4096-emoji string
- * has `maxLength: 4096` valid (4096 code units, but ~16 KB UTF-8
- * bytes). When the downstream system (Telegram, Twitter pre-2018)
- * enforces UTF-8 byte caps, the schema must enforce UTF-8 byte caps
- * too. This builtin provides that surface.
+ * **Why this is distinct from `maxLength`** — JSON Schema 2020-12
+ * §6.3.1 defines `maxLength` against the underlying string-type
+ * representation, which in JavaScript surfaces as UTF-16 code units;
+ * other validator implementations may instead count Unicode code
+ * points. Neither counts UTF-8 bytes. A multi-byte string can pass
+ * `maxLength: 4096` while exceeding 4 KB on the wire because non-ASCII
+ * code points encode to 2-4 UTF-8 bytes each (CJK = 3 bytes, emoji =
+ * 4 bytes). When the downstream system (Telegram 4 KB, Twitter
+ * pre-2018) enforces UTF-8 byte caps, the schema must enforce UTF-8
+ * byte caps too. This builtin provides that surface.
  *
  * **LOCAL** because the cap is a property of the string alone — no
  * consumer-supplied state is needed (matches the `canonical_size_cap`
@@ -64,7 +67,7 @@ export interface EvaluateUtf8ByteLengthMaxResult {
  */
 export function evaluateUtf8ByteLengthMax(
   value: unknown,
-  byteCap: number,
+  byteCap: unknown,
 ): EvaluateUtf8ByteLengthMaxResult {
   if (typeof value !== 'string') {
     return {
@@ -109,8 +112,8 @@ export function evaluateUtf8ByteLengthMax(
         message:
           `utf8_byte_length_max: UTF-8 byte length ${actualBytes} ` +
           `exceeds cap ${byteCap}. Note: a string with ${value.length} ` +
-          `JS code units encodes to ${actualBytes} UTF-8 bytes — multi-byte ` +
-          `characters (CJK, emoji) consume more than 1 byte each.`,
+          `JS UTF-16 code units encodes to ${actualBytes} UTF-8 bytes — ` +
+          `non-ASCII code points consume 2-4 bytes each (CJK = 3, emoji = 4).`,
         actual_bytes: actualBytes,
         cap_bytes: byteCap,
       },

@@ -1177,8 +1177,12 @@ class Parser {
     // its input-validation path emits UTF8_BYTE_LENGTH_INVALID_INPUT for
     // non-numeric / non-positive-integer byteCap (preserving the
     // structural-error vs constraint-violation distinction even though
-    // the DSL wrapper itself can only return a boolean).
-    const result = evaluateUtf8ByteLengthMax(value, byteCap as number);
+    // the DSL wrapper itself can only return a boolean). iter-3 F4: the
+    // standalone evaluator now accepts `unknown` for both arguments and
+    // type-guards internally, so no `as number` cast is needed at the
+    // DSL boundary — a string-literal byte_cap (e.g., from a malformed
+    // expression) surfaces UTF8_BYTE_LENGTH_INVALID_INPUT cleanly.
+    const result = evaluateUtf8ByteLengthMax(value, byteCap);
     return result.valid;
   }
 

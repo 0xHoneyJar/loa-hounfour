@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.5.2",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-08T16:24:20.056Z",
+  "generated_at": "2026-05-08T17:22:22.409Z",
   "schemas": [
     {
       "name": "jwt-claims",

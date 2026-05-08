@@ -10,6 +10,7 @@ import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema, FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
 import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
+import { OracleDigestSchema } from '../operations/oracle-digest.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1092,17 +1093,34 @@ registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidat
 // cap inline so any call into the library's `validate()` surface
 // catches the bypass without requiring the consumer to invoke
 // `evaluateConstraint()` separately.
+//
+// PR-A3.5 iter-3 F5/F12: the validator is now metadata-driven —
+// rather than hard-coding the field name and cap, it reads
+// `'x-canonical-size-cap-bytes-of-field'` off the schema (per
+// `src/operations/oracle-digest.ts`) and iterates every entry. The
+// schema becomes the single source of truth: adding a second
+// byte-capped field needs only the schema annotation, not a parallel
+// validator edit. The defensive object-shape guard handles the case
+// where structural validation does not precede cross-field validation
+// (current ordering does, but the convention shouldn't depend on it).
 registerCrossFieldValidator('OracleDigest', (data) => {
+  if (data === null || typeof data !== 'object') {
+    return { valid: true, errors: [], warnings: [] };
+  }
   const errors: string[] = [];
   const warnings: string[] = [];
-  const digest = data as { telegram_variant_md_below_4kb?: unknown };
-  const telegramBody = digest.telegram_variant_md_below_4kb;
-  if (typeof telegramBody === 'string') {
-    const result = evaluateUtf8ByteLengthMax(telegramBody, 4096);
-    if (!result.valid && result.diagnostic) {
-      errors.push(
-        `OD-2 (telegram_variant_md_below_4kb): ${result.diagnostic.message}`,
-      );
+  const schemaRecord = OracleDigestSchema as unknown as Record<string, unknown>;
+  const fieldCaps = schemaRecord['x-canonical-size-cap-bytes-of-field'];
+  if (fieldCaps !== null && typeof fieldCaps === 'object') {
+    const record = data as Record<string, unknown>;
+    for (const [fieldName, byteCap] of Object.entries(fieldCaps as Record<string, unknown>)) {
+      if (typeof byteCap !== 'number') continue;
+      const fieldValue = record[fieldName];
+      if (typeof fieldValue !== 'string') continue;
+      const result = evaluateUtf8ByteLengthMax(fieldValue, byteCap);
+      if (!result.valid && result.diagnostic) {
+        errors.push(`OD-2 (${fieldName}): ${result.diagnostic.message}`);
+      }
     }
   }
   return errors.length > 0

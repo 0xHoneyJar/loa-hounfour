@@ -40,9 +40,14 @@ export const OracleHealthEnvelopeSchema = Type.Object(
     cluster_id: Type.String({ minLength: 1 }),
     wal_size_bytes: Type.String({
       pattern: '^[0-9]+$',
+      maxLength: 30,
       description:
         'String-encoded ≥0 integer (CT-03; consumer parses to BigInt ' +
-        'post-validation). Admits "0" as the empty-WAL sentinel.',
+        'post-validation). Admits "0" as the empty-WAL sentinel. ' +
+        'maxLength: 30 caps inputs well above the 64-bit byte range ' +
+        '(2^64 ≈ 20 digits) without permitting megabyte-sized numeric ' +
+        'strings that would force downstream BigInt parsers to absorb ' +
+        'unbounded allocation cost (PR-A3.5 iter-3 F8).',
     }),
     wal_checksum: Type.String({ pattern: SHA256_HEX_PATTERN }),
     last_emission_consumed_ts: Type.String({ pattern: ISO8601_UTC_PATTERN }),
