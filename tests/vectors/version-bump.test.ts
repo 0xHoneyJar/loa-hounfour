@@ -287,6 +287,6 @@ describe('version bump', () => {
     // Estate (5: ForgetRecord, CommitmentType, CommitmentRoot, AgentEstateStatus,
     // AgentEstate) + Assertion family (5: PrivacyScope, RiskLevel, AssertionStatus,
     // AssertionClass, Assertion) → 234.
-    expect(index.schemas).toHaveLength(236);
+    expect(index.schemas).toHaveLength(245);
   });
 });

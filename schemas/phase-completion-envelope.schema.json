@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope",
   "additionalProperties": false,
+  "x-cross-field-validated": true,
   "x-crypto-bearing": true,
   "x-chain-bearing": true,
   "x-canonical-size-cap-bytes": 4096,

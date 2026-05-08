@@ -2,7 +2,7 @@
 
 **Contract version:** 8.5.2
 **Min supported:** 6.0.0
-**Schemas:** 236
+**Schemas:** 245
 
 ## Schemas
 
@@ -244,6 +244,15 @@
 | assertion | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion` | [assertion.schema.json](assertion.schema.json) |
 | phase-completion-envelope-tier1 | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope-tier1` | [phase-completion-envelope-tier1.schema.json](phase-completion-envelope-tier1.schema.json) |
 | phase-completion-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope` | [phase-completion-envelope.schema.json](phase-completion-envelope.schema.json) |
+| pulse-kind | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/pulse-kind` | [pulse-kind.schema.json](pulse-kind.schema.json) |
+| oracle-digest | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-digest` | [oracle-digest.schema.json](oracle-digest.schema.json) |
+| model-call-circuit-breaker-state | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/model-call-circuit-breaker-state` | [model-call-circuit-breaker-state.schema.json](model-call-circuit-breaker-state.schema.json) |
+| oracle-health-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-health-envelope` | [oracle-health-envelope.schema.json](oracle-health-envelope.schema.json) |
+| escalation-severity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/escalation-severity` | [escalation-severity.schema.json](escalation-severity.schema.json) |
+| escalation-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/escalation-envelope` | [escalation-envelope.schema.json](escalation-envelope.schema.json) |
+| rollback-plan | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/rollback-plan` | [rollback-plan.schema.json](rollback-plan.schema.json) |
+| latency-histogram-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/latency-histogram-envelope` | [latency-histogram-envelope.schema.json](latency-histogram-envelope.schema.json) |
+| epic-checkpoint | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/epic-checkpoint` | [epic-checkpoint.schema.json](epic-checkpoint.schema.json) |
 
 ## Usage
 

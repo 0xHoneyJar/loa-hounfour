@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-health-envelope",
+  "additionalProperties": false,
+  "description": "Operational health snapshot of an oracle cluster. Heartbeat cadence (typically 60s). Cross-correlates with OracleDigest via shared pulse_attention_breakdown shape.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "wal_size_bytes",
+    "wal_checksum",
+    "last_emission_consumed_ts",
+    "pending_escalations_count",
+    "model_call_circuit_breaker_state",
+    "pulse_attention_breakdown"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "const": "oracle_health",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "wal_size_bytes": {
+      "pattern": "^[0-9]+$",
+      "description": "String-encoded ≥0 integer (CT-03; consumer parses to BigInt post-validation). Admits \"0\" as the empty-WAL sentinel.",
+      "type": "string"
+    },
+    "wal_checksum": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "type": "string"
+    },
+    "last_emission_consumed_ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "pending_escalations_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "model_call_circuit_breaker_state": {
+      "description": "Three-state circuit-breaker enum for the cluster's model-call dispatch path. \"healthy\" = unrestricted dispatch; \"degraded\" = reduced-rate / fallback; \"open\" = stop dispatch + drain in-flight. State-to-policy mapping is consumer-side per ADR-010.",
+      "anyOf": [
+        {
+          "const": "healthy",
+          "type": "string"
+        },
+        {
+          "const": "degraded",
+          "type": "string"
+        },
+        {
+          "const": "open",
+          "type": "string"
+        }
+      ]
+    },
+    "pulse_attention_breakdown": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "strategy",
+        "inter_oracle_conflict",
+        "escalation"
+      ],
+      "properties": {
+        "strategy": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "inter_oracle_conflict": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "escalation": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

@@ -21,7 +21,7 @@ describe('EvaluatorBuiltinSpec registry', () => {
   });
 
   it('has one spec per registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(49);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(50);
   });
 
   for (const builtin of EVALUATOR_BUILTINS) {

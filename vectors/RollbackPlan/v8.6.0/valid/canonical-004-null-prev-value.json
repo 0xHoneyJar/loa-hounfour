@@ -1,0 +1,26 @@
+{
+  "envelope_kind": "rollback_plan",
+  "contract_version": "8.6.0",
+  "epic_id": "epic-001",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "prs_to_revert": [
+    {
+      "repo": "org/repo",
+      "pr_number": 42,
+      "merge_commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "beads_to_reopen": [
+    {
+      "bead_id": "task-001",
+      "desired_status": "open"
+    }
+  ],
+  "env_changes_to_undo": [
+    {
+      "key": "X",
+      "previous_value": null
+    }
+  ]
+}

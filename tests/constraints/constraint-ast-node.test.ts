@@ -126,10 +126,10 @@ describe('Evaluator correctness after F-020 typing', () => {
 
 describe('EVALUATOR_BUILTINS count tracks the registered set', () => {
   it('EVALUATOR_BUILTINS contains the registered set of builtins', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(49);
+    expect(EVALUATOR_BUILTINS).toHaveLength(50);
   });
 
   it('EVALUATOR_BUILTIN_SPECS has one spec per registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(49);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(50);
   });
 });

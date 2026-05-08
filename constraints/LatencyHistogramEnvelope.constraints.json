@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "LatencyHistogramEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "LHE-1",
+      "expression": "percentiles_monotonic_nondecreasing(measurements)",
+      "severity": "error",
+      "message": "Latency percentiles MUST be non-decreasing: p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms (FR-B7).",
+      "fields": ["measurements"],
+      "evaluator": "library",
+      "evaluation_note": "FR-B7 percentile monotonicity. Library-evaluated by the LOCAL builtin `percentiles_monotonic_nondecreasing` (NEW in PR-A3.5). Pure-shape: no consumer state required, no manifest emission for 'deferred' (the property is evaluable from the envelope alone). Reports the FIRST violating pair (e.g., 'p95_ms < p50_ms') so operators see the specific failing transition. Equal percentiles are allowed (≤ check, not <).",
+      "type_signature": {
+        "measurements": "object"
+      }
+    }
+  ]
+}

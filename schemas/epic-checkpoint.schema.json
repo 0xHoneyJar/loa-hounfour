@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/epic-checkpoint",
+  "additionalProperties": false,
+  "description": "Durable EPIC progress checkpoint. canonical_run_id resolves against a known CanonicalRunSchema instance via consumer-side registry; manifest surfaces the lookup obligation when registry context is absent.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "epic_id",
+    "canonical_run_id",
+    "current_phase",
+    "last_completed_gate",
+    "in_progress_tool_call",
+    "retry_count"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "const": "epic_checkpoint",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "epic_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "canonical_run_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "current_phase": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "last_completed_gate": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "in_progress_tool_call": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "tool_id",
+        "input_hash",
+        "start_ts"
+      ],
+      "properties": {
+        "tool_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "input_hash": {
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "64-hex sha256 of the tool-call inputs canonical form, used for idempotent retry detection.",
+          "type": "string"
+        },
+        "start_ts": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "type": "string"
+        }
+      }
+    },
+    "retry_count": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

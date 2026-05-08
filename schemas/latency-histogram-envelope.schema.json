@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/latency-histogram-envelope",
+  "additionalProperties": false,
+  "description": "Per-phase per-cluster latency percentile snapshot. The p50 ≤ p95 ≤ p99 ≤ max invariant is enforced via the LOCAL builtin percentiles_monotonic_nondecreasing(measurements) referenced from the constraint file.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "phase",
+    "measurements"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "const": "latency_histogram",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "phase": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "measurements": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "p50_ms",
+        "p95_ms",
+        "p99_ms",
+        "max_ms"
+      ],
+      "properties": {
+        "p50_ms": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "p95_ms": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "p99_ms": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_ms": {
+          "minimum": 0,
+          "type": "number"
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

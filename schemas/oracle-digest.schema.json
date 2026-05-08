@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-digest",
+  "additionalProperties": false,
+  "x-canonical-size-cap-bytes-of-field": {
+    "telegram_variant_md_below_4kb": 4096
+  },
+  "description": "Pulse-time cluster conformance digest. Three pulses per day per cluster_id. The telegram_variant_md_below_4kb field carries the 4 KB-capped markdown body for Telegram delivery; the full_markdown_s3_url points at the unconstrained-length s3://-stored full digest.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "pulse_id",
+    "pulse_kind",
+    "cluster_id",
+    "ts",
+    "headline",
+    "epic_summary_24h",
+    "subscription_pool_summary",
+    "stale_assumptions",
+    "pending_escalations_count",
+    "pulse_attention_breakdown",
+    "telegram_variant_md_below_4kb",
+    "full_markdown_s3_url"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "const": "oracle_digest",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "pulse_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "pulse_kind": {
+      "description": "Three-pulse-per-day cadence enum for OracleDigest. Each cluster emits exactly one OracleDigest per pulse_kind per day; the three literals together establish the diurnal frequency contract.",
+      "anyOf": [
+        {
+          "const": "morning",
+          "type": "string"
+        },
+        {
+          "const": "afternoon",
+          "type": "string"
+        },
+        {
+          "const": "evening",
+          "type": "string"
+        }
+      ]
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "headline": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "conformance_pct_7d",
+        "conformance_pct_7d_delta",
+        "inter_series_last_boolean",
+        "sosyete_divergence_pp"
+      ],
+      "properties": {
+        "conformance_pct_7d": {
+          "minimum": 0,
+          "maximum": 100,
+          "type": "number"
+        },
+        "conformance_pct_7d_delta": {
+          "type": "number"
+        },
+        "inter_series_last_boolean": {
+          "type": "boolean"
+        },
+        "sosyete_divergence_pp": {
+          "type": "number"
+        }
+      }
+    },
+    "epic_summary_24h": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "epic_id",
+          "status",
+          "conformance_pct"
+        ],
+        "properties": {
+          "epic_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "conformance_pct": {
+            "minimum": 0,
+            "maximum": 100,
+            "type": "number"
+          }
+        }
+      }
+    },
+    "subscription_pool_summary": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "healthy_account_count",
+        "rate_limited_account_count",
+        "exhausted_account_count"
+      ],
+      "properties": {
+        "healthy_account_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rate_limited_account_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "exhausted_account_count": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "stale_assumptions": {
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "pending_escalations_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "pulse_attention_breakdown": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "strategy",
+        "inter_oracle_conflict",
+        "escalation"
+      ],
+      "properties": {
+        "strategy": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "inter_oracle_conflict": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "escalation": {
+          "minimum": 0,
+          "maximum": 1,
+          "type": "number"
+        }
+      }
+    },
+    "telegram_variant_md_below_4kb": {
+      "maxLength": 4096,
+      "type": "string"
+    },
+    "full_markdown_s3_url": {
+      "pattern": "^s3://[a-z0-9.-]+/.+$",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

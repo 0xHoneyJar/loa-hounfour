@@ -29,6 +29,7 @@ import { evaluateSequenceMonotonicPerCluster } from './builtins/sequence-monoton
 import { evaluateChainValidatorPrevHash } from './builtins/chain-validator-prev-hash.js';
 import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
 import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
+import { evaluatePercentilesMonotonicNondecreasing } from './builtins/percentiles-monotonic-nondecreasing.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -237,6 +238,8 @@ class Parser {
       // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
       ['canonical_size_cap', () => this.parseCanonicalSizeCap()],
       ['signer_key_id_matches_derivation', () => this.parseSignerKeyIdMatchesDerivation()],
+      // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+      ['percentiles_monotonic_nondecreasing', () => this.parsePercentilesMonotonicNondecreasing()],
     ]);
   }
 
@@ -1116,6 +1119,25 @@ class Parser {
       keyVersionField,
       keyIdField,
     );
+    return result.valid;
+  }
+
+  /**
+   * Parse `percentiles_monotonic_nondecreasing(measurements)`.
+   *
+   * LOCAL builtin (v8.6.0, FR-B7): asserts the four percentile fields
+   * on a `LatencyHistogramEnvelope.measurements` object satisfy
+   * `p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`. No EvaluationContext needed.
+   *
+   * @since v8.6.0 — FR-B7 (PR-A3.5)
+   */
+  private parsePercentilesMonotonicNondecreasing(): boolean {
+    this.advance(); // consume 'percentiles_monotonic_nondecreasing'
+    this.expect('paren', '(');
+    const measurements = this.parseExpr();
+    this.expect('paren', ')');
+
+    const result = evaluatePercentilesMonotonicNondecreasing(measurements);
     return result.valid;
   }
 
@@ -2124,6 +2146,8 @@ export const EVALUATOR_BUILTINS = [
   // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
   'canonical_size_cap',
   'signer_key_id_matches_derivation',
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+  'percentiles_monotonic_nondecreasing',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

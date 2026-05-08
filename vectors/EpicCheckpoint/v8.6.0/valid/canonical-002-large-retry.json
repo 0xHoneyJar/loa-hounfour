@@ -1,0 +1,16 @@
+{
+  "envelope_kind": "epic_checkpoint",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "epic_id": "epic-001",
+  "canonical_run_id": "run-001",
+  "current_phase": "execution",
+  "last_completed_gate": "planning",
+  "in_progress_tool_call": {
+    "tool_id": "tool-A",
+    "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "start_ts": "2026-05-09T12:00:00Z"
+  },
+  "retry_count": 100
+}

@@ -1760,4 +1760,40 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Colon delimiter is byte-stable (ASCII 0x3A); cross-runner authors use the same delimiter byte',
     ],
   }],
+
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+  ['percentiles_monotonic_nondecreasing', {
+    name: 'percentiles_monotonic_nondecreasing',
+    signature: 'percentiles_monotonic_nondecreasing(measurements) → boolean',
+    description:
+      'LOCAL pure-shape latency-percentile monotonicity check. Asserts p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms on a LatencyHistogramEnvelope.measurements object. No consumer state needed — the property is evaluable from the envelope content alone. Reports the FIRST violating pair so operators see the specific failing transition.',
+    arguments: [
+      { name: 'measurements', type: 'object', description: 'Object with finite non-negative number fields p50_ms, p95_ms, p99_ms, max_ms.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Strict ascending percentiles pass',
+        context: { measurements: { p50_ms: 10, p95_ms: 50, p99_ms: 100, max_ms: 200 } },
+        expression: 'percentiles_monotonic_nondecreasing(measurements)',
+        expected: true,
+      },
+      {
+        description: 'All-equal percentiles pass (≤ allows equality)',
+        context: { measurements: { p50_ms: 5, p95_ms: 5, p99_ms: 5, max_ms: 5 } },
+        expression: 'percentiles_monotonic_nondecreasing(measurements)',
+        expected: true,
+      },
+    ],
+    edge_cases: [
+      'p50 > p95 returns false (PERCENTILES_MONOTONIC_VIOLATION at p95_ms < p50_ms)',
+      'p95 > p99 returns false (PERCENTILES_MONOTONIC_VIOLATION at p99_ms < p95_ms)',
+      'p99 > max returns false (PERCENTILES_MONOTONIC_VIOLATION at max_ms < p99_ms)',
+      'Equal percentiles allowed (non-strict ≤ check)',
+      'Non-finite numeric (NaN, Infinity) returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+      'Missing field returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+      'Non-object measurements returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+    ],
+  }],
 ]);

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "OracleDigest",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "OD-1",
+      "expression": "consumer SHOULD verify pulse_attention_breakdown.strategy + .inter_oracle_conflict + .escalation sums to ≤1.0 (with floating-point tolerance ε=0.01); soft constraint surfaced as ATTENTION_BREAKDOWN_OVERFLOW_SOFT manifest entry when sum > 1.0 by >0.01",
+      "severity": "warning",
+      "message": "pulse_attention_breakdown components SHOULD sum to ≤1.0 within ε=0.01 tolerance. Sum > 1.0 + 0.01 indicates likely producer-side miscalibration; the schema admits the looser shape because some legitimate consumer policies (weighted overlap, priority-stacking) emit overlapping attention.",
+      "fields": ["pulse_attention_breakdown"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Soft cross-field invariant. The schema enforces the per-component bounds (each in [0, 1]) at the structural layer; the sum-bound is consumer-side because legitimate weighted-overlap policies may exceed 1.0 by design. Runtime-deferred classification surfaces the obligation in the UnverifiedObligationsManifest so consumers asserting strict-sum-bounded policy can reject overlapping attention while consumers with overlap-tolerant policy continue.",
+      "type_signature": {
+        "pulse_attention_breakdown": "object"
+      }
+    }
+  ]
+}

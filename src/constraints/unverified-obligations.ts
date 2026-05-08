@@ -53,6 +53,7 @@ export type UnverifiedObligationReason =
   | 'nonce_context_deferred'
   | 'nonce_replay_detected'
   | 'pattern_matching'
+  | 'percentiles_monotonic_violation'
   | 'sequence_context_deferred'
   | 'sequence_monotonic_violation'
   | 'signer_key_id_mismatch'

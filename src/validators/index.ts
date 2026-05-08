@@ -1073,6 +1073,21 @@ registerCrossFieldValidator('Assertion', constraintFileOnlyValidator);
 // `constraints/PhaseCompletionEnvelope.constraints.json`.
 registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidator);
 
+// v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster. Six envelope schemas
+// each shipping a constraint file under
+// `constraints/<SchemaName>.constraints.json` — most carry only
+// runtime-deferred or library-evaluated invariants (severity-to-channel
+// routing, percentile monotonicity, etc.). LatencyHistogramEnvelope is
+// the only schema with a library-evaluated invariant (FR-B7
+// percentiles_monotonic_nondecreasing); the rest are pure-shape +
+// pattern-validated by TypeBox structurally.
+registerCrossFieldValidator('OracleDigest', constraintFileOnlyValidator);
+registerCrossFieldValidator('OracleHealthEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('EscalationEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RollbackPlan', constraintFileOnlyValidator);
+registerCrossFieldValidator('LatencyHistogramEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

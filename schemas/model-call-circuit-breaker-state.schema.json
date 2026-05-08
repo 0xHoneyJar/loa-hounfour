@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/model-call-circuit-breaker-state",
+  "description": "Three-state circuit-breaker enum for the cluster's model-call dispatch path. \"healthy\" = unrestricted dispatch; \"degraded\" = reduced-rate / fallback; \"open\" = stop dispatch + drain in-flight. State-to-policy mapping is consumer-side per ADR-010.",
+  "anyOf": [
+    {
+      "const": "healthy",
+      "type": "string"
+    },
+    {
+      "const": "degraded",
+      "type": "string"
+    },
+    {
+      "const": "open",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

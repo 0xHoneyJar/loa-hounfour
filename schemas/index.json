@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.5.2",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-08T14:50:01.999Z",
+  "generated_at": "2026-05-08T16:24:20.056Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1419,6 +1419,60 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope",
       "file": "phase-completion-envelope.schema.json",
       "description": "Cluster-wrapped Tier-2 phase-completion envelope. Wraps Tier-1 (PhaseCompletionEnvelopeTier1Schema) for cluster-side ingestion with cluster_signature + signer_key_id (sha256-derived) + prev_envelope_hash chain link. Crypto-bearing + chain-bearing + canonical-size-capped at 4 KB (NFR-4)."
+    },
+    {
+      "name": "pulse-kind",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/pulse-kind",
+      "file": "pulse-kind.schema.json",
+      "description": "Three-pulse-per-day cadence enum for OracleDigest. Each cluster emits exactly one OracleDigest per pulse_kind per day; the three literals together establish the diurnal frequency contract."
+    },
+    {
+      "name": "oracle-digest",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-digest",
+      "file": "oracle-digest.schema.json",
+      "description": "Pulse-time cluster conformance digest. Three pulses per day per cluster_id. The telegram_variant_md_below_4kb field carries the 4 KB-capped markdown body for Telegram delivery; the full_markdown_s3_url points at the unconstrained-length s3://-stored full digest."
+    },
+    {
+      "name": "model-call-circuit-breaker-state",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/model-call-circuit-breaker-state",
+      "file": "model-call-circuit-breaker-state.schema.json",
+      "description": "Three-state circuit-breaker enum for the cluster's model-call dispatch path. \"healthy\" = unrestricted dispatch; \"degraded\" = reduced-rate / fallback; \"open\" = stop dispatch + drain in-flight. State-to-policy mapping is consumer-side per ADR-010."
+    },
+    {
+      "name": "oracle-health-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-health-envelope",
+      "file": "oracle-health-envelope.schema.json",
+      "description": "Operational health snapshot of an oracle cluster. Heartbeat cadence (typically 60s). Cross-correlates with OracleDigest via shared pulse_attention_breakdown shape."
+    },
+    {
+      "name": "escalation-severity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/escalation-severity",
+      "file": "escalation-severity.schema.json",
+      "description": "Four-level escalation severity enum. info → digest channel, warn → Telegram, critical → email, panic → SMS + auto-execute. The severity-to-channel mapping is consumer-side policy per ADR-010; the schema declares only the four legal severity levels."
+    },
+    {
+      "name": "escalation-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/escalation-envelope",
+      "file": "escalation-envelope.schema.json",
+      "description": "Operator-bound escalation event. Severity-to-channel routing (info → digest, warn → Telegram, critical → email, panic → SMS + auto-execute) is consumer-side policy per ADR-010 and explicitly NOT in this schema."
+    },
+    {
+      "name": "rollback-plan",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/rollback-plan",
+      "file": "rollback-plan.schema.json",
+      "description": "Declarative rollback recipe for an EPIC. Empty arrays are valid (consumer interprets empty plan as no-op rollback). The 40-hex merge_commit_sha is git SHA-1, distinct from the 64-hex sha256 used in evidence-hash fields elsewhere."
+    },
+    {
+      "name": "latency-histogram-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/latency-histogram-envelope",
+      "file": "latency-histogram-envelope.schema.json",
+      "description": "Per-phase per-cluster latency percentile snapshot. The p50 ≤ p95 ≤ p99 ≤ max invariant is enforced via the LOCAL builtin percentiles_monotonic_nondecreasing(measurements) referenced from the constraint file."
+    },
+    {
+      "name": "epic-checkpoint",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/epic-checkpoint",
+      "file": "epic-checkpoint.schema.json",
+      "description": "Durable EPIC progress checkpoint. canonical_run_id resolves against a known CanonicalRunSchema instance via consumer-side registry; manifest surfaces the lookup obligation when registry context is absent."
     }
   ]
 }
