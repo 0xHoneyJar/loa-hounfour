@@ -45,6 +45,25 @@ signature post-`v8.6.0`, treat it as a v9.0.0-class spec violation
 (payloads that should have been rejected at the producer side per
 RFC 4648 §5 unpadded base64url) — not a v8.6.x patch.
 
+The audit artifact is committed at
+[`docs/audits/fr-a5-ed25519-corpus-2026-05.md`](docs/audits/fr-a5-ed25519-corpus-2026-05.md):
+method, command, per-repo results, and a reproducer block. The hash of
+that file is the auditable evidence; the prose here references it.
+
+**Intentional version-field sequencing.** During cycle-005 the in-flight
+contract accumulates several minor-class additions (FR-A1..A6 + 11
+coordinator schemas) across ~12 PRs before the version bump lands.
+`CONTRACT_VERSION` (and the `version` field in `schemas/index.json`,
+which mirrors it) stays at `8.5.2` until the v8.6.0 final ship PR,
+where it bumps to `8.6.0` alongside the GitHub Packages publish step. This concentrates
+contract-version churn at one point per cycle rather than emitting an
+RC-tag per PR. Consumers see a single `8.5.2 → 8.6.0` step in the
+published package; the in-flight `main` branch carries the schema
+bytes ahead of the version field deliberately. This is the same
+sequencing the cycle-005 hygiene PR used (no version bump) and the
+same all subsequent FR-A/FR-C work will use; the bump is locked to
+the v8.6.0 ship PR.
+
 **Consumer action: none.** Producers already emitting unpadded
 base64url ed25519 signatures (the spec-correct form) continue to
 validate. Producers emitting `{87}` or `{88}` padded forms — observed
@@ -55,8 +74,9 @@ in the surface.
 **Forward pointer to v9.0.0.** If at any point during the v8.6.x line a
 consumer surfaces a real `{87,88}` payload, it is captured as a
 `pollution event` against this audit and FR-A5 is rolled back to the
-`{86,88}` form for v8.7.x with a v9.0.0 re-tightening tracked. As of
-v8.6.0 GA, this rollback path is **not active**.
+`^ed25519:[A-Za-z0-9_-]{86,88}$` form (regex quantifier — accepts 86,
+87, and 88 characters) for v8.7.x with a v9.0.0 re-tightening tracked.
+As of v8.6.0 GA, this rollback path is **not active**.
 
 ---
 
