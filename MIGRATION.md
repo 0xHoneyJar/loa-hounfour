@@ -6,6 +6,55 @@
 
 ---
 
+## Policy: `PSEUDO-MAJOR-EQUIVALENT-NULL` classification
+
+> **Scope:** narrowing changes that would, under strict semver, require a
+> major bump, but for which the narrowed-out range is provably unreachable
+> by any spec-conformant input.
+
+A change MAY be classified `PSEUDO-MAJOR-EQUIVALENT-NULL` and shipped under
+a minor bump if and only if **all four** of the following are committed
+artifacts in the same PR:
+
+1. **Cryptographic / structural impossibility proof.** The narrowed-out
+   range must be unreachable by spec-conformant inputs. The proof is the
+   load-bearing evidence (e.g., RFC-derived byte-length math, formal
+   protocol invariant). A surveyed-empty consumer corpus is corroborative
+   only — the impossibility argument is what gates the bump.
+2. **Consumer-corpus audit.** A reproducible script that surveys every
+   known consumer for any payload that would no longer validate. Result
+   tabulated per-repo. Audit committed under `docs/audits/`.
+3. **MIGRATION.md classification entry.** Names the affected schemas,
+   before/after patterns, the impossibility proof, and a forward-pointer
+   to the rollback target if a real `pollution event` surfaces post-ship.
+4. **Negative conformance fixtures.** Fixtures asserting schema-level
+   rejection of the narrowed-out range; picked up by the existing test
+   runner so regressions surface in CI.
+
+**Evidence asymmetry rule.** When the impossibility proof and the audit
+disagree (e.g., a corpus hit on a payload the spec says is impossible),
+the proof wins for the classification but the corpus hit is treated as
+a producer-side spec violation requiring its own resolution. When the
+audit is incomplete (consumers skipped), the impossibility proof must
+carry the full load alone.
+
+**Pollution event obligation.** If any consumer surfaces a real payload
+in the narrowed-out range post-ship, the change is treated as a
+pollution event against the audit. The rollback path documented in the
+MIGRATION.md classification entry activates immediately; the v9.0.0
+re-tightening absorbs the eventual return to the narrower pattern.
+
+**Norm-decay guard.** Each invocation of `PSEUDO-MAJOR-EQUIVALENT-NULL`
+must reference both the four required artifacts AND the strength of the
+impossibility proof. The first invocation (FR-A5, this document) sets
+precedent. Future invocations citing this policy must demonstrate
+equally bulletproof impossibility — the bar does not lower with usage.
+
+The first invocation is FR-A5 below; subsequent narrowings must satisfy
+the same bar.
+
+---
+
 ## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 ed25519 pattern narrowing)
 
 > **Status:** in-flight on `cycle-005`. The first landed change is FR-A5
