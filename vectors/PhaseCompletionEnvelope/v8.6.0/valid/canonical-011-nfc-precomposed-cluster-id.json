@@ -1,0 +1,22 @@
+{
+  "_comment": "iter-3 F6 mitigation: NFC conformance vector. signer_cluster_id contains the precomposed character \"é\" (NFC form U+00E9). The signer_key_id is sha256(NFC(\"café\"):\"1\") regardless of whether the producer authored \"café\" precomposed or \"cafe\" + combining acute (U+0301) — the deriveSignerKeyId NFC normalization makes both forms collapse to the same hash. Cross-runner authors implementing FR-A2 vectors MUST also NFC-normalize before equivalent sha256 update calls.",
+  "envelope_kind": "phase_completion",
+  "contract_version": "8.6.0",
+  "signer_cluster_id": "café",
+  "signer_key_version": "1",
+  "signer_key_id": "724db6062814c35657cec509a30bd31e1092f67911e9fb567b78ab278fd31f46",
+  "cluster_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "ingested_emission": {
+    "envelope_kind": "phase_completion_tier1",
+    "contract_version": "8.6.0",
+    "agent_id": "agent-001",
+    "agent_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "agent_key_pubkey": "ed25519-pub:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "payload": {},
+    "nonce": "AAAAAAAAAAAAAAAAAAAAAA",
+    "sequence": "1",
+    "timestamp": "2026-05-08T12:00:00Z"
+  },
+  "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "ingest_timestamp": "2026-05-08T12:00:01Z"
+}
