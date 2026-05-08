@@ -50,6 +50,19 @@ The audit artifact is committed at
 method, command, per-repo results, and a reproducer block. The hash of
 that file is the auditable evidence; the prose here references it.
 
+**Consumers MUST consume only published GitHub Packages releases
+during cycle-005.** The `main` branch is **unstable** — schema bytes
+land ahead of the version-field bump (see "Intentional version-field
+sequencing" below). A consumer that pins to a `main`-tracking ref
+(git submodule, path dependency, branch tag) during cycle-005 will
+ingest stricter validation under an unchanged `version: 8.5.2`
+identifier, which silently rejects payloads a true v8.5.2 release
+would accept. The supported consumption channels are: published
+GitHub Packages releases (post-PR-A3.12), or the `pre-cycle-005`
+SHA at `eae1a9e1` (the last cycle-005 hygiene-only commit). Any
+other `main` ref between PR-A3.0 merge and the v8.6.0 ship PR is
+work-in-progress and not safe for consumer ingestion.
+
 **Intentional version-field sequencing.** During cycle-005 the in-flight
 contract accumulates several minor-class additions (FR-A1..A6 + 11
 coordinator schemas) across ~12 PRs before the version bump lands.
@@ -60,9 +73,9 @@ contract-version churn at one point per cycle rather than emitting an
 RC-tag per PR. Consumers see a single `8.5.2 → 8.6.0` step in the
 published package; the in-flight `main` branch carries the schema
 bytes ahead of the version field deliberately. This is the same
-sequencing the cycle-005 hygiene PR used (no version bump) and the
-same all subsequent FR-A/FR-C work will use; the bump is locked to
-the v8.6.0 ship PR.
+sequencing the cycle-005 hygiene PR used (no version bump), and the
+same that all subsequent FR-A/FR-C work will use; the bump is locked
+to the v8.6.0 ship PR.
 
 **Consumer action: none.** Producers already emitting unpadded
 base64url ed25519 signatures (the spec-correct form) continue to
