@@ -54,3 +54,28 @@ export {
   type ConsumerContract,
   type ContractValidationResult,
 } from './consumer-contract.js';
+
+// Canonicalization helper — CT-01 hybrid carve-out (cycle-005 / v8.6.0).
+//
+// `safeCanonicalize` is the v8.5.0 sanctioned canonicalization helper. It is
+// re-exported here so consumers that need cross-language byte-identical output
+// (NFR-3) have a single normative TypeScript reference implementation to
+// mirror. Its export surface is governed by
+// `docs/architecture/canonicalization-spec-v8.6.md`, NOT by long-term semver
+// API stability — hence the `@experimental` annotation.
+//
+// Re-exporting any OTHER canonicalization or hashing helper from this barrel
+// without an `@experimental` tag would cross the ADR-010 class-vs-policy
+// boundary. Structural lint RULE-6 (`scripts/check-class-policy-boundary.ts`)
+// enforces this.
+//
+// @experimental — surface governed by canonicalization-spec-v8.6.md, not semver.
+// @see docs/architecture/canonicalization-spec-v8.6.md
+// @see docs/adr/ADR-010-class-vs-policy-boundary.md
+// @since v8.6.0 (PR-A3.0; CT-01 hybrid)
+export {
+  safeCanonicalize,
+  SAFE_CANONICALIZE_DEFAULT_MAX_BYTES,
+  CanonicalizeKeyCollisionError,
+  type SafeCanonicalizeOptions,
+} from '../utilities/safe-canonicalize.js';
