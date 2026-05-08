@@ -24,6 +24,9 @@
 
 import { tokenize, type Token } from './tokenizer.js';
 import { evaluateIsValidDag } from './is-valid-dag.js';
+import { evaluateNonceUniquePerSignerWindow } from './builtins/nonce-unique-per-signer-window.js';
+import { evaluateSequenceMonotonicPerCluster } from './builtins/sequence-monotonic-per-cluster.js';
+import { evaluateChainValidatorPrevHash } from './builtins/chain-validator-prev-hash.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -47,6 +50,31 @@ export interface EvaluationContext {
    * @since v8.3.0 — FR-6 Conditional Constraints
    */
   feature_flags?: Record<string, boolean>;
+  /**
+   * Per-signer nonce-window state for the FR-C1
+   * `nonce_unique_per_signer_window` builtin. When supplied, the builtin
+   * cross-checks the validating record's nonce against the signer's
+   * historical set; when unset, the builtin defers to consumer-side
+   * evaluation via the `NONCE_CONTEXT_DEFERRED` diagnostic.
+   * @since v8.6.0 — FR-C1 (PR-A3.3)
+   */
+  nonce_window?: import('./builtins/nonce-unique-per-signer-window.js').NonceWindowState;
+  /**
+   * Per-cluster sequence-monotonicity state for the FR-C2
+   * `sequence_monotonic_per_cluster` builtin. CT-08 cluster-id mismatch
+   * fires BEFORE any state-map lookup so cross-cluster lookups cannot
+   * succeed silently.
+   * @since v8.6.0 — FR-C2 (PR-A3.3)
+   */
+  sequence_state?: import('./builtins/sequence-monotonic-per-cluster.js').SequenceClusterState;
+  /**
+   * Audit-ledger expected-prior-hash state for the FR-C3
+   * `chain_validator_prev_hash` builtin. NA-1 cross-checks the chain's
+   * on-payload `previous_hash` against the consumer's persistent ledger
+   * expectation per chain index.
+   * @since v8.6.0 — FR-C3 (PR-A3.3)
+   */
+  chain_ledger?: import('./builtins/chain-validator-prev-hash.js').ChainLedgerState;
 }
 
 /**
@@ -198,6 +226,11 @@ class Parser {
 
       // Audit trail chain validation (v8.0.0 — Commons Protocol)
       ['audit_trail_chain_valid', () => this.parseAuditTrailChainValid()],
+
+      // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+      ['nonce_unique_per_signer_window', () => this.parseNonceUniquePerSignerWindow()],
+      ['sequence_monotonic_per_cluster', () => this.parseSequenceMonotonicPerCluster()],
+      ['chain_validator_prev_hash', () => this.parseChainValidatorPrevHash()],
     ]);
   }
 
@@ -890,6 +923,116 @@ class Parser {
     if (typeof idField !== 'string') return false;
 
     const result = evaluateIsValidDag(items, idField, refFields);
+    return result.valid;
+  }
+
+  /**
+   * Parse `nonce_unique_per_signer_window(record, signer_id_field, nonce_field)`.
+   *
+   * Reads `nonce_window` state from the EvaluationContext (supplied by the
+   * caller via `evaluateConstraint(data, expr, { nonce_window: ... })`).
+   * When state is absent, the standalone evaluator returns `{ valid: true,
+   * diagnostic: 'NONCE_CONTEXT_DEFERRED' }` — the DSL wrapper here returns
+   * `true` so the constraint passes; consumers wanting the diagnostic
+   * surface should use the standalone evaluator at
+   * `src/constraints/builtins/nonce-unique-per-signer-window.ts`.
+   *
+   * @since v8.6.0 — FR-C1 (PR-A3.3)
+   */
+  private parseNonceUniquePerSignerWindow(): boolean {
+    this.advance(); // consume 'nonce_unique_per_signer_window'
+    this.expect('paren', '(');
+    const record = this.parseExpr();
+    this.expect('comma');
+    const signerIdField = this.parseExpr();
+    this.expect('comma');
+    const nonceField = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof signerIdField !== 'string' || typeof nonceField !== 'string') return false;
+
+    const result = evaluateNonceUniquePerSignerWindow(
+      record,
+      signerIdField,
+      nonceField,
+      this.context?.nonce_window,
+    );
+    return result.valid;
+  }
+
+  /**
+   * Parse `sequence_monotonic_per_cluster(record, cluster_id_field,
+   * signer_id_field, sequence_field, key_version_field)`.
+   *
+   * Reads `sequence_state` from the EvaluationContext. CT-08 cluster-id
+   * mismatch fires BEFORE any state lookup; CT-03 string→BigInt parsing
+   * uses a numeric-regex pre-validator so `BigInt()` never throws.
+   *
+   * @since v8.6.0 — FR-C2 (PR-A3.3, with CT-08 + CT-03)
+   */
+  private parseSequenceMonotonicPerCluster(): boolean {
+    this.advance(); // consume 'sequence_monotonic_per_cluster'
+    this.expect('paren', '(');
+    const record = this.parseExpr();
+    this.expect('comma');
+    const clusterIdField = this.parseExpr();
+    this.expect('comma');
+    const signerIdField = this.parseExpr();
+    this.expect('comma');
+    const sequenceField = this.parseExpr();
+    this.expect('comma');
+    const keyVersionField = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (
+      typeof clusterIdField !== 'string' ||
+      typeof signerIdField !== 'string' ||
+      typeof sequenceField !== 'string' ||
+      typeof keyVersionField !== 'string'
+    ) {
+      return false;
+    }
+
+    const result = evaluateSequenceMonotonicPerCluster(
+      record,
+      clusterIdField,
+      signerIdField,
+      sequenceField,
+      keyVersionField,
+      this.context?.sequence_state,
+    );
+    return result.valid;
+  }
+
+  /**
+   * Parse `chain_validator_prev_hash(chain, entry_hash_field, previous_hash_field)`.
+   *
+   * Reads `chain_ledger` audit-state from the EvaluationContext. NA-1 fix
+   * cross-checks chain's on-payload `previous_hash` against the consumer's
+   * persistent expected_prior_hash per index.
+   *
+   * @since v8.6.0 — FR-C3 (PR-A3.3, with NA-1)
+   */
+  private parseChainValidatorPrevHash(): boolean {
+    this.advance(); // consume 'chain_validator_prev_hash'
+    this.expect('paren', '(');
+    const chain = this.parseExpr();
+    this.expect('comma');
+    const entryHashField = this.parseExpr();
+    this.expect('comma');
+    const previousHashField = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof entryHashField !== 'string' || typeof previousHashField !== 'string') {
+      return false;
+    }
+
+    const result = evaluateChainValidatorPrevHash(
+      chain,
+      entryHashField,
+      previousHashField,
+      this.context?.chain_ledger,
+    );
     return result.valid;
   }
 
@@ -1891,6 +2034,10 @@ export const EVALUATOR_BUILTINS = [
   'audit_trail_chain_valid',
   // DAG validation (v8.4.0, FR-C1)
   'is_valid_dag',
+  // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+  'nonce_unique_per_signer_window',
+  'sequence_monotonic_per_cluster',
+  'chain_validator_prev_hash',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

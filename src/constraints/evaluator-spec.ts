@@ -1548,4 +1548,115 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'extract_path is dot-only — bracket-syntax `[N]` returns undefined and is treated as no-ref',
     ],
   }],
+
+  // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+  ['nonce_unique_per_signer_window', {
+    name: 'nonce_unique_per_signer_window',
+    signature: 'nonce_unique_per_signer_window(record, signer_id_field, nonce_field) → boolean',
+    description:
+      'State-bearing replay-detection check. Returns true when the (signer_id, nonce) pair on the record has not been observed within the per-signer sliding window supplied via EvaluationContext.nonce_window. When the window is unset, the standalone evaluator returns NONCE_CONTEXT_DEFERRED and the DSL wrapper passes (true) — consumers wanting the diagnostic surface should call the standalone evaluateNonceUniquePerSignerWindow().',
+    arguments: [
+      { name: 'record', type: 'object', description: 'The single record under validation. Must contain string-typed signer_id_field and nonce_field values.' },
+      { name: 'signer_id_field', type: 'string', description: 'Field name on the record carrying the signer identifier.' },
+      { name: 'nonce_field', type: 'string', description: 'Field name on the record carrying the nonce value.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'No nonce_window state supplied → defers to consumer (returns true)',
+        context: { record: { signer_id: 'agent-a', nonce: 'n1' } },
+        expression: "nonce_unique_per_signer_window(record, 'signer_id', 'nonce')",
+        expected: true,
+      },
+      {
+        description: 'Non-object record returns false (NONCE_INVALID_INPUT diagnostic)',
+        context: { record: null },
+        expression: "nonce_unique_per_signer_window(record, 'signer_id', 'nonce')",
+        expected: false,
+      },
+    ],
+    edge_cases: [
+      'Non-object record returns false (NONCE_INVALID_INPUT)',
+      'Missing signer_id_field or nonce_field returns false (NONCE_INVALID_INPUT)',
+      'nonce_window state absent returns true with NONCE_CONTEXT_DEFERRED diagnostic (consumer-deferred)',
+      'Nonce found in signer\'s set returns false (NONCE_REPLAY_DETECTED)',
+      'Signer not in per_signer map → fresh nonce, returns true',
+    ],
+  }],
+
+  ['sequence_monotonic_per_cluster', {
+    name: 'sequence_monotonic_per_cluster',
+    signature:
+      'sequence_monotonic_per_cluster(record, cluster_id_field, signer_id_field, sequence_field, key_version_field) → boolean',
+    description:
+      'State-bearing per-cluster sequence + key-version monotonicity check. CT-08 cluster-id mismatch fires BEFORE any state lookup; CT-03 string→BigInt parsing uses a numeric-regex pre-validator so BigInt() never throws. Reads sequence_state from EvaluationContext.',
+    arguments: [
+      { name: 'record', type: 'object', description: 'The single record under validation.' },
+      { name: 'cluster_id_field', type: 'string', description: 'Field name carrying the cluster identifier.' },
+      { name: 'signer_id_field', type: 'string', description: 'Field name carrying the signer identifier.' },
+      { name: 'sequence_field', type: 'string', description: 'Field name carrying the string-encoded BigInt sequence number.' },
+      { name: 'key_version_field', type: 'string', description: 'Field name carrying the string-encoded BigInt key version.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'No sequence_state supplied → defers to consumer (returns true)',
+        context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '1', key_version: '0' } },
+        expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
+        expected: true,
+      },
+      {
+        description: 'CT-03: malformed sequence (leading zero) returns false (SEQUENCE_INVALID_INPUT)',
+        context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '007', key_version: '0' } },
+        expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
+        expected: true,
+      },
+    ],
+    edge_cases: [
+      'CT-08: cluster_id mismatch returns false (CLUSTER_ID_MISMATCH) — fires BEFORE state lookup',
+      'CT-03: malformed sequence/key_version (non-numeric, leading zero, sign) returns false (SEQUENCE_INVALID_INPUT)',
+      'Key-version regression returns false (KEY_VERSION_REGRESSION)',
+      'Sequence ≤ last-observed for (signer, key_version) returns false (SEQUENCE_MONOTONIC_VIOLATION)',
+      'Key-rotation overlap: same sequence under newer key_version is allowed (separate composite key)',
+    ],
+  }],
+
+  ['chain_validator_prev_hash', {
+    name: 'chain_validator_prev_hash',
+    signature:
+      'chain_validator_prev_hash(chain, entry_hash_field, previous_hash_field) → boolean',
+    description:
+      'Ledger-style chain validity check. Asserts (1) each record\'s previous_hash equals its predecessor\'s entry_hash, (2) the chain anchors at the configured genesis sentinel, and (3) NA-1: the audit-ledger\'s expected_prior_hash matches the chain\'s on-payload value per index. Distinct from ORD-3 is_valid_dag (which validates the delegation DAG, not a linear ledger chain). Reads chain_ledger from EvaluationContext.',
+    arguments: [
+      { name: 'chain', type: 'unknown[]', description: 'Array of cluster-event records ordered from genesis-rooted to most-recent.' },
+      { name: 'entry_hash_field', type: 'string', description: 'Field name on each record carrying that record\'s own hash.' },
+      { name: 'previous_hash_field', type: 'string', description: 'Field name carrying the hash of the predecessor (or genesis sentinel for index 0).' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'No chain_ledger state supplied → defers to consumer (returns true)',
+        context: { chain: [{ entry_hash: 'h1', previous_hash: 'genesis:cluster-ledger' }] },
+        expression: "chain_validator_prev_hash(chain, 'entry_hash', 'previous_hash')",
+        expected: true,
+      },
+      {
+        description: 'Empty chain returns true (vacuous)',
+        context: { chain: [] },
+        expression: "chain_validator_prev_hash(chain, 'entry_hash', 'previous_hash')",
+        expected: true,
+      },
+    ],
+    edge_cases: [
+      'Empty chain returns true (vacuous)',
+      'First record\'s previous_hash != genesis sentinel returns false (CHAIN_GENESIS_VIOLATION)',
+      'Successor\'s previous_hash != predecessor\'s entry_hash returns false (CHAIN_PREV_HASH_MISMATCH)',
+      'NA-1: audit-ledger expected_prior_hash[i] != chain[i].previous_hash returns false (CHAIN_LEDGER_MISMATCH)',
+      'Audit-ledger has no entry for index i → no NA-1 cross-check fires (consumer hasn\'t recorded yet)',
+      'Custom genesis_hash via state.genesis_hash overrides the default sentinel',
+    ],
+  }],
 ]);
