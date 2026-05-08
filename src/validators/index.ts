@@ -30,6 +30,11 @@ import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-respo
 import { StreamEventSchema } from '../schemas/stream-events.js';
 import { RoutingPolicySchema } from '../schemas/routing-policy.js';
 import { CAPABILITY_SCOPES } from '../schemas/agent-identity.js';
+
+// Canonical CapabilityScope set, hoisted to module scope so per-validate-call
+// allocation cost is amortized across calls. (PR-A3.2 iter-2 F-002 mitigation.)
+// Read-only at runtime; populated once at module load.
+const CANONICAL_CAPABILITY_SCOPES: ReadonlySet<string> = new Set(CAPABILITY_SCOPES);
 import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
 import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema, AccessPolicySchema } from '../schemas/conversation.js';
@@ -1418,13 +1423,12 @@ export function validate<T extends TSchema>(
   ) {
     const capabilityScope = (data as Record<string, unknown>).capability_scope;
     if (typeof capabilityScope === 'object' && capabilityScope !== null) {
-      const canonical = new Set<string>(CAPABILITY_SCOPES);
       // F2 mitigation (PR-A3.2 iter-1): sort drift keys before iteration so
       // manifest entry order is deterministic across input JSON serialization
       // variations — content-addressable diffing across corpora does not
       // depend on upstream key-order accidents.
       const driftKeys = Object.keys(capabilityScope)
-        .filter((k) => !canonical.has(k))
+        .filter((k) => !CANONICAL_CAPABILITY_SCOPES.has(k))
         .sort();
       for (const driftKey of driftKeys) {
         obligations.push({

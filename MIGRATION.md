@@ -174,9 +174,9 @@ type. Runtime-wise this is strict-additive — pre-v8.6.0 consumers who
 ignore the field continue to work — but TypeScript consumers using
 exhaustive-switch patterns (e.g. `assertNever(reason)` in the default
 branch of a `switch (reason)`) will fail compilation on upgrade until
-they add a case for `'chain_context_provided'`. This is the same
-classification AWS uses for "minor for runtime, major for type-strict
-consumers." Add a default branch or an explicit `'chain_context_provided'`
+they add a case for `'chain_context_provided'`. This is the standard
+"runtime-additive, type-strict-breaking" pattern for discriminated-union
+extensions. Add a default branch or an explicit `'chain_context_provided'`
 case before bumping the dependency. The same caveat applies to any
 future additions to this union; consumers preferring stricter
 compile-time guarantees may pin the type via
@@ -248,6 +248,18 @@ the maintainer ahead of the PR-A3.10 review.
    the maintainer so the soak telemetry can drive the promotion
    decision. Fire rate <1% → promote to error in PR-A3.10; 1–5% → defer
    to v8.7.0; >5% → expand the canonical vocabulary first.
+
+**Authoritative telemetry surface.** ORD-5 fires from two surfaces in
+v8.6.0: the `npm run check:constraints` static lint (developer-time
+signal, surfaces the rule definition + per-fixture violations) and the
+`validate()` runtime manifest (per-record signal, surfaces a
+`reason: 'vocabulary_drift'` entry per non-canonical key on each
+validation pass). The two surfaces are non-overlapping in practice —
+the lint runs at build time on committed fixtures; the manifest fires
+at runtime on consumer payloads — but for soak-telemetry aggregation
+driving the PR-A3.10 promotion decision, **the runtime manifest is
+authoritative**. The static lint is a developer-time ergonomic; do
+not aggregate fire counts from its output.
 
 **Telemetry exclusion: fail-closed records.** When `validate(...,
 { failClosed: true })` returns `{ valid: false, errors: [CHAIN_CONTEXT_DEFERRED:...] }`,

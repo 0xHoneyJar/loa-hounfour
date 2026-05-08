@@ -127,5 +127,6 @@
   "expected": {
     "valid": true,
     "ord3_reason": "pattern_matching"
-  }
+  },
+  "_fixture_note": "See README.md §'Scope boundary' — chain-DAG coherence (cross-record org_id / granted_by linkage) is intentionally not exercised in this fail-closed branching matrix; that lives in tests/constraints/."
 }

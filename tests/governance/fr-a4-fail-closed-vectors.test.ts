@@ -41,13 +41,32 @@ interface FailClosedCase {
     failClosed?: boolean;
     chainContext?: { granted_by_chain_records?: unknown };
     acceptDeferred?: boolean;
-    now?: string;
   };
   data: unknown;
+  /**
+   * Some case files may carry an optional top-level `_fixture_note`
+   * pointing readers to the directory README; the runner does not
+   * consume it but the field is documented at the JSON schema layer.
+   */
   expected:
     | { valid: true; ord3_reason: string }
     | { valid: false; error_prefix: string };
 }
+
+const EXPECTED_CASE_IDS = new Set([
+  'case-01-default-absent-genesis',
+  'case-02-default-absent-chained',
+  'case-03-default-present-genesis',
+  'case-04-default-present-chained',
+  'case-05-default-malformed-genesis',
+  'case-06-default-malformed-chained',
+  'case-07-optin-absent-genesis',
+  'case-08-optin-absent-chained',
+  'case-09-optin-present-genesis',
+  'case-10-optin-present-chained',
+  'case-11-optin-malformed-genesis',
+  'case-12-optin-malformed-chained',
+]);
 
 function loadCases(): FailClosedCase[] {
   const files = readdirSync(FIXTURES_ROOT).filter((f) => f.endsWith('.json')).sort();
@@ -57,8 +76,15 @@ function loadCases(): FailClosedCase[] {
 describe('FR-A4 fail-closed cross-product matrix', () => {
   const cases = loadCases();
 
-  it('publishes exactly 12 fixtures (2 modes × 3 contexts × 2 record kinds)', () => {
-    expect(cases.length).toBe(12);
+  it('publishes exactly the expected 12 case_ids (2 modes × 3 contexts × 2 record kinds)', () => {
+    // F4 mitigation (PR-A3.2 iter-2): assert by case_id Set rather than count
+    // so a duplicate-and-delete failure surfaces the exact missing/extra
+    // case_id rather than a generic count mismatch.
+    const presentIds = new Set(cases.map((c) => c.case_id));
+    const missing = [...EXPECTED_CASE_IDS].filter((id) => !presentIds.has(id));
+    const extra = [...presentIds].filter((id) => !EXPECTED_CASE_IDS.has(id));
+    expect(missing, `missing case_ids: ${missing.join(', ')}`).toEqual([]);
+    expect(extra, `unexpected case_ids: ${extra.join(', ')}`).toEqual([]);
   });
 
   for (const c of cases) {
