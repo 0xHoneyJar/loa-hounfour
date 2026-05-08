@@ -68,6 +68,23 @@ import { SignatureTypeSchema } from './signature-type.js';
  */
 export const ED25519_SIGNATURE_PATTERN = '^ed25519:[A-Za-z0-9_-]{86}$';
 
+/**
+ * Ed25519 public-key identifier pattern: `ed25519-pub:` prefix +
+ * exactly 43 unpadded base64url characters.
+ *
+ * 32-byte Ed25519 public keys encode to exactly 43 unpadded base64url
+ * characters per RFC 4648 §5 (`ceil(32 * 8 / 6) = 43`, with the final
+ * 4 bits residual; padded forms with `=` are NOT accepted).
+ *
+ * Single source of truth: imported by every schema with an
+ * `ed25519-pub:` field. Iter-1 PR-A3.4 F7 mitigation completed the DRY
+ * refactor that hoisted `ED25519_SIGNATURE_PATTERN` — same pattern,
+ * same single-source-of-truth justification, same import path.
+ *
+ * @since v8.6.0 — PR-A3.4
+ */
+export const ED25519_PUBKEY_PATTERN = '^ed25519-pub:[A-Za-z0-9_-]{43}$';
+
 export const SignatureEnvelopeSchema = Type.Object(
   {
     envelope_id: Type.String({

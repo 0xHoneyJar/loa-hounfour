@@ -25,7 +25,7 @@
  * @since v8.6.0 — FR-B2 (PR-A3.4)
  */
 import { Type, type Static } from '@sinclair/typebox';
-import { ED25519_SIGNATURE_PATTERN } from '../governance/signature-envelope.js';
+import { ED25519_SIGNATURE_PATTERN, ED25519_PUBKEY_PATTERN } from '../governance/signature-envelope.js';
 import { BASE64URL_NONCE_PATTERN } from '../governance/nonce-pattern.js';
 import { ISO8601_UTC_PATTERN } from '../utilities/iso8601-utc-pattern.js';
 
@@ -56,7 +56,7 @@ export const PhaseCompletionEnvelopeTier1Schema = Type.Object(
         'verification is required per NF-1.',
     }),
     agent_key_pubkey: Type.String({
-      pattern: '^ed25519-pub:[A-Za-z0-9_-]{43}$',
+      pattern: ED25519_PUBKEY_PATTERN,
       description:
         'Ed25519 public key identifier of the signer (32-byte key → ' +
         '43 unpadded base64url chars per RFC 4648 §5).',

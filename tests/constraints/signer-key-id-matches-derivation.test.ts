@@ -28,6 +28,38 @@ describe('deriveSignerKeyId', () => {
   it('handles empty cluster_id (still produces stable hash)', () => {
     expect(deriveSignerKeyId('', '1')).toBe(sha256Hex(':1'));
   });
+
+  describe('NFC normalization (iter-1 e0c46b14 mitigation)', () => {
+    it('NFC-normalizes cluster_id before hashing — visually-identical Unicode forms produce same key_id', () => {
+      // Two visually-identical strings: precomposed "café" vs decomposed
+      // "cafe" + combining acute accent. NFC form should derive the SAME
+      // key_id from both inputs.
+      const precomposed = 'café';     // "café" (single codepoint)
+      const decomposed = 'café';     // "cafe" + combining acute
+      // Pre-fix, sha256 of these would differ. Post-fix (NFC normalize),
+      // they collapse to the same hash.
+      expect(deriveSignerKeyId(precomposed, '1')).toBe(
+        deriveSignerKeyId(decomposed, '1'),
+      );
+    });
+
+    it('NFC-normalizes key_version too (defense-in-depth)', () => {
+      // Unlikely vector for a numeric-string field, but the contract is
+      // "both inputs are NFC-normalized before hashing" so we lock it.
+      const kvA = '1é1';                 // "1é1" precomposed
+      const kvB = '1é1';                 // "1é" + 1 decomposed
+      expect(deriveSignerKeyId('cluster', kvA)).toBe(
+        deriveSignerKeyId('cluster', kvB),
+      );
+    });
+
+    it('ASCII inputs are unaffected (NFC is a no-op for them)', () => {
+      const ascii = 'cluster-001';
+      // Direct sha256 of the ASCII string equals the NFC-normalized form.
+      const expected = sha256Hex(`${ascii}:5`);
+      expect(deriveSignerKeyId(ascii, '5')).toBe(expected);
+    });
+  });
 });
 
 describe('evaluateSignerKeyIdMatchesDerivation (standalone)', () => {

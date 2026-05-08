@@ -27,6 +27,19 @@
  */
 import { createHash } from 'node:crypto';
 
+/**
+ * Truncate an untrusted string + strip ASCII control characters before
+ * embedding in a diagnostic message. Caps at 64 chars; replaces
+ * non-printable bytes (C0 control + DEL) with `?`. Iter-1 F6 mitigation:
+ * defends against log-injection via embedded ANSI escapes / control
+ * bytes. Structured diagnostic fields carry the untruncated full
+ * values for programmatic consumers.
+ */
+function truncateAndScrub(s: string): string {
+  const scrubbed = s.replace(/[\x00-\x1F\x7F]/g, '?');
+  return scrubbed.length > 64 ? `${scrubbed.slice(0, 61)}...` : scrubbed;
+}
+
 export type SignerKeyIdErrorCode =
   | 'SIGNER_KEY_ID_MISMATCH'
   | 'SIGNER_KEY_ID_INVALID_INPUT';
@@ -50,27 +63,38 @@ export interface EvaluateSignerKeyIdMatchesDerivationResult {
 /**
  * Compute the canonical signer_key_id from cluster_id + key_version.
  *
- * Format: `sha256(signer_cluster_id || ':' || signer_key_version)`,
+ * Format: `sha256(NFC(signer_cluster_id) || ':' || NFC(signer_key_version))`,
  * encoded as 64-char lowercase hex (no `sha256:` prefix per the
  * FR-B2 schema's bare-hex pattern). The colon delimiter is part of
- * the canonical form; cross-runner authors implementing the
- * FR-A2 conformance vectors must use the same delimiter byte.
+ * the canonical form; cross-runner authors implementing the FR-A2
+ * conformance vectors must use the same delimiter byte.
  *
- * NOTE: The colon delimiter is byte-stable across UTF-8 runners
- * (ASCII 0x3A); no Unicode normalization concern. The cluster_id and
- * key_version inputs are NOT NFC-normalized at the derivation surface
- * — consumers MUST author cluster_ids in NFC form to avoid silent
- * derivation drift (the derivation rule is a thin wrapper, not a
- * canonicalization layer).
+ * **NFC normalization at the derivation layer (iter-1 e0c46b14
+ * mitigation).** Both `signer_cluster_id` and `signer_key_version`
+ * are NFC-normalized via `String.prototype.normalize('NFC')` BEFORE
+ * the sha256 hash. This closes the homograph-attack class where two
+ * visually-identical Unicode forms (e.g. `admin` with combining-
+ * mark variants) would derive different `signer_key_id` hashes —
+ * GitHub's 2017 username-homograph incident is the canonical
+ * precedent for this bug class. Cross-runner reproducibility: the
+ * other-language runners (Go, Python, Rust) MUST also NFC-normalize
+ * before the equivalent sha256 update calls. The colon delimiter
+ * (ASCII 0x3A) needs no normalization.
  */
 export function deriveSignerKeyId(
   signerClusterId: string,
   signerKeyVersion: string,
 ): string {
+  // NFC-normalize before hashing so visually-identical inputs derive
+  // identical key_ids. The normalize() call is a no-op for ASCII
+  // strings (the common path for cluster_ids); the marginal cost
+  // applies only to inputs that genuinely contain combining marks.
+  const cidNFC = signerClusterId.normalize('NFC');
+  const kvNFC = signerKeyVersion.normalize('NFC');
   const hash = createHash('sha256');
-  hash.update(signerClusterId, 'utf8');
+  hash.update(cidNFC, 'utf8');
   hash.update(':', 'utf8');
-  hash.update(signerKeyVersion, 'utf8');
+  hash.update(kvNFC, 'utf8');
   return hash.digest('hex');
 }
 
@@ -127,14 +151,22 @@ export function evaluateSignerKeyIdMatchesDerivation(
   // sha256 hex output is lowercase. Consumers emitting uppercase hex
   // pass structurally; the derivation check normalizes the comparison.
   if (derived !== keyId.toLowerCase()) {
+    // Iter-1 LOW F6 mitigation: truncate interpolated values + strip
+    // non-printables in the message string to defend against
+    // log-injection. Structured diagnostic fields (signer_cluster_id,
+    // signer_key_version, etc.) carry the full untruncated values for
+    // programmatic consumers.
+    const tCid = truncateAndScrub(clusterId);
+    const tKv = truncateAndScrub(keyVersion);
+    const tKid = truncateAndScrub(keyId);
     return {
       valid: false,
       diagnostic: {
         code: 'SIGNER_KEY_ID_MISMATCH',
         message:
           `signer_key_id_matches_derivation: asserted key_id ` +
-          `"${keyId}" does not match the derivation ` +
-          `sha256("${clusterId}" || ":" || "${keyVersion}") = "${derived}". ` +
+          `"${tKid}" does not match the derivation ` +
+          `sha256(NFC("${tCid}") || ":" || NFC("${tKv}")) = "${derived}". ` +
           `The wire field MUST equal the derivation; the consumer's ` +
           `key-derivation pipeline is misconfigured or the wire payload ` +
           `was tampered.`,

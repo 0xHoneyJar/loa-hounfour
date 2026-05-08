@@ -46,24 +46,24 @@
     },
     {
       "id": "PCE-4",
-      "expression": "nonce_unique_per_signer_window(ingested_emission, 'agent_id', 'nonce')",
+      "expression": "consumer cross-checks per-signer nonce uniqueness by calling nonce_unique_per_signer_window(record, 'agent_id', 'nonce') with the inner Tier-1 emission as the record argument",
       "severity": "error",
       "message": "Nonce MUST be unique per signer within the configured sliding window (FR-C1). A repeat (signer_id, nonce) pair within the window is a replay candidate.",
       "fields": ["ingested_emission"],
-      "evaluator": "library",
-      "evaluation_note": "FR-C1 replay detection. Library-evaluated when the consumer supplies `nonce_window` state via validate() options.nonce_window; deferred to consumer with `NONCE_CONTEXT_DEFERRED` manifest entry when state absent (per PR-A3.3 deferred-context pattern). The check operates on the inner Tier-1 emission's `agent_id` + `nonce` because nonces are agent-scoped (one agent emitting the same nonce twice within the window is the replay surface).",
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C1 replay detection. Runtime-deferred because the constraint-DSL grammar in v8.6.0 evaluates expressions against the validating record's root, but the relevant nonce + agent_id fields live on `ingested_emission` (the inner Tier-1 sub-record). The DSL cannot pass `ingested_emission` as an argument that the builtin then dereferences as the 'record'. Iter-1 review (PR-A3.4 bridge F3) flagged this class of constraint as 'constraint theatre' — a rule that compiles but silently no-ops because the selector resolves wrong. The reclassification here surfaces the obligation in the UnverifiedObligationsManifest (via the 'x-cross-field-validated' flag) without falsely claiming library evaluation. Consumers MUST call the standalone nonce_unique_per_signer_window evaluator from src/constraints/builtins/nonce-unique-per-signer-window.ts with their persistent nonce_window state, passing the validating envelope's `ingested_emission` as the record argument. Future cycles MAY widen the DSL grammar to support sub-record builtin invocation, at which point this constraint may be promoted back to evaluator: 'library'.",
       "type_signature": {
         "ingested_emission": "PhaseCompletionEnvelopeTier1"
       }
     },
     {
       "id": "PCE-5",
-      "expression": "sequence_monotonic_per_cluster(., 'signer_cluster_id', 'signer_cluster_id', 'sequence', 'signer_key_version')",
+      "expression": "consumer cross-checks per-cluster sequence + key-version monotonicity by calling sequence_monotonic_per_cluster(record, 'signer_cluster_id', 'agent_id', 'sequence', 'signer_key_version') with a flattened (cluster_id, signer_id, sequence, key_version) record assembled from the Tier-2 envelope's signer_cluster_id/signer_key_version fields and the inner ingested_emission.agent_id/sequence fields",
       "severity": "error",
       "message": "Per-cluster sequence + key-version monotonicity (FR-C2). Sequence MUST strictly increase per (signer, key_version); key_version MUST NOT regress across the cluster's history.",
       "fields": ["signer_cluster_id", "signer_key_version", "ingested_emission"],
-      "evaluator": "library",
-      "evaluation_note": "FR-C2 per-cluster sequence monotonicity. Library-evaluated when the consumer supplies `sequence_state` via validate() options.sequence_state; deferred with `SEQUENCE_CONTEXT_DEFERRED` when state absent. CT-08 cluster-id mismatch fires BEFORE state-map lookup. CT-03 string→BigInt parsing uses the numeric-regex pre-validator (no try/catch). The DSL expression composes the 'sequence' field from the inner Tier-1 emission via consumer-side resolution in v8.6.0; future cycles MAY widen the DSL grammar to dotted-path field references like 'ingested_emission.sequence'. For v8.6.0, consumers wanting precise per-cluster sequence enforcement at validate() time MUST hoist the sequence/agent_id fields to the Tier-2 envelope or pre-flatten before validate().",
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C2 per-cluster sequence monotonicity. Runtime-deferred because the constraint-DSL grammar in v8.6.0 doesn't support dotted-path field references like 'ingested_emission.sequence' — the relevant 'sequence' and 'agent_id' fields live on the inner Tier-1 emission while the 'signer_cluster_id' and 'signer_key_version' fields live at the Tier-2 root. Iter-1 review (PR-A3.4 bridge F3) flagged the original library-evaluated classification as a 'constraint theatre' bug class — a rule that compiles, ships, and silently no-ops because the selector resolves to undefined. The reclassification here surfaces the obligation in the UnverifiedObligationsManifest (via the 'x-cross-field-validated' flag) without falsely claiming library evaluation. Consumers MUST: (1) flatten the validating envelope into a (cluster_id, signer_id, sequence, key_version) record by assembling Tier-2.signer_cluster_id + Tier-2.ingested_emission.agent_id + Tier-2.ingested_emission.sequence + Tier-2.signer_key_version; (2) call the standalone sequence_monotonic_per_cluster evaluator from src/constraints/builtins/sequence-monotonic-per-cluster.ts with their persistent sequence_state. Future cycles MAY widen the DSL grammar to support dotted-path references, at which point this constraint may be promoted back to evaluator: 'library'.",
       "type_signature": {
         "signer_cluster_id": "string",
         "signer_key_version": "string",

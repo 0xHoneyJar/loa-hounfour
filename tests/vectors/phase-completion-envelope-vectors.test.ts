@@ -83,7 +83,11 @@ describe('PhaseCompletionEnvelope vector fixtures (FR-B2 / PR-A3.4)', () => {
         const { data } = loadFixture('valid', f);
         // Tier-1-only fixtures use the inner schema; everything else
         // validates against Tier-2.
-        const schema = f.includes('tier1-only')
+        // Iter-1 LOW F5 mitigation: regex anchored to a stable naming
+        // pattern rather than a substring match, so a fixture named
+        // e.g. `tier1-only-edge-case-N.json` doesn't accidentally route
+        // a future Tier-2 test through the Tier-1 schema.
+        const schema = /-tier1-only-/.test(f)
           ? PhaseCompletionEnvelopeTier1Schema
           : PhaseCompletionEnvelopeSchema;
         const ok = Value.Check(schema, data);
