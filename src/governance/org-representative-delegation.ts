@@ -142,9 +142,12 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
         + 'Hard cap of 20; ORD-3 cross-checks against actual chain reachability.',
     }),
     signature: Type.String({
-      pattern: '^ed25519:[A-Za-z0-9_-]{86,88}$',
+      pattern: '^ed25519:[A-Za-z0-9_-]{86}$',
       description:
         'Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. '
+        + 'Unpadded base64url (RFC 4648 §5): exactly 86 characters, no `=` padding. '
+        + 'FR-A5 (v8.6.0) tightened from `{86,88}` after consumer-corpus audit '
+        + 'returned zero hits for padded forms; uniform with v8.5.0 SignatureEnvelope. '
         + 'Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).',
     }),
     signed_by: Type.String({

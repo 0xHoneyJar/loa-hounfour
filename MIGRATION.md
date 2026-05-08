@@ -1,8 +1,62 @@
-<!-- docs-version: 8.5.0 -->
+<!-- docs-version: 8.6.0 -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 ed25519 pattern narrowing)
+
+> **Status:** in-flight on `cycle-005`. The first landed change is FR-A5
+> (this section). Other v8.6.0 work — opt-in fail-closed (FR-A4), ORD-5
+> escalation prep (FR-A3), Tier-1/Tier-2 envelopes, builtins — lands in
+> later PRs and is documented as it ships.
+
+### FR-A5 — Signature pattern narrowing on three v8.4.0 schemas
+
+In v8.6.0 the `signature` field on `OrgRepresentativeDelegation`,
+`PanelVerdict`, and `CrossScoreReport` narrows from
+`^ed25519:[A-Za-z0-9_-]{86,88}$` to `^ed25519:[A-Za-z0-9_-]{86}$`.
+
+**Classification: `PSEUDO-MAJOR-EQUIVALENT-NULL`.** A schema-pattern
+narrowing is, in the abstract, a strict-non-additive change — payloads
+that previously validated may newly fail. In this concrete case the
+v8.6.0 consumer-corpus audit returned **zero hits** for `{87,88}`-form
+ed25519 signatures across every consumer repo on file at audit time.
+No records are affected. The change is therefore released under a minor
+bump (alongside the other additive v8.6.0 work) rather than a major
+bump, with this MIGRATION entry providing the explicit decision trail.
+
+| Property | Value |
+|---|---|
+| Classification | `PSEUDO-MAJOR-EQUIVALENT-NULL` |
+| Affected schemas | `OrgRepresentativeDelegation`, `PanelVerdict`, `CrossScoreReport` |
+| Pre-narrowing pattern | `^ed25519:[A-Za-z0-9_-]{86,88}$` |
+| Post-narrowing pattern | `^ed25519:[A-Za-z0-9_-]{86}$` |
+| Audit result | Zero hits for `{87,88}` forms across consumer corpus |
+| Uniformity outcome | All five ed25519-bearing schemas in v8.6.0 (the three above plus v8.5.0 `SignatureEnvelope` and `RecallReceipt`) emit the same 86-char pattern |
+| Negative-fixture coverage | +20 invalid fixtures asserting rejection of `{87,88}` forms (7 / 7 / 6 across the three schemas) |
+
+**Why the audit gates the bump.** The constitutional rule is "narrowing
+is breaking unless the narrowed-out range is provably empty in the wild."
+The audit is the proof. If a future consumer surfaces a `{87,88}`-form
+signature post-`v8.6.0`, treat it as a v9.0.0-class spec violation
+(payloads that should have been rejected at the producer side per
+RFC 4648 §5 unpadded base64url) — not a v8.6.x patch.
+
+**Consumer action: none.** Producers already emitting unpadded
+base64url ed25519 signatures (the spec-correct form) continue to
+validate. Producers emitting `{87}` or `{88}` padded forms — observed
+nowhere as of the audit — would need to switch to unpadded encoding;
+this is the canonical RFC 4648 §5 form for ed25519 as used elsewhere
+in the surface.
+
+**Forward pointer to v9.0.0.** If at any point during the v8.6.x line a
+consumer surfaces a real `{87,88}` payload, it is captured as a
+`pollution event` against this audit and FR-A5 is rolled back to the
+`{86,88}` form for v8.7.x with a v9.0.0 re-tightening tracked. As of
+v8.6.0 GA, this rollback path is **not active**.
 
 ---
 
