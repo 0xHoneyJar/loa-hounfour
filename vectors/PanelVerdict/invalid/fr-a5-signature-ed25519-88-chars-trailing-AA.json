@@ -1,0 +1,131 @@
+{
+  "verdict_id": "550e8400-e29b-41d4-a716-446655440101",
+  "artifact_id": "550e8400-e29b-41d4-a716-446655440001",
+  "bucket": "HIGH_CONSENSUS",
+  "verdict": "proceed",
+  "juror_verdicts": [
+    {
+      "juror": {
+        "agent_id": "juror-1",
+        "display_name": "Juror One",
+        "agent_type": "human",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "vote": {
+        "voter_id": "juror-1",
+        "vote": "agree",
+        "result": {
+          "decision": "proceed"
+        },
+        "confidence": 0.9
+      },
+      "score": 850,
+      "voted_at": "2026-05-05T00:00:30Z"
+    },
+    {
+      "juror": {
+        "agent_id": "juror-2",
+        "display_name": "Juror Two",
+        "agent_type": "human",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "vote": {
+        "voter_id": "juror-2",
+        "vote": "agree",
+        "result": {
+          "decision": "proceed"
+        },
+        "confidence": 0.85
+      },
+      "score": 820,
+      "voted_at": "2026-05-05T00:00:31Z"
+    },
+    {
+      "juror": {
+        "agent_id": "juror-3",
+        "display_name": "Juror Three",
+        "agent_type": "human",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "vote": {
+        "voter_id": "juror-3",
+        "vote": "agree",
+        "result": {
+          "decision": "proceed"
+        },
+        "confidence": 0.88
+      },
+      "score": 840,
+      "voted_at": "2026-05-05T00:00:32Z"
+    },
+    {
+      "juror": {
+        "agent_id": "juror-4",
+        "display_name": "Juror Four",
+        "agent_type": "human",
+        "capabilities": [
+          "governance"
+        ],
+        "trust_scopes": {
+          "scopes": {},
+          "default_level": "trusted"
+        },
+        "delegation_authority": [],
+        "max_delegation_depth": 0,
+        "governance_weight": 0.25,
+        "contract_version": "8.4.0"
+      },
+      "vote": {
+        "voter_id": "juror-4",
+        "vote": "agree",
+        "result": {
+          "decision": "proceed"
+        },
+        "confidence": 0.91
+      },
+      "score": 870,
+      "voted_at": "2026-05-05T00:00:33Z"
+    }
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "signed_by": "ed25519-pub:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "signing_key_id": "panel-key-2026-05",
+  "signing_algorithm": "ed25519",
+  "signed_at": "2026-05-05T00:01:00Z",
+  "resolved_at": "2026-05-05T00:02:00Z",
+  "signing_context": {
+    "audience": "panel-runner-v1",
+    "scope": "panel-v1/security-review",
+    "contract_version": "8.4.0"
+  }
+}

@@ -55,8 +55,11 @@ export const CrossScoreReportSchema = Type.Object(
       { description: 'Whether scores influence routing (enforced) or are recorded only (shadow).' },
     ),
     signature: Type.String({
-      pattern: '^ed25519:[A-Za-z0-9_-]{86,88}$',
-      description: 'Ed25519 signature over the canonical JSON. Verification is consumer-side per NF-1.',
+      pattern: '^ed25519:[A-Za-z0-9_-]{86}$',
+      description:
+        'Ed25519 signature over the canonical JSON. '
+        + 'Unpadded base64url per RFC 4648 §5: exactly 86 characters. '
+        + 'Verification is consumer-side per NF-1.',
     }),
     signed_by: Type.String({
       pattern: '^ed25519-pub:[A-Za-z0-9_-]{43,44}$',

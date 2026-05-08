@@ -410,8 +410,8 @@
       "type": "integer"
     },
     "signature": {
-      "pattern": "^ed25519:[A-Za-z0-9_-]{86,88}$",
-      "description": "Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).",
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. Unpadded base64url per RFC 4648 §5: exactly 86 characters. Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).",
       "type": "string"
     },
     "signed_by": {

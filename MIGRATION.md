@@ -1,8 +1,186 @@
-<!-- docs-version: 8.5.0 -->
+<!-- docs-version: 8.6.0-inflight -->
 
 # Migration & Schema Evolution Guide
 
 > Cross-version communication strategy for `@0xhoneyjar/loa-hounfour` consumers.
+
+---
+
+## Policy: `PSEUDO-MAJOR-EQUIVALENT-NULL` classification
+
+> **Scope:** narrowing changes that would, under strict semver, require a
+> major bump, but for which the narrowed-out range is provably unreachable
+> by any spec-conformant input.
+
+A change MAY be classified `PSEUDO-MAJOR-EQUIVALENT-NULL` and shipped under
+a minor bump if and only if **all four** of the following are committed
+artifacts in the same PR:
+
+1. **Cryptographic / structural impossibility proof.** The narrowed-out
+   range must be unreachable by spec-conformant inputs. The proof is the
+   load-bearing evidence (e.g., RFC-derived byte-length math, formal
+   protocol invariant). A surveyed-empty consumer corpus is corroborative
+   only — the impossibility argument is what gates the bump.
+2. **Consumer-corpus audit.** A reproducible script that surveys every
+   known consumer for any payload that would no longer validate. Result
+   tabulated per-repo. Audit committed under `docs/audits/`.
+3. **MIGRATION.md classification entry.** Names the affected schemas,
+   before/after patterns, the impossibility proof, and a forward-pointer
+   to the rollback target if a real `pollution event` surfaces post-ship.
+4. **Negative conformance fixtures.** Fixtures asserting schema-level
+   rejection of the narrowed-out range; picked up by the existing test
+   runner so regressions surface in CI.
+
+**Evidence asymmetry rule.** When the impossibility proof and the audit
+disagree (e.g., a corpus hit on a payload the spec says is impossible),
+the proof wins for the classification but the corpus hit is treated as
+a producer-side spec violation requiring its own resolution. When the
+audit is incomplete (consumers skipped), the impossibility proof must
+carry the full load alone.
+
+**Pollution event obligation.** If any consumer surfaces a real payload
+in the narrowed-out range post-ship, the change is treated as a
+pollution event against the audit. The rollback path documented in the
+MIGRATION.md classification entry activates immediately; the v9.0.0
+re-tightening absorbs the eventual return to the narrower pattern.
+
+**Norm-decay guard.** Each invocation of `PSEUDO-MAJOR-EQUIVALENT-NULL`
+must reference both the four required artifacts AND the strength of the
+impossibility proof. The first invocation (FR-A5, this document) sets
+precedent. Future invocations citing this policy must demonstrate
+equally bulletproof impossibility — the bar does not lower with usage.
+
+### Acceptable proof classes
+
+To prevent norm decay through subjective proof-strength judgment, the
+classes of impossibility proof that qualify under this policy are
+enumerated:
+
+| Proof class | Qualifying example | Disqualifying example |
+|---|---|---|
+| **RFC-mandated byte-length encoding math** | "Ed25519 signatures are 64 bytes; RFC 4648 §5 unpadded base64url encodes 64 bytes to exactly 86 characters" (FR-A5) | "Most signatures we've seen are 86 chars" |
+| **Cryptographic-primitive output size** | "SHA-256 outputs 32 bytes; hex-encoded `^[a-f0-9]{64}$` cannot accept any other length" | "Our consumers all use SHA-256" |
+| **Formal protocol invariants** | "RFC 8785 forbids whitespace in canonical JSON; `\s` characters cannot appear in any spec-conformant payload" | "We've never seen whitespace in payloads" |
+
+**Disqualifying proof classes** (NOT acceptable under this policy):
+
+- "No observed consumer use" alone — corpus-survey evidence is
+  corroborative only; it is not a proof class on its own.
+- "We control the producer side" — controlling current producers does
+  not constrain future producers or non-conformant third-party libraries.
+- "The narrowed-out range is ambiguous in the spec" — ambiguity is not
+  impossibility; spec-disambiguation work belongs in a major bump.
+
+**Second-reviewer requirement.** Any future MIGRATION.md entry invoking
+`PSEUDO-MAJOR-EQUIVALENT-NULL` must include a named second-reviewer
+sign-off line confirming the impossibility proof falls into one of the
+qualifying proof classes above. The first invocation (FR-A5) serves as
+the reviewed precedent; subsequent invocations carry their own sign-off.
+
+The first invocation is FR-A5 below; subsequent narrowings must satisfy
+the same bar.
+
+---
+
+## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 ed25519 pattern narrowing)
+
+> **Status:** in-flight on `cycle-005`. The first landed change is FR-A5
+> (this section). Other v8.6.0 work — opt-in fail-closed (FR-A4), ORD-5
+> escalation prep (FR-A3), Tier-1/Tier-2 envelopes, builtins — lands in
+> later PRs and is documented as it ships.
+
+### FR-A5 — Signature pattern narrowing on three v8.4.0 schemas
+
+In v8.6.0 the `signature` field on `OrgRepresentativeDelegation`,
+`PanelVerdict`, and `CrossScoreReport` narrows from
+`^ed25519:[A-Za-z0-9_-]{86,88}$` to `^ed25519:[A-Za-z0-9_-]{86}$`.
+
+**Classification: `PSEUDO-MAJOR-EQUIVALENT-NULL`.** A schema-pattern
+narrowing is, in the abstract, a strict-non-additive change — payloads
+that previously validated may newly fail. In this concrete case the
+v8.6.0 consumer-corpus audit returned **zero hits** for `{87,88}`-form
+ed25519 signatures across every consumer repo on file at audit time.
+No records are affected. The change is therefore released under a minor
+bump (alongside the other additive v8.6.0 work) rather than a major
+bump, with this MIGRATION entry providing the explicit decision trail.
+
+| Property | Value |
+|---|---|
+| Classification | `PSEUDO-MAJOR-EQUIVALENT-NULL` |
+| Affected schemas | `OrgRepresentativeDelegation`, `PanelVerdict`, `CrossScoreReport` |
+| Pre-narrowing pattern | `^ed25519:[A-Za-z0-9_-]{86,88}$` |
+| Post-narrowing pattern | `^ed25519:[A-Za-z0-9_-]{86}$` |
+| Audit result | Zero hits for `{87,88}` forms across consumer corpus |
+| Uniformity outcome | All five ed25519-bearing schemas in v8.6.0 (the three above plus v8.5.0 `SignatureEnvelope` and `RecallReceipt`) emit the same 86-char pattern |
+| Negative-fixture coverage | +20 invalid fixtures asserting rejection of `{87,88}` forms (7 / 7 / 6 across the three schemas) |
+
+**Why the audit gates the bump.** The constitutional rule is "narrowing
+is breaking unless the narrowed-out range is provably empty in the wild."
+The audit is the proof. If a future consumer surfaces a `{87,88}`-form
+signature post-`v8.6.0`, treat it as a v9.0.0-class spec violation
+(payloads that should have been rejected at the producer side per
+RFC 4648 §5 unpadded base64url) — not a v8.6.x patch.
+
+The audit artifact is committed at
+[`docs/audits/fr-a5-ed25519-corpus-2026-05.md`](docs/audits/fr-a5-ed25519-corpus-2026-05.md):
+method, command, per-repo results, and a reproducer block. The hash of
+that file is the auditable evidence; the prose here references it.
+
+**Consumers MUST consume only published GitHub Packages releases
+during cycle-005.** The `main` branch is **unstable** — schema bytes
+land ahead of the version-field bump (see "Intentional version-field
+sequencing" below). A consumer that pins to a `main`-tracking ref
+(git submodule, path dependency, branch tag) during cycle-005 will
+ingest stricter validation under an unchanged `version: 8.5.2`
+identifier, which silently rejects payloads a true v8.5.2 release
+would accept. The supported consumption channels are: published
+GitHub Packages releases (post-PR-A3.12), or the `pre-cycle-005`
+SHA at `eae1a9e1` (the last cycle-005 hygiene-only commit). Any
+other `main` ref between PR-A3.0 merge and the v8.6.0 ship PR is
+work-in-progress and not safe for consumer ingestion.
+
+**Intentional version-field sequencing.** During cycle-005 the in-flight
+contract accumulates several minor-class additions (FR-A1..A6 + 11
+coordinator schemas) across ~12 PRs before the version bump lands.
+`CONTRACT_VERSION` (and the `version` field in `schemas/index.json`,
+which mirrors it) stays at `8.5.2` until the v8.6.0 final ship PR,
+where it bumps to `8.6.0` alongside the GitHub Packages publish step. This concentrates
+contract-version churn at one point per cycle rather than emitting an
+RC-tag per PR. Consumers see a single `8.5.2 → 8.6.0` step in the
+published package; the in-flight `main` branch carries the schema
+bytes ahead of the version field deliberately. This is the same
+sequencing the cycle-005 hygiene PR used (no version bump), and the
+same that all subsequent FR-A/FR-C work will use; the bump is locked
+to the v8.6.0 ship PR.
+
+**Consumer action: none.** Producers already emitting unpadded
+base64url ed25519 signatures (the spec-correct form) continue to
+validate. Producers emitting `{87}` or `{88}` padded forms — observed
+nowhere as of the audit — would need to switch to unpadded encoding;
+this is the canonical RFC 4648 §5 form for ed25519 as used elsewhere
+in the surface.
+
+**Forward pointer — `ed25519-pub` follow-up.** The same impossibility
+argument that gates this signature narrowing also applies to the
+`signed_by` field's `ed25519-pub` pattern. By RFC 4648 §5 math, ed25519
+public keys (32 bytes) encode to exactly 43 unpadded base64url
+characters (`ceil(32 * 8 / 6) = 43`, no remainder, no `=` padding). The
+present `^ed25519-pub:[A-Za-z0-9_-]{43,44}$` pattern admits a `{44}`
+form that is mathematically unreachable for any spec-conformant
+producer. A follow-up FR in v8.7.0 would narrow this under the same
+`PSEUDO-MAJOR-EQUIVALENT-NULL` framework — same proof class
+(RFC-mandated byte-length), same artifact requirements, same audit
+template. FR-A5 was deliberately scoped to the `signature` field only
+to avoid bundling a second narrowing into a precedent-setting first
+invocation; the framework now enables the public-key narrowing as a
+clean follow-up.
+
+**Forward pointer to v9.0.0.** If at any point during the v8.6.x line a
+consumer surfaces a real `{87,88}` payload, it is captured as a
+`pollution event` against this audit and FR-A5 is rolled back to the
+`^ed25519:[A-Za-z0-9_-]{86,88}$` form (regex quantifier — accepts 86,
+87, and 88 characters) for v8.7.x with a v9.0.0 re-tightening tracked.
+As of v8.6.0 GA, this rollback path is **not active**.
 
 ---
 
