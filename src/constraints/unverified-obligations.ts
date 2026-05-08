@@ -41,6 +41,7 @@ import type { Constraint, ConstraintFile } from './types.js';
  * `INTEGRITY_DEFERRED` paths) populate the new values.
  */
 export type UnverifiedObligationReason =
+  | 'chain_context_provided'
   | 'context_absent'
   | 'crypto_deferred'
   | 'integrity_deferred'
@@ -72,7 +73,11 @@ export interface UnverifiedObligationEntry {
    * `pattern_matching` — pattern-matched obligation (reserved for future
    * pattern-DSL rules).
    * `vocabulary_drift` — value lies outside a canonical vocabulary
-   * (currently only ORD-5 capability_scope).
+   * (currently ORD-5 capability_scope; surfaced at validate() time in
+   * v8.6.0 per FR-A3).
+   * `chain_context_provided` — FR-A4 (v8.6.0) opt-in acknowledgment that
+   * the consumer supplied `chainContext.granted_by_chain_records` and
+   * accepts the v9.0.0 fail-closed semantics ahead of the default flip.
    */
   reason?: UnverifiedObligationReason;
   /** Human explanation of the consumer obligation. */

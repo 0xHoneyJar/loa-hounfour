@@ -1,0 +1,51 @@
+{
+  "case_id": "case-05-default-malformed-genesis",
+  "description": "Default mode, chainContext present but granted_by_chain_records is not an array. Expected: valid:true with ORD-3 manifest reason context_absent (malformed treated as absent per hasChainContextRecords).",
+  "validate_options": {
+    "chainContext": {
+      "granted_by_chain_records": "not-an-array"
+    }
+  },
+  "data": {
+    "delegation_id": "550e8400-e29b-41d4-a716-446655440501",
+    "org_id": "550e8400-e29b-41d4-a716-446655440301",
+    "representative": {
+      "agent_id": "rep-1",
+      "display_name": "Representative One",
+      "agent_type": "human",
+      "capabilities": [
+        "governance"
+      ],
+      "trust_scopes": {
+        "scopes": {},
+        "default_level": "trusted"
+      },
+      "delegation_authority": [
+        "invoke"
+      ],
+      "max_delegation_depth": 2,
+      "governance_weight": 1.0,
+      "contract_version": "8.4.0"
+    },
+    "capability_scope": {
+      "governance": "vote-and-propose"
+    },
+    "expiry": "2027-05-05T00:00:00Z",
+    "granted_by": "genesis:org-public-key",
+    "chain_depth": 0,
+    "signature": "ed25519:IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII",
+    "signed_by": "ed25519-pub:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "signing_key_id": "org-cold-key-2026",
+    "signing_algorithm": "ed25519",
+    "signed_at": "2026-05-05T00:00:00Z",
+    "signing_context": {
+      "audience": "550e8400-e29b-41d4-a716-446655440301",
+      "scope": "org-delegation/grant",
+      "contract_version": "8.4.0"
+    }
+  },
+  "expected": {
+    "valid": true,
+    "ord3_reason": "context_absent"
+  }
+}

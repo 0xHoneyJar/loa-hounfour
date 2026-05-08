@@ -82,12 +82,147 @@ the same bar.
 
 ---
 
-## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 ed25519 pattern narrowing)
+## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 + FR-A4 + FR-A3)
 
-> **Status:** in-flight on `cycle-005`. The first landed change is FR-A5
-> (this section). Other v8.6.0 work — opt-in fail-closed (FR-A4), ORD-5
-> escalation prep (FR-A3), Tier-1/Tier-2 envelopes, builtins — lands in
+> **Status:** in-flight on `cycle-005`. Landed changes documented below
+> as they ship: FR-A5 (ed25519 pattern narrowing), FR-A4 (ORD-3 fail-
+> closed opt-in via `validate({ failClosed: true })`), FR-A3 (ORD-5
+> vocabulary-drift surfacing at validate() time). Remaining v8.6.0
+> work — Tier-1/Tier-2 envelopes, builtins, plan-governance — lands in
 > later PRs and is documented as it ships.
+
+### FR-A4 — `validate()` `failClosed` opt-in for `x-chain-bearing` schemas
+
+**Default behavior (NFR-1 — preserved unchanged from v8.5.x).** Calling
+`validate(schema, payload)` on an `x-chain-bearing` schema (currently
+only `OrgRepresentativeDelegation`) without supplying `chainContext`
+continues to return `{ valid: true, unverified_obligations: { ... } }`
+with the ORD-3 entry carrying `reason: 'context_absent'`. With chain
+context supplied, the entry carries `reason: 'pattern_matching'`. No
+v8.5.x consumer code path changes shape.
+
+**FR-A4 opt-in (additive, off-by-default).** v8.6.0 adds a new
+`failClosed?: boolean` option to `validate()`. When set to `true`, the
+chain-bearing schema validates fail-closed:
+
+```typescript
+import { validate } from '@0xhoneyjar/loa-hounfour';
+import { OrgRepresentativeDelegationSchema } from '@0xhoneyjar/loa-hounfour/governance';
+
+// Chain context absent → HARD reject (instead of v8.5.x's manifest-only)
+const result = validate(OrgRepresentativeDelegationSchema, payload, {
+  failClosed: true,
+});
+// {
+//   valid: false,
+//   errors: ['CHAIN_CONTEXT_DEFERRED: Chain-bearing schema validated with { failClosed: true } but `chainContext.granted_by_chain_records` was not supplied. ...'],
+// }
+
+// Chain context supplied → manifest entry with new reason
+const ok = validate(OrgRepresentativeDelegationSchema, payload, {
+  failClosed: true,
+  chainContext: { granted_by_chain_records: [/* full chain + sentinel */] },
+});
+// {
+//   valid: true,
+//   unverified_obligations: {
+//     unverified_rules: [{ rule_id: 'ORD-3', reason: 'chain_context_provided', ... }],
+//     ...
+//   },
+// }
+```
+
+The `'chain_context_provided'` reason is the explicit acknowledgment that
+the consumer has assembled the chain and accepts the v9.0.0 fail-closed
+default semantics ahead of the flip.
+
+**Manifest reason matrix (per validate-call mode):**
+
+| Mode | Chain context | Result | ORD-3 manifest reason |
+|---|---|---|---|
+| Default (`failClosed` unset / `false`) | absent or malformed | `valid: true` | `context_absent` |
+| Default | present | `valid: true` | `pattern_matching` |
+| Opt-in (`failClosed: true`) | absent or malformed | `valid: false`, error: `CHAIN_CONTEXT_DEFERRED:` | (no manifest — error is the audit signal) |
+| Opt-in | present | `valid: true` | `chain_context_provided` |
+
+Twelve cross-product fixtures under
+`vectors/OrgRepresentativeDelegation/v8.6.0-fail-closed/` exercise every
+cell of the matrix × {genesis-rooted, chained} record kinds.
+
+**Consumer migration path.**
+
+1. **Today (v8.6.0):** continue calling `validate(schema, payload)` with
+   no options — behavior is identical to v8.5.x. No work required.
+2. **Pre-v9.0.0 hardening (recommended):** opt in to fail-closed
+   semantics in production code paths where chain assembly is feasible.
+   Pass `{ failClosed: true, chainContext: { granted_by_chain_records: [...] } }`
+   to receive the `chain_context_provided` acknowledgment manifest entry.
+   Audits can attribute v9.0.0 readiness state per-record from the
+   manifest reason.
+3. **v9.0.0 (forward-pointer):** `failClosed: true` becomes the default.
+   Code paths still calling `validate(schema, payload)` without chain
+   context will start receiving `{ valid: false, errors: ['CHAIN_CONTEXT_DEFERRED: ...'] }`.
+   Consumers MUST either supply chain context or explicitly opt out via
+   `{ failClosed: false }` (which the v9.0.0 release notes will frame as
+   a v9.0.x-only escape hatch removed in v10.0.0). The `'context_absent'`
+   reason will be retired in v9.0.0; the `'pattern_matching'` reason
+   stays for non-fail-closed code paths.
+
+**The `x-chain-bearing` schema flag.** v8.6.0 adds
+`'x-chain-bearing': true` to `OrgRepresentativeDelegationSchema`'s
+TypeBox options, mirroring the existing `'x-crypto-bearing'` /
+`'x-integrity-bearing'` flags. The validator routes the failClosed
+opt-in path on this flag; future schemas opting into the same
+fail-closed contract simply add the flag and inherit the routing.
+
+### FR-A3 — ORD-5 vocabulary-drift surfacing at `validate()` time
+
+**v8.5.x behavior.** ORD-5 (`capability_scope` keys MUST be in the
+canonical CapabilityScope vocabulary: `billing | governance | inference
+| delegation | audit | composition`) is defined in
+`constraints/OrgRepresentativeDelegation.constraints.json` with
+`severity: 'warning'` and `evaluator: 'library'`, but only the
+`npm run check:constraints` static lint surfaced it. Calling
+`validate()` returned no manifest entry for non-canonical keys — the
+authorization-drift signal lived only in the lint output.
+
+**v8.6.0 change (additive only).** `validate()` now surfaces ORD-5 as a
+manifest entry at runtime. For each `capability_scope` key outside the
+canonical set, one entry is emitted:
+
+```typescript
+{
+  rule_id: 'ORD-5',
+  evaluator: 'library',
+  reason: 'vocabulary_drift',
+  evaluation_note: 'capability_scope key "<key>" is outside the canonical vocabulary. ...',
+  consumer_acknowledgment_required: true,
+  ...
+}
+```
+
+The `valid: true | false` outcome **does not change** — ORD-5 stays at
+`severity: 'warning'` for v8.6.0 per the cycle-005 soak window. Promotion
+to `severity: 'error'` (which would flip ORD-5 onto the `valid: false`
+path) is a PR-A3.10 decision driven by soak telemetry — consumers are
+asked to aggregate `reason: 'vocabulary_drift'` entry counts per
+calendar window across their record corpus and surface the fire rate to
+the maintainer ahead of the PR-A3.10 review.
+
+**Consumer migration path.**
+
+1. **Today (v8.6.0):** existing fixtures using canonical keys
+   (`governance`, `billing`, etc.) emit no ORD-5 entries — no test
+   changes required.
+2. **Drift detection:** add a manifest-walk step in your conformance
+   suite that flags `reason: 'vocabulary_drift'` entries and surfaces
+   the per-key fire counts. The aggregation period (daily, weekly) and
+   the surfacing channel (dashboard, log line, alert) is consumer-
+   chosen — hounfour does not specify either.
+3. **Pre-PR-A3.10 (mid-cycle-005):** report aggregate fire rates back to
+   the maintainer so the soak telemetry can drive the promotion
+   decision. Fire rate <1% → promote to error in PR-A3.10; 1–5% → defer
+   to v8.7.0; >5% → expand the canonical vocabulary first.
 
 ### FR-A5 — Signature pattern narrowing on three v8.4.0 schemas
 

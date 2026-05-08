@@ -169,10 +169,15 @@ export const OrgRepresentativeDelegationSchema = Type.Object(
     $id: 'OrgRepresentativeDelegation',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    'x-chain-bearing': true,
     description:
       'Append-only delegation record binding org → representative, signed under '
       + 'a signing_context envelope. Cross-field rules in '
-      + 'constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3).',
+      + 'constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3). '
+      + 'Carries `x-chain-bearing: true` (FR-A4): consumers MAY pass '
+      + '`{ failClosed: true }` to validate() to reject records when '
+      + '`chainContext.granted_by_chain_records` is absent — see MIGRATION.md '
+      + 'v8.5.x → v8.6.0 FR-A4 section for the opt-in contract.',
   },
 );
 export type OrgRepresentativeDelegation = Static<typeof OrgRepresentativeDelegationSchema>;
