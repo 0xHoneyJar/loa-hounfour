@@ -36,10 +36,11 @@ describe('evaluateCanonicalSizeCap (standalone)', () => {
       expect(result.valid).toBe(true);
     });
 
-    it('cap=0 with empty array fails (canonical "[]" is 2 bytes > 0)', () => {
+    it('cap=0 rejected as INVALID_INPUT (iter-2 F7 — degenerate programmer-error case)', () => {
       const result = evaluateCanonicalSizeCap([], 0);
       expect(result.valid).toBe(false);
-      expect(result.diagnostic?.code).toBe('CANONICAL_SIZE_CAP_EXCEEDED');
+      expect(result.diagnostic?.code).toBe('CANONICAL_SIZE_CAP_INVALID_INPUT');
+      expect(result.diagnostic?.message).toContain('positive integer');
     });
   });
 

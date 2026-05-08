@@ -1756,7 +1756,8 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Non-string fields return false (SIGNER_KEY_ID_INVALID_INPUT)',
       'Null record returns false (SIGNER_KEY_ID_INVALID_INPUT)',
       'Case-insensitive comparison: uppercase hex on the wire matches lowercase derivation',
-      'Colon delimiter is byte-stable (ASCII 0x3A); NFC normalization not applied — consumers MUST author cluster_ids in NFC form',
+      'NFC normalization is applied to BOTH inputs before hashing (homograph-attack mitigation per iter-1 review e0c46b14): String.prototype.normalize("NFC") in TS; equivalent in Go/Python/Rust per the cross-runner conformance contract',
+      'Colon delimiter is byte-stable (ASCII 0x3A); cross-runner authors use the same delimiter byte',
     ],
   }],
 ]);

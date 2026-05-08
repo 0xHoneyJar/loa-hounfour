@@ -31,6 +31,8 @@ import {
 import {
   PhaseCompletionEnvelopeTier1Schema,
 } from '../../src/integrity/phase-completion-envelope-tier1.js';
+import { validate } from '../../src/validators/index.js';
+import '../../src/validators/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VECTORS_ROOT = join(
@@ -137,5 +139,56 @@ describe('PhaseCompletionEnvelope vector fixtures (FR-B2 / PR-A3.4)', () => {
         }
       });
     }
+  });
+});
+
+// Iter-2 MEDIUM F5/F6 mitigation: integration test wiring schema +
+// crypto-bearing acknowledgment + UnverifiedObligationsManifest
+// surfacing. Confirms that consumers calling validate() on a Tier-2
+// envelope receive ALL the runtime-deferred obligations (PCE-1
+// cluster signature, PCE-4 nonce uniqueness, PCE-5 sequence
+// monotonicity, PCE-6 chain prev-hash) as actionable manifest
+// entries — closing the F5 risk that runtime-deferred constraints
+// silently no-op without consumer awareness.
+describe('PhaseCompletionEnvelope validate() obligations surfacing (iter-2 F5/F6)', () => {
+  it('emits crypto-deferred obligation when validate() is called with acceptDeferred', () => {
+    const { data } = loadFixture('valid', 'canonical-001-genesis-anchor.json');
+    // The schema is x-crypto-bearing; default validate() returns
+    // valid:false unless acceptDeferred is supplied.
+    const result = validate(PhaseCompletionEnvelopeSchema, data, { acceptDeferred: true });
+    expect(result.valid).toBe(true);
+    if (result.valid !== true) return;
+    const manifest = result.unverified_obligations;
+    expect(manifest, 'manifest must be emitted on the crypto-deferred path').toBeDefined();
+    expect(manifest!.unverified_rules.length).toBeGreaterThan(0);
+    // crypto_deferred reason MUST appear (this is the structural
+    // surfacing that satisfies F5 — runtime-deferred obligations are
+    // observable).
+    const reasons = manifest!.unverified_rules.map((r) => r.reason);
+    expect(reasons).toContain('crypto_deferred');
+  });
+
+  it('default validate() rejects with CRYPTO_DEFERRED (safe-by-default x-crypto-bearing)', () => {
+    const { data } = loadFixture('valid', 'canonical-001-genesis-anchor.json');
+    const result = validate(PhaseCompletionEnvelopeSchema, data);
+    expect(result.valid).toBe(false);
+    if (result.valid !== false) return;
+    expect(result.errors.some((e) => e.includes('CRYPTO_DEFERRED'))).toBe(true);
+  });
+
+  it('chain-bearing flag enables failClosed opt-in (FR-A4 contract)', () => {
+    const { data } = loadFixture('valid', 'canonical-001-genesis-anchor.json');
+    // Without chainContext + failClosed, the chain-bearing schema
+    // emits the manifest entry but accepts the record (default path).
+    const result1 = validate(PhaseCompletionEnvelopeSchema, data, { acceptDeferred: true });
+    expect(result1.valid).toBe(true);
+    // With failClosed + missing chainContext, validate() MUST reject.
+    const result2 = validate(PhaseCompletionEnvelopeSchema, data, {
+      acceptDeferred: true,
+      failClosed: true,
+    });
+    expect(result2.valid).toBe(false);
+    if (result2.valid !== false) return;
+    expect(result2.errors.some((e) => e.startsWith('CHAIN_CONTEXT_DEFERRED:'))).toBe(true);
   });
 });

@@ -63,16 +63,24 @@ export function evaluateCanonicalSizeCap(
   if (
     typeof byteCap !== 'number' ||
     !Number.isFinite(byteCap) ||
-    byteCap < 0 ||
+    byteCap <= 0 ||
     !Number.isInteger(byteCap)
   ) {
+    // Iter-2 LOW F7 mitigation: reject byteCap ≤ 0 as INVALID_INPUT
+    // rather than letting cap=0 silently produce CANONICAL_SIZE_CAP_EXCEEDED
+    // (every non-empty value canonicalizes to ≥2 bytes, so cap=0 is a
+    // degenerate case that always fires EXCEEDED — masking the
+    // programmer-error class). Cap=0 is meaningless for a size cap;
+    // surface it explicitly.
     return {
       valid: false,
       diagnostic: {
         code: 'CANONICAL_SIZE_CAP_INVALID_INPUT',
         message:
-          `canonical_size_cap: byte_cap must be a non-negative integer; ` +
-          `received ${typeof byteCap === 'number' ? byteCap : typeof byteCap}.`,
+          `canonical_size_cap: byte_cap must be a positive integer; ` +
+          `received ${typeof byteCap === 'number' ? byteCap : typeof byteCap}. ` +
+          `Cap=0 is a degenerate case (every non-empty value exceeds it) ` +
+          `and is rejected as a programmer-error signal.`,
       },
     };
   }
