@@ -29,6 +29,22 @@
         "epic_id": "string",
         "canonical_run_id": "string"
       }
+    },
+    {
+      "id": "EC-3",
+      "expression": "consumer enforces strict-monotonic-nondecreasing ts ordering within each (cluster_id, epic_id, canonical_run_id) composite-key group — successive EpicCheckpoint records for the same EPIC instance MUST have non-decreasing ts; a regression indicates clock skew, replay, or out-of-order delivery",
+      "severity": "error",
+      "message": "EpicCheckpoint chain temporal ordering: ts MUST be non-decreasing within a composite-key group. ts regression breaks the monotonic-progress invariant the runtime relies on for retry-count semantics and last-write-wins state reconciliation.",
+      "fields": ["cluster_id", "epic_id", "canonical_run_id", "ts", "retry_count"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record temporal invariant. Within the same composite key (cluster_id, epic_id, canonical_run_id), checkpoints form a chain of progress states: an unchanged retry_count with the same in_progress_tool_call indicates a re-emission; an incremented retry_count with the same tool_id indicates a retry of the same tool call; a different tool_id indicates phase progress. All three modes require ts to be non-decreasing — a regression is either clock skew (consumer should adjust source clock or stamp retry_count instead), replay (consumer should dedupe by composite key), or genuine out-of-order delivery (consumer should re-buffer). Runtime-deferred because the per-composite-key last-observed ts is consumer-side state. The companion FR-B4 oracle-health surface and FR-C2 sequence-monotonic-per-cluster builtin handle adjacent ordering domains; EC-3 specifically covers the per-EPIC checkpoint chain.",
+      "type_signature": {
+        "cluster_id": "string",
+        "epic_id": "string",
+        "canonical_run_id": "string",
+        "ts": "string",
+        "retry_count": "number"
+      }
     }
   ]
 }

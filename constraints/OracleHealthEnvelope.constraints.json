@@ -8,7 +8,7 @@
     {
       "id": "OHE-1",
       "expression": "consumer interprets model_call_circuit_breaker_state per their dispatch policy: 'healthy' → unrestricted; 'degraded' → reduced-rate / fallback; 'open' → stop dispatch + drain in-flight",
-      "severity": "info",
+      "severity": "warning",
       "message": "Circuit-breaker state surfaces dispatch policy guidance; consumer applies the policy.",
       "fields": ["model_call_circuit_breaker_state"],
       "evaluator": "runtime-deferred",

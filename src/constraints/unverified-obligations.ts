@@ -57,6 +57,7 @@ export type UnverifiedObligationReason =
   | 'sequence_context_deferred'
   | 'sequence_monotonic_violation'
   | 'signer_key_id_mismatch'
+  | 'utf8_byte_length_exceeded'
   | 'vocabulary_drift';
 
 export interface UnverifiedObligationEntry {

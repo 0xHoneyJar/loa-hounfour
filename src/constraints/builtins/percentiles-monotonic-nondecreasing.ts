@@ -88,6 +88,22 @@ export function evaluatePercentilesMonotonicNondecreasing(
         },
       };
     }
+    // PR-A3.5 iter-1 F-003: latencies are by definition non-negative.
+    // The schema declares minimum: 0, but constraint-evaluation may run
+    // independently of schema validation (consumer-side replay), so the
+    // builtin enforces the floor itself rather than relying on a
+    // structural pre-pass that may not run.
+    if ((m[f] as number) < 0) {
+      return {
+        valid: false,
+        diagnostic: {
+          code: 'PERCENTILES_MONOTONIC_INVALID_INPUT',
+          message:
+            `percentiles_monotonic_nondecreasing: ${f} must be ≥ 0; ` +
+            `received ${m[f] as number}. Latency percentiles cannot be negative.`,
+        },
+      };
+    }
   }
   const p50 = m.p50_ms as number;
   const p95 = m.p95_ms as number;

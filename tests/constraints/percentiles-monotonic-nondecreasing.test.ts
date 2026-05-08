@@ -161,6 +161,41 @@ describe('evaluatePercentilesMonotonicNondecreasing (standalone)', () => {
       expect(result.valid).toBe(false);
       expect(result.diagnostic?.code).toBe('PERCENTILES_MONOTONIC_INVALID_INPUT');
     });
+
+    // PR-A3.5 iter-1 F-003: latencies are non-negative by definition.
+    it('rejects negative p50_ms', () => {
+      const result = evaluatePercentilesMonotonicNondecreasing({
+        p50_ms: -1,
+        p95_ms: 50,
+        p99_ms: 100,
+        max_ms: 200,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('PERCENTILES_MONOTONIC_INVALID_INPUT');
+      expect(result.diagnostic?.message).toContain('≥ 0');
+    });
+
+    it('rejects negative max_ms', () => {
+      const result = evaluatePercentilesMonotonicNondecreasing({
+        p50_ms: 0,
+        p95_ms: 0,
+        p99_ms: 0,
+        max_ms: -0.001,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('PERCENTILES_MONOTONIC_INVALID_INPUT');
+    });
+
+    it('rejects all-negative percentiles', () => {
+      const result = evaluatePercentilesMonotonicNondecreasing({
+        p50_ms: -5,
+        p95_ms: -4,
+        p99_ms: -3,
+        max_ms: -2,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('PERCENTILES_MONOTONIC_INVALID_INPUT');
+    });
   });
 });
 

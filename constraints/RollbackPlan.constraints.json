@@ -8,7 +8,7 @@
     {
       "id": "RP-1",
       "expression": "consumer executes prs_to_revert + beads_to_reopen + env_changes_to_undo in declared order; an empty rollback plan is valid (no-op rollback)",
-      "severity": "info",
+      "severity": "warning",
       "message": "Rollback ordering is consumer-side; the schema admits empty arrays as no-op rollbacks.",
       "fields": ["prs_to_revert", "beads_to_reopen", "env_changes_to_undo"],
       "evaluator": "runtime-deferred",
