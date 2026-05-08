@@ -15,7 +15,9 @@ import {
   checkRule3SchemaFile,
   checkRule4,
   checkRule5,
+  checkRule6,
   RULE_5_ALLOWED_PATH,
+  RULE_6_GUARDED_PATH,
 } from '../../scripts/check-class-policy-boundary.ts';
 
 const noAllow = () => false;
@@ -168,5 +170,107 @@ describe("RULE-5 — direct 'canonicalize' import outside safe-canonicalize.ts (
     const allowed = (rule: string, path: string) =>
       rule === 'RULE-5' && path === 'src/utilities/signature.ts';
     expect(checkRule5('src/utilities/signature.ts', content, allowed)).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// RULE-6 — canonicalize/hash re-exports from src/integrity/index.ts (CT-01)
+// ---------------------------------------------------------------------------
+//
+// Added in cycle-005 / v8.6.0 (PR-A3.0) to make the CT-01 hybrid carve-out
+// explicit: re-exporting `safeCanonicalize` from @0xhoneyjar/loa-hounfour/integrity
+// is allowed under @experimental governance per
+// docs/architecture/canonicalization-spec-v8.6.md, but any other canonicalize-
+// or hash-named re-export added later must either carry @experimental in the
+// preceding comment block or be path-allowlisted.
+
+describe('RULE-6 — canonicalize/hash re-exports require @experimental annotation', () => {
+  it('does not flag a re-export that has @experimental in a // comment block', () => {
+    const content = `
+// safeCanonicalize is the v8.5.0 helper.
+//
+// @experimental — surface governed by canonicalization-spec-v8.6.md, not semver.
+export {
+  safeCanonicalize,
+} from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
+
+  it('does not flag a re-export that has @experimental in a JSDoc block', () => {
+    const content = `
+/**
+ * Canonicalization helper.
+ * @experimental
+ */
+export { safeCanonicalize } from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
+
+  it('flags a canonicalize re-export without an annotation', () => {
+    const content = `
+// Plain re-export — stable governance, no carve-out tag.
+export { canonicalizeForHash } from './hash-helper.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('flags a Canonicalize-prefixed re-export without an annotation', () => {
+    const content = `export { CanonicalizeHelper } from './helper.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('does not flag generic hash exports (CT-01 narrows to canonicalize only)', () => {
+    // Pre-existing v8.5.x exports like computeReqHash / EMPTY_BODY_HASH are
+    // stable utilities; RULE-6 deliberately does not police them.
+    const content = `export { computeHash, EMPTY_BODY_HASH } from './req-hash.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
+
+  it('does not flag re-exports of unrelated names', () => {
+    const content = `export { someOtherSymbol } from './elsewhere.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
+
+  it('only applies to src/integrity/index.ts (other paths ignored)', () => {
+    const content = `export { canonicalizeAnything } from './x.js';\n`;
+    expect(checkRule6('src/utilities/index.ts', content, noAllow)).toHaveLength(0);
+    expect(checkRule6('src/integrity/some-other-file.ts', content, noAllow)).toHaveLength(0);
+  });
+
+  it('handles type-prefixed and aliased exports correctly', () => {
+    const contentWithTag = `
+// @experimental tagged group export
+export {
+  safeCanonicalize,
+  type SafeCanonicalizeOptions,
+  CanonicalizeKeyCollisionError as CanonError,
+} from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, contentWithTag, noAllow)).toHaveLength(0);
+
+    const contentWithoutTag = `
+export {
+  safeCanonicalize,
+  type SafeCanonicalizeOptions,
+} from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, contentWithoutTag, noAllow)).toHaveLength(1);
+  });
+
+  it('respects path allowlist', () => {
+    const content = `export { canonicalizeNew } from './new.js';\n`;
+    const allowed = (rule: string, path: string) =>
+      rule === 'RULE-6' && path === RULE_6_GUARDED_PATH;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, allowed)).toHaveLength(0);
+  });
+
+  it('flags multiple non-tagged canonicalize blocks independently', () => {
+    const content = `
+export { canonicalizeOne } from './a.js';
+export { canonicalizeTwo } from './b.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(2);
   });
 });
