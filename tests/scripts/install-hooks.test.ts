@@ -61,6 +61,11 @@ describe('install-hooks.sh — pollution pre-commit hook (CT-13)', () => {
   });
 
   it('rejects a commit whose staged diff contains a forbidden term', () => {
+    // The forbidden term is split via string concatenation so this test
+    // file's source itself does not match the pollution-grep when the
+    // hook scans commits that touch this directory. The runtime
+    // concatenation produces the literal forbidden term in the
+    // file-on-disk that the test repo commits.
     writeFileSync(join(workDir, 'polluted.txt'), 'this file mentions sp' + 'iral which is forbidden\n');
     execFileSync('git', ['add', 'polluted.txt'], { cwd: workDir });
     const result = run('git', ['commit', '-m', 'add polluted file'], workDir);
@@ -74,7 +79,8 @@ describe('install-hooks.sh — pollution pre-commit hook (CT-13)', () => {
     execFileSync('git', ['add', 'README.md'], { cwd: workDir });
     execFileSync('git', ['commit', '-m', 'initial'], { cwd: workDir });
 
-    // Now amend with a pollution term.
+    // Now amend with a pollution term — concatenated for the same
+    // reason as the previous test (avoid self-match on this source file).
     writeFileSync(join(workDir, 'README.md'), 'first version\nspi' + 'ral added\n');
     execFileSync('git', ['add', 'README.md'], { cwd: workDir });
     const result = run('git', ['commit', '-m', 'add forbidden term'], workDir);

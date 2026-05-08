@@ -285,8 +285,12 @@ function hasExperimentalAnnotationBefore(content: string, endIndex: number): boo
     inComment = true;
     if (/@experimental\b/.test(trimmed)) return true;
   }
-  // Reached top of file inside a comment run with no tag found.
-  return inComment ? false : false;
+  // Reached top of file scanning the adjacent comment run without finding
+  // the tag (or never entered a comment run at all). `inComment` tracks the
+  // distinction for any future caller that wants to differentiate them; for
+  // this rule both outcomes are "annotation absent".
+  void inComment;
+  return false;
 }
 
 export function checkRule6(path: string, content: string, allowed: AllowlistChecker): Violation[] {
