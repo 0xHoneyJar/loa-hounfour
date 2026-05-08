@@ -81,8 +81,12 @@ needs a similar branching matrix, mint its own subdirectory (e.g.
 `vectors/<Schema>/v8.7.0-some-feature/`) with the same self-describing
 JSON shape rather than overloading this one.
 
-When adding cases, update the runner's `expect(cases.length).toBe(12)`
-assertion to the new total so accidental fixture loss is caught.
+When adding cases, add the new `case_id` to the `EXPECTED_CASE_IDS`
+Set in
+[`tests/governance/fr-a4-fail-closed-vectors.test.ts`](../../../tests/governance/fr-a4-fail-closed-vectors.test.ts).
+The runner asserts the present-on-disk case_ids exactly match the
+expected Set; a duplicate-and-delete failure surfaces the precise
+missing/extra `case_id` rather than a generic count mismatch.
 
 ## Cross-references
 

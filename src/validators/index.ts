@@ -1408,13 +1408,18 @@ export function validate<T extends TSchema>(
   //
   // TODO(cycle-005, deferred): The dispatch is currently $id-keyed because
   // `OrgRepresentativeDelegation` is the only vocabulary-bearing schema
-  // in cycle-005. When a second vocabulary check lands (e.g., a future
-  // capability-scope-bearing schema or a different controlled-vocabulary
-  // field), generalize this block to a metadata-driven `'x-vocabulary-bearing'`
-  // flag with a descriptor `{ field: '<name>', canonical_set: <Set<string>> }`,
-  // mirroring the `'x-chain-bearing'` generalization that FR-A4 introduced.
-  // Single-schema today, partial-generalization deferred to avoid
-  // over-engineering the metadata surface ahead of a second concrete user.
+  // in cycle-005. **Generalization trigger:** when a second
+  // controlled-vocabulary field lands on any schema in cycle-005 or
+  // later (e.g., a `Resource.tag_scope` field with a canonical tag set,
+  // or a second capability-scope-bearing record), generalize this block
+  // to a metadata-driven `'x-vocabulary-bearing'` flag whose value is a
+  // descriptor `{ field: '<name>', canonical_set: ReadonlySet<string> }`.
+  // The generalization must mirror the `'x-chain-bearing'` schema-flag
+  // pattern that FR-A4 introduced and must be paired with a corresponding
+  // `'x-vocabulary-bearing'` schema-metadata declaration in TypeBox
+  // options on the originating schema. Single-schema today,
+  // partial-generalization deferred to avoid over-engineering the
+  // metadata surface ahead of a second concrete user.
   if (
     schema.$id === 'OrgRepresentativeDelegation' &&
     typeof data === 'object' &&
@@ -1422,7 +1427,16 @@ export function validate<T extends TSchema>(
     'capability_scope' in data
   ) {
     const capabilityScope = (data as Record<string, unknown>).capability_scope;
-    if (typeof capabilityScope === 'object' && capabilityScope !== null) {
+    // F003 mitigation (PR-A3.2 iter-3): defense-in-depth — `typeof === 'object'`
+    // returns true for arrays in JavaScript, and while the TypeBox structural
+    // check upstream rejects arrays here, an explicit `!Array.isArray()` guard
+    // costs one expression and prevents nonsense vocabulary_drift entries if
+    // validation order ever shifts in a future refactor.
+    if (
+      typeof capabilityScope === 'object' &&
+      capabilityScope !== null &&
+      !Array.isArray(capabilityScope)
+    ) {
       // F2 mitigation (PR-A3.2 iter-1): sort drift keys before iteration so
       // manifest entry order is deterministic across input JSON serialization
       // variations — content-addressable diffing across corpora does not

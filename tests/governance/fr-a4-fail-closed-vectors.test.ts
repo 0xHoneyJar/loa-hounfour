@@ -22,7 +22,6 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { OrgRepresentativeDelegationSchema } from '../../src/governance/org-representative-delegation.js';
 import { validate } from '../../src/validators/index.js';
-import '../../src/validators/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_ROOT = join(
