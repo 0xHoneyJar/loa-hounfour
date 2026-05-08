@@ -120,9 +120,13 @@ const RULE_5_PATTERN = /(?:from|require\()\s*['"]canonicalize['"]/g;
 // English-and-American spellings.
 const RULE_6_EXPORT_BLOCK_PATTERN = /^export\s+\{([^}]*)\}\s+from\s+['"][^'"]+['"]\s*;/gm;
 const RULE_6_BARRED_NAME_PATTERN = /canonicaliz/i;
-// How many characters back to scan for an @experimental tag in comments.
-// 1500 chars covers ~30 lines of comments comfortably.
-const RULE_6_COMMENT_LOOKBACK = 1500;
+// `export * from '...'` and `export * as ns from '...'` are forbidden in
+// the guarded path entirely: they bypass name-level inspection, so a
+// re-export targeting a module that contains a `canonicalize`-named symbol
+// (now or later) silently slips through RULE-6's annotation check. The
+// carve-out is for *individually named, individually annotated* symbols.
+const RULE_6_NAMESPACE_REEXPORT_PATTERN =
+  /^export\s+\*(?:\s+as\s+\w+)?\s+from\s+['"][^'"]+['"]\s*;/gm;
 
 // ---------------------------------------------------------------------------
 // Rule check functions — pure (path, content, allowed) → Violation[]
@@ -239,27 +243,68 @@ function parseExportNames(body: string): string[] {
     .filter(Boolean);
 }
 
-// True if the slice of `content` ending at `endIndex` contains an
-// @experimental tag within the last RULE_6_COMMENT_LOOKBACK characters
-// AND that occurrence sits inside a line that begins with a comment marker.
-// Both `//` and `/** */` JSDoc forms count.
+// True if the @experimental tag sits in a comment block that is **directly
+// adjacent** to the export at `endIndex` — i.e. only blank lines and other
+// comment lines separate the tag from the export. A distant unrelated
+// comment block elsewhere in the file does NOT authorize a re-export.
+//
+// We walk lines backward from the export. The first non-blank line we
+// encounter must be a comment line. Within the contiguous comment-line
+// run that immediately precedes the export, we look for `@experimental`.
+// As soon as we hit a line that is neither blank nor a comment, the
+// adjacent block has ended without finding the tag.
 function hasExperimentalAnnotationBefore(content: string, endIndex: number): boolean {
-  const start = Math.max(0, endIndex - RULE_6_COMMENT_LOOKBACK);
-  const window = content.slice(start, endIndex);
-  // Find @experimental occurrences and check each is on a comment line.
-  const tag = /@experimental\b/g;
-  let m: RegExpExecArray | null;
-  while ((m = tag.exec(window)) !== null) {
-    const before = window.slice(0, m.index);
-    if (isCommentLine(before)) return true;
+  const before = content.slice(0, endIndex);
+  const lines = before.split('\n');
+  // Drop the partial line at the export start (split returns an empty/partial
+  // tail when content ends mid-line; for adjacency we only care about the
+  // lines strictly above).
+  if (!lines[lines.length - 1].trim().length) lines.pop();
+  let inComment = false;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.length === 0) {
+      // Blank line — allowed inside or between comment blocks; if we have
+      // not yet entered a comment block, treat as continuation.
+      continue;
+    }
+    const isComment =
+      trimmed.startsWith('//') ||
+      trimmed.startsWith('/*') ||
+      trimmed.startsWith('*/') ||
+      trimmed.startsWith('*');
+    if (!isComment) {
+      // First non-blank, non-comment line above — adjacency window closed.
+      return false;
+    }
+    inComment = true;
+    if (/@experimental\b/.test(trimmed)) return true;
   }
-  return false;
+  // Reached top of file inside a comment run with no tag found.
+  return inComment ? false : false;
 }
 
 export function checkRule6(path: string, content: string, allowed: AllowlistChecker): Violation[] {
   if (path !== RULE_6_GUARDED_PATH) return [];
   if (allowed('RULE-6', path)) return [];
   const out: Violation[] = [];
+
+  // (a) Namespace re-exports are unconditionally forbidden in the guarded
+  //     path — they bypass per-name inspection.
+  let nm: RegExpExecArray | null;
+  RULE_6_NAMESPACE_REEXPORT_PATTERN.lastIndex = 0;
+  while ((nm = RULE_6_NAMESPACE_REEXPORT_PATTERN.exec(content)) !== null) {
+    out.push({
+      rule: 'RULE-6',
+      path,
+      line: lineNumber(content, nm.index),
+      excerpt: `${nm[0].trim()} — namespace re-export forbidden in src/integrity/index.ts (bypasses RULE-6 name inspection)`,
+    });
+  }
+
+  // (b) Named re-exports must carry @experimental adjacent to the block when
+  //     any exported binding name matches /canonicaliz/i.
   let m: RegExpExecArray | null;
   RULE_6_EXPORT_BLOCK_PATTERN.lastIndex = 0;
   while ((m = RULE_6_EXPORT_BLOCK_PATTERN.exec(content)) !== null) {
@@ -271,7 +316,7 @@ export function checkRule6(path: string, content: string, allowed: AllowlistChec
       rule: 'RULE-6',
       path,
       line: lineNumber(content, m.index),
-      excerpt: `export { ${flagged.join(', ')} } missing @experimental in preceding comment block`,
+      excerpt: `export { ${flagged.join(', ')} } missing @experimental in directly preceding comment block`,
     });
   }
   return out;

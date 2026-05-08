@@ -273,4 +273,47 @@ export { canonicalizeTwo } from './b.js';
 `;
     expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(2);
   });
+
+  // F-001 — adjacency hardening. A distant `@experimental` comment block
+  // separated from the export by intervening *code* (not just blank/comment
+  // lines) must NOT authorize the re-export. The annotation contract is
+  // between a comment block and the export *immediately following* it.
+  it('does NOT accept @experimental from a distant non-adjacent comment block', () => {
+    const content = `
+// @experimental — this comment authorizes nothing in particular.
+export { unrelatedSymbol } from './unrelated.js';
+
+const intervening = 1;
+
+export { canonicalizeNew } from './new.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('accepts @experimental in a comment block separated only by blank lines', () => {
+    const content = `
+// @experimental — surface governed by canonicalization-spec-v8.6.md.
+
+
+export { safeCanonicalize } from '../utilities/safe-canonicalize.js';
+`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(0);
+  });
+
+  // F-002 — namespace re-exports bypass per-name inspection and are
+  // forbidden in the guarded path entirely.
+  it('flags `export * from` even when no canonicalize name appears literally', () => {
+    const content = `export * from './some-module.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('flags `export * as ns from` namespace alias re-exports', () => {
+    const content = `export * as integrity from './some-module.js';\n`;
+    expect(checkRule6(RULE_6_GUARDED_PATH, content, noAllow)).toHaveLength(1);
+  });
+
+  it('does not flag namespace re-exports in non-guarded paths', () => {
+    const content = `export * from './a.js';\nexport * as ns from './b.js';\n`;
+    expect(checkRule6('src/utilities/index.ts', content, noAllow)).toHaveLength(0);
+  });
 });

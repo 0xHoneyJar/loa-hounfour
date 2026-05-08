@@ -91,16 +91,45 @@ Callers that genuinely need larger payloads override `maxBytes` and assume the b
 
 ## 9. Plan-content-hash composition (FR-B9 / FR-C4)
 
-For `plan_content_hash` the canonical input is the **concatenation** of three documents in fixed order:
+`plan_content_hash` is computed over the **byte-concatenation** of three markdown documents in fixed order. Markdown bodies are **NOT** passed through `canonicalize()` from §2 — that function is RFC 8785 JSON serialization, which would JSON-quote and escape-encode the entire markdown string and produce different bytes than the source file. Markdown is treated as opaque-text-with-NFC, not as a JSON value.
 
 ```
-plan_canonical_bytes = canonicalize(prd_md_text) || "\n---\n" || canonicalize(sdd_md_text) || "\n---\n" || canonicalize(sprint_md_text)
-plan_content_hash = "sha256:" + lowercase_hex(sha256(plan_canonical_bytes))
+nfc_utf8(s)              := utf8_bytes(nfc_normalize(s))                    // §3 + §7 applied to a string
+plan_canonical_bytes     := nfc_utf8(prd_md_text)
+                          || "\n---\n"
+                          || nfc_utf8(sdd_md_text)
+                          || "\n---\n"
+                          || nfc_utf8(sprint_md_text)
+plan_content_hash        := "sha256:" + lowercase_hex(sha256(plan_canonical_bytes))
 ```
 
-Where `||` is byte concatenation, `\n---\n` is a fixed 5-byte separator (newline, three hyphens, newline), and `prd_md_text`/`sdd_md_text`/`sprint_md_text` are the **raw markdown contents** of the three files (NOT stripped of frontmatter; NOT normalized except by step §3 / §7).
+Where:
+- `||` is byte concatenation.
+- `\n---\n` is a fixed 5-byte separator (`0x0A 0x2D 0x2D 0x2D 0x0A`). Three hyphens flanked by line-feeds — no carriage returns, no surrounding whitespace.
+- `prd_md_text` / `sdd_md_text` / `sprint_md_text` are the **raw markdown contents** of the three source files. Frontmatter is **not** stripped; trailing whitespace is **not** trimmed; line endings are **not** normalized beyond what step §7 forbids (no `\r\n` permitted in the source files themselves — emit a hard error if found).
 
 The separator prevents the boundary-collapse attack where one document ends with text another document begins with. The fixed order (PRD, SDD, sprint) is normative — alphabetical order would create a different hash and is forbidden.
+
+### 9.1 Worked example
+
+Given:
+- `prd_md_text = "# PRD\n"` (6 source bytes; NFC unchanged; UTF-8 `23 20 50 52 44 0A`)
+- `sdd_md_text = "# SDD\n"` (6 source bytes; UTF-8 `23 20 53 44 44 0A`)
+- `sprint_md_text = "# Sprint\n"` (9 source bytes; UTF-8 `23 20 53 70 72 69 6E 74 0A`)
+
+Then:
+```
+plan_canonical_bytes (hex):
+  23 20 50 52 44 0A                          // "# PRD\n"
+  0A 2D 2D 2D 0A                             // separator
+  23 20 53 44 44 0A                          // "# SDD\n"
+  0A 2D 2D 2D 0A                             // separator
+  23 20 53 70 72 69 6E 74 0A                 // "# Sprint\n"
+plan_canonical_bytes length: 31 bytes
+plan_content_hash: "sha256:" + lowercase_hex(sha256(<the 31 bytes above>))
+```
+
+A conformance vector under `vectors/plan-content-hash/v8.6.0/` will lock the resulting hash byte-exact at PR-A3.6 (FR-C4 builtin lands).
 
 ## 10. Cross-runner verification
 
