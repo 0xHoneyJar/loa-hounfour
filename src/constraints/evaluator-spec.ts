@@ -1614,8 +1614,10 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         // when in fact the implementation rejects it. The fixed example
         // demonstrates the deferred-state semantics explicitly: with no
         // state supplied, ALL records pass regardless of CT-03 violations,
-        // because the obligation is consumer-deferred. Consumers wanting
-        // the SEQUENCE_INVALID_INPUT diagnostic must supply state.
+        // because the obligation is consumer-deferred. The third example
+        // (below) demonstrates the state-present path where CT-03 actually
+        // fires (iter-2 LOW F10 mitigation: deferred-vs-present-state
+        // contrast is now explicit across two paired examples).
         description:
           'No state supplied → defers regardless of malformed sequence ("007"). ' +
           'CT-03 only fires when state is present; the deferred path is ' +
@@ -1627,10 +1629,11 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
     ],
     edge_cases: [
       'CT-08: cluster_id mismatch returns false (CLUSTER_ID_MISMATCH) — fires BEFORE state lookup',
-      'CT-03: malformed sequence/key_version (non-numeric, leading zero, sign) returns false (SEQUENCE_INVALID_INPUT)',
+      'CT-03: malformed sequence/key_version (non-numeric, leading zero, sign) returns false (SEQUENCE_INVALID_INPUT) ONLY when state is present; without state the deferred path returns true with SEQUENCE_CONTEXT_DEFERRED diagnostic',
       'Key-version regression returns false (KEY_VERSION_REGRESSION)',
       'Sequence ≤ last-observed for (signer, key_version) returns false (SEQUENCE_MONOTONIC_VIOLATION)',
       'Key-rotation overlap: same sequence under newer key_version is allowed (separate composite key)',
+      'Iter-2 F10 contrast: examples in this spec entry exercise only the deferred path (no sequence_state) because EVALUATOR_BUILTIN_SPECS examples are executed by the test runner without an EvaluationContext; the state-present path is exercised by tests in tests/constraints/sequence-monotonic-per-cluster.test.ts',
     ],
   }],
 

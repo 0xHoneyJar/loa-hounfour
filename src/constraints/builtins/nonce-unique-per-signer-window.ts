@@ -128,6 +128,28 @@ export function evaluateNonceUniquePerSignerWindow(
     };
   }
 
+  // F-001 mitigation (iter-2 HIGH): runtime shape validation for state.
+  // Sibling builtins (sequence-monotonic, chain-validator) validate their
+  // Map state at the trust boundary; FR-C1 must inherit the same
+  // discipline. Without this, a JSON-revived state (where the Set decoded
+  // to an Array) would throw TypeError on `seen.has(...)`. The bridge
+  // iter-2 review surfaced this as the security floor — when sibling
+  // builtins share a contract, the weakest one defines the system's
+  // actual safety floor.
+  if (state !== undefined && !(state.per_signer instanceof Map)) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'NONCE_INVALID_INPUT',
+        message:
+          'nonce_unique_per_signer_window: state.per_signer must be a Map ' +
+          'instance. Consumer-supplied state crosses a trust boundary; the ' +
+          'library validates the runtime shape rather than relying on ' +
+          'TypeScript type erasure.',
+      },
+    };
+  }
+
   if (state === undefined) {
     return {
       valid: true,
@@ -146,6 +168,26 @@ export function evaluateNonceUniquePerSignerWindow(
   }
 
   const seen = state.per_signer.get(signerId);
+  // F-001 mitigation (iter-2 HIGH): also validate the inner bucket. The
+  // outer per_signer Map check guarantees `state.per_signer` is a Map,
+  // but `.get()` returns whatever was put in — a JSON-revived state
+  // could have the bucket as an Array, plain object, or null. Validate
+  // before invoking `.has()`.
+  if (seen !== undefined && !(seen instanceof Set)) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'NONCE_INVALID_INPUT',
+        message:
+          'nonce_unique_per_signer_window: state.per_signer.get(...) must ' +
+          'return a Set instance (or be undefined for unknown signers). ' +
+          'Consumer-supplied state crosses a trust boundary; the library ' +
+          'validates the runtime shape rather than relying on TypeScript ' +
+          'type erasure.',
+        signer_id: signerId,
+      },
+    };
+  }
   if (seen && seen.has(nonce)) {
     return {
       valid: false,

@@ -134,9 +134,21 @@ export interface EvaluateSequenceMonotonicResult {
  * for any string content: the JSON array form preserves ordinal
  * separation via length-prefixed structure (each string is bracketed by
  * `"..."` with internal special characters escaped) and the array shape
- * itself is unambiguous. The encoding is deterministic and stable across
- * cross-language runners (TS / Go / Python / Rust JSON serializers all
- * agree on `["a","b"]` for two ASCII strings).
+ * itself is unambiguous.
+ *
+ * **Cross-runner scope clarification (iter-2 LOW F6).** The composite
+ * key is **runner-local** — it is used as a JS Map key inside this
+ * builtin and is never serialized across the wire. Cross-language
+ * runners reimplementing this check use whatever injective composite-key
+ * encoding their language idiomatically supports (Go: `[2]string`-keyed
+ * map; Python: tuple-keyed dict; Rust: `(String, String)`-keyed `HashMap`)
+ * — the contract is *injectivity within the runner*, not byte-stability
+ * across runners. If a future cycle moves composite keys onto the wire
+ * (e.g. for cross-runner state-replay vectors), the canonical
+ * serialization SHOULD be RFC 8785 JCS rather than this `JSON.stringify`
+ * call (which uses ECMAScript JSON rules — not JCS — for whitespace and
+ * Unicode handling). For v8.6.0 scope, the within-runner injectivity is
+ * sufficient.
  *
  * @see iter-1 bridge finding "Composite key uses a potentially unsafe delimiter"
  */

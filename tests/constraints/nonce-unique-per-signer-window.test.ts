@@ -11,6 +11,7 @@ import {
   evaluateNonceUniquePerSignerWindow,
   type NonceWindowState,
 } from '../../src/constraints/builtins/nonce-unique-per-signer-window.js';
+// `makeState` is defined later in this file; the runtime-shape tests use it.
 import { evaluateConstraint } from '../../src/constraints/evaluator.js';
 
 const baseRecord = { signer_id: 'agent-a', nonce: 'n-001' };
@@ -132,6 +133,90 @@ describe('evaluateNonceUniquePerSignerWindow (standalone)', () => {
       expect(result.valid).toBe(false);
       expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
     });
+  });
+});
+
+describe('Runtime shape validation (iter-2 HIGH F-001 mitigation)', () => {
+  it('rejects state.per_signer as plain object → NONCE_INVALID_INPUT', () => {
+    const malformedState = {
+      window_seconds: 300,
+      // JSON-revived state typically deserializes Map → plain object.
+      per_signer: { 'agent-a': new Set(['n-001']) } as unknown as ReadonlyMap<string, ReadonlySet<string>>,
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState as never,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+    expect(result.diagnostic?.message).toContain('Map instance');
+  });
+
+  it('rejects state.per_signer as null', () => {
+    const malformedState = {
+      window_seconds: 300,
+      per_signer: null as unknown as ReadonlyMap<string, ReadonlySet<string>>,
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState as never,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+  });
+
+  it('rejects bucket as Array (JSON-revived Set) → NONCE_INVALID_INPUT', () => {
+    const malformedState: NonceWindowState = {
+      window_seconds: 300,
+      // Outer Map is correct shape; inner bucket got JSON-revived as Array.
+      per_signer: new Map<string, ReadonlySet<string>>([
+        ['agent-a', ['n-001'] as unknown as ReadonlySet<string>],
+      ]),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+    expect(result.diagnostic?.message).toContain('Set instance');
+    expect(result.diagnostic?.signer_id).toBe('agent-a');
+  });
+
+  it('rejects bucket as plain object', () => {
+    const malformedState: NonceWindowState = {
+      window_seconds: 300,
+      per_signer: new Map<string, ReadonlySet<string>>([
+        ['agent-a', { 'n-001': true } as unknown as ReadonlySet<string>],
+      ]),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+  });
+
+  it('passes when bucket is undefined (signer not in map)', () => {
+    // The undefined-bucket case must NOT trigger the inner-Set guard;
+    // it's the legitimate "fresh signer" path.
+    const result = evaluateNonceUniquePerSignerWindow(
+      { signer_id: 'unknown-signer', nonce: 'n-x' },
+      'signer_id',
+      'nonce',
+      makeState(),
+    );
+    expect(result.valid).toBe(true);
+    expect(result.diagnostic).toBeUndefined();
   });
 });
 

@@ -183,6 +183,27 @@ describe('evaluateChainValidatorPrevHash (standalone)', () => {
       expect(result.valid).toBe(true);
     });
 
+    it('NA-1 fires at index 0 when ledger expects something other than the genesis sentinel', () => {
+      // The genesis-position case: chain[0].previous_hash equals the
+      // sentinel (passes structural genesis check), but the audit ledger
+      // recorded a different expectation for index 0. NA-1 must win over
+      // the implicit genesis-pass.
+      const expectedPriorHash = new Map<number, string>([
+        [0, 'ledger-says-different-genesis'],
+      ]);
+      const result = evaluateChainValidatorPrevHash(
+        validChain,
+        'entry_hash',
+        'previous_hash',
+        makeState({ expected_prior_hash: expectedPriorHash }),
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('CHAIN_LEDGER_MISMATCH');
+      expect(result.diagnostic?.chain_index).toBe(0);
+      expect(result.diagnostic?.chain_value).toBe(DEFAULT_LEDGER_GENESIS_SENTINEL);
+      expect(result.diagnostic?.expected_value).toBe('ledger-says-different-genesis');
+    });
+
     it('NA-1 fires at the FIRST divergence index (not the last)', () => {
       const expectedPriorHash = new Map<number, string>([
         [1, 'WRONG-1'], // first divergence at index 1
