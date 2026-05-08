@@ -29,6 +29,12 @@ import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
 import { RoutingPolicySchema } from '../schemas/routing-policy.js';
+import { CAPABILITY_SCOPES } from '../schemas/agent-identity.js';
+
+// Canonical CapabilityScope set, hoisted to module scope so per-validate-call
+// allocation cost is amortized across calls. (PR-A3.2 iter-2 F-002 mitigation.)
+// Read-only at runtime; populated once at module load.
+const CANONICAL_CAPABILITY_SCOPES: ReadonlySet<string> = new Set(CAPABILITY_SCOPES);
 import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
 import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema, AccessPolicySchema } from '../schemas/conversation.js';
@@ -1148,6 +1154,28 @@ export function validate<T extends TSchema>(
      *   `reason: 'context_absent'`.
      */
     chainContext?: { granted_by_chain_records?: unknown };
+    /**
+     * FR-A4 (v8.6.0) opt-in fail-closed semantics for `x-chain-bearing`
+     * schemas (currently only `OrgRepresentativeDelegation`). When set
+     * to `true`:
+     *
+     *   - If `chainContext.granted_by_chain_records` is absent or empty,
+     *     validate() returns `{ valid: false, errors: ['CHAIN_CONTEXT_DEFERRED: ...'] }`
+     *     instead of emitting an `unverified_obligations` manifest.
+     *   - If the chain context is supplied, validate() emits the ORD-3
+     *     manifest entry with `reason: 'chain_context_provided'` (the
+     *     opt-in acknowledgment) instead of the default `'pattern_matching'`.
+     *
+     * When unset or `false`, validate() preserves v8.5.x behavior exactly:
+     * the manifest is emitted with `reason: 'context_absent'` (chain
+     * absent) or `reason: 'pattern_matching'` (chain present), and the
+     * outcome is `valid: true` regardless. This default is locked for the
+     * v8.6.x line; v9.0.0 flips the default to fail-closed per the
+     * MIGRATION.md FR-A4 forward-pointer.
+     *
+     * @since v8.6.0 — FR-A4 (DP-02 option C)
+     */
+    failClosed?: boolean;
   },
 ): ValidationResult {
   const compiled = getOrCompile(schema);
@@ -1299,28 +1327,147 @@ export function validate<T extends TSchema>(
   // iter-2 F4 mitigation: silence on the context-present path would let
   // consumers conflate "library validated chain" with "library skipped
   // because no context was supplied").
-  if (schema.$id === 'OrgRepresentativeDelegation') {
+  //
+  // FR-A4 (PR-A3.2, v8.6.0): generalized from `schema.$id ===
+  // 'OrgRepresentativeDelegation'` to the metadata-driven
+  // `'x-chain-bearing': true` flag, mirroring the existing
+  // `x-crypto-bearing` / `x-integrity-bearing` patterns. When `failClosed`
+  // is opted in, chain-context-absent is a HARD reject; chain-context-
+  // present uses the `chain_context_provided` reason as the opt-in
+  // acknowledgment. Default (failClosed unset/false) preserves v8.5.x
+  // semantics exactly per NFR-1.
+  const isChainBearing = schemaRecord['x-chain-bearing'] === true;
+  if (isChainBearing) {
     const contextSupplied = hasChainContextRecords(options?.chainContext);
+    if (options?.failClosed === true && !contextSupplied) {
+      // FR-A4 fail-closed branch: reject the record outright. No manifest
+      // emission — the error itself is the audit signal, and the v9.0.0
+      // forward-pointer in MIGRATION.md documents the eventual default flip.
+      return {
+        valid: false,
+        errors: [
+          'CHAIN_CONTEXT_DEFERRED: Chain-bearing schema validated with ' +
+            '{ failClosed: true } but `chainContext.granted_by_chain_records` ' +
+            'was absent or not a non-empty array. ORD-3 cannot be library-' +
+            'evaluated against a single record in isolation; assemble the ' +
+            'chain (the record under validation plus all ancestors back to ' +
+            'the genesis-rooted record, plus the synthetic terminator ' +
+            '`{ delegation_id: "genesis:org-public-key" }`) and pass it as ' +
+            '`{ chainContext: { granted_by_chain_records: [...] } }`. ' +
+            'See MIGRATION.md v8.5.x → v8.6.0 FR-A4 section for the opt-in ' +
+            'contract and the v9.0.0 default-flip forward-pointer.',
+        ],
+      };
+    }
+    const reason: UnverifiedObligationReason =
+      options?.failClosed === true
+        ? 'chain_context_provided'
+        : (contextSupplied ? 'pattern_matching' : 'context_absent');
     obligations.push({
       rule_id: 'ORD-3',
       rule:
         'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
       evaluator: 'consumer',
-      reason: contextSupplied ? 'pattern_matching' : 'context_absent',
-      evaluation_note: contextSupplied
-        ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
-          'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
-          'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
-          'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
-          'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
-        : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
-          'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
-          'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
-          'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
-          'library-side DAG validation, OR perform the chain check consumer-side. See ' +
-          'docs/architecture/org-overseer.md for the verification profile.',
+      reason,
+      evaluation_note: options?.failClosed === true
+        ? 'granted_by_chain_records was supplied via options.chainContext under ' +
+          'FR-A4 opt-in (failClosed: true). validate() does NOT run is_valid_dag ' +
+          'at this layer — chain-DSL evaluation runs in npm run check:constraints — ' +
+          'but the manifest entry records the consumer\'s explicit acknowledgment ' +
+          'of the v9.0.0 default-flip semantics. Reason: \'chain_context_provided\' ' +
+          'distinguishes this opt-in path from the default (\'pattern_matching\') ' +
+          'so audits can attribute the v9.0.0 readiness state per record.'
+        : contextSupplied
+          ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
+            'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
+            'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
+            'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
+            'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
+          : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
+            'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
+            'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
+            'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
+            'library-side DAG validation, OR perform the chain check consumer-side. See ' +
+            'docs/architecture/org-overseer.md for the verification profile.',
       consumer_acknowledgment_required: true,
     });
+  }
+
+  // ORD-5 vocabulary-drift manifest promotion (PR-A3.2 — FR-A3 v8.6.0).
+  // The constraint file flags capability_scope keys outside the canonical
+  // CAPABILITY_SCOPES vocabulary (billing, governance, inference, delegation,
+  // audit, composition) as warnings; v8.5.x evaluated this rule only at
+  // `npm run check:constraints` time. v8.6.0 surfaces it at validate() so
+  // consumers can branch on `reason: 'vocabulary_drift'` without parsing
+  // the per-call warnings array. Each non-canonical key yields one
+  // manifest entry; consumers aggregate fire counts per-window for the
+  // soak metric driving the PR-A3.10 hosaka-fm review-window decision.
+  // Severity stays 'warning' for v8.6.0 — no behavioral change to the
+  // valid/invalid outcome (`valid: true` continues to hold). Promotion
+  // to `severity: 'error'` is a PR-A3.10 decision per soak telemetry.
+  //
+  // TODO(cycle-005, deferred): The dispatch is currently $id-keyed because
+  // `OrgRepresentativeDelegation` is the only vocabulary-bearing schema
+  // in cycle-005. **Generalization trigger:** when a second
+  // controlled-vocabulary field lands on any schema in cycle-005 or
+  // later (e.g., a `Resource.tag_scope` field with a canonical tag set,
+  // or a second capability-scope-bearing record), generalize this block
+  // to a metadata-driven `'x-vocabulary-bearing'` flag whose value is a
+  // descriptor `{ field: '<name>', canonical_set: ReadonlySet<string> }`.
+  // The generalization must mirror the `'x-chain-bearing'` schema-flag
+  // pattern that FR-A4 introduced and must be paired with a corresponding
+  // `'x-vocabulary-bearing'` schema-metadata declaration in TypeBox
+  // options on the originating schema. Single-schema today,
+  // partial-generalization deferred to avoid over-engineering the
+  // metadata surface ahead of a second concrete user.
+  if (
+    schema.$id === 'OrgRepresentativeDelegation' &&
+    typeof data === 'object' &&
+    data !== null &&
+    'capability_scope' in data
+  ) {
+    const capabilityScope = (data as Record<string, unknown>).capability_scope;
+    // F003 mitigation (PR-A3.2 iter-3): defense-in-depth — `typeof === 'object'`
+    // returns true for arrays in JavaScript, and while the TypeBox structural
+    // check upstream rejects arrays here, an explicit `!Array.isArray()` guard
+    // costs one expression and prevents nonsense vocabulary_drift entries if
+    // validation order ever shifts in a future refactor.
+    if (
+      typeof capabilityScope === 'object' &&
+      capabilityScope !== null &&
+      !Array.isArray(capabilityScope)
+    ) {
+      // F2 mitigation (PR-A3.2 iter-1): sort drift keys before iteration so
+      // manifest entry order is deterministic across input JSON serialization
+      // variations — content-addressable diffing across corpora does not
+      // depend on upstream key-order accidents.
+      const driftKeys = Object.keys(capabilityScope)
+        .filter((k) => !CANONICAL_CAPABILITY_SCOPES.has(k))
+        .sort();
+      for (const driftKey of driftKeys) {
+        obligations.push({
+          rule_id: 'ORD-5',
+          rule:
+            'capability_scope MUST bind to a member of the canonical CapabilityScope set ' +
+            '(billing, governance, inference, delegation, audit, composition). Non-canonical ' +
+            'keys are surfaced as a vocabulary_drift warning during the cycle-005 soak window; ' +
+            'promotion to error severity is a PR-A3.10 decision per soak telemetry.',
+          evaluator: 'library',
+          reason: 'vocabulary_drift',
+          evaluation_note:
+            `capability_scope key "${driftKey}" is outside the canonical vocabulary. ` +
+            'Downstream Layer-2 SignerEntry.scoped_trust and Layer-3 ' +
+            'SignerCompetenceRule.required_capability_scopes evaluators will treat ' +
+            'this key as the default trust level — a potential authorization drift. ' +
+            'Coordinate with the vocabulary maintainer before relying on the key in ' +
+            'production policy. The soak telemetry windowing (consumer aggregates ' +
+            'fire counts of `reason: \'vocabulary_drift\'` entries per validation pass ' +
+            'across calendar windows) feeds the PR-A3.10 promotion decision; see ' +
+            'NOTES.md ORD-5 fire-rate tracking template.',
+          consumer_acknowledgment_required: true,
+        });
+      }
+    }
   }
 
   if (obligations.length > 0) {
