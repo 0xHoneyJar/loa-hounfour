@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-digest",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/oracle-digest",
   "additionalProperties": false,
   "x-canonical-size-cap-bytes-of-field": {
     "telegram_variant_md_below_4kb": 4096
@@ -176,6 +176,7 @@
     },
     "telegram_variant_md_below_4kb": {
       "maxLength": 4096,
+      "description": "Markdown body shipped to Telegram, capped at 4096 UTF-8 bytes. NOTE: `maxLength: 4096` is a coarse upper bound on Unicode code points (or UTF-16 code units in JS validators), NOT bytes — JSON Schema 2020-12 §6.3.1 defines maxLength on code points; JS implementations count UTF-16 code units. The authoritative byte cap is enforced by the OD-2 cross-field constraint (the `utf8_byte_length_max` LOCAL builtin) which runs inside `validate(OracleDigestSchema, x)`. Consumers in non-JS runtimes MUST also enforce the UTF-8 byte cap (e.g., Go `len([]byte(s)) <= 4096`; Python `len(s.encode(\"utf-8\")) <= 4096`; Rust `s.len() <= 4096`).",
       "type": "string"
     },
     "full_markdown_s3_url": {
@@ -183,5 +184,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

@@ -324,19 +324,41 @@ SHA at `eae1a9e1` (the last cycle-005 hygiene-only commit). Any
 other `main` ref between PR-A3.0 merge and the v8.6.0 ship PR is
 work-in-progress and not safe for consumer ingestion.
 
-**Intentional version-field sequencing.** During cycle-005 the in-flight
-contract accumulates several minor-class additions (FR-A1..A6 + 11
-coordinator schemas) across ~12 PRs before the version bump lands.
-`CONTRACT_VERSION` (and the `version` field in `schemas/index.json`,
-which mirrors it) stays at `8.5.2` until the v8.6.0 final ship PR,
-where it bumps to `8.6.0` alongside the GitHub Packages publish step. This concentrates
-contract-version churn at one point per cycle rather than emitting an
-RC-tag per PR. Consumers see a single `8.5.2 → 8.6.0` step in the
-published package; the in-flight `main` branch carries the schema
-bytes ahead of the version field deliberately. This is the same
-sequencing the cycle-005 hygiene PR used (no version bump), and the
-same that all subsequent FR-A/FR-C work will use; the bump is locked
-to the v8.6.0 ship PR.
+**Intentional version-field sequencing — superseded by PR-A3.5 iter-4.**
+The original cycle-005 plan held `CONTRACT_VERSION` at `8.5.2` across
+all in-flight PRs before atomically bumping at the v8.6.0 ship PR.
+That plan was reversed in PR-A3.5 iter-4 (2026-05-08) after a sustained
+4-iteration multi-model peer-review consensus — 3-of-3 model coverage
+on each iteration — escalated the resulting `$id`-vs-`contract_version`
+drift from HIGH to BLOCKER. The library is not yet GitHub-Packages-
+published this cycle (last shipped tag is v8.5.2; cycle-005 publishes
+post-PR-A3.12), but the reviewer argument that an `$id` URL claiming
+`/8.5.2/` while serving a body with `contract_version: '8.6.0'` is a
+cache-poisoning vector even within unpublished `main` was accepted as
+outweighing the churn-concentration argument.
+
+**Effective from PR-A3.5 iter-4:** `CONTRACT_VERSION` is `8.6.0`. The
+URL `$id`, the `$comment` trailer, the `schemas/index.json` `version`
+field, the `vectors/VERSION` file, and `package.json` `version` all
+agree at `8.6.0`. PRs A3.6..A3.12 land additive schema content under
+this stable contract-version anchor. The GitHub Packages publish
+step still gates on PR-A3.12 ship; the version-field bump is now
+decoupled from the publish gate.
+
+**Consumer action.** Same as the original sequencing plan — consume
+only published GitHub Packages releases. The `main` branch between
+PR-A3.5 iter-4 (commit `c28199fc`) and the cycle-005 ship is still
+unstable, but the metadata-consistency window is closed: any
+intermediate consumer (non-recommended, but safe-by-version-field)
+sees `8.6.0` everywhere.
+
+**Pre-iter-4 historical note.** Between PR-A3.0 and PR-A3.5 iter-3
+(commits `eae1a9e1` through `02393bc1`), `main` carried schema
+bodies declaring `contract_version: '8.6.0'` while `$id` URLs and
+`schemas/index.json#/version` reported `8.5.2`. Any consumer that
+pinned a `main`-tracking ref in that window observed the
+inconsistency the multi-model review consensus identified; PR-A3.5 iter-4
+reconciles every surface to `8.6.0`.
 
 **Consumer action: none.** Producers already emitting unpadded
 base64url ed25519 signatures (the spec-correct form) continue to

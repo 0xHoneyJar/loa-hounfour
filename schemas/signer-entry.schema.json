@@ -289,6 +289,6 @@
       ]
     }
   },
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/signer-entry",
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signer-entry",
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

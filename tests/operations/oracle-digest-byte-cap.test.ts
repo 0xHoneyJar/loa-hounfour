@@ -67,13 +67,17 @@ describe('OracleDigest byte-cap bypass (PR-A3.5 iter-2 F-002)', () => {
     expect(Value.Check(OracleDigestSchema, digest)).toBe(true);
   });
 
-  it('integrated validate() REJECTS the same digest via OD-2 cross-field byte cap', () => {
+  it('integrated validate() REJECTS the same digest via the metadata-driven byte-cap dispatch', () => {
     const telegramBody = '\u{1F4A9}'.repeat(1500);
     const digest = makeBaseDigest(telegramBody);
     const result = validate(OracleDigestSchema, digest);
     expect(result.valid).toBe(false);
     expect(result.errors).toBeDefined();
-    expect(result.errors!.some((e) => e.includes('OD-2'))).toBe(true);
+    // iter-4 F-003: the diagnostic identifies the schema $id + the
+    // specific field that breached the cap, so a future schema with
+    // multiple capped fields will surface field-distinguished errors.
+    expect(result.errors!.some((e) => e.includes('OracleDigest'))).toBe(true);
+    expect(result.errors!.some((e) => e.includes('byte_cap[telegram_variant_md_below_4kb]'))).toBe(true);
     expect(result.errors!.some((e) => e.includes('UTF-8 byte length 6000'))).toBe(true);
     expect(result.errors!.some((e) => e.includes('cap 4096'))).toBe(true);
   });

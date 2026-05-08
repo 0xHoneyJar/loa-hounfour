@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/oracle-health-envelope",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/oracle-health-envelope",
   "additionalProperties": false,
   "description": "Operational health snapshot of an oracle cluster. Heartbeat cadence (typically 60s). Cross-correlates with OracleDigest via shared pulse_attention_breakdown shape.",
   "type": "object",
@@ -95,5 +95,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

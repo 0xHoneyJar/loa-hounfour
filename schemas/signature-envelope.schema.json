@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/signature-envelope",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signature-envelope",
   "additionalProperties": false,
   "x-crypto-bearing": true,
   "description": "Crypto-bearing envelope wrapping a signed payload hash. validate() defaults to { valid: false, errors: [{ code: CRYPTO_DEFERRED }] } unless { acceptDeferred: true } is passed; that opt-in is the safety mechanism preventing \"shape valid means trusted\" by accident.",
@@ -71,5 +71,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

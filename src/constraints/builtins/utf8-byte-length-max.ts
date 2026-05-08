@@ -7,15 +7,15 @@
  * `UTF8_BYTE_LENGTH_EXCEEDED` diagnostic otherwise.
  *
  * **Why this is distinct from `maxLength`** — JSON Schema 2020-12
- * §6.3.1 defines `maxLength` against the underlying string-type
- * representation, which in JavaScript surfaces as UTF-16 code units;
- * other validator implementations may instead count Unicode code
- * points. Neither counts UTF-8 bytes. A multi-byte string can pass
- * `maxLength: 4096` while exceeding 4 KB on the wire because non-ASCII
- * code points encode to 2-4 UTF-8 bytes each (CJK = 3 bytes, emoji =
- * 4 bytes). When the downstream system (Telegram 4 KB, Twitter
- * pre-2018) enforces UTF-8 byte caps, the schema must enforce UTF-8
- * byte caps too. This builtin provides that surface.
+ * §6.3.1 normatively defines `maxLength` on Unicode code points; JS
+ * validators (TypeBox, Ajv) count UTF-16 code units (an implementation
+ * artifact of `String.prototype.length`). Neither matches UTF-8 byte
+ * count. A multi-byte string can pass `maxLength: 4096` while
+ * exceeding 4 KB on the wire because non-ASCII code points encode to
+ * 2-4 UTF-8 bytes each (CJK = 3 bytes, emoji = 4 bytes). When the
+ * downstream system (Telegram 4 KB, Twitter pre-2018) enforces UTF-8
+ * byte caps, the schema must enforce UTF-8 byte caps too. This builtin
+ * provides that surface.
  *
  * **LOCAL** because the cap is a property of the string alone — no
  * consumer-supplied state is needed (matches the `canonical_size_cap`
@@ -37,6 +37,13 @@
  * @see SDD §4.6 — LOCAL helper builtins
  * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F-003 portability)
  */
+
+// Module-scope encoder reused across calls — the TextEncoder constructor
+// is non-trivial and the instance is stateless and concurrency-safe per
+// the WHATWG Encoding spec, so a single hoisted reference avoids the
+// per-call allocation cost flagged in PR-A3.5 iter-4 F9 (matters for
+// archive/replay validation where the cap is checked on every record).
+const ENCODER = new TextEncoder();
 
 export type Utf8ByteLengthErrorCode =
   | 'UTF8_BYTE_LENGTH_EXCEEDED'
@@ -97,13 +104,26 @@ export function evaluateUtf8ByteLengthMax(
     };
   }
 
-  // PR-A3.5 iter-2 F-003: use the web-standard TextEncoder API rather than
-  // Node-only `Buffer.byteLength` so the builtin runs unchanged in
-  // Cloudflare Workers, Vercel Edge, Deno (default), and browsers. Both
-  // surfaces yield byte-identical counts for valid UTF-8 input; TextEncoder
-  // is the Cloudflare/MDN-recommended portability choice and does not
-  // require a Node polyfill in non-Node runtimes.
-  const actualBytes = new TextEncoder().encode(value).length;
+  // PR-A3.5 iter-2 F-003 / iter-4 F9: use the web-standard TextEncoder
+  // API (hoisted to module scope to avoid per-call construction)
+  // rather than Node-only `Buffer.byteLength`. The builtin runs
+  // unchanged in Cloudflare Workers, Vercel Edge, Deno (default), and
+  // browsers. Both surfaces yield byte-identical counts for valid UTF-8
+  // input.
+  //
+  // V8-style fast-accept path: `value.length * 4` is a strict UPPER bound
+  // on UTF-8 byte length (every JS UTF-16 code unit encodes to at most
+  // 4 UTF-8 bytes, and surrogate pairs collapse to a single 4-byte
+  // sequence). If the upper bound is already within cap, accept without
+  // the encode-and-length allocation. Note: we deliberately do NOT
+  // short-circuit on the lower-bound rejection path (`value.length >
+  // byteCap`) because the diagnostic needs the EXACT actual_bytes for
+  // operators to size producer budgets — reporting "at least N" defeats
+  // the diagnostic surface's purpose.
+  if (value.length * 4 <= byteCap) {
+    return { valid: true };
+  }
+  const actualBytes = ENCODER.encode(value).length;
   if (actualBytes > byteCap) {
     return {
       valid: false,

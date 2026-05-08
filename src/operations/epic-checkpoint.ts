@@ -49,7 +49,12 @@ export const EpicCheckpointSchema = Type.Object(
       'Durable EPIC progress checkpoint. canonical_run_id resolves ' +
       'against a known CanonicalRunSchema instance via consumer-side ' +
       'registry; manifest surfaces the lookup obligation when registry ' +
-      'context is absent.',
+      'context is absent. **STABILITY: PREVIEW** — the canonical_run_id ' +
+      'shape stabilizes in v8.7+ via CanonicalRunSchema (FR-B1, scheduled ' +
+      'for PR-A3.8). Until then the field is `minLength: 1` only; ' +
+      'producers SHOULD pin a specific contract_version when integrating ' +
+      'EpicCheckpoint to avoid encoding canonical_run_id assumptions that ' +
+      'may conflict with the stabilized schema (PR-A3.5 iter-4 F8).',
   },
 );
 export type EpicCheckpoint = Static<typeof EpicCheckpointSchema>;

@@ -10,7 +10,9 @@ import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema, FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
 import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
+import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
 import { OracleDigestSchema } from '../operations/oracle-digest.js';
+import { LatencyHistogramEnvelopeSchema } from '../operations/latency-histogram-envelope.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1084,34 +1086,39 @@ registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidat
 // percentiles_monotonic_nondecreasing); the rest are pure-shape +
 // pattern-validated by TypeBox structurally.
 //
-// PR-A3.5 iter-2 F-002: OracleDigest carries an inline byte-cap
-// invariant (OD-2) on `telegram_variant_md_below_4kb`. JSON Schema's
-// `maxLength` keyword counts UTF-16 code units, not UTF-8 bytes, so a
-// structural-only consumer (e.g., `Value.Check(OracleDigestSchema, x)`)
-// would accept a 4096-emoji string that encodes to ~16 KB on the wire
-// — past Telegram's 4 KB cap. The validator wired below runs the byte
-// cap inline so any call into the library's `validate()` surface
-// catches the bypass without requiring the consumer to invoke
-// `evaluateConstraint()` separately.
+// PR-A3.5 iter-2 F-002: schemas carry inline byte-cap invariants via the
+// `'x-canonical-size-cap-bytes-of-field'` metadata annotation. JSON Schema's
+// `maxLength` keyword counts UTF-16 code units (in JS) or Unicode code
+// points (some implementations) — neither counts UTF-8 bytes. A
+// structural-only consumer (e.g., `Value.Check(...)`) would accept a
+// 4096-emoji string that encodes to ~16 KB on the wire. The factory
+// below registers a generic cross-field validator on every schema whose
+// root carries the annotation, so any call into the library's
+// `validate()` surface catches the bypass without requiring the
+// consumer to invoke `evaluateConstraint()` separately.
 //
-// PR-A3.5 iter-3 F5/F12: the validator is now metadata-driven —
-// rather than hard-coding the field name and cap, it reads
-// `'x-canonical-size-cap-bytes-of-field'` off the schema (per
-// `src/operations/oracle-digest.ts`) and iterates every entry. The
-// schema becomes the single source of truth: adding a second
-// byte-capped field needs only the schema annotation, not a parallel
-// validator edit. The defensive object-shape guard handles the case
-// where structural validation does not precede cross-field validation
-// (current ordering does, but the convention shouldn't depend on it).
-registerCrossFieldValidator('OracleDigest', (data) => {
-  if (data === null || typeof data !== 'object') {
-    return { valid: true, errors: [], warnings: [] };
-  }
-  const errors: string[] = [];
-  const warnings: string[] = [];
-  const schemaRecord = OracleDigestSchema as unknown as Record<string, unknown>;
+// PR-A3.5 iter-4 F2: previously this was hard-coded to OracleDigest,
+// contradicting the metadata-driven promise (declarative in name,
+// imperative in practice). Now the factory is fully reflection-based:
+// the schema is the single source of truth — adding the annotation to
+// any new schema (e.g., a future `PressReleaseEnvelope` with a
+// `subject_below_140_bytes`) registers the byte-cap dispatch
+// automatically without touching the validator file.
+//
+// PR-A3.5 iter-4 F-003: the diagnostic constraint id derives from the
+// schema $id rather than emitting a hard-coded "OD-2" for every cap
+// failure. The format is `<schema-id>:byte_cap[<field_name>]`.
+function registerByteCapValidator(schema: TSchema): void {
+  const schemaRecord = schema as unknown as Record<string, unknown>;
   const fieldCaps = schemaRecord['x-canonical-size-cap-bytes-of-field'];
-  if (fieldCaps !== null && typeof fieldCaps === 'object') {
+  const schemaId = schemaRecord.$id as string | undefined;
+  if (fieldCaps === null || typeof fieldCaps !== 'object' || !schemaId) return;
+  registerCrossFieldValidator(schemaId, (data) => {
+    if (data === null || typeof data !== 'object') {
+      return { valid: true, errors: [], warnings: [] };
+    }
+    const errors: string[] = [];
+    const warnings: string[] = [];
     const record = data as Record<string, unknown>;
     for (const [fieldName, byteCap] of Object.entries(fieldCaps as Record<string, unknown>)) {
       if (typeof byteCap !== 'number') continue;
@@ -1119,18 +1126,51 @@ registerCrossFieldValidator('OracleDigest', (data) => {
       if (typeof fieldValue !== 'string') continue;
       const result = evaluateUtf8ByteLengthMax(fieldValue, byteCap);
       if (!result.valid && result.diagnostic) {
-        errors.push(`OD-2 (${fieldName}): ${result.diagnostic.message}`);
+        errors.push(
+          `${schemaId}:byte_cap[${fieldName}]: ${result.diagnostic.message}`,
+        );
       }
     }
-  }
-  return errors.length > 0
-    ? { valid: false, errors, warnings }
-    : { valid: true, errors: [], warnings };
-});
+    return errors.length > 0
+      ? { valid: false, errors, warnings }
+      : { valid: true, errors: [], warnings };
+  });
+}
+
+registerByteCapValidator(OracleDigestSchema);
 registerCrossFieldValidator('OracleHealthEnvelope', constraintFileOnlyValidator);
 registerCrossFieldValidator('EscalationEnvelope', constraintFileOnlyValidator);
 registerCrossFieldValidator('RollbackPlan', constraintFileOnlyValidator);
-registerCrossFieldValidator('LatencyHistogramEnvelope', constraintFileOnlyValidator);
+
+// PR-A3.5 iter-4 F11: LatencyHistogramEnvelope's LHE-1 monotonicity
+// invariant (`p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`) is documented as
+// library-evaluated but the iter-3 wiring shipped a constraintFileOnly
+// stub — the schema's promise diverged from the validator's behavior.
+// `validate(LatencyHistogramEnvelope, x)` now invokes
+// `evaluatePercentilesMonotonicNondecreasing` on the `measurements`
+// object inline, mirroring the OracleDigest byte-cap pattern. The
+// diagnostic identifies the FIRST violating pair (e.g., `p95_ms < p50_ms`
+// with both values) so operators see the specific failing transition.
+registerCrossFieldValidator('LatencyHistogramEnvelope', (data) => {
+  if (data === null || typeof data !== 'object') {
+    return { valid: true, errors: [], warnings: [] };
+  }
+  const envelope = data as { measurements?: unknown };
+  const measurements = envelope.measurements;
+  if (measurements === undefined) {
+    return { valid: true, errors: [], warnings: [] };
+  }
+  const result = evaluatePercentilesMonotonicNondecreasing(measurements);
+  if (!result.valid && result.diagnostic) {
+    return {
+      valid: false,
+      errors: [`LHE-1 (measurements): ${result.diagnostic.message}`],
+      warnings: [],
+    };
+  }
+  return { valid: true, errors: [], warnings: [] };
+});
+
 registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
 
 /**

@@ -79,7 +79,21 @@ export const OracleDigestSchema = Type.Object(
       },
       { additionalProperties: false },
     ),
-    telegram_variant_md_below_4kb: Type.String({ maxLength: 4096 }),
+    telegram_variant_md_below_4kb: Type.String({
+      maxLength: 4096,
+      description:
+        'Markdown body shipped to Telegram, capped at 4096 UTF-8 bytes. ' +
+        'NOTE: `maxLength: 4096` is a coarse upper bound on Unicode code ' +
+        'points (or UTF-16 code units in JS validators), NOT bytes — JSON ' +
+        "Schema 2020-12 §6.3.1 defines maxLength on code points; JS " +
+        'implementations count UTF-16 code units. The authoritative byte ' +
+        'cap is enforced by the OD-2 cross-field constraint (the ' +
+        '`utf8_byte_length_max` LOCAL builtin) which runs inside ' +
+        '`validate(OracleDigestSchema, x)`. Consumers in non-JS runtimes ' +
+        'MUST also enforce the UTF-8 byte cap (e.g., Go ' +
+        '`len([]byte(s)) <= 4096`; Python `len(s.encode("utf-8")) <= 4096`; ' +
+        'Rust `s.len() <= 4096`).',
+    }),
     full_markdown_s3_url: Type.String({ pattern: '^s3://[a-z0-9.-]+/.+$' }),
   },
   {

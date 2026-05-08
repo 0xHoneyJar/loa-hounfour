@@ -38,9 +38,12 @@ export const LatencyHistogramEnvelopeSchema = Type.Object(
     additionalProperties: false,
     description:
       'Per-phase per-cluster latency percentile snapshot. The ' +
-      'p50 ≤ p95 ≤ p99 ≤ max invariant is enforced via the LOCAL builtin ' +
-      'percentiles_monotonic_nondecreasing(measurements) referenced from ' +
-      'the constraint file.',
+      'p50 ≤ p95 ≤ p99 ≤ max invariant (LHE-1) is enforced inline by ' +
+      '`validate(LatencyHistogramEnvelopeSchema, x)` via the LOCAL ' +
+      'builtin `percentiles_monotonic_nondecreasing(measurements)` ' +
+      '— a structural-only consumer using `Value.Check` will accept ' +
+      'monotonicity violations because the invariant is constraint- ' +
+      'level, not schema-level. Use `validate()` for full enforcement.',
   },
 );
 export type LatencyHistogramEnvelope = Static<typeof LatencyHistogramEnvelopeSchema>;
