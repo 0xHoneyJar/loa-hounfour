@@ -15,11 +15,11 @@ import { EVALUATOR_BUILTIN_SPECS } from '../../src/constraints/evaluator-spec.js
 
 describe('EVALUATOR_BUILTINS count tracks the registered set', () => {
   it('EVALUATOR_BUILTINS contains the registered set of builtins', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(44);
+    expect(EVALUATOR_BUILTINS).toHaveLength(47);
   });
 
   it('EVALUATOR_BUILTIN_SPECS has one spec per registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(44);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(47);
   });
 
   it('new builtins are registered', () => {

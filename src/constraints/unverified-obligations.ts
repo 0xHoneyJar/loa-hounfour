@@ -42,10 +42,18 @@ import type { Constraint, ConstraintFile } from './types.js';
  */
 export type UnverifiedObligationReason =
   | 'chain_context_provided'
+  | 'chain_ledger_mismatch'
+  | 'chain_prev_hash_mismatch'
+  | 'cluster_id_mismatch'
   | 'context_absent'
   | 'crypto_deferred'
   | 'integrity_deferred'
+  | 'key_version_regression'
+  | 'nonce_context_deferred'
+  | 'nonce_replay_detected'
   | 'pattern_matching'
+  | 'sequence_context_deferred'
+  | 'sequence_monotonic_violation'
   | 'vocabulary_drift';
 
 export interface UnverifiedObligationEntry {
@@ -78,6 +86,52 @@ export interface UnverifiedObligationEntry {
    * `chain_context_provided` — FR-A4 (v8.6.0) opt-in acknowledgment that
    * the consumer supplied `chainContext.granted_by_chain_records` and
    * accepts the v9.0.0 fail-closed semantics ahead of the default flip.
+   *
+   * The following members were added in PR-A3.3 (v8.6.0, FR-C1/C2/C3) for
+   * the new state-bearing constraint builtins. Each maps one-to-one to a
+   * structured diagnostic code emitted by the corresponding builtin in
+   * `src/constraints/builtins/*.ts`.
+   *
+   * **TODO(PR-A3.4): emission-site integration** — these 8 members are
+   * present on the union (so consumers' TypeScript discriminated-union
+   * checks compile) but are NOT yet emitted by `validate()` directly.
+   * The standalone evaluators (`evaluateNonceUniquePerSignerWindow`
+   * etc.) emit them as the `code` field on their structured diagnostic
+   * surfaces; `validate()` will surface them as manifest entries via
+   * the metadata-flag dispatch pattern (`'x-nonce-bearing'` /
+   * `'x-sequence-bearing'` / `'x-chain-validator-bearing'`) when the
+   * FR-B2 PhaseCompletionEnvelopeSchema lands in PR-A3.4. The bridge
+   * iter-3 review (F-001) flagged this as a "dead-enum risk" surface
+   * — the breadcrumb here documents the integration path so future
+   * reviewers don't conclude the union members are orphaned.
+   *
+   * `nonce_replay_detected` — FR-C1: a `(signer_id, nonce)` pair within the
+   *   sliding-window range was already observed for this signer; the second
+   *   appearance is a replay candidate. Cross-record state-bearing.
+   * `nonce_context_deferred` — FR-C1: nonce-window state was not supplied
+   *   to validate(); the obligation is surfaced for consumer-side
+   *   evaluation (mirrors the ORD-3 `context_absent` pattern).
+   * `sequence_monotonic_violation` — FR-C2: the parsed sequence number
+   *   was less than or equal to the last-observed sequence for this
+   *   `(cluster_id, signer_id, key_version)` triple; the chain has
+   *   regressed.
+   * `sequence_context_deferred` — FR-C2: the per-cluster sequence state
+   *   was not supplied to validate(); deferred to consumer.
+   * `key_version_regression` — FR-C2: the parsed `key_version` was less
+   *   than the last-observed key_version for this cluster; key-rotation
+   *   went backward (which the protocol forbids).
+   * `chain_ledger_mismatch` — FR-C3: the audit-ledger's
+   *   `expected_prior_hash` for the validating record differs from the
+   *   `previous_hash` value the chain itself records — a divergence
+   *   between the consumer's persistent ledger and the chain payload
+   *   (NA-1: the field MUST be cross-checked, not just declared).
+   * `chain_prev_hash_mismatch` — FR-C3: within the supplied chain, a
+   *   record's `previous_hash` does not equal its predecessor's
+   *   `entry_hash`; the chain has been tampered or assembled wrong.
+   * `cluster_id_mismatch` — FR-C2 / shared: the validating record's
+   *   `cluster_id` does not match the cluster declared by the supplied
+   *   state (CT-08: this check fires BEFORE any state-map lookup so a
+   *   cross-cluster lookup cannot succeed silently).
    */
   reason?: UnverifiedObligationReason;
   /** Human explanation of the consumer obligation. */
