@@ -1,0 +1,86 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "PhaseCompletionEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "PCE-1",
+      "expression": "consumer verifies Ed25519 cluster_signature over RFC 8785 canonical JSON of all-other-fields (including ingested_emission) using cluster_signature signer's public key",
+      "severity": "error",
+      "message": "Cluster Ed25519 signature MUST verify against the signer derived from signer_cluster_id + signer_key_version per the consumer's keyring resolution policy.",
+      "fields": ["cluster_signature", "signer_cluster_id", "signer_key_version", "signer_key_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic signature verification is consumer-side per NF-1 (library/runtime boundary). The library evaluator SKIPS this rule and surfaces it in the UnverifiedObligationsManifest under the 'x-crypto-bearing' path. Consumers MUST: (1) reconstruct RFC 8785 canonical JSON of all fields except `cluster_signature`; (2) resolve the signer's public key from `signer_cluster_id` + `signer_key_version` via their Keyring; (3) verify the Ed25519 signature; (4) reject the record on signature mismatch. The expression carries the narrative obligation rather than a parseable DSL expression because the rule is runtime-deferred.",
+      "type_signature": {
+        "cluster_signature": "string",
+        "signer_cluster_id": "string",
+        "signer_key_version": "string",
+        "signer_key_id": "string"
+      }
+    },
+    {
+      "id": "PCE-2",
+      "expression": "signer_key_id_matches_derivation(., 'signer_cluster_id', 'signer_key_version', 'signer_key_id')",
+      "severity": "error",
+      "message": "signer_key_id MUST equal sha256_hex(signer_cluster_id || ':' || signer_key_version). The wire field is a derivation of the cluster identity + key version; a mismatch indicates either a misconfigured key-derivation pipeline on the producer side or wire-payload tampering.",
+      "fields": ["signer_cluster_id", "signer_key_version", "signer_key_id"],
+      "evaluator": "library",
+      "evaluation_note": "FR-B2 schema-side reinforcement of CT-08 cluster-identity binding. The LOCAL builtin `signer_key_id_matches_derivation` (NEW in PR-A3.4) computes the sha256 of `NFC(signer_cluster_id) || ':' || NFC(signer_key_version)` and compares against the asserted `signer_key_id`. **NFC normalization is applied to BOTH inputs before hashing** (homograph-attack mitigation per iter-1 review e0c46b14): visually-identical Unicode forms produce the same key_id regardless of precomposed-vs-decomposed authoring. The colon delimiter is ASCII 0x3A; the comparison is case-insensitive (uppercase hex on the wire matches lowercase derivation). Cross-runner authors implementing the FR-A2 conformance vectors MUST also NFC-normalize before equivalent sha256 update calls — Go's `golang.org/x/text/unicode/norm.NFC.String`, Python's `unicodedata.normalize('NFC', ...)`, Rust's `unicode_normalization::UnicodeNormalization::nfc()`. Library-evaluated; no consumer state required.",
+      "type_signature": {
+        "signer_cluster_id": "string",
+        "signer_key_version": "string",
+        "signer_key_id": "string"
+      }
+    },
+    {
+      "id": "PCE-3",
+      "expression": "canonical_size_cap(., 4096)",
+      "severity": "error",
+      "message": "Canonical-JSON form of the envelope MUST be ≤ 4096 bytes (NFR-4). Reduce the payload size or split across multiple envelopes.",
+      "fields": ["ingested_emission", "signer_cluster_id", "signer_key_version", "signer_key_id", "cluster_signature", "prev_envelope_hash", "ingest_timestamp"],
+      "evaluator": "library",
+      "evaluation_note": "NFR-4 4 KB canonical-JSON cap. The LOCAL builtin `canonical_size_cap` (NEW in PR-A3.4) computes Buffer.byteLength(safeCanonicalize(envelope), 'utf8') and asserts ≤ 4096. The cap value is also declared on the schema's TypeBox metadata as `'x-canonical-size-cap-bytes': 4096` for tooling that reads schema metadata directly. Library-evaluated; no consumer state required.",
+      "type_signature": {}
+    },
+    {
+      "id": "PCE-4",
+      "expression": "consumer cross-checks per-signer nonce uniqueness by calling nonce_unique_per_signer_window(record, 'agent_id', 'nonce') with the inner Tier-1 emission as the record argument",
+      "severity": "error",
+      "message": "Nonce MUST be unique per signer within the configured sliding window (FR-C1). A repeat (signer_id, nonce) pair within the window is a replay candidate.",
+      "fields": ["ingested_emission"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C1 replay detection. Runtime-deferred because the constraint-DSL grammar in v8.6.0 evaluates expressions against the validating record's root, but the relevant nonce + agent_id fields live on `ingested_emission` (the inner Tier-1 sub-record). The DSL cannot pass `ingested_emission` as an argument that the builtin then dereferences as the 'record'. Iter-1 review (PR-A3.4 bridge F3) flagged this class of constraint as 'constraint theatre' — a rule that compiles but silently no-ops because the selector resolves wrong. The reclassification here surfaces the obligation in the UnverifiedObligationsManifest (via the 'x-cross-field-validated' flag) without falsely claiming library evaluation. Consumers MUST call the standalone nonce_unique_per_signer_window evaluator from src/constraints/builtins/nonce-unique-per-signer-window.ts with their persistent nonce_window state, passing the validating envelope's `ingested_emission` as the record argument. Future cycles MAY widen the DSL grammar to support sub-record builtin invocation, at which point this constraint may be promoted back to evaluator: 'library'.",
+      "type_signature": {
+        "ingested_emission": "PhaseCompletionEnvelopeTier1"
+      }
+    },
+    {
+      "id": "PCE-5",
+      "expression": "consumer cross-checks per-cluster sequence + key-version monotonicity by calling sequence_monotonic_per_cluster(record, 'signer_cluster_id', 'agent_id', 'sequence', 'signer_key_version') with a flattened (cluster_id, signer_id, sequence, key_version) record assembled from the Tier-2 envelope's signer_cluster_id/signer_key_version fields and the inner ingested_emission.agent_id/sequence fields",
+      "severity": "error",
+      "message": "Per-cluster sequence + key-version monotonicity (FR-C2). Sequence MUST strictly increase per (signer, key_version); key_version MUST NOT regress across the cluster's history.",
+      "fields": ["signer_cluster_id", "signer_key_version", "ingested_emission"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C2 per-cluster sequence monotonicity. Runtime-deferred because the constraint-DSL grammar in v8.6.0 doesn't support dotted-path field references like 'ingested_emission.sequence' — the relevant 'sequence' and 'agent_id' fields live on the inner Tier-1 emission while the 'signer_cluster_id' and 'signer_key_version' fields live at the Tier-2 root. Iter-1 review (PR-A3.4 bridge F3) flagged the original library-evaluated classification as a 'constraint theatre' bug class — a rule that compiles, ships, and silently no-ops because the selector resolves to undefined. The reclassification here surfaces the obligation in the UnverifiedObligationsManifest (via the 'x-cross-field-validated' flag) without falsely claiming library evaluation. Consumers MUST: (1) flatten the validating envelope into a (cluster_id, signer_id, sequence, key_version) record by assembling Tier-2.signer_cluster_id + Tier-2.ingested_emission.agent_id + Tier-2.ingested_emission.sequence + Tier-2.signer_key_version; (2) call the standalone sequence_monotonic_per_cluster evaluator from src/constraints/builtins/sequence-monotonic-per-cluster.ts with their persistent sequence_state. Future cycles MAY widen the DSL grammar to support dotted-path references, at which point this constraint may be promoted back to evaluator: 'library'.",
+      "type_signature": {
+        "signer_cluster_id": "string",
+        "signer_key_version": "string",
+        "ingested_emission": "PhaseCompletionEnvelopeTier1"
+      }
+    },
+    {
+      "id": "PCE-6",
+      "expression": "consumer cross-checks chain via chain_validator_prev_hash with consumer-supplied chain context including this envelope plus all ancestors back to genesis",
+      "severity": "error",
+      "message": "prev_envelope_hash MUST link this envelope to its predecessor's canonical-JSON sha256 hash; the chain MUST anchor at the documented genesis sentinel (FR-C3).",
+      "fields": ["prev_envelope_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C3 chain validity. Library-evaluated when the consumer supplies `chain_ledger` via validate() options.chain_ledger AND assembles the chain into a single array; in v8.6.0 the typical case is consumer-side evaluation because the chain is multi-record and the validate() call here operates on a single envelope. The DSL builtin `chain_validator_prev_hash` operates on an array argument; runtime-deferred is the right classification for the single-record validate() surface. Consumers iterating a chain history call the standalone evaluator at `src/constraints/builtins/chain-validator-prev-hash.ts` directly. The schema's `'x-chain-bearing': true` flag opts into the FR-A4 fail-closed contract (validate({ failClosed: true }) rejects when chain context absent).",
+      "type_signature": {
+        "prev_envelope_hash": "string"
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "_comment": "Boundary: long signer_cluster_id (250 chars) with derived key_id sha256-truncates to 64-hex regardless of input length — proves the derivation is length-independent.",
+  "envelope_kind": "phase_completion",
+  "contract_version": "8.6.0",
+  "signer_cluster_id": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "signer_key_version": "1",
+  "signer_key_id": "28c6543628f51bc45cdb912377ed3adc73745b8b40c52744a14bb9f67bcef8d8",
+  "cluster_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "ingested_emission": {
+    "envelope_kind": "phase_completion_tier1",
+    "contract_version": "8.6.0",
+    "agent_id": "agent-001",
+    "agent_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "agent_key_pubkey": "ed25519-pub:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "payload": {},
+    "nonce": "CCCCCCCCCCCCCCCCCCCCCC",
+    "sequence": "5",
+    "timestamp": "2026-05-08T12:00:00Z"
+  },
+  "prev_envelope_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "ingest_timestamp": "2026-05-08T12:00:01Z"
+}

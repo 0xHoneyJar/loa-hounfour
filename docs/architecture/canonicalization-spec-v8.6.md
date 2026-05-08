@@ -146,9 +146,60 @@ This document is **frozen at v8.6.0 GA**. Future amendments require:
 
 Pre-cycle-005 hash domains (v8.4.0 `signature.ts`, v7.11.0 `scoring-path-hash.ts`, v8.0.0 `audit-trail-hash.ts`) are explicitly **NOT** governed by this spec — they retain their original canonicalization for stored-hash stability per ADR-010 §exception. The class-vs-policy lint allowlist at `scripts/check-class-policy-boundary.allowlist.json` documents each.
 
+## 11.1 PhaseCompletion canonicalization profile (FR-B2, PR-A3.4)
+
+The `PhaseCompletionEnvelopeSchema` (Tier-2) declares a 4 KB canonical-
+JSON cap via the `'x-canonical-size-cap-bytes': 4096` TypeBox metadata.
+The profile pins the wire-form invariants for the fields participating
+in the cap measurement and in the FR-C1/C2/C3 cross-record builtins.
+
+### Field-level canonicalization
+
+| Field | Canonical form | Notes |
+|---|---|---|
+| `signer_cluster_id` | UTF-8 bytes (NFC-normalized at the canonicalize layer) | Consumer-shaped; hounfour does not freeze the namespace. The CT-08 builtin compares this field byte-exact across the (Tier-2 record, supplied state) pair — producers MUST NFC-normalize before emission. |
+| `signer_key_version` | Decimal string with `^[1-9][0-9]*$` (no leading zero; never `"0"` — key versions are 1-indexed by convention). Consumer parses to BigInt at the comparison boundary (CT-03). | Stable across cross-runner: the wire form is the canonical form. |
+| `signer_key_id` | Lowercase 64-hex SHA-256 of `NFC(signer_cluster_id) || ':' || NFC(signer_key_version)`. **Both inputs are NFC-normalized BEFORE hashing** per iter-1 review e0c46b14 (homograph-attack mitigation). | The `signer_key_id_matches_derivation` LOCAL builtin enforces this invariant; case-insensitive comparison admits uppercase hex on the wire. **Cross-runner authors MUST NFC-normalize before equivalent sha256 update calls** — Go `golang.org/x/text/unicode/norm.NFC.String`, Python `unicodedata.normalize('NFC', ...)`, Rust `unicode_normalization::UnicodeNormalization::nfc()`. |
+| `cluster_signature` | `ed25519:` prefix + 86-char unpadded base64url (RFC 4648 §5). | Mirrors `SignatureEnvelope.signature_value`; produced from a 64-byte Ed25519 signature. |
+| `prev_envelope_hash` | `sha256:` prefix + 64-hex digest. Genesis-position envelopes use `"sha256:0000000000000000000000000000000000000000000000000000000000000000"` (64 zeros) as the chain anchor. | FR-C3 `chain_validator_prev_hash` cross-checks the chain. |
+| `ingested_emission.nonce` | 22-char unpadded base64url. 16-byte / 128-bit nonce → exactly 22 chars (`ceil(16 * 8 / 6) = 22`). | FR-C1 `nonce_unique_per_signer_window` operates on the wire string directly — no decoding to bytes; the comparison is byte-stable across runners. |
+| `ingested_emission.sequence` | Decimal string, `^[0-9]+$` (admits `"0"` as canonical zero). Consumer parses to BigInt at CT-03 boundary. | FR-C2 `sequence_monotonic_per_cluster` uses BigInt comparison; arbitrarily-large sequences are supported (no JS Number precision loss). |
+| `ingested_emission.timestamp`, `ingest_timestamp` | ISO 8601 UTC with `Z` suffix and optional 1-9 digit fractional seconds. Non-UTC offsets (`+05:30`, `-08:00`) NOT accepted. | Removes the cross-language serialization variance (Java `Instant.toString` vs. Python `isoformat()`) by pinning to UTC + literal `Z`. |
+
+### NFR-4 4 KB cap measurement
+
+The `canonical_size_cap` LOCAL builtin (PR-A3.4) computes
+`Buffer.byteLength(safeCanonicalize(envelope), 'utf8')` and asserts
+the result is ≤ 4096. The measurement is over the **entire Tier-2
+envelope** including the `ingested_emission` Tier-1 sub-record.
+Producers wishing to fit within the cap have these levers:
+
+1. **`payload` size** — the largest variable-shape field. A ~3.5 KB
+   payload + the fixed-shape envelope wrapper typically fits within
+   the cap; larger payloads need to split across multiple envelopes.
+2. **`signer_cluster_id` length** — short stable identifiers preferred
+   (the field appears verbatim in the canonical form; a 100-char
+   cluster_id consumes 100 bytes of the cap).
+3. **`agent_key_pubkey`** — fixed at 56 chars (12 prefix + 43 base64url
+   for the 32-byte Ed25519 public key). Not a lever.
+
+The cap is structural-layer enforcement: a payload that exceeds the
+cap is REJECTED at validate() time (when the constraint file is
+evaluated). Consumers wishing to bypass the cap during transport
+(e.g., for diagnostic dumps) MUST NOT use the FR-B2 envelope shape —
+they need a custom envelope with a wider cap declared via the same
+`'x-canonical-size-cap-bytes'` metadata pattern.
+
+### Cross-runner conformance
+
+For PR-A3.4, the TS reference is the source of truth. The 35 fixtures
+under `vectors/PhaseCompletionEnvelope/v8.6.0/{valid,invalid,boundary}`
+serve as the byte-exact corpus that PR-A3.9's cross-runner harness
+will exercise against Python/Go/Rust runners.
+
 ## 12. Open items (filled in by later PRs)
 
-- [ ] PR-A3.4: Add "PhaseCompletion canonicalization profile" subsection covering `nonce` base64url normalization + `sequence`/`signer_key_version` string-encoded integer canonical form.
+- [x] PR-A3.4: "PhaseCompletion canonicalization profile" — see §11.1.
 - [ ] PR-A3.5: Add "OracleDigest canonicalization profile" subsection covering Markdown body byte-counting (NOT canonicalization — the markdown stays raw; the field's NFR-4 cap measures UTF-8 bytes of the field value, not canonicalized form).
 - [ ] PR-A3.6: Add "PlanSignoff/Amendment canonicalization profile" subsection nailing down the `\n---\n` separator and the FR-C4 ledger-snapshot canonical form.
 - [ ] PR-A3.9: Add "Cross-runner conformance" appendix listing per-language NFC + JCS library bindings.

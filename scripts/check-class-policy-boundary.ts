@@ -104,6 +104,9 @@ export const RULE_4_CRYPTO_BEARING_NAMES = [
   'RecallReceiptSchema',
   'CommitmentRootSchema',
   'AssertionSchema',
+  // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2).
+  'PhaseCompletionEnvelopeTier1Schema',
+  'PhaseCompletionEnvelopeSchema',
 ];
 const RULE_4_PATTERN = new RegExp(
   String.raw`assertValid\s*\(\s*(?:${RULE_4_CRYPTO_BEARING_NAMES.join('|')})\b`,

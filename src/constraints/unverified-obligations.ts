@@ -41,6 +41,7 @@ import type { Constraint, ConstraintFile } from './types.js';
  * `INTEGRITY_DEFERRED` paths) populate the new values.
  */
 export type UnverifiedObligationReason =
+  | 'canonical_size_cap_exceeded'
   | 'chain_context_provided'
   | 'chain_ledger_mismatch'
   | 'chain_prev_hash_mismatch'
@@ -54,6 +55,7 @@ export type UnverifiedObligationReason =
   | 'pattern_matching'
   | 'sequence_context_deferred'
   | 'sequence_monotonic_violation'
+  | 'signer_key_id_mismatch'
   | 'vocabulary_drift';
 
 export interface UnverifiedObligationEntry {

@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.5.2",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-08T12:40:18.524Z",
+  "generated_at": "2026-05-08T14:50:01.999Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1407,6 +1407,18 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion",
       "file": "assertion.schema.json",
       "description": "Signed-observation-with-lifecycle envelope. 8-variant status-discriminated union. CandidateAssertion folded as status:candidate (F3 fold). Variant-aware crypto-bearing (J3): candidate is NOT crypto-bearing; the other 7 variants ARE — validate() inspects payload status to apply the safe-by-default branch. State-machine rules (A1/A2/A3) live in constraints/Assertion.constraints.json."
+    },
+    {
+      "name": "phase-completion-envelope-tier1",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope-tier1",
+      "file": "phase-completion-envelope-tier1.schema.json",
+      "description": "Agent-emission Tier-1 phase-completion envelope. Wrapped by Tier-2 PhaseCompletionEnvelopeSchema for cluster ingestion. Crypto-bearing: validate() requires { acceptDeferred: true } to receive shape-only valid:true."
+    },
+    {
+      "name": "phase-completion-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope",
+      "file": "phase-completion-envelope.schema.json",
+      "description": "Cluster-wrapped Tier-2 phase-completion envelope. Wraps Tier-1 (PhaseCompletionEnvelopeTier1Schema) for cluster-side ingestion with cluster_signature + signer_key_id (sha256-derived) + prev_envelope_hash chain link. Crypto-bearing + chain-bearing + canonical-size-capped at 4 KB (NFR-4)."
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 **Contract version:** 8.5.2
 **Min supported:** 6.0.0
-**Schemas:** 234
+**Schemas:** 236
 
 ## Schemas
 
@@ -242,6 +242,8 @@
 | assertion-status | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion-status` | [assertion-status.schema.json](assertion-status.schema.json) |
 | assertion-class | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion-class` | [assertion-class.schema.json](assertion-class.schema.json) |
 | assertion | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/assertion` | [assertion.schema.json](assertion.schema.json) |
+| phase-completion-envelope-tier1 | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope-tier1` | [phase-completion-envelope-tier1.schema.json](phase-completion-envelope-tier1.schema.json) |
+| phase-completion-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope` | [phase-completion-envelope.schema.json](phase-completion-envelope.schema.json) |
 
 ## Usage
 

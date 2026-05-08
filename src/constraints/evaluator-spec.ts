@@ -1674,4 +1674,90 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Custom genesis_hash via state.genesis_hash overrides the default sentinel',
     ],
   }],
+
+  // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+  ['canonical_size_cap', {
+    name: 'canonical_size_cap',
+    signature: 'canonical_size_cap(value, byte_cap) → boolean',
+    description:
+      'LOCAL pure-shape NFR-4 size-cap check. Returns true when the input value\'s RFC 8785 + NFC-normalized canonical-JSON byte length is ≤ byte_cap; false with CANONICAL_SIZE_CAP_EXCEEDED diagnostic otherwise. No consumer state needed — the cap is a property of the value alone. Used by FR-B2 PhaseCompletionEnvelope (4 KB cap) and any future schema declaring \'x-canonical-size-cap-bytes\' metadata.',
+    arguments: [
+      { name: 'value', type: 'unknown', description: 'Value whose canonical-JSON form is bounded.' },
+      { name: 'byte_cap', type: 'number', description: 'Cap in bytes (FR-B2 default 4096).' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Empty object well within 4 KB cap',
+        context: { value: {} },
+        expression: 'canonical_size_cap(value, 4096)',
+        expected: true,
+      },
+      {
+        description: 'Tiny payload under 100-byte cap',
+        context: { value: { kind: 'small' } },
+        expression: 'canonical_size_cap(value, 100)',
+        expected: true,
+      },
+    ],
+    edge_cases: [
+      'Cap exceeded returns false (CANONICAL_SIZE_CAP_EXCEEDED)',
+      'Negative byte_cap rejected as CANONICAL_SIZE_CAP_INVALID_INPUT',
+      'Non-integer byte_cap rejected as CANONICAL_SIZE_CAP_INVALID_INPUT',
+      'safeCanonicalize rejection (NFC malformed, key collision) surfaces as CANONICAL_SIZE_CAP_INVALID_INPUT',
+      'Boundary case: exactly-cap-bytes payload returns true (≤ check, not <)',
+    ],
+  }],
+
+  ['signer_key_id_matches_derivation', {
+    name: 'signer_key_id_matches_derivation',
+    signature:
+      'signer_key_id_matches_derivation(record, cluster_id_field, key_version_field, key_id_field) → boolean',
+    description:
+      'LOCAL pure-shape derivation check. Asserts that the record\'s asserted key_id field equals sha256_hex(cluster_id || ":" || key_version). Closes the FR-B2 schema-side derivation gap so consumers cannot supply a shape-valid but cryptographically-meaningless signer_key_id. No consumer state needed — the derivation is computable from the record alone.',
+    arguments: [
+      { name: 'record', type: 'object', description: 'The record under validation.' },
+      { name: 'cluster_id_field', type: 'string', description: 'Field name carrying the cluster identifier.' },
+      { name: 'key_version_field', type: 'string', description: 'Field name carrying the string-encoded key version.' },
+      { name: 'key_id_field', type: 'string', description: 'Field name carrying the asserted key_id (sha256 hex).' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description:
+          'Matching derivation: sha256("c1:1") = lowercase hex matches asserted',
+        context: {
+          record: {
+            cid: 'c1',
+            kv: '1',
+            kid: '10ddafe9d244afb4247309479b5719ed5149e05875954896ee58c2539ebe1bb5',
+          },
+        },
+        expression: "signer_key_id_matches_derivation(record, 'cid', 'kv', 'kid')",
+        expected: true,
+      },
+      {
+        description: 'Mismatching key_id returns false (SIGNER_KEY_ID_MISMATCH)',
+        context: {
+          record: {
+            cid: 'c1',
+            kv: '1',
+            kid: '0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        },
+        expression: "signer_key_id_matches_derivation(record, 'cid', 'kv', 'kid')",
+        expected: false,
+      },
+    ],
+    edge_cases: [
+      'Mismatching key_id returns false (SIGNER_KEY_ID_MISMATCH)',
+      'Non-string fields return false (SIGNER_KEY_ID_INVALID_INPUT)',
+      'Null record returns false (SIGNER_KEY_ID_INVALID_INPUT)',
+      'Case-insensitive comparison: uppercase hex on the wire matches lowercase derivation',
+      'NFC normalization is applied to BOTH inputs before hashing (homograph-attack mitigation per iter-1 review e0c46b14): String.prototype.normalize("NFC") in TS; equivalent in Go/Python/Rust per the cross-runner conformance contract',
+      'Colon delimiter is byte-stable (ASCII 0x3A); cross-runner authors use the same delimiter byte',
+    ],
+  }],
 ]);

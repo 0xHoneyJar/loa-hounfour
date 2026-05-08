@@ -1,0 +1,24 @@
+{
+  "_comment": "Boundary: nonce of all 22 underscore characters — exercises the high-bit edge of base64url alphabet (and is provably distinct from the baseline AAAAAAA... nonce).",
+  "envelope_kind": "phase_completion",
+  "contract_version": "8.6.0",
+  "signer_cluster_id": "cluster-edge-001",
+  "signer_key_version": "1",
+  "signer_key_id": "9191f45b24a8d39d45b67d74546e406726d99603928a5e30658f4185df76afa2",
+  "cluster_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "ingested_emission": {
+    "envelope_kind": "phase_completion_tier1",
+    "contract_version": "8.6.0",
+    "agent_id": "agent-edge-uppercase",
+    "agent_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "agent_key_pubkey": "ed25519-pub:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "payload": {
+      "phase": "edge"
+    },
+    "nonce": "______________________",
+    "sequence": "1",
+    "timestamp": "2026-05-08T12:00:00Z"
+  },
+  "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "ingest_timestamp": "2026-05-08T12:00:01Z"
+}
