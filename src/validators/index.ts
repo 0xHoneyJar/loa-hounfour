@@ -1343,13 +1343,14 @@ export function validate<T extends TSchema>(
         errors: [
           'CHAIN_CONTEXT_DEFERRED: Chain-bearing schema validated with ' +
             '{ failClosed: true } but `chainContext.granted_by_chain_records` ' +
-            'was not supplied. ORD-3 cannot be library-evaluated against a ' +
-            'single record in isolation; assemble the chain (the record under ' +
-            'validation plus all ancestors back to the genesis-rooted record, ' +
-            'plus the synthetic terminator `{ delegation_id: "genesis:org-public-key" }`) ' +
-            'and pass it as `{ chainContext: { granted_by_chain_records: [...] } }`. ' +
-            'See MIGRATION.md v8.5.x → v8.6.0 FR-A4 section for the opt-in contract ' +
-            'and the v9.0.0 default-flip forward-pointer.',
+            'was absent or not a non-empty array. ORD-3 cannot be library-' +
+            'evaluated against a single record in isolation; assemble the ' +
+            'chain (the record under validation plus all ancestors back to ' +
+            'the genesis-rooted record, plus the synthetic terminator ' +
+            '`{ delegation_id: "genesis:org-public-key" }`) and pass it as ' +
+            '`{ chainContext: { granted_by_chain_records: [...] } }`. ' +
+            'See MIGRATION.md v8.5.x → v8.6.0 FR-A4 section for the opt-in ' +
+            'contract and the v9.0.0 default-flip forward-pointer.',
         ],
       };
     }
@@ -1399,6 +1400,16 @@ export function validate<T extends TSchema>(
   // Severity stays 'warning' for v8.6.0 — no behavioral change to the
   // valid/invalid outcome (`valid: true` continues to hold). Promotion
   // to `severity: 'error'` is a PR-A3.10 decision per soak telemetry.
+  //
+  // TODO(cycle-005, deferred): The dispatch is currently $id-keyed because
+  // `OrgRepresentativeDelegation` is the only vocabulary-bearing schema
+  // in cycle-005. When a second vocabulary check lands (e.g., a future
+  // capability-scope-bearing schema or a different controlled-vocabulary
+  // field), generalize this block to a metadata-driven `'x-vocabulary-bearing'`
+  // flag with a descriptor `{ field: '<name>', canonical_set: <Set<string>> }`,
+  // mirroring the `'x-chain-bearing'` generalization that FR-A4 introduced.
+  // Single-schema today, partial-generalization deferred to avoid
+  // over-engineering the metadata surface ahead of a second concrete user.
   if (
     schema.$id === 'OrgRepresentativeDelegation' &&
     typeof data === 'object' &&
@@ -1408,9 +1419,13 @@ export function validate<T extends TSchema>(
     const capabilityScope = (data as Record<string, unknown>).capability_scope;
     if (typeof capabilityScope === 'object' && capabilityScope !== null) {
       const canonical = new Set<string>(CAPABILITY_SCOPES);
-      const driftKeys = Object.keys(capabilityScope).filter(
-        (k) => !canonical.has(k),
-      );
+      // F2 mitigation (PR-A3.2 iter-1): sort drift keys before iteration so
+      // manifest entry order is deterministic across input JSON serialization
+      // variations — content-addressable diffing across corpora does not
+      // depend on upstream key-order accidents.
+      const driftKeys = Object.keys(capabilityScope)
+        .filter((k) => !canonical.has(k))
+        .sort();
       for (const driftKey of driftKeys) {
         obligations.push({
           rule_id: 'ORD-5',

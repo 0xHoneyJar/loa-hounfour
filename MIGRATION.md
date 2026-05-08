@@ -168,6 +168,31 @@ cell of the matrix × {genesis-rooted, chained} record kinds.
    reason will be retired in v9.0.0; the `'pattern_matching'` reason
    stays for non-fail-closed code paths.
 
+**Type-surface compatibility (TypeScript consumers).** v8.6.0 adds
+`'chain_context_provided'` to the `UnverifiedObligationReason` union
+type. Runtime-wise this is strict-additive — pre-v8.6.0 consumers who
+ignore the field continue to work — but TypeScript consumers using
+exhaustive-switch patterns (e.g. `assertNever(reason)` in the default
+branch of a `switch (reason)`) will fail compilation on upgrade until
+they add a case for `'chain_context_provided'`. This is the same
+classification AWS uses for "minor for runtime, major for type-strict
+consumers." Add a default branch or an explicit `'chain_context_provided'`
+case before bumping the dependency. The same caveat applies to any
+future additions to this union; consumers preferring stricter
+compile-time guarantees may pin the type via
+`Extract<UnverifiedObligationReason, 'context_absent' | 'pattern_matching' | ...>`
+to opt out of additivity at the type level.
+
+**Stable error-prefix matching contract.** The `CHAIN_CONTEXT_DEFERRED:`
+prefix on the `errors[0]` string is a **stable matching contract**
+through v9.0.0. Consumers programmatically distinguishing this error
+from generic TypeBox structural errors (which share the same `string[]`
+channel) MAY rely on `errors.some(e => e.startsWith('CHAIN_CONTEXT_DEFERRED:'))`.
+A structured error variant (e.g. an enumerated error-code field) is a
+candidate for v9.0.0 alongside the default-flip — track the upgrade in
+the v9.0.0 release notes if it lands. Until then, the prefix is the
+contract.
+
 **The `x-chain-bearing` schema flag.** v8.6.0 adds
 `'x-chain-bearing': true` to `OrgRepresentativeDelegationSchema`'s
 TypeBox options, mirroring the existing `'x-crypto-bearing'` /
@@ -223,6 +248,19 @@ the maintainer ahead of the PR-A3.10 review.
    the maintainer so the soak telemetry can drive the promotion
    decision. Fire rate <1% → promote to error in PR-A3.10; 1–5% → defer
    to v8.7.0; >5% → expand the canonical vocabulary first.
+
+**Telemetry exclusion: fail-closed records.** When `validate(...,
+{ failClosed: true })` returns `{ valid: false, errors: [CHAIN_CONTEXT_DEFERRED:...] }`,
+the early-return path bypasses ORD-5 surfacing — the record is rejected
+outright and no manifest is emitted. Consumers aggregating
+`reason: 'vocabulary_drift'` fire counts MUST exclude fail-closed
+rejections from the denominator for fire-rate calculation; the fire
+rate is conventionally defined over **records that produced a manifest**
+(i.e. `valid: true` results), not over the total call count. This
+matters for the PR-A3.10 promotion-decision thresholds — a high
+fail-closed rejection rate combined with a moderate vocabulary-drift
+rate could otherwise misrepresent the soak telemetry. Document the
+denominator choice in your aggregation pipeline.
 
 ### FR-A5 — Signature pattern narrowing on three v8.4.0 schemas
 
