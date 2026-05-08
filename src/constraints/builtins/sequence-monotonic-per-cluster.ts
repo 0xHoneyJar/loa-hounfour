@@ -20,11 +20,17 @@
  *   4. **CT-08 cluster-id mismatch** (record cluster_id ≠ state
  *      cluster_id). Fires BEFORE any state-map `.get` lookup so a
  *      cross-cluster lookup cannot silently succeed.
- *   5. State-absent (deferred) branch (returns `valid: true` +
+ *   5. **CT-03 numeric-regex pre-validation** (rejects malformed
+ *      string-encoded BigInts before invoking `BigInt()`). Fires BEFORE
+ *      the state-absent branch — iter-3 MEDIUM F11 mitigation —
+ *      because deferring on malformed input is the wrong-failure-mode
+ *      trap (Postel's Law walk-back per Google AIP-210). A '007'
+ *      sequence is a data-shape error regardless of state presence;
+ *      surfacing SEQUENCE_INVALID_INPUT immediately gives operators the
+ *      actionable diagnostic.
+ *   6. State-absent (deferred) branch (returns `valid: true` +
  *      `SEQUENCE_CONTEXT_DEFERRED` diagnostic when the consumer didn't
  *      supply state).
- *   6. CT-03 numeric-regex pre-validation (rejects malformed
- *      string-encoded BigInts before invoking `BigInt()`).
  *   7. Key-version monotonicity (`KEY_VERSION_REGRESSION` if record's
  *      key_version < state's highest_key_version).
  *   8. Sequence monotonicity (`SEQUENCE_MONOTONIC_VIOLATION` if record's
@@ -199,8 +205,10 @@ export function evaluateSequenceMonotonicPerCluster(
       diagnostic: {
         code: 'SEQUENCE_INVALID_INPUT',
         message:
-          'sequence_monotonic_per_cluster: cluster_id, signer_id, sequence, and ' +
-          'key_version must all resolve to string values on the record',
+          'sequence_monotonic_per_cluster: ' +
+          `${clusterIdField}, ${signerIdField}, ${sequenceField}, and ${keyVersionField} ` +
+          'must all resolve to string values on the record (iter-3 LOW 8e36 — ' +
+          'dynamic field names mirror sibling builtins).',
       },
     };
   }
@@ -245,6 +253,28 @@ export function evaluateSequenceMonotonicPerCluster(
     };
   }
 
+  // Iter-3 MEDIUM F11 mitigation: CT-03 numeric-regex pre-validation runs
+  // BEFORE the state-absent deferral check. Rationale: deferring on
+  // malformed input is the wrong-failure-mode trap (Postel's Law walk-back
+  // per Google AIP-210 / HTTP/2 working group). A record with sequence
+  // '007' is a data-shape error regardless of whether the consumer
+  // supplied state — surfacing SEQUENCE_INVALID_INPUT immediately gives
+  // operators the actionable diagnostic; deferring would silently pass
+  // garbage upstream. The deferred branch (state-absent) covers
+  // protocol-level state obligations, not data-shape obligations.
+  if (!NUMERIC_STRING_RE.test(sequence) || !NUMERIC_STRING_RE.test(keyVersion)) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'SEQUENCE_INVALID_INPUT',
+        message:
+          'sequence_monotonic_per_cluster: sequence and key_version MUST be ' +
+          'decimal-numeric strings with no leading zero (except "0") and no sign. ' +
+          'See CT-03 string-encoded-BigInt contract.',
+      },
+    };
+  }
+
   if (state === undefined) {
     return {
       valid: true,
@@ -258,22 +288,6 @@ export function evaluateSequenceMonotonicPerCluster(
           'that regress either counter.',
         cluster_id: clusterId,
         signer_id: signerId,
-      },
-    };
-  }
-
-  // CT-03 boundary: parse sequence + key_version as BigInt without try/catch.
-  // Pre-validate via numeric regex; reject malformed input as
-  // SEQUENCE_INVALID_INPUT.
-  if (!NUMERIC_STRING_RE.test(sequence) || !NUMERIC_STRING_RE.test(keyVersion)) {
-    return {
-      valid: false,
-      diagnostic: {
-        code: 'SEQUENCE_INVALID_INPUT',
-        message:
-          'sequence_monotonic_per_cluster: sequence and key_version MUST be ' +
-          'decimal-numeric strings with no leading zero (except "0") and no sign. ' +
-          'See CT-03 string-encoded-BigInt contract.',
       },
     };
   }

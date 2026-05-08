@@ -206,6 +206,66 @@ describe('Runtime shape validation (iter-2 HIGH F-001 mitigation)', () => {
     expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
   });
 
+  it('iter-3 F-002: rejects window_seconds = NaN', () => {
+    const malformedState: NonceWindowState = {
+      window_seconds: NaN,
+      per_signer: new Map(),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+    expect(result.diagnostic?.message).toContain('window_seconds');
+  });
+
+  it('iter-3 F-002: rejects window_seconds = -5 (negative)', () => {
+    const malformedState: NonceWindowState = {
+      window_seconds: -5,
+      per_signer: new Map(),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+  });
+
+  it('iter-3 F-002: rejects window_seconds = Infinity', () => {
+    const malformedState: NonceWindowState = {
+      window_seconds: Infinity,
+      per_signer: new Map(),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      malformedState,
+    );
+    expect(result.valid).toBe(false);
+    expect(result.diagnostic?.code).toBe('NONCE_INVALID_INPUT');
+  });
+
+  it('iter-3 F-002: accepts window_seconds = 0 (boundary)', () => {
+    const state: NonceWindowState = {
+      window_seconds: 0,
+      per_signer: new Map(),
+    };
+    const result = evaluateNonceUniquePerSignerWindow(
+      baseRecord,
+      'signer_id',
+      'nonce',
+      state,
+    );
+    expect(result.valid).toBe(true);
+  });
+
   it('passes when bucket is undefined (signer not in map)', () => {
     // The undefined-bucket case must NOT trigger the inner-Set guard;
     // it's the legitimate "fresh signer" path.

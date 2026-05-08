@@ -150,6 +150,27 @@ export function evaluateNonceUniquePerSignerWindow(
     };
   }
 
+  // Iter-3 LOW F-002 mitigation: validate window_seconds is a finite
+  // non-negative number. NaN, Infinity, negative values, or non-number
+  // types would surface in diagnostics and degrade troubleshooting.
+  if (
+    state !== undefined &&
+    (typeof state.window_seconds !== 'number' ||
+      !Number.isFinite(state.window_seconds) ||
+      state.window_seconds < 0)
+  ) {
+    return {
+      valid: false,
+      diagnostic: {
+        code: 'NONCE_INVALID_INPUT',
+        message:
+          'nonce_unique_per_signer_window: state.window_seconds must be a ' +
+          'finite non-negative number. NaN, Infinity, negative values, and ' +
+          'non-number types are rejected at the trust boundary.',
+      },
+    };
+  }
+
   if (state === undefined) {
     return {
       valid: true,

@@ -90,7 +90,20 @@ export interface UnverifiedObligationEntry {
    * The following members were added in PR-A3.3 (v8.6.0, FR-C1/C2/C3) for
    * the new state-bearing constraint builtins. Each maps one-to-one to a
    * structured diagnostic code emitted by the corresponding builtin in
-   * `src/constraints/builtins/*.ts`:
+   * `src/constraints/builtins/*.ts`.
+   *
+   * **TODO(PR-A3.4): emission-site integration** — these 8 members are
+   * present on the union (so consumers' TypeScript discriminated-union
+   * checks compile) but are NOT yet emitted by `validate()` directly.
+   * The standalone evaluators (`evaluateNonceUniquePerSignerWindow`
+   * etc.) emit them as the `code` field on their structured diagnostic
+   * surfaces; `validate()` will surface them as manifest entries via
+   * the metadata-flag dispatch pattern (`'x-nonce-bearing'` /
+   * `'x-sequence-bearing'` / `'x-chain-validator-bearing'`) when the
+   * FR-B2 PhaseCompletionEnvelopeSchema lands in PR-A3.4. The bridge
+   * iter-3 review (F-001) flagged this as a "dead-enum risk" surface
+   * — the breadcrumb here documents the integration path so future
+   * reviewers don't conclude the union members are orphaned.
    *
    * `nonce_replay_detected` — FR-C1: a `(signer_id, nonce)` pair within the
    *   sliding-window range was already observed for this signer; the second

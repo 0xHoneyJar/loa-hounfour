@@ -1608,23 +1608,24 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         expected: true,
       },
       {
-        // Iter-1 HIGH F1 fix: this example previously expected `true` because
-        // no state was supplied (CT-03 never fires on the deferred path).
-        // The pairing was misleading — readers would infer "007" is accepted
-        // when in fact the implementation rejects it. The fixed example
-        // demonstrates the deferred-state semantics explicitly: with no
-        // state supplied, ALL records pass regardless of CT-03 violations,
-        // because the obligation is consumer-deferred. The third example
-        // (below) demonstrates the state-present path where CT-03 actually
-        // fires (iter-2 LOW F10 mitigation: deferred-vs-present-state
-        // contrast is now explicit across two paired examples).
+        // Iter-3 MEDIUM F11 mitigation: CT-03 numeric-regex pre-validation
+        // fires BEFORE the state-absent deferral check (Postel's Law
+        // walk-back). Malformed '007' is a data-shape error regardless of
+        // state presence — surfaces SEQUENCE_INVALID_INPUT immediately
+        // rather than deferring on garbage. This example demonstrates
+        // the new ordering: '007' record + no state → standalone
+        // evaluator returns SEQUENCE_INVALID_INPUT, DSL wrapper returns
+        // false. Iter-2 LOW F10 had a related concern about the previous
+        // misleading example pairing — both are resolved by the iter-3
+        // reorder (the deferred-on-garbage case no longer exists).
         description:
-          'No state supplied → defers regardless of malformed sequence ("007"). ' +
-          'CT-03 only fires when state is present; the deferred path is ' +
-          'consumer-deferred per ADR-010 and the constraint passes.',
+          'CT-03 fires before state-absent deferral (iter-3 F11 reorder): ' +
+          'malformed sequence "007" returns SEQUENCE_INVALID_INPUT ' +
+          'regardless of state presence — data-shape errors are not ' +
+          'deferrable per Postel\'s Law walk-back.',
         context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '007', key_version: '0' } },
         expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
-        expected: true,
+        expected: false,
       },
     ],
     edge_cases: [

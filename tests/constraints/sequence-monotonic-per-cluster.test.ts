@@ -142,6 +142,36 @@ describe('evaluateSequenceMonotonicPerCluster (standalone)', () => {
       expect(result.valid).toBe(true);
     });
 
+    it('iter-3 F11: CT-03 fires BEFORE state-absent deferral (no deferring on garbage)', () => {
+      // Malformed sequence ('007') with NO state. Pre-iter-3 ordering
+      // returned SEQUENCE_CONTEXT_DEFERRED with valid:true (deferred on
+      // garbage — Postel's-Law trap). Iter-3 reorder fires CT-03 first;
+      // SEQUENCE_INVALID_INPUT regardless of state presence.
+      const result = evaluateSequenceMonotonicPerCluster(
+        { ...baseRecord, sequence: '007' },
+        'cluster_id',
+        'signer_id',
+        'sequence',
+        'key_version',
+        undefined, // no state
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('SEQUENCE_INVALID_INPUT');
+    });
+
+    it('iter-3 F11: CT-03 also fires before deferral for malformed key_version', () => {
+      const result = evaluateSequenceMonotonicPerCluster(
+        { ...baseRecord, key_version: 'not-numeric' },
+        'cluster_id',
+        'signer_id',
+        'sequence',
+        'key_version',
+        undefined,
+      );
+      expect(result.valid).toBe(false);
+      expect(result.diagnostic?.code).toBe('SEQUENCE_INVALID_INPUT');
+    });
+
     it('accepts very-large BigInt-class sequence', () => {
       const huge = '99999999999999999999999999';
       const state = makeState({
