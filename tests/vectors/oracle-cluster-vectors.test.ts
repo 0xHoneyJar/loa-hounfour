@@ -11,10 +11,15 @@
  *   - LatencyHistogramEnvelope (FR-B7)
  *   - EpicCheckpoint (FR-B8)
  *
- * Each schema's `valid/` fixtures MUST pass `Value.Check`, and each
- * `invalid/` fixture MUST fail. The runner is structurally identical
- * to `tests/vectors/v840-governance-vectors.test.ts` from cycle-004
- * — the convention is established and reused for parity.
+ * **Two-layer assertion contract** (PR-A3.5 iter-5 F-001) —
+ * each fixture is exercised through BOTH `Value.Check` (structural)
+ * AND `validate()` (cross-field). For schemas without cross-field
+ * invariants the two layers agree; for OracleDigest (OD-2 byte cap)
+ * and LatencyHistogramEnvelope (LHE-1 percentile monotonicity), an
+ * `invalid/` fixture may pass the structural layer and fail only at
+ * the cross-field layer (or vice versa) — the runner accepts either
+ * failure mode. This matches the protobuf-conformance pattern: every
+ * test exercises every layer, never just the cheap one.
  *
  * @see docs/architecture/canonicalization-spec-v8.6.md §11.1 — pattern
  *      reuse precedent.
@@ -30,6 +35,7 @@ import { EscalationEnvelopeSchema } from '../../src/operations/escalation-envelo
 import { RollbackPlanSchema } from '../../src/operations/rollback-plan.js';
 import { LatencyHistogramEnvelopeSchema } from '../../src/operations/latency-histogram-envelope.js';
 import { EpicCheckpointSchema } from '../../src/operations/epic-checkpoint.js';
+import { validate } from '../../src/validators/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VECTORS_ROOT = join(__dirname, '..', '..', 'vectors');
@@ -71,14 +77,24 @@ describe.each(Object.entries(SCHEMAS))('PR-A3.5 vectors: %s', (schemaName, schem
 
   describe('valid/', () => {
     for (const fx of validFixtures) {
-      it(`validates ${fx.name}`, () => {
-        const ok = Value.Check(schema, fx.data);
-        if (!ok) {
+      it(`validates ${fx.name} (Value.Check + validate())`, () => {
+        // Layer 1: structural check.
+        const structurallyValid = Value.Check(schema, fx.data);
+        if (!structurallyValid) {
           const errs = [...Value.Errors(schema, fx.data)].slice(0, 3);
           throw new Error(
-            `Expected valid; errors: ${JSON.stringify(
+            `Value.Check failed; errors: ${JSON.stringify(
               errs.map((e) => ({ path: e.path, message: e.message })),
             )}`,
+          );
+        }
+        // Layer 2: cross-field check (catches OD-2 byte cap, LHE-1
+        // percentile monotonicity, etc., for schemas with cross-field
+        // invariants; agrees with Layer 1 for the rest).
+        const result = validate(schema, fx.data);
+        if (!result.valid) {
+          throw new Error(
+            `validate() failed; errors: ${JSON.stringify(result.errors)}`,
           );
         }
       });
@@ -87,8 +103,18 @@ describe.each(Object.entries(SCHEMAS))('PR-A3.5 vectors: %s', (schemaName, schem
 
   describe('invalid/', () => {
     for (const fx of invalidFixtures) {
-      it(`fails schema check ${fx.name}`, () => {
-        expect(Value.Check(schema, fx.data)).toBe(false);
+      it(`fails ${fx.name} (Value.Check OR validate())`, () => {
+        // PR-A3.5 iter-5 F-001: an invalid fixture must fail SOMEWHERE
+        // in the validation pipeline. For schemas without cross-field
+        // invariants this collapses to Value.Check failing. For
+        // OracleDigest (OD-2 byte cap) and LatencyHistogramEnvelope
+        // (LHE-1 percentile monotonicity), a fixture may fail only at
+        // the cross-field layer — the test accepts either failure
+        // mode rather than forcing fixtures into a single bucket.
+        const structurallyValid = Value.Check(schema, fx.data);
+        const validateResult = validate(schema, fx.data);
+        const someLayerFailed = !structurallyValid || !validateResult.valid;
+        expect(someLayerFailed).toBe(true);
       });
     }
   });

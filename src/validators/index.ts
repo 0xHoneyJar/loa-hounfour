@@ -1086,24 +1086,30 @@ registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidat
 // percentiles_monotonic_nondecreasing); the rest are pure-shape +
 // pattern-validated by TypeBox structurally.
 //
-// PR-A3.5 iter-2 F-002: schemas carry inline byte-cap invariants via the
-// `'x-canonical-size-cap-bytes-of-field'` metadata annotation. JSON Schema's
-// `maxLength` keyword counts UTF-16 code units (in JS) or Unicode code
-// points (some implementations) — neither counts UTF-8 bytes. A
-// structural-only consumer (e.g., `Value.Check(...)`) would accept a
-// 4096-emoji string that encodes to ~16 KB on the wire. The factory
-// below registers a generic cross-field validator on every schema whose
-// root carries the annotation, so any call into the library's
-// `validate()` surface catches the bypass without requiring the
-// consumer to invoke `evaluateConstraint()` separately.
+// PR-A3.5 iter-2 F-002 / iter-4 F2 / iter-5 F-002: schemas carry inline
+// byte-cap invariants via the `'x-canonical-size-cap-bytes-of-field'`
+// metadata annotation. JSON Schema 2020-12 §6.3.1 normatively defines
+// `maxLength` on Unicode code points; JS validators count UTF-16 code
+// units. Neither matches UTF-8 byte count. A structural-only consumer
+// (e.g., `Value.Check(...)`) would accept a 4096-emoji string that
+// encodes to ~16 KB on the wire. The factory below reads the metadata
+// off a schema and registers a metadata-driven cross-field validator
+// keyed on the schema's `$id`.
 //
-// PR-A3.5 iter-4 F2: previously this was hard-coded to OracleDigest,
-// contradicting the metadata-driven promise (declarative in name,
-// imperative in practice). Now the factory is fully reflection-based:
-// the schema is the single source of truth — adding the annotation to
-// any new schema (e.g., a future `PressReleaseEnvelope` with a
-// `subject_below_140_bytes`) registers the byte-cap dispatch
-// automatically without touching the validator file.
+// **Registration is explicit-by-design.** `registerByteCapValidator`
+// is called explicitly for every schema that carries the annotation
+// rather than scanning a registry at module load. The tradeoff:
+// auto-discovery couples the validator surface to whatever module
+// graph happens to be eagerly imported at startup (drift-prone in
+// tree-shaken builds and lazy-loaded subpaths); explicit registration
+// keeps the surface deterministic and reviewable. The drift risk that
+// auto-discovery solves — a future schema adding the annotation but
+// missing the explicit `registerByteCapValidator(...)` call — is
+// instead caught by the CI guard in
+// `tests/validators/byte-cap-registration.test.ts` (PR-A3.5 iter-5
+// F-002), which scans every exported schema for the annotation and
+// fails if `registerByteCapValidator` was not called for it. Code,
+// comments, and tests now agree on the explicit-by-design story.
 //
 // PR-A3.5 iter-4 F-003: the diagnostic constraint id derives from the
 // schema $id rather than emitting a hard-coded "OD-2" for every cap

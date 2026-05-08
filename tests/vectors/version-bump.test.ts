@@ -133,6 +133,35 @@ describe('version bump', () => {
     }
   });
 
+  // PR-A3.5 iter-5 F6: byte-identical version-tuple invariant.
+  // The mid-cycle drift documented in MIGRATION.md ("Intentional
+  // version-field sequencing — superseded by PR-A3.5 iter-4") happened
+  // because there was no single CI gate asserting that every version
+  // surface agreed. This test is that gate: src/version.ts CONTRACT_VERSION
+  // === package.json#/version === schemas/index.json#/version ===
+  // vectors/VERSION === every schema's $id-extracted version segment.
+  // A future drift fails this test before merge instead of going through
+  // four review iterations.
+  it('every version surface is byte-identical to CONTRACT_VERSION (F6 invariant)', () => {
+    const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    const vectorsVersion = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
+
+    expect(pkg.version, 'package.json#version').toBe(CONTRACT_VERSION);
+    expect(index.version, 'schemas/index.json#version').toBe(CONTRACT_VERSION);
+    expect(vectorsVersion, 'vectors/VERSION').toBe(CONTRACT_VERSION);
+
+    const idVersions = new Set<string>();
+    for (const schema of index.schemas) {
+      const match = (schema.$id as string).match(/\/(\d+\.\d+\.\d+)\//);
+      if (match) idVersions.add(match[1]);
+    }
+    expect(
+      [...idVersions],
+      'all schema $id paths must agree on a single version segment',
+    ).toEqual([CONTRACT_VERSION]);
+  });
+
   it('schemas/index.json includes v8.0.0 commons schemas', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     const names = index.schemas.map((s: { name: string }) => s.name);
