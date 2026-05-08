@@ -1064,6 +1064,15 @@ registerCrossFieldValidator('AssertionStatus', constraintFileOnlyValidator);
 registerCrossFieldValidator('AssertionClass', constraintFileOnlyValidator);
 registerCrossFieldValidator('Assertion', constraintFileOnlyValidator);
 
+// v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-2 only;
+// Tier-1 has no cross-field rules — `agent_signature` derivation is
+// runtime-deferred per NF-1, surfaced via the existing
+// `'x-crypto-bearing': true` manifest path). Tier-2 carries the
+// signer_key_id derivation invariant + canonical-size cap +
+// FR-C1/C2/C3 chain references via the constraint file at
+// `constraints/PhaseCompletionEnvelope.constraints.json`.
+registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

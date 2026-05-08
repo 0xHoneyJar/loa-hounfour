@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/phase-completion-envelope-tier1",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "description": "Agent-emission Tier-1 phase-completion envelope. Wrapped by Tier-2 PhaseCompletionEnvelopeSchema for cluster ingestion. Crypto-bearing: validate() requires { acceptDeferred: true } to receive shape-only valid:true.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "agent_id",
+    "agent_signature",
+    "agent_key_pubkey",
+    "payload",
+    "nonce",
+    "sequence",
+    "timestamp"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator literal pinning the Tier-1 shape. The Tier-2 wrapper uses the literal \"phase_completion\".",
+      "const": "phase_completion_tier1",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version this envelope was authored against. Pinned to \"8.6.0\" for the cycle-005 ship line.",
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "description": "Stable agent identifier (consumer-shaped — hounfour does not freeze the namespace).",
+      "type": "string"
+    },
+    "agent_signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature value (unpadded base64url, 86 chars after the \"ed25519:\" prefix) over the RFC 8785 canonical-JSON of all-other-fields. Hounfour does NOT verify; consumer-side verification is required per NF-1.",
+      "type": "string"
+    },
+    "agent_key_pubkey": {
+      "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
+      "description": "Ed25519 public key identifier of the signer (32-byte key → 43 unpadded base64url chars per RFC 4648 §5).",
+      "type": "string"
+    },
+    "payload": {
+      "description": "Consumer-shaped payload (phase outcomes, gate decisions, attestations). Hounfour does NOT freeze the sub-shape per ADR-010 — class-vs-policy boundary.",
+      "type": "object",
+      "patternProperties": {
+        "^(.*)$": {}
+      }
+    },
+    "nonce": {
+      "pattern": "^[A-Za-z0-9_-]{22}$",
+      "description": "128-bit nonce as 22-char unpadded base64url. Used by the FR-C1 replay-detection builtin (`nonce_unique_per_signer_window`) with a 5-minute sliding window per signer.",
+      "type": "string"
+    },
+    "sequence": {
+      "pattern": "^[0-9]+$",
+      "description": "String-encoded ≥0 integer (CT-03; consumer parses to BigInt post-validation). Monotonically increasing per (signer, key_version) tuple per FR-C2.",
+      "type": "string"
+    },
+    "timestamp": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at agent emission (Z suffix; non-UTC offsets NOT accepted per cross-runner serialization variance).",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+}

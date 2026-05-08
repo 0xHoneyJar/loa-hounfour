@@ -1,0 +1,17 @@
+{
+  "envelope_kind": "phase_completion_tier1",
+  "contract_version": "8.6.0",
+  "agent_id": "agent-001",
+  "agent_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "agent_key_pubkey": "ed25519-pub:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "payload": {
+    "phase": "planning",
+    "gate_outcomes": {
+      "compile": "pass",
+      "test": "pass"
+    }
+  },
+  "nonce": "AAAAAAAAAAAAAAAAAAAAAA",
+  "sequence": "1",
+  "timestamp": "2026-05-08T12:00:00Z"
+}

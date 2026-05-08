@@ -273,7 +273,7 @@ describe('proposal_weights_normalized', () => {
 
 describe('All registered builtins in registry', () => {
   it('EVALUATOR_BUILTINS contains the registered set of builtins', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(47);
+    expect(EVALUATOR_BUILTINS).toHaveLength(49);
   });
 
   it('includes monetary_policy_solvent', () => {
@@ -289,7 +289,7 @@ describe('All registered builtins in registry', () => {
   });
 
   it('EVALUATOR_BUILTIN_SPECS has one spec per registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(47);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(49);
   });
 
   it('spec examples execute correctly for monetary_policy_solvent', () => {

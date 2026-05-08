@@ -27,6 +27,8 @@ import { evaluateIsValidDag } from './is-valid-dag.js';
 import { evaluateNonceUniquePerSignerWindow } from './builtins/nonce-unique-per-signer-window.js';
 import { evaluateSequenceMonotonicPerCluster } from './builtins/sequence-monotonic-per-cluster.js';
 import { evaluateChainValidatorPrevHash } from './builtins/chain-validator-prev-hash.js';
+import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
+import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -231,6 +233,10 @@ class Parser {
       ['nonce_unique_per_signer_window', () => this.parseNonceUniquePerSignerWindow()],
       ['sequence_monotonic_per_cluster', () => this.parseSequenceMonotonicPerCluster()],
       ['chain_validator_prev_hash', () => this.parseChainValidatorPrevHash()],
+
+      // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+      ['canonical_size_cap', () => this.parseCanonicalSizeCap()],
+      ['signer_key_id_matches_derivation', () => this.parseSignerKeyIdMatchesDerivation()],
     ]);
   }
 
@@ -1047,6 +1053,68 @@ class Parser {
       entryHashField,
       previousHashField,
       this.context?.chain_ledger,
+    );
+    return result.valid;
+  }
+
+  /**
+   * Parse `canonical_size_cap(value, byte_cap)`.
+   *
+   * LOCAL builtin (v8.6.0, FR-B2 / NFR-4): asserts that `value`'s
+   * RFC 8785 + NFC-normalized canonical-JSON byte length is ≤ `byte_cap`.
+   * No EvaluationContext needed — the cap is a property of the value
+   * alone (matches the LOCAL pattern from SDD §4.6).
+   *
+   * @since v8.6.0 — FR-B2 / NFR-4 (PR-A3.4)
+   */
+  private parseCanonicalSizeCap(): boolean {
+    this.advance(); // consume 'canonical_size_cap'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('comma');
+    const byteCap = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (typeof byteCap !== 'number') return false;
+    const result = evaluateCanonicalSizeCap(value, byteCap);
+    return result.valid;
+  }
+
+  /**
+   * Parse `signer_key_id_matches_derivation(record, cluster_id_field,
+   * key_version_field, key_id_field)`.
+   *
+   * LOCAL builtin (v8.6.0, FR-B2): asserts that the derived
+   * `sha256(cluster_id || ':' || key_version)` equals the record's
+   * asserted `key_id` field. No EvaluationContext needed — the
+   * derivation is computable from the record alone.
+   *
+   * @since v8.6.0 — FR-B2 (PR-A3.4)
+   */
+  private parseSignerKeyIdMatchesDerivation(): boolean {
+    this.advance(); // consume 'signer_key_id_matches_derivation'
+    this.expect('paren', '(');
+    const record = this.parseExpr();
+    this.expect('comma');
+    const clusterIdField = this.parseExpr();
+    this.expect('comma');
+    const keyVersionField = this.parseExpr();
+    this.expect('comma');
+    const keyIdField = this.parseExpr();
+    this.expect('paren', ')');
+
+    if (
+      typeof clusterIdField !== 'string' ||
+      typeof keyVersionField !== 'string' ||
+      typeof keyIdField !== 'string'
+    ) {
+      return false;
+    }
+    const result = evaluateSignerKeyIdMatchesDerivation(
+      record,
+      clusterIdField,
+      keyVersionField,
+      keyIdField,
     );
     return result.valid;
   }
@@ -2053,6 +2121,9 @@ export const EVALUATOR_BUILTINS = [
   'nonce_unique_per_signer_window',
   'sequence_monotonic_per_cluster',
   'chain_validator_prev_hash',
+  // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+  'canonical_size_cap',
+  'signer_key_id_matches_derivation',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

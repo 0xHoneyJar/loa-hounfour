@@ -166,6 +166,10 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'AssertionStatus',
     'AssertionClass',
     'Assertion',
+    // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-2; Tier-1 has no
+    // cross-field rules — agent_signature derivation is runtime-deferred
+    // per NF-1 via the existing 'x-crypto-bearing' manifest path).
+    'PhaseCompletionEnvelope',
   ];
 
   it('returns an array of strings', () => {

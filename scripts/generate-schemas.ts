@@ -199,6 +199,13 @@ import { CommitmentTypeSchema } from '../src/governance/commitment-type.js';
 import { CommitmentRootSchema } from '../src/governance/commitment-root.js';
 import { AgentEstateStatusSchema } from '../src/governance/agent-estate-status.js';
 import { AgentEstateSchema } from '../src/governance/agent-estate.js';
+// v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2)
+import {
+  PhaseCompletionEnvelopeTier1Schema,
+} from '../src/integrity/phase-completion-envelope-tier1.js';
+import {
+  PhaseCompletionEnvelopeSchema,
+} from '../src/integrity/phase-completion-envelope.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -503,6 +510,9 @@ const schemas = [
   { name: 'assertion-status', schema: AssertionStatusSchema },
   { name: 'assertion-class', schema: AssertionClassSchema },
   { name: 'assertion', schema: AssertionSchema },
+  // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2)
+  { name: 'phase-completion-envelope-tier1', schema: PhaseCompletionEnvelopeTier1Schema },
+  { name: 'phase-completion-envelope', schema: PhaseCompletionEnvelopeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

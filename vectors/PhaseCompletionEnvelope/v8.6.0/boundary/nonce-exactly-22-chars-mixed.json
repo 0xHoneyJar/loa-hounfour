@@ -1,0 +1,27 @@
+{
+  "envelope_kind": "phase_completion",
+  "contract_version": "8.6.0",
+  "signer_cluster_id": "cluster-001",
+  "signer_key_version": "1",
+  "signer_key_id": "6aa9093e737c26d864150f7dfd623b519c3129684a34ec9aec64c1dc4d63a595",
+  "cluster_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "ingested_emission": {
+    "envelope_kind": "phase_completion_tier1",
+    "contract_version": "8.6.0",
+    "agent_id": "agent-001",
+    "agent_signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "agent_key_pubkey": "ed25519-pub:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "payload": {
+      "phase": "planning",
+      "gate_outcomes": {
+        "compile": "pass",
+        "test": "pass"
+      }
+    },
+    "nonce": "0123456789abcdefghij_-",
+    "sequence": "1",
+    "timestamp": "2026-05-08T12:00:00Z"
+  },
+  "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "ingest_timestamp": "2026-05-08T12:00:01Z"
+}

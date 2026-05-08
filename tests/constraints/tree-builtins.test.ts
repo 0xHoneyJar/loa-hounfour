@@ -111,7 +111,7 @@ describe('tree_authority_narrowing', () => {
 
 describe('EVALUATOR_BUILTINS and SPECS updated', () => {
   it('EVALUATOR_BUILTINS contains the registered set of builtins', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(47);
+    expect(EVALUATOR_BUILTINS).toHaveLength(49);
   });
 
   it('includes tree_budget_conserved', () => {
@@ -123,7 +123,7 @@ describe('EVALUATOR_BUILTINS and SPECS updated', () => {
   });
 
   it('EVALUATOR_BUILTIN_SPECS has one spec per registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(47);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(49);
   });
 
   it('spec examples execute correctly for tree_budget_conserved', () => {

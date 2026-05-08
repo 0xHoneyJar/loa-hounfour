@@ -79,3 +79,20 @@ export {
   CanonicalizeKeyCollisionError,
   type SafeCanonicalizeOptions,
 } from '../utilities/safe-canonicalize.js';
+
+// FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2). v8.6.0 — PR-A3.4.
+export {
+  PhaseCompletionEnvelopeTier1Schema,
+  type PhaseCompletionEnvelopeTier1,
+} from './phase-completion-envelope-tier1.js';
+export {
+  PhaseCompletionEnvelopeSchema,
+  type PhaseCompletionEnvelope,
+} from './phase-completion-envelope.js';
+
+// SHA-256 hex pattern constants (used by FR-B2 + downstream cycle-005
+// schemas with content-addressed hash fields).
+export {
+  SHA256_HEX_PATTERN,
+  SHA256_HEX_BARE_PATTERN,
+} from './sha256-pattern.js';
