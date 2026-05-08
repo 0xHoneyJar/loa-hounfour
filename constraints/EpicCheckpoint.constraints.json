@@ -1,0 +1,50 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EpicCheckpoint",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "EC-1",
+      "expression": "consumer cross-checks canonical_run_id against a known CanonicalRunSchema instance via consumer-side registry resolution; manifest emits CANONICAL_RUN_REF_CONTEXT_DEFERRED when the consumer's registry hasn't supplied context",
+      "severity": "error",
+      "message": "canonical_run_id MUST resolve to a registered CanonicalRunSchema instance (FR-B8 reference resolution).",
+      "fields": ["canonical_run_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record reference. The library validates the structural shape (non-empty string) at the structural layer; cross-record resolution is consumer-side because the registry context is not bundled into a single envelope. Runtime-deferred classification surfaces the obligation in the UnverifiedObligationsManifest. The CanonicalRunSchema lands in PR-A3.8 (FR-B1) — until then, consumers building EpicCheckpoint pipelines pre-allocate the registry context with the expected canonical_run_id values.",
+      "type_signature": {
+        "canonical_run_id": "string"
+      }
+    },
+    {
+      "id": "EC-2",
+      "expression": "consumer ensures (epic_id, canonical_run_id) is a stable composite key — the EpicCheckpoint chain MUST NOT reuse this composite across distinct EPIC instances",
+      "severity": "error",
+      "message": "Composite key uniqueness invariant: the (epic_id, canonical_run_id) tuple is the EpicCheckpoint chain identity.",
+      "fields": ["epic_id", "canonical_run_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record uniqueness. The schema validates each field's shape; the consumer-side persistence layer enforces the composite-key constraint. Runtime-deferred because cross-record state is required.",
+      "type_signature": {
+        "epic_id": "string",
+        "canonical_run_id": "string"
+      }
+    },
+    {
+      "id": "EC-3",
+      "expression": "consumer enforces strict-monotonic-nondecreasing ts ordering within each (cluster_id, epic_id, canonical_run_id) composite-key group — successive EpicCheckpoint records for the same EPIC instance MUST have non-decreasing ts; a regression indicates clock skew, replay, or out-of-order delivery",
+      "severity": "error",
+      "message": "EpicCheckpoint chain temporal ordering: ts MUST be non-decreasing within a composite-key group. ts regression breaks the monotonic-progress invariant the runtime relies on for retry-count semantics and last-write-wins state reconciliation.",
+      "fields": ["cluster_id", "epic_id", "canonical_run_id", "ts", "retry_count"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record temporal invariant. Within the same composite key (cluster_id, epic_id, canonical_run_id), checkpoints form a chain of progress states: an unchanged retry_count with the same in_progress_tool_call indicates a re-emission; an incremented retry_count with the same tool_id indicates a retry of the same tool call; a different tool_id indicates phase progress. All three modes require ts to be non-decreasing — a regression is either clock skew (consumer should adjust source clock or stamp retry_count instead), replay (consumer should dedupe by composite key), or genuine out-of-order delivery (consumer should re-buffer). Runtime-deferred because the per-composite-key last-observed ts is consumer-side state. Relationship to FR-C2 sequence_monotonic_per_cluster: that builtin covers per-cluster sequence-number ordering across DIFFERENT envelopes; EC-3 covers per-EPIC checkpoint-stream ts ordering across the SAME composite key. The two domains are disjoint — a producer can satisfy FR-C2 sequence ordering across the cluster while still emitting an out-of-order EpicCheckpoint chain for a single (epic_id, canonical_run_id), so EC-3 is required even when FR-C2 is enforced. **Forward pointer (PR-A3.5 iter-5 F11)**: a generic per-composite-key monotonicity helper builtin (`monotonic_nondecreasing_per_composite_key(records, key_fields, monotonic_field)`) is on the cycle-006 backlog — until it lands, every consumer reimplements the composite-key state tracking with high probability of cross-runner drift. The pattern recurs (cf. FR-C2) so a shared library primitive is the right long-term shape; deferred from cycle-005 to keep PR-A3.5's surface scoped to the FR-B3..B8 envelope cluster.",
+      "type_signature": {
+        "cluster_id": "string",
+        "epic_id": "string",
+        "canonical_run_id": "string",
+        "ts": "string",
+        "retry_count": "integer"
+      }
+    }
+  ]
+}

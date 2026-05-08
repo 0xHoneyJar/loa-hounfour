@@ -1,0 +1,13 @@
+{
+  "envelope_kind": "latency_histogram",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "phase": "planning",
+  "measurements": {
+    "p50_ms": 10,
+    "p95_ms": 50,
+    "p99_ms": 100,
+    "max_ms": 200
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "OracleHealthEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "OHE-1",
+      "expression": "consumer interprets model_call_circuit_breaker_state per their dispatch policy: 'healthy' → unrestricted; 'degraded' → reduced-rate / fallback; 'open' → stop dispatch + drain in-flight",
+      "severity": "warning",
+      "message": "Circuit-breaker state surfaces dispatch policy guidance; consumer applies the policy.",
+      "fields": ["model_call_circuit_breaker_state"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Policy mapping is consumer-side per ADR-010. The schema enumerates the three legal states ('healthy', 'degraded', 'open') at the structural layer; the dispatch action attached to each state is the consumer's responsibility. Runtime-deferred classification keeps the rule visible in the UnverifiedObligationsManifest so a consumer not subscribing to the circuit-breaker channel still sees the obligation.",
+      "type_signature": {
+        "model_call_circuit_breaker_state": "string"
+      }
+    }
+  ]
+}

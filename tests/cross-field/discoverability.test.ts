@@ -170,6 +170,13 @@ describe('getCrossFieldValidatorSchemas()', () => {
     // cross-field rules — agent_signature derivation is runtime-deferred
     // per NF-1 via the existing 'x-crypto-bearing' manifest path).
     'PhaseCompletionEnvelope',
+    // v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster.
+    'OracleDigest',
+    'OracleHealthEnvelope',
+    'EscalationEnvelope',
+    'RollbackPlan',
+    'LatencyHistogramEnvelope',
+    'EpicCheckpoint',
   ];
 
   it('returns an array of strings', () => {

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/escalation-severity",
+  "description": "Four-level escalation severity enum. info → digest channel, warn → Telegram, critical → email, panic → SMS + auto-execute. The severity-to-channel mapping is consumer-side policy per ADR-010; the schema declares only the four legal severity levels.",
+  "anyOf": [
+    {
+      "const": "info",
+      "type": "string"
+    },
+    {
+      "const": "warn",
+      "type": "string"
+    },
+    {
+      "const": "critical",
+      "type": "string"
+    },
+    {
+      "const": "panic",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

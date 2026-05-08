@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('8.5.2');
+    expect(CONTRACT_VERSION).toBe('8.6.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('8.5.2');
+    expect(pkg.version).toBe('8.6.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('8.5.2');
+    expect(index.version).toBe('8.6.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('8.5.2');
+    expect(version).toBe('8.6.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,8 +129,37 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use the current contract version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/8\.5\.2\//);
+      expect(schema.$id).toMatch(/\/8\.6\.0\//);
     }
+  });
+
+  // PR-A3.5 iter-5 F6: byte-identical version-tuple invariant.
+  // The mid-cycle drift documented in MIGRATION.md ("Intentional
+  // version-field sequencing — superseded by PR-A3.5 iter-4") happened
+  // because there was no single CI gate asserting that every version
+  // surface agreed. This test is that gate: src/version.ts CONTRACT_VERSION
+  // === package.json#/version === schemas/index.json#/version ===
+  // vectors/VERSION === every schema's $id-extracted version segment.
+  // A future drift fails this test before merge instead of going through
+  // four review iterations.
+  it('every version surface is byte-identical to CONTRACT_VERSION (F6 invariant)', () => {
+    const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
+    const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
+    const vectorsVersion = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
+
+    expect(pkg.version, 'package.json#version').toBe(CONTRACT_VERSION);
+    expect(index.version, 'schemas/index.json#version').toBe(CONTRACT_VERSION);
+    expect(vectorsVersion, 'vectors/VERSION').toBe(CONTRACT_VERSION);
+
+    const idVersions = new Set<string>();
+    for (const schema of index.schemas) {
+      const match = (schema.$id as string).match(/\/(\d+\.\d+\.\d+)\//);
+      if (match) idVersions.add(match[1]);
+    }
+    expect(
+      [...idVersions],
+      'all schema $id paths must agree on a single version segment',
+    ).toEqual([CONTRACT_VERSION]);
   });
 
   it('schemas/index.json includes v8.0.0 commons schemas', () => {
@@ -262,7 +291,7 @@ describe('version bump', () => {
       signature_value:
         'ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       signed_at: '2026-05-06T00:00:00Z',
-      contract_version: '8.5.2',
+      contract_version: '8.6.0',
     };
     const result = validate(SignatureEnvelopeSchema, validShape, {
       acceptDeferred: true,
@@ -287,6 +316,6 @@ describe('version bump', () => {
     // Estate (5: ForgetRecord, CommitmentType, CommitmentRoot, AgentEstateStatus,
     // AgentEstate) + Assertion family (5: PrivacyScope, RiskLevel, AssertionStatus,
     // AssertionClass, Assertion) → 234.
-    expect(index.schemas).toHaveLength(236);
+    expect(index.schemas).toHaveLength(245);
   });
 });

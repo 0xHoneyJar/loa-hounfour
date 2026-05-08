@@ -29,6 +29,8 @@ import { evaluateSequenceMonotonicPerCluster } from './builtins/sequence-monoton
 import { evaluateChainValidatorPrevHash } from './builtins/chain-validator-prev-hash.js';
 import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
 import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
+import { evaluatePercentilesMonotonicNondecreasing } from './builtins/percentiles-monotonic-nondecreasing.js';
+import { evaluateUtf8ByteLengthMax } from './builtins/utf8-byte-length-max.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -237,6 +239,10 @@ class Parser {
       // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
       ['canonical_size_cap', () => this.parseCanonicalSizeCap()],
       ['signer_key_id_matches_derivation', () => this.parseSignerKeyIdMatchesDerivation()],
+      // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+      ['percentiles_monotonic_nondecreasing', () => this.parsePercentilesMonotonicNondecreasing()],
+      // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+      ['utf8_byte_length_max', () => this.parseUtf8ByteLengthMax()],
     ]);
   }
 
@@ -1116,6 +1122,67 @@ class Parser {
       keyVersionField,
       keyIdField,
     );
+    return result.valid;
+  }
+
+  /**
+   * Parse `percentiles_monotonic_nondecreasing(measurements)`.
+   *
+   * LOCAL builtin (v8.6.0, FR-B7): asserts the four percentile fields
+   * on a `LatencyHistogramEnvelope.measurements` object satisfy
+   * `p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`. No EvaluationContext needed.
+   *
+   * @since v8.6.0 — FR-B7 (PR-A3.5)
+   */
+  private parsePercentilesMonotonicNondecreasing(): boolean {
+    this.advance(); // consume 'percentiles_monotonic_nondecreasing'
+    this.expect('paren', '(');
+    const measurements = this.parseExpr();
+    this.expect('paren', ')');
+
+    const result = evaluatePercentilesMonotonicNondecreasing(measurements);
+    return result.valid;
+  }
+
+  /**
+   * Parse `utf8_byte_length_max(value, byte_cap)`.
+   *
+   * LOCAL builtin (v8.6.0, PR-A3.5 iter-1 F-002): asserts that the
+   * UTF-8 byte length of `value` is ≤ `byte_cap`. Distinct from JSON
+   * Schema's `maxLength` keyword, which counts UTF-16 code units (in
+   * JS) and therefore under-counts multi-byte UTF-8 strings (CJK,
+   * emoji). Used on `OracleDigest.telegram_variant_md_below_4kb` to
+   * enforce the Telegram 4 KB byte cap correctly.
+   *
+   * iter-2 F8: rather than short-circuit on a non-numeric byteCap (which
+   * would conflate "malformed expression" with "value exceeds cap"), the
+   * DSL wrapper hands the argument straight to the standalone evaluator,
+   * which emits the structured `UTF8_BYTE_LENGTH_INVALID_INPUT`
+   * diagnostic. The boolean surface still returns `false`, but the
+   * underlying diagnostic taxonomy is preserved for direct callers and
+   * for any future evaluator path that surfaces diagnostics through the
+   * UnverifiedObligationsManifest.
+   *
+   * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F8 diagnostic)
+   */
+  private parseUtf8ByteLengthMax(): boolean {
+    this.advance(); // consume 'utf8_byte_length_max'
+    this.expect('paren', '(');
+    const value = this.parseExpr();
+    this.expect('comma');
+    const byteCap = this.parseExpr();
+    this.expect('paren', ')');
+
+    // Hand both arguments to the standalone evaluator unconditionally;
+    // its input-validation path emits UTF8_BYTE_LENGTH_INVALID_INPUT for
+    // non-numeric / non-positive-integer byteCap (preserving the
+    // structural-error vs constraint-violation distinction even though
+    // the DSL wrapper itself can only return a boolean). iter-3 F4: the
+    // standalone evaluator now accepts `unknown` for both arguments and
+    // type-guards internally, so no `as number` cast is needed at the
+    // DSL boundary — a string-literal byte_cap (e.g., from a malformed
+    // expression) surfaces UTF8_BYTE_LENGTH_INVALID_INPUT cleanly.
+    const result = evaluateUtf8ByteLengthMax(value, byteCap);
     return result.valid;
   }
 
@@ -2124,6 +2191,10 @@ export const EVALUATOR_BUILTINS = [
   // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
   'canonical_size_cap',
   'signer_key_id_matches_derivation',
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+  'percentiles_monotonic_nondecreasing',
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+  'utf8_byte_length_max',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

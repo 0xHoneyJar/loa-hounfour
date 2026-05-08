@@ -1,0 +1,37 @@
+{
+  "envelope_kind": "oracle_digest",
+  "contract_version": "8.6.0",
+  "pulse_id": "pulse-003",
+  "pulse_kind": "evening",
+  "cluster_id": "cluster-001",
+  "ts": "2026-05-09T12:00:00Z",
+  "headline": {
+    "conformance_pct_7d": 92.5,
+    "conformance_pct_7d_delta": 0.8,
+    "inter_series_last_boolean": true,
+    "sosyete_divergence_pp": 1.2
+  },
+  "epic_summary_24h": [
+    {
+      "epic_id": "epic-001",
+      "status": "in-progress",
+      "conformance_pct": 88
+    }
+  ],
+  "subscription_pool_summary": {
+    "healthy_account_count": 3,
+    "rate_limited_account_count": 0,
+    "exhausted_account_count": 0
+  },
+  "stale_assumptions": [
+    "cache-warmup-on-restart"
+  ],
+  "pending_escalations_count": 0,
+  "pulse_attention_breakdown": {
+    "strategy": 0.5,
+    "inter_oracle_conflict": 0.3,
+    "escalation": 0.2
+  },
+  "telegram_variant_md_below_4kb": "## Pulse 001\n\nConformance: 92.5%",
+  "full_markdown_s3_url": "s3://oracle-pulses/2026/05/09/cluster-001-pulse-001.md"
+}

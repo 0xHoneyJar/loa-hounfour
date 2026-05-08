@@ -1,0 +1,16 @@
+{
+  "envelope_kind": "oracle_health",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "wal_size_bytes": "+5",
+  "wal_checksum": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "last_emission_consumed_ts": "2026-05-09T12:00:00Z",
+  "pending_escalations_count": 0,
+  "model_call_circuit_breaker_state": "healthy",
+  "pulse_attention_breakdown": {
+    "strategy": 0.5,
+    "inter_oracle_conflict": 0.3,
+    "escalation": 0.2
+  }
+}

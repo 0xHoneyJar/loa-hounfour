@@ -1,0 +1,23 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RollbackPlan",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "RP-1",
+      "expression": "consumer executes prs_to_revert + beads_to_reopen + env_changes_to_undo in declared order; an empty rollback plan is valid (no-op rollback)",
+      "severity": "warning",
+      "message": "Rollback ordering is consumer-side; the schema admits empty arrays as no-op rollbacks.",
+      "fields": ["prs_to_revert", "beads_to_reopen", "env_changes_to_undo"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Rollback execution semantics are consumer-side per ADR-010. The schema enforces the structural shape of each step (40-hex git SHA, non-empty repo + bead_id, nullable previous_value); the execution order and idempotency story are the consumer's responsibility. Runtime-deferred classification surfaces the obligation so consumers see the execution-policy hook.",
+      "type_signature": {
+        "prs_to_revert": "array",
+        "beads_to_reopen": "array",
+        "env_changes_to_undo": "array"
+      }
+    }
+  ]
+}

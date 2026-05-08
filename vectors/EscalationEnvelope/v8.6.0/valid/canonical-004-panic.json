@@ -1,0 +1,15 @@
+{
+  "envelope_kind": "escalation",
+  "contract_version": "8.6.0",
+  "escalation_id": "esc-004",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "severity": "panic",
+  "reason_class": "rate-limit",
+  "reason": "Subscription pool exhausted on cluster-001 model dispatch",
+  "attached_evidence_hashes": [
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "expected_response_sla_seconds": 300,
+  "idempotency_key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

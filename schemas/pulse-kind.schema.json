@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/pulse-kind",
+  "description": "Three-pulse-per-day cadence enum for OracleDigest. Each cluster emits exactly one OracleDigest per pulse_kind per day; the three literals together establish the diurnal frequency contract.",
+  "anyOf": [
+    {
+      "const": "morning",
+      "type": "string"
+    },
+    {
+      "const": "afternoon",
+      "type": "string"
+    },
+    {
+      "const": "evening",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

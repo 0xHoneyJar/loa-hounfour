@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/keyring",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/keyring",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Layer-2 keyring: collection of SignerEntry records owned by an organization. Composes with v8.4.0 OrgIdentity (Layer 1) and v8.5.0 SignerCompetenceRule (Layer 3) to form the three-layer authority cascade. Cross-field validation enforces signer_id uniqueness within signers[] (KR-1) and warns on duplicate key_ref entries (KR-2 — duplicate references to the same underlying key are typically a misconfiguration).",
@@ -336,5 +336,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

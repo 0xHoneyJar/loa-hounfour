@@ -206,6 +206,22 @@ import {
 import {
   PhaseCompletionEnvelopeSchema,
 } from '../src/integrity/phase-completion-envelope.js';
+// v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster
+import {
+  OracleDigestSchema,
+  PulseKindSchema,
+} from '../src/operations/oracle-digest.js';
+import {
+  OracleHealthEnvelopeSchema,
+  ModelCallCircuitBreakerStateSchema,
+} from '../src/operations/oracle-health-envelope.js';
+import {
+  EscalationEnvelopeSchema,
+  EscalationSeveritySchema,
+} from '../src/operations/escalation-envelope.js';
+import { RollbackPlanSchema } from '../src/operations/rollback-plan.js';
+import { LatencyHistogramEnvelopeSchema } from '../src/operations/latency-histogram-envelope.js';
+import { EpicCheckpointSchema } from '../src/operations/epic-checkpoint.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -513,6 +529,16 @@ const schemas = [
   // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2)
   { name: 'phase-completion-envelope-tier1', schema: PhaseCompletionEnvelopeTier1Schema },
   { name: 'phase-completion-envelope', schema: PhaseCompletionEnvelopeSchema },
+  // v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster
+  { name: 'pulse-kind', schema: PulseKindSchema },
+  { name: 'oracle-digest', schema: OracleDigestSchema },
+  { name: 'model-call-circuit-breaker-state', schema: ModelCallCircuitBreakerStateSchema },
+  { name: 'oracle-health-envelope', schema: OracleHealthEnvelopeSchema },
+  { name: 'escalation-severity', schema: EscalationSeveritySchema },
+  { name: 'escalation-envelope', schema: EscalationEnvelopeSchema },
+  { name: 'rollback-plan', schema: RollbackPlanSchema },
+  { name: 'latency-histogram-envelope', schema: LatencyHistogramEnvelopeSchema },
+  { name: 'epic-checkpoint', schema: EpicCheckpointSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

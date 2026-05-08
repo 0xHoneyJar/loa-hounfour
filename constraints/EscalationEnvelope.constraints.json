@@ -1,0 +1,35 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "EscalationEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "EE-1",
+      "expression": "consumer routes severity to the appropriate channel: 'info' → digest, 'warn' → Telegram, 'critical' → email, 'panic' → SMS + auto-execute (consumer-side policy per ADR-010)",
+      "severity": "error",
+      "message": "Escalation severity-to-channel routing is consumer-side. The schema declares the four severity literals; the consumer dispatches to the appropriate channel.",
+      "fields": ["severity"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Severity-to-channel routing is consumer policy per ADR-010. The schema validates that severity is one of {info, warn, critical, panic}; the channel mapping (digest, Telegram, email, SMS, auto-execute) is the consumer's responsibility. Runtime-deferred classification surfaces the obligation in the UnverifiedObligationsManifest so consumers building escalation pipelines see the routing-policy hook.",
+      "type_signature": {
+        "severity": "string"
+      }
+    },
+    {
+      "id": "EE-2",
+      "expression": "consumer ensures idempotency_key uniqueness per (cluster_id, escalation_id) tuple to prevent duplicate-fire on retry; replay of the same idempotency_key MUST produce identical channel-side action",
+      "severity": "error",
+      "message": "Idempotency invariant: the same idempotency_key emitted twice MUST be treated as the same escalation, not duplicated.",
+      "fields": ["idempotency_key", "escalation_id", "cluster_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record idempotency. The schema enforces 64-hex format at the structural layer; the consumer-side persistence layer maintains the dedup index. Runtime-deferred because the library cannot enforce cross-record invariants from a single envelope.",
+      "type_signature": {
+        "idempotency_key": "string",
+        "escalation_id": "string",
+        "cluster_id": "string"
+      }
+    }
+  ]
+}

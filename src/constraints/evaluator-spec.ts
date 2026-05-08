@@ -1760,4 +1760,78 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Colon delimiter is byte-stable (ASCII 0x3A); cross-runner authors use the same delimiter byte',
     ],
   }],
+
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+  ['percentiles_monotonic_nondecreasing', {
+    name: 'percentiles_monotonic_nondecreasing',
+    signature: 'percentiles_monotonic_nondecreasing(measurements) → boolean',
+    description:
+      'LOCAL pure-shape latency-percentile monotonicity check. Asserts p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms on a LatencyHistogramEnvelope.measurements object. No consumer state needed — the property is evaluable from the envelope content alone. Reports the FIRST violating pair so operators see the specific failing transition.',
+    arguments: [
+      { name: 'measurements', type: 'object', description: 'Object with finite non-negative number fields p50_ms, p95_ms, p99_ms, max_ms.' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'Strict ascending percentiles pass',
+        context: { measurements: { p50_ms: 10, p95_ms: 50, p99_ms: 100, max_ms: 200 } },
+        expression: 'percentiles_monotonic_nondecreasing(measurements)',
+        expected: true,
+      },
+      {
+        description: 'All-equal percentiles pass (≤ allows equality)',
+        context: { measurements: { p50_ms: 5, p95_ms: 5, p99_ms: 5, max_ms: 5 } },
+        expression: 'percentiles_monotonic_nondecreasing(measurements)',
+        expected: true,
+      },
+    ],
+    edge_cases: [
+      'p50 > p95 returns false (PERCENTILES_MONOTONIC_VIOLATION at p95_ms < p50_ms)',
+      'p95 > p99 returns false (PERCENTILES_MONOTONIC_VIOLATION at p99_ms < p95_ms)',
+      'p99 > max returns false (PERCENTILES_MONOTONIC_VIOLATION at max_ms < p99_ms)',
+      'Equal percentiles allowed (non-strict ≤ check)',
+      'Negative percentile (e.g., p50_ms = -1) returns false (PERCENTILES_MONOTONIC_INVALID_INPUT) — latencies are by definition non-negative',
+      'Non-finite numeric (NaN, Infinity) returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+      'Missing field returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+      'Non-object measurements returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+    ],
+  }],
+
+  // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+  ['utf8_byte_length_max', {
+    name: 'utf8_byte_length_max',
+    signature: 'utf8_byte_length_max(value, byte_cap) → boolean',
+    description:
+      'LOCAL pure-shape UTF-8 byte-length cap. Returns true when the input string\'s UTF-8 byte length is ≤ byte_cap. DISTINCT from JSON Schema\'s `maxLength` keyword: `maxLength` counts UTF-16 code units (in JS) or codepoints (in some implementations), NOT UTF-8 bytes. A 4096-emoji string is `maxLength: 4096` valid (4096 code units, ~16 KB UTF-8 bytes). Used to enforce downstream-system byte caps (Telegram 4 KB, Twitter pre-2018 280 bytes) where the wire-protocol limit is bytes, not characters.',
+    arguments: [
+      { name: 'value', type: 'string', description: 'UTF-8 string whose byte length is bounded.' },
+      { name: 'byte_cap', type: 'number', description: 'Positive integer byte cap (inclusive — actual_bytes ≤ byte_cap).' },
+    ],
+    return_type: 'boolean',
+    short_circuit: true,
+    examples: [
+      {
+        description: 'ASCII string within cap passes',
+        context: { value: 'hello world' },
+        expression: 'utf8_byte_length_max(value, 4096)',
+        expected: true,
+      },
+      {
+        description: 'Multi-byte string under code-unit cap but over byte cap fails (the F-002 wire bug)',
+        context: { value: '\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}' },
+        expression: 'utf8_byte_length_max(value, 16)',
+        expected: false,
+      },
+    ],
+    edge_cases: [
+      'ASCII length === byte length (1 byte/char)',
+      'CJK consume 3 UTF-8 bytes/char; emoji consume 4 bytes/char',
+      'Empty string passes any positive cap',
+      'Exact-cap (actual_bytes === byte_cap) passes (≤ check)',
+      'Non-string value returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
+      'Non-positive or non-integer byte_cap returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
+      'Cross-runner: TS new TextEncoder().encode(s).length (web-standard, runs in Node/Workers/Edge/Deno/browsers); Go len([]byte(s)); Python len(s.encode("utf-8")); Rust s.len() — all yield the same byte count for valid UTF-8 input',
+    ],
+  }],
 ]);

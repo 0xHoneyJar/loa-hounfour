@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/agent-estate-status",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/agent-estate-status",
   "description": "Lifecycle vocabulary for AgentEstate. Five substrate-agnostic states: provisioning | active | paused | transferring | dissolved. State-machine validity is consumer-side per ADR-010.",
   "anyOf": [
     {
@@ -29,5 +29,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

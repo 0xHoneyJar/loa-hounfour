@@ -9,6 +9,10 @@
 import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema, FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
+import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
+import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
+import { OracleDigestSchema } from '../operations/oracle-digest.js';
+import { LatencyHistogramEnvelopeSchema } from '../operations/latency-histogram-envelope.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1072,6 +1076,108 @@ registerCrossFieldValidator('Assertion', constraintFileOnlyValidator);
 // FR-C1/C2/C3 chain references via the constraint file at
 // `constraints/PhaseCompletionEnvelope.constraints.json`.
 registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidator);
+
+// v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster. Six envelope schemas
+// each shipping a constraint file under
+// `constraints/<SchemaName>.constraints.json` — most carry only
+// runtime-deferred or library-evaluated invariants (severity-to-channel
+// routing, percentile monotonicity, etc.). LatencyHistogramEnvelope is
+// the only schema with a library-evaluated invariant (FR-B7
+// percentiles_monotonic_nondecreasing); the rest are pure-shape +
+// pattern-validated by TypeBox structurally.
+//
+// PR-A3.5 iter-2 F-002 / iter-4 F2 / iter-5 F-002: schemas carry inline
+// byte-cap invariants via the `'x-canonical-size-cap-bytes-of-field'`
+// metadata annotation. JSON Schema 2020-12 §6.3.1 normatively defines
+// `maxLength` on Unicode code points; JS validators count UTF-16 code
+// units. Neither matches UTF-8 byte count. A structural-only consumer
+// (e.g., `Value.Check(...)`) would accept a 4096-emoji string that
+// encodes to ~16 KB on the wire. The factory below reads the metadata
+// off a schema and registers a metadata-driven cross-field validator
+// keyed on the schema's `$id`.
+//
+// **Registration is explicit-by-design.** `registerByteCapValidator`
+// is called explicitly for every schema that carries the annotation
+// rather than scanning a registry at module load. The tradeoff:
+// auto-discovery couples the validator surface to whatever module
+// graph happens to be eagerly imported at startup (drift-prone in
+// tree-shaken builds and lazy-loaded subpaths); explicit registration
+// keeps the surface deterministic and reviewable. The drift risk that
+// auto-discovery solves — a future schema adding the annotation but
+// missing the explicit `registerByteCapValidator(...)` call — is
+// instead caught by the CI guard in
+// `tests/validators/byte-cap-registration.test.ts` (PR-A3.5 iter-5
+// F-002), which scans every exported schema for the annotation and
+// fails if `registerByteCapValidator` was not called for it. Code,
+// comments, and tests now agree on the explicit-by-design story.
+//
+// PR-A3.5 iter-4 F-003: the diagnostic constraint id derives from the
+// schema $id rather than emitting a hard-coded "OD-2" for every cap
+// failure. The format is `<schema-id>:byte_cap[<field_name>]`.
+function registerByteCapValidator(schema: TSchema): void {
+  const schemaRecord = schema as unknown as Record<string, unknown>;
+  const fieldCaps = schemaRecord['x-canonical-size-cap-bytes-of-field'];
+  const schemaId = schemaRecord.$id as string | undefined;
+  if (fieldCaps === null || typeof fieldCaps !== 'object' || !schemaId) return;
+  registerCrossFieldValidator(schemaId, (data) => {
+    if (data === null || typeof data !== 'object') {
+      return { valid: true, errors: [], warnings: [] };
+    }
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const record = data as Record<string, unknown>;
+    for (const [fieldName, byteCap] of Object.entries(fieldCaps as Record<string, unknown>)) {
+      if (typeof byteCap !== 'number') continue;
+      const fieldValue = record[fieldName];
+      if (typeof fieldValue !== 'string') continue;
+      const result = evaluateUtf8ByteLengthMax(fieldValue, byteCap);
+      if (!result.valid && result.diagnostic) {
+        errors.push(
+          `${schemaId}:byte_cap[${fieldName}]: ${result.diagnostic.message}`,
+        );
+      }
+    }
+    return errors.length > 0
+      ? { valid: false, errors, warnings }
+      : { valid: true, errors: [], warnings };
+  });
+}
+
+registerByteCapValidator(OracleDigestSchema);
+registerCrossFieldValidator('OracleHealthEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('EscalationEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RollbackPlan', constraintFileOnlyValidator);
+
+// PR-A3.5 iter-4 F11: LatencyHistogramEnvelope's LHE-1 monotonicity
+// invariant (`p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`) is documented as
+// library-evaluated but the iter-3 wiring shipped a constraintFileOnly
+// stub — the schema's promise diverged from the validator's behavior.
+// `validate(LatencyHistogramEnvelope, x)` now invokes
+// `evaluatePercentilesMonotonicNondecreasing` on the `measurements`
+// object inline, mirroring the OracleDigest byte-cap pattern. The
+// diagnostic identifies the FIRST violating pair (e.g., `p95_ms < p50_ms`
+// with both values) so operators see the specific failing transition.
+registerCrossFieldValidator('LatencyHistogramEnvelope', (data) => {
+  if (data === null || typeof data !== 'object') {
+    return { valid: true, errors: [], warnings: [] };
+  }
+  const envelope = data as { measurements?: unknown };
+  const measurements = envelope.measurements;
+  if (measurements === undefined) {
+    return { valid: true, errors: [], warnings: [] };
+  }
+  const result = evaluatePercentilesMonotonicNondecreasing(measurements);
+  if (!result.valid && result.diagnostic) {
+    return {
+      valid: false,
+      errors: [`LHE-1 (measurements): ${result.diagnostic.message}`],
+      warnings: [],
+    };
+  }
+  return { valid: true, errors: [], warnings: [] };
+});
+
+registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
 
 /**
  * Returns schema $ids that have registered cross-field validators.

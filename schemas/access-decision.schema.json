@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.5.2/access-decision",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/access-decision",
   "additionalProperties": false,
   "description": "Result of an access evaluation at the economic boundary. v8.5.0 EXTEND adds optional outcome (PolicyDecisionOutcome) + signer_competence_result (SignerCompetenceResult) for authority-cascade composition.",
   "type": "object",
@@ -29,5 +29,5 @@
       "$ref": "SignerCompetenceResult"
     }
   },
-  "$comment": "contract_version=8.5.2, min_supported=6.0.0"
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
 }

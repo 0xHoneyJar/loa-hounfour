@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/rollback-plan",
+  "additionalProperties": false,
+  "description": "Declarative rollback recipe for an EPIC. Empty arrays are valid (consumer interprets empty plan as no-op rollback). The 40-hex merge_commit_sha is git SHA-1, distinct from the 64-hex sha256 used in evidence-hash fields elsewhere.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "epic_id",
+    "ts",
+    "cluster_id",
+    "prs_to_revert",
+    "beads_to_reopen",
+    "env_changes_to_undo"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "const": "rollback_plan",
+      "type": "string"
+    },
+    "contract_version": {
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "epic_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "prs_to_revert": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "repo",
+          "pr_number",
+          "merge_commit_sha"
+        ],
+        "properties": {
+          "repo": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pr_number": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "merge_commit_sha": {
+            "pattern": "^[A-Fa-f0-9]{40}$",
+            "description": "40-hex git commit SHA (SHA-1; distinct from the 64-hex sha256 used elsewhere).",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "beads_to_reopen": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bead_id",
+          "desired_status"
+        ],
+        "properties": {
+          "bead_id": {
+            "minLength": 1,
+            "description": "Generic identifier referencing a consumer-side task tracker. Hounfour does not import any framework-internal task system; consumers may use any task-tracking convention.",
+            "type": "string"
+          },
+          "desired_status": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "env_changes_to_undo": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "previous_value"
+        ],
+        "properties": {
+          "key": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "previous_value": {
+            "description": "Nullable string. null = the env var was unset before the change and should be unset on rollback.",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}
