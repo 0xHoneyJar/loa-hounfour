@@ -1,0 +1,56 @@
+# PR-A3.11 (FR-D1) — Stub-vs-main differential surface check.
+#
+# Runs `tests/stub/diff-against-main.test.ts` on every PR and on
+# every push to main. The test asserts that the stub package
+# (`tools/hounfour-stub/`) re-exports the same v8.6.0 cycle-005
+# schemas + 4 FR-C constraint builtins as the main package, that
+# the export-name SETS match (reflection-based drift detector),
+# that canonical-JSON serialization is byte-equal across both
+# sides, and that schema $id values retain the production short-
+# form (NA-2 fix).
+#
+# **Path-filter design (iter-1 F-002 + MANUAL_CI_PATH_SYNC
+# mitigation)**: this workflow runs on EVERY change to main /
+# every PR, with no path scoping. Hand-curated path filters drift
+# silently as new domains land in `src/` — a future v8.7.0 schema
+# in a directory not in the allowlist would be added to the stub
+# without triggering this gate. The cost of running the test on
+# every PR is small (≤2 s vitest) and worth the elimination of the
+# drift surface.
+#
+# @since v8.6.0 — PR-A3.11 (FR-D1)
+name: Stub Differential
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  stub-differential:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build main + bundle stub
+        run: |
+          pnpm run build
+          node tools/hounfour-stub/scripts/build.mjs
+
+      - name: Stub differential test
+        run: pnpm exec vitest run tests/stub/diff-against-main.test.ts

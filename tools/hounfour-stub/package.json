@@ -1,0 +1,38 @@
+{
+  "name": "@0xhoneyjar/loa-hounfour-stub",
+  "version": "0.0.0-cycle-005-stub",
+  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Bundles main's compiled dist + cherry-picks the v8.6.0 cycle-005 cluster export surface so consumer `file:./` installs work without symlinking. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE; bundled `_main/` carries production schema $id values byte-for-byte.",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "scripts/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.0.1",
+    "@sinclair/typebox": "^0.34.48",
+    "canonicalize": "^2.1.0",
+    "jose": "^6.2.2"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xHoneyJar/loa-hounfour.git",
+    "directory": "tools/hounfour-stub"
+  }
+}

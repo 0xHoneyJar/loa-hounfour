@@ -1,0 +1,185 @@
+/**
+ * PanelDecisionArtifact — deliberation input.
+ *
+ * Captures the proposed action, trust context (routing decision + scope),
+ * a grounded claim DAG, the deliberation question, and a per-dimension
+ * scoring rubric. Cross-field invariants — DAG validity, grounding
+ * type-specific field requirements, and confidence-vs-routing coupling —
+ * live in `constraints/PanelDecisionArtifact.constraints.json`.
+ *
+ * @see SDD section 3.3.1 — Required fields and cross-field constraints
+ * @see Issue #61 — Source RFC
+ * @since v8.4.0 (FR-A1)
+ */
+import { Type } from '@sinclair/typebox';
+import { AgentIdentitySchema } from '../schemas/agent-identity.js';
+/**
+ * Provenance information for a single Claim.
+ *
+ * The `type` literal selects which auxiliary fields are semantically
+ * required. Cross-field rules live in `PanelDecisionArtifact.constraints.json`:
+ *
+ * - `tool_output`         → `output_hash` matches `^sha256:[a-f0-9]{64}$` (length 71). Rule PDA-3.
+ * - `acknowledged_judgment` → `source` is non-null AND `justification.length > 0`. Rule PDA-5.
+ * - `claim_reference`     → `claim_id` references a sibling claim (DAG edge). Rule lands with the constraint file in PR-A1.4.
+ * - `artifact_reference`  → `artifact_id` references a parent artifact (DAG edge). Rule lands with the constraint file in PR-A1.4.
+ * - `external_reference`  → `external_uri` carries the off-protocol reference (URL / DOI / chain-transaction id). Substrate-agnostic; consumer parses the URI grammar. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
+ * - `derived_inference`   → `inference_basis` lists the claim_ids the inference draws from (DAG edges). Substrate-agnostic; consumer enforces basis-set validity. **Added v8.5.0 (PR-A2.3) — strict-additive discriminator extension folded from Eileen's 11-member `ProvenanceSourceType`.**
+ *
+ * The original four-type set was **deliberate and closed for v8.4.0**. The
+ * v8.5.0 EXTEND lands two new substrate-agnostic discriminator members
+ * (`external_reference`, `derived_inference`) with their corresponding
+ * optional auxiliary fields (`external_uri`, `inference_basis`); existing
+ * v7.x consumers compile unchanged because the new members are additive on
+ * the discriminator union and the new fields are optional. Cross-field
+ * rules for the new members may land in cycle-005 alongside the
+ * Challenge layer.
+ *
+ * The schema declares the surface; cross-field enforcement is the constraint
+ * file's job (and is what `'x-cross-field-validated': true` advertises).
+ */
+export const ClaimGroundingSchema = Type.Object({
+    type: Type.Union([
+        Type.Literal('tool_output'),
+        Type.Literal('acknowledged_judgment'),
+        Type.Literal('claim_reference'),
+        Type.Literal('artifact_reference'),
+        Type.Literal('external_reference'),
+        Type.Literal('derived_inference'),
+    ], { description: 'Grounding category determining which auxiliary fields apply.' }),
+    artifact_id: Type.Optional(Type.String({
+        minLength: 1,
+        description: 'Parent artifact reference for DAG closure (used by is_valid_dag).',
+    })),
+    claim_id: Type.Optional(Type.String({
+        minLength: 1,
+        description: 'Parent claim reference for DAG closure (used by is_valid_dag).',
+    })),
+    output_hash: Type.Optional(Type.String({
+        pattern: '^sha256:[a-f0-9]{64}$',
+        description: 'Canonical sha256:<64-hex> hash; required when type=tool_output.',
+    })),
+    source: Type.Optional(AgentIdentitySchema),
+    justification: Type.Optional(Type.String({
+        minLength: 1,
+        description: 'Human-readable rationale; required when type=acknowledged_judgment.',
+    })),
+    external_uri: Type.Optional(Type.String({
+        minLength: 1,
+        description: 'Off-protocol reference: URL / DOI / chain-transaction id / etc. Substrate-agnostic; consumer parses the URI grammar. Recommended (but not enforced by hounfour) when type=external_reference.',
+    })),
+    inference_basis: Type.Optional(Type.Array(Type.String({
+        minLength: 1,
+        description: 'A sibling claim_id that this inference draws from (DAG edge).',
+    }), {
+        description: 'Sibling claim_ids the derived inference draws from (DAG edges). Recommended (but not enforced by hounfour) when type=derived_inference. Basis-set validity is consumer-side per ADR-010.',
+    })),
+}, {
+    $id: 'ClaimGrounding',
+    additionalProperties: false,
+    description: 'Provenance for a single Claim. Type-specific field requirements enforced by constraint file. v8.5.0 EXTEND: two new substrate-agnostic discriminator members (external_reference, derived_inference) with corresponding optional fields (external_uri, inference_basis); strict-additive on the v8.4.0 surface.',
+});
+/**
+ * Single grounded claim within a PanelDecisionArtifact claim DAG.
+ *
+ * `confidence: 'speculative'` triggers cross-field rule PDA-4: the artifact's
+ * `trust_context.routing_decision` MUST be `'panel'`. Speculative claims
+ * cannot ride an `auto-honor` or `auto-reject` routing path.
+ */
+export const ClaimSchema = Type.Object({
+    claim_id: Type.String({
+        minLength: 1,
+        description: 'Stable identifier within the artifact; serves as the DAG node key.',
+    }),
+    grounding: ClaimGroundingSchema,
+    confidence: Type.Union([
+        Type.Literal('high_confidence'),
+        Type.Literal('plausible'),
+        Type.Literal('speculative'),
+    ], { description: 'Asserted confidence level. speculative forces panel routing per PDA-4.' }),
+}, {
+    $id: 'Claim',
+    additionalProperties: false,
+    description: 'Single grounded claim; node in the PanelDecisionArtifact claim DAG.',
+});
+/**
+ * Action proposed for deliberation. `payload` is intentionally
+ * untyped (consumer-defined shape) so the deliberation primitive
+ * generalises across action types.
+ */
+export const ProposedActionSchema = Type.Object({
+    action_type: Type.String({
+        minLength: 1,
+        maxLength: 256,
+        description: 'Consumer-defined action category.',
+    }),
+    target_id: Type.String({
+        minLength: 1,
+        description: 'Identifier of the entity the action targets.',
+    }),
+    payload: Type.Record(Type.String(), Type.Unknown(), {
+        description: 'Pass-through action data; library does not constrain payload shape.',
+    }),
+}, {
+    $id: 'ProposedAction',
+    additionalProperties: false,
+    description: 'Action proposed for deliberation; payload is consumer-defined.',
+});
+/**
+ * Trust context: who/what is asking, by what route, and why.
+ *
+ * `routing_decision` is the literal union pinned by the source RFC.
+ * `scope` and `reason` are free-text; the library does not constrain
+ * their internal grammar.
+ */
+export const TrustContextSchema = Type.Object({
+    routing_decision: Type.Union([
+        Type.Literal('panel'),
+        Type.Literal('auto-honor'),
+        Type.Literal('auto-reject'),
+    ], { description: 'Routing path for this artifact.' }),
+    scope: Type.String({
+        minLength: 1,
+        description: 'Domain or capability scope the deliberation falls under.',
+    }),
+    reason: Type.String({
+        minLength: 1,
+        description: 'Human-readable rationale for the routing decision.',
+    }),
+}, {
+    $id: 'TrustContext',
+    additionalProperties: false,
+    description: 'Routing decision + scope + reason for a deliberation.',
+});
+export const PanelDecisionArtifactSchema = Type.Object({
+    artifact_id: Type.String({
+        format: 'uuid',
+        description: 'Deliberation correlation key (UUID v4).',
+    }),
+    proposed_action: ProposedActionSchema,
+    trust_context: TrustContextSchema,
+    claims: Type.Array(ClaimSchema, {
+        description: 'Grounded claim DAG; cross-field DAG validity enforced by constraint file (is_valid_dag).',
+    }),
+    question: Type.String({
+        minLength: 1,
+        description: 'The deliberation question.',
+    }),
+    scoring_rubric: Type.Record(Type.String(), Type.Unknown(), {
+        description: 'Per-dimension scoring config. Conventional keys (per CrossScoreReport dimensions): `output_score`, `reasoning_score`, `grounding_score` — each typically `{ weight: number 0..1, description?: string }`. The schema accepts any keys to avoid pinning a tight v8.4.0 shape; a stricter `Type.Object` form MAY land additively in a later release.',
+    }),
+    created_at: Type.String({
+        format: 'date-time',
+        description: 'ISO 8601 / RFC 3339 creation timestamp.',
+    }),
+    contract_version: Type.String({
+        pattern: '^[1-9][0-9]*\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$',
+        description: 'Semver 2.0.0-formatted protocol contract version pinned at artifact creation. Major version must be >= 1 (no major-zero pre-1.0 versions); leading zeros are rejected on every component (e.g., "8.04.0" and "8.0.01" are invalid).',
+    }),
+}, {
+    $id: 'PanelDecisionArtifact',
+    additionalProperties: false,
+    'x-cross-field-validated': true,
+    description: 'Deliberation input: proposed action, trust context, grounded claim DAG, question, and scoring rubric. Cross-field rules in constraints/PanelDecisionArtifact.constraints.json.',
+});
+//# sourceMappingURL=panel-decision-artifact.js.map
