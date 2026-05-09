@@ -27,7 +27,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 
@@ -167,10 +166,50 @@ func camelToKebab(s string) string {
 
 var repoRoot string
 
+// findRepoRoot walks upward from the current working directory looking
+// for a marker that uniquely identifies the loa-hounfour repo root.
+// iter-3 F007 mitigation: `runtime.Caller(0)`-based resolution embeds
+// the build-host source path into the binary; once `go install`'d (or
+// distributed via any non-`go run` channel), the source path is gone
+// and the binary fails opaquely. CWD-walk-up + marker detection works
+// for `go run` from any subdirectory AND for installed binaries
+// invoked from the repo root.
+//
+// LOA_HOUNFOUR_REPO_ROOT env var override is honored for CI / sandbox
+// environments where CWD might be a temp dir.
+func findRepoRoot() (string, error) {
+	if env := os.Getenv("LOA_HOUNFOUR_REPO_ROOT"); env != "" {
+		return env, nil
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("getwd: %w", err)
+	}
+	dir := cwd
+	for i := 0; i < 16; i++ {
+		// Marker: vectors/runners/_shared/parity-protocol-version.txt
+		// (chosen because it's load-bearing for this binary and won't
+		// exist outside the loa-hounfour tree).
+		marker := filepath.Join(dir, "vectors", "runners", "_shared", "parity-protocol-version.txt")
+		if _, err := os.Stat(marker); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return "", fmt.Errorf("could not find loa-hounfour repo root from %s (looked for vectors/runners/_shared/parity-protocol-version.txt up to 16 levels up; set LOA_HOUNFOUR_REPO_ROOT to override)", cwd)
+}
+
 func init() {
-	_, filename, _, _ := runtime.Caller(0)
-	// .../vectors/runners/go/cmd/cross-runner/main.go → up 5 to repo root
-	repoRoot = filepath.Join(filepath.Dir(filename), "..", "..", "..", "..", "..")
+	root, err := findRepoRoot()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "FATAL (cross-runner init): %v\n", err)
+		os.Exit(2)
+	}
+	repoRoot = root
 	if err := loadShared(); err != nil {
 		fmt.Fprintf(os.Stderr, "FATAL (cross-runner init): %v\n", err)
 		os.Exit(2)

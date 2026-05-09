@@ -113,10 +113,34 @@ CONSTRAINT_LEVEL_INVALIDS_PATH = VECTORS_DIR / "_meta" / "constraint-level-inval
 
 
 def load_constraint_level_invalids() -> set[str]:
+    """Load the constraint-level-invalids registry.
+
+    iter-3 F-002 mitigation: surface I/O / parse failures with a
+    diagnostic message rather than letting an unhandled JSONDecodeError
+    abort module import opaquely. ENOENT tolerated (returns empty set
+    so a fresh checkout without the file still runs); all other
+    failures hard-fail at startup with a path-tagged error so the
+    operator sees what's wrong.
+    """
     if not CONSTRAINT_LEVEL_INVALIDS_PATH.exists():
         return set()
-    with open(CONSTRAINT_LEVEL_INVALIDS_PATH) as f:
-        return set(json.load(f).get("fixtures", []))
+    try:
+        with open(CONSTRAINT_LEVEL_INVALIDS_PATH) as f:
+            doc = json.load(f)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"FATAL: parse {CONSTRAINT_LEVEL_INVALIDS_PATH}: {e}"
+        ) from e
+    except OSError as e:
+        raise RuntimeError(
+            f"FATAL: read {CONSTRAINT_LEVEL_INVALIDS_PATH}: {e}"
+        ) from e
+    fixtures = doc.get("fixtures")
+    if not isinstance(fixtures, list):
+        raise RuntimeError(
+            f"FATAL: {CONSTRAINT_LEVEL_INVALIDS_PATH}: 'fixtures' must be a list"
+        )
+    return set(fixtures)
 
 
 CONSTRAINT_LEVEL_INVALIDS = load_constraint_level_invalids()

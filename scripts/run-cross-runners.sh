@@ -44,6 +44,30 @@ cd "$REPO_ROOT"
 SHARED_VERSION="$(cat "$REPO_ROOT/vectors/runners/_shared/parity-protocol-version.txt" | tr -d '[:space:]')"
 echo "[cross-runners] parity_protocol_version (SSOT) = $SHARED_VERSION"
 
+# iter-3 F003 mitigation: pre-flight toolchain detection. Without this,
+# missing tools surface as an opaque exec-failure deep in the harness;
+# operators have to grep the log to figure out which runner failed.
+# Now: each missing tool emits a clear "[install hint]" line up front.
+need_tool() {
+  local tool="$1"
+  local hint="$2"
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "[cross-runners] FAIL: required tool '$tool' not found in PATH." >&2
+    echo "  install: $hint" >&2
+    return 1
+  fi
+}
+TOOLCHAIN_OK=1
+need_tool npx    "Node.js + npm (https://nodejs.org)"            || TOOLCHAIN_OK=0
+need_tool python3 "Python 3 (https://www.python.org)"            || TOOLCHAIN_OK=0
+need_tool go     "Go 1.22+ (https://go.dev/doc/install)"         || TOOLCHAIN_OK=0
+need_tool cargo  "Rust + cargo (https://rustup.rs)"              || TOOLCHAIN_OK=0
+need_tool jq     "jq (https://jqlang.github.io/jq/)"             || TOOLCHAIN_OK=0
+if [[ $TOOLCHAIN_OK -eq 0 ]]; then
+  echo "[cross-runners] FAIL: required toolchains missing (see above)." >&2
+  exit 2
+fi
+
 echo "[cross-runners] TS reference (scripts/cross-runner.ts) ..."
 npx tsx scripts/cross-runner.ts --emit-manifest > "$TMP_DIR/ts.json"
 # The TS reference covers schema + non-schema corpora. The

@@ -146,12 +146,45 @@ fn camel_to_kebab(s: &str) -> String {
     out
 }
 
-fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent().unwrap()
-        .parent().unwrap()
-        .parent().unwrap()
-        .to_path_buf()
+/// findRepoRoot walks upward from the current working directory
+/// looking for the marker file that uniquely identifies the
+/// loa-hounfour repo root. iter-3 F008 mitigation:
+/// `env!("CARGO_MANIFEST_DIR")` bakes the build-host source path
+/// into the binary at compile time — once `cargo install`'d (or
+/// distributed via any non-`cargo run` channel), that path no
+/// longer exists and the binary fails opaquely.
+///
+/// LOA_HOUNFOUR_REPO_ROOT env var override is honored for CI / sandbox
+/// environments where CWD might be a temp dir.
+fn repo_root() -> Result<PathBuf, String> {
+    if let Ok(env) = std::env::var("LOA_HOUNFOUR_REPO_ROOT") {
+        if !env.is_empty() {
+            return Ok(PathBuf::from(env));
+        }
+    }
+    let cwd = std::env::current_dir().map_err(|e| format!("getcwd: {}", e))?;
+    let mut dir = cwd.clone();
+    for _ in 0..16 {
+        // Marker: vectors/runners/_shared/parity-protocol-version.txt
+        // (load-bearing for this binary; won't exist outside the
+        // loa-hounfour tree).
+        let marker = dir
+            .join("vectors")
+            .join("runners")
+            .join("_shared")
+            .join("parity-protocol-version.txt");
+        if marker.exists() {
+            return Ok(dir);
+        }
+        match dir.parent() {
+            Some(p) if p != dir => dir = p.to_path_buf(),
+            _ => break,
+        }
+    }
+    Err(format!(
+        "could not find loa-hounfour repo root from {} (looked for vectors/runners/_shared/parity-protocol-version.txt up to 16 levels up; set LOA_HOUNFOUR_REPO_ROOT to override)",
+        cwd.display()
+    ))
 }
 
 fn load_constraint_level_invalids(root: &Path) -> Result<HashSet<String>, String> {
@@ -213,18 +246,28 @@ fn load_schema(root: &Path, name: &str) -> Result<jsonschema::Validator, String>
         .map_err(|e| format!("compile {}: {}", schema_path.display(), e))
 }
 
-fn list_json_files(dir: &Path) -> Vec<String> {
+fn list_json_files(dir: &Path) -> Result<Vec<String>, String> {
+    // iter-3 F-001 mitigation: previously swallowed all read_dir errors
+    // as empty Vec, masking permission / I/O failures as "missing
+    // bucket". Now: ENOENT tolerated (returns empty), all other
+    // I/O errors surface as Result::Err so the harness sees the
+    // diagnostic at startup. Pattern matches the SSOT load discipline
+    // — failure mode IS the product.
     let entries = match fs::read_dir(dir) {
         Ok(e) => e,
-        Err(_) => return vec![],
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(vec![]),
+        Err(e) => return Err(format!("read_dir {}: {}", dir.display(), e)),
     };
-    let mut out: Vec<String> = entries
-        .filter_map(|e| e.ok())
-        .map(|e| e.file_name().to_string_lossy().into_owned())
-        .filter(|n| n.ends_with(".json") && !n.ends_with(".trace.json"))
-        .collect();
+    let mut out: Vec<String> = Vec::new();
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("read_dir entry in {}: {}", dir.display(), e))?;
+        let name = entry.file_name().to_string_lossy().into_owned();
+        if name.ends_with(".json") && !name.ends_with(".trace.json") {
+            out.push(name);
+        }
+    }
     out.sort();
-    out
+    Ok(out)
 }
 
 fn strip_comment(value: Value) -> Value {
@@ -251,7 +294,7 @@ fn emit_manifest(root: &Path) -> Result<Vec<ManifestEntry>, String> {
                 Some(vp) => format!("{}/{}", vp, bucket),
                 None => bucket.to_string(),
             };
-            for fname in list_json_files(&bucket_dir) {
+            for fname in list_json_files(&bucket_dir)? {
                 let fpath = bucket_dir.join(&fname);
                 let raw = match fs::read_to_string(&fpath) {
                     Ok(s) => s,
@@ -300,7 +343,13 @@ fn emit_manifest(root: &Path) -> Result<Vec<ManifestEntry>, String> {
 
 fn main() -> ExitCode {
     let emit = std::env::args().any(|a| a == "--emit-manifest");
-    let root = repo_root();
+    let root = match repo_root() {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("FATAL (cross-runner repo_root): {}", e);
+            return ExitCode::from(2);
+        }
+    };
     if let Err(e) = load_shared(&root) {
         eprintln!("FATAL (cross-runner init): {}", e);
         return ExitCode::from(2);
