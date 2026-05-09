@@ -7,7 +7,7 @@
   "constraints": [
     {
       "id": "CR-1",
-      "expression": "required_phases[*].ordered_index forms a 0-based contiguous monotonic sequence with no duplicates and no gaps — i.e., the set of observed ordered_index values is exactly {0, 1, ..., N-1} where N = required_phases.length",
+      "expression": "required_phases[*].ordered_index forms a 0-based contiguous monotonic sequence with no duplicates and no gaps — among the WELL-SHAPED subset of required_phases (i.e., array entries that are non-null objects whose ordered_index is an integer), the set of observed ordered_index values is exactly {0, 1, ..., M-1} where M is the count of well-shaped entries. Under the standard validate(...) pipeline Value.Check rejects malformed entries at the structural tier first, so M === required_phases.length whenever CR-1 is reached; the well-shaped accounting is the precise contract for direct invocation of the cross-field tier (iter-6 F-002 reconciliation).",
       "severity": "error",
       "message": "CanonicalRun.required_phases[*].ordered_index MUST be a 0-based contiguous monotonic sequence with no duplicates and no gaps. Out-of-band, duplicate, or non-contiguous ordering breaks the conformance evaluator's per-phase position contract: the consumer's PhaseCompletionEnvelope-to-canonical-run alignment relies on integer-position lookup, and a sparse sequence ambiguates 'which phase is at position k' across runners.",
       "fields": ["required_phases"],

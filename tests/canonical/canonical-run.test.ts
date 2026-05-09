@@ -374,10 +374,11 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     }
   });
 
-  it('returns valid:false when all phases are malformed (iter-5 F-001 mitigation)', () => {
-    // wellShapedCount === 0 with phases.length > 0 means every element
-    // failed the per-element shape guards. Direct callers must see
-    // valid:false rather than a vacuous valid:true.
+  it('returns valid:false with per-element errors when all phases are malformed (iter-6 F-001 mitigation)', () => {
+    // All elements malformed → 4 per-element structural-precondition
+    // errors (one per malformed entry), each tagged with the element
+    // index for actionability. Direct callers cannot silently observe
+    // valid:true on totally malformed payloads.
     const cr1Validator = validateCanonicalRunCR1;
     const allMalformed = {
       canonical_run_id: 'r',
@@ -394,10 +395,37 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     };
     const result = cr1Validator(allMalformed);
     expect(result.valid).toBe(false);
-    expect(
-      result.errors.some((e) => e.includes('structural shape precondition')),
-    ).toBe(true);
-    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+    // Each malformed element emits its own error; expect 4 CR-1 errors.
+    expect(result.errors.length).toBe(4);
+    expect(result.errors.every((e) => e.includes('CR-1'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('required_phases[0]'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('required_phases[1]'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('required_phases[2]'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('required_phases[3]'))).toBe(true);
+  });
+
+  it('returns valid:false on mixed payload (well-shaped + malformed) — no silent skip (iter-6 F-001)', () => {
+    // Mixed payload: 2 well-shaped + 1 malformed. Even when the
+    // well-shaped subset is internally CR-1-clean, the malformed
+    // element MUST surface as an error so direct callers see the
+    // structural precondition failure rather than valid:true.
+    const cr1Validator = validateCanonicalRunCR1;
+    const mixed = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        null, // malformed — should emit per-element error
+        { phase_id: 'c', phase_kind: 'audit', required_gates: [], ordered_index: 1 },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(mixed);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('required_phases[1]'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('null'))).toBe(true);
   });
 
   it('detects gap among well-shaped indices when malformed elements are interleaved', () => {

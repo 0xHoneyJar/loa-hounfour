@@ -267,24 +267,25 @@ export function validateCanonicalRunCR1(data) {
         // the exception class it prevents.
         if (phase === null) {
             // null guards `phase.<property>` access (would throw TypeError).
+            // iter-6 F-001 mitigation: emit a per-element structural-
+            // precondition error so direct callers see the malformed index
+            // rather than silently skipping it. Under standard validate(...)
+            // this path is unreachable (Value.Check rejects null elements at
+            // the structural tier first); the error is purely defensive.
+            errors.push(`CR-1: required_phases[${i}] is null — cross-field validator requires the structural tier (Value.Check) to have rejected this element first.`);
             continue;
         }
         if (typeof phase !== 'object') {
-            // primitive / Symbol / function guards property access (would
-            // either throw or coerce silently). Per the accumulated-error
-            // contract, skip rather than return.
+            errors.push(`CR-1: required_phases[${i}] is ${typeof phase}, not an object — cross-field validator requires the structural tier (Value.Check) to have rejected this element first.`);
             continue;
         }
         const idx = phase.ordered_index;
         if (typeof idx !== 'number') {
-            // Symbol-typed ordered_index lands here on the `typeof` clause;
-            // string / null / undefined / object / function similarly.
-            // Number.isInteger is never invoked on a non-number value.
+            errors.push(`CR-1: required_phases[${i}].ordered_index is ${typeof idx}, not a number — cross-field validator requires the structural tier (Value.Check) to have rejected this element first.`);
             continue;
         }
         if (!Number.isInteger(idx)) {
-            // NaN / Infinity / floats fall here — Number.isInteger returns
-            // false for all of them and never throws.
+            errors.push(`CR-1: required_phases[${i}].ordered_index=${idx} is not an integer (NaN/Infinity/float) — cross-field validator requires the structural tier (Value.Check) to have rejected this element first.`);
             continue;
         }
         // Reaching here means the element is well-shaped at the cross-
@@ -295,25 +296,13 @@ export function validateCanonicalRunCR1(data) {
         }
         seenIndices.add(idx);
     }
-    // **All-malformed precondition** (iter-5 F-001 mitigation): if
-    // `phases.length > 0` but no element passed the per-element shape
-    // guards, the function would otherwise return valid:true with empty
-    // errors — a direct-caller false-positive that hides a totally
-    // malformed `required_phases` payload. Surface it as valid:false
-    // with a clearly-tagged precondition error so the failure mode IS
-    // the product (S3 NoSuchKey-vs-AccessDenied discipline). Under
-    // validate(...) this path is unreachable because Value.Check would
-    // reject the malformed elements at the structural tier; this guard
-    // defends direct-caller invocation.
-    if (wellShapedCount === 0 && phases.length > 0) {
-        return {
-            valid: false,
-            errors: [
-                `CR-1: structural shape precondition failed — required_phases has ${phases.length} element(s) but none passed the per-element shape guards (each MUST be a non-null object with an integer ordered_index); the cross-field validator requires the structural tier (Value.Check) to have passed first.`,
-            ],
-            warnings: [],
-        };
-    }
+    // The iter-5 all-malformed precondition is now subsumed: per-
+    // element structural-precondition errors emitted inline during
+    // iteration cover the all-malformed case (every element fires
+    // its own error) AND the mixed-payload case (iter-6 F-001 — well-
+    // shaped + malformed elements no longer silently pass with the
+    // malformed slots invisibly skipped).
+    //
     // Contiguous + 0-based check: among the well-shaped subset, the
     // ordered_index set MUST be exactly {0, 1, ..., wellShapedCount-1}.
     //
