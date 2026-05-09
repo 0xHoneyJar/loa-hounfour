@@ -80,34 +80,59 @@ const PATHS_TO_CLEAN = [
   { rel: 'vectors/runners/go/cross-runner.exe', isDir: false },
 ];
 
-// Detection matrix (npm/non-npm × pack/publish):
+// Detection matrix (npm/non-npm × pack/publish × local/CI):
 //
-//   | UA       | publish signal? | mode    | warn? |
-//   |----------|-----------------|---------|-------|
-//   | npm      | yes             | publish | no    |
-//   | npm      | no              | pack    | no    |
-//   | non-npm  | yes             | publish | no    |
-//   | non-npm  | no              | pack    | YES   |
+//   | UA      | signal | env    | mode    | exit-on-ambiguity |
+//   |---------|--------|--------|---------|-------------------|
+//   | npm     | yes    | any    | publish | -                 |
+//   | npm     | no     | any    | pack    | -                 |
+//   | non-npm | yes    | any    | publish | -                 |
+//   | non-npm | no     | local  | pack    | warn              |
+//   | non-npm | no     | CI     | -       | EXIT 1            |
 //
-// "Publish signal" = `PREPACK_MODE=publish` OR `npm_command=publish` OR
-// `npm_lifecycle_event=publish`. The non-npm + no-signal case warns
-// loudly because we cannot positively distinguish `pnpm pack` (benign,
-// pack mode is correct) from `pnpm publish` (which on older pnpm
-// versions may not set npm_command). The warning is the operator's
-// breadcrumb to set PREPACK_MODE=publish if they're actually publishing.
+// "Signal" = `PREPACK_MODE=publish` OR `npm_command=publish` OR
+// `npm_lifecycle_event=publish`. "CI" = `process.env.CI` truthy
+// (GitHub Actions, GitLab CI, Travis, CircleCI all set this).
 //
-// We DON'T fail-closed in this cell because aborting `pnpm pack`
-// inspection workflows breaks benign DX. The blast-radius asymmetry
-// reverses for inspection: a clobbered binary takes 5 minutes to
-// rebuild; a blocked `pnpm pack` blocks an engineer.
+// Rationale for the local-vs-CI split (resolves the iter-3 "non-npm
+// pack DX" vs iter-5 "non-npm publish silent leak" tension):
+//
+//   - Local `pnpm pack` (engineer inspecting a tarball at their
+//     desk): pack mode + WARN. The cost of a clobbered cargo cache
+//     dwarfs the cost of one extra warning line; benign workflows
+//     proceed.
+//   - CI non-npm publish without explicit PREPACK_MODE: fail-closed
+//     with EXIT 1. Ambiguous intent at a release boundary in CI is
+//     where actual bad bytes get shipped to the registry. The
+//     blast-radius asymmetry reverses: every consumer who pulls the
+//     bad version pays the cost.
+//
+// Operators running `pnpm publish` from a CI runner MUST set
+// `PREPACK_MODE=publish` explicitly. The error message names the
+// override.
 const userAgent = process.env.npm_config_user_agent ?? '';
 const isNonNpmPublisher = /\b(pnpm|yarn|bun)\//i.test(userAgent);
 const explicitMode = process.env.PREPACK_MODE; // 'publish' | 'pack' | undefined
+const inCI = Boolean(process.env.CI);
 
 const isPublish =
   explicitMode === 'publish' ||
   process.env.npm_command === 'publish' ||
   process.env.npm_lifecycle_event === 'publish';
+
+if (isNonNpmPublisher && !isPublish && !explicitMode && inCI) {
+  console.error(
+    `prepack-clean: ABORTING — non-npm package manager (${userAgent.split(' ')[0]}) in CI without explicit PREPACK_MODE.`,
+  );
+  console.error(
+    'prepack-clean: ambiguous publish-vs-pack intent at a release boundary; refusing to silently skip artifact cleanup.',
+  );
+  console.error(
+    'prepack-clean: set `PREPACK_MODE=publish` (release flows) or `PREPACK_MODE=pack` (CI inspection) explicitly.',
+  );
+  process.exit(1);
+}
+
 const mode = isPublish ? 'publish (destructive)' : 'pack (dry-run only)';
 console.log(`prepack-clean: mode=${mode}${userAgent ? ` (ua=${userAgent.split(' ')[0]})` : ''}`);
 
