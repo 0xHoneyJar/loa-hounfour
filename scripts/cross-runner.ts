@@ -70,9 +70,14 @@ const VECTORS_ROOT = join(REPO_ROOT, 'vectors');
  *     (v8.6.0 cycle-005 cluster; introduced PR-A3.4..A3.8).
  *
  * Cross-language runners (Python / Go / Rust under `vectors/runners/`)
- * mirror this registry shape via a shared `vectors/runners/registry.json`
- * manifest so additions land in one place. The TS reference is the
- * golden corpus per AT-1; runners diff against this output.
+ * mirror this registry by-convention — each runner's schema list is
+ * a hand-maintained translation of this dict. (Iter-2 7649d21c
+ * disposition: a generated `vectors/runners/registry.json` SSOT is a
+ * v8.7.0 follow-up — at v8.6.0 the registry shape stays per-runtime
+ * because Go / Rust embed schema-name → schema-file mapping in
+ * native syntax that doesn't trivially cross-compile from JSON.)
+ * The TS reference is the golden corpus per AT-1; runners diff
+ * against this output.
  *
  * @since v8.6.0 — PR-A3.9 (FR-A2) — version-path support + v8.6.0 cluster.
  */
@@ -127,22 +132,20 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
 };
 
 /**
- * Cross-language harness contract version. Bumped at PR-A3.9 (FR-A2)
- * to 1.1.0 from cycle-004's 1.0.0 — additive changes:
+ * Cross-language harness contract version. Source-of-truth lives at
+ * `vectors/runners/_shared/parity-protocol-version.txt` — every
+ * runner reads from there at startup. iter-2 F011 mitigation:
+ * hardcoded fallbacks across multiple runners are a parity-drift
+ * footgun (same root concern as F008 — three hand-rolled RFC 3339
+ * regexes); the shared file is the load-bearing source.
  *
- *   - `versionPath`-aware vector walking (covers the v8.6.0 cycle-005
- *     cluster's nested layout).
- *   - `'invalid-cross-field'` bucket (CanonicalRun CR-1; structural
- *     validators report `valid`, cross-field tier rejection is
- *     consumer-side per ADR-010).
- *   - `'pass-cross-field-deferred'` result label for the new bucket.
- *
- * Cross-runner authors (Python / Go / Rust) MUST bump their
- * advertised `parity_protocol_version` to match in lockstep with TS.
- *
- * @since v8.6.0 — PR-A3.9 (FR-A2).
+ * @since v8.6.0 — PR-A3.9 (FR-A2) iter-3.
  */
-export const PARITY_PROTOCOL_VERSION = '1.1.0';
+const SHARED_DIR = join(REPO_ROOT, 'vectors', 'runners', '_shared');
+export const PARITY_PROTOCOL_VERSION = readFileSync(
+  join(SHARED_DIR, 'parity-protocol-version.txt'),
+  'utf8',
+).trim();
 
 // Constraint-level invalid set is committed metadata at
 // `vectors/_meta/constraint-level-invalids.json` so consumers in any

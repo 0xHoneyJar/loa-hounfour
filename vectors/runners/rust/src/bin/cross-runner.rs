@@ -25,9 +25,55 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::sync::OnceLock;
 
-/// MUST match `PARITY_PROTOCOL_VERSION` in scripts/cross-runner.ts.
-const PARITY_PROTOCOL_VERSION: &str = "1.1.0";
+/// SSOT files. iter-2 F008+F011 mitigation: every runner reads the
+/// version + regex from `vectors/runners/_shared/` rather than
+/// holding a hardcoded fallback that would silently drift across
+/// runners. Initialized once at process startup; misconfigured
+/// installs fail loudly at first call.
+static PARITY_PROTOCOL_VERSION_CELL: OnceLock<String> = OnceLock::new();
+static RFC3339_UTC_PATTERN_SOURCE: OnceLock<String> = OnceLock::new();
+
+fn load_shared(root: &Path) -> Result<(), String> {
+    let pv_path = root
+        .join("vectors")
+        .join("runners")
+        .join("_shared")
+        .join("parity-protocol-version.txt");
+    let pv = fs::read_to_string(&pv_path)
+        .map_err(|e| format!("load {}: {}", pv_path.display(), e))?
+        .trim()
+        .to_string();
+    if pv.is_empty() {
+        return Err(format!("{}: empty file", pv_path.display()));
+    }
+    PARITY_PROTOCOL_VERSION_CELL
+        .set(pv)
+        .map_err(|_| "PARITY_PROTOCOL_VERSION already initialized".to_string())?;
+    let rp_path = root
+        .join("vectors")
+        .join("runners")
+        .join("_shared")
+        .join("rfc3339-utc-pattern.txt");
+    let rp = fs::read_to_string(&rp_path)
+        .map_err(|e| format!("load {}: {}", rp_path.display(), e))?
+        .trim()
+        .to_string();
+    if rp.is_empty() {
+        return Err(format!("{}: empty file", rp_path.display()));
+    }
+    RFC3339_UTC_PATTERN_SOURCE
+        .set(rp)
+        .map_err(|_| "RFC3339_UTC_PATTERN_SOURCE already initialized".to_string())?;
+    Ok(())
+}
+
+fn parity_protocol_version() -> &'static str {
+    PARITY_PROTOCOL_VERSION_CELL
+        .get()
+        .expect("load_shared() must run before parity_protocol_version()")
+}
 
 #[derive(Debug, Clone)]
 struct SchemaReg {
@@ -75,12 +121,25 @@ struct ManifestEntry {
     diagnostic: Option<Diagnostic>,
 }
 
+/// camel_to_kebab converts PascalCase / camelCase to kebab-case.
+/// iter-2 F003 mitigation: handles the consecutive-uppercase boundary
+/// (HTTPServer → http-server, not httpserver) via lookahead.
 fn camel_to_kebab(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 4);
     let chars: Vec<char> = s.chars().collect();
+    let mut out = String::with_capacity(s.len() + 4);
     for (i, &c) in chars.iter().enumerate() {
-        if c.is_ascii_uppercase() && i > 0 && !chars[i - 1].is_ascii_uppercase() {
-            out.push('-');
+        let is_upper = c.is_ascii_uppercase();
+        if is_upper && i > 0 {
+            let prev_upper = chars[i - 1].is_ascii_uppercase();
+            let next_lower = chars
+                .get(i + 1)
+                .map(|n| n.is_ascii_lowercase())
+                .unwrap_or(false);
+            // Rule 1: lowercase before uppercase → hyphen.
+            // Rule 2: uppercase before uppercase-then-lowercase → hyphen.
+            if !prev_upper || (prev_upper && next_lower) {
+                out.push('-');
+            }
         }
         out.extend(c.to_lowercase());
     }
@@ -95,16 +154,23 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
-fn load_constraint_level_invalids(root: &Path) -> HashSet<String> {
-    let path = root.join("vectors").join("_meta").join("constraint-level-invalids.json");
+fn load_constraint_level_invalids(root: &Path) -> Result<HashSet<String>, String> {
+    let path = root
+        .join("vectors")
+        .join("_meta")
+        .join("constraint-level-invalids.json");
+    // iter-2 F-001 mitigation: surface I/O and parse errors loudly
+    // rather than swallowing into an empty set. A missing file is
+    // tolerable (returns empty); a corrupted file MUST fail at
+    // startup so consumers see the diagnostic instead of silently
+    // diverging from TS reference output.
     let raw = match fs::read_to_string(&path) {
         Ok(s) => s,
-        Err(_) => return HashSet::new(),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(HashSet::new()),
+        Err(e) => return Err(format!("read {}: {}", path.display(), e)),
     };
-    let v: Value = match serde_json::from_str(&raw) {
-        Ok(v) => v,
-        Err(_) => return HashSet::new(),
-    };
+    let v: Value = serde_json::from_str(&raw)
+        .map_err(|e| format!("parse {}: {}", path.display(), e))?;
     let mut set = HashSet::new();
     if let Some(arr) = v.get("fixtures").and_then(|x| x.as_array()) {
         for item in arr {
@@ -113,47 +179,24 @@ fn load_constraint_level_invalids(root: &Path) -> HashSet<String> {
             }
         }
     }
-    set
+    Ok(set)
 }
 
-/// Conservative RFC 3339 / ISO 8601 UTC date-time check matching
-/// the TypeBox ISO8601_UTC_PATTERN (Z suffix, optional 1-9 fractional
-/// digits). Cycle-005 contracts treat `format: date-time` as
-/// ASSERTIVE; this function backs the format-assertion path so the
-/// Rust runner rejects the same fixtures TypeBox does.
+/// RFC 3339 / ISO 8601 UTC date-time check. iter-3 mitigation: regex
+/// compiled from the shared `vectors/runners/_shared/rfc3339-utc-
+/// pattern.txt` source so Python / Go / Rust all consult the same
+/// pattern (F008 SSOT). Compiled once per process via OnceLock.
+static RFC3339_UTC_DATE_TIME_RE: OnceLock<regex::Regex> = OnceLock::new();
+
 fn check_rfc3339_date_time(value: &str) -> bool {
-    let bytes = value.as_bytes();
-    if bytes.len() < 20 {
-        return false;
-    }
-    if *bytes.last().unwrap() != b'Z' {
-        return false;
-    }
-    let is_d = |b: u8| b.is_ascii_digit();
-    let pos = |i: usize| bytes.get(i).copied();
-    if !(is_d(pos(0).unwrap_or(0)) && is_d(pos(1).unwrap_or(0)) && is_d(pos(2).unwrap_or(0)) && is_d(pos(3).unwrap_or(0))) { return false; }
-    if pos(4) != Some(b'-') { return false; }
-    if !(is_d(pos(5).unwrap_or(0)) && is_d(pos(6).unwrap_or(0))) { return false; }
-    if pos(7) != Some(b'-') { return false; }
-    if !(is_d(pos(8).unwrap_or(0)) && is_d(pos(9).unwrap_or(0))) { return false; }
-    if pos(10) != Some(b'T') { return false; }
-    if !(is_d(pos(11).unwrap_or(0)) && is_d(pos(12).unwrap_or(0))) { return false; }
-    if pos(13) != Some(b':') { return false; }
-    if !(is_d(pos(14).unwrap_or(0)) && is_d(pos(15).unwrap_or(0))) { return false; }
-    if pos(16) != Some(b':') { return false; }
-    if !(is_d(pos(17).unwrap_or(0)) && is_d(pos(18).unwrap_or(0))) { return false; }
-    let tail = &bytes[19..];
-    if tail == b"Z" {
-        return true;
-    }
-    if tail.first() != Some(&b'.') {
-        return false;
-    }
-    let frac = &tail[1..tail.len() - 1];
-    if frac.is_empty() || frac.len() > 9 {
-        return false;
-    }
-    frac.iter().all(|b| b.is_ascii_digit())
+    let re = RFC3339_UTC_DATE_TIME_RE.get_or_init(|| {
+        let pattern = RFC3339_UTC_PATTERN_SOURCE
+            .get()
+            .expect("load_shared() must run before check_rfc3339_date_time()");
+        regex::Regex::new(pattern)
+            .unwrap_or_else(|e| panic!("compile rfc3339-utc-pattern: {}", e))
+    });
+    re.is_match(value)
 }
 
 fn load_schema(root: &Path, name: &str) -> Result<jsonschema::Validator, String> {
@@ -194,7 +237,7 @@ fn strip_comment(value: Value) -> Value {
 }
 
 fn emit_manifest(root: &Path) -> Result<Vec<ManifestEntry>, String> {
-    let cl_invalids = load_constraint_level_invalids(root);
+    let cl_invalids = load_constraint_level_invalids(root)?;
     let mut manifest = Vec::new();
     for reg in SCHEMAS {
         let validator = load_schema(root, reg.name)?;
@@ -258,6 +301,10 @@ fn emit_manifest(root: &Path) -> Result<Vec<ManifestEntry>, String> {
 fn main() -> ExitCode {
     let emit = std::env::args().any(|a| a == "--emit-manifest");
     let root = repo_root();
+    if let Err(e) = load_shared(&root) {
+        eprintln!("FATAL (cross-runner init): {}", e);
+        return ExitCode::from(2);
+    }
     let manifest = match emit_manifest(&root) {
         Ok(m) => m,
         Err(e) => {
@@ -283,7 +330,7 @@ fn main() -> ExitCode {
     println!(
         "OK: {} fixtures validated (parity_protocol_version={})",
         manifest.len(),
-        PARITY_PROTOCOL_VERSION
+        parity_protocol_version()
     );
     ExitCode::SUCCESS
 }

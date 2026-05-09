@@ -36,6 +36,14 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 cd "$REPO_ROOT"
 
+# iter-2 F011 mitigation: the parity_protocol_version is a SSOT loaded
+# at runtime from vectors/runners/_shared/parity-protocol-version.txt
+# by every runner. The harness reads the same file and announces it
+# at the top of its log so a divergent install is obvious before any
+# manifest comparison runs.
+SHARED_VERSION="$(cat "$REPO_ROOT/vectors/runners/_shared/parity-protocol-version.txt" | tr -d '[:space:]')"
+echo "[cross-runners] parity_protocol_version (SSOT) = $SHARED_VERSION"
+
 echo "[cross-runners] TS reference (scripts/cross-runner.ts) ..."
 npx tsx scripts/cross-runner.ts --emit-manifest > "$TMP_DIR/ts.json"
 # The TS reference covers schema + non-schema corpora. The
@@ -89,4 +97,4 @@ fi
 
 ENTRIES=$(jq 'length' "$TMP_DIR/ts.sorted.json")
 echo ""
-echo "[cross-runners] OK: TS, Python, Go, Rust all agree ($ENTRIES schema entries; parity_protocol_version=1.1.0)."
+echo "[cross-runners] OK: TS, Python, Go, Rust all agree ($ENTRIES schema entries; parity_protocol_version=$SHARED_VERSION)."

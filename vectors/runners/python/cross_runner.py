@@ -42,8 +42,12 @@ SCHEMAS_DIR = REPO_ROOT / "schemas"
 VECTORS_DIR = REPO_ROOT / "vectors"
 
 # ── Cross-runner harness contract ────────────────────────────────────
-# MUST match `PARITY_PROTOCOL_VERSION` in scripts/cross-runner.ts.
-PARITY_PROTOCOL_VERSION = "1.1.0"
+# Source-of-truth lives at vectors/runners/_shared/. iter-2 F008+F011
+# mitigation: every runner reads from the same file rather than holding
+# a hardcoded copy that would silently drift.
+SHARED_DIR = REPO_ROOT / "vectors" / "runners" / "_shared"
+PARITY_PROTOCOL_VERSION = (SHARED_DIR / "parity-protocol-version.txt").read_text().strip()
+RFC3339_UTC_PATTERN_SOURCE = (SHARED_DIR / "rfc3339-utc-pattern.txt").read_text().strip()
 
 
 # ── Schema registry ──────────────────────────────────────────────────
@@ -84,11 +88,22 @@ SCHEMA_FILE_OVERRIDES: dict[str, str] = {
 
 
 def camel_to_kebab(name: str) -> str:
-    """Convert PascalCase / camelCase to kebab-case."""
+    """Convert PascalCase / camelCase to kebab-case.
+
+    iter-2 F003 mitigation: handles the consecutive-uppercase boundary
+    (HTTPServer → http-server, not httpserver) via lookahead.
+    Two boundary rules:
+        1. lowercase → uppercase    (camelCase → camel-Case)
+        2. UPPER → upper + lower    (HTTPServer → HTTP-Server)
+    """
     out: list[str] = []
+    n = len(name)
     for i, ch in enumerate(name):
-        if ch.isupper() and i > 0 and not name[i - 1].isupper():
-            out.append("-")
+        if ch.isupper() and i > 0:
+            prev_upper = name[i - 1].isupper()
+            next_lower = i + 1 < n and name[i + 1].islower()
+            if not prev_upper or (prev_upper and next_lower):
+                out.append("-")
         out.append(ch.lower())
     return "".join(out)
 
@@ -147,12 +162,10 @@ import re as _re
 
 FORMAT_CHECKER = jsonschema.FormatChecker()
 
-# RFC 3339 / ISO 8601 UTC date-time matching the
-# `ISO8601_UTC_PATTERN` used in TypeBox schemas (Z suffix, optional
-# fractional seconds). Conservative: matches what TypeBox accepts.
-_DATE_TIME_RE = _re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$"
-)
+# RFC 3339 / ISO 8601 UTC date-time. The pattern source is loaded
+# from vectors/runners/_shared/rfc3339-utc-pattern.txt at startup
+# (iter-2 F008 mitigation: SSOT regex shared across Python/Go/Rust).
+_DATE_TIME_RE = _re.compile(RFC3339_UTC_PATTERN_SOURCE)
 
 
 @FORMAT_CHECKER.checks("date-time", raises=ValueError)

@@ -34,16 +34,29 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-// rfc3339UTCDateTime matches the same shape Python (cross_runner.py)
-// and Rust (cross-runner/src/main.rs) accept: 4-2-2 date, T, 2-2-2
-// time, optional 1-9 fractional digits, mandatory Z suffix. Hand-
-// rolled to lock cross-runner parity rather than relying on the
-// santhosh-tekuri/jsonschema library default (iter-1 mitigation:
-// three implementations, three potentially divergent date-time
-// semantics — unify on the same regex shape across all three).
-var rfc3339UTCDateTime = regexp.MustCompile(
-	`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$`,
-)
+// loadShared populates ParityProtocolVersion + rfc3339UTCDateTime
+// from vectors/runners/_shared/. Called from init() so misconfigured
+// installs fail loudly at startup rather than silently passing the
+// cross-runner harness.
+func loadShared() error {
+	pv, err := os.ReadFile(filepath.Join(repoRoot, "vectors", "runners", "_shared", "parity-protocol-version.txt"))
+	if err != nil {
+		return fmt.Errorf("load parity-protocol-version.txt: %w", err)
+	}
+	ParityProtocolVersion = strings.TrimSpace(string(pv))
+	if ParityProtocolVersion == "" {
+		return fmt.Errorf("parity-protocol-version.txt is empty")
+	}
+	rp, err := os.ReadFile(filepath.Join(repoRoot, "vectors", "runners", "_shared", "rfc3339-utc-pattern.txt"))
+	if err != nil {
+		return fmt.Errorf("load rfc3339-utc-pattern.txt: %w", err)
+	}
+	rfc3339UTCDateTime, err = regexp.Compile(strings.TrimSpace(string(rp)))
+	if err != nil {
+		return fmt.Errorf("compile rfc3339-utc-pattern.txt: %w", err)
+	}
+	return nil
+}
 
 // dateTimeFormat replaces the library default's date-time checker
 // with a regex matching the cycle-005 ISO8601_UTC_PATTERN. Returns
@@ -59,8 +72,14 @@ func dateTimeFormat(value any) error {
 	return nil
 }
 
-// PARITY_PROTOCOL_VERSION MUST match scripts/cross-runner.ts.
-const ParityProtocolVersion = "1.1.0"
+// ParityProtocolVersion is loaded at startup from
+// vectors/runners/_shared/parity-protocol-version.txt. iter-2 F011
+// mitigation: the shared file is the SSOT; hardcoded fallbacks
+// drift silently. Same for the RFC 3339 regex (F008).
+var (
+	ParityProtocolVersion string
+	rfc3339UTCDateTime    *regexp.Regexp
+)
 
 type SchemaReg struct {
 	Name        string
@@ -106,21 +125,38 @@ type DiagnosticPtr struct {
 	Path string `json:"path"`
 }
 
-// camelToKebab converts PascalCase / camelCase to kebab-case using
-// rune-indexed iteration. Schema names are ASCII today, but iter-1 F-001
-// flagged the byte/rune mismatch in `for i, r := range s; s[i-1]` — the
-// `[]rune(s)` slice form is correct for any future Unicode-bearing names.
+// camelToKebab converts PascalCase / camelCase to kebab-case.
+// Iter-2 F003 mitigation: hyphenate at every word boundary, including
+// the consecutive-uppercase → lowercase transition (HTTPServer →
+// http-server, not httpserver). Two boundary rules:
+//   1. lowercase → uppercase    (e.g., camelCase → camel-Case)
+//   2. UPPER → upper + lower    (e.g., HTTPServer → HTTP-Server)
+// Both produce a single hyphen at the boundary; the rest of the
+// string is lowercased.
+//
+// All current schema names land in rule 1 (PascalCase with single-
+// uppercase boundaries), but the rule-2 fix prevents future
+// HTTPServer / URLPath / IDToken-style identifiers from collapsing.
 func camelToKebab(s string) string {
-	var out strings.Builder
 	runes := []rune(s)
+	var out strings.Builder
 	for i, r := range runes {
-		if r >= 'A' && r <= 'Z' && i > 0 {
+		isUpper := r >= 'A' && r <= 'Z'
+		if isUpper && i > 0 {
 			prev := runes[i-1]
-			if !(prev >= 'A' && prev <= 'Z') {
+			prevUpper := prev >= 'A' && prev <= 'Z'
+			next := rune(0)
+			if i+1 < len(runes) {
+				next = runes[i+1]
+			}
+			nextLower := next >= 'a' && next <= 'z'
+			// Rule 1: lowercase before uppercase → hyphen.
+			// Rule 2: uppercase before uppercase-then-lowercase → hyphen.
+			if !prevUpper || (prevUpper && nextLower) {
 				out.WriteByte('-')
 			}
 		}
-		if r >= 'A' && r <= 'Z' {
+		if isUpper {
 			out.WriteRune(r + ('a' - 'A'))
 		} else {
 			out.WriteRune(r)
@@ -135,6 +171,10 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0)
 	// .../vectors/runners/go/cmd/cross-runner/main.go → up 5 to repo root
 	repoRoot = filepath.Join(filepath.Dir(filename), "..", "..", "..", "..", "..")
+	if err := loadShared(); err != nil {
+		fmt.Fprintf(os.Stderr, "FATAL (cross-runner init): %v\n", err)
+		os.Exit(2)
+	}
 }
 
 func loadConstraintLevelInvalids() (map[string]bool, error) {
