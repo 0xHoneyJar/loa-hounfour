@@ -39,7 +39,7 @@
  *   filesystem mtime alone.
  */
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, renameSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -80,17 +80,24 @@ const POTENTIAL_DIRS = [
   join(ROOT, 'vectors/runners/rust/target'),
 ];
 
-function snapshot(path: string): Buffer | null {
-  return existsSync(path) ? readFileSync(path) : null;
-}
-
 /**
- * Plant marker artifacts and snapshot any pre-existing state, restore
- * byte-identical content + remove only directories the test created.
+ * Plant marker artifacts. For pre-existing real artifacts (the 5MB
+ * Go cross-runner binary in particular), use `renameSync` to a sidecar
+ * `.test-bak` path before the test, and rename back in `finally`.
+ * `rename(2)` is atomic on POSIX, allocates no heap, and survives
+ * SIGKILL — the .test-bak path is recoverable even if the test
+ * process dies between rename and rename-back. Avoids the read-Buffer
+ * /write-Buffer antipattern Git's index-lock protocol exists to
+ * prevent.
  */
 function withMarkers<T>(fn: () => T): T {
-  const rustSnap = snapshot(RUST_TARGET_MARKER);
-  const goSnap = snapshot(GO_BINARY_MARKER);
+  const rustBak = `${RUST_TARGET_MARKER}.test-bak`;
+  const goBak = `${GO_BINARY_MARKER}.test-bak`;
+  const rustHadOriginal = existsSync(RUST_TARGET_MARKER);
+  const goHadOriginal = existsSync(GO_BINARY_MARKER);
+  if (rustHadOriginal) renameSync(RUST_TARGET_MARKER, rustBak);
+  if (goHadOriginal) renameSync(GO_BINARY_MARKER, goBak);
+
   const dirsCreatedByTest: string[] = [];
   for (const d of POTENTIAL_DIRS) {
     if (!existsSync(d)) {
@@ -104,19 +111,13 @@ function withMarkers<T>(fn: () => T): T {
   try {
     return fn();
   } finally {
-    if (rustSnap) {
-      writeFileSync(RUST_TARGET_MARKER, rustSnap);
-    } else if (existsSync(RUST_TARGET_MARKER)) {
-      rmSync(RUST_TARGET_MARKER, { force: true });
-    }
-    if (goSnap) {
-      writeFileSync(GO_BINARY_MARKER, goSnap);
-    } else if (existsSync(GO_BINARY_MARKER)) {
-      rmSync(GO_BINARY_MARKER, { force: true });
-    }
-    // Only remove dirs the test itself created. Outermost-first removal
-    // would fail (parent before child); reverse so we drop release/
-    // before target/.
+    // Remove the test marker we wrote (force:true swallows ENOENT).
+    rmSync(RUST_TARGET_MARKER, { force: true });
+    rmSync(GO_BINARY_MARKER, { force: true });
+    // Restore originals via rename-back if we had them.
+    if (rustHadOriginal && existsSync(rustBak)) renameSync(rustBak, RUST_TARGET_MARKER);
+    if (goHadOriginal && existsSync(goBak)) renameSync(goBak, GO_BINARY_MARKER);
+    // Only remove dirs the test itself created.
     for (const d of [...dirsCreatedByTest].reverse()) {
       try {
         rmSync(d, { recursive: false });
