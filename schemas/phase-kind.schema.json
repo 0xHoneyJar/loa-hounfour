@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/phase-kind",
+  "description": "Exhaustive 5-member enum classifying a phase within a CanonicalRun's required_phases sequence. Widening is strict-additive across minor versions.",
+  "anyOf": [
+    {
+      "const": "discovery",
+      "type": "string"
+    },
+    {
+      "const": "design",
+      "type": "string"
+    },
+    {
+      "const": "implement",
+      "type": "string"
+    },
+    {
+      "const": "audit",
+      "type": "string"
+    },
+    {
+      "const": "ship",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

@@ -1,0 +1,16 @@
+{
+  "_comment": "ordered_index -1 fails Type.Integer({ minimum: 0 }) — the 0-based contract is structural.",
+  "canonical_run_id": "canonical-run-x",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-x",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": -1
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}

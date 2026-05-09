@@ -1526,6 +1526,24 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge",
       "file": "challenge.schema.json",
       "description": "Formal challenge envelope against an Assertion (FR-A1). Crypto-bearing — validate() defaults to CRYPTO_DEFERRED; consumers opting in via { acceptDeferred: true } receive the unverified-obligations manifest entry for the Ed25519 signature verification. Composes with v8.5.0 Assertion via target_assertion_id lazy-link string reference."
+    },
+    {
+      "name": "phase-kind",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/phase-kind",
+      "file": "phase-kind.schema.json",
+      "description": "Exhaustive 5-member enum classifying a phase within a CanonicalRun's required_phases sequence. Widening is strict-additive across minor versions."
+    },
+    {
+      "name": "required-phase",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/required-phase",
+      "file": "required-phase.schema.json",
+      "description": "One required-phase entry within a CanonicalRun. Cross-element ordering invariants live in CR-1."
+    },
+    {
+      "name": "canonical-run",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/canonical-run",
+      "file": "canonical-run.schema.json",
+      "description": "Required-phases-per-EPIC definition consumed as the conformance source-of-truth by `PhaseCompletionEnvelope` (FR-B2), `EpicCheckpoint` (FR-B8), and `ClusterRunSeries` (FR-E1). Hounfour ships shape; consumers compute conformance % per ADR-010. Round-trip parse + re-serialize bit-identical: every well-formed payload `s` satisfies `JSON.stringify(JSON.parse(s)) === s` when `s` is itself the JSON-stringified canonical form. NOT crypto-bearing; NOT chain-bearing."
     }
   ]
 }

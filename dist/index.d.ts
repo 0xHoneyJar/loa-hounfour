@@ -17,6 +17,7 @@ export { PanelDecisionArtifactSchema, type PanelDecisionArtifact, ClaimSchema, t
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 export * from './operations/index.js';
+export * from './canonical/index.js';
 export * from './commons/index.js';
 export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
 export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator, type ValidationResult } from './validators/index.js';

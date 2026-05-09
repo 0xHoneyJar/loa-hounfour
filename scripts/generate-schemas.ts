@@ -239,6 +239,12 @@ import {
   ChallengeRequestedEffectSchema,
 } from '../src/governance/challenge-types.js';
 import { ChallengeSchema } from '../src/governance/challenge.js';
+// v8.6.0 PR-A3.8 — FR-B1 CanonicalRun
+import {
+  CanonicalRunSchema,
+  RequiredPhaseSchema,
+  PhaseKindSchema,
+} from '../src/canonical/index.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -567,6 +573,10 @@ const schemas = [
   { name: 'challenge-type', schema: ChallengeTypeSchema },
   { name: 'challenge-requested-effect', schema: ChallengeRequestedEffectSchema },
   { name: 'challenge', schema: ChallengeSchema },
+  // v8.6.0 PR-A3.8 — FR-B1 CanonicalRun
+  { name: 'phase-kind', schema: PhaseKindSchema },
+  { name: 'required-phase', schema: RequiredPhaseSchema },
+  { name: 'canonical-run', schema: CanonicalRunSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

@@ -1,0 +1,28 @@
+{
+  "_comment": "Every phase has empty required_gates — admissible because gate enforcement is per-EPIC consumer policy.",
+  "canonical_run_id": "canonical-run-003",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "draft-only",
+  "required_phases": [
+    {
+      "phase_id": "phase-003-discovery",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-003-implement",
+      "phase_kind": "implement",
+      "required_gates": [],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-003-ship",
+      "phase_kind": "ship",
+      "required_gates": [],
+      "ordered_index": 2
+    }
+  ],
+  "ts_authored": "2026-05-09T02:00:00Z"
+}

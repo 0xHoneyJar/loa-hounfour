@@ -1,0 +1,22 @@
+{
+  "_comment": "Multi-digit canonical_run_version — exercises the regex against larger semver components.",
+  "canonical_run_id": "canonical-run-007",
+  "canonical_run_version": "12.345.6789",
+  "contract_version": "8.6.0",
+  "epic_kind": "long-lived-pipeline",
+  "required_phases": [
+    {
+      "phase_id": "phase-007-implement",
+      "phase_kind": "implement",
+      "required_gates": ["gate-tests-green"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-007-ship",
+      "phase_kind": "ship",
+      "required_gates": ["gate-release-tagged"],
+      "ordered_index": 1
+    }
+  ],
+  "ts_authored": "2026-05-09T06:00:00Z"
+}

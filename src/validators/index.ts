@@ -1202,6 +1202,63 @@ registerCrossFieldValidator('PlanAmendmentRequest', constraintFileOnlyValidator)
 // state machine to enforce).
 registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
 
+// v8.6.0 PR-A3.8 — FR-B1 CanonicalRunSchema. CR-1 (required_phases[*].
+// ordered_index forms a 0-based contiguous monotonic sequence with no
+// duplicates) is intra-record (all data is present in a single envelope),
+// so the TS reference implementation enforces it inline at validate()
+// time per AT-1 ("reference TS implementation is the golden corpus").
+// Cross-language runners (FR-A2 / PR-A3.9) re-implement the same check
+// per-runtime — the constraint file's CR-1 is marked runtime-deferred so
+// the obligation surfaces in the UnverifiedObligationsManifest for
+// non-TS consumers and so a future cycle promoting this to a generic
+// builtin (`array_index_well_ordered`) lands cleanly. CR-2 (canonical_
+// run_id uniqueness within cluster_id) is registry-state (consumer-side);
+// CR-3 (cross-language conformance %) is consumer-policy per ADR-010.
+registerCrossFieldValidator('CanonicalRun', (data) => {
+  const errors: string[] = [];
+  const phases = (data as { required_phases?: unknown }).required_phases;
+  if (!Array.isArray(phases)) {
+    return { valid: true, errors: [], warnings: [] };
+  }
+  // Per-element shape guard at the trust boundary (PR-A3.6 iter-3
+  // pattern). TypeBox already enforces required_phases[*] shape at
+  // structural validation, but cross-field validators run independently
+  // and must defend against malformed input — Symbol-typed
+  // ordered_index would explode `Number()` and a non-array required_
+  // phases would explode `.length`.
+  const seenIndices = new Set<number>();
+  for (let i = 0; i < phases.length; i += 1) {
+    const phase = phases[i];
+    if (typeof phase !== 'object' || phase === null) {
+      // Structural failure surfaces via TypeBox; skip CR-1 evaluation.
+      return { valid: true, errors: [], warnings: [] };
+    }
+    const idx = (phase as { ordered_index?: unknown }).ordered_index;
+    if (typeof idx !== 'number' || !Number.isInteger(idx)) {
+      return { valid: true, errors: [], warnings: [] };
+    }
+    if (seenIndices.has(idx)) {
+      errors.push(
+        `CR-1: required_phases[${i}].ordered_index=${idx} duplicates a prior phase's ordered_index; the sequence must be unique.`,
+      );
+    }
+    seenIndices.add(idx);
+  }
+  // Contiguous + 0-based check: the set of ordered_index values MUST
+  // be exactly {0, 1, ..., N-1} where N = phases.length.
+  if (seenIndices.size === phases.length) {
+    for (let i = 0; i < phases.length; i += 1) {
+      if (!seenIndices.has(i)) {
+        errors.push(
+          `CR-1: required_phases ordered_index sequence has a gap — expected ${i} but it is missing; the sequence must be 0-based contiguous (0..${phases.length - 1}).`,
+        );
+        break;
+      }
+    }
+  }
+  return { valid: errors.length === 0, errors, warnings: [] };
+});
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

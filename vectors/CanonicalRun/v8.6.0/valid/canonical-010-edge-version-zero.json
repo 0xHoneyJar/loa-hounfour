@@ -1,0 +1,22 @@
+{
+  "_comment": "0.0.1 canonical_run_version — exercises the lower bound of the semver pattern.",
+  "canonical_run_id": "canonical-run-010",
+  "canonical_run_version": "0.0.1",
+  "contract_version": "8.6.0",
+  "epic_kind": "experimental",
+  "required_phases": [
+    {
+      "phase_id": "phase-010-discovery",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-010-implement",
+      "phase_kind": "implement",
+      "required_gates": ["gate-prototype"],
+      "ordered_index": 1
+    }
+  ],
+  "ts_authored": "2026-05-09T09:00:00Z"
+}

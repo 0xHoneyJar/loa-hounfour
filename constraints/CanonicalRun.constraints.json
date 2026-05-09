@@ -1,0 +1,48 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "CanonicalRun",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CR-1",
+      "expression": "required_phases[*].ordered_index forms a 0-based contiguous monotonic sequence with no duplicates and no gaps — i.e., the set of observed ordered_index values is exactly {0, 1, ..., N-1} where N = required_phases.length",
+      "severity": "error",
+      "message": "CanonicalRun.required_phases[*].ordered_index MUST be a 0-based contiguous monotonic sequence with no duplicates and no gaps. Out-of-band, duplicate, or non-contiguous ordering breaks the conformance evaluator's per-phase position contract: the consumer's PhaseCompletionEnvelope-to-canonical-run alignment relies on integer-position lookup, and a sparse sequence ambiguates 'which phase is at position k' across runners.",
+      "fields": ["required_phases"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces CR-1 inline at validate() time** — see `src/validators/index.ts` `registerCrossFieldValidator('CanonicalRun', ...)` — so a TS consumer running `validate(CanonicalRunSchema, payload)` receives `{ valid: false, errors: ['CR-1: ...'] }` on a malformed payload. Per AT-1 (reference-TS-implementation-is-the-golden-corpus), cross-language runners (Python / Go / Rust per FR-A2 / PR-A3.9) MUST re-implement the same check per-runtime so cross-runner conformance % is well-defined. Marked `runtime-deferred` rather than `library` because the cycle-005 cycle pattern reserves `evaluator: 'library'` for constraint expressions that name a registered builtin in `EVALUATOR_BUILTINS` (cf. PCE-2 `signer_key_id_matches_derivation`, OD-2 `utf8_byte_length_max`, LHE-1 `percentiles_monotonic_nondecreasing`). Adding a new generic `array_index_well_ordered` builtin in PR-A3.8 carries V011 risk (new infrastructure mid-PR introduces a new review surface — see Vision 011 / PR-A3.7 dist-parity-gate trajectory) so the inline-validator path is the proactive lock-de-scope move per Vision 009. **What would change the lock:** when a second array-index-well-ordered surface lands (likely candidates: a future `OrderedGateSequenceSchema` or the FR-E2 Merkle proof-path positional invariants), generalize to a registered `array_index_well_ordered` builtin and re-mark CR-1 as `evaluator: 'library'`. Cycle-006 backlog candidate.",
+      "type_signature": {
+        "required_phases": "array"
+      }
+    },
+    {
+      "id": "CR-2",
+      "expression": "consumer cross-checks canonical_run_id uniqueness within the bounding cluster_id — within a single cluster's CanonicalRun registry, no two records may share canonical_run_id",
+      "severity": "error",
+      "message": "canonical_run_id MUST be unique within the bounding cluster_id. Reuse across distinct CanonicalRun records ambiguates the EpicCheckpoint.canonical_run_id (FR-B8) / PhaseCompletionEnvelope (FR-B2) lazy-link — the consumer's registry-resolution lookup would yield non-deterministic results.",
+      "fields": ["canonical_run_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record uniqueness against consumer-side registry state. The library validates the structural shape (non-empty string); cluster-scoped uniqueness is consumer-state because the registry is consumer-managed per ADR-010. Mirrors EC-2 (EpicCheckpoint composite-key uniqueness) and PSE-4 / PAR-3 (parent_signoff_id resolution). The consumer's registry MUST emit `CANONICAL_RUN_ID_UNIQUENESS_CONTEXT_DEFERRED` on the UnverifiedObligationsManifest when a registry context has not been supplied — symmetric with EC-1's `CANONICAL_RUN_REF_CONTEXT_DEFERRED` framing. **Lock-de-scope rationale (proactive disposition per Vision 009):** runtime-deferred is the established cycle-005 cycle-pattern for cross-record uniqueness — see EC-2 (EpicCheckpoint), PSE-4 (PlanSignoff parent_signoff_hash), PAR-3 (PlanAmendment parent_signoff_id). Hounfour does NOT bundle a registry implementation per ADR-010 / FR-B1 design contract; the lookup is consumer-state and the consumer's acceptance gate decides whether to reject, defer, or accept a duplicate. **What would change the lock:** a consumer-managed CanonicalRun registry primitive at the library layer would require importing a registry interface and shipping in-memory store semantics — a v9.0.0-class shape change (cross-record-state materialization is documented in v9.0.0 backlog, NOT in v8.6.0 / v8.7.0).",
+      "type_signature": {
+        "canonical_run_id": "string"
+      }
+    },
+    {
+      "id": "CR-3",
+      "expression": "consumer computes cross-language conformance % for a CanonicalRun by aligning incoming PhaseCompletionEnvelope (FR-B2) records against the canonical phase sequence and tallying gate satisfaction; round-trip parse + re-serialize is bit-identical for every well-formed payload",
+      "severity": "warning",
+      "message": "CanonicalRun ships only the shape; consumers compute conformance % per ADR-010. Cross-runner agreement requires (a) byte-identical canonical-form serialization for identical input objects, and (b) consistent per-runner alignment of phase-completion records to required-phase positions.",
+      "fields": ["required_phases", "canonical_run_id", "canonical_run_version", "epic_kind"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-language conformance contract. Per PRD §FR-B1 / ADR-010, hounfour ships shape; the conformance % computation is consumer-side (the architectural directive 'evaluator: consumer' from the PRD describes the responsibility-class, not a constraint-file evaluator literal — the typed `Constraint.evaluator` field admits only `library` / `runtime-deferred` per `src/constraints/types.ts`). The round-trip bit-identity property (`JSON.stringify(JSON.parse(s)) === s` for the JSON-stringified canonical form `s`) is the cross-runner pre-condition: every runner MUST produce identical canonical bytes for identical input objects. The TS reference implementation uses `JSON.stringify` with key ordering as authored by the schema; cross-language runners MUST emit keys in the same order (Go: `encoding/json` MarshalIndent or a canonical-JSON library like `gibson042/canonicaljson-go`; Python: `json.dumps(payload, sort_keys=False)` with explicit dict ordering matching the schema field order; Rust: `serde_json::to_string` with `preserve_order` feature on `Map`). The conformance vector test suite at `tests/vectors/canonical-run-vectors.test.ts` exercises both layers — structural via Value.Check + cross-field via validate() — for every fixture, closing the protobuf-conformance gap per the PR-A3.5 two-layer vector-runner discipline. **Lock-de-scope rationale (proactive disposition per Vision 009):** the consumer-side conformance %  obligation is the established cycle-005 cycle-pattern for cross-language runtime concerns — see CHL-3 (Challenge type/effect acceptance gate), PSE-5 (PlanSignoff cumulative_drift_pct threshold), PAR-2 (PlanAmendment severity-correction policy). Hounfour does NOT freeze the conformance scoring algorithm in v8.6.0 / v8.7.0 — that surface stabilizes in v9.0.0 once the FR-A2 cross-language runner harness has accumulated empirical conformance traces across all four runtimes. **What would change the lock:** a frozen conformance scoring contract requires (1) reaching cross-runner-stable behavior in PR-A3.9 (FR-A2 harness across TS + Python + Go + Rust); (2) v9.0.0 contract bump; (3) ADR for the scoring-policy boundary. Until then, conformance % remains consumer-policy per ADR-010.",
+      "type_signature": {
+        "required_phases": "array",
+        "canonical_run_id": "string",
+        "canonical_run_version": "string",
+        "epic_kind": "string"
+      }
+    }
+  ]
+}

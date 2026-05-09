@@ -1,0 +1,41 @@
+{
+  "_comment": "Multiple required_gates per phase — exercises the inner Array<string>(minLength: 1) cardinality.",
+  "canonical_run_id": "canonical-run-004",
+  "canonical_run_version": "2.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "regulated-release",
+  "required_phases": [
+    {
+      "phase_id": "phase-004-discovery",
+      "phase_kind": "discovery",
+      "required_gates": [
+        "gate-business-case",
+        "gate-stakeholder-signoff",
+        "gate-risk-register"
+      ],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-004-design",
+      "phase_kind": "design",
+      "required_gates": [
+        "gate-arch-review",
+        "gate-threat-model",
+        "gate-data-flow-diagram",
+        "gate-cost-estimate"
+      ],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-004-audit",
+      "phase_kind": "audit",
+      "required_gates": [
+        "gate-pen-test",
+        "gate-compliance-review",
+        "gate-disaster-recovery"
+      ],
+      "ordered_index": 2
+    }
+  ],
+  "ts_authored": "2026-05-09T03:00:00Z"
+}

@@ -2,7 +2,7 @@
 
 **Contract version:** 8.6.0
 **Min supported:** 6.0.0
-**Schemas:** 254
+**Schemas:** 257
 
 ## Schemas
 
@@ -262,6 +262,9 @@
 | challenge-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-type` | [challenge-type.schema.json](challenge-type.schema.json) |
 | challenge-requested-effect | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-requested-effect` | [challenge-requested-effect.schema.json](challenge-requested-effect.schema.json) |
 | challenge | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge` | [challenge.schema.json](challenge.schema.json) |
+| phase-kind | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/phase-kind` | [phase-kind.schema.json](phase-kind.schema.json) |
+| required-phase | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/required-phase` | [required-phase.schema.json](required-phase.schema.json) |
+| canonical-run | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/canonical-run` | [canonical-run.schema.json](canonical-run.schema.json) |
 
 ## Usage
 

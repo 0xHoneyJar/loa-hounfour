@@ -1,0 +1,16 @@
+{
+  "_comment": "phase_kind 'deploy' is not a member of the v8.6.0 PhaseKind enum {discovery, design, implement, audit, ship}.",
+  "canonical_run_id": "canonical-run-x",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-x",
+      "phase_kind": "deploy",
+      "required_gates": [],
+      "ordered_index": 0
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}
