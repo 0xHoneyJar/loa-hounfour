@@ -52,8 +52,29 @@
  * @since v8.6.0 — FR-B1 (PR-A3.8).
  */
 import { Type } from '@sinclair/typebox';
-import { ISO8601_UTC_PATTERN } from '../utilities/iso8601-utc-pattern.js';
 import { PhaseKindSchema } from './phase-kinds.js';
+/**
+ * Stricter local pattern for `ts_authored` — Z-only second-precision
+ * (iter-4 F4 / iter-5 mitigation). The shared
+ * `ISO8601_UTC_PATTERN` admits 0–9 fractional digits; CanonicalRun
+ * pins second-precision so producers across runtimes (TS / Go /
+ * Python / Rust per FR-A2) emit `2026-05-09T00:00:00Z` byte-
+ * identical without negotiating a per-deployment fractional-digit
+ * count. This is the BIP-0066 / Protobuf Timestamp lesson: when
+ * multiple implementations must produce identical bytes, "permissive
+ * accept, strict emit" requires a shared canonicalizer — pinning
+ * the wire format at the schema closes the gap.
+ *
+ * **Scope**: local to `CanonicalRun.ts_authored`. The shared
+ * `ISO8601_UTC_PATTERN` (e.g., used by FR-B2 envelope timestamps)
+ * remains unchanged because envelope ts fields carry consumer-shaped
+ * fractional precision expectations (NTP / monotonic-clock-emit
+ * cadence). CanonicalRun is the conformance source-of-truth — no
+ * sub-second authoring cadence is meaningful at this layer.
+ *
+ * @since v8.6.0 — FR-B1 (PR-A3.8 iter-5).
+ */
+const TS_AUTHORED_Z_ONLY_PATTERN = '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$';
 /**
  * `RequiredPhaseSchema` — one entry in
  * `CanonicalRunSchema.required_phases`. Hoisted for clarity and so
@@ -128,25 +149,23 @@ export const CanonicalRunSchema = Type.Object({
             'CR-1 enforces 0-based contiguous monotonic ordered_index.',
     }),
     ts_authored: Type.String({
-        pattern: ISO8601_UTC_PATTERN,
+        pattern: TS_AUTHORED_Z_ONLY_PATTERN,
         description: 'ISO 8601 UTC timestamp at which this canonical-run ' +
-            'definition was authored (Z suffix). Consumers SHOULD treat ' +
-            'ts_authored as monotonic-nondecreasing across successive ' +
-            '(epic_kind, canonical_run_id) versions — the obligation owner ' +
-            'is the consumer-side registry, NOT the schema. The schema ' +
-            'admits any well-formed UTC timestamp; registry implementations ' +
-            'wanting strict monotonic ordering enforce it at insert time ' +
-            'per ADR-010 (cf. EpicCheckpoint EC-3 ts ordering as a ' +
-            'companion runtime-deferred contract). **Fractional-second ' +
-            'precision** (iter-3 F8 disposition): the schema admits 0–9 ' +
-            'fractional digits per the cycle-005 ISO8601_UTC_PATTERN; ' +
-            'producer-side cross-runner byte-identity (CR-3 / FR-A2 ' +
-            'harness) requires a stable per-deployment digit count — ' +
-            'the consumer\'s conformance-scoring contract pins the count ' +
-            'and runners normalize on read. A schema-level pin to a fixed ' +
-            'count (e.g., Protobuf `Timestamp` 0/3/6/9-digit canon) is a ' +
-            'v9.0.0-class change scoped against the v8.6.0 backward-' +
-            'compatibility surface; documented in v9.0.0 backlog.',
+            'definition was authored (Z suffix). **Fractional-second ' +
+            'precision is NOT admitted** (iter-4 F4 / iter-5 mitigation): ' +
+            'the wire format is locked to second precision via a local ' +
+            'TS_AUTHORED_Z_ONLY_PATTERN so cross-runner byte-identity ' +
+            '(CR-3) holds without per-deployment fractional-digit ' +
+            'negotiation — the BIP-0066 / Protobuf Timestamp lesson ' +
+            'applied to the conformance-scoring source-of-truth. ' +
+            'Consumers SHOULD treat ts_authored as monotonic-' +
+            'nondecreasing across successive (epic_kind, ' +
+            'canonical_run_id) versions — the obligation owner is the ' +
+            'consumer-side registry, NOT the schema. The schema admits ' +
+            'any well-formed second-precision UTC timestamp; registry ' +
+            'implementations wanting strict monotonic ordering enforce ' +
+            'it at insert time per ADR-010 (cf. EpicCheckpoint EC-3 ts ' +
+            'ordering as a companion runtime-deferred contract).',
     }),
 }, {
     $id: 'CanonicalRun',
@@ -207,11 +226,37 @@ export function validateCanonicalRunCR1(data) {
     const errors = [];
     const phases = data.required_phases;
     if (!Array.isArray(phases)) {
-        // The whole record is structurally malformed — defer to TypeBox.
-        // No CR-1 errors could have been accumulated yet (early termination
-        // before iteration begins), so returning valid:true is honest.
-        return { valid: true, errors: [], warnings: [] };
+        // **Structural precondition** (iter-4 F1 + F-002 mitigation): the
+        // pure-function form is now publicly exported and may be invoked
+        // in isolation, bypassing Value.Check. Direct callers MUST be told
+        // explicitly when their input fails the structural precondition —
+        // returning valid:true would let a consumer wire this into a
+        // cross-language reference path and silently miss every payload
+        // whose `required_phases` is missing/null/non-array. The return is
+        // valid:false with a clearly-tagged precondition error so the
+        // failure mode IS the product per the S3-NoSuchKey-vs-AccessDenied
+        // distinction. Under the standard `validate(...)` pipeline this
+        // path is unreachable — Value.Check rejects non-array
+        // required_phases at the structural tier before cross-field runs.
+        return {
+            valid: false,
+            errors: [
+                'CR-1: structural shape precondition failed — required_phases must be a non-null array; the cross-field validator requires the structural tier (Value.Check) to have passed first.',
+            ],
+            warnings: [],
+        };
     }
+    // Track well-shaped (post-guard) element count separately from
+    // phases.length. iter-4 F-002 mitigation: gap detection compares
+    // seenIndices against the COUNT OF WELL-SHAPED ELEMENTS, not
+    // phases.length — so a payload with 3 valid phases (indices {0, 2,
+    // 3}) and 1 malformed phase still surfaces the missing-index-1 gap.
+    // Without this, malformed elements would mask gap detection on the
+    // well-shaped subset, hiding real CR-1 violations from direct
+    // callers (the standard validate() pipeline catches malformed shape
+    // at Value.Check before this code runs, but the pure-function form
+    // must defend against direct invocation).
+    let wellShapedCount = 0;
     const seenIndices = new Set();
     for (let i = 0; i < phases.length; i += 1) {
         const phase = phases[i];
@@ -242,27 +287,30 @@ export function validateCanonicalRunCR1(data) {
             // false for all of them and never throws.
             continue;
         }
+        // Reaching here means the element is well-shaped at the cross-
+        // field tier. Count it for the gap check.
+        wellShapedCount += 1;
         if (seenIndices.has(idx)) {
             errors.push(`CR-1: required_phases[${i}].ordered_index=${idx} duplicates a prior phase's ordered_index; the sequence must be unique.`);
         }
         seenIndices.add(idx);
     }
-    // Contiguous + 0-based check: the set of ordered_index values MUST
-    // be exactly {0, 1, ..., N-1} where N = phases.length.
+    // Contiguous + 0-based check: among the well-shaped subset, the
+    // ordered_index set MUST be exactly {0, 1, ..., wellShapedCount-1}.
     //
     // Progressive-disclosure UX choice (iter-1 F1 disposition): when
-    // duplicates are present `seenIndices.size < phases.length`, so this
-    // branch is skipped and only the duplicate error fires. A producer
-    // fixing the duplicate then re-submits to discover any remaining
-    // contiguity gap. Trade-off: surfaces one error class per pass
-    // (cleaner output, more iteration cycles) instead of all classes at
-    // once (more output, fewer cycles). The cycle-005 cycle pattern
-    // matches per-element shape validators in PR-A3.6 (FR-C4
+    // duplicates are present `seenIndices.size < wellShapedCount`, so
+    // this branch is skipped and only the duplicate error fires. A
+    // producer fixing the duplicate then re-submits to discover any
+    // remaining contiguity gap. Trade-off: surfaces one error class per
+    // pass (cleaner output, more iteration cycles) instead of all
+    // classes at once (more output, fewer cycles). The cycle-005 cycle
+    // pattern matches per-element shape validators in PR-A3.6 (FR-C4
     // plan-content-hash builtin) — single-class error reporting per pass.
-    if (seenIndices.size === phases.length) {
-        for (let i = 0; i < phases.length; i += 1) {
+    if (seenIndices.size === wellShapedCount && wellShapedCount > 0) {
+        for (let i = 0; i < wellShapedCount; i += 1) {
             if (!seenIndices.has(i)) {
-                errors.push(`CR-1: required_phases ordered_index sequence has a gap — expected ${i} but it is missing; the sequence must be 0-based contiguous (0..${phases.length - 1}).`);
+                errors.push(`CR-1: required_phases ordered_index sequence has a gap — expected ${i} but it is missing; the sequence must be 0-based contiguous (0..${wellShapedCount - 1}).`);
                 break;
             }
         }

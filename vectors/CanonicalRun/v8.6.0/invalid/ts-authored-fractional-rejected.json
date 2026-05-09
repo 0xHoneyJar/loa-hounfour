@@ -1,0 +1,16 @@
+{
+  "_comment": "ts_authored '2026-05-09T00:00:00.123Z' violates the local TS_AUTHORED_Z_ONLY_PATTERN — fractional seconds are NOT admitted at the CanonicalRun layer per iter-4 F4 / iter-5 mitigation (cross-runner byte-identity contract).",
+  "canonical_run_id": "canonical-run-x",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-x",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 0
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00.123Z"
+}

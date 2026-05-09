@@ -353,12 +353,50 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
   });
 
-  it('does not throw on a non-array required_phases (defers to TypeBox)', () => {
+  it('returns valid:false with structural-precondition error on non-array required_phases', () => {
+    // iter-4 F1 + F-002 mitigation: when invoked in isolation
+    // (bypassing Value.Check), the function MUST surface the
+    // structural-shape failure so direct callers cannot silently
+    // observe valid:true on malformed input.
     const cr1Validator = validateCanonicalRunCR1;
-    expect(() => cr1Validator({ required_phases: 'not-array' })).not.toThrow();
-    expect(() => cr1Validator({ required_phases: null })).not.toThrow();
-    expect(() => cr1Validator({ required_phases: 42 })).not.toThrow();
-    expect(() => cr1Validator({})).not.toThrow();
+    for (const malformed of [
+      { required_phases: 'not-array' },
+      { required_phases: null },
+      { required_phases: 42 },
+      {},
+    ]) {
+      expect(() => cr1Validator(malformed)).not.toThrow();
+      const result = cr1Validator(malformed);
+      expect(result.valid).toBe(false);
+      expect(
+        result.errors.some((e) => e.includes('structural shape precondition')),
+      ).toBe(true);
+    }
+  });
+
+  it('detects gap among well-shaped indices when malformed elements are interleaved', () => {
+    // iter-4 F-002 mitigation: gap detection compares against count
+    // of well-shaped elements, not phases.length. With 3 well-shaped
+    // indices {0, 2, 3} (expected {0, 1, 2}) plus 1 malformed, the
+    // gap at index 1 must surface even though phases.length=4.
+    const cr1Validator = validateCanonicalRunCR1;
+    const malformedRecord = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        { phase_id: 'b', phase_kind: 'design', required_gates: [], ordered_index: 2 },
+        { phase_id: 'c', phase_kind: 'audit', required_gates: [], ordered_index: 3 },
+        { phase_id: 'd', phase_kind: 'audit', required_gates: [], ordered_index: 'bad' as unknown as number },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(malformedRecord);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('gap'))).toBe(true);
   });
 
   it('returns valid:true when all elements are well-shaped and CR-1-clean', () => {

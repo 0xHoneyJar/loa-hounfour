@@ -12,6 +12,11 @@ import { CONTRACT_VERSION } from '../version.js';
 import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
 import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
 import { OracleDigestSchema } from '../operations/oracle-digest.js';
+// v8.6.0 PR-A3.8 — FR-B1 CanonicalRun CR-1 cross-field validator.
+// The pure function lives in src/canonical/canonical-run.ts (the
+// schema's own module is the source of truth for CR-1 semantics);
+// this module wires it into the cross-field registry below.
+import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -1022,7 +1027,8 @@ registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
 // validator function exported via the schema's own module rather
 // than via a `getCrossFieldValidator` registry-escape-hatch avoids
 // widening the public API surface for the test path (Hyrum's Law).
-import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
+// The import is hoisted to the top of this file per the
+// imports-at-top convention (iter-4 F11 mitigation).
 registerCrossFieldValidator('CanonicalRun', validateCanonicalRunCR1);
 /**
  * Returns schema $ids that have registered cross-field validators.
