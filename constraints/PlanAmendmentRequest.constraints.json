@@ -1,0 +1,84 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "PlanAmendmentRequest",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "PAR-1",
+      "expression": "consumer cross-checks parent_plan_hash via plan_content_hash_unchanged_since_signoff(parent_plan_hash) when an amendment must be bound to a still-on-file plan; the library evaluator can be invoked with parent_plan_hash if the consumer wants the binding check, but the schema does not force it",
+      "severity": "error",
+      "message": "parent_plan_hash content-addresses the plan being amended. Consumers MAY invoke FR-C4 against this field to assert the parent plan is still on file in the signoff ledger.",
+      "fields": ["parent_plan_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Optional FR-C4 invocation. Unlike PlanSignoffEnvelope where plan_content_hash is the binding the schema is FOR, here parent_plan_hash references the plan being AMENDED and the binding-check is a consumer choice. A consumer building a ratification pipeline may want to reject amendments against vanished plans (run FR-C4); a forensic-reconstruction pipeline may want to accept them (skip FR-C4). Runtime-deferred surfaces the obligation in the manifest so consumers see the hook; library-evaluator invocation is opt-in via a separate validate() call passing parent_plan_hash to evaluatePlanContentHashUnchangedSinceSignoff.",
+      "type_signature": {
+        "parent_plan_hash": "string"
+      }
+    },
+    {
+      "id": "PAR-2",
+      "expression": "consumer applies severity-correction policy at the acceptance gate: trigger_class=observed_failure typically forces severity=major regardless of authored severity, but this is consumer-side policy per prd.md:289 / ADR-010",
+      "severity": "warning",
+      "message": "Severity-correction policy is consumer-side. Schema admits all (severity, trigger_class) combinations; the acceptance gate normalizes per consumer policy.",
+      "fields": ["severity", "trigger_class"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Per prd.md:289, the schema does NOT silently force `trigger_class=observed_failure → severity=major`. The schema admits the looser combination so a consumer-side acceptance gate can surface the discrepancy explicitly (e.g., 'amendment authored as severity=minor but trigger_class=observed_failure; per policy this is escalated to major') rather than have the rewrite happen silently at the structural layer. Severity: warning because the looser combination is well-formed at the schema layer; it's the acceptance gate that decides whether to accept, reject, or normalize.",
+      "type_signature": {
+        "severity": "string",
+        "trigger_class": "string"
+      }
+    },
+    {
+      "id": "PAR-3",
+      "expression": "consumer resolves parent_signoff_id to a known PlanSignoffEnvelope record in the consumer's signoff ledger",
+      "severity": "error",
+      "message": "parent_signoff_id MUST resolve to a recorded PlanSignoffEnvelope. Amendments without a real parent signoff are rejected.",
+      "fields": ["parent_signoff_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record reference resolution. The schema validates the structural shape (non-empty string); resolution to a stored signoff is consumer-side because the signoff ledger is consumer-managed. Distinct from parent_plan_hash which content-addresses the PLAN being amended; parent_signoff_id identifies the SIGNOFF that authorized the now-superseded plan. Both are consulted at acceptance time: parent_signoff_id resolves the authority lineage; parent_plan_hash optionally binds against FR-C4.",
+      "type_signature": {
+        "parent_signoff_id": "string"
+      }
+    },
+    {
+      "id": "PAR-4",
+      "expression": "consumer cross-checks chain via chain_validator_prev_hash with consumer-supplied chain context including this envelope plus all ancestors back to genesis",
+      "severity": "error",
+      "message": "prev_envelope_hash MUST link this amendment to its predecessor's canonical-JSON sha256 hash; the chain MUST anchor at the documented genesis sentinel (FR-C3).",
+      "fields": ["chain_refs"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C3 chain validity, scoped to envelope-chain continuity (NOT signoff-lineage; PlanAmendmentRequest does NOT carry a parent_signoff_hash chain ref because amendment-to-signoff lineage is captured by parent_signoff_id at the top level instead). The schema's `'x-chain-bearing': true` flag opts into the FR-A4 fail-closed contract.",
+      "type_signature": {
+        "chain_refs": "object"
+      }
+    },
+    {
+      "id": "PAR-5",
+      "expression": "recommended_paths.length >= 1",
+      "severity": "error",
+      "message": "An amendment MUST propose at least one recommended path. 'Do nothing' should be expressed explicitly as a path entry, not as an empty array.",
+      "fields": ["recommended_paths"],
+      "evaluator": "library",
+      "evaluation_note": "Schema-layer minItems: 1 enforces this structurally; the constraint file restates the invariant for cross-runner conformance harnesses (Go/Python/Rust runners that consume the constraint file as their source-of-truth see the rule explicitly). Library-evaluated because the count check is computable from the validating record alone.",
+      "type_signature": {
+        "recommended_paths": "array"
+      }
+    },
+    {
+      "id": "PAR-6",
+      "expression": "consumer evaluates jury_recommendation against the per-cluster jury-consultation policy: when null, the consumer's policy decides whether jury consultation was required for this severity/trigger_class combination",
+      "severity": "warning",
+      "message": "jury_recommendation null indicates no jury was consulted; consumer policy decides whether this is acceptable for this severity/trigger_class combination.",
+      "fields": ["jury_recommendation", "severity", "trigger_class"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "The schema admits jury_recommendation: null because not every amendment requires jury consultation. The policy surface — 'major + observed_failure must have jury_recommendation' or similar — lives in the consumer's acceptance gate per ADR-010. Severity: warning because a null jury_recommendation is well-formed at the schema layer.",
+      "type_signature": {
+        "jury_recommendation": "string",
+        "severity": "string",
+        "trigger_class": "string"
+      }
+    }
+  ]
+}

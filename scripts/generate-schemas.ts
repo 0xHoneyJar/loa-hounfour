@@ -222,6 +222,17 @@ import {
 import { RollbackPlanSchema } from '../src/operations/rollback-plan.js';
 import { LatencyHistogramEnvelopeSchema } from '../src/operations/latency-histogram-envelope.js';
 import { EpicCheckpointSchema } from '../src/operations/epic-checkpoint.js';
+// v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest
+import {
+  PlanSignoffEnvelopeSchema,
+  SignoffActorClassSchema,
+  SignoffTierSchema,
+} from '../src/governance/plan-signoff-envelope.js';
+import {
+  PlanAmendmentRequestSchema,
+  AmendmentSeveritySchema,
+  AmendmentTriggerClassSchema,
+} from '../src/governance/plan-amendment-request.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -539,6 +550,13 @@ const schemas = [
   { name: 'rollback-plan', schema: RollbackPlanSchema },
   { name: 'latency-histogram-envelope', schema: LatencyHistogramEnvelopeSchema },
   { name: 'epic-checkpoint', schema: EpicCheckpointSchema },
+  // v8.6.0 PR-A3.6 — FR-B9 + FR-B10 plan-governance trio
+  { name: 'signoff-actor-class', schema: SignoffActorClassSchema },
+  { name: 'signoff-tier', schema: SignoffTierSchema },
+  { name: 'plan-signoff-envelope', schema: PlanSignoffEnvelopeSchema },
+  { name: 'amendment-severity', schema: AmendmentSeveritySchema },
+  { name: 'amendment-trigger-class', schema: AmendmentTriggerClassSchema },
+  { name: 'plan-amendment-request', schema: PlanAmendmentRequestSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

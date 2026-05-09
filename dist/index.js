@@ -60,6 +60,8 @@ ForgetRecordSchema, CommitmentTypeSchema, CommitmentRootSchema, AgentEstateStatu
 PrivacyScopeSchema, RiskLevelSchema, AssertionStatusSchema, AssertionClassSchema, AssertionSchema, } from './governance/index.js';
 export * from './constraints/index.js';
 export * from './integrity/index.js';
+// v8.6.0 PR-A3.5 — Operations cluster (FR-B3..B8).
+export * from './operations/index.js';
 // v8.0.0 — Commons Protocol
 export * from './commons/index.js';
 // Cross-cutting concerns (stay in root)

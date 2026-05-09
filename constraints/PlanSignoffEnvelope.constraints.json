@@ -1,0 +1,83 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "PlanSignoffEnvelope",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "PSE-1",
+      "expression": "consumer verifies Ed25519 signature over RFC 8785 canonical JSON of all-other-fields using the signoff_actor_id's public key resolved via Keyring",
+      "severity": "error",
+      "message": "Plan-signoff Ed25519 signature MUST verify against the signer derived from signoff_actor_id per the consumer's keyring resolution policy.",
+      "fields": ["signature", "signoff_actor_id", "signoff_actor_class"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic signature verification is consumer-side per NF-1 (library/runtime boundary). The library evaluator SKIPS this rule and surfaces it in the UnverifiedObligationsManifest under the 'x-crypto-bearing' path. Consumers MUST: (1) reconstruct RFC 8785 canonical JSON of all fields except `signature`; (2) resolve the signoff_actor_id's public key via their Keyring, factoring signoff_actor_class (single_operator vs jury_panel vs delegate may resolve to different signing key authorities); (3) verify the Ed25519 signature; (4) reject the signoff on signature mismatch. Note: v1 acceptance accepts only signoff_actor_class=single_operator is consumer-side per prd.md:269-271; the schema admits all three.",
+      "type_signature": {
+        "signature": "string",
+        "signoff_actor_id": "string",
+        "signoff_actor_class": "string"
+      }
+    },
+    {
+      "id": "PSE-2",
+      "expression": "plan_content_hash_unchanged_since_signoff(plan_content_hash)",
+      "severity": "error",
+      "message": "plan_content_hash MUST be present in the consumer's signoff ledger snapshot. A mismatch indicates the plan content has changed since signoff (or the signoff was never recorded).",
+      "fields": ["plan_content_hash"],
+      "evaluator": "library",
+      "evaluation_note": "FR-C4 plan-binding check. The LOCAL builtin `plan_content_hash_unchanged_since_signoff` cross-checks plan_content_hash against the consumer-supplied signoff ledger snapshot (passed via validate() options.plan_signoff_ledger). On hash-match (PASS), the standalone evaluator emits a SIGNOFF_TTL_OBSERVED manifest entry surfacing ts_emit + ttl_until_ms (NA-3 / RC2 SKP-006) so consumers cannot accidentally validate plan-hash without seeing TTL inputs. On hash-absent (FAIL), the manifest emits SIGNOFF_PLAN_HASH_MISMATCH. On snapshot-absent (DEFERRED), the manifest emits LEDGER_CONTEXT_DEFERRED and the DSL boolean returns true (vacuous-pass-with-deferral matches FR-C1/C2/C3 conventions per AT-6). TTL enforcement is OUT — hounfour does NOT decide what 'expired' means (ADR-010 / NFR-8); the consumer compares ttl_until_ms against ledger_snapshot.ts_snapshot or wall-clock per their policy.",
+      "type_signature": {
+        "plan_content_hash": "string"
+      }
+    },
+    {
+      "id": "PSE-3",
+      "expression": "consumer cross-checks chain via chain_validator_prev_hash with consumer-supplied chain context including this envelope plus all ancestors back to genesis",
+      "severity": "error",
+      "message": "prev_envelope_hash MUST link this signoff to its predecessor's canonical-JSON sha256 hash; the chain MUST anchor at the documented genesis sentinel (FR-C3).",
+      "fields": ["chain_refs"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "FR-C3 chain validity. The DSL builtin `chain_validator_prev_hash` operates on an array argument (the chain across ancestors); runtime-deferred is the right classification for the single-record validate() surface here. The schema's `'x-chain-bearing': true` flag opts into the FR-A4 fail-closed contract — consumers calling validate({ failClosed: true }) reject envelopes lacking chain context. Consumers iterating a chain history call the standalone evaluator at `src/constraints/builtins/chain-validator-prev-hash.ts` directly with the assembled chain.",
+      "type_signature": {
+        "chain_refs": "object"
+      }
+    },
+    {
+      "id": "PSE-4",
+      "expression": "consumer cross-checks parent_signoff_hash (when non-null) resolves to a known PlanSignoffEnvelope record in the consumer's signoff ledger; null parent_signoff_hash indicates the genesis-position signoff for this signoff lineage",
+      "severity": "error",
+      "message": "parent_signoff_hash MUST resolve to a known signoff record (or be null for genesis). Distinct from prev_envelope_hash which is envelope-chain continuity; parent_signoff_hash is signoff-LINEAGE continuity (one signoff supersedes another).",
+      "fields": ["chain_refs"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record signoff-lineage resolution. The schema validates the structural shape (sha256 pattern OR null); resolution to a stored signoff is consumer-side because the signoff ledger is consumer-managed. Distinct from PSE-3 prev_envelope_hash chain check: PSE-3 covers envelope-chain hash-equality (one envelope's prev_envelope_hash equals its predecessor's canonical hash); PSE-4 covers signoff-lineage referential integrity (parent_signoff_hash points at a real, recorded signoff). A null parent_signoff_hash legitimately indicates the FIRST signoff in a lineage and is NOT a violation.",
+      "type_signature": {
+        "chain_refs": "object"
+      }
+    },
+    {
+      "id": "PSE-5",
+      "expression": "consumer enforces cumulative_drift_pct auto-revoke threshold per their tolerance policy (no schema-level threshold; ADR-010 / R7)",
+      "severity": "warning",
+      "message": "cumulative_drift_pct ≥ 0 enforced at schema layer; auto-revoke threshold is consumer policy.",
+      "fields": ["cumulative_drift_pct"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Per ADR-010 / R7 / prd.md §2.3, the auto-revoke threshold for cumulative drift is consumer-side policy. The schema validates non-negativity (`minimum: 0`) at the structural layer; the consumer applies their own threshold (e.g., a high-stakes cluster might revoke at 5% drift while a lower-risk one tolerates 20%). Severity: warning rather than error because a non-zero cumulative_drift_pct is not by itself an invariant violation — it's the threshold check that decides authorization.",
+      "type_signature": {
+        "cumulative_drift_pct": "number"
+      }
+    },
+    {
+      "id": "PSE-6",
+      "expression": "consumer parses ttl_seconds_at_emit via BigInt(...) post-validation and rejects values exceeding 2^53-1 (AT-8 upper bound, not enforceable at JSON Schema regex level)",
+      "severity": "error",
+      "message": "ttl_seconds_at_emit upper bound 2^53-1 enforced consumer-side per AT-8; schema enforces format only (^[1-9][0-9]*$).",
+      "fields": ["ttl_seconds_at_emit"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "CT-03 string-encoded integer pattern. The schema's `^[1-9][0-9]*$` rejects '0' (reserved as expired-on-emit sentinel) and any leading-zero form, guaranteeing `BigInt(value)` succeeds. JSON Schema 2020-12 has no numeric upper-bound for string-encoded integers; consumers parse to BigInt and reject values exceeding 2^53-1 (or their own TTL ceiling) before treating the signoff as authoritative. Per AT-8 acknowledged tradeoff: cross-language JSON portability outranks per-consumer parsing convenience.",
+      "type_signature": {
+        "ttl_seconds_at_emit": "string"
+      }
+    }
+  ]
+}

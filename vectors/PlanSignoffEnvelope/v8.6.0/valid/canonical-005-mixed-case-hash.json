@@ -1,0 +1,19 @@
+{
+  "_comment": "PlanSignoffEnvelope: mixed-case sha256 hex on plan_content_hash + chain_refs (admitted by [A-Fa-f0-9] character class — case-comparison is consumer-side per PSE-2 evaluation_note).",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T15:30:00Z",
+  "cluster_id": "cluster-mixed-case",
+  "plan_content_hash": "sha256:AbCdEf0123456789aBcDeF0123456789AbCdEf0123456789aBcDeF0123456789",
+  "signoff_actor_class": "single_operator",
+  "signoff_actor_id": "operator-mixed",
+  "tier": "T3",
+  "reason": "Validates mixed-case hex acceptance at the schema layer.",
+  "ttl_seconds_at_emit": "7200",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "parent_signoff_hash": "sha256:DEADBEEFdeadbeef0123456789ABCDEFabcdef0123456789DEADBEEFdeadbeef"
+  },
+  "cumulative_drift_pct": 0.5,
+  "signature": "ed25519:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+}

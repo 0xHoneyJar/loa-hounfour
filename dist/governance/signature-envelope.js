@@ -46,6 +46,42 @@
  */
 import { Type } from '@sinclair/typebox';
 import { SignatureTypeSchema } from './signature-type.js';
+/**
+ * Ed25519 signature value pattern: `ed25519:` prefix + exactly 86
+ * unpadded base64url characters.
+ *
+ * 64-byte Ed25519 signatures encode to exactly 86 unpadded base64url
+ * characters per RFC 4648 §5 (`ceil(64 * 8 / 6) = 86`, no remainder, no
+ * `=` padding); the `{87,88}` padded forms a v8.4.0 schema accepted are
+ * mathematically unreachable for spec-conformant signers — see the
+ * FR-A5 audit at `docs/audits/fr-a5-ed25519-corpus-2026-05.md` and the
+ * `PSEUDO-MAJOR-EQUIVALENT-NULL` policy in MIGRATION.md for the
+ * narrowing trail.
+ *
+ * Single source of truth: imported by every schema with an
+ * `ed25519:` signature field (FR-B2 PhaseCompletionEnvelope,
+ * FR-B9 PlanSignoffEnvelope, FR-E3 ClusterSignoffEnvelope, etc.).
+ *
+ * @since v8.6.0 — PR-A3.4 introduced the shared constant; PR-A3.1
+ *   tightened the pattern itself in the schemas that consume it.
+ */
+export const ED25519_SIGNATURE_PATTERN = '^ed25519:[A-Za-z0-9_-]{86}$';
+/**
+ * Ed25519 public-key identifier pattern: `ed25519-pub:` prefix +
+ * exactly 43 unpadded base64url characters.
+ *
+ * 32-byte Ed25519 public keys encode to exactly 43 unpadded base64url
+ * characters per RFC 4648 §5 (`ceil(32 * 8 / 6) = 43`, with the final
+ * 4 bits residual; padded forms with `=` are NOT accepted).
+ *
+ * Single source of truth: imported by every schema with an
+ * `ed25519-pub:` field. Iter-1 PR-A3.4 F7 mitigation completed the DRY
+ * refactor that hoisted `ED25519_SIGNATURE_PATTERN` — same pattern,
+ * same single-source-of-truth justification, same import path.
+ *
+ * @since v8.6.0 — PR-A3.4
+ */
+export const ED25519_PUBKEY_PATTERN = '^ed25519-pub:[A-Za-z0-9_-]{43}$';
 export const SignatureEnvelopeSchema = Type.Object({
     envelope_id: Type.String({
         format: 'uuid',
@@ -61,7 +97,7 @@ export const SignatureEnvelopeSchema = Type.Object({
         description: 'SHA-256 hex digest (lowercase) of safeCanonicalize(payload) where payload is the wire artifact being signed minus its own signatures[] and minus any field literally named signed_payload_hash. NFC + RFC 8785 + 100KB cap per the hashing-spec freeze.',
     }),
     signature_value: Type.String({
-        pattern: '^ed25519:[A-Za-z0-9_-]{86}$',
+        pattern: ED25519_SIGNATURE_PATTERN,
         description: 'Ed25519 signature value, unpadded base64url-encoded (RFC 4648 §5), prefixed with "ed25519:". A 64-byte Ed25519 signature encodes to exactly 86 unpadded characters; padded forms with "==" are NOT accepted (the character class excludes padding) — producers MUST emit unpadded base64url. Hounfour does NOT verify the signature; consumer-side verification is required (see CRYPTO_DEFERRED manifest entry).',
     }),
     signed_at: Type.String({

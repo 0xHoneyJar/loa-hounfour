@@ -2,7 +2,7 @@
 
 **Contract version:** 8.6.0
 **Min supported:** 6.0.0
-**Schemas:** 245
+**Schemas:** 251
 
 ## Schemas
 
@@ -253,6 +253,12 @@
 | rollback-plan | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/rollback-plan` | [rollback-plan.schema.json](rollback-plan.schema.json) |
 | latency-histogram-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/latency-histogram-envelope` | [latency-histogram-envelope.schema.json](latency-histogram-envelope.schema.json) |
 | epic-checkpoint | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/epic-checkpoint` | [epic-checkpoint.schema.json](epic-checkpoint.schema.json) |
+| signoff-actor-class | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-actor-class` | [signoff-actor-class.schema.json](signoff-actor-class.schema.json) |
+| signoff-tier | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-tier` | [signoff-tier.schema.json](signoff-tier.schema.json) |
+| plan-signoff-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-signoff-envelope` | [plan-signoff-envelope.schema.json](plan-signoff-envelope.schema.json) |
+| amendment-severity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-severity` | [amendment-severity.schema.json](amendment-severity.schema.json) |
+| amendment-trigger-class | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-trigger-class` | [amendment-trigger-class.schema.json](amendment-trigger-class.schema.json) |
+| plan-amendment-request | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request` | [plan-amendment-request.schema.json](plan-amendment-request.schema.json) |
 
 ## Usage
 

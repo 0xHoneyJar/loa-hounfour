@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request",
+  "additionalProperties": false,
+  "x-chain-bearing": true,
+  "description": "Plan-amendment proposal envelope. Chain-bearing (carries prev_envelope_hash) but NOT crypto-bearing — amendments inherit the cluster's trust context. Severity-correction (e.g. observed_failure → major) is consumer-side per prd.md:289 / ADR-010; the schema admits looser combinations so the discrepancy can be surfaced explicitly.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "actor_id",
+    "parent_signoff_id",
+    "parent_plan_hash",
+    "proposed_delta",
+    "severity",
+    "trigger_class",
+    "rationale",
+    "recommended_paths",
+    "jury_recommendation",
+    "chain_refs"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator literal pinning the plan-amendment-request shape. Distinguishes from `plan_signoff` (FR-B9) and other envelope kinds.",
+      "const": "plan_amendment_request",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.6.0\" for the cycle-005 ship line.",
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at amendment-request emission.",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Stable cluster identifier (consumer-shaped). Identifies the cluster the amendment is scoped to.",
+      "type": "string"
+    },
+    "actor_id": {
+      "minLength": 1,
+      "description": "Stable identifier for the actor proposing the amendment (consumer-shaped).",
+      "type": "string"
+    },
+    "parent_signoff_id": {
+      "minLength": 1,
+      "description": "Identifier of the signoff this amendment is proposed against. Consumer-side resolution joins this to a PlanSignoffEnvelope record in their ledger.",
+      "type": "string"
+    },
+    "parent_plan_hash": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "description": "sha256:<64-hex> content hash of the plan being amended. FR-C4 may be invoked against this field if the consumer wants to validate the parent plan is still on file.",
+      "type": "string"
+    },
+    "proposed_delta": {
+      "minLength": 1,
+      "maxLength": 65536,
+      "description": "Free-text amendment proposal. Capped at 64 KB code points; the canonical-JSON byte length is bounded by the cluster's envelope-cap policy (consumer-side). Format is consumer-shaped (markdown, structured diff, natural-language proposal); the schema only checks non-emptiness and the size cap.",
+      "type": "string"
+    },
+    "severity": {
+      "description": "Two-member exhaustive severity enum for plan amendments. Severity-correction (e.g. forcing observed_failure → major) is consumer-side policy per prd.md:289 / ADR-010; the schema admits the looser combination.",
+      "anyOf": [
+        {
+          "const": "minor",
+          "type": "string"
+        },
+        {
+          "const": "major",
+          "type": "string"
+        }
+      ]
+    },
+    "trigger_class": {
+      "description": "Four-member exhaustive enum for what triggered the amendment. Schema enforces enum membership only; severity-correction mapping (e.g. observed_failure → major) is consumer-side.",
+      "anyOf": [
+        {
+          "const": "schema_drift",
+          "type": "string"
+        },
+        {
+          "const": "ambiguity",
+          "type": "string"
+        },
+        {
+          "const": "out_of_scope_dep",
+          "type": "string"
+        },
+        {
+          "const": "observed_failure",
+          "type": "string"
+        }
+      ]
+    },
+    "rationale": {
+      "minLength": 1,
+      "maxLength": 8192,
+      "description": "Free-text rationale explaining why the amendment is needed. Capped at 8 KB code points.",
+      "type": "string"
+    },
+    "recommended_paths": {
+      "minItems": 1,
+      "description": "Non-empty array of recommended paths. An amendment MUST propose at least one concrete path; \"do nothing\" should be expressed explicitly as a path entry, not as an empty array.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "A single recommended-path object. All three fields (id, summary, tradeoff) are required; no optional fields.",
+        "type": "object",
+        "required": [
+          "id",
+          "summary",
+          "tradeoff"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "description": "Stable identifier for this recommended path.",
+            "type": "string"
+          },
+          "summary": {
+            "minLength": 1,
+            "description": "Short summary of what this path proposes.",
+            "type": "string"
+          },
+          "tradeoff": {
+            "minLength": 1,
+            "description": "Explicit tradeoff statement — what this path costs or risks, so the deciding consumer can compare paths on a shared axis. minLength: 1 forces authors to state the tradeoff (even \"none\" is a tradeoff declaration); empty strings are rejected.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "jury_recommendation": {
+      "description": "Jury recommendation text, or null if no jury was consulted. Consumer-shaped — the schema does not enforce length or format.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "chain_refs": {
+      "additionalProperties": false,
+      "description": "Chain reference for envelope-level continuity. Unlike PlanSignoffEnvelope, no parent_signoff_hash here — the amendment's lineage to a signoff is captured by parent_signoff_id at the top level.",
+      "type": "object",
+      "required": [
+        "prev_envelope_hash"
+      ],
+      "properties": {
+        "prev_envelope_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "sha256:<64-hex> hash of the previous envelope's canonical-JSON form. Genesis position uses the all-zero anchor.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

@@ -78,4 +78,6 @@ export { SignerTypeSchema, type SignerType, } from './signer-type.js';
 export { SignatureTypeSchema, type SignatureType, } from './signature-type.js';
 export { SignerStatusSchema, type SignerStatus, } from './signer-status.js';
 export { PolicyDecisionOutcomeSchema, type PolicyDecisionOutcome, } from './policy-decision-outcome.js';
+export { PlanSignoffEnvelopeSchema, SignoffActorClassSchema, SignoffTierSchema, type PlanSignoffEnvelope, type SignoffActorClass, type SignoffTier, } from './plan-signoff-envelope.js';
+export { PlanAmendmentRequestSchema, AmendmentSeveritySchema, AmendmentTriggerClassSchema, type PlanAmendmentRequest, type AmendmentSeverity, type AmendmentTriggerClass, } from './plan-amendment-request.js';
 //# sourceMappingURL=index.d.ts.map

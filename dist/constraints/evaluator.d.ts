@@ -42,6 +42,41 @@ export interface EvaluationContext {
      * @since v8.3.0 — FR-6 Conditional Constraints
      */
     feature_flags?: Record<string, boolean>;
+    /**
+     * Per-signer nonce-window state for the FR-C1
+     * `nonce_unique_per_signer_window` builtin. When supplied, the builtin
+     * cross-checks the validating record's nonce against the signer's
+     * historical set; when unset, the builtin defers to consumer-side
+     * evaluation via the `NONCE_CONTEXT_DEFERRED` diagnostic.
+     * @since v8.6.0 — FR-C1 (PR-A3.3)
+     */
+    nonce_window?: import('./builtins/nonce-unique-per-signer-window.js').NonceWindowState;
+    /**
+     * Per-cluster sequence-monotonicity state for the FR-C2
+     * `sequence_monotonic_per_cluster` builtin. CT-08 cluster-id mismatch
+     * fires BEFORE any state-map lookup so cross-cluster lookups cannot
+     * succeed silently.
+     * @since v8.6.0 — FR-C2 (PR-A3.3)
+     */
+    sequence_state?: import('./builtins/sequence-monotonic-per-cluster.js').SequenceClusterState;
+    /**
+     * Audit-ledger expected-prior-hash state for the FR-C3
+     * `chain_validator_prev_hash` builtin. NA-1 cross-checks the chain's
+     * on-payload `previous_hash` against the consumer's persistent ledger
+     * expectation per chain index.
+     * @since v8.6.0 — FR-C3 (PR-A3.3)
+     */
+    chain_ledger?: import('./builtins/chain-validator-prev-hash.js').ChainLedgerState;
+    /**
+     * Plan-signoff ledger snapshot for the FR-C4
+     * `plan_content_hash_unchanged_since_signoff` builtin. The library
+     * checks `plan_content_hash` membership and surfaces TTL inputs
+     * via the manifest; consumer policy decides what "expired" means
+     * (ADR-010). When unset, the obligation defers to consumer-side
+     * evaluation via `LEDGER_CONTEXT_DEFERRED`.
+     * @since v8.6.0 — FR-C4 (PR-A3.6)
+     */
+    plan_signoff_ledger?: import('./builtins/plan-content-hash-unchanged-since-signoff.js').PlanSignoffLedgerSnapshot;
 }
 /**
  * Canonical list of registered evaluator builtin functions.
@@ -49,7 +84,7 @@ export interface EvaluationContext {
  * This is derived from the Parser constructor's function registry.
  * Useful for introspection, documentation, and conformance testing.
  */
-export declare const EVALUATOR_BUILTINS: readonly ["bigint_sum", "bigint_gte", "bigint_gt", "bigint_eq", "bigint_sub", "bigint_add", "eq", "all_links_subset_authority", "delegation_budget_conserved", "links_temporally_ordered", "links_form_chain", "no_emergent_in_individual", "all_emergent_have_evidence", "object_keys_subset", "changed", "previous", "delta", "len", "type_of", "is_bigint_coercible", "unique_values", "tree_budget_conserved", "tree_authority_narrowing", "saga_amount_conserved", "saga_steps_sequential", "outcome_consensus_valid", "monetary_policy_solvent", "permission_boundary_active", "proposal_quorum_met", "saga_timeout_valid", "proposal_weights_normalized", "is_after", "is_before", "is_between", "is_stale", "is_within", "constraint_lifecycle_valid", "proposal_execution_valid", "now", "model_routing_eligible", "basket_weights_normalized", "execution_checkpoint_valid", "audit_trail_chain_valid", "is_valid_dag"];
+export declare const EVALUATOR_BUILTINS: readonly ["bigint_sum", "bigint_gte", "bigint_gt", "bigint_eq", "bigint_sub", "bigint_add", "eq", "all_links_subset_authority", "delegation_budget_conserved", "links_temporally_ordered", "links_form_chain", "no_emergent_in_individual", "all_emergent_have_evidence", "object_keys_subset", "changed", "previous", "delta", "len", "type_of", "is_bigint_coercible", "unique_values", "tree_budget_conserved", "tree_authority_narrowing", "saga_amount_conserved", "saga_steps_sequential", "outcome_consensus_valid", "monetary_policy_solvent", "permission_boundary_active", "proposal_quorum_met", "saga_timeout_valid", "proposal_weights_normalized", "is_after", "is_before", "is_between", "is_stale", "is_within", "constraint_lifecycle_valid", "proposal_execution_valid", "now", "model_routing_eligible", "basket_weights_normalized", "execution_checkpoint_valid", "audit_trail_chain_valid", "is_valid_dag", "nonce_unique_per_signer_window", "sequence_monotonic_per_cluster", "chain_validator_prev_hash", "canonical_size_cap", "signer_key_id_matches_derivation", "percentiles_monotonic_nondecreasing", "utf8_byte_length_max", "plan_content_hash_unchanged_since_signoff"];
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];
 /**
  * Reserved names in the evaluator namespace.

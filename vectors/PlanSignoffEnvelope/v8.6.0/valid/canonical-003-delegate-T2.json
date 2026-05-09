@@ -1,0 +1,19 @@
+{
+  "_comment": "PlanSignoffEnvelope: delegate actor class at T2.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T14:00:00Z",
+  "cluster_id": "cluster-001",
+  "plan_content_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "signoff_actor_class": "delegate",
+  "signoff_actor_id": "delegate-pool-A",
+  "tier": "T2",
+  "reason": "Delegated signoff under operator's standing authorization.",
+  "ttl_seconds_at_emit": "1800",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "parent_signoff_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "cumulative_drift_pct": 2.7,
+  "signature": "ed25519:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+}

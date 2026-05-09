@@ -23,6 +23,14 @@
  */
 import { tokenize } from './tokenizer.js';
 import { evaluateIsValidDag } from './is-valid-dag.js';
+import { evaluateNonceUniquePerSignerWindow } from './builtins/nonce-unique-per-signer-window.js';
+import { evaluateSequenceMonotonicPerCluster } from './builtins/sequence-monotonic-per-cluster.js';
+import { evaluateChainValidatorPrevHash } from './builtins/chain-validator-prev-hash.js';
+import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
+import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
+import { evaluatePercentilesMonotonicNondecreasing } from './builtins/percentiles-monotonic-nondecreasing.js';
+import { evaluateUtf8ByteLengthMax } from './builtins/utf8-byte-length-max.js';
+import { evaluatePlanContentHashUnchangedSinceSignoff } from './builtins/plan-content-hash-unchanged-since-signoff.js';
 export const MAX_EXPRESSION_DEPTH = 32;
 /**
  * Resolve a dotted field path on a data object.
@@ -141,6 +149,19 @@ class Parser {
             ['execution_checkpoint_valid', () => this.parseExecutionCheckpointValid()],
             // Audit trail chain validation (v8.0.0 — Commons Protocol)
             ['audit_trail_chain_valid', () => this.parseAuditTrailChainValid()],
+            // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+            ['nonce_unique_per_signer_window', () => this.parseNonceUniquePerSignerWindow()],
+            ['sequence_monotonic_per_cluster', () => this.parseSequenceMonotonicPerCluster()],
+            ['chain_validator_prev_hash', () => this.parseChainValidatorPrevHash()],
+            // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+            ['canonical_size_cap', () => this.parseCanonicalSizeCap()],
+            ['signer_key_id_matches_derivation', () => this.parseSignerKeyIdMatchesDerivation()],
+            // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+            ['percentiles_monotonic_nondecreasing', () => this.parsePercentilesMonotonicNondecreasing()],
+            // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+            ['utf8_byte_length_max', () => this.parseUtf8ByteLengthMax()],
+            // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
+            ['plan_content_hash_unchanged_since_signoff', () => this.parsePlanContentHashUnchangedSinceSignoff()],
         ]);
     }
     peek() {
@@ -832,6 +853,241 @@ class Parser {
             return false;
         const result = evaluateIsValidDag(items, idField, refFields);
         return result.valid;
+    }
+    /**
+     * Parse `nonce_unique_per_signer_window(record, signer_id_field, nonce_field)`.
+     *
+     * Reads `nonce_window` state from the EvaluationContext (supplied by the
+     * caller via `evaluateConstraint(data, expr, { nonce_window: ... })`).
+     * When state is absent, the standalone evaluator returns `{ valid: true,
+     * diagnostic: 'NONCE_CONTEXT_DEFERRED' }` — the DSL wrapper here returns
+     * `true` so the constraint passes.
+     *
+     * **DSL-vs-standalone diagnostic-loss contract (iter-1 MEDIUM F3).**
+     * The constraint-DSL surface is intentionally boolean-only; the parser
+     * methods discard the structured diagnostic returned by the standalone
+     * evaluator. This is by design — the constraint-DSL is the cross-runner
+     * conformance surface and must produce identical boolean output across
+     * TS / Go / Python / Rust. Threading structured diagnostics through the
+     * DSL would (a) widen the cross-runner contract beyond what's currently
+     * specified, and (b) couple every cross-language runner author to the
+     * exact diagnostic-code taxonomy (which evolves separately from the DSL
+     * grammar). **Operators investigating a DSL-driven failure MUST call
+     * the standalone `evaluateNonceUniquePerSignerWindow` (or the sibling
+     * evaluator for sequence/chain) to get the actionable code.** The
+     * eventual diagnostic-bus design (where the parser threads diagnostics
+     * via an `EvaluationContext.diagnostics` sink) is a v8.7.0+ candidate;
+     * scoping it into FR-C1 would couple the runtime layer to the cross-
+     * runner contract without precedent.
+     *
+     * @since v8.6.0 — FR-C1 (PR-A3.3)
+     */
+    parseNonceUniquePerSignerWindow() {
+        this.advance(); // consume 'nonce_unique_per_signer_window'
+        this.expect('paren', '(');
+        const record = this.parseExpr();
+        this.expect('comma');
+        const signerIdField = this.parseExpr();
+        this.expect('comma');
+        const nonceField = this.parseExpr();
+        this.expect('paren', ')');
+        if (typeof signerIdField !== 'string' || typeof nonceField !== 'string')
+            return false;
+        const result = evaluateNonceUniquePerSignerWindow(record, signerIdField, nonceField, this.context?.nonce_window);
+        return result.valid;
+    }
+    /**
+     * Parse `sequence_monotonic_per_cluster(record, cluster_id_field,
+     * signer_id_field, sequence_field, key_version_field)`.
+     *
+     * Reads `sequence_state` from the EvaluationContext. CT-08 cluster-id
+     * mismatch fires BEFORE any state lookup; CT-03 string→BigInt parsing
+     * uses a numeric-regex pre-validator so `BigInt()` never throws.
+     *
+     * @since v8.6.0 — FR-C2 (PR-A3.3, with CT-08 + CT-03)
+     */
+    parseSequenceMonotonicPerCluster() {
+        this.advance(); // consume 'sequence_monotonic_per_cluster'
+        this.expect('paren', '(');
+        const record = this.parseExpr();
+        this.expect('comma');
+        const clusterIdField = this.parseExpr();
+        this.expect('comma');
+        const signerIdField = this.parseExpr();
+        this.expect('comma');
+        const sequenceField = this.parseExpr();
+        this.expect('comma');
+        const keyVersionField = this.parseExpr();
+        this.expect('paren', ')');
+        if (typeof clusterIdField !== 'string' ||
+            typeof signerIdField !== 'string' ||
+            typeof sequenceField !== 'string' ||
+            typeof keyVersionField !== 'string') {
+            return false;
+        }
+        const result = evaluateSequenceMonotonicPerCluster(record, clusterIdField, signerIdField, sequenceField, keyVersionField, this.context?.sequence_state);
+        return result.valid;
+    }
+    /**
+     * Parse `chain_validator_prev_hash(chain, entry_hash_field, previous_hash_field)`.
+     *
+     * Reads `chain_ledger` audit-state from the EvaluationContext. NA-1 fix
+     * cross-checks chain's on-payload `previous_hash` against the consumer's
+     * persistent expected_prior_hash per index.
+     *
+     * @since v8.6.0 — FR-C3 (PR-A3.3, with NA-1)
+     */
+    parseChainValidatorPrevHash() {
+        this.advance(); // consume 'chain_validator_prev_hash'
+        this.expect('paren', '(');
+        const chain = this.parseExpr();
+        this.expect('comma');
+        const entryHashField = this.parseExpr();
+        this.expect('comma');
+        const previousHashField = this.parseExpr();
+        this.expect('paren', ')');
+        if (typeof entryHashField !== 'string' || typeof previousHashField !== 'string') {
+            return false;
+        }
+        const result = evaluateChainValidatorPrevHash(chain, entryHashField, previousHashField, this.context?.chain_ledger);
+        return result.valid;
+    }
+    /**
+     * Parse `canonical_size_cap(value, byte_cap)`.
+     *
+     * LOCAL builtin (v8.6.0, FR-B2 / NFR-4): asserts that `value`'s
+     * RFC 8785 + NFC-normalized canonical-JSON byte length is ≤ `byte_cap`.
+     * No EvaluationContext needed — the cap is a property of the value
+     * alone (matches the LOCAL pattern from SDD §4.6).
+     *
+     * @since v8.6.0 — FR-B2 / NFR-4 (PR-A3.4)
+     */
+    parseCanonicalSizeCap() {
+        this.advance(); // consume 'canonical_size_cap'
+        this.expect('paren', '(');
+        const value = this.parseExpr();
+        this.expect('comma');
+        const byteCap = this.parseExpr();
+        this.expect('paren', ')');
+        if (typeof byteCap !== 'number')
+            return false;
+        const result = evaluateCanonicalSizeCap(value, byteCap);
+        return result.valid;
+    }
+    /**
+     * Parse `signer_key_id_matches_derivation(record, cluster_id_field,
+     * key_version_field, key_id_field)`.
+     *
+     * LOCAL builtin (v8.6.0, FR-B2): asserts that the derived
+     * `sha256(cluster_id || ':' || key_version)` equals the record's
+     * asserted `key_id` field. No EvaluationContext needed — the
+     * derivation is computable from the record alone.
+     *
+     * @since v8.6.0 — FR-B2 (PR-A3.4)
+     */
+    parseSignerKeyIdMatchesDerivation() {
+        this.advance(); // consume 'signer_key_id_matches_derivation'
+        this.expect('paren', '(');
+        const record = this.parseExpr();
+        this.expect('comma');
+        const clusterIdField = this.parseExpr();
+        this.expect('comma');
+        const keyVersionField = this.parseExpr();
+        this.expect('comma');
+        const keyIdField = this.parseExpr();
+        this.expect('paren', ')');
+        if (typeof clusterIdField !== 'string' ||
+            typeof keyVersionField !== 'string' ||
+            typeof keyIdField !== 'string') {
+            return false;
+        }
+        const result = evaluateSignerKeyIdMatchesDerivation(record, clusterIdField, keyVersionField, keyIdField);
+        return result.valid;
+    }
+    /**
+     * Parse `percentiles_monotonic_nondecreasing(measurements)`.
+     *
+     * LOCAL builtin (v8.6.0, FR-B7): asserts the four percentile fields
+     * on a `LatencyHistogramEnvelope.measurements` object satisfy
+     * `p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`. No EvaluationContext needed.
+     *
+     * @since v8.6.0 — FR-B7 (PR-A3.5)
+     */
+    parsePercentilesMonotonicNondecreasing() {
+        this.advance(); // consume 'percentiles_monotonic_nondecreasing'
+        this.expect('paren', '(');
+        const measurements = this.parseExpr();
+        this.expect('paren', ')');
+        const result = evaluatePercentilesMonotonicNondecreasing(measurements);
+        return result.valid;
+    }
+    /**
+     * Parse `utf8_byte_length_max(value, byte_cap)`.
+     *
+     * LOCAL builtin (v8.6.0, PR-A3.5 iter-1 F-002): asserts that the
+     * UTF-8 byte length of `value` is ≤ `byte_cap`. Distinct from JSON
+     * Schema's `maxLength` keyword, which counts UTF-16 code units (in
+     * JS) and therefore under-counts multi-byte UTF-8 strings (CJK,
+     * emoji). Used on `OracleDigest.telegram_variant_md_below_4kb` to
+     * enforce the Telegram 4 KB byte cap correctly.
+     *
+     * iter-2 F8: rather than short-circuit on a non-numeric byteCap (which
+     * would conflate "malformed expression" with "value exceeds cap"), the
+     * DSL wrapper hands the argument straight to the standalone evaluator,
+     * which emits the structured `UTF8_BYTE_LENGTH_INVALID_INPUT`
+     * diagnostic. The boolean surface still returns `false`, but the
+     * underlying diagnostic taxonomy is preserved for direct callers and
+     * for any future evaluator path that surfaces diagnostics through the
+     * UnverifiedObligationsManifest.
+     *
+     * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F8 diagnostic)
+     */
+    parseUtf8ByteLengthMax() {
+        this.advance(); // consume 'utf8_byte_length_max'
+        this.expect('paren', '(');
+        const value = this.parseExpr();
+        this.expect('comma');
+        const byteCap = this.parseExpr();
+        this.expect('paren', ')');
+        // Hand both arguments to the standalone evaluator unconditionally;
+        // its input-validation path emits UTF8_BYTE_LENGTH_INVALID_INPUT for
+        // non-numeric / non-positive-integer byteCap (preserving the
+        // structural-error vs constraint-violation distinction even though
+        // the DSL wrapper itself can only return a boolean). iter-3 F4: the
+        // standalone evaluator now accepts `unknown` for both arguments and
+        // type-guards internally, so no `as number` cast is needed at the
+        // DSL boundary — a string-literal byte_cap (e.g., from a malformed
+        // expression) surfaces UTF8_BYTE_LENGTH_INVALID_INPUT cleanly.
+        const result = evaluateUtf8ByteLengthMax(value, byteCap);
+        return result.valid;
+    }
+    /**
+     * Parse `plan_content_hash_unchanged_since_signoff(plan_content_hash)`.
+     *
+     * State-bearing builtin (v8.6.0, FR-C4 / PR-A3.6): asserts the
+     * validating record's `plan_content_hash` is present in the
+     * consumer-supplied signoff ledger snapshot. Reads the snapshot
+     * from `EvaluationContext.plan_signoff_ledger`. The DSL wrapper
+     * collapses the three-state result (`pass`/`fail`/`deferred`) to
+     * a boolean: `pass` and `deferred` map to `true`; `fail` maps to
+     * `false`. The structured manifest entry — including the NA-3
+     * `SIGNOFF_TTL_OBSERVED` payload on the pass path — is reachable
+     * via the standalone evaluator at
+     * `src/constraints/builtins/plan-content-hash-unchanged-since-signoff.ts`.
+     *
+     * @since v8.6.0 — FR-C4 (PR-A3.6)
+     */
+    parsePlanContentHashUnchangedSinceSignoff() {
+        this.advance(); // consume 'plan_content_hash_unchanged_since_signoff'
+        this.expect('paren', '(');
+        const planHash = this.parseExpr();
+        this.expect('paren', ')');
+        const evaluation = evaluatePlanContentHashUnchangedSinceSignoff(planHash, this.context?.plan_signoff_ledger);
+        // Vacuous-pass on deferral matches FR-C1/C2/C3 conventions: the
+        // boolean DSL surface returns true when the consumer hasn't
+        // supplied state, deferring the substantive check to the
+        // manifest-entry surface (consumer-side acknowledgment).
+        return evaluation.result !== 'fail';
     }
     /**
      * Parse no_emergent_in_individual(emergent, individual).
@@ -1792,6 +2048,19 @@ export const EVALUATOR_BUILTINS = [
     'audit_trail_chain_valid',
     // DAG validation (v8.4.0, FR-C1)
     'is_valid_dag',
+    // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+    'nonce_unique_per_signer_window',
+    'sequence_monotonic_per_cluster',
+    'chain_validator_prev_hash',
+    // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+    'canonical_size_cap',
+    'signer_key_id_matches_derivation',
+    // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+    'percentiles_monotonic_nondecreasing',
+    // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+    'utf8_byte_length_max',
+    // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
+    'plan_content_hash_unchanged_since_signoff',
 ];
 /**
  * Reserved names in the evaluator namespace.

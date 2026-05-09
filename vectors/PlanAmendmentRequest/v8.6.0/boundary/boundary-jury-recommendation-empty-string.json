@@ -1,0 +1,21 @@
+{
+  "_comment": "jury_recommendation: \"\" (empty string) — schema admits Type.String() without minLength on this field; consumer policy may reject. Boundary case for the nullable-vs-empty distinction.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T16:00:00Z",
+  "cluster_id": "cluster-boundary",
+  "actor_id": "actor-boundary",
+  "parent_signoff_id": "signoff-boundary",
+  "parent_plan_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "proposed_delta": "Empty jury recommendation string — distinct from null.",
+  "severity": "minor",
+  "trigger_class": "ambiguity",
+  "rationale": "Jury convened but produced no text recommendation; consumer policy decides interpretation.",
+  "recommended_paths": [
+    { "id": "p1", "summary": "noop", "tradeoff": "no change" }
+  ],
+  "jury_recommendation": "",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

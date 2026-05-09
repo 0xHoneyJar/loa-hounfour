@@ -129,4 +129,7 @@ export { SignerTypeSchema, } from './signer-type.js';
 export { SignatureTypeSchema, } from './signature-type.js';
 export { SignerStatusSchema, } from './signer-status.js';
 export { PolicyDecisionOutcomeSchema, } from './policy-decision-outcome.js';
+// Schemas — Plan Governance (v8.6.0, FR-B9 + FR-B10, PR-A3.6)
+export { PlanSignoffEnvelopeSchema, SignoffActorClassSchema, SignoffTierSchema, } from './plan-signoff-envelope.js';
+export { PlanAmendmentRequestSchema, AmendmentSeveritySchema, AmendmentTriggerClassSchema, } from './plan-amendment-request.js';
 //# sourceMappingURL=index.js.map

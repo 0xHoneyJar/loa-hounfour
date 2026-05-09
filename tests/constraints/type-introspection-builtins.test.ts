@@ -71,7 +71,7 @@ describe('is_bigint_coercible builtin', () => {
 
 describe('EVALUATOR_BUILTINS registry', () => {
   it('contains the registered set of builtins', () => {
-    expect(EVALUATOR_BUILTINS).toHaveLength(51);
+    expect(EVALUATOR_BUILTINS).toHaveLength(52);
   });
 
   it('includes type_of', () => {
@@ -85,7 +85,7 @@ describe('EVALUATOR_BUILTINS registry', () => {
 
 describe('EVALUATOR_BUILTIN_SPECS registry', () => {
   it('has a spec for every registered builtin', () => {
-    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(51);
+    expect(EVALUATOR_BUILTIN_SPECS.size).toBe(52);
   });
 
   it('has spec for type_of', () => {

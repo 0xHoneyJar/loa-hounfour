@@ -1,0 +1,30 @@
+{
+  "_comment": "PlanAmendmentRequest with major severity + observed_failure trigger and a jury recommendation. Severity-correction (observed_failure→major) is consumer-side per PAR-2; this fixture exercises the well-formed combination.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T13:30:00Z",
+  "cluster_id": "cluster-002",
+  "actor_id": "actor-jury-coord",
+  "parent_signoff_id": "signoff-2026-05-001",
+  "parent_plan_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "proposed_delta": "Phase-3 ramp execution failed under load; revise concurrency budget downward.",
+  "severity": "major",
+  "trigger_class": "observed_failure",
+  "rationale": "Three consecutive ramp attempts breached SLO at 30% above plan-stated concurrency.",
+  "recommended_paths": [
+    {
+      "id": "path-A",
+      "summary": "Halve concurrency budget for phase-3 ramp.",
+      "tradeoff": "Throughput drops ~50% during ramp; SLO compliance restored."
+    },
+    {
+      "id": "path-B",
+      "summary": "Roll back to phase-2 ceiling and re-evaluate at next pulse.",
+      "tradeoff": "No phase-3 progress this cycle; safer."
+    }
+  ],
+  "jury_recommendation": "Path-A preferred; jury 4-1 in favor.",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  }
+}

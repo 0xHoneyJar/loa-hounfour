@@ -1,0 +1,19 @@
+{
+  "_comment": "Genesis-anchor case: prev_envelope_hash is the all-zero anchor; parent_signoff_hash null. Both nullable / anchor positions exercised together.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-04-01T00:00:00Z",
+  "cluster_id": "cluster-boundary-genesis",
+  "plan_content_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "signoff_actor_class": "single_operator",
+  "signoff_actor_id": "operator-genesis",
+  "tier": "T2",
+  "reason": "Bootstrap signoff at envelope-chain anchor.",
+  "ttl_seconds_at_emit": "3600",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "parent_signoff_hash": null
+  },
+  "cumulative_drift_pct": 0,
+  "signature": "ed25519:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+}

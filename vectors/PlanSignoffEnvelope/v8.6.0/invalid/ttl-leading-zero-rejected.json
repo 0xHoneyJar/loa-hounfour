@@ -1,0 +1,19 @@
+{
+  "_comment": "ttl_seconds_at_emit=\"01\" MUST be rejected — leading-zero forms are forbidden by ^[1-9][0-9]*$ to keep BigInt parse deterministic.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "plan_content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signoff_actor_class": "single_operator",
+  "signoff_actor_id": "operator-001",
+  "tier": "T2",
+  "reason": "Should fail.",
+  "ttl_seconds_at_emit": "0123",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "parent_signoff_hash": null
+  },
+  "cumulative_drift_pct": 0,
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

@@ -1,0 +1,19 @@
+{
+  "_comment": "PlanSignoffEnvelope: jury_panel actor class at T3 with longer TTL and parent_signoff_hash.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T13:00:00Z",
+  "cluster_id": "cluster-002",
+  "plan_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "signoff_actor_class": "jury_panel",
+  "signoff_actor_id": "jury-panel-2026-05",
+  "tier": "T3",
+  "reason": "Multi-juror consensus signoff for high-tier execution.",
+  "ttl_seconds_at_emit": "86400",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "parent_signoff_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "cumulative_drift_pct": 0.0,
+  "signature": "ed25519:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+}

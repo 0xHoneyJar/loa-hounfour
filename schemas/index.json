@@ -2,7 +2,7 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.6.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-08T22:08:26.664Z",
+  "generated_at": "2026-05-09T01:07:33.961Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1473,6 +1473,42 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/epic-checkpoint",
       "file": "epic-checkpoint.schema.json",
       "description": "Durable EPIC progress checkpoint. canonical_run_id resolves against a known CanonicalRunSchema instance via consumer-side registry; manifest surfaces the lookup obligation when registry context is absent. **STABILITY: PREVIEW** — the canonical_run_id shape stabilizes in v8.7+ via CanonicalRunSchema (FR-B1, scheduled for PR-A3.8). Until then the field is `minLength: 1` only; producers SHOULD pin a specific contract_version when integrating EpicCheckpoint to avoid encoding canonical_run_id assumptions that may conflict with the stabilized schema (PR-A3.5 iter-4 F8)."
+    },
+    {
+      "name": "signoff-actor-class",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-actor-class",
+      "file": "signoff-actor-class.schema.json",
+      "description": "Exhaustive 3-member enum for the actor class authorizing a plan signoff. Schema admits all three; v1 acceptance accepts only `single_operator` is a consumer-side gate per prd.md:269-271 / ADR-010, NOT a schema-level constraint."
+    },
+    {
+      "name": "signoff-tier",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-tier",
+      "file": "signoff-tier.schema.json",
+      "description": "Schema-restricted signoff tier. T0/T1 are explicitly excluded (rejected at validate() time). Widening to T0/T1/etc. is strict-additive; consumers built against the v8.6.0 enum continue to validate T2/T3 unchanged."
+    },
+    {
+      "name": "plan-signoff-envelope",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-signoff-envelope",
+      "file": "plan-signoff-envelope.schema.json",
+      "description": "Plan-signoff envelope binding a plan (plan_content_hash) to a signing actor at a specific tier. Crypto-bearing (Ed25519 signature) + chain-bearing (prev_envelope_hash + parent_signoff_hash). FR-C4 cross-checks plan_content_hash against the consumer's signoff ledger and surfaces the SIGNOFF_TTL_OBSERVED manifest entry on hash-match (NA-3)."
+    },
+    {
+      "name": "amendment-severity",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-severity",
+      "file": "amendment-severity.schema.json",
+      "description": "Two-member exhaustive severity enum for plan amendments. Severity-correction (e.g. forcing observed_failure → major) is consumer-side policy per prd.md:289 / ADR-010; the schema admits the looser combination."
+    },
+    {
+      "name": "amendment-trigger-class",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-trigger-class",
+      "file": "amendment-trigger-class.schema.json",
+      "description": "Four-member exhaustive enum for what triggered the amendment. Schema enforces enum membership only; severity-correction mapping (e.g. observed_failure → major) is consumer-side."
+    },
+    {
+      "name": "plan-amendment-request",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request",
+      "file": "plan-amendment-request.schema.json",
+      "description": "Plan-amendment proposal envelope. Chain-bearing (carries prev_envelope_hash) but NOT crypto-bearing — amendments inherit the cluster's trust context. Severity-correction (e.g. observed_failure → major) is consumer-side per prd.md:289 / ADR-010; the schema admits looser combinations so the discrepancy can be surfaced explicitly."
     }
   ]
 }

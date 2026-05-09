@@ -128,6 +128,28 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
     chainContext?: {
         granted_by_chain_records?: unknown;
     };
+    /**
+     * FR-A4 (v8.6.0) opt-in fail-closed semantics for `x-chain-bearing`
+     * schemas (currently only `OrgRepresentativeDelegation`). When set
+     * to `true`:
+     *
+     *   - If `chainContext.granted_by_chain_records` is absent or empty,
+     *     validate() returns `{ valid: false, errors: ['CHAIN_CONTEXT_DEFERRED: ...'] }`
+     *     instead of emitting an `unverified_obligations` manifest.
+     *   - If the chain context is supplied, validate() emits the ORD-3
+     *     manifest entry with `reason: 'chain_context_provided'` (the
+     *     opt-in acknowledgment) instead of the default `'pattern_matching'`.
+     *
+     * When unset or `false`, validate() preserves v8.5.x behavior exactly:
+     * the manifest is emitted with `reason: 'context_absent'` (chain
+     * absent) or `reason: 'pattern_matching'` (chain present), and the
+     * outcome is `valid: true` regardless. This default is locked for the
+     * v8.6.x line; v9.0.0 flips the default to fail-closed per the
+     * MIGRATION.md FR-A4 forward-pointer.
+     *
+     * @since v8.6.0 — FR-A4 (DP-02 option C)
+     */
+    failClosed?: boolean;
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{

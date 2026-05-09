@@ -123,8 +123,9 @@ export const OrgRepresentativeDelegationSchema = Type.Object({
             + 'Hard cap of 20; ORD-3 cross-checks against actual chain reachability.',
     }),
     signature: Type.String({
-        pattern: '^ed25519:[A-Za-z0-9_-]{86,88}$',
+        pattern: '^ed25519:[A-Za-z0-9_-]{86}$',
         description: 'Ed25519 signature over RFC 8785 canonical JSON of all-other-fields. '
+            + 'Unpadded base64url per RFC 4648 §5: exactly 86 characters. '
             + 'Verification is consumer-side per NF-1 (ORD-1, runtime-deferred).',
     }),
     signed_by: Type.String({
@@ -147,8 +148,12 @@ export const OrgRepresentativeDelegationSchema = Type.Object({
     $id: 'OrgRepresentativeDelegation',
     additionalProperties: false,
     'x-cross-field-validated': true,
+    'x-chain-bearing': true,
     description: 'Append-only delegation record binding org → representative, signed under '
         + 'a signing_context envelope. Cross-field rules in '
-        + 'constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3).',
+        + 'constraints/OrgRepresentativeDelegation.constraints.json (ORD-1..3). '
+        + 'Carries `x-chain-bearing: true` — see TypeScript JSDoc on the export '
+        + 'and MIGRATION.md v8.5.x → v8.6.0 §FR-A4 for the failClosed opt-in '
+        + 'contract.',
 });
 //# sourceMappingURL=org-representative-delegation.js.map

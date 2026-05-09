@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-severity",
+  "description": "Two-member exhaustive severity enum for plan amendments. Severity-correction (e.g. forcing observed_failure → major) is consumer-side policy per prd.md:289 / ADR-010; the schema admits the looser combination.",
+  "anyOf": [
+    {
+      "const": "minor",
+      "type": "string"
+    },
+    {
+      "const": "major",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

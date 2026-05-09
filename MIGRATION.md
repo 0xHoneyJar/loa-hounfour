@@ -389,6 +389,126 @@ consumer surfaces a real `{87,88}` payload, it is captured as a
 87, and 88 characters) for v8.7.x with a v9.0.0 re-tightening tracked.
 As of v8.6.0 GA, this rollback path is **not active**.
 
+### FR-B9 + FR-B10 + FR-C4 — Plan-governance trio (PR-A3.6)
+
+v8.6.0 adds three plan-governance primitives:
+
+| Surface | Module | $id | Bearing flags |
+|---|---|---|---|
+| `PlanSignoffEnvelopeSchema` (FR-B9) | `governance/plan-signoff-envelope.ts` | `PlanSignoffEnvelope` | `x-crypto-bearing`, `x-chain-bearing` |
+| `PlanAmendmentRequestSchema` (FR-B10) | `governance/plan-amendment-request.ts` | `PlanAmendmentRequest` | `x-chain-bearing` |
+| `plan_content_hash_unchanged_since_signoff` (FR-C4) | `constraints/builtins/plan-content-hash-unchanged-since-signoff.ts` | (builtin) | n/a |
+
+**`PlanSignoffEnvelopeSchema`** binds a plan (`plan_content_hash`) to a
+signing actor at a specific tier. The schema's `tier` enum is
+deliberately restricted to `{T2, T3}` — T0/T1 cannot signoff and are
+rejected at the structural layer. The `signoff_actor_class` enum is
+exhaustive at three members (`single_operator`, `jury_panel`,
+`delegate`); v1 acceptance accepting only `single_operator` is a
+**consumer-side gate per ADR-010**, NOT a schema-level constraint.
+
+`ttl_seconds_at_emit` is **string-encoded** (CT-03; pattern
+`^[1-9][0-9]*$`) following the cycle-005 convention for fields that
+may exceed `Number.MAX_SAFE_INTEGER`. The literal `"0"` is reserved
+as the expired-on-emit sentinel and is rejected at the schema layer.
+The `2^53-1` upper bound is enforced **consumer-side per AT-8**: JSON
+Schema's numeric `maximum` cannot apply to a string-encoded field.
+Consumers parse via `BigInt(envelope.ttl_seconds_at_emit)` after
+validation; the regex guarantees the parse without try/catch.
+
+**`PlanAmendmentRequestSchema`** is intentionally **NOT crypto-bearing**
+— amendments inherit the cluster's existing trust context and need
+not carry an additional signature beyond chain-level integrity. The
+schema admits the looser `(severity, trigger_class)` combinations
+(e.g. `severity: 'minor' + trigger_class: 'observed_failure'`) so
+**consumer-side severity-correction policy** can surface the
+discrepancy explicitly rather than have the rewrite happen silently
+at the structural layer (`prd.md:289`). `recommended_paths` is
+non-empty (`minItems: 1`) — "do nothing" is expressed explicitly as a
+path entry, not an empty array.
+
+**`plan_content_hash_unchanged_since_signoff` (FR-C4)** cross-checks
+the validating record's `plan_content_hash` against a consumer-supplied
+signoff ledger snapshot. The builtin returns three states:
+
+| State | Trigger | Manifest entry |
+|---|---|---|
+| `pass` | hash present in snapshot | `SIGNOFF_TTL_OBSERVED` (NA-3) |
+| `fail` | hash absent from snapshot | `SIGNOFF_PLAN_HASH_MISMATCH` |
+| `deferred` | snapshot not supplied | `LEDGER_CONTEXT_DEFERRED` |
+
+**The `SIGNOFF_TTL_OBSERVED` payload (NA-3 / RC2 SKP-006).** On the
+PASS path, the manifest entry surfaces the matched signoff's
+`ts_emit`, the parsed `ttl_seconds_at_emit`, AND the absolute
+`ttl_until_ms` epoch milliseconds (computed as
+`Date.parse(ts_emit) + Number(ttl_seconds_at_emit) * 1000`). This
+makes signoff-expiry evaluation a **deliberate next step** rather
+than an easy oversight: a consumer that validates plan-hash without
+also reading the TTL inputs cannot accidentally authorize a signoff
+whose TTL has already lapsed.
+
+**TTL enforcement is OUT.** Per ADR-010 / NFR-8, hounfour does NOT
+decide what "expired" means. The builtin reports the inputs; the
+consumer compares `ttl_until_ms` against `ledger_snapshot.ts_snapshot`
+(preferred for replay) or wall-clock per their policy.
+
+```typescript
+import { evaluatePlanContentHashUnchangedSinceSignoff } from '@0xhoneyjar/loa-hounfour/constraints';
+import type { PlanSignoffLedgerSnapshot } from '@0xhoneyjar/loa-hounfour/constraints';
+
+const snapshot: PlanSignoffLedgerSnapshot = {
+  ts_snapshot: '2026-05-09T12:30:00Z',
+  signoffs: [
+    {
+      signoff_id: 'signoff-001',
+      plan_content_hash: 'sha256:aaaa...',
+      ttl_seconds_at_emit: 3600n,  // parsed BigInt; consumer parses from envelope's string
+      ts_emit: '2026-05-09T12:00:00Z',
+    },
+  ],
+};
+
+const result = evaluatePlanContentHashUnchangedSinceSignoff(
+  envelope.plan_content_hash,
+  snapshot,
+);
+
+if (result.result === 'pass') {
+  // Consult result.manifestEntry.evaluation_note for the parsed
+  // ttl_until_ms. The library does NOT decide expiry — apply your
+  // policy here:
+  //   const expired = ttl_until_ms < Date.parse(snapshot.ts_snapshot);
+}
+```
+
+**DSL surface.** Constraint files invoke the builtin via the DSL:
+
+```text
+plan_content_hash_unchanged_since_signoff(plan_content_hash)
+```
+
+The DSL collapses the three-state result to boolean: `pass` and
+`deferred` map to `true`; only `fail` maps to `false` (vacuous-pass-
+with-deferral matches FR-C1/C2/C3 conventions per AT-6). Direct
+callers wanting the structured manifest entry use the standalone
+evaluator.
+
+**Type-surface compatibility (TypeScript consumers).** PR-A3.6 adds
+three new members to the `UnverifiedObligationReason` union:
+`'ledger_context_deferred'`, `'signoff_plan_hash_mismatch'`, and
+`'signoff_ttl_observed'`. Same runtime-additive / type-strict-breaking
+pattern as FR-A4 — exhaustive-switch consumers add cases before
+bumping the dependency.
+
+**Consumer action.** None for v8.5.x → v8.6.0 in itself; `validate()`
+on the new schemas works without the signoff ledger (manifest emits
+`LEDGER_CONTEXT_DEFERRED` and validation succeeds). Production code
+authorizing plan execution from a `PlanSignoffEnvelope` SHOULD supply
+`options.plan_signoff_ledger` and gate authorization on
+`result.unverified_obligations.unverified_rules.find(r => r.reason
+=== 'signoff_ttl_observed')` so the consumer's policy code observes
+the TTL inputs at the same call site that observes the hash match.
+
 ---
 
 ## v8.4.0 → v8.5.0 (Minor — Additive Only)

@@ -38,7 +38,7 @@ import type { ConstraintFile } from './types.js';
  * ORD-3 context-absent manifest promotion + the `CRYPTO_DEFERRED` /
  * `INTEGRITY_DEFERRED` paths) populate the new values.
  */
-export type UnverifiedObligationReason = 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'pattern_matching' | 'vocabulary_drift';
+export type UnverifiedObligationReason = 'canonical_size_cap_exceeded' | 'chain_context_provided' | 'chain_ledger_mismatch' | 'chain_prev_hash_mismatch' | 'cluster_id_mismatch' | 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'key_version_regression' | 'ledger_context_deferred' | 'nonce_context_deferred' | 'nonce_replay_detected' | 'pattern_matching' | 'percentiles_monotonic_violation' | 'sequence_context_deferred' | 'sequence_monotonic_violation' | 'signer_key_id_mismatch' | 'signoff_plan_hash_mismatch' | 'signoff_ttl_observed' | 'utf8_byte_length_exceeded' | 'vocabulary_drift';
 export interface UnverifiedObligationEntry {
     /** Stable rule identifier (e.g., `"ORD-1"`, `"ORD-2"`, `"ORD-3"`, `"CRYPTO_DEFERRED"`). */
     rule_id: string;
@@ -64,7 +64,80 @@ export interface UnverifiedObligationEntry {
      * `pattern_matching` — pattern-matched obligation (reserved for future
      * pattern-DSL rules).
      * `vocabulary_drift` — value lies outside a canonical vocabulary
-     * (currently only ORD-5 capability_scope).
+     * (currently ORD-5 capability_scope; surfaced at validate() time in
+     * v8.6.0 per FR-A3).
+     * `chain_context_provided` — FR-A4 (v8.6.0) opt-in acknowledgment that
+     * the consumer supplied `chainContext.granted_by_chain_records` and
+     * accepts the v9.0.0 fail-closed semantics ahead of the default flip.
+     *
+     * The following members were added in PR-A3.3 (v8.6.0, FR-C1/C2/C3) for
+     * the new state-bearing constraint builtins. Each maps one-to-one to a
+     * structured diagnostic code emitted by the corresponding builtin in
+     * `src/constraints/builtins/*.ts`.
+     *
+     * **TODO(PR-A3.4): emission-site integration** — these 8 members are
+     * present on the union (so consumers' TypeScript discriminated-union
+     * checks compile) but are NOT yet emitted by `validate()` directly.
+     * The standalone evaluators (`evaluateNonceUniquePerSignerWindow`
+     * etc.) emit them as the `code` field on their structured diagnostic
+     * surfaces; `validate()` will surface them as manifest entries via
+     * the metadata-flag dispatch pattern (`'x-nonce-bearing'` /
+     * `'x-sequence-bearing'` / `'x-chain-validator-bearing'`) when the
+     * FR-B2 PhaseCompletionEnvelopeSchema lands in PR-A3.4. The bridge
+     * iter-3 review (F-001) flagged this as a "dead-enum risk" surface
+     * — the breadcrumb here documents the integration path so future
+     * reviewers don't conclude the union members are orphaned.
+     *
+     * `nonce_replay_detected` — FR-C1: a `(signer_id, nonce)` pair within the
+     *   sliding-window range was already observed for this signer; the second
+     *   appearance is a replay candidate. Cross-record state-bearing.
+     * `nonce_context_deferred` — FR-C1: nonce-window state was not supplied
+     *   to validate(); the obligation is surfaced for consumer-side
+     *   evaluation (mirrors the ORD-3 `context_absent` pattern).
+     * `sequence_monotonic_violation` — FR-C2: the parsed sequence number
+     *   was less than or equal to the last-observed sequence for this
+     *   `(cluster_id, signer_id, key_version)` triple; the chain has
+     *   regressed.
+     * `sequence_context_deferred` — FR-C2: the per-cluster sequence state
+     *   was not supplied to validate(); deferred to consumer.
+     * `key_version_regression` — FR-C2: the parsed `key_version` was less
+     *   than the last-observed key_version for this cluster; key-rotation
+     *   went backward (which the protocol forbids).
+     * `chain_ledger_mismatch` — FR-C3: the audit-ledger's
+     *   `expected_prior_hash` for the validating record differs from the
+     *   `previous_hash` value the chain itself records — a divergence
+     *   between the consumer's persistent ledger and the chain payload
+     *   (NA-1: the field MUST be cross-checked, not just declared).
+     * `chain_prev_hash_mismatch` — FR-C3: within the supplied chain, a
+     *   record's `previous_hash` does not equal its predecessor's
+     *   `entry_hash`; the chain has been tampered or assembled wrong.
+     * `cluster_id_mismatch` — FR-C2 / shared: the validating record's
+     *   `cluster_id` does not match the cluster declared by the supplied
+     *   state (CT-08: this check fires BEFORE any state-map lookup so a
+     *   cross-cluster lookup cannot succeed silently).
+     *
+     * The following 3 members were added in PR-A3.6 (v8.6.0, FR-C4) for
+     * the `plan_content_hash_unchanged_since_signoff` builtin. Unlike the
+     * FR-C1/C2/C3 builtins where the manifest entry only fires on
+     * deferral or violation, FR-C4 also emits a manifest entry on the
+     * PASS path (NA-3 / RC2 SKP-006) so consumers cannot accidentally
+     * validate plan-hash without seeing the TTL inputs the signoff
+     * ledger carries.
+     *
+     * `ledger_context_deferred` — FR-C4: the consumer did not supply a
+     *   signoff ledger snapshot via validate() options; the obligation
+     *   is surfaced for consumer-side evaluation (mirrors the
+     *   `chain_context_provided` deferral pattern).
+     * `signoff_plan_hash_mismatch` — FR-C4: the supplied snapshot exists
+     *   but does not contain a signoff matching the validating record's
+     *   `plan_content_hash`. The plan content has changed since signoff
+     *   or the signoff was never recorded.
+     * `signoff_ttl_observed` — FR-C4: the validating `plan_content_hash`
+     *   matched a signoff in the ledger; the manifest entry surfaces
+     *   `ts_emit + ttl_until_ms` so the consumer can evaluate signoff
+     *   expiry deliberately (NA-3). Hounfour does NOT decide what
+     *   "expired" means (ADR-010); the entry fires on hash-match
+     *   regardless of age.
      */
     reason?: UnverifiedObligationReason;
     /** Human explanation of the consumer obligation. */

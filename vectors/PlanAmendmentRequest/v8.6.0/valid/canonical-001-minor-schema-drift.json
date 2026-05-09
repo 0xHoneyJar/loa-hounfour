@@ -1,0 +1,25 @@
+{
+  "_comment": "Typical PlanAmendmentRequest: minor severity + schema_drift trigger.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "actor_id": "actor-001",
+  "parent_signoff_id": "signoff-001",
+  "parent_plan_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "proposed_delta": "Tighten the `task_status` enum to drop the deprecated `pending_review` literal.",
+  "severity": "minor",
+  "trigger_class": "schema_drift",
+  "rationale": "Wire payloads observed since 2026-04-01 no longer carry pending_review; the literal is dead.",
+  "recommended_paths": [
+    {
+      "id": "path-A",
+      "summary": "Remove pending_review from the enum.",
+      "tradeoff": "Breaks any consumer still emitting the dead literal; no such consumers observed."
+    }
+  ],
+  "jury_recommendation": null,
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  }
+}

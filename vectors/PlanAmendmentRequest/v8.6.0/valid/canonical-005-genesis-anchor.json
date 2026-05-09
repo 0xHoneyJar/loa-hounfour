@@ -1,0 +1,25 @@
+{
+  "_comment": "PlanAmendmentRequest with all-zero genesis prev_envelope_hash anchor.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-04-15T08:00:00Z",
+  "cluster_id": "cluster-genesis-amendment",
+  "actor_id": "actor-bootstrap",
+  "parent_signoff_id": "signoff-bootstrap-001",
+  "parent_plan_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "proposed_delta": "Bootstrap-cluster's first amendment.",
+  "severity": "minor",
+  "trigger_class": "schema_drift",
+  "rationale": "Initial plan needs minor refinement after first execution.",
+  "recommended_paths": [
+    {
+      "id": "path-A",
+      "summary": "Adjust plan section 1.1 to match observed wire shape.",
+      "tradeoff": "Negligible."
+    }
+  ],
+  "jury_recommendation": null,
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}
