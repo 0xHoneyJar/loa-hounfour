@@ -48,6 +48,32 @@
 /** Stable rule_id surfaced in every manifest entry from this builtin. */
 export const PLAN_CONTENT_HASH_RULE_ID = 'plan-signoff-envelope/plan-hash-unchanged';
 /**
+ * Build the malformed-element FAIL surface used by per-element
+ * runtime shape guards (iter-3 HIGH-consensus mitigation).
+ */
+function malformedEntryFail(index, detail) {
+    return {
+        result: 'fail',
+        manifestEntry: {
+            rule_id: PLAN_CONTENT_HASH_RULE_ID,
+            rule: `plan_content_hash_unchanged_since_signoff: malformed ` +
+                `signoff ledger entry at index ${index} — ${detail}.`,
+            evaluator: 'library',
+            evaluation_note: 'plan_content_hash_unchanged_since_signoff: the ' +
+                'consumer-supplied signoff ledger contains an entry whose ' +
+                `runtime shape does not conform to PlanSignoffLedgerEntry ` +
+                `at index ${index} (${detail}). The TypeScript interface ` +
+                'evaporates at runtime; the library validates each entry ' +
+                'before field access to surface a structured FAIL rather ' +
+                'than letting an exception or a NaN-poisoned manifest ' +
+                'reach the consumer\'s policy code (iter-3 ' +
+                'HIGH-consensus boundary fix; see iter-1 trust-boundary ' +
+                'discipline applied to the array-level shape check).',
+            consumer_acknowledgment_required: true,
+        },
+    };
+}
+/**
  * Standalone evaluator. The constraint-DSL wrapper returns boolean;
  * direct callers wanting the structured manifest entry should use
  * this entry point.
@@ -108,6 +134,16 @@ export function evaluatePlanContentHashUnchangedSinceSignoff(planHash, ledgerSna
     // is typed as ReadonlyArray; reject anything that isn't actually an
     // array. Empty array is a legal shape — it surfaces FAIL (no signoff
     // matches), not INVALID_INPUT.
+    //
+    // **Iter-3 HIGH-consensus mitigation (3-of-3 model concurrence):**
+    // After the array-level shape check, each element is also runtime-
+    // validated below. Consumer-supplied state crosses a trust boundary;
+    // a malformed entry where `plan_content_hash` is non-string would
+    // throw on `.toLowerCase()`, and where `ttl_seconds_at_emit` is not
+    // a bigint, `Number(...)` would silently produce NaN (object) or
+    // throw (Symbol). Per-element guards surface a structured FAIL with
+    // a library-evaluator manifest entry, mirroring the array-level
+    // discipline.
     if (!Array.isArray(ledgerSnapshot.signoffs)) {
         return {
             result: 'fail',
@@ -126,6 +162,33 @@ export function evaluatePlanContentHashUnchangedSinceSignoff(planHash, ledgerSna
                 consumer_acknowledgment_required: true,
             },
         };
+    }
+    // Iter-3 HIGH-consensus per-element shape validation (3-of-3 model
+    // concurrence). Walk the array once and reject malformed entries
+    // before any field access; the cost is one linear pass, paid only
+    // when state was supplied at all.
+    for (let i = 0; i < ledgerSnapshot.signoffs.length; i++) {
+        const entry = ledgerSnapshot.signoffs[i];
+        if (entry === null || typeof entry !== 'object') {
+            return malformedEntryFail(i, `entry is not an object (typeof=${typeof entry})`);
+        }
+        const e = entry;
+        if (typeof e.plan_content_hash !== 'string') {
+            return malformedEntryFail(i, `plan_content_hash is not a string ` +
+                `(typeof=${typeof e.plan_content_hash})`);
+        }
+        if (typeof e.ts_emit !== 'string') {
+            return malformedEntryFail(i, `ts_emit is not a string (typeof=${typeof e.ts_emit})`);
+        }
+        if (typeof e.ttl_seconds_at_emit !== 'bigint') {
+            return malformedEntryFail(i, `ttl_seconds_at_emit is not a bigint ` +
+                `(typeof=${typeof e.ttl_seconds_at_emit}). Consumers parse ` +
+                `the schema's string-encoded field via BigInt(...) before ` +
+                `inserting into the ledger.`);
+        }
+        if (typeof e.signoff_id !== 'string') {
+            return malformedEntryFail(i, `signoff_id is not a string (typeof=${typeof e.signoff_id})`);
+        }
     }
     // Iter-1 F-002 mitigation: SHA256_HEX_PATTERN admits mixed-case
     // (`[A-Fa-f0-9]`) per v8.5.0 SignatureEnvelope precedent, so the

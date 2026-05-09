@@ -114,6 +114,91 @@ describe('evaluatePlanContentHashUnchangedSinceSignoff (standalone)', () => {
     });
   });
 
+  describe('per-element shape validation (iter-3 HIGH-consensus)', () => {
+    it('rejects null entry with library-evaluator fail', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([null as unknown as PlanSignoffLedgerEntry]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.evaluator).toBe('library');
+      expect(result.manifestEntry?.evaluation_note).toContain('index 0');
+      expect(result.manifestEntry?.evaluation_note).toContain('not an object');
+    });
+
+    it('rejects entry with non-string plan_content_hash', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([
+          { ...entry(), plan_content_hash: 42 as unknown as string },
+        ]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.rule).toContain('plan_content_hash');
+    });
+
+    it('rejects entry with non-bigint ttl_seconds_at_emit', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([
+          {
+            ...entry(),
+            ttl_seconds_at_emit: 3600 as unknown as bigint,
+          },
+        ]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.rule).toContain('ttl_seconds_at_emit');
+    });
+
+    it('rejects entry with non-string ts_emit', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([{ ...entry(), ts_emit: null as unknown as string }]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.rule).toContain('ts_emit');
+    });
+
+    it('rejects entry with non-string signoff_id', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([
+          { ...entry(), signoff_id: undefined as unknown as string },
+        ]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.rule).toContain('signoff_id');
+    });
+
+    it('reports the correct index for a malformed entry mid-array', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([
+          entry({ signoff_id: 'so-0' }),
+          entry({ signoff_id: 'so-1' }),
+          { ...entry(), plan_content_hash: 42 as unknown as string },
+          entry({ signoff_id: 'so-3' }),
+        ]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.evaluation_note).toContain('index 2');
+    });
+
+    it('does not throw on Symbol-typed ttl_seconds_at_emit (would crash Number())', () => {
+      // The pre-iter-3 code passed Number(matching.ttl_seconds_at_emit)
+      // directly; Number(Symbol(...)) throws TypeError. The per-element
+      // guard surfaces a structured FAIL instead.
+      const sym = Symbol('not-a-number') as unknown as bigint;
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([{ ...entry(), ttl_seconds_at_emit: sym }]),
+      );
+      expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.evaluator).toBe('library');
+    });
+  });
+
   describe('malformed ts_emit guard (iter-1 F-003)', () => {
     it('returns fail with library-evaluator entry when matched ts_emit is unparseable', () => {
       const result = evaluatePlanContentHashUnchangedSinceSignoff(
