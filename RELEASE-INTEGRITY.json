@@ -1,13 +1,13 @@
 {
   "release_version": "8.6.0",
-  "generated_at": "2026-05-09T08:42:55.993Z",
+  "generated_at": "2026-05-09T08:48:57.700Z",
   "generator": "generate-release-integrity.ts",
   "totals": {
     "schemas": 257,
-    "vectors": 1252,
+    "vectors": 1226,
     "constraints": 135,
     "manifests": 2,
-    "total": 1646
+    "total": 1620
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -1300,11 +1300,6 @@
     ],
     "vectors": [
       {
-        "path": "vectors/AgentEstate/_meta.json",
-        "sha256": "10185860d9d34cf29a154b53129ad8aad5d069919027eb09b90921313cc6d857",
-        "size_bytes": 2098
-      },
-      {
         "path": "vectors/AgentEstate/invalid/extra-field.json",
         "sha256": "96ce1f09c8834645b1b6c7936d89c762c09ba362502c3b4e4e9d4d4ff2ec8647",
         "size_bytes": 304
@@ -1355,11 +1350,6 @@
         "size_bytes": 291
       },
       {
-        "path": "vectors/AgentEstateStatus/_meta.json",
-        "sha256": "5b3ffd38fd53d1c04ed6a69a8e231295fb7517d9930e82dcbe2bc047c2f443c5",
-        "size_bytes": 1503
-      },
-      {
         "path": "vectors/AgentEstateStatus/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -1393,11 +1383,6 @@
         "path": "vectors/AgentEstateStatus/valid/transferring-literal.json",
         "sha256": "1490f16699b95e713ce29222022579056e6fc7da3f2752344a297bc4b73431f1",
         "size_bytes": 15
-      },
-      {
-        "path": "vectors/Assertion/_meta.json",
-        "sha256": "917b3b8ea29086e7d06a0e7e8c582e883c31ec5c7043627e8b39dbb2d4ffc362",
-        "size_bytes": 4399
       },
       {
         "path": "vectors/Assertion/invalid/admitted-empty-signatures.json",
@@ -1490,11 +1475,6 @@
         "size_bytes": 1027
       },
       {
-        "path": "vectors/AssertionClass/_meta.json",
-        "sha256": "bd78cbb5f3fe97f20ec0fe9fabf87a2db0b8fcafdb973ed40c097535cb0267be",
-        "size_bytes": 2453
-      },
-      {
         "path": "vectors/AssertionClass/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -1548,11 +1528,6 @@
         "path": "vectors/AssertionClass/valid/three-segment-namespace.json",
         "sha256": "e042f0a323c0da19710bb9c45f40e0790ca11b09d37d9347ca97bd69f5c24f52",
         "size_bytes": 24
-      },
-      {
-        "path": "vectors/AssertionStatus/_meta.json",
-        "sha256": "08243c3f6ff2e9d76bc4e8ac721cc153d24440407102d8c9b8a15b3d6dbcdd72",
-        "size_bytes": 2089
       },
       {
         "path": "vectors/AssertionStatus/invalid/empty-string.json",
@@ -2100,11 +2075,6 @@
         "size_bytes": 613
       },
       {
-        "path": "vectors/CommitmentRoot/_meta.json",
-        "sha256": "229801eef9a606dd5490e6b7c1d71bdbd1852de695161ac012e6bbc2a5945035",
-        "size_bytes": 2381
-      },
-      {
         "path": "vectors/CommitmentRoot/invalid/extra-field.json",
         "sha256": "c2990f4db7e4a6bf48a3073e17e670b0b11e73e61795b34cc6e6a1c27f5d7220",
         "size_bytes": 287
@@ -2153,11 +2123,6 @@
         "path": "vectors/CommitmentRoot/valid/transition-bundle.json",
         "sha256": "fa8b1e68eb9735ae77a49e887a7c86e15fb3c2e58ba4c981d7a8c6107c9d5006",
         "size_bytes": 268
-      },
-      {
-        "path": "vectors/CommitmentType/_meta.json",
-        "sha256": "eab1afc8e7d02391fb749d65cf11fdf2fb29d9caf2c0565475d599c57034a138",
-        "size_bytes": 1377
       },
       {
         "path": "vectors/CommitmentType/invalid/empty-string.json",
@@ -2560,11 +2525,6 @@
         "size_bytes": 4570
       },
       {
-        "path": "vectors/ForgetRecord/_meta.json",
-        "sha256": "daaf7c9a3942d344fa30630bed99ac5fe63cd97ef58a5c7bf8fb1ea52b0461c1",
-        "size_bytes": 9125
-      },
-      {
         "path": "vectors/ForgetRecord/invalid/agent-full-extra-field.json",
         "sha256": "ebbc45ffa9e7e79b67fd5ea66c0c2fd3707bbca8e0d950e3dcfcd9b092b8273a",
         "size_bytes": 259
@@ -2748,11 +2708,6 @@
         "path": "vectors/ForgetRecord/valid/pii-only-minimal.json",
         "sha256": "3db3e01020b73a45edd786e053c25d7de632f59a36db59855ebabb86e9d7d075",
         "size_bytes": 238
-      },
-      {
-        "path": "vectors/Keyring/_meta.json",
-        "sha256": "7f54a5892884db196e8e2ac2df3eb9f067570a9af158e91e424d428e590efae2",
-        "size_bytes": 5351
       },
       {
         "path": "vectors/Keyring/invalid/additional-property.json",
@@ -3935,11 +3890,6 @@
         "size_bytes": 1011
       },
       {
-        "path": "vectors/PolicyDecisionOutcome/_meta.json",
-        "sha256": "c8b537c5401b926e42b56bb78f34dd6d9dedfa00f2e2658ec97edfe581417355",
-        "size_bytes": 1284
-      },
-      {
         "path": "vectors/PolicyDecisionOutcome/invalid/unrecognized-member.json",
         "sha256": "3c28ac21db5b6f46925fa088dba4a11e1747210df623dd3758e284ecf7cbcded",
         "size_bytes": 8
@@ -3970,11 +3920,6 @@
         "size_bytes": 11
       },
       {
-        "path": "vectors/PrivacyScope/_meta.json",
-        "sha256": "64a03007bcb12b098aa5e4cde7f6e525e898cb6478cac41546c8a1bb92736a19",
-        "size_bytes": 1336
-      },
-      {
         "path": "vectors/PrivacyScope/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -4003,11 +3948,6 @@
         "path": "vectors/PrivacyScope/valid/public-literal.json",
         "sha256": "067b06c67c070b4fb653eee01ef3573ea2f8924a6d5d369f1a66a62f1e8449d2",
         "size_bytes": 9
-      },
-      {
-        "path": "vectors/RecallPack/_meta.json",
-        "sha256": "a5cfb74a0d824e95a914bea764f1ac6ae941f32439ff032772e8a9ba597d644c",
-        "size_bytes": 2187
       },
       {
         "path": "vectors/RecallPack/invalid/item-extra-field.json",
@@ -4060,11 +4000,6 @@
         "size_bytes": 658
       },
       {
-        "path": "vectors/RecallReceipt/_meta.json",
-        "sha256": "51e384a3de206ad9a2e955a134427c04a9b76a32f5711d3c3e65b59e35fdd651",
-        "size_bytes": 2195
-      },
-      {
         "path": "vectors/RecallReceipt/invalid/extra-field.json",
         "sha256": "ddd95183e2186487c103cc14217f8af1b3bb8dcb5df5f9e48db7a4f7f268afaa",
         "size_bytes": 822
@@ -4113,11 +4048,6 @@
         "path": "vectors/RecallReceipt/valid/minimal.json",
         "sha256": "225e0fe356b578d091439c3c98e8047407b9507ea4b079540657465d70a1355d",
         "size_bytes": 803
-      },
-      {
-        "path": "vectors/RecallRequest/_meta.json",
-        "sha256": "2cb4a03d6c33679b3919ae5d6469b52ab6c54d9ffd172a4405abbe17e5594fb1",
-        "size_bytes": 2105
       },
       {
         "path": "vectors/RecallRequest/invalid/extra-field.json",
@@ -4170,11 +4100,6 @@
         "size_bytes": 267
       },
       {
-        "path": "vectors/ReceiptDetailLevel/_meta.json",
-        "sha256": "bb49f36156c9fee2aec7c39cfaa601f8aab6f00cdfb157086287d02a94492ca9",
-        "size_bytes": 1117
-      },
-      {
         "path": "vectors/ReceiptDetailLevel/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -4198,11 +4123,6 @@
         "path": "vectors/ReceiptDetailLevel/valid/standard-literal.json",
         "sha256": "38e4b16fcc811b134faad031ab516abbf3349d87f1e6ae4ab17ac04cc5da0213",
         "size_bytes": 11
-      },
-      {
-        "path": "vectors/RiskLevel/_meta.json",
-        "sha256": "73c22a0011530cd3f3853cc85cd68a14ebe5ee2e1e1788282f971333fbd1d7d5",
-        "size_bytes": 1276
       },
       {
         "path": "vectors/RiskLevel/invalid/empty-string.json",
@@ -4335,11 +4255,6 @@
         "size_bytes": 443
       },
       {
-        "path": "vectors/SignatureEnvelope/_meta.json",
-        "sha256": "b7f837ee17302652a08d98152b5cd639a8e42aaa4fe71af356d20c4c83dca7a2",
-        "size_bytes": 4927
-      },
-      {
         "path": "vectors/SignatureEnvelope/invalid/edge-signature-88-rejected.json",
         "sha256": "05851fb02df701217a3366380989c2cc8546ec6afe884f02f2c6608c2418ef52",
         "size_bytes": 422
@@ -4440,11 +4355,6 @@
         "size_bytes": 421
       },
       {
-        "path": "vectors/SignatureType/_meta.json",
-        "sha256": "0527175dc5cac8f4413ef5e318eff89363809e21a49bc6f0fe102e7c3d84f38b",
-        "size_bytes": 1120
-      },
-      {
         "path": "vectors/SignatureType/invalid/unrecognized-member.json",
         "sha256": "cadbe5f0348ed0bc38c5e85a38b033d138b40302a683d46ea81256d152067e4f",
         "size_bytes": 15
@@ -4468,11 +4378,6 @@
         "path": "vectors/SignatureType/valid/dev-signature-literal.json",
         "sha256": "8ee5974b0833be108f71b2b829a686b19ad8f32ecd430013ea9e571b9f3657e2",
         "size_bytes": 16
-      },
-      {
-        "path": "vectors/SignerCompetenceResult/_meta.json",
-        "sha256": "ceea1243a7365fc0a1d544a8ac35b7676c0f5d990bdf98e72340ffb6ce060387",
-        "size_bytes": 5108
       },
       {
         "path": "vectors/SignerCompetenceResult/invalid/additional-property.json",
@@ -4580,11 +4485,6 @@
         "size_bytes": 212
       },
       {
-        "path": "vectors/SignerCompetenceRule/_meta.json",
-        "sha256": "12b835d570425f5c6a976d95869367c332df3251336497cc114848e6670bd437",
-        "size_bytes": 5065
-      },
-      {
         "path": "vectors/SignerCompetenceRule/invalid/empty-action-pattern.json",
         "sha256": "ff859487a8dc736137bb0639cefe9afd4616c39f5bb637c721cc250d72a421bf",
         "size_bytes": 166
@@ -4690,11 +4590,6 @@
         "size_bytes": 197
       },
       {
-        "path": "vectors/SignerEntry/_meta.json",
-        "sha256": "7e9d92e27ea62bc992fcb0ca90b3d94f8e0ef723183fd1879512a56e043298d5",
-        "size_bytes": 4838
-      },
-      {
         "path": "vectors/SignerEntry/invalid/malformed-public-key.json",
         "sha256": "70a07e0b1714633365d76aae812a0c22d503e1b8ea6ffa1e71c7e9ea4f46bf58",
         "size_bytes": 265
@@ -4795,11 +4690,6 @@
         "size_bytes": 314
       },
       {
-        "path": "vectors/SignerStatus/_meta.json",
-        "sha256": "54f6fff8672e2e1d51fe8adba842e37f9fe1c6bc903ab03e8bc23bd55d027de1",
-        "size_bytes": 877
-      },
-      {
         "path": "vectors/SignerStatus/invalid/unrecognized-member.json",
         "sha256": "6006c8517af64611108324ddb24ea0332b6a2114b53e75acf4bf55ae285d66ca",
         "size_bytes": 10
@@ -4818,11 +4708,6 @@
         "path": "vectors/SignerStatus/valid/revoked-literal.json",
         "sha256": "8a47299da73be46126805d2a087231b16569ed5baab4d4d54d55a5e235e52daf",
         "size_bytes": 10
-      },
-      {
-        "path": "vectors/SignerType/_meta.json",
-        "sha256": "ca986cf25f030ab42714d9dbbeda705bf9894b6cb5509e53744e7ff1ac2babc5",
-        "size_bytes": 1871
       },
       {
         "path": "vectors/SignerType/invalid/unrecognized-member.json",
@@ -4935,11 +4820,6 @@
         "size_bytes": 431
       },
       {
-        "path": "vectors/SurfaceContext/_meta.json",
-        "sha256": "d3cab9b3e4357ae1e63c24d95acb468d990c88143fd377a37c651b5dc9c6f019",
-        "size_bytes": 1929
-      },
-      {
         "path": "vectors/SurfaceContext/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -4983,11 +4863,6 @@
         "path": "vectors/SurfaceContext/valid/three-segment-namespace.json",
         "sha256": "fa3c6e951935f56afeb85a78ad05891acf10fbd64d5357b3c59d10cd2530bb14",
         "size_bytes": 24
-      },
-      {
-        "path": "vectors/_canonicalization-edge-cases/_meta.json",
-        "sha256": "1e731d22011ad6536f876949d37a1784cf2c40d142fef8659a874b956f805b67",
-        "size_bytes": 5630
       },
       {
         "path": "vectors/_canonicalization-edge-cases/key-order/forward-alpha.input.json",
@@ -5138,11 +5013,6 @@
         "path": "vectors/_canonicalization-edge-cases/unicode/nfd-vietnamese.input.json",
         "sha256": "f1d35cad0c6fb6644fabe91012c12b689431c859e42b9f12502810d7c20b88e2",
         "size_bytes": 26
-      },
-      {
-        "path": "vectors/_meta/constraint-level-invalids.json",
-        "sha256": "a2243eb7a071625d08689ec09d4474779af18049117cd20379bf79df95eed765",
-        "size_bytes": 1876
       },
       {
         "path": "vectors/agent/lifecycle-payloads.json",

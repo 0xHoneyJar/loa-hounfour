@@ -51,24 +51,35 @@ interface FileChecksum {
 // fixture layout (`vectors/<Schema>/v8.6.0/{valid,invalid,boundary,
 // invalid-cross-field}/*.json`) was uncounted — totals.vectors=233
 // while the actual fixture corpus carries ≥1,200 files. The manifest
-// now walks the entire `vectors/` tree and excludes only `.trace.json`
-// companions + `_meta/` registries that are tooling, not test inputs.
-const dirs = [
-  { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas' },
-  { dir: join(root, 'vectors'), ext: '.json', category: 'vectors' },
-  { dir: join(root, 'constraints'), ext: '.json', category: 'constraints' },
-] as const;
-
-const VECTOR_EXCLUSIONS = (path: string): boolean => {
+// now walks the entire `vectors/` tree and applies a vectors-scoped
+// exclusion filter for non-fixture files (trace diagnostics, tooling
+// registries). PR-A3.12 iter-3 fix (23d6a2a0 + F-001): the exclusion
+// predicate is now per-category (only the `vectors` category gets the
+// filter; schemas/constraints walk unfiltered) and the `_meta/`
+// branch returns true (excluded) per the documented intent — iter-2
+// shipped an inverted predicate that included _meta/ files.
+const isVectorExcluded = (path: string): boolean => {
   // Per-fixture trace companions are diagnostics, not test inputs.
   if (path.endsWith('.trace.json')) return true;
-  // Tooling registries under vectors/_meta/ are framework-internal.
-  if (path.includes(`${join('vectors', '_meta')}${''}`) ||
-      path.includes(`${join('vectors', '_canonicalization-edge-cases')}${''}`)) {
-    return false; // _canonicalization-edge-cases is fixture corpus
-  }
+  // Top-level vectors/_meta/ directory holds tooling registries
+  // (constraint-level-invalids.json, regex-subset.md). Framework-
+  // internal; not part of the fixture corpus consumers verify.
+  if (path.includes(`${'/'}vectors${'/'}_meta${'/'}`)) return true;
+  // Per-schema vectors/<Schema>/_meta.json files carry schema-level
+  // metadata (e.g., `cycle-005-vector-budget`) — also tooling, not
+  // a test fixture. Filename match: `_meta.json` exactly.
+  if (path.endsWith(`${'/'}_meta.json`)) return true;
   return false;
 };
+
+const dirs = [
+  { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas',
+    exclude: undefined as ((p: string) => boolean) | undefined },
+  { dir: join(root, 'vectors'), ext: '.json', category: 'vectors',
+    exclude: isVectorExcluded },
+  { dir: join(root, 'constraints'), ext: '.json', category: 'constraints',
+    exclude: undefined as ((p: string) => boolean) | undefined },
+] as const;
 
 const explicitManifestPaths = [
   join(root, 'schemas', 'index.json'),
@@ -79,8 +90,9 @@ const checksums: Record<string, FileChecksum[]> = {};
 const totals: Record<string, number> = {};
 let totalFiles = 0;
 
-for (const { dir, ext, category } of dirs) {
-  const files = walkDir(dir, ext).filter((f) => !VECTOR_EXCLUSIONS(f));
+for (const { dir, ext, category, exclude } of dirs) {
+  const allFiles = walkDir(dir, ext);
+  const files = exclude ? allFiles.filter((f) => !exclude(f)) : allFiles;
   checksums[category] = files.map((f) => ({
     path: relative(root, f),
     sha256: sha256(f),
