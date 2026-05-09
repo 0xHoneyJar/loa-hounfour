@@ -1,6 +1,18 @@
 # FR-A6 Consumer Integration Audit — v8.5.0 → v8.6.0
 
-> **Status:** framework + dispatched questionnaire; per-consumer answers tracked in operator-side notes (consumer responses do not land in the committed surface — only material drift surfaces here as targeted patches).
+> **Artifact state**: **FRAMEWORK MERGED — GATE NOT YET CLEARED.**
+> Merging this PR ships the audit framework + per-consumer questionnaire
+> + ORD-5 firing-rate query + decision matrix. **It does NOT clear the
+> cycle-005 ship gate** this doc defines. The gate is cleared only
+> when every §5 completion checkbox is ticked AND §5.4's live status
+> table is fully populated. Reviewers approving the framework-merge
+> are NOT approving gate-cleared status; the cycle-005 PR-A3.12 ship
+> tracks the gate-cleared status separately in NOTES.md (operator-
+> private). Per Meta release-readiness precedent, conflating
+> framework-merged with gate-cleared causes cross-team coordination
+> failures — this banner is the explicit separation.
+
+> **Operational status:** framework + dispatched questionnaire; per-consumer answers tracked in operator-side notes (consumer responses do not land in the committed surface — only material drift surfaces here as targeted patches).
 
 | Field | Value |
 |---|---|
@@ -227,11 +239,29 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 2
 fi
 
+# iter-3 mitigation: distinguish "log archive empty" from "log archive
+# present but no validation records observed". Silently treating both
+# as 0/0 is the Knight Capital ambiguous-empty-state pattern — gate
+# decisions cannot ride on it. Resolve glob to a concrete file list
+# first; zero matches is a hard signal requiring acknowledgment.
+shopt -s nullglob 2>/dev/null || true
+# Accept both `path/*.jsonl` glob form and explicit single path.
+RESOLVED_FILES=( $LOG_GLOB )
+if [[ ${#RESOLVED_FILES[@]} -eq 0 ]]; then
+  echo "FATAL: glob '$LOG_GLOB' matched zero files. Either no log archive" >&2
+  echo "       exists for the v8.6.0 RC shadow window, or the glob is wrong." >&2
+  echo "       Provide an explicit path or fix the glob; do not let absence" >&2
+  echo "       of files be misread as 'no firings observed' (Knight Capital" >&2
+  echo "       ambiguous-empty-state pattern)." >&2
+  exit 3
+fi
+
 # Total validation records: each input line that parses as a JSON
 # object with a top-level `schema` field. Non-JSON lines (logger
-# preamble, stack traces, etc.) are silently filtered by jq's
-# `select(...)` after surviving the initial parse.
-TOTAL_VALIDATIONS=$(cat $LOG_GLOB 2>/dev/null \
+# preamble, stack traces, etc.) are filtered by jq's `select(...)`
+# after surviving the initial parse. `cat` over the resolved file
+# list ensures we operate on real bytes, not on an empty stream.
+TOTAL_VALIDATIONS=$(cat "${RESOLVED_FILES[@]}" \
   | jq -c 'select(type == "object" and has("schema"))' \
   | wc -l)
 
@@ -240,13 +270,13 @@ TOTAL_VALIDATIONS=$(cat $LOG_GLOB 2>/dev/null \
 # Counts records, not rule entries — a record with two ORD-5 entries
 # still counts as one firing event, matching the gate's per-validation
 # semantics.
-ORD5_FIRINGS=$(cat $LOG_GLOB 2>/dev/null \
+ORD5_FIRINGS=$(cat "${RESOLVED_FILES[@]}" \
   | jq -c 'select(type == "object" and has("schema") and
            (.unverified_obligations.unverified_rules // [] |
             map(.rule_id == "ORD-5") | any))' \
   | wc -l)
 
-echo "Glob: $LOG_GLOB"
+echo "Glob: $LOG_GLOB (${#RESOLVED_FILES[@]} file(s) matched)"
 echo "Total validation records: $TOTAL_VALIDATIONS"
 echo "ORD-5-firing records: $ORD5_FIRINGS"
 
@@ -276,12 +306,29 @@ Decision gate (per consumer, after sample-size floor):
 
 Aggregate gate (across all responding consumers):
 - ALL responding consumers vote PROMOTE → promotion ships in this PR
-- ANY responding consumer votes BLOCK → promotion blocked; vocabulary
-  expansion required before re-attempting in v8.7.0
-- MIXED vote (some PROMOTE, some DEFER, no BLOCK) → defer to v8.7.0
+- BLOCK quorum (≥2 distinct consumers vote BLOCK independently) →
+  promotion blocked; vocabulary expansion required before re-attempting
+  in v8.7.0
+- BLOCK singleton (exactly 1 consumer votes BLOCK; others PROMOTE
+  or DEFER) → escalate to maintainer review, NOT auto-block. Idiosyncratic
+  consumer traffic (e.g., synthetic test load, atypical capability
+  scope) should not unilaterally veto a release. The maintainer
+  triages: confirms the BLOCK is grounded in real consumer traffic
+  (not test artifacts) and either upholds the BLOCK (vocabulary
+  expansion required) or downgrades to DEFER (single-consumer signal
+  insufficient for promotion but not for blockade). Reasoning logged
+  in NOTES.md operator-private notes.
+- MIXED vote (some PROMOTE, some DEFER, no BLOCK quorum) → defer to v8.7.0
 - ALL responding consumers INSUFFICIENT_DATA → ship the audit framework
   only; promotion deferred to v8.7.0 with a "shadow window inadequate
   on first pass" entry
+
+Appeal path: a consumer voting BLOCK (singleton or quorum) can be
+appealed by the maintainer or another consumer producing evidence
+that the firing was driven by atypical traffic (e.g., capability-scope
+vocabulary used in a test harness rather than in production). Appeal
+outcomes ship as a footnote in the operator-private NOTES.md log;
+the public audit doc records only the final aggregate vote.
 ```
 
 ### Q8. v8.6.0 schema adoption intent
