@@ -69,6 +69,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prepack": "tsx scripts/prepack-clean.ts",
     "prepublishOnly": "tsc",
     "schema:generate": "tsx scripts/generate-schemas.ts",
     "schema:check": "tsx scripts/check-schemas.ts",
