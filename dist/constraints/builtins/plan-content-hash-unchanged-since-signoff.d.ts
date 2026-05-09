@@ -61,10 +61,13 @@ export interface PlanSignoffLedgerEntry {
     signoff_id: string;
     /**
      * sha256-prefixed hash of the plan content the signoff binds to
-     * (matches the schema's `^sha256:[A-Fa-f0-9]{64}$` pattern; case
-     * comparison is exact — consumers MUST normalize case before
-     * inserting into the ledger if they want case-insensitive
-     * matching).
+     * (matches the schema's `^sha256:[A-Fa-f0-9]{64}$` pattern). The
+     * builtin compares case-insensitively (lowercase-normalized on
+     * both sides) per the iter-1 F-002 fix: SHA256_HEX_PATTERN admits
+     * mixed-case for v8.5.0 SignatureEnvelope-compat reasons, so
+     * exact-string compare would yield mutually-unmatchable
+     * semantically-identical hashes. The canonical wire form remains
+     * lowercase; consumers may store entries in either case.
      */
     plan_content_hash: string;
     /**

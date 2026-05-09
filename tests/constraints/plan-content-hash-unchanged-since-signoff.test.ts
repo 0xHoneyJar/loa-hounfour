@@ -89,13 +89,56 @@ describe('evaluatePlanContentHashUnchangedSinceSignoff (standalone)', () => {
       expect(result.manifestEntry?.evaluation_note).toContain('0 entries');
     });
 
-    it('exact-string match (no case folding) — uppercase hash misses lowercase entry', () => {
-      const upperHash = HASH_A.toUpperCase().replace('SHA256:', 'sha256:');
+  });
+
+  describe('case-insensitive matching (iter-1 F-002)', () => {
+    it('mixed-case wire payload matches lowercase ledger entry', () => {
+      const mixedHash = 'sha256:AbCdEf0123456789aBcDeF0123456789AbCdEf0123456789aBcDeF0123456789';
+      const lowerHash = mixedHash.toLowerCase();
       const result = evaluatePlanContentHashUnchangedSinceSignoff(
-        upperHash,
-        snapshot([entry({ plan_content_hash: HASH_A })]),
+        mixedHash,
+        snapshot([entry({ plan_content_hash: lowerHash })]),
+      );
+      expect(result.result).toBe('pass');
+      expect(result.manifestEntry?.reason).toBe('signoff_ttl_observed');
+    });
+
+    it('lowercase wire payload matches mixed-case ledger entry', () => {
+      const mixedHash = 'sha256:AbCdEf0123456789aBcDeF0123456789AbCdEf0123456789aBcDeF0123456789';
+      const lowerHash = mixedHash.toLowerCase();
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        lowerHash,
+        snapshot([entry({ plan_content_hash: mixedHash })]),
+      );
+      expect(result.result).toBe('pass');
+    });
+  });
+
+  describe('malformed ts_emit guard (iter-1 F-003)', () => {
+    it('returns fail with library-evaluator entry when matched ts_emit is unparseable', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([entry({ ts_emit: 'not-a-real-timestamp' })]),
       );
       expect(result.result).toBe('fail');
+      expect(result.manifestEntry?.evaluator).toBe('library');
+      expect(result.manifestEntry?.evaluation_note).toContain(
+        'unparseable ts_emit',
+      );
+    });
+
+    it('does not surface ttl_until_ms=NaN as a computed field on fail path', () => {
+      const result = evaluatePlanContentHashUnchangedSinceSignoff(
+        HASH_A,
+        snapshot([entry({ ts_emit: 'gibberish' })]),
+      );
+      // The fail-path evaluation_note may mention "NaN" as documentation
+      // (explaining what the library guards against), but it MUST NOT
+      // emit a computed `ttl_until_ms=NaN` value field — the F-003 fix
+      // surfaces a FAIL before the TTL math runs.
+      expect(result.manifestEntry?.evaluation_note).not.toContain(
+        'ttl_until_ms=NaN',
+      );
     });
   });
 

@@ -49,7 +49,7 @@
       "message": "prev_envelope_hash MUST link this amendment to its predecessor's canonical-JSON sha256 hash; the chain MUST anchor at the documented genesis sentinel (FR-C3).",
       "fields": ["chain_refs"],
       "evaluator": "runtime-deferred",
-      "evaluation_note": "FR-C3 chain validity, scoped to envelope-chain continuity (NOT signoff-lineage; PlanAmendmentRequest does NOT carry a parent_signoff_hash chain ref because amendment-to-signoff lineage is captured by parent_signoff_id at the top level instead). The schema's `'x-chain-bearing': true` flag opts into the FR-A4 fail-closed contract.",
+      "evaluation_note": "FR-C3 chain validity, scoped to envelope-chain continuity (NOT signoff-lineage; PlanAmendmentRequest does NOT carry a parent_signoff_hash chain ref because amendment-to-signoff lineage is captured by parent_signoff_id at the top level instead). The schema's `'x-chain-bearing': true` flag opts into the FR-A4 fail-closed contract. **FR-A4 design-disposition (same as PSE-3 / PR-A3.5 iter-4 precedent):** validate() under failClosed:true emits the chain-bearing manifest entry but defers actual is_valid_dag execution to `npm run check:constraints` per the cycle-005 design (MIGRATION.md §FR-A4 / validators/index.ts:1497-1505). Presence-vs-validation distinction is intentional; full chain validation requires the multi-record standalone evaluator.",
       "type_signature": {
         "chain_refs": "object"
       }

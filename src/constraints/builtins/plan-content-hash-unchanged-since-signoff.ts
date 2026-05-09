@@ -63,10 +63,13 @@ export interface PlanSignoffLedgerEntry {
   signoff_id: string;
   /**
    * sha256-prefixed hash of the plan content the signoff binds to
-   * (matches the schema's `^sha256:[A-Fa-f0-9]{64}$` pattern; case
-   * comparison is exact — consumers MUST normalize case before
-   * inserting into the ledger if they want case-insensitive
-   * matching).
+   * (matches the schema's `^sha256:[A-Fa-f0-9]{64}$` pattern). The
+   * builtin compares case-insensitively (lowercase-normalized on
+   * both sides) per the iter-1 F-002 fix: SHA256_HEX_PATTERN admits
+   * mixed-case for v8.5.0 SignatureEnvelope-compat reasons, so
+   * exact-string compare would yield mutually-unmatchable
+   * semantically-identical hashes. The canonical wire form remains
+   * lowercase; consumers may store entries in either case.
    */
   plan_content_hash: string;
   /**
@@ -208,8 +211,18 @@ export function evaluatePlanContentHashUnchangedSinceSignoff(
     };
   }
 
+  // Iter-1 F-002 mitigation: SHA256_HEX_PATTERN admits mixed-case
+  // (`[A-Fa-f0-9]`) per v8.5.0 SignatureEnvelope precedent, so the
+  // schema-validation step alone doesn't guarantee comparable case.
+  // Normalize both sides to lowercase before comparison so a
+  // mixed-case wire payload matches a lowercase ledger entry (and
+  // vice-versa). The colon-prefix `sha256:` is ASCII so .toLowerCase()
+  // is safe (no Unicode-aware case folding needed). The schema's
+  // canonical form remains lowercase per the docstring; this fix
+  // closes the under-specified comparison surface, not the schema.
+  const planHashLc = planHash.toLowerCase();
   const matching = ledgerSnapshot.signoffs.find(
-    (s) => s.plan_content_hash === planHash,
+    (s) => s.plan_content_hash.toLowerCase() === planHashLc,
   );
   if (matching === undefined) {
     return {
@@ -243,7 +256,46 @@ export function evaluatePlanContentHashUnchangedSinceSignoff(
   // for using BigInt arithmetic on their side. We compute in Number
   // here because Date.parse returns Number anyway and the resulting
   // ttl_until_ms is a millisecond timestamp, not a TTL count.
+  // Iter-1 F-003-ttl-nan mitigation: Date.parse returns NaN on
+  // malformed ISO 8601 strings, which then silently propagates to
+  // ttl_until_ms=NaN in the manifest's evaluation_note — useless to
+  // the consumer's policy code. Apply the same trust-boundary
+  // discipline as the signoffs Array.isArray check: surface a
+  // structured FAIL with a library-evaluator manifest entry rather
+  // than letting the malformed input bleed into the operator surface.
   const ts_emit_ms = Date.parse(matching.ts_emit);
+  if (!Number.isFinite(ts_emit_ms)) {
+    return {
+      result: 'fail',
+      manifestEntry: {
+        rule_id: PLAN_CONTENT_HASH_RULE_ID,
+        rule:
+          `plan_content_hash_unchanged_since_signoff: ` +
+          `matching ledger entry has malformed ts_emit ` +
+          `"${matching.ts_emit}" (Date.parse returned NaN).`,
+        evaluator: 'library',
+        evaluation_note:
+          'plan_content_hash_unchanged_since_signoff: the matching ' +
+          'signoff ledger entry carries an unparseable ts_emit ' +
+          `(value="${matching.ts_emit}"). The library cannot ` +
+          'compute a deterministic absolute expiry epoch when ' +
+          'Date.parse fails. Consumer-supplied state crosses a trust ' +
+          'boundary; malformed timestamps surface a structured FAIL ' +
+          'rather than letting an indeterminate parse leak into the ' +
+          'pass-path manifest as a useless TTL value (iter-1 F-003).',
+        consumer_acknowledgment_required: true,
+      },
+    };
+  }
+  // Iter-1 F-002-precision note: Number(bigint) coercion is
+  // deliberately bounded by the consumer-side AT-8 ceiling
+  // (2^53-1, Number.MAX_SAFE_INTEGER). Beyond that ceiling,
+  // millisecond arithmetic via Number is no longer exact; consumers
+  // who set ttl_seconds_at_emit close to the 2^53-1 schema ceiling
+  // SHOULD apply BigInt-arithmetic on their side and re-derive the
+  // expiry. The schema-level upper bound is enforced consumer-side
+  // per the AT-8 acknowledged tradeoff (cross-language JSON
+  // portability outranks per-consumer parsing convenience).
   const ttl_until_ms = ts_emit_ms + Number(matching.ttl_seconds_at_emit) * 1000;
   return {
     result: 'pass',
