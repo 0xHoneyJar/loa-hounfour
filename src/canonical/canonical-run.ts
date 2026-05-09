@@ -142,9 +142,14 @@ export const CanonicalRunSchema = Type.Object(
       pattern: ISO8601_UTC_PATTERN,
       description:
         'ISO 8601 UTC timestamp at which this canonical-run ' +
-        'definition was authored (Z suffix). Provides a strict-' +
-        'monotonic ordering across versions of the same ' +
-        '(epic_kind, canonical_run_id) for audit playback.',
+        'definition was authored (Z suffix). Consumers SHOULD treat ' +
+        'ts_authored as monotonic-nondecreasing across successive ' +
+        '(epic_kind, canonical_run_id) versions — the obligation owner ' +
+        'is the consumer-side registry, NOT the schema. The schema ' +
+        'admits any well-formed UTC timestamp; registry implementations ' +
+        'wanting strict monotonic ordering enforce it at insert time ' +
+        'per ADR-010 (cf. EpicCheckpoint EC-3 ts ordering as a ' +
+        'companion runtime-deferred contract).',
     }),
   },
   {

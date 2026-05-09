@@ -1,0 +1,28 @@
+{
+  "_comment": "CR-1 fail: ordered_index sequence [1, 2, 3] is 1-based (missing 0). Structurally valid; validate() returns valid:false with a CR-1 gap error citing missing index 0.",
+  "canonical_run_id": "canonical-run-cr1-one-based",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-a",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-b",
+      "phase_kind": "implement",
+      "required_gates": [],
+      "ordered_index": 2
+    },
+    {
+      "phase_id": "phase-c",
+      "phase_kind": "ship",
+      "required_gates": [],
+      "ordered_index": 3
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}

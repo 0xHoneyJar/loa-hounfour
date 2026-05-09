@@ -1,0 +1,22 @@
+{
+  "_comment": "CR-1 fail: ordered_index 0 appears twice. Structurally valid (Value.Check passes); validate() returns valid:false with a CR-1 duplicate error.",
+  "canonical_run_id": "canonical-run-cr1-duplicate",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-a",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-b",
+      "phase_kind": "implement",
+      "required_gates": [],
+      "ordered_index": 0
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}

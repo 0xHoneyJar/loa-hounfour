@@ -321,6 +321,7 @@ describe('version bump', () => {
     // PlanAmendmentRequest → 251.
     // PR-A3.7 (FR-A1) adds 3 more: ChallengeType, ChallengeRequestedEffect,
     // Challenge → 254.
-    expect(index.schemas).toHaveLength(254);
+    // PR-A3.8 (FR-B1) adds 3 more: PhaseKind, RequiredPhase, CanonicalRun → 257.
+    expect(index.schemas).toHaveLength(257);
   });
 });

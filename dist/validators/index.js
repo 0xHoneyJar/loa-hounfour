@@ -1044,6 +1044,16 @@ registerCrossFieldValidator('CanonicalRun', (data) => {
     }
     // Contiguous + 0-based check: the set of ordered_index values MUST
     // be exactly {0, 1, ..., N-1} where N = phases.length.
+    //
+    // Progressive-disclosure UX choice (iter-1 F1 disposition): when
+    // duplicates are present `seenIndices.size < phases.length`, so this
+    // branch is skipped and only the duplicate error fires. A producer
+    // fixing the duplicate then re-submits to discover any remaining
+    // contiguity gap. Trade-off: surfaces one error class per pass
+    // (cleaner output, more iteration cycles) instead of all classes at
+    // once (more output, fewer cycles). The cycle-005 cycle pattern
+    // matches per-element shape validators in PR-A3.6 (FR-C4
+    // plan-content-hash builtin) — single-class error reporting per pass.
     if (seenIndices.size === phases.length) {
         for (let i = 0; i < phases.length; i += 1) {
             if (!seenIndices.has(i)) {
