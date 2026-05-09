@@ -23,8 +23,19 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ChallengeSchema } from '../../src/governance/challenge.js';
+import {
+  ChallengeTypeSchema,
+  ChallengeRequestedEffectSchema,
+} from '../../src/governance/challenge-types.js';
 import { validate } from '../../src/validators/index.js';
 import '../../src/validators/index.js';
+
+// F-006 mitigation: derive expected fixture cardinality from the enum
+// schemas themselves rather than hardcoding 54. When the vocabularies
+// widen (strict-additive per FR-A1), the assertion self-updates.
+const EXPECTED_VALID_COUNT =
+  (ChallengeTypeSchema.anyOf?.length ?? 0) *
+  (ChallengeRequestedEffectSchema.anyOf?.length ?? 0);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -57,12 +68,17 @@ describe('Challenge vector fixtures (FR-A1 / PR-A3.7)', () => {
   const validFixtures = listFixtures('valid');
   const invalidFixtures = listFixtures('invalid');
 
-  it('publishes 54 valid fixtures — 9 challenge_type × 6 requested_effect', () => {
-    expect(validFixtures.length).toBe(54);
+  it('publishes 9 × 6 = 54 valid fixtures (full enum cross-product)', () => {
+    expect(EXPECTED_VALID_COUNT).toBe(54);
+    expect(validFixtures.length).toBe(EXPECTED_VALID_COUNT);
   });
 
-  it('publishes 6 invalid fixtures — one per missing required field', () => {
-    expect(invalidFixtures.length).toBe(6);
+  it('publishes invalid fixtures across required-field + format-level negatives', () => {
+    // 6 missing-required-field + 14 format-level (iter-1 F-003 mitigation
+    // covering enum-out-of-vocabulary, ts-non-utc, signature alphabet/length,
+    // evidence_hashes shape, additionalProperties, rationale bounds,
+    // discriminator literals).
+    expect(invalidFixtures.length).toBeGreaterThanOrEqual(20);
   });
 
   it('valid/ contains all 54 (challenge_type, requested_effect) pairings', () => {

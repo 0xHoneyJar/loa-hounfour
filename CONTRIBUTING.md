@@ -187,6 +187,27 @@ When adding a new schema:
 | Schema Check | `pnpm run schema:check` | Validate generated schemas for correctness |
 | Semver Check | `pnpm run semver:check` | Verify no unintended breaking changes in the public API |
 
+### Build artifacts (`dist/`) policy
+
+The compiled `dist/` tree is **committed alongside `src/`**. This is a deliberate
+deviation from the Bazel-style "no build artifacts in VCS" discipline; the
+constraint is downstream consumer ergonomics: this package ships via GitHub
+Packages and consumers install directly from the registry where the published
+tarball includes `dist/`. Committing the tree means:
+
+- Reviewers can audit the actual JavaScript that ships, not just its source.
+- Consumers pinning a git SHA (rather than a published version) still get
+  working code without running a TypeScript toolchain locally.
+- The `tsc` output is part of the diff a reviewer reads, so a silent change
+  to emitted JS surfaces in PR review.
+
+The mitigation against `dist/` drifting from `src/` is the regular-cadence
+`npm run build` invocation that every PR's author runs locally before pushing
+(plus the per-PR test suite that imports `src/` directly, surfacing any
+type-level drift). A future hardening would be a CI gate running `tsc --noEmit`
+followed by `git diff --exit-code dist/` to fail PRs where the two disagree;
+that gate is tracked as a hardening item but not blocking on this convention.
+
 ## Versioning
 
 This project follows **strict semver**:

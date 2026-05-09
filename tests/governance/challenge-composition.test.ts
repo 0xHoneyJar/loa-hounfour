@@ -141,10 +141,19 @@ describe('Challenge ↔ Assertion composition (FR-A1 / PR-A3.7)', () => {
     expect(result.valid).toBe(true);
     if (result.valid !== true) return;
     const manifest = result.unverified_obligations;
-    if (manifest === undefined) return;
-    const reasons = manifest.unverified_rules.map((r) => r.reason);
-    // Manifest may carry crypto_deferred (FR-A1 x-crypto-bearing) but MUST
-    // NOT carry any manifest-entry shaped like a missing-target lookup.
+    // iter-1 mitigation: ChallengeSchema is x-crypto-bearing, so the
+    // deferred path MUST emit a manifest. A silent undefined here would
+    // be a green-light placebo (the very failure mode this test is
+    // designed to catch).
+    expect(
+      manifest,
+      'manifest must be emitted on the acceptDeferred path for an x-crypto-bearing schema',
+    ).toBeDefined();
+    const reasons = manifest!.unverified_rules.map((r) => r.reason);
+    // Manifest carries crypto_deferred (FR-A1 x-crypto-bearing) but MUST
+    // NOT carry any manifest-entry shaped like a missing-target lookup —
+    // assertion-store lookup is consumer-state per CHL-2 / ADR-010.
+    expect(reasons).toContain('crypto_deferred');
     for (const reason of reasons) {
       expect(reason).not.toContain('missing_target');
       expect(reason).not.toContain('target_assertion');

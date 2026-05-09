@@ -1,0 +1,16 @@
+{
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-998",
+  "ts": "2026-05-09T12:00:00+00:00",
+  "challenger_id": "challenger-998",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000998",
+  "challenge_type": "factual_dispute",
+  "requested_effect": "annotate_only",
+  "rationale": "Format-level negative fixture.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "_comment": "ts uses non-UTC offset -- ISO8601_UTC_PATTERN requires Z suffix only."
+}

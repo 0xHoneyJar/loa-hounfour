@@ -126,9 +126,15 @@ export const ChallengeSchema = Type.Object(
     signature: Type.String({
       pattern: ED25519_SIGNATURE_PATTERN,
       description:
-        'Ed25519 signature (`ed25519:<86-base64url>`) over the ' +
-        'RFC 8785 canonical JSON of all-other-fields (the entire ' +
-        'envelope minus this `signature` field). Verification is ' +
+        'Ed25519 signature over the RFC 8785 canonical JSON of ' +
+        'all-other-fields (the entire envelope minus this ' +
+        '`signature` field). Wire format: `ed25519:` prefix followed ' +
+        'by exactly 86 unpadded base64url characters (the ' +
+        '64-byte signature encoded with the URL-and-filename-safe ' +
+        'alphabet `[A-Za-z0-9_-]`, no `+/=` padding). Producers ' +
+        'using the standard base64 alphabet or trailing `=` padding ' +
+        'will fail the schema regex; encode with the unpadded ' +
+        'base64url variant (RFC 4648 §5). Verification is ' +
         'consumer-side per CHL-1; the challenger\'s public key ' +
         'resolves through the consumer\'s keyring keyed by ' +
         '`challenger_id`.',

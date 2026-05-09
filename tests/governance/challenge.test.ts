@@ -147,4 +147,26 @@ describe('ChallengeSchema (FR-A1)', () => {
     const bad = { ...validPayload, ts: '2026-05-09T12:00:00+00:00' };
     expect(Value.Check(ChallengeSchema, bad)).toBe(false);
   });
+
+  // iter-1 F5 mitigation: discriminator fields are load-bearing — pin
+  // explicit cross-type negative tests so a refactor that silently weakens
+  // the literal schemas surfaces in CI.
+  it('rejects payloads with the wrong envelope_kind discriminator', () => {
+    const bad = { ...validPayload, envelope_kind: 'plan_signoff' };
+    expect(Value.Check(ChallengeSchema, bad)).toBe(false);
+  });
+
+  it('rejects payloads with the wrong contract_version literal', () => {
+    const bad = { ...validPayload, contract_version: '8.5.0' };
+    expect(Value.Check(ChallengeSchema, bad)).toBe(false);
+  });
+
+  // iter-1 F-002 mitigation: CHL-4 documents that duplicate evidence_hashes
+  // entries are admissible at the schema layer (consumer-side de-dup is
+  // policy). Pin the contract so a future "fix" doesn't silently break it.
+  it('admits duplicate evidence_hashes entries (CHL-4 schema-admits-duplicates contract)', () => {
+    const dup = 'sha256:' + 'a'.repeat(64);
+    const ok = { ...validPayload, evidence_hashes: [dup, dup, dup] };
+    expect(Value.Check(ChallengeSchema, ok)).toBe(true);
+  });
 });
