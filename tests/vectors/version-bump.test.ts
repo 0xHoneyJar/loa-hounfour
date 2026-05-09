@@ -316,6 +316,9 @@ describe('version bump', () => {
     // Estate (5: ForgetRecord, CommitmentType, CommitmentRoot, AgentEstateStatus,
     // AgentEstate) + Assertion family (5: PrivacyScope, RiskLevel, AssertionStatus,
     // AssertionClass, Assertion) → 234.
-    expect(index.schemas).toHaveLength(245);
+    // PR-A3.6 (FR-B9 + FR-B10) adds 6 more: SignoffActorClass, SignoffTier,
+    // PlanSignoffEnvelope, AmendmentSeverity, AmendmentTriggerClass,
+    // PlanAmendmentRequest → 251.
+    expect(index.schemas).toHaveLength(251);
   });
 });

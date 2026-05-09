@@ -50,6 +50,7 @@ export type UnverifiedObligationReason =
   | 'crypto_deferred'
   | 'integrity_deferred'
   | 'key_version_regression'
+  | 'ledger_context_deferred'
   | 'nonce_context_deferred'
   | 'nonce_replay_detected'
   | 'pattern_matching'
@@ -57,6 +58,8 @@ export type UnverifiedObligationReason =
   | 'sequence_context_deferred'
   | 'sequence_monotonic_violation'
   | 'signer_key_id_mismatch'
+  | 'signoff_plan_hash_mismatch'
+  | 'signoff_ttl_observed'
   | 'utf8_byte_length_exceeded'
   | 'vocabulary_drift';
 
@@ -136,6 +139,29 @@ export interface UnverifiedObligationEntry {
    *   `cluster_id` does not match the cluster declared by the supplied
    *   state (CT-08: this check fires BEFORE any state-map lookup so a
    *   cross-cluster lookup cannot succeed silently).
+   *
+   * The following 3 members were added in PR-A3.6 (v8.6.0, FR-C4) for
+   * the `plan_content_hash_unchanged_since_signoff` builtin. Unlike the
+   * FR-C1/C2/C3 builtins where the manifest entry only fires on
+   * deferral or violation, FR-C4 also emits a manifest entry on the
+   * PASS path (NA-3 / RC2 SKP-006) so consumers cannot accidentally
+   * validate plan-hash without seeing the TTL inputs the signoff
+   * ledger carries.
+   *
+   * `ledger_context_deferred` — FR-C4: the consumer did not supply a
+   *   signoff ledger snapshot via validate() options; the obligation
+   *   is surfaced for consumer-side evaluation (mirrors the
+   *   `chain_context_provided` deferral pattern).
+   * `signoff_plan_hash_mismatch` — FR-C4: the supplied snapshot exists
+   *   but does not contain a signoff matching the validating record's
+   *   `plan_content_hash`. The plan content has changed since signoff
+   *   or the signoff was never recorded.
+   * `signoff_ttl_observed` — FR-C4: the validating `plan_content_hash`
+   *   matched a signoff in the ledger; the manifest entry surfaces
+   *   `ts_emit + ttl_until_ms` so the consumer can evaluate signoff
+   *   expiry deliberately (NA-3). Hounfour does NOT decide what
+   *   "expired" means (ADR-010); the entry fires on hash-match
+   *   regardless of age.
    */
   reason?: UnverifiedObligationReason;
   /** Human explanation of the consumer obligation. */

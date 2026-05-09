@@ -31,6 +31,7 @@ import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
 import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
 import { evaluatePercentilesMonotonicNondecreasing } from './builtins/percentiles-monotonic-nondecreasing.js';
 import { evaluateUtf8ByteLengthMax } from './builtins/utf8-byte-length-max.js';
+import { evaluatePlanContentHashUnchangedSinceSignoff } from './builtins/plan-content-hash-unchanged-since-signoff.js';
 
 export const MAX_EXPRESSION_DEPTH = 32;
 
@@ -79,6 +80,16 @@ export interface EvaluationContext {
    * @since v8.6.0 — FR-C3 (PR-A3.3)
    */
   chain_ledger?: import('./builtins/chain-validator-prev-hash.js').ChainLedgerState;
+  /**
+   * Plan-signoff ledger snapshot for the FR-C4
+   * `plan_content_hash_unchanged_since_signoff` builtin. The library
+   * checks `plan_content_hash` membership and surfaces TTL inputs
+   * via the manifest; consumer policy decides what "expired" means
+   * (ADR-010). When unset, the obligation defers to consumer-side
+   * evaluation via `LEDGER_CONTEXT_DEFERRED`.
+   * @since v8.6.0 — FR-C4 (PR-A3.6)
+   */
+  plan_signoff_ledger?: import('./builtins/plan-content-hash-unchanged-since-signoff.js').PlanSignoffLedgerSnapshot;
 }
 
 /**
@@ -243,6 +254,8 @@ class Parser {
       ['percentiles_monotonic_nondecreasing', () => this.parsePercentilesMonotonicNondecreasing()],
       // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
       ['utf8_byte_length_max', () => this.parseUtf8ByteLengthMax()],
+      // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
+      ['plan_content_hash_unchanged_since_signoff', () => this.parsePlanContentHashUnchangedSinceSignoff()],
     ]);
   }
 
@@ -1184,6 +1197,39 @@ class Parser {
     // expression) surfaces UTF8_BYTE_LENGTH_INVALID_INPUT cleanly.
     const result = evaluateUtf8ByteLengthMax(value, byteCap);
     return result.valid;
+  }
+
+  /**
+   * Parse `plan_content_hash_unchanged_since_signoff(plan_content_hash)`.
+   *
+   * State-bearing builtin (v8.6.0, FR-C4 / PR-A3.6): asserts the
+   * validating record's `plan_content_hash` is present in the
+   * consumer-supplied signoff ledger snapshot. Reads the snapshot
+   * from `EvaluationContext.plan_signoff_ledger`. The DSL wrapper
+   * collapses the three-state result (`pass`/`fail`/`deferred`) to
+   * a boolean: `pass` and `deferred` map to `true`; `fail` maps to
+   * `false`. The structured manifest entry — including the NA-3
+   * `SIGNOFF_TTL_OBSERVED` payload on the pass path — is reachable
+   * via the standalone evaluator at
+   * `src/constraints/builtins/plan-content-hash-unchanged-since-signoff.ts`.
+   *
+   * @since v8.6.0 — FR-C4 (PR-A3.6)
+   */
+  private parsePlanContentHashUnchangedSinceSignoff(): boolean {
+    this.advance(); // consume 'plan_content_hash_unchanged_since_signoff'
+    this.expect('paren', '(');
+    const planHash = this.parseExpr();
+    this.expect('paren', ')');
+
+    const evaluation = evaluatePlanContentHashUnchangedSinceSignoff(
+      planHash,
+      this.context?.plan_signoff_ledger,
+    );
+    // Vacuous-pass on deferral matches FR-C1/C2/C3 conventions: the
+    // boolean DSL surface returns true when the consumer hasn't
+    // supplied state, deferring the substantive check to the
+    // manifest-entry surface (consumer-side acknowledgment).
+    return evaluation.result !== 'fail';
   }
 
   /**
@@ -2195,6 +2241,8 @@ export const EVALUATOR_BUILTINS = [
   'percentiles_monotonic_nondecreasing',
   // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
   'utf8_byte_length_max',
+  // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
+  'plan_content_hash_unchanged_since_signoff',
 ] as const;
 
 export type EvaluatorBuiltin = typeof EVALUATOR_BUILTINS[number];

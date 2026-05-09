@@ -1,0 +1,35 @@
+{
+  "_comment": "PlanAmendmentRequest with ambiguity trigger and three recommended paths exercising the multi-path shape.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T15:00:00Z",
+  "cluster_id": "cluster-004",
+  "actor_id": "actor-004",
+  "parent_signoff_id": "signoff-004",
+  "parent_plan_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "proposed_delta": "Plan section 4.2 says 'retry up to 3 times'; ambiguous whether this counts attempts or retries.",
+  "severity": "minor",
+  "trigger_class": "ambiguity",
+  "rationale": "Two reasonable readings yield 3 vs 4 wall-clock attempts; clarify before next ramp.",
+  "recommended_paths": [
+    {
+      "id": "path-A",
+      "summary": "Read as 3 retries (4 attempts total).",
+      "tradeoff": "More tolerant; higher cost on terminal failure."
+    },
+    {
+      "id": "path-B",
+      "summary": "Read as 3 attempts total.",
+      "tradeoff": "Stricter; faster failure escalation."
+    },
+    {
+      "id": "path-C",
+      "summary": "Make the count parametric; future plans state attempts vs retries explicitly.",
+      "tradeoff": "Doesn't resolve this run; resolves the whole class."
+    }
+  ],
+  "jury_recommendation": "Path-C; lock the parameterization rule for future plans.",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "_comment": "extra root property MUST be rejected (additionalProperties: false).",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "actor_id": "actor-001",
+  "parent_signoff_id": "signoff-001",
+  "parent_plan_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "proposed_delta": "Should fail.",
+  "severity": "minor",
+  "trigger_class": "schema_drift",
+  "rationale": "Should fail.",
+  "recommended_paths": [
+    { "id": "p1", "summary": "noop", "tradeoff": "noop" }
+  ],
+  "jury_recommendation": null,
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "rogue_field": "should be rejected"
+}

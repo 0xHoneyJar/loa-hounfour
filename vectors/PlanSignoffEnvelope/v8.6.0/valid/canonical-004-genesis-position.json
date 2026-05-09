@@ -1,0 +1,19 @@
+{
+  "_comment": "PlanSignoffEnvelope: genesis-position signoff (parent_signoff_hash = null) — first signoff in lineage.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-01T00:00:00Z",
+  "cluster_id": "cluster-genesis",
+  "plan_content_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "signoff_actor_class": "single_operator",
+  "signoff_actor_id": "operator-001",
+  "tier": "T2",
+  "reason": "Bootstrap signoff for new cluster.",
+  "ttl_seconds_at_emit": "604800",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "parent_signoff_hash": null
+  },
+  "cumulative_drift_pct": 0,
+  "signature": "ed25519:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+}

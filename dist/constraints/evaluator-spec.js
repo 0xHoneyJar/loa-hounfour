@@ -1457,5 +1457,312 @@ export const EVALUATOR_BUILTIN_SPECS = new Map([
                 'extract_path is dot-only — bracket-syntax `[N]` returns undefined and is treated as no-ref',
             ],
         }],
+    // State-bearing protocol builtins (v8.6.0, PR-A3.3 — FR-C1/C2/C3)
+    ['nonce_unique_per_signer_window', {
+            name: 'nonce_unique_per_signer_window',
+            signature: 'nonce_unique_per_signer_window(record, signer_id_field, nonce_field) → boolean',
+            description: 'State-bearing replay-detection check. Returns true when the (signer_id, nonce) pair on the record has not been observed within the per-signer sliding window supplied via EvaluationContext.nonce_window. When the window is unset, the standalone evaluator returns NONCE_CONTEXT_DEFERRED and the DSL wrapper passes (true) — consumers wanting the diagnostic surface should call the standalone evaluateNonceUniquePerSignerWindow().',
+            arguments: [
+                { name: 'record', type: 'object', description: 'The single record under validation. Must contain string-typed signer_id_field and nonce_field values.' },
+                { name: 'signer_id_field', type: 'string', description: 'Field name on the record carrying the signer identifier.' },
+                { name: 'nonce_field', type: 'string', description: 'Field name on the record carrying the nonce value.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'No nonce_window state supplied → defers to consumer (returns true)',
+                    context: { record: { signer_id: 'agent-a', nonce: 'n1' } },
+                    expression: "nonce_unique_per_signer_window(record, 'signer_id', 'nonce')",
+                    expected: true,
+                },
+                {
+                    description: 'Non-object record returns false (NONCE_INVALID_INPUT diagnostic)',
+                    context: { record: null },
+                    expression: "nonce_unique_per_signer_window(record, 'signer_id', 'nonce')",
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'Non-object record returns false (NONCE_INVALID_INPUT)',
+                'Missing signer_id_field or nonce_field returns false (NONCE_INVALID_INPUT)',
+                'nonce_window state absent returns true with NONCE_CONTEXT_DEFERRED diagnostic (consumer-deferred)',
+                'Nonce found in signer\'s set returns false (NONCE_REPLAY_DETECTED)',
+                'Signer not in per_signer map → fresh nonce, returns true',
+            ],
+        }],
+    ['sequence_monotonic_per_cluster', {
+            name: 'sequence_monotonic_per_cluster',
+            signature: 'sequence_monotonic_per_cluster(record, cluster_id_field, signer_id_field, sequence_field, key_version_field) → boolean',
+            description: 'State-bearing per-cluster sequence + key-version monotonicity check. CT-08 cluster-id mismatch fires BEFORE any state lookup; CT-03 string→BigInt parsing uses a numeric-regex pre-validator so BigInt() never throws. Reads sequence_state from EvaluationContext.',
+            arguments: [
+                { name: 'record', type: 'object', description: 'The single record under validation.' },
+                { name: 'cluster_id_field', type: 'string', description: 'Field name carrying the cluster identifier.' },
+                { name: 'signer_id_field', type: 'string', description: 'Field name carrying the signer identifier.' },
+                { name: 'sequence_field', type: 'string', description: 'Field name carrying the string-encoded BigInt sequence number.' },
+                { name: 'key_version_field', type: 'string', description: 'Field name carrying the string-encoded BigInt key version.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'No sequence_state supplied → defers to consumer (returns true)',
+                    context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '1', key_version: '0' } },
+                    expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
+                    expected: true,
+                },
+                {
+                    // Iter-3 MEDIUM F11 mitigation: CT-03 numeric-regex pre-validation
+                    // fires BEFORE the state-absent deferral check (Postel's Law
+                    // walk-back). Malformed '007' is a data-shape error regardless of
+                    // state presence — surfaces SEQUENCE_INVALID_INPUT immediately
+                    // rather than deferring on garbage. This example demonstrates
+                    // the new ordering: '007' record + no state → standalone
+                    // evaluator returns SEQUENCE_INVALID_INPUT, DSL wrapper returns
+                    // false. Iter-2 LOW F10 had a related concern about the previous
+                    // misleading example pairing — both are resolved by the iter-3
+                    // reorder (the deferred-on-garbage case no longer exists).
+                    description: 'CT-03 fires before state-absent deferral (iter-3 F11 reorder): ' +
+                        'malformed sequence "007" returns SEQUENCE_INVALID_INPUT ' +
+                        'regardless of state presence — data-shape errors are not ' +
+                        'deferrable per Postel\'s Law walk-back.',
+                    context: { record: { cluster_id: 'c1', signer_id: 's1', sequence: '007', key_version: '0' } },
+                    expression: "sequence_monotonic_per_cluster(record, 'cluster_id', 'signer_id', 'sequence', 'key_version')",
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'CT-08: cluster_id mismatch returns false (CLUSTER_ID_MISMATCH) — fires BEFORE state lookup',
+                'CT-03: malformed sequence/key_version (non-numeric, leading zero, sign) returns false (SEQUENCE_INVALID_INPUT) ONLY when state is present; without state the deferred path returns true with SEQUENCE_CONTEXT_DEFERRED diagnostic',
+                'Key-version regression returns false (KEY_VERSION_REGRESSION)',
+                'Sequence ≤ last-observed for (signer, key_version) returns false (SEQUENCE_MONOTONIC_VIOLATION)',
+                'Key-rotation overlap: same sequence under newer key_version is allowed (separate composite key)',
+                'Iter-2 F10 contrast: examples in this spec entry exercise only the deferred path (no sequence_state) because EVALUATOR_BUILTIN_SPECS examples are executed by the test runner without an EvaluationContext; the state-present path is exercised by tests in tests/constraints/sequence-monotonic-per-cluster.test.ts',
+            ],
+        }],
+    ['chain_validator_prev_hash', {
+            name: 'chain_validator_prev_hash',
+            signature: 'chain_validator_prev_hash(chain, entry_hash_field, previous_hash_field) → boolean',
+            description: 'Ledger-style chain validity check. Asserts (1) each record\'s previous_hash equals its predecessor\'s entry_hash, (2) the chain anchors at the configured genesis sentinel, and (3) NA-1: the audit-ledger\'s expected_prior_hash matches the chain\'s on-payload value per index. Distinct from ORD-3 is_valid_dag (which validates the delegation DAG, not a linear ledger chain). Reads chain_ledger from EvaluationContext.',
+            arguments: [
+                { name: 'chain', type: 'unknown[]', description: 'Array of cluster-event records ordered from genesis-rooted to most-recent.' },
+                { name: 'entry_hash_field', type: 'string', description: 'Field name on each record carrying that record\'s own hash.' },
+                { name: 'previous_hash_field', type: 'string', description: 'Field name carrying the hash of the predecessor (or genesis sentinel for index 0).' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'No chain_ledger state supplied → defers to consumer (returns true)',
+                    context: { chain: [{ entry_hash: 'h1', previous_hash: 'genesis:cluster-ledger' }] },
+                    expression: "chain_validator_prev_hash(chain, 'entry_hash', 'previous_hash')",
+                    expected: true,
+                },
+                {
+                    description: 'Empty chain returns true (vacuous)',
+                    context: { chain: [] },
+                    expression: "chain_validator_prev_hash(chain, 'entry_hash', 'previous_hash')",
+                    expected: true,
+                },
+            ],
+            edge_cases: [
+                'Empty chain returns true (vacuous)',
+                'First record\'s previous_hash != genesis sentinel returns false (CHAIN_GENESIS_VIOLATION)',
+                'Successor\'s previous_hash != predecessor\'s entry_hash returns false (CHAIN_PREV_HASH_MISMATCH)',
+                'NA-1: audit-ledger expected_prior_hash[i] != chain[i].previous_hash returns false (CHAIN_LEDGER_MISMATCH)',
+                'Audit-ledger has no entry for index i → no NA-1 cross-check fires (consumer hasn\'t recorded yet)',
+                'Custom genesis_hash via state.genesis_hash overrides the default sentinel',
+            ],
+        }],
+    // LOCAL helper builtins (v8.6.0, PR-A3.4 — FR-B2 / NFR-4)
+    ['canonical_size_cap', {
+            name: 'canonical_size_cap',
+            signature: 'canonical_size_cap(value, byte_cap) → boolean',
+            description: 'LOCAL pure-shape NFR-4 size-cap check. Returns true when the input value\'s RFC 8785 + NFC-normalized canonical-JSON byte length is ≤ byte_cap; false with CANONICAL_SIZE_CAP_EXCEEDED diagnostic otherwise. No consumer state needed — the cap is a property of the value alone. Used by FR-B2 PhaseCompletionEnvelope (4 KB cap) and any future schema declaring \'x-canonical-size-cap-bytes\' metadata.',
+            arguments: [
+                { name: 'value', type: 'unknown', description: 'Value whose canonical-JSON form is bounded.' },
+                { name: 'byte_cap', type: 'number', description: 'Cap in bytes (FR-B2 default 4096).' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Empty object well within 4 KB cap',
+                    context: { value: {} },
+                    expression: 'canonical_size_cap(value, 4096)',
+                    expected: true,
+                },
+                {
+                    description: 'Tiny payload under 100-byte cap',
+                    context: { value: { kind: 'small' } },
+                    expression: 'canonical_size_cap(value, 100)',
+                    expected: true,
+                },
+            ],
+            edge_cases: [
+                'Cap exceeded returns false (CANONICAL_SIZE_CAP_EXCEEDED)',
+                'Negative byte_cap rejected as CANONICAL_SIZE_CAP_INVALID_INPUT',
+                'Non-integer byte_cap rejected as CANONICAL_SIZE_CAP_INVALID_INPUT',
+                'safeCanonicalize rejection (NFC malformed, key collision) surfaces as CANONICAL_SIZE_CAP_INVALID_INPUT',
+                'Boundary case: exactly-cap-bytes payload returns true (≤ check, not <)',
+            ],
+        }],
+    ['signer_key_id_matches_derivation', {
+            name: 'signer_key_id_matches_derivation',
+            signature: 'signer_key_id_matches_derivation(record, cluster_id_field, key_version_field, key_id_field) → boolean',
+            description: 'LOCAL pure-shape derivation check. Asserts that the record\'s asserted key_id field equals sha256_hex(cluster_id || ":" || key_version). Closes the FR-B2 schema-side derivation gap so consumers cannot supply a shape-valid but cryptographically-meaningless signer_key_id. No consumer state needed — the derivation is computable from the record alone.',
+            arguments: [
+                { name: 'record', type: 'object', description: 'The record under validation.' },
+                { name: 'cluster_id_field', type: 'string', description: 'Field name carrying the cluster identifier.' },
+                { name: 'key_version_field', type: 'string', description: 'Field name carrying the string-encoded key version.' },
+                { name: 'key_id_field', type: 'string', description: 'Field name carrying the asserted key_id (sha256 hex).' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Matching derivation: sha256("c1:1") = lowercase hex matches asserted',
+                    context: {
+                        record: {
+                            cid: 'c1',
+                            kv: '1',
+                            kid: '10ddafe9d244afb4247309479b5719ed5149e05875954896ee58c2539ebe1bb5',
+                        },
+                    },
+                    expression: "signer_key_id_matches_derivation(record, 'cid', 'kv', 'kid')",
+                    expected: true,
+                },
+                {
+                    description: 'Mismatching key_id returns false (SIGNER_KEY_ID_MISMATCH)',
+                    context: {
+                        record: {
+                            cid: 'c1',
+                            kv: '1',
+                            kid: '0000000000000000000000000000000000000000000000000000000000000000',
+                        },
+                    },
+                    expression: "signer_key_id_matches_derivation(record, 'cid', 'kv', 'kid')",
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'Mismatching key_id returns false (SIGNER_KEY_ID_MISMATCH)',
+                'Non-string fields return false (SIGNER_KEY_ID_INVALID_INPUT)',
+                'Null record returns false (SIGNER_KEY_ID_INVALID_INPUT)',
+                'Case-insensitive comparison: uppercase hex on the wire matches lowercase derivation',
+                'NFC normalization is applied to BOTH inputs before hashing (homograph-attack mitigation per iter-1 review e0c46b14): String.prototype.normalize("NFC") in TS; equivalent in Go/Python/Rust per the cross-runner conformance contract',
+                'Colon delimiter is byte-stable (ASCII 0x3A); cross-runner authors use the same delimiter byte',
+            ],
+        }],
+    // LOCAL helper builtin (v8.6.0, PR-A3.5 — FR-B7 LatencyHistogramEnvelope)
+    ['percentiles_monotonic_nondecreasing', {
+            name: 'percentiles_monotonic_nondecreasing',
+            signature: 'percentiles_monotonic_nondecreasing(measurements) → boolean',
+            description: 'LOCAL pure-shape latency-percentile monotonicity check. Asserts p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms on a LatencyHistogramEnvelope.measurements object. No consumer state needed — the property is evaluable from the envelope content alone. Reports the FIRST violating pair so operators see the specific failing transition.',
+            arguments: [
+                { name: 'measurements', type: 'object', description: 'Object with finite non-negative number fields p50_ms, p95_ms, p99_ms, max_ms.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Strict ascending percentiles pass',
+                    context: { measurements: { p50_ms: 10, p95_ms: 50, p99_ms: 100, max_ms: 200 } },
+                    expression: 'percentiles_monotonic_nondecreasing(measurements)',
+                    expected: true,
+                },
+                {
+                    description: 'All-equal percentiles pass (≤ allows equality)',
+                    context: { measurements: { p50_ms: 5, p95_ms: 5, p99_ms: 5, max_ms: 5 } },
+                    expression: 'percentiles_monotonic_nondecreasing(measurements)',
+                    expected: true,
+                },
+            ],
+            edge_cases: [
+                'p50 > p95 returns false (PERCENTILES_MONOTONIC_VIOLATION at p95_ms < p50_ms)',
+                'p95 > p99 returns false (PERCENTILES_MONOTONIC_VIOLATION at p99_ms < p95_ms)',
+                'p99 > max returns false (PERCENTILES_MONOTONIC_VIOLATION at max_ms < p99_ms)',
+                'Equal percentiles allowed (non-strict ≤ check)',
+                'Negative percentile (e.g., p50_ms = -1) returns false (PERCENTILES_MONOTONIC_INVALID_INPUT) — latencies are by definition non-negative',
+                'Non-finite numeric (NaN, Infinity) returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+                'Missing field returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+                'Non-object measurements returns false (PERCENTILES_MONOTONIC_INVALID_INPUT)',
+            ],
+        }],
+    // LOCAL helper builtin (v8.6.0, PR-A3.5 iter-1 F-002 — FR-B3 OracleDigest)
+    ['utf8_byte_length_max', {
+            name: 'utf8_byte_length_max',
+            signature: 'utf8_byte_length_max(value, byte_cap) → boolean',
+            description: 'LOCAL pure-shape UTF-8 byte-length cap. Returns true when the input string\'s UTF-8 byte length is ≤ byte_cap. DISTINCT from JSON Schema\'s `maxLength` keyword: `maxLength` counts UTF-16 code units (in JS) or codepoints (in some implementations), NOT UTF-8 bytes. A 4096-emoji string is `maxLength: 4096` valid (4096 code units, ~16 KB UTF-8 bytes). Used to enforce downstream-system byte caps (Telegram 4 KB, Twitter pre-2018 280 bytes) where the wire-protocol limit is bytes, not characters.',
+            arguments: [
+                { name: 'value', type: 'string', description: 'UTF-8 string whose byte length is bounded.' },
+                { name: 'byte_cap', type: 'number', description: 'Positive integer byte cap (inclusive — actual_bytes ≤ byte_cap).' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'ASCII string within cap passes',
+                    context: { value: 'hello world' },
+                    expression: 'utf8_byte_length_max(value, 4096)',
+                    expected: true,
+                },
+                {
+                    description: 'Multi-byte string under code-unit cap but over byte cap fails (the F-002 wire bug)',
+                    context: { value: '\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}\u{1F4A9}' },
+                    expression: 'utf8_byte_length_max(value, 16)',
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'ASCII length === byte length (1 byte/char)',
+                'CJK consume 3 UTF-8 bytes/char; emoji consume 4 bytes/char',
+                'Empty string passes any positive cap',
+                'Exact-cap (actual_bytes === byte_cap) passes (≤ check)',
+                'Non-string value returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
+                'Non-positive or non-integer byte_cap returns false (UTF8_BYTE_LENGTH_INVALID_INPUT)',
+                'Cross-runner: TS new TextEncoder().encode(s).length (web-standard, runs in Node/Workers/Edge/Deno/browsers); Go len([]byte(s)); Python len(s.encode("utf-8")); Rust s.len() — all yield the same byte count for valid UTF-8 input',
+            ],
+        }],
+    // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
+    ['plan_content_hash_unchanged_since_signoff', {
+            name: 'plan_content_hash_unchanged_since_signoff',
+            signature: 'plan_content_hash_unchanged_since_signoff(plan_content_hash) → boolean',
+            description: 'State-bearing plan-binding check. Asserts the plan_content_hash is present in the consumer-supplied signoff ledger snapshot. On hash-match (PASS), emits a SIGNOFF_TTL_OBSERVED manifest entry surfacing ts_emit + ttl_until_ms (NA-3) so consumers cannot accidentally validate plan-hash without seeing TTL inputs. TTL enforcement is OUT (ADR-010 / NFR-8). Reads plan_signoff_ledger from EvaluationContext. The DSL boolean collapses pass/deferred to true and fail to false; the structured manifest entry is reachable via the standalone evaluator.',
+            arguments: [
+                {
+                    name: 'plan_content_hash',
+                    type: 'string',
+                    description: 'sha256:<64-hex> hash of the plan content. The schema-level pattern (SHA256_HEX_PATTERN) admits mixed-case `[A-Fa-f0-9]` per the v8.5.0 SignatureEnvelope precedent; the builtin lowercase-normalizes both the wire payload and the ledger entry before comparison so semantically-identical hashes that differ only in hex case are mutually matchable (iter-1 F-002 fix). Cross-runner authors MUST also lowercase-normalize before equivalent string comparison.',
+                },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'No plan_signoff_ledger supplied → defers to consumer (returns true)',
+                    context: { plan_content_hash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000' },
+                    expression: 'plan_content_hash_unchanged_since_signoff(plan_content_hash)',
+                    expected: true,
+                },
+                {
+                    description: 'Non-string plan_content_hash → result: fail (programmer error / schema bypass)',
+                    context: { plan_content_hash: 42 },
+                    expression: 'plan_content_hash_unchanged_since_signoff(plan_content_hash)',
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'Snapshot absent → result: deferred, manifest LEDGER_CONTEXT_DEFERRED, boolean true',
+                'Hash present in snapshot → result: pass, manifest SIGNOFF_TTL_OBSERVED with ts_emit + ttl_until_ms (NA-3), boolean true',
+                'Hash absent from snapshot → result: fail, manifest SIGNOFF_PLAN_HASH_MISMATCH, boolean false',
+                'Non-string plan_hash argument → result: fail (programmer error / schema bypass)',
+                'Malformed snapshot.signoffs (not an array) → result: fail (trust-boundary shape check)',
+                'Cross-runner: Date.parse + Number(ttl_seconds_at_emit) * 1000 yields the absolute epoch-ms expiry; consumer compares against ts_snapshot or wall-clock per their policy',
+                'Hash comparison is case-insensitive: builtin lowercase-normalizes both wire payload and ledger entry before === compare (iter-1 F-002 fix; SHA256_HEX_PATTERN admits mixed-case)',
+                'Per-element ledger-entry shape validated at runtime (iter-3): non-object / non-string plan_content_hash / non-bigint ttl_seconds_at_emit / non-string ts_emit / non-string signoff_id all surface as result: fail with library-evaluator manifest entry rather than throwing',
+                'Malformed ts_emit (Date.parse → NaN) surfaces structured FAIL before TTL arithmetic; library does not emit ttl_until_ms=NaN downstream (iter-1 F-003)',
+            ],
+        }],
 ]);
 //# sourceMappingURL=evaluator-spec.js.map

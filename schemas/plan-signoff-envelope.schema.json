@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-signoff-envelope",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "x-chain-bearing": true,
+  "description": "Plan-signoff envelope binding a plan (plan_content_hash) to a signing actor at a specific tier. Crypto-bearing (Ed25519 signature) + chain-bearing (prev_envelope_hash + parent_signoff_hash). FR-C4 cross-checks plan_content_hash against the consumer's signoff ledger and surfaces the SIGNOFF_TTL_OBSERVED manifest entry on hash-match (NA-3).",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "plan_content_hash",
+    "signoff_actor_class",
+    "signoff_actor_id",
+    "tier",
+    "reason",
+    "ttl_seconds_at_emit",
+    "chain_refs",
+    "cumulative_drift_pct",
+    "signature"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator literal pinning the plan-signoff shape. Distinguishes from `plan_amendment_request` (FR-B10) and other envelope kinds in the cycle-005 surface.",
+      "const": "plan_signoff",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.6.0\" for the cycle-005 ship line.",
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at signoff emission (Z suffix). Date.parse(ts) yields the absolute emit-time epoch milliseconds; `ts + ttl_seconds_at_emit * 1000` is the absolute expiry epoch.",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Stable cluster identifier (consumer-shaped — hounfour does not freeze the namespace). Identifies the cluster the signoff is scoped to.",
+      "type": "string"
+    },
+    "plan_content_hash": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "description": "sha256:<64-hex> content hash of the plan being signed off. FR-C4 `plan_content_hash_unchanged_since_signoff` cross- checks this against the consumer's signoff ledger; on match, the manifest emits `SIGNOFF_TTL_OBSERVED` carrying `ts_emit + ttl_until_ms` (NA-3).",
+      "type": "string"
+    },
+    "signoff_actor_class": {
+      "description": "Exhaustive 3-member enum for the actor class authorizing a plan signoff. Schema admits all three; v1 acceptance accepts only `single_operator` is a consumer-side gate per prd.md:269-271 / ADR-010, NOT a schema-level constraint.",
+      "anyOf": [
+        {
+          "const": "single_operator",
+          "type": "string"
+        },
+        {
+          "const": "jury_panel",
+          "type": "string"
+        },
+        {
+          "const": "delegate",
+          "type": "string"
+        }
+      ]
+    },
+    "signoff_actor_id": {
+      "minLength": 1,
+      "description": "Stable identifier for the signing actor (consumer-shaped). Resolution of the actor's public key is consumer-side via their Keyring (NF-1 boundary).",
+      "type": "string"
+    },
+    "tier": {
+      "description": "Schema-restricted signoff tier. T0/T1 are explicitly excluded (rejected at validate() time). Widening to T0/T1/etc. is strict-additive; consumers built against the v8.6.0 enum continue to validate T2/T3 unchanged.",
+      "anyOf": [
+        {
+          "const": "T2",
+          "type": "string"
+        },
+        {
+          "const": "T3",
+          "type": "string"
+        }
+      ]
+    },
+    "reason": {
+      "minLength": 1,
+      "maxLength": 8192,
+      "description": "Free-text rationale for the signoff. Capped at 8 KB code points (JSON Schema 2020-12 §6.3.1); the canonical-JSON byte length is bounded by the cluster's envelope-cap policy (consumer-side).",
+      "type": "string"
+    },
+    "ttl_seconds_at_emit": {
+      "pattern": "^[1-9][0-9]*$",
+      "maxLength": 19,
+      "description": "String-encoded positive integer TTL in seconds at emission time (CT-03). Pattern `^[1-9][0-9]*$` rejects \"0\" (reserved as expired-on-emit sentinel) and any leading-zero form. The upper bound `2^53-1` is enforced consumer-side per AT-8: JSON Schema's numeric `maximum` cannot apply to a string-encoded field. **`maxLength: 19` (iter-2 F5 mitigation):** caps the digit count at 19 — the representation length of `2^63-1`, the Int64 ceiling — to prevent unbounded BigInt-parse DoS on attacker-controlled payloads. The 2^53-1 (Number.MAX_SAFE_INTEGER, 16 digits) consumer ceiling per AT-8 is well within this cap; the 19-digit cap is a defense-in-depth structural guard, not the semantic ceiling. Consumers parse via `BigInt(envelope.ttl_seconds_at_emit)` after validation; the regex + cap guarantee a bounded-cost successful parse without try/catch.",
+      "type": "string"
+    },
+    "chain_refs": {
+      "additionalProperties": false,
+      "description": "Chain references: envelope-level continuity (prev_envelope_hash) plus signoff-lineage continuity (parent_signoff_hash, nullable).",
+      "type": "object",
+      "required": [
+        "prev_envelope_hash",
+        "parent_signoff_hash"
+      ],
+      "properties": {
+        "prev_envelope_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "sha256:<64-hex> hash of the previous envelope's canonical-JSON form. The genesis-position envelope uses \"sha256:0000000000000000000000000000000000000000000000000000000000000000\" as the chain anchor.",
+          "type": "string"
+        },
+        "parent_signoff_hash": {
+          "description": "sha256:<64-hex> hash of the parent signoff envelope, or `null` for the first signoff in the chain. Distinct from `prev_envelope_hash`: the latter is envelope-chain continuity, the former is signoff- lineage continuity (one signoff supersedes another).",
+          "anyOf": [
+            {
+              "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "cumulative_drift_pct": {
+      "minimum": 0,
+      "description": "Cumulative plan-execution drift as a non-negative percent. The auto-revoke THRESHOLD is consumer policy per ADR-010 / R7; the schema only enforces non-negativity. Consumer configures the threshold per their tolerance.",
+      "type": "number"
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature value (unpadded base64url, 86 chars after the \"ed25519:\" prefix) over the RFC 8785 canonical-JSON of all-other-fields. Hounfour does NOT verify; consumer-side verification per NF-1.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

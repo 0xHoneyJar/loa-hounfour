@@ -177,6 +177,9 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'RollbackPlan',
     'LatencyHistogramEnvelope',
     'EpicCheckpoint',
+    // v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest.
+    'PlanSignoffEnvelope',
+    'PlanAmendmentRequest',
   ];
 
   it('returns an array of strings', () => {

@@ -1,0 +1,25 @@
+{
+  "_comment": "PlanAmendmentRequest with out_of_scope_dep trigger.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T14:15:00Z",
+  "cluster_id": "cluster-003",
+  "actor_id": "actor-003",
+  "parent_signoff_id": "signoff-003",
+  "parent_plan_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "proposed_delta": "Plan execution requires reading from an external KMS; signoff scope did not include KMS access. Add KMS-read to the authorized capability set.",
+  "severity": "minor",
+  "trigger_class": "out_of_scope_dep",
+  "rationale": "Discovered KMS read dependency at execution time; needs explicit authorization.",
+  "recommended_paths": [
+    {
+      "id": "path-A",
+      "summary": "Grant KMS-read for the signoff TTL window.",
+      "tradeoff": "Slight scope creep; no further changes needed."
+    }
+  ],
+  "jury_recommendation": null,
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  }
+}

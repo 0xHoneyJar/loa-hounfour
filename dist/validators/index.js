@@ -9,6 +9,9 @@
 import { TypeCompiler } from '@sinclair/typebox/compiler';
 import { FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
+import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
+import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
+import { OracleDigestSchema } from '../operations/oracle-digest.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -24,6 +27,11 @@ import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
 import { RoutingPolicySchema } from '../schemas/routing-policy.js';
+import { CAPABILITY_SCOPES } from '../schemas/agent-identity.js';
+// Canonical CapabilityScope set, hoisted to module scope so per-validate-call
+// allocation cost is amortized across calls. (PR-A3.2 iter-2 F-002 mitigation.)
+// Read-only at runtime; populated once at module load.
+const CANONICAL_CAPABILITY_SCOPES = new Set(CAPABILITY_SCOPES);
 import { AgentDescriptorSchema } from '../schemas/agent-descriptor.js';
 import { BillingEntrySchema, CreditNoteSchema } from '../schemas/billing-entry.js';
 import { ConversationSchema, MessageSchema, ConversationSealingPolicySchema, AccessPolicySchema } from '../schemas/conversation.js';
@@ -866,6 +874,123 @@ registerCrossFieldValidator('RiskLevel', constraintFileOnlyValidator);
 registerCrossFieldValidator('AssertionStatus', constraintFileOnlyValidator);
 registerCrossFieldValidator('AssertionClass', constraintFileOnlyValidator);
 registerCrossFieldValidator('Assertion', constraintFileOnlyValidator);
+// v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-2 only;
+// Tier-1 has no cross-field rules — `agent_signature` derivation is
+// runtime-deferred per NF-1, surfaced via the existing
+// `'x-crypto-bearing': true` manifest path). Tier-2 carries the
+// signer_key_id derivation invariant + canonical-size cap +
+// FR-C1/C2/C3 chain references via the constraint file at
+// `constraints/PhaseCompletionEnvelope.constraints.json`.
+registerCrossFieldValidator('PhaseCompletionEnvelope', constraintFileOnlyValidator);
+// v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster. Six envelope schemas
+// each shipping a constraint file under
+// `constraints/<SchemaName>.constraints.json` — most carry only
+// runtime-deferred or library-evaluated invariants (severity-to-channel
+// routing, percentile monotonicity, etc.). LatencyHistogramEnvelope is
+// the only schema with a library-evaluated invariant (FR-B7
+// percentiles_monotonic_nondecreasing); the rest are pure-shape +
+// pattern-validated by TypeBox structurally.
+//
+// PR-A3.5 iter-2 F-002 / iter-4 F2 / iter-5 F-002: schemas carry inline
+// byte-cap invariants via the `'x-canonical-size-cap-bytes-of-field'`
+// metadata annotation. JSON Schema 2020-12 §6.3.1 normatively defines
+// `maxLength` on Unicode code points; JS validators count UTF-16 code
+// units. Neither matches UTF-8 byte count. A structural-only consumer
+// (e.g., `Value.Check(...)`) would accept a 4096-emoji string that
+// encodes to ~16 KB on the wire. The factory below reads the metadata
+// off a schema and registers a metadata-driven cross-field validator
+// keyed on the schema's `$id`.
+//
+// **Registration is explicit-by-design.** `registerByteCapValidator`
+// is called explicitly for every schema that carries the annotation
+// rather than scanning a registry at module load. The tradeoff:
+// auto-discovery couples the validator surface to whatever module
+// graph happens to be eagerly imported at startup (drift-prone in
+// tree-shaken builds and lazy-loaded subpaths); explicit registration
+// keeps the surface deterministic and reviewable. The drift risk that
+// auto-discovery solves — a future schema adding the annotation but
+// missing the explicit `registerByteCapValidator(...)` call — is
+// instead caught by the CI guard in
+// `tests/validators/byte-cap-registration.test.ts` (PR-A3.5 iter-5
+// F-002), which scans every exported schema for the annotation and
+// fails if `registerByteCapValidator` was not called for it. Code,
+// comments, and tests now agree on the explicit-by-design story.
+//
+// PR-A3.5 iter-4 F-003: the diagnostic constraint id derives from the
+// schema $id rather than emitting a hard-coded "OD-2" for every cap
+// failure. The format is `<schema-id>:byte_cap[<field_name>]`.
+function registerByteCapValidator(schema) {
+    const schemaRecord = schema;
+    const fieldCaps = schemaRecord['x-canonical-size-cap-bytes-of-field'];
+    const schemaId = schemaRecord.$id;
+    if (fieldCaps === null || typeof fieldCaps !== 'object' || !schemaId)
+        return;
+    registerCrossFieldValidator(schemaId, (data) => {
+        if (data === null || typeof data !== 'object') {
+            return { valid: true, errors: [], warnings: [] };
+        }
+        const errors = [];
+        const warnings = [];
+        const record = data;
+        for (const [fieldName, byteCap] of Object.entries(fieldCaps)) {
+            if (typeof byteCap !== 'number')
+                continue;
+            const fieldValue = record[fieldName];
+            if (typeof fieldValue !== 'string')
+                continue;
+            const result = evaluateUtf8ByteLengthMax(fieldValue, byteCap);
+            if (!result.valid && result.diagnostic) {
+                errors.push(`${schemaId}:byte_cap[${fieldName}]: ${result.diagnostic.message}`);
+            }
+        }
+        return errors.length > 0
+            ? { valid: false, errors, warnings }
+            : { valid: true, errors: [], warnings };
+    });
+}
+registerByteCapValidator(OracleDigestSchema);
+registerCrossFieldValidator('OracleHealthEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('EscalationEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('RollbackPlan', constraintFileOnlyValidator);
+// PR-A3.5 iter-4 F11: LatencyHistogramEnvelope's LHE-1 monotonicity
+// invariant (`p50_ms ≤ p95_ms ≤ p99_ms ≤ max_ms`) is documented as
+// library-evaluated but the iter-3 wiring shipped a constraintFileOnly
+// stub — the schema's promise diverged from the validator's behavior.
+// `validate(LatencyHistogramEnvelope, x)` now invokes
+// `evaluatePercentilesMonotonicNondecreasing` on the `measurements`
+// object inline, mirroring the OracleDigest byte-cap pattern. The
+// diagnostic identifies the FIRST violating pair (e.g., `p95_ms < p50_ms`
+// with both values) so operators see the specific failing transition.
+registerCrossFieldValidator('LatencyHistogramEnvelope', (data) => {
+    if (data === null || typeof data !== 'object') {
+        return { valid: true, errors: [], warnings: [] };
+    }
+    const envelope = data;
+    const measurements = envelope.measurements;
+    if (measurements === undefined) {
+        return { valid: true, errors: [], warnings: [] };
+    }
+    const result = evaluatePercentilesMonotonicNondecreasing(measurements);
+    if (!result.valid && result.diagnostic) {
+        return {
+            valid: false,
+            errors: [`LHE-1 (measurements): ${result.diagnostic.message}`],
+            warnings: [],
+        };
+    }
+    return { valid: true, errors: [], warnings: [] };
+});
+registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
+// v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest.
+// Both schemas ship constraint files describing FR-C4 plan-content-hash
+// binding (PlanSignoffEnvelope) and runtime-deferred severity-correction
+// policy (PlanAmendmentRequest). validate() runs the constraint files via
+// constraintFileOnlyValidator; the FR-C4 builtin's structured manifest
+// surface (NA-3 SIGNOFF_TTL_OBSERVED on hash-match) is reachable through
+// the standalone evaluator at
+// `src/constraints/builtins/plan-content-hash-unchanged-since-signoff.ts`.
+registerCrossFieldValidator('PlanSignoffEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('PlanAmendmentRequest', constraintFileOnlyValidator);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -1075,27 +1200,138 @@ export function validate(schema, data, options) {
     // iter-2 F4 mitigation: silence on the context-present path would let
     // consumers conflate "library validated chain" with "library skipped
     // because no context was supplied").
-    if (schema.$id === 'OrgRepresentativeDelegation') {
+    //
+    // FR-A4 (PR-A3.2, v8.6.0): generalized from `schema.$id ===
+    // 'OrgRepresentativeDelegation'` to the metadata-driven
+    // `'x-chain-bearing': true` flag, mirroring the existing
+    // `x-crypto-bearing` / `x-integrity-bearing` patterns. When `failClosed`
+    // is opted in, chain-context-absent is a HARD reject; chain-context-
+    // present uses the `chain_context_provided` reason as the opt-in
+    // acknowledgment. Default (failClosed unset/false) preserves v8.5.x
+    // semantics exactly per NFR-1.
+    const isChainBearing = schemaRecord['x-chain-bearing'] === true;
+    if (isChainBearing) {
         const contextSupplied = hasChainContextRecords(options?.chainContext);
+        if (options?.failClosed === true && !contextSupplied) {
+            // FR-A4 fail-closed branch: reject the record outright. No manifest
+            // emission — the error itself is the audit signal, and the v9.0.0
+            // forward-pointer in MIGRATION.md documents the eventual default flip.
+            return {
+                valid: false,
+                errors: [
+                    'CHAIN_CONTEXT_DEFERRED: Chain-bearing schema validated with ' +
+                        '{ failClosed: true } but `chainContext.granted_by_chain_records` ' +
+                        'was absent or not a non-empty array. ORD-3 cannot be library-' +
+                        'evaluated against a single record in isolation; assemble the ' +
+                        'chain (the record under validation plus all ancestors back to ' +
+                        'the genesis-rooted record, plus the synthetic terminator ' +
+                        '`{ delegation_id: "genesis:org-public-key" }`) and pass it as ' +
+                        '`{ chainContext: { granted_by_chain_records: [...] } }`. ' +
+                        'See MIGRATION.md v8.5.x → v8.6.0 FR-A4 section for the opt-in ' +
+                        'contract and the v9.0.0 default-flip forward-pointer.',
+                ],
+            };
+        }
+        const reason = options?.failClosed === true
+            ? 'chain_context_provided'
+            : (contextSupplied ? 'pattern_matching' : 'context_absent');
         obligations.push({
             rule_id: 'ORD-3',
             rule: 'Delegation chain forms a valid DAG keyed by delegation_id, terminates at the genesis sentinel, and has chain_depth <= 20.',
             evaluator: 'consumer',
-            reason: contextSupplied ? 'pattern_matching' : 'context_absent',
-            evaluation_note: contextSupplied
-                ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
-                    'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
-                    'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
-                    'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
-                    'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
-                : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
-                    'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
-                    'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
-                    'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
-                    'library-side DAG validation, OR perform the chain check consumer-side. See ' +
-                    'docs/architecture/org-overseer.md for the verification profile.',
+            reason,
+            evaluation_note: options?.failClosed === true
+                ? 'granted_by_chain_records was supplied via options.chainContext under ' +
+                    'FR-A4 opt-in (failClosed: true). validate() does NOT run is_valid_dag ' +
+                    'at this layer — chain-DSL evaluation runs in npm run check:constraints — ' +
+                    'but the manifest entry records the consumer\'s explicit acknowledgment ' +
+                    'of the v9.0.0 default-flip semantics. Reason: \'chain_context_provided\' ' +
+                    'distinguishes this opt-in path from the default (\'pattern_matching\') ' +
+                    'so audits can attribute the v9.0.0 readiness state per record.'
+                : contextSupplied
+                    ? 'granted_by_chain_records was supplied via options.chainContext, but validate() does NOT run ' +
+                        'is_valid_dag at this layer — chain-DSL evaluation runs in npm run check:constraints. The ' +
+                        'consumer MUST run the chain check itself (or wait for the runtime constraint-evaluator to ' +
+                        'land in a later cycle). The manifest entry remains so the obligation is auditable even on ' +
+                        'the success path; consumers reconciling the entry can branch on reason: \'pattern_matching\'.'
+                    : 'granted_by_chain_records was not supplied via options.chainContext at validate() time. ' +
+                        'ORD-3 cannot be library-evaluated against a single record in isolation; the consumer MUST ' +
+                        'assemble the chain (the record under validation plus all ancestors back to the genesis-rooted ' +
+                        'record) and pass it as `{ chainContext: { granted_by_chain_records: [...] } }` to enable ' +
+                        'library-side DAG validation, OR perform the chain check consumer-side. See ' +
+                        'docs/architecture/org-overseer.md for the verification profile.',
             consumer_acknowledgment_required: true,
         });
+    }
+    // ORD-5 vocabulary-drift manifest promotion (PR-A3.2 — FR-A3 v8.6.0).
+    // The constraint file flags capability_scope keys outside the canonical
+    // CAPABILITY_SCOPES vocabulary (billing, governance, inference, delegation,
+    // audit, composition) as warnings; v8.5.x evaluated this rule only at
+    // `npm run check:constraints` time. v8.6.0 surfaces it at validate() so
+    // consumers can branch on `reason: 'vocabulary_drift'` without parsing
+    // the per-call warnings array. Each non-canonical key yields one
+    // manifest entry; consumers aggregate fire counts per-window for the
+    // soak metric driving the PR-A3.10 hosaka-fm review-window decision.
+    // Severity stays 'warning' for v8.6.0 — no behavioral change to the
+    // valid/invalid outcome (`valid: true` continues to hold). Promotion
+    // to `severity: 'error'` is a PR-A3.10 decision per soak telemetry.
+    //
+    // TODO(cycle-005, deferred): The dispatch is currently $id-keyed because
+    // `OrgRepresentativeDelegation` is the only vocabulary-bearing schema
+    // in cycle-005. **Generalization trigger:** when a second
+    // controlled-vocabulary field lands on any schema in cycle-005 or
+    // later (e.g., a `Resource.tag_scope` field with a canonical tag set,
+    // or a second capability-scope-bearing record), generalize this block
+    // to a metadata-driven `'x-vocabulary-bearing'` flag whose value is a
+    // descriptor `{ field: '<name>', canonical_set: ReadonlySet<string> }`.
+    // The generalization must mirror the `'x-chain-bearing'` schema-flag
+    // pattern that FR-A4 introduced and must be paired with a corresponding
+    // `'x-vocabulary-bearing'` schema-metadata declaration in TypeBox
+    // options on the originating schema. Single-schema today,
+    // partial-generalization deferred to avoid over-engineering the
+    // metadata surface ahead of a second concrete user.
+    if (schema.$id === 'OrgRepresentativeDelegation' &&
+        typeof data === 'object' &&
+        data !== null &&
+        'capability_scope' in data) {
+        const capabilityScope = data.capability_scope;
+        // F003 mitigation (PR-A3.2 iter-3): defense-in-depth — `typeof === 'object'`
+        // returns true for arrays in JavaScript, and while the TypeBox structural
+        // check upstream rejects arrays here, an explicit `!Array.isArray()` guard
+        // costs one expression and prevents nonsense vocabulary_drift entries if
+        // validation order ever shifts in a future refactor.
+        if (typeof capabilityScope === 'object' &&
+            capabilityScope !== null &&
+            !Array.isArray(capabilityScope)) {
+            // F2 mitigation (PR-A3.2 iter-1): sort drift keys before iteration so
+            // manifest entry order is deterministic across input JSON serialization
+            // variations — content-addressable diffing across corpora does not
+            // depend on upstream key-order accidents.
+            const driftKeys = Object.keys(capabilityScope)
+                .filter((k) => !CANONICAL_CAPABILITY_SCOPES.has(k))
+                .sort();
+            for (const driftKey of driftKeys) {
+                obligations.push({
+                    rule_id: 'ORD-5',
+                    rule: 'capability_scope MUST bind to a member of the canonical CapabilityScope set ' +
+                        '(billing, governance, inference, delegation, audit, composition). Non-canonical ' +
+                        'keys are surfaced as a vocabulary_drift warning during the cycle-005 soak window; ' +
+                        'promotion to error severity is a PR-A3.10 decision per soak telemetry.',
+                    evaluator: 'library',
+                    reason: 'vocabulary_drift',
+                    evaluation_note: `capability_scope key "${driftKey}" is outside the canonical vocabulary. ` +
+                        'Downstream Layer-2 SignerEntry.scoped_trust and Layer-3 ' +
+                        'SignerCompetenceRule.required_capability_scopes evaluators will treat ' +
+                        'this key as the default trust level — a potential authorization drift. ' +
+                        'Coordinate with the vocabulary maintainer before relying on the key in ' +
+                        'production policy. The soak telemetry windowing (consumer aggregates ' +
+                        'fire counts of `reason: \'vocabulary_drift\'` entries per validation pass ' +
+                        'across calendar windows) feeds the PR-A3.10 promotion decision; see ' +
+                        'NOTES.md ORD-5 fire-rate tracking template.',
+                    consumer_acknowledgment_required: true,
+                });
+            }
+        }
     }
     if (obligations.length > 0) {
         return {

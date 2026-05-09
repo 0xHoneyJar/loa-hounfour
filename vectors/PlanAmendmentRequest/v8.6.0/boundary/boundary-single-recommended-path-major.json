@@ -1,0 +1,25 @@
+{
+  "_comment": "Boundary: minimum recommended_paths count (1) combined with major severity + observed_failure trigger — exercises the looser-combination admission per PAR-2 / prd.md:289.",
+  "envelope_kind": "plan_amendment_request",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T17:00:00Z",
+  "cluster_id": "cluster-boundary-major",
+  "actor_id": "actor-boundary",
+  "parent_signoff_id": "signoff-boundary",
+  "parent_plan_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "proposed_delta": "Single-path major amendment with no jury.",
+  "severity": "major",
+  "trigger_class": "observed_failure",
+  "rationale": "Single decisive failure mode; jury not consulted at this severity by consumer policy.",
+  "recommended_paths": [
+    {
+      "id": "single-path",
+      "summary": "Halt execution; require operator review.",
+      "tradeoff": "Stops cluster progress until operator acts."
+    }
+  ],
+  "jury_recommendation": null,
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+  }
+}

@@ -1179,6 +1179,17 @@ registerCrossFieldValidator('LatencyHistogramEnvelope', (data) => {
 
 registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
 
+// v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest.
+// Both schemas ship constraint files describing FR-C4 plan-content-hash
+// binding (PlanSignoffEnvelope) and runtime-deferred severity-correction
+// policy (PlanAmendmentRequest). validate() runs the constraint files via
+// constraintFileOnlyValidator; the FR-C4 builtin's structured manifest
+// surface (NA-3 SIGNOFF_TTL_OBSERVED on hash-match) is reachable through
+// the standalone evaluator at
+// `src/constraints/builtins/plan-content-hash-unchanged-since-signoff.ts`.
+registerCrossFieldValidator('PlanSignoffEnvelope', constraintFileOnlyValidator);
+registerCrossFieldValidator('PlanAmendmentRequest', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

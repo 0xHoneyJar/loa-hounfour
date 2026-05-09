@@ -1,0 +1,19 @@
+{
+  "_comment": "signoff_actor_class outside the 3-member exhaustive enum MUST be rejected.",
+  "envelope_kind": "plan_signoff",
+  "contract_version": "8.6.0",
+  "ts": "2026-05-09T12:00:00Z",
+  "cluster_id": "cluster-001",
+  "plan_content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signoff_actor_class": "ai_oracle",
+  "signoff_actor_id": "operator-001",
+  "tier": "T2",
+  "reason": "Should fail.",
+  "ttl_seconds_at_emit": "3600",
+  "chain_refs": {
+    "prev_envelope_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "parent_signoff_hash": null
+  },
+  "cumulative_drift_pct": 0,
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}
