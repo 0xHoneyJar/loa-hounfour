@@ -1847,7 +1847,7 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
         name: 'plan_content_hash',
         type: 'string',
         description:
-          'sha256:<64-hex> hash of the plan content. The schema-level pattern guarantees the format; the builtin compares as a literal string (no case normalization).',
+          'sha256:<64-hex> hash of the plan content. The schema-level pattern (SHA256_HEX_PATTERN) admits mixed-case `[A-Fa-f0-9]` per the v8.5.0 SignatureEnvelope precedent; the builtin lowercase-normalizes both the wire payload and the ledger entry before comparison so semantically-identical hashes that differ only in hex case are mutually matchable (iter-1 F-002 fix). Cross-runner authors MUST also lowercase-normalize before equivalent string comparison.',
       },
     ],
     return_type: 'boolean',
@@ -1873,6 +1873,9 @@ export const EVALUATOR_BUILTIN_SPECS: ReadonlyMap<EvaluatorBuiltin, EvaluatorBui
       'Non-string plan_hash argument → result: fail (programmer error / schema bypass)',
       'Malformed snapshot.signoffs (not an array) → result: fail (trust-boundary shape check)',
       'Cross-runner: Date.parse + Number(ttl_seconds_at_emit) * 1000 yields the absolute epoch-ms expiry; consumer compares against ts_snapshot or wall-clock per their policy',
+      'Hash comparison is case-insensitive: builtin lowercase-normalizes both wire payload and ledger entry before === compare (iter-1 F-002 fix; SHA256_HEX_PATTERN admits mixed-case)',
+      'Per-element ledger-entry shape validated at runtime (iter-3): non-object / non-string plan_content_hash / non-bigint ttl_seconds_at_emit / non-string ts_emit / non-string signoff_id all surface as result: fail with library-evaluator manifest entry rather than throwing',
+      'Malformed ts_emit (Date.parse → NaN) surfaces structured FAIL before TTL arithmetic; library does not emit ttl_until_ms=NaN downstream (iter-1 F-003)',
     ],
   }],
 ]);
