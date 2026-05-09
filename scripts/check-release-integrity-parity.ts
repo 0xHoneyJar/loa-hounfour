@@ -60,6 +60,34 @@ function loadAndNormalize(path: string): NormalizedManifest {
 }
 
 /**
+ * Canonical JSON serialization with sorted object keys at every
+ * depth. Required for parity comparison because `JSON.stringify`
+ * preserves insertion order — if the generator's internals reorder
+ * how `totals` or `checksums` are constructed without semantic
+ * drift, naive stringify equality would fail spuriously and look
+ * like contamination (PR-B1.0 iter-4 F-001).
+ *
+ * Same lesson as Bazel's remote-cache action keys: two semantically
+ * identical inputs with different map iteration orders MUST produce
+ * the same cache key. We canonicalize at the comparison boundary,
+ * not at write time, because the generator's own JSON output is
+ * already deterministic in practice — this guards against future
+ * generator refactors that change construction order without intent.
+ */
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value !== null && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const sorted: Record<string, unknown> = {};
+    for (const key of Object.keys(obj).sort()) {
+      sorted[key] = canonicalize(obj[key]);
+    }
+    return sorted;
+  }
+  return value;
+}
+
+/**
  * Build a human-readable diff between the committed manifest and
  * the regenerated manifest. Surfaces three drift classes per the
  * PR-B1.0 iter-3 F-001-parity-drift mitigation:
@@ -142,7 +170,7 @@ try {
 
   const after = loadAndNormalize(regeneratedPath);
 
-  if (JSON.stringify(before) === JSON.stringify(after)) {
+  if (JSON.stringify(canonicalize(before)) === JSON.stringify(canonicalize(after))) {
     console.log('[check:release-integrity-parity] OK: RELEASE-INTEGRITY.json matches generator output (modulo generated_at).');
     process.exit(0);
   }

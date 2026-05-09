@@ -36,6 +36,24 @@
  * to `files` that re-introduces the leak, this gate catches it; the
  * vitest test wouldn't.
  *
+ * ## Coverage matrix (PR-B1.0 iter-4 F-002 documentation)
+ *
+ *   | Defect class                                | Caught by              |
+ *   |---------------------------------------------|------------------------|
+ *   | `package.json#files` adds a polluting dir   | this gate (any tree)   |
+ *   | Build artifacts leak via warm working tree  | this gate (warm tree)  |
+ *   | prepack hook itself silently breaks         | prepack-clean.test.ts  |
+ *   | prepack hook on clean tree (no artifacts)   | NEITHER (gap)          |
+ *
+ * The "prepack on clean tree" gap is intentional: this gate skips
+ * the destructive prepack via `--ignore-scripts` because firing it
+ * on every contributor's `check:all` would silently nuke a
+ * developer's compiled cross-runner cache (the "toxic side effect"
+ * pattern banned in PR-A3.13 iter-1). The prepack-clean.test.ts
+ * negative-path assertion (planted markers + PREPACK_MODE=pack →
+ * markers leak) is the primary defense for hook correctness; this
+ * gate is the secondary defense for `package.json#files` drift.
+ *
  * Wired into `check:all` so it runs on every PR alongside the other
  * structural-correctness gates.
  */
