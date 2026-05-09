@@ -599,3 +599,16 @@ export {
   type AmendmentSeverity,
   type AmendmentTriggerClass,
 } from './plan-amendment-request.js';
+
+// Schemas — Challenge layer (v8.6.0, FR-A1, PR-A3.7)
+export {
+  ChallengeTypeSchema,
+  ChallengeRequestedEffectSchema,
+  type ChallengeType,
+  type ChallengeRequestedEffect,
+} from './challenge-types.js';
+
+export {
+  ChallengeSchema,
+  type Challenge,
+} from './challenge.js';

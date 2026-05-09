@@ -319,6 +319,8 @@ describe('version bump', () => {
     // PR-A3.6 (FR-B9 + FR-B10) adds 6 more: SignoffActorClass, SignoffTier,
     // PlanSignoffEnvelope, AmendmentSeverity, AmendmentTriggerClass,
     // PlanAmendmentRequest → 251.
-    expect(index.schemas).toHaveLength(251);
+    // PR-A3.7 (FR-A1) adds 3 more: ChallengeType, ChallengeRequestedEffect,
+    // Challenge → 254.
+    expect(index.schemas).toHaveLength(254);
   });
 });

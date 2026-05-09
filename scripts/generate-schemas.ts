@@ -233,6 +233,12 @@ import {
   AmendmentSeveritySchema,
   AmendmentTriggerClassSchema,
 } from '../src/governance/plan-amendment-request.js';
+// v8.6.0 PR-A3.7 — FR-A1 Challenge layer
+import {
+  ChallengeTypeSchema,
+  ChallengeRequestedEffectSchema,
+} from '../src/governance/challenge-types.js';
+import { ChallengeSchema } from '../src/governance/challenge.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -557,6 +563,10 @@ const schemas = [
   { name: 'amendment-severity', schema: AmendmentSeveritySchema },
   { name: 'amendment-trigger-class', schema: AmendmentTriggerClassSchema },
   { name: 'plan-amendment-request', schema: PlanAmendmentRequestSchema },
+  // v8.6.0 PR-A3.7 — FR-A1 Challenge layer
+  { name: 'challenge-type', schema: ChallengeTypeSchema },
+  { name: 'challenge-requested-effect', schema: ChallengeRequestedEffectSchema },
+  { name: 'challenge', schema: ChallengeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });
@@ -582,12 +592,25 @@ for (const { name, schema } of schemas) {
 
 console.log(`\n${schemas.length} schemas generated.`);
 
-// Generate schemas/index.json — machine-readable schema registry
+// Generate schemas/index.json — machine-readable schema registry.
+//
+// PR-A3.7 iter-4 F3 mitigation: the previous `generated_at: new Date()`
+// wall-clock timestamp made the artifact non-deterministic, fighting
+// the `check:dist-parity` byte-equality contract — two contributors
+// regenerating schemas a minute apart produced spurious diffs even
+// when content was unchanged. The Bazel hermeticity precedent
+// (Reproducible Builds / Debian / Tor) treats wall-clock timestamps
+// as the #1 reproducibility hazard.
+//
+// Resolution: omit the timestamp. The artifact is now a pure function
+// of (CONTRACT_VERSION, MIN_SUPPORTED_VERSION, schema source files).
+// Consumers that need a "when was this generated" signal can read
+// the `version` field or query git for the most recent commit
+// touching a schema source file.
 const index = {
   $schema: 'https://schemas.0xhoneyjar.com/loa-hounfour/index',
   version: CONTRACT_VERSION,
   min_supported_version: MIN_SUPPORTED_VERSION,
-  generated_at: new Date().toISOString(),
   schemas: schemas.map(({ name, schema }) => ({
     name,
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,

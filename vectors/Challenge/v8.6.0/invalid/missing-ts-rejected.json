@@ -1,0 +1,16 @@
+{
+  "_comment": "Missing required field `ts` -- MUST be rejected by JSON Schema required-property enforcement.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-999",
+  "challenger_id": "challenger-999",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000999",
+  "challenge_type": "factual_dispute",
+  "requested_effect": "annotate_only",
+  "rationale": "Test challenge of type factual_dispute requesting effect annotate_only.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

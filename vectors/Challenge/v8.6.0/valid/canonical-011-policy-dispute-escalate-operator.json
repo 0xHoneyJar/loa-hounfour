@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=policy_dispute, requested_effect=escalate_operator. Signature placeholder exercises the full base64url alphabet (A-Z, a-z, 0-9, \"-\", \"_\") per F6 mitigation.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-011",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-011",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000011",
+  "challenge_type": "policy_dispute",
+  "requested_effect": "escalate_operator",
+  "rationale": "Test challenge of type policy_dispute requesting effect escalate_operator.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:cdefghijklmnopqrstuvwxyz0123456789-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx"
+}

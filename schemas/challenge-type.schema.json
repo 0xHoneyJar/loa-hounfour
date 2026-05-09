@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-type",
+  "description": "Exhaustive 9-member enum classifying a Challenge envelope. Composes with v8.5.0 Assertion lifecycle and signer-competence substrate; widening is strict-additive.",
+  "anyOf": [
+    {
+      "const": "factual_dispute",
+      "type": "string"
+    },
+    {
+      "const": "policy_dispute",
+      "type": "string"
+    },
+    {
+      "const": "competence_dispute",
+      "type": "string"
+    },
+    {
+      "const": "procedural_dispute",
+      "type": "string"
+    },
+    {
+      "const": "drift_assertion",
+      "type": "string"
+    },
+    {
+      "const": "signature_replay",
+      "type": "string"
+    },
+    {
+      "const": "chain_corruption",
+      "type": "string"
+    },
+    {
+      "const": "class_violation",
+      "type": "string"
+    },
+    {
+      "const": "other",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

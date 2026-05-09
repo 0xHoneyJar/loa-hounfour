@@ -1,0 +1,16 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=procedural_dispute, requested_effect=amend.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-021",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-021",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000021",
+  "challenge_type": "procedural_dispute",
+  "requested_effect": "amend",
+  "rationale": "Test challenge of type procedural_dispute requesting effect amend.",
+  "evidence_hashes": [
+    "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

@@ -1190,6 +1190,18 @@ registerCrossFieldValidator('EpicCheckpoint', constraintFileOnlyValidator);
 registerCrossFieldValidator('PlanSignoffEnvelope', constraintFileOnlyValidator);
 registerCrossFieldValidator('PlanAmendmentRequest', constraintFileOnlyValidator);
 
+// v8.6.0 PR-A3.7 — FR-A1 ChallengeSchema. The constraint file
+// `Challenge.constraints.json` carries CHL-1..CHL-4 — Ed25519 signature
+// verification (CHL-1, runtime-deferred per the established cycle-005
+// crypto-bearing pattern), target_assertion_id resolution (CHL-2,
+// runtime-deferred per the cross-record-reference pattern), and two
+// consumer-policy warnings (CHL-3 (type, effect) acceptance gate; CHL-4
+// evidence_hashes de-duplication). All four are runtime-deferred / policy
+// — validate() runs the constraint file via constraintFileOnlyValidator;
+// no library-evaluator builtin is required for FR-A1 (no schema-side
+// state machine to enforce).
+registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
+
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

@@ -109,6 +109,8 @@ export const RULE_4_CRYPTO_BEARING_NAMES = [
   'PhaseCompletionEnvelopeSchema',
   // v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope (x-crypto-bearing).
   'PlanSignoffEnvelopeSchema',
+  // v8.6.0 PR-A3.7 — FR-A1 Challenge layer (x-crypto-bearing).
+  'ChallengeSchema',
 ];
 const RULE_4_PATTERN = new RegExp(
   String.raw`assertValid\s*\(\s*(?:${RULE_4_CRYPTO_BEARING_NAMES.join('|')})\b`,

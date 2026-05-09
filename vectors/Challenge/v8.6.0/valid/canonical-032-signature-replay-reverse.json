@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=signature_replay, requested_effect=reverse.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-032",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-032",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000032",
+  "challenge_type": "signature_replay",
+  "requested_effect": "reverse",
+  "rationale": "Test challenge of type signature_replay requesting effect reverse.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

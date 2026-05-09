@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=factual_dispute, requested_effect=void.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-001",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-001",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000001",
+  "challenge_type": "factual_dispute",
+  "requested_effect": "void",
+  "rationale": "Test challenge of type factual_dispute requesting effect void.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

@@ -2,7 +2,6 @@
   "$schema": "https://schemas.0xhoneyjar.com/loa-hounfour/index",
   "version": "8.6.0",
   "min_supported_version": "6.0.0",
-  "generated_at": "2026-05-09T01:31:29.259Z",
   "schemas": [
     {
       "name": "jwt-claims",
@@ -1509,6 +1508,24 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request",
       "file": "plan-amendment-request.schema.json",
       "description": "Plan-amendment proposal envelope. Chain-bearing (carries prev_envelope_hash) but NOT crypto-bearing — amendments inherit the cluster's trust context. Severity-correction (e.g. observed_failure → major) is consumer-side per prd.md:289 / ADR-010; the schema admits looser combinations so the discrepancy can be surfaced explicitly."
+    },
+    {
+      "name": "challenge-type",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-type",
+      "file": "challenge-type.schema.json",
+      "description": "Exhaustive 9-member enum classifying a Challenge envelope. Composes with v8.5.0 Assertion lifecycle and signer-competence substrate; widening is strict-additive."
+    },
+    {
+      "name": "challenge-requested-effect",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-requested-effect",
+      "file": "challenge-requested-effect.schema.json",
+      "description": "Exhaustive 6-member enum naming the disposition the challenger requests. Schema admits all (type, effect) pairings; per-pair acceptance is consumer-side policy."
+    },
+    {
+      "name": "challenge",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge",
+      "file": "challenge.schema.json",
+      "description": "Formal challenge envelope against an Assertion (FR-A1). Crypto-bearing — validate() defaults to CRYPTO_DEFERRED; consumers opting in via { acceptDeferred: true } receive the unverified-obligations manifest entry for the Ed25519 signature verification. Composes with v8.5.0 Assertion via target_assertion_id lazy-link string reference."
     }
   ]
 }

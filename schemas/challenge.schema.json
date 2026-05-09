@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "description": "Formal challenge envelope against an Assertion (FR-A1). Crypto-bearing — validate() defaults to CRYPTO_DEFERRED; consumers opting in via { acceptDeferred: true } receive the unverified-obligations manifest entry for the Ed25519 signature verification. Composes with v8.5.0 Assertion via target_assertion_id lazy-link string reference.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "challenge_id",
+    "ts",
+    "challenger_id",
+    "target_assertion_id",
+    "challenge_type",
+    "requested_effect",
+    "rationale",
+    "evidence_hashes",
+    "signature"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator literal pinning the challenge shape. Distinguishes from plan_signoff / plan_amendment_request / phase_completion and other envelope kinds in the cycle-005 surface.",
+      "const": "challenge",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.6.0\" for the cycle-005 ship line.",
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "challenge_id": {
+      "minLength": 1,
+      "description": "Stable opaque identifier for this challenge (consumer- shaped — hounfour does not freeze the namespace). Identifies the challenge record across the audit trail.",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at challenge emission (Z suffix). The challenge MUST predate any disposition record that cites it.",
+      "type": "string"
+    },
+    "challenger_id": {
+      "minLength": 1,
+      "description": "Stable identifier for the challenging actor (consumer- shaped). Public-key resolution for signature verification goes through the consumer's keyring.",
+      "type": "string"
+    },
+    "target_assertion_id": {
+      "minLength": 1,
+      "description": "String reference to the Assertion being challenged. Lazy-link per SDD §1.5 — no shape import. Equality against Assertion.assertion_id is the consumer-side reconciliation join; missing-target lookup is consumer state per ADR-010 and is NOT manifested by hounfour.",
+      "type": "string"
+    },
+    "challenge_type": {
+      "description": "Exhaustive 9-member enum classifying a Challenge envelope. Composes with v8.5.0 Assertion lifecycle and signer-competence substrate; widening is strict-additive.",
+      "anyOf": [
+        {
+          "const": "factual_dispute",
+          "type": "string"
+        },
+        {
+          "const": "policy_dispute",
+          "type": "string"
+        },
+        {
+          "const": "competence_dispute",
+          "type": "string"
+        },
+        {
+          "const": "procedural_dispute",
+          "type": "string"
+        },
+        {
+          "const": "drift_assertion",
+          "type": "string"
+        },
+        {
+          "const": "signature_replay",
+          "type": "string"
+        },
+        {
+          "const": "chain_corruption",
+          "type": "string"
+        },
+        {
+          "const": "class_violation",
+          "type": "string"
+        },
+        {
+          "const": "other",
+          "type": "string"
+        }
+      ]
+    },
+    "requested_effect": {
+      "description": "Exhaustive 6-member enum naming the disposition the challenger requests. Schema admits all (type, effect) pairings; per-pair acceptance is consumer-side policy.",
+      "anyOf": [
+        {
+          "const": "void",
+          "type": "string"
+        },
+        {
+          "const": "reverse",
+          "type": "string"
+        },
+        {
+          "const": "amend",
+          "type": "string"
+        },
+        {
+          "const": "escalate_panel",
+          "type": "string"
+        },
+        {
+          "const": "escalate_operator",
+          "type": "string"
+        },
+        {
+          "const": "annotate_only",
+          "type": "string"
+        }
+      ]
+    },
+    "rationale": {
+      "minLength": 1,
+      "maxLength": 8192,
+      "description": "Narrative rationale for the challenge. minLength: 1 rejects empty rationale; maxLength: 8192 caps prose so the canonical-JSON over which the signature is computed has a bounded size envelope.",
+      "type": "string"
+    },
+    "evidence_hashes": {
+      "maxItems": 256,
+      "description": "Array of supporting evidence hashes. Empty array is admissible (a `signature_replay` challenge may need no evidence beyond the duplicate signature itself); consumer-side acceptance-gate policy decides whether an empty array is accepted for a given challenge_type. maxItems: 256 caps the array so the canonical-JSON over which the signature is computed has a bounded size envelope (matches the rationale-maxLength contract — all signed-payload fields are jointly bounded).",
+      "type": "array",
+      "items": {
+        "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+        "description": "sha256:<64-hex> content hash of a supporting evidence artifact. **Wire-compare contract:** the pattern admits mixed-case hex `[A-Fa-f0-9]{64}` per the v8.5.0 SignatureEnvelope precedent (PSE-2 / FR-C4 are the cycle-005 sibling examples). Two semantically-equivalent hashes can disagree on byte equality (`SHA256:AA…` vs `sha256:aa…`) — consumers MUST lowercase-normalize both sides before equivalence checks (Go `strings.ToLower`, Python `.lower()`, Rust `.to_ascii_lowercase()`) so duplicate-detection and content-addressed-store lookups produce stable answers across producers.",
+        "type": "string"
+      }
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature over the RFC 8785 canonical JSON of all-other-fields (the entire envelope minus this `signature` field). Wire format: `ed25519:` prefix followed by exactly 86 unpadded base64url characters (the 64-byte signature encoded with the URL-and-filename-safe alphabet `[A-Za-z0-9_-]`, no `+/=` padding). Producers using the standard base64 alphabet or trailing `=` padding will fail the schema regex; encode with the unpadded base64url variant (RFC 4648 §5). Verification is consumer-side per CHL-1; the challenger's public key resolves through the consumer's keyring keyed by `challenger_id`.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}
