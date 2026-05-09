@@ -255,6 +255,26 @@ export function validateCanonicalRunCR1(data: unknown): {
   warnings: string[];
 } {
   const errors: string[] = [];
+  // **Top-level structural guard** (iter-7 BLOCKER mitigation): the
+  // JSDoc promised a no-throw contract for malformed input, but
+  // `(data as { required_phases?: unknown }).required_phases` would
+  // throw TypeError when `data` is `null` or `undefined` because the
+  // TypeScript cast erases the runtime null-check. Defend at the
+  // entry point: require `data` to be a non-null, non-array object
+  // before reading any property. Primitives (number / string / bool)
+  // return undefined on property access without throwing, but they're
+  // not CanonicalRun records and the structural-precondition error
+  // surfaces them honestly. Pattern: same null-guard discipline
+  // Node.js core's `assert` adopted post-CVE-2018-12116.
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+    return {
+      valid: false,
+      errors: [
+        `CR-1: structural shape precondition failed — input must be a non-null object (CanonicalRun record); got ${data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data}.`,
+      ],
+      warnings: [],
+    };
+  }
   const phases = (data as { required_phases?: unknown }).required_phases;
   if (!Array.isArray(phases)) {
     // **Structural precondition** (iter-4 F1 + F-002 mitigation): the

@@ -353,6 +353,30 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
   });
 
+  it('does not throw and returns valid:false on null/undefined/primitive/array top-level input (iter-7 BLOCKER mitigation)', () => {
+    // The JSDoc promised a no-throw contract for malformed input, but
+    // the prior implementation read `(data as ...).required_phases`
+    // before checking that `data` is an object — null/undefined would
+    // throw TypeError. Test the entry-point guard explicitly.
+    const cr1Validator = validateCanonicalRunCR1;
+    for (const malformed of [
+      null,
+      undefined,
+      42,
+      'foo',
+      true,
+      [],
+      [{ phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 }],
+    ]) {
+      expect(() => cr1Validator(malformed)).not.toThrow();
+      const result = cr1Validator(malformed);
+      expect(result.valid).toBe(false);
+      expect(
+        result.errors.some((e) => e.includes('structural shape precondition')),
+      ).toBe(true);
+    }
+  });
+
   it('returns valid:false with structural-precondition error on non-array required_phases', () => {
     // iter-4 F1 + F-002 mitigation: when invoked in isolation
     // (bypassing Value.Check), the function MUST surface the
