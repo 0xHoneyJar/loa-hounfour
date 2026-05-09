@@ -129,6 +129,15 @@ const manifest = {
   release_version: pkg.version,
   generated_at: new Date().toISOString(),
   generator: 'generate-release-integrity.ts',
+  // Provenance breadcrumb (PR-B1.0 iter-5 F-006): the manifest
+  // tracked on `main` is the canonical source of truth for the
+  // release_version listed above; if a published tarball under the
+  // same version differs (e.g., post-publish corrections like the
+  // 146-ghost-path fix that landed post-v8.6.0), CHANGELOG.md is
+  // the authoritative record. Consumers running per-file integrity
+  // verification SHOULD consult both this manifest and the
+  // CHANGELOG entry for the matching release_version.
+  notes: 'Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.',
   totals: {
     ...totals,
     total: totalFiles,

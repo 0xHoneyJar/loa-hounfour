@@ -48,6 +48,48 @@ interface NormalizedManifest {
   readonly checksums: Record<string, ReadonlyArray<{ path: string; sha256: string; size_bytes: number }>>;
 }
 
+/**
+ * Validate the JSON structure before casting to `NormalizedManifest`
+ * (PR-B1.0 iter-5 F-001): TypeScript types at the IO boundary are
+ * aspirational, not enforced. A malformed manifest (missing
+ * `totals`, wrong type on `checksums`) without this guard yields a
+ * mid-diff TypeError instead of a targeted "manifest schema
+ * invalid" failure. Stripe / Alexis King "parse, don't validate"
+ * lesson.
+ */
+function assertManifestShape(value: unknown, source: string): asserts value is NormalizedManifest {
+  if (typeof value !== 'object' || value === null) {
+    throw new Error(`manifest in ${source} is not an object`);
+  }
+  const obj = value as Record<string, unknown>;
+  if (typeof obj.release_version !== 'string') {
+    throw new Error(`manifest in ${source}: release_version missing or not a string`);
+  }
+  if (typeof obj.generator !== 'string') {
+    throw new Error(`manifest in ${source}: generator missing or not a string`);
+  }
+  if (typeof obj.totals !== 'object' || obj.totals === null) {
+    throw new Error(`manifest in ${source}: totals missing or not an object`);
+  }
+  if (typeof obj.checksums !== 'object' || obj.checksums === null) {
+    throw new Error(`manifest in ${source}: checksums missing or not an object`);
+  }
+  for (const [cat, entries] of Object.entries(obj.checksums as Record<string, unknown>)) {
+    if (!Array.isArray(entries)) {
+      throw new Error(`manifest in ${source}: checksums.${cat} is not an array`);
+    }
+    for (const entry of entries) {
+      if (typeof entry !== 'object' || entry === null) {
+        throw new Error(`manifest in ${source}: checksums.${cat} contains non-object entry`);
+      }
+      const e = entry as Record<string, unknown>;
+      if (typeof e.path !== 'string' || typeof e.sha256 !== 'string' || typeof e.size_bytes !== 'number') {
+        throw new Error(`manifest in ${source}: checksums.${cat} entry has malformed path/sha256/size_bytes`);
+      }
+    }
+  }
+}
+
 function loadAndNormalize(path: string): NormalizedManifest {
   const raw = JSON.parse(readFileSync(path, 'utf-8'));
   // Drop wall-clock entropy. Everything else is a pure function of
@@ -56,7 +98,12 @@ function loadAndNormalize(path: string): NormalizedManifest {
   // Drop the human-readable verification example since it embeds
   // the same instructions on every regen but isn't load-bearing.
   delete raw.verification;
-  return raw as NormalizedManifest;
+  // Drop the optional `notes` field — generator-emitted free text
+  // documenting any post-publish corrections; not load-bearing for
+  // checksum integrity comparison.
+  delete raw.notes;
+  assertManifestShape(raw, path);
+  return raw;
 }
 
 /**

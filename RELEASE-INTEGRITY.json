@@ -1,7 +1,8 @@
 {
   "release_version": "8.6.0",
-  "generated_at": "2026-05-09T10:48:28.671Z",
+  "generated_at": "2026-05-09T11:14:39.426Z",
   "generator": "generate-release-integrity.ts",
+  "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 257,
     "vectors": 1080,
