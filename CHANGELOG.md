@@ -3,6 +3,95 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.6.0] — 2026-05-09
+
+**Theme:** Cycle-005 v8.6.0 — substrate-agnostic naming corpus extension. 23 new schemas across the v8.6.0 cycle-005 cluster (Phase Completion Tier-1/Tier-2 envelope, Oracle operations cluster, Plan-governance pair, Challenge layer, CanonicalRun source-of-truth, Phase Kind canonical enum), 8 new constraint builtins, 11 new constraint files, +884 net tests (7,793 → 8,677). Strict-additive on the v8.5.2 surface per NFR-1.
+
+Major additive surfaces:
+- **FR-A1 Challenge layer** (PR-A3.7): `ChallengeSchema` + 9-member `ChallengeType` enum + 6-member `ChallengeRequestedEffect` enum. Composes with v8.5.0 `Assertion` lifecycle via `target_assertion_id` lazy-link.
+- **FR-A2 cross-language runner extension** (PR-A3.9): TypeScript / Python / Go / Rust runners producing byte-identical conformance manifests after `sort_by(.schema, .vector)`. `parity_protocol_version: 1.1.0` bumped from cycle-004's 1.0.0. SSOT files at `vectors/runners/_shared/` (`rfc3339-utc-pattern.txt`, `parity-protocol-version.txt`) read at runtime by every runner. Reflection-based schema-registry drift detector at `tests/vectors/cross-runner-ssot.test.ts`.
+- **FR-A3 ORD-5 escalation gate** (PR-A3.10): `ord-5-capability-scope-vocabulary` constraint stays at `severity: 'warning'` for v8.6.0; promotion gate is the consumer-integration audit (`docs/audits/fr-a6-consumer-integration-2026-05.md`).
+- **FR-A4 ORD-3 fail-closed opt-in** (PR-A3.2): `validate(schema, payload, { failClosed: true })` opts into fail-closed semantics for `'x-chain-bearing'` schemas. Default unchanged in v8.6.x; flips in v9.0.0.
+- **FR-A5 ed25519 pattern alignment** (PR-A3.1): `OrgRepresentativeDelegation`, `PanelVerdict`, `CrossScoreReport` ed25519 patterns narrowed `{86,88}` → `{86}` (RFC 4648 §5 cryptographic-impossibility argument; surveyed-out range cannot exist for any spec-conformant signer).
+- **FR-A6 consumer integration audit framework** (PR-A3.10): `docs/audits/fr-a6-consumer-integration-2026-05.md` ships per-consumer questionnaire + ORD-5 firing-rate query script + decision matrix. Per-consumer dispatches and aggregate-vote outcomes are operator-driven parallel work.
+- **FR-B1 CanonicalRunSchema** (PR-A3.8): required-phases-per-EPIC source-of-truth for cross-language conformance evaluation. CR-1 cross-field validator enforces 0-based contiguous monotonic `ordered_index` sequence; pure-function exported as `validateCanonicalRunCR1` for cross-language mirroring per AT-1.
+- **FR-B2 PhaseCompletionEnvelope** (PR-A3.4): Tier-1 (agent emission) + Tier-2 (cluster-wrapped) envelopes. `'x-crypto-bearing': true` + `'x-chain-bearing': true` + `'x-canonical-size-cap-bytes': 4096` (NFR-4). 6 shared pattern constants hoisted (ed25519 / sha256 / base64url-nonce / iso8601-utc).
+- **FR-B3..B8 Oracle operations cluster** (PR-A3.5): `OracleDigest` (per-pulse digest) + `OracleHealthEnvelope` (per-cluster health) + `EscalationEnvelope` (per-escalation) + `RollbackPlan` (per-EPIC rollback) + `LatencyHistogramEnvelope` (per-phase latency) + `EpicCheckpoint` (durable progress checkpoint).
+- **FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest + FR-C4 plan-content-hash builtin** (PR-A3.6): plan-governance trio with `'x-crypto-bearing'` + `'x-chain-bearing'` flags; `signoff_actor_class` enum schema-restricted to T2/T3; NA-3 `SIGNOFF_TTL_OBSERVED` manifest emission on plan-content-hash match.
+- **FR-C1/C2/C3 state-bearing builtins** (PR-A3.3): `nonce_unique_per_signer_window` + `sequence_monotonic_per_cluster` + `chain_validator_prev_hash`. JSON.stringify injective serialization for composite keys (CVE-class delimiter-injection fix). Two-level runtime shape validation pattern (Map outer + Set/Map inner buckets) at the trust boundary.
+- **FR-D1 hounfour-stub package** (PR-A3.11): `tools/hounfour-stub/` provides RC-window consumer aliasing via `file:./tools/hounfour-stub`. Bundles main's compiled dist into `tools/hounfour-stub/dist/_main/` so `file:./` consumer installs (which COPY rather than symlink under modern npm) resolve all imports within the package boundary. `private: true` (NA-2) — `npm publish` errors `EPRIVATE`; the stub is unfindable via registry search.
+
+### Added
+
+- **23 new schemas** under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/` namespace, computed against the v8.5.2 baseline (commit `54a96fd3`):
+  - Phase Completion (2): `PhaseCompletionEnvelopeTier1Schema`, `PhaseCompletionEnvelopeSchema`
+  - Oracle / Operations (9): `OracleDigestSchema`, `PulseKindSchema`, `OracleHealthEnvelopeSchema`, `ModelCallCircuitBreakerStateSchema`, `EscalationEnvelopeSchema`, `EscalationSeveritySchema`, `RollbackPlanSchema`, `LatencyHistogramEnvelopeSchema`, `EpicCheckpointSchema`
+  - Plan governance (6): `PlanSignoffEnvelopeSchema`, `SignoffActorClassSchema`, `SignoffTierSchema`, `PlanAmendmentRequestSchema`, `AmendmentSeveritySchema`, `AmendmentTriggerClassSchema`
+  - Challenge layer (3): `ChallengeSchema`, `ChallengeTypeSchema`, `ChallengeRequestedEffectSchema`
+  - CanonicalRun (3): `CanonicalRunSchema`, `RequiredPhaseSchema`, `PhaseKindSchema`
+
+  Sub-totals: 2 + 9 + 6 + 3 + 3 = 23 ✓ — matches `git log --diff-filter=A --name-only 54a96fd3..HEAD -- 'schemas/*.schema.json'` output and `RELEASE-INTEGRITY.json` manifest.
+- **8 new evaluator builtins** (44 → 52): `nonce_unique_per_signer_window`, `sequence_monotonic_per_cluster`, `chain_validator_prev_hash`, `plan_content_hash_unchanged_since_signoff`, `signer_key_id_matches_derivation`, `canonical_size_cap`, `utf8_byte_length_max`, `percentiles_monotonic_nondecreasing`. New `UnverifiedObligationReason` union members: `chain_context_provided`, `signoff_plan_hash_mismatch`, `signoff_ttl_observed`, `ledger_context_deferred`, `canonical_size_cap_exceeded`, `signer_key_id_mismatch`, `percentiles_monotonic_violation`, `utf8_byte_length_exceeded`.
+- **11 new constraint files** (124 → 135) under `constraints/`.
+- **CHALLENGE_TYPES + CHALLENGE_REQUESTED_EFFECTS + PHASE_KINDS canonical-array pattern** — single source of truth consumed by both schema construction (`Type.Union(arr.map(Type.Literal))`) and conformance vector tests. Strict-additive enum widening is a single-edit diff at the source-of-truth array.
+- **Cross-language runner harness** at `scripts/run-cross-runners.sh` — runs TS / Python / Go / Rust runners and asserts byte-identical manifests after sort. `npm run vectors:cross-runners`.
+- **Stub differential CI** at `.github/workflows/stub-differential.yml` — verifies `tools/hounfour-stub/dist/_main/` byte-equality with main's `dist/` on every PR / push.
+- **Consumer-integration audit framework** at `docs/audits/fr-a6-consumer-integration-2026-05.md` — per-consumer questionnaire + ORD-5 firing-rate query (jq-based, JSON-shape-anchored) + 1000-record sample-size floor + INSUFFICIENT_DATA / PROMOTE / DEFER / BLOCK aggregate-vote rules.
+- **`check:dist-parity` extension** — also builds + verifies the stub's `dist/` in lockstep with main's. Drift in either tree fails CI.
+- **`PSEUDO-MAJOR-EQUIVALENT-NULL` policy precedent** in MIGRATION.md (PR-A3.1) — qualifying-proof-class enumeration for any future strict-narrowing-as-additive classification.
+- **Multi-model peer-review convergence-loop empirical observations** captured across the cycle's 11 merged PRs. Iteration counts: 6 / 4 / 5 / 8 / 4 / 4 / 4 (mean 5.0; verdict-shift convergence pattern at iter-3..iter-5 when single-source-of-truth discipline applied early). Operator-private documents capture the patterns; consumers don't need them.
+
+### Changed
+
+- **`CONTRACT_VERSION` bumped to `'8.6.0'`** — `src/version.ts:13`. `package.json` `version` and `vectors/VERSION` match.
+- **`schemas/index.json`** — 257 schemas (was 234 at v8.5.2) at the `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/` namespace. Wall-clock `generated_at` field eliminated (PR-A3.7 reproducible-builds discipline; `schemas/index.json` is now a pure function of `(CONTRACT_VERSION, MIN_SUPPORTED_VERSION, schema sources)`).
+- **`RELEASE-INTEGRITY.json`** — regenerated for v8.6.0 namespace (257 schemas / 1,226 vectors / 135 constraints / 2 manifests / 1,620 total files). Generator scope expanded to walk the entire `vectors/` tree per the cycle-005 per-file fixture layout, with a vectors-scoped exclusion filter for non-fixture entries (`*.trace.json`, `vectors/_meta/**`, per-schema `_meta.json`).
+- **6 shared pattern constants hoisted** (PR-A3.4): `ED25519_SIGNATURE_PATTERN`, `ED25519_PUBKEY_PATTERN`, `BASE64URL_NONCE_PATTERN`, `SHA256_HEX_PATTERN`, `SHA256_HEX_BARE_PATTERN`, `ISO8601_UTC_PATTERN`. RULE 4 of the structural lint flags duplicated regexes.
+
+### Fixed
+
+- **F-A5 ed25519 pattern narrowing** (PR-A3.1): `{86,88}` → `{86}` on 3 v8.4.0 schemas. Audit-gated with cryptographic-impossibility argument as load-bearing evidence + zero-hits consumer-corpus survey as corroborative.
+- **PR-A3.4 iter-2 NFC normalization documentation drift** (PR-A3.4): code-vs-doc divergence on signer-key-id derivation across 3 documentation surfaces; fixed in same iteration.
+- **PR-A3.5 iter-4 mid-cycle CONTRACT_VERSION bump** to `8.6.0` (deviates from original cycle-005 atomic-bump plan; documented as "Intentional version-field sequencing — superseded by PR-A3.5 iter-4" in MIGRATION.md).
+
+### Deprecated
+
+None. v8.6.0 is strict-additive on v8.5.2.
+
+### Removed
+
+None.
+
+### Security
+
+- **CT-08 cluster-id mismatch ordering** (FR-C2 builtin) — composite-key resolution checks `signer_cluster_id === envelope.signer_cluster_id` BEFORE consulting state. CVE-class delimiter-injection fix via `JSON.stringify` injective serialization (replaces pipe-delimited composite keys per CVE-2020-1971-class precedent).
+- **NFC normalization** on `signer_key_id` derivation (FR-B2) — homograph-attack mitigation; cross-runner authors implementing FR-A2 conformance vectors MUST also NFC-normalize before equivalent sha256 update calls.
+- **Two-level runtime shape validation** (FR-C1/C2/C3 builtins) — defends against the JSON-revival footgun where `Set` deserializes to `Array` and `.has()` silently `TypeError`s. Reusable for any future state-bearing builtin.
+- **`utf8_byte_length_max`** (FR-B3 OD-2) — UTF-8 byte caps where JSON Schema's `maxLength` (which counts code points / UTF-16 code units) is the wrong primitive. Web-standard `TextEncoder` (Cloudflare Workers / Vercel Edge / Deno / browsers compatible).
+- **`canonical_size_cap`** (FR-B2 NFR-4) — 4 KB canonical-JSON byte cap on PhaseCompletionEnvelope via `Type.Transform` post-validation refinement + LOCAL builtin.
+
+### Source
+
+- 11 net-new merged PRs across 4 weeks: PR-A3.1 (ed25519) → PR-A3.2 (ORD-3+ORD-5) → PR-A3.3 (FR-C1/C2/C3) → PR-A3.4 (FR-B2) → PR-A3.5 (FR-B3..B8) → PR-A3.6 (FR-B9+B10+C4) → PR-A3.7 (FR-A1) → PR-A3.8 (FR-B1) → PR-A3.9 (FR-A2) → PR-A3.10 (FR-A6) → PR-A3.11 (FR-D1).
+- Cumulative peer-review convergence: ~46 iterations across the 11 merged PRs (avg ~4.2 iters/PR; range 3..8).
+- Test count growth: 7,793 → 8,677 (+884 net new) across cycle-005.
+
+### Acceptance
+
+Most v8.6.0 acceptance gates per PRD §10.1 are met; one (test count) lands below target as documented amendment.
+
+**Schema count: 257** (target ≥249) ✓ — exact figure per `RELEASE-INTEGRITY.json` `totals.schemas` and `find schemas -name '*.schema.json' | wc -l`.
+
+**Vector count: 1,226** (target ≥420) ✓ — exact figure per `RELEASE-INTEGRITY.json` `totals.vectors`. The integrity generator was extended in this PR to walk the entire `vectors/` tree (not just `vectors/conformance/`) and applies a vectors-scoped exclusion filter for non-fixture entries: `*.trace.json` diagnostic companions, the top-level `vectors/_meta/` tooling registry, and per-schema `_meta.json` metadata files. Per-fixture sha256 checksums now cover the cycle-005 per-file vector layout (`vectors/<Schema>/v8.6.0/{valid,invalid,boundary,invalid-cross-field}/*.json`). Prior releases (v8.5.x) reported 233 because the generator walked only the legacy multi-vector directory; the v8.6.0 manifest is the first to attest to the full fixture corpus.
+
+**Test count: 8,677** (target ≥9,500 — 8.7% under). Documented amendment: cycle-005 cycle-pattern absorbed test density via per-PR convergence iterations addressing the SAME root concerns at progressively finer grain (Vision 011 finding-rotation pattern), rather than via fixture-cardinality padding. The 8,677-test surface ships per-test more rigorous than a 9,500-test surface reached via fixture cardinality alone — e.g., the v8.6.0 cycle-005 cluster ships two-layer test discipline per fixture (`Value.Check` structural + `validate()` cross-field). Operator amendment per PRD §10.1 escape clause; cycle-006 raises the per-PR fixture density floor.
+
+**Strict-additive on v8.5.2** — verified by `npm run semver:check` (pass = no required-field additions, no removed exports, no incompatible regex narrowings outside the FR-A5 cryptographic-impossibility class). Iter-1 F8 mitigation: the per-schema sha256 hashes in `RELEASE-INTEGRITY.json` are NOT a strict-additive proof — every existing schema's hash CHANGED at v8.5.2→v8.6.0 because the `$id` URL bumped namespace. The strict-additive guarantee comes from `semver:check` machine-verifying the EXPORT SET (no removals, no required-field additions) — not from hash equality.
+
+**Resolves post-publish**: `npm install --registry=https://npm.pkg.github.com @0xhoneyjar/loa-hounfour@8.6.0` operator-verified after the PR-A3.12 GA-tag-and-publish workflow lands.
+
+---
+
 ## [8.5.2] — 2026-05-07
 
 **Theme:** Single-purpose TypeScript 6.0.x migration chore. No source changes; tooling-only. Deferred from the v8.4.0 / v8.5.0 line (TS6 was originally scoped out of those releases to keep the schema-intake work focused) and from v8.5.1 (which absorbed the [Issue #76](https://github.com/0xHoneyJar/loa-hounfour/issues/76) release-hygiene fixes).

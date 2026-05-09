@@ -1,4 +1,4 @@
-<!-- docs-version: 8.6.0-inflight -->
+<!-- docs-version: 8.6.0 -->
 
 # Migration & Schema Evolution Guide
 

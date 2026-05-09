@@ -6,7 +6,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
-import { join, dirname, relative } from 'node:path';
+import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,10 +44,51 @@ interface FileChecksum {
 // `schemastore-catalog.json`) are tracked under the separate `manifests`
 // category — they remain checksummed for tamper detection but are not
 // counted against the schemas total.
+//
+// PR-A3.12 iter-2 mitigation (integrity_file_incomplete): the `vectors`
+// category previously walked only `vectors/conformance/` (legacy
+// pre-v8.4.0 multi-vector files). The cycle-005 cluster's per-file
+// fixture layout (`vectors/<Schema>/v8.6.0/{valid,invalid,boundary,
+// invalid-cross-field}/*.json`) was uncounted — totals.vectors=233
+// while the actual fixture corpus carries ≥1,200 files. The manifest
+// now walks the entire `vectors/` tree and applies a vectors-scoped
+// exclusion filter for non-fixture files (trace diagnostics, tooling
+// registries). PR-A3.12 iter-3 fix (23d6a2a0 + F-001): the exclusion
+// predicate is now per-category (only the `vectors` category gets the
+// filter; schemas/constraints walk unfiltered) and the `_meta/`
+// branch returns true (excluded) per the documented intent — iter-2
+// shipped an inverted predicate that included _meta/ files.
+// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks now
+// operate on a forward-slash-normalized path *relative to the repo root*.
+// The project ships Linux/macOS only, so cross-platform breakage is
+// theoretical, but normalizing once at the boundary (rather than at
+// every call site) eliminates a sharp edge for contributor checkouts
+// and keeps the predicate semantically anchored to repo-relative
+// structure rather than absolute substring matches.
+const isVectorExcluded = (absPath: string): boolean => {
+  const rel = relative(root, absPath).split(sep).join('/');
+  // Per-fixture trace companions are diagnostics, not test inputs.
+  if (rel.endsWith('.trace.json')) return true;
+  // Top-level vectors/_meta/ directory holds tooling registries
+  // (constraint-level-invalids.json, regex-subset.md). Framework-
+  // internal; not part of the fixture corpus consumers verify.
+  if (rel.startsWith('vectors/_meta/')) return true;
+  // Per-schema vectors/<Schema>/_meta.json files carry schema-level
+  // metadata (e.g., `cycle-005-vector-budget`) — also tooling, not
+  // a test fixture. Anchored at depth-2 to avoid silently dropping
+  // a future fixture that happens to be named `_meta.json` deeper
+  // in the tree.
+  if (/^vectors\/[^/]+\/_meta\.json$/.test(rel)) return true;
+  return false;
+};
+
 const dirs = [
-  { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas' },
-  { dir: join(root, 'vectors', 'conformance'), ext: '.json', category: 'vectors' },
-  { dir: join(root, 'constraints'), ext: '.json', category: 'constraints' },
+  { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas',
+    exclude: undefined as ((p: string) => boolean) | undefined },
+  { dir: join(root, 'vectors'), ext: '.json', category: 'vectors',
+    exclude: isVectorExcluded },
+  { dir: join(root, 'constraints'), ext: '.json', category: 'constraints',
+    exclude: undefined as ((p: string) => boolean) | undefined },
 ] as const;
 
 const explicitManifestPaths = [
@@ -55,14 +96,24 @@ const explicitManifestPaths = [
   join(root, 'schemas', 'schemastore-catalog.json'),
 ] as const;
 
+// PR-A3.12 iter-5 mitigation (F-001 finer-grain rotation): emitted `path`
+// fields are POSIX-normalized so manifest bytes are platform-independent.
+// On Linux/macOS this is a no-op (`relative()` already emits `/`); the
+// normalization is purely defensive against a future Windows
+// contributor checkout serializing backslashes into the manifest and
+// silently breaking byte-equality reproducibility.
+const toPosixRel = (absPath: string): string =>
+  relative(root, absPath).split(sep).join('/');
+
 const checksums: Record<string, FileChecksum[]> = {};
 const totals: Record<string, number> = {};
 let totalFiles = 0;
 
-for (const { dir, ext, category } of dirs) {
-  const files = walkDir(dir, ext);
+for (const { dir, ext, category, exclude } of dirs) {
+  const allFiles = walkDir(dir, ext);
+  const files = exclude ? allFiles.filter((f) => !exclude(f)) : allFiles;
   checksums[category] = files.map((f) => ({
-    path: relative(root, f),
+    path: toPosixRel(f),
     sha256: sha256(f),
     size_bytes: statSync(f).size,
   }));
@@ -81,7 +132,7 @@ const manifestFiles = explicitManifestPaths
   })
   .sort();
 checksums.manifests = manifestFiles.map((f) => ({
-  path: relative(root, f),
+  path: toPosixRel(f),
   sha256: sha256(f),
   size_bytes: statSync(f).size,
 }));
