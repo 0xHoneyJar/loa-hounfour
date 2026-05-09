@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- **`RELEASE-INTEGRITY.json` manifest contamination** (post-v8.6.0 hygiene, PR-B1.0). The v8.6.0 published manifest claimed 1,226 vector entries but only 1,080 of those were actual fixtures — 146 entries were leaked cargo `target/` cache paths (e.g., `vectors/runners/rust/target/.rustc_info.json`) that the `isVectorExcluded` predicate failed to filter at manifest-generation time. The PR-A3.13 prepack hook removed these from the published tarball but the tarball-internal manifest remained contaminated. The predicate is now extended to filter `vectors/runners/rust/target/`, `vectors/runners/go/cross-runner{,.exe}`, `vectors/runners/python/__pycache__/`, `vectors/runners/python/.venv/`, and `*.pyc`. Regenerated manifest reports the corrected 1,080 vector count.
+- The v8.6.0 published bytes are unchanged; the corrected manifest will ship naturally with the next release. Consumers running per-file integrity verification against the published v8.6.0 tarball will see "missing file" errors for the 146 ghost paths but the actual fixture corpus checksums remain valid.
+
+### Added
+
+- **`scripts/lib/release-integrity-predicates.ts`**: extracted `isVectorExcluded` predicate from `scripts/generate-release-integrity.ts` so the truth table is unit-testable. The original predicate shipped with an inverted branch in PR-A3.12 iter-1 (caught at iter-3 after 5 days of cycle-005 reviews); landing the lesson as 26 truth-table assertions in `tests/scripts/release-integrity-predicates.test.ts` (Meta release-engineering principle: every empirical fix becomes a regression test).
+- **`npm run check:release-integrity-parity`**: regenerate-and-diff CI guard for `RELEASE-INTEGRITY.json`. Mirrors `check:dist-parity` for `dist/`. Catches manifest drift if a contributor edits the file by hand or if the generator produces non-deterministic output.
+- **`npm run check:tarball-budget`**: `npm pack --dry-run --json` size assertion in `check:all`. Defense-in-depth alongside the PR-A3.13 prepack hook + the vitest test — catches `package.json#files` drift that introduces a 100 MB-class regression even when the prepack hook is in place. Ceiling: 15 MB unpacked (current: ~8 MB).
+
 ## [8.6.0] — 2026-05-09
 
 **Theme:** Cycle-005 v8.6.0 — substrate-agnostic naming corpus extension. 23 new schemas across the v8.6.0 cycle-005 cluster (Phase Completion Tier-1/Tier-2 envelope, Oracle operations cluster, Plan-governance pair, Challenge layer, CanonicalRun source-of-truth, Phase Kind canonical enum), 8 new constraint builtins, 11 new constraint files, +884 net tests (7,793 → 8,677). Strict-additive on the v8.5.2 surface per NFR-1.

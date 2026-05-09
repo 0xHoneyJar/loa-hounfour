@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isVectorExcluded as isVectorExcludedAbs } from './lib/release-integrity-predicates.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -58,29 +59,14 @@ interface FileChecksum {
 // filter; schemas/constraints walk unfiltered) and the `_meta/`
 // branch returns true (excluded) per the documented intent — iter-2
 // shipped an inverted predicate that included _meta/ files.
-// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks now
+// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks
 // operate on a forward-slash-normalized path *relative to the repo root*.
-// The project ships Linux/macOS only, so cross-platform breakage is
-// theoretical, but normalizing once at the boundary (rather than at
-// every call site) eliminates a sharp edge for contributor checkouts
-// and keeps the predicate semantically anchored to repo-relative
-// structure rather than absolute substring matches.
-const isVectorExcluded = (absPath: string): boolean => {
-  const rel = relative(root, absPath).split(sep).join('/');
-  // Per-fixture trace companions are diagnostics, not test inputs.
-  if (rel.endsWith('.trace.json')) return true;
-  // Top-level vectors/_meta/ directory holds tooling registries
-  // (constraint-level-invalids.json, regex-subset.md). Framework-
-  // internal; not part of the fixture corpus consumers verify.
-  if (rel.startsWith('vectors/_meta/')) return true;
-  // Per-schema vectors/<Schema>/_meta.json files carry schema-level
-  // metadata (e.g., `cycle-005-vector-budget`) — also tooling, not
-  // a test fixture. Anchored at depth-2 to avoid silently dropping
-  // a future fixture that happens to be named `_meta.json` deeper
-  // in the tree.
-  if (/^vectors\/[^/]+\/_meta\.json$/.test(rel)) return true;
-  return false;
-};
+// The predicate itself lives in `./lib/release-integrity-predicates.ts`
+// (extracted in PR-B1.0 hygiene so the truth table can be pinned by
+// unit tests — `tests/scripts/release-integrity-predicates.test.ts`).
+// Bound here with the resolved `root` so the call sites stay one-arg.
+const isVectorExcluded = (absPath: string): boolean =>
+  isVectorExcludedAbs(absPath, root);
 
 const dirs = [
   { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas',
@@ -143,6 +129,15 @@ const manifest = {
   release_version: pkg.version,
   generated_at: new Date().toISOString(),
   generator: 'generate-release-integrity.ts',
+  // Provenance breadcrumb (PR-B1.0 iter-5 F-006): the manifest
+  // tracked on `main` is the canonical source of truth for the
+  // release_version listed above; if a published tarball under the
+  // same version differs (e.g., post-publish corrections like the
+  // 146-ghost-path fix that landed post-v8.6.0), CHANGELOG.md is
+  // the authoritative record. Consumers running per-file integrity
+  // verification SHOULD consult both this manifest and the
+  // CHANGELOG entry for the matching release_version.
+  notes: 'Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.',
   totals: {
     ...totals,
     total: totalFiles,
@@ -151,7 +146,28 @@ const manifest = {
   checksums,
 };
 
-const outPath = join(root, 'RELEASE-INTEGRITY.json');
+// PR-B1.0 iter-2 (F-001): support an `--out <path>` flag so the
+// `check:release-integrity-parity` gate can regenerate the manifest
+// to a tmp file without mutating the tracked `RELEASE-INTEGRITY.json`.
+// Hermetic verification gates should not write to the working tree
+// (Bazel/Buck2 sandbox precedent).
+//
+// PR-B1.0 iter-3 (F-002-out-arg): validate the `--out` value to
+// reject flag-like or empty arguments. Silently accepting `--out
+// --foo` or `--out ` would write to a surprising location or fail
+// with a non-actionable filesystem error (Kubernetes CLI conventions
+// + Go flag package strictness precedent).
+function parseOutPath(): string {
+  const idx = process.argv.indexOf('--out');
+  if (idx < 0) return join(root, 'RELEASE-INTEGRITY.json');
+  const val = process.argv[idx + 1];
+  if (val === undefined || val === '' || val.startsWith('-')) {
+    console.error(`generate-release-integrity: --out requires a non-flag path argument, got: ${JSON.stringify(val)}`);
+    process.exit(2);
+  }
+  return val;
+}
+const outPath = parseOutPath();
 writeFileSync(outPath, JSON.stringify(manifest, null, 2) + '\n');
 
 console.log(`RELEASE-INTEGRITY.json generated:`);
