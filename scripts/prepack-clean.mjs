@@ -39,13 +39,21 @@
  *   2. `npm_command === 'publish'` (set by npm itself)
  *   3. `npm_lifecycle_event === 'publish'` (alt npm signal)
  *
- * If none match, treat as pack mode (dry-run report). Power-users who
- * want a publish-equivalent pack tarball can run
- * `PREPACK_MODE=publish npm pack`.
+ * For local verification of publish-equivalent tarballs, run
+ * `PREPACK_MODE=publish npm pack` — this is the canonical command for
+ * inspecting what `npm publish` would actually ship.
  *
- * Currently supported package managers: npm 9+. pnpm / yarn / bun do
- * not set `npm_command` and will fall through to dry-run; CI flows
- * using non-npm publishers MUST set `PREPACK_MODE=publish` explicitly.
+ * ## Package manager support
+ *
+ * Currently supported: npm 9+. pnpm / yarn / bun do NOT set
+ * `npm_command`, so we additionally inspect `npm_config_user_agent`:
+ *
+ *   - npm UA → trust the npm_command/lifecycle signals above
+ *   - non-npm UA (pnpm/yarn/bun) → REQUIRE `PREPACK_MODE` explicitly;
+ *     unknown publisher state is fail-closed (Apollo deployment
+ *     "ambiguity defaults to denial" lesson). pnpm/yarn/bun publish
+ *     flows MUST set `PREPACK_MODE=publish` before invoking, otherwise
+ *     this script aborts to avoid silently shipping bad bytes.
  *
  * ## Failure semantics
  *
@@ -72,12 +80,29 @@ const PATHS_TO_CLEAN = [
   { rel: 'vectors/runners/go/cross-runner.exe', isDir: false },
 ];
 
+const userAgent = process.env.npm_config_user_agent ?? '';
+const isNonNpmPublisher = /\b(pnpm|yarn|bun)\//i.test(userAgent);
+const explicitMode = process.env.PREPACK_MODE; // 'publish' | 'pack' | undefined
+
+if (isNonNpmPublisher && !explicitMode) {
+  console.error(
+    `prepack-clean: ABORTING — non-npm package manager detected (user-agent="${userAgent}") and PREPACK_MODE is unset.`,
+  );
+  console.error(
+    'prepack-clean: pnpm/yarn/bun publish flows MUST set `PREPACK_MODE=publish` (or `PREPACK_MODE=pack` for inspection) before invoking this hook.',
+  );
+  console.error(
+    'prepack-clean: silent fallthrough on unknown publisher state would risk shipping ~100 MB of build artifacts.',
+  );
+  process.exit(1);
+}
+
 const isPublish =
-  process.env.PREPACK_MODE === 'publish' ||
+  explicitMode === 'publish' ||
   process.env.npm_command === 'publish' ||
   process.env.npm_lifecycle_event === 'publish';
 const mode = isPublish ? 'publish (destructive)' : 'pack (dry-run only)';
-console.log(`prepack-clean: mode=${mode}`);
+console.log(`prepack-clean: mode=${mode}${userAgent ? ` (ua=${userAgent.split(' ')[0]})` : ''}`);
 
 const failures = [];
 
@@ -93,9 +118,10 @@ for (const { rel, isDir } of PATHS_TO_CLEAN) {
   }
 
   if (isPublish) {
-    // `rmSync` with `force: true` swallows ENOENT, so we don't pre-check
-    // existence in the destructive branch. Catch + record any other
-    // error (EBUSY, EACCES, EPERM); fail-closed at the end.
+    // Capture existence once for honest logging. We don't *gate*
+    // rmSync on it (force:true swallows ENOENT natively), but we do
+    // want the log line to reflect whether work actually happened.
+    const wasPresent = existsSync(abs);
     try {
       rmSync(abs, { recursive: true, force: true });
     } catch (err) {
@@ -111,7 +137,9 @@ for (const { rel, isDir } of PATHS_TO_CLEAN) {
       failures.push({ rel, reason: 'still present after rmSync' });
       continue;
     }
-    console.log(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
+    if (wasPresent) {
+      console.log(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
+    }
   } else {
     if (!existsSync(abs)) continue;
     console.log(

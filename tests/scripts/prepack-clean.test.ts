@@ -11,7 +11,7 @@
  * from silently re-introducing the leak.
  */
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -25,10 +25,13 @@ const FORBIDDEN_PATH_FRAGMENTS = [
   'vectors/runners/go/cross-runner',
 ] as const;
 
-// Tarball-size ceiling. v8.6.0 ships at ~1.3 MB packed; 10 MB gives
-// generous headroom for cycle-006+ growth without masking a regression
-// of the magnitude this PR exists to prevent (~100 MB).
-const UNPACKED_SIZE_CEILING_BYTES = 50 * 1024 * 1024;
+// Tarball-size ceiling. v8.6.0 ships at ~1.3 MB packed / ~14 MB unpacked.
+// 15 MB gives modest headroom for cycle-006+ growth while still catching
+// a ~100 MB regression of the magnitude this PR exists to prevent.
+// Tighter than 50 MB so we get earlier signal on slow drift, looser than
+// the current ~14 MB so a few MB of legitimate fixture growth doesn't
+// trip the gate.
+const UNPACKED_SIZE_CEILING_BYTES = 15 * 1024 * 1024;
 
 interface PackEntry {
   readonly path: string;
@@ -46,26 +49,60 @@ interface PackOutput {
 const RUST_TARGET_MARKER = join(ROOT, 'vectors/runners/rust/target/release/.test-marker');
 const GO_BINARY_MARKER = join(ROOT, 'vectors/runners/go/cross-runner');
 
+/**
+ * Snapshot a path's content + mtime so we can restore it byte-identical
+ * after the test runs. Returns `null` if the path didn't exist; in that
+ * case the restorer just removes whatever the test wrote.
+ */
+function snapshot(path: string): { content: Buffer; mtimeMs: number } | null {
+  if (!existsSync(path)) return null;
+  return {
+    content: readFileSync(path),
+    mtimeMs: statSync(path).mtimeMs,
+  };
+}
+
+/**
+ * Plant marker artifacts at the same paths the developer's real
+ * cross-runner outputs would live, snapshot any pre-existing content,
+ * then restore byte-identical state in finally. The repo's working
+ * tree is left identical to how the test found it (Meta buck-test
+ * "idempotent and restorative" invariant). The Go binary case is the
+ * one that mattered: a developer who had run `npm run vectors:cross-
+ * runners` would otherwise lose their compiled binary to the clobber.
+ */
 function withMarkers<T>(fn: () => T): T {
-  // Plant the artifacts the prepack hook is supposed to filter, then
-  // verify the actual `npm pack` output doesn't include them.
+  const rustSnap = snapshot(RUST_TARGET_MARKER);
+  const goSnap = snapshot(GO_BINARY_MARKER);
+
   mkdirSync(dirname(RUST_TARGET_MARKER), { recursive: true });
   writeFileSync(RUST_TARGET_MARKER, 'test\n');
   writeFileSync(GO_BINARY_MARKER, 'test\n');
   try {
     return fn();
   } finally {
-    if (existsSync(RUST_TARGET_MARKER)) rmSync(RUST_TARGET_MARKER, { force: true });
-    if (existsSync(GO_BINARY_MARKER)) rmSync(GO_BINARY_MARKER, { force: true });
-    // Tidy empty dirs the marker created.
-    const release = join(ROOT, 'vectors/runners/rust/target/release');
-    const target = join(ROOT, 'vectors/runners/rust/target');
-    for (const d of [release, target]) {
-      try {
-        rmSync(d, { recursive: false });
-      } catch {
-        // Ignore — directory non-empty or already gone.
+    // Restore the rust marker path: write back the snapshot if it
+    // existed, otherwise remove our test write + clean up any dirs we
+    // created.
+    if (rustSnap) {
+      writeFileSync(RUST_TARGET_MARKER, rustSnap.content);
+    } else {
+      if (existsSync(RUST_TARGET_MARKER)) rmSync(RUST_TARGET_MARKER, { force: true });
+      const release = join(ROOT, 'vectors/runners/rust/target/release');
+      const target = join(ROOT, 'vectors/runners/rust/target');
+      for (const d of [release, target]) {
+        try {
+          rmSync(d, { recursive: false });
+        } catch {
+          // Ignore — directory non-empty or already gone.
+        }
       }
+    }
+    // Restore the go binary path.
+    if (goSnap) {
+      writeFileSync(GO_BINARY_MARKER, goSnap.content);
+    } else {
+      if (existsSync(GO_BINARY_MARKER)) rmSync(GO_BINARY_MARKER, { force: true });
     }
   }
 }
