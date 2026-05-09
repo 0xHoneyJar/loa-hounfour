@@ -36,6 +36,7 @@ import { Value } from '@sinclair/typebox/value';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { TSchema } from '@sinclair/typebox';
 import { PanelDecisionArtifactSchema } from '../src/governance/panel-decision-artifact.js';
 import { PanelVerdictSchema } from '../src/governance/panel-verdict.js';
 import { DeliberationDissentSchema } from '../src/governance/deliberation-dissent.js';
@@ -43,6 +44,14 @@ import { CrossScoreReportSchema } from '../src/governance/cross-score-report.js'
 import { OrgIdentitySchema } from '../src/governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../src/governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../src/governance/succession-policy.js';
+// PR-A3.9 (FR-A2) — v8.6.0 cycle-005 cluster cross-runner coverage.
+import { PhaseCompletionEnvelopeSchema } from '../src/integrity/phase-completion-envelope.js';
+import { OracleDigestSchema } from '../src/operations/oracle-digest.js';
+import { EpicCheckpointSchema } from '../src/operations/epic-checkpoint.js';
+import { PlanSignoffEnvelopeSchema } from '../src/governance/plan-signoff-envelope.js';
+import { PlanAmendmentRequestSchema } from '../src/governance/plan-amendment-request.js';
+import { ChallengeSchema } from '../src/governance/challenge.js';
+import { CanonicalRunSchema } from '../src/canonical/canonical-run.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -50,15 +59,93 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
 const VECTORS_ROOT = join(REPO_ROOT, 'vectors');
 
-const SCHEMAS = {
-  PanelDecisionArtifact: PanelDecisionArtifactSchema,
-  PanelVerdict: PanelVerdictSchema,
-  DeliberationDissent: DeliberationDissentSchema,
-  CrossScoreReport: CrossScoreReportSchema,
-  OrgIdentity: OrgIdentitySchema,
-  OrgRepresentativeDelegation: OrgRepresentativeDelegationSchema,
-  SuccessionPolicy: SuccessionPolicySchema,
-} as const;
+/**
+ * Cross-runner schema registry. Each entry declares the schema's
+ * vector path layout:
+ *
+ *   - `versionPath: null` — flat layout `vectors/<Schema>/{valid,invalid}/`
+ *     (v8.4.0 substrate; introduced in PR-A3.9 baseline).
+ *   - `versionPath: 'v8.6.0'` — versioned layout
+ *     `vectors/<Schema>/v8.6.0/{valid,invalid,boundary,invalid-cross-field}/`
+ *     (v8.6.0 cycle-005 cluster; introduced PR-A3.4..A3.8).
+ *
+ * Cross-language runners (Python / Go / Rust under `vectors/runners/`)
+ * mirror this registry by-convention — each runner's schema list is
+ * a hand-maintained translation of this dict. (Iter-2 7649d21c
+ * disposition: a generated `vectors/runners/registry.json` SSOT is a
+ * v8.7.0 follow-up — at v8.6.0 the registry shape stays per-runtime
+ * because Go / Rust embed schema-name → schema-file mapping in
+ * native syntax that doesn't trivially cross-compile from JSON.)
+ * The TS reference is the golden corpus per AT-1; runners diff
+ * against this output.
+ *
+ * @since v8.6.0 — PR-A3.9 (FR-A2) — version-path support + v8.6.0 cluster.
+ */
+interface SchemaRegistration {
+  schema: TSchema;
+  versionPath: string | null;
+  /** Validity buckets to walk. Defaults to `['valid', 'invalid']`; a
+   * schema with cross-field-only invalids (e.g., CanonicalRun under
+   * direct-invocation) ALSO walks `'invalid-cross-field'` so the
+   * cross-runner manifest includes those entries with a special
+   * `'pass-cross-field-deferred'` result label (cross-language
+   * structural validators report `valid` on the structural tier;
+   * the cross-field tier rejection is consumer-side per ADR-010).
+   */
+  buckets?: ReadonlyArray<'valid' | 'invalid' | 'invalid-cross-field' | 'boundary'>;
+}
+
+const SCHEMAS: Record<string, SchemaRegistration> = {
+  // v8.4.0 substrate — flat layout.
+  PanelDecisionArtifact: { schema: PanelDecisionArtifactSchema, versionPath: null },
+  PanelVerdict: { schema: PanelVerdictSchema, versionPath: null },
+  DeliberationDissent: { schema: DeliberationDissentSchema, versionPath: null },
+  CrossScoreReport: { schema: CrossScoreReportSchema, versionPath: null },
+  OrgIdentity: { schema: OrgIdentitySchema, versionPath: null },
+  OrgRepresentativeDelegation: { schema: OrgRepresentativeDelegationSchema, versionPath: null },
+  SuccessionPolicy: { schema: SuccessionPolicySchema, versionPath: null },
+  // v8.6.0 cycle-005 cluster — versioned layout.
+  // PhaseCompletionEnvelope deferred from PR-A3.9 cross-runner sweep:
+  // the on-disk fixture corpus mixes Tier-1 (`phase_completion_tier1`)
+  // and Tier-2 (`phase_completion`) envelope shapes in the same
+  // `valid/` directory (e.g. canonical-010-tier1-only-shape.json
+  // contains only the Tier-1 ingestion). Validating Tier-1 fixtures
+  // against PhaseCompletionEnvelopeSchema (Tier-2) produces structural
+  // failures that are not real divergences. Routing requires either a
+  // discriminator-based runtime selector (envelope_kind →
+  // Tier-1-vs-Tier-2 schema) or a fixture-corpus split into separate
+  // PhaseCompletionEnvelopeTier1/ vs PhaseCompletionEnvelope/
+  // directories. Both are v8.7.0 follow-up scope; this PR (FR-A2)
+  // ships cross-runner coverage for the 6 v8.6.0 schemas without
+  // tier-routing ambiguity.
+  // PhaseCompletionEnvelope: { schema: PhaseCompletionEnvelopeSchema, versionPath: 'v8.6.0' },
+  OracleDigest: { schema: OracleDigestSchema, versionPath: 'v8.6.0' },
+  EpicCheckpoint: { schema: EpicCheckpointSchema, versionPath: 'v8.6.0' },
+  PlanSignoffEnvelope: { schema: PlanSignoffEnvelopeSchema, versionPath: 'v8.6.0' },
+  PlanAmendmentRequest: { schema: PlanAmendmentRequestSchema, versionPath: 'v8.6.0' },
+  Challenge: { schema: ChallengeSchema, versionPath: 'v8.6.0' },
+  CanonicalRun: {
+    schema: CanonicalRunSchema,
+    versionPath: 'v8.6.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+};
+
+/**
+ * Cross-language harness contract version. Source-of-truth lives at
+ * `vectors/runners/_shared/parity-protocol-version.txt` — every
+ * runner reads from there at startup. iter-2 F011 mitigation:
+ * hardcoded fallbacks across multiple runners are a parity-drift
+ * footgun (same root concern as F008 — three hand-rolled RFC 3339
+ * regexes); the shared file is the load-bearing source.
+ *
+ * @since v8.6.0 — PR-A3.9 (FR-A2) iter-3.
+ */
+const SHARED_DIR = join(REPO_ROOT, 'vectors', 'runners', '_shared');
+export const PARITY_PROTOCOL_VERSION = readFileSync(
+  join(SHARED_DIR, 'parity-protocol-version.txt'),
+  'utf8',
+).trim();
 
 // Constraint-level invalid set is committed metadata at
 // `vectors/_meta/constraint-level-invalids.json` so consumers in any
@@ -93,8 +180,23 @@ const CONSTRAINT_LEVEL_INVALIDS = new Set<string>(
 interface ManifestEntry {
   schema: string;
   vector: string;
-  expected: 'valid' | 'invalid';
-  result: 'pass' | 'fail' | 'pass-constraint-level';
+  expected: 'valid' | 'invalid' | 'invalid-cross-field' | 'boundary';
+  /**
+   * Manifest result vocabulary:
+   *   - `'pass'`: structural validator outcome matched `expected`.
+   *   - `'fail'`: structural validator outcome diverged from `expected`.
+   *   - `'pass-constraint-level'`: structural validator passed despite
+   *     `expected: 'invalid'`; the rejection is registered at constraint
+   *     level (`vectors/_meta/constraint-level-invalids.json`).
+   *   - `'pass-cross-field-deferred'`: structural validator passed (as
+   *     designed) on an `'invalid-cross-field'` fixture; cross-field
+   *     tier rejection is consumer-side per ADR-010 (PR-A3.9 FR-A2).
+   */
+  result:
+    | 'pass'
+    | 'fail'
+    | 'pass-constraint-level'
+    | 'pass-cross-field-deferred';
   diagnostic?: { code: string; path: string };
 }
 
@@ -139,34 +241,72 @@ function canonicalJson(value: unknown): string {
 }
 
 // -----------------------------------------------------------------------
-// Schema vectors: vectors/<Schema>/{valid,invalid}/*.json
+// Schema vectors: vectors/<Schema>/[<versionPath>/]{valid,invalid,invalid-cross-field,boundary}/*.json
 // -----------------------------------------------------------------------
-for (const [schemaName, schema] of Object.entries(SCHEMAS)) {
-  for (const validity of ['valid', 'invalid'] as const) {
-    const dir = join(VECTORS_ROOT, schemaName, validity);
+for (const [schemaName, registration] of Object.entries(SCHEMAS)) {
+  const { schema, versionPath } = registration;
+  const buckets = registration.buckets ?? (['valid', 'invalid'] as const);
+  for (const bucket of buckets) {
+    const bucketParts = versionPath
+      ? [schemaName, versionPath, bucket]
+      : [schemaName, bucket];
+    const dir = join(VECTORS_ROOT, ...bucketParts);
+    // The `vector` path encoded into the manifest is RELATIVE to the
+    // schema directory (`<versionPath>/<bucket>/<file>` or
+    // `<bucket>/<file>` for flat layout) — cross-language runners
+    // produce identical paths so manifest diffs are byte-stable.
+    const vectorPathPrefix = versionPath ? `${versionPath}/${bucket}` : bucket;
     for (const f of listJsonFiles(dir)) {
-      const expected: 'valid' | 'invalid' = validity;
+      const expected: ManifestEntry['expected'] = bucket;
       const parsed = readJsonFixture(join(dir, f));
       if (!parsed.ok) {
         manifest.push({
           schema: schemaName,
-          vector: `${validity}/${f}`,
+          vector: `${vectorPathPrefix}/${f}`,
           expected,
           result: 'fail',
           diagnostic: { code: 'FIXTURE_PARSE_ERROR', path: '$' },
         });
         continue;
       }
-      const ok = Value.Check(schema, parsed.data);
-      const okMatchesExpected = ok === (validity === 'valid');
-      const key = `${schemaName}/${validity}/${f}`;
+      // Strip optional `_comment` field per cycle-005 vector convention
+      // (cf. tests/vectors/challenge-vectors.test.ts) — cross-language
+      // runners MUST do the same so manifest diff stays byte-identical.
+      const data = (typeof parsed.data === 'object' && parsed.data !== null && !Array.isArray(parsed.data))
+        ? (() => {
+            const { _comment, ...rest } = parsed.data as Record<string, unknown>;
+            void _comment;
+            return rest;
+          })()
+        : parsed.data;
+      const ok = Value.Check(schema, data);
+      const key = `${schemaName}/${vectorPathPrefix}/${f}`;
       let result: ManifestEntry['result'];
-      if (CONSTRAINT_LEVEL_INVALIDS.has(key)) {
+      if (bucket === 'invalid-cross-field') {
+        // Structural tier MUST pass these (CR-1 / cross-field rejection
+        // is consumer-side per ADR-010). Cross-language runners
+        // implementing structural-only validation produce the same
+        // 'pass-cross-field-deferred' label so the manifest diff stays
+        // byte-identical regardless of whether a runner ships the
+        // cross-field tier.
+        result = ok ? 'pass-cross-field-deferred' : 'fail';
+      } else if (bucket === 'boundary') {
+        // Boundary fixtures are structurally valid; the cross-field
+        // tier surfaces the tradeoff. Treat like valid for the
+        // structural diff.
+        result = ok ? 'pass' : 'fail';
+      } else if (CONSTRAINT_LEVEL_INVALIDS.has(key)) {
         result = ok ? 'pass-constraint-level' : 'fail';
       } else {
+        const okMatchesExpected = ok === (bucket === 'valid');
         result = okMatchesExpected ? 'pass' : 'fail';
       }
-      manifest.push({ schema: schemaName, vector: `${validity}/${f}`, expected, result });
+      manifest.push({
+        schema: schemaName,
+        vector: `${vectorPathPrefix}/${f}`,
+        expected,
+        result,
+      });
     }
   }
 }

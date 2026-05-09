@@ -75,6 +75,7 @@
     "semver:check": "tsx scripts/semver-check.ts",
     "vectors:check": "tsx scripts/check-vectors.ts",
     "vectors:cross-runner": "tsx scripts/cross-runner.ts",
+    "vectors:cross-runners": "bash scripts/run-cross-runners.sh",
     "vectors:manifest": "tsx scripts/generate-manifest.ts",
     "vectors:package": "tsx scripts/package-vectors.ts",
     "spec:generate": "tsx scripts/generate-asyncapi.ts",
