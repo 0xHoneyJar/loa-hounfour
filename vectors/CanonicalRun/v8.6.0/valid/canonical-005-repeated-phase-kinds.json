@@ -1,0 +1,40 @@
+{
+  "_comment": "Two design phases — phase_kind values are NOT required to be unique; uniqueness is on ordered_index per CR-1.",
+  "canonical_run_id": "canonical-run-005",
+  "canonical_run_version": "1.2.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "iterative-design",
+  "required_phases": [
+    {
+      "phase_id": "phase-005-discovery",
+      "phase_kind": "discovery",
+      "required_gates": ["gate-problem-frame"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-005-design-broad",
+      "phase_kind": "design",
+      "required_gates": ["gate-options-explored"],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-005-design-narrow",
+      "phase_kind": "design",
+      "required_gates": ["gate-decision-locked"],
+      "ordered_index": 2
+    },
+    {
+      "phase_id": "phase-005-implement",
+      "phase_kind": "implement",
+      "required_gates": ["gate-build-passes"],
+      "ordered_index": 3
+    },
+    {
+      "phase_id": "phase-005-ship",
+      "phase_kind": "ship",
+      "required_gates": ["gate-deploy-clean"],
+      "ordered_index": 4
+    }
+  ],
+  "ts_authored": "2026-05-09T04:00:00Z"
+}

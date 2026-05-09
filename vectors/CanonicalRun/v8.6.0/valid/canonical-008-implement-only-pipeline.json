@@ -1,0 +1,28 @@
+{
+  "_comment": "Three implement phases in sequence — schema admits any phase_kind composition; the EPIC owner decides what's appropriate.",
+  "canonical_run_id": "canonical-run-008",
+  "canonical_run_version": "0.5.2",
+  "contract_version": "8.6.0",
+  "epic_kind": "incremental-build",
+  "required_phases": [
+    {
+      "phase_id": "phase-008-implement-first",
+      "phase_kind": "implement",
+      "required_gates": ["gate-feature-a"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-008-implement-second",
+      "phase_kind": "implement",
+      "required_gates": ["gate-feature-b"],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-008-implement-third",
+      "phase_kind": "implement",
+      "required_gates": ["gate-feature-c"],
+      "ordered_index": 2
+    }
+  ],
+  "ts_authored": "2026-05-09T07:00:00Z"
+}

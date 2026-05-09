@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/canonical-run",
+  "additionalProperties": false,
+  "description": "Required-phases-per-EPIC definition consumed as the conformance source-of-truth by `PhaseCompletionEnvelope` (FR-B2), `EpicCheckpoint` (FR-B8), and `ClusterRunSeries` (FR-E1). Hounfour ships shape; consumers compute conformance % per ADR-010. Round-trip parse + re-serialize bit-identical: every well-formed payload `s` satisfies `JSON.stringify(JSON.parse(s)) === s` when `s` is itself the JSON-stringified canonical form. NOT crypto-bearing; NOT chain-bearing.",
+  "type": "object",
+  "required": [
+    "canonical_run_id",
+    "canonical_run_version",
+    "contract_version",
+    "epic_kind",
+    "required_phases",
+    "ts_authored"
+  ],
+  "properties": {
+    "canonical_run_id": {
+      "minLength": 1,
+      "description": "Stable opaque identifier for this canonical-run definition. Referenced by `PhaseCompletionEnvelope` (FR-B2), `EpicCheckpoint` (FR-B8), and `ClusterRunSeries` (FR-E1, v8.7.0) via lazy-link string equality. Uniqueness within a cluster_id is CR-2 (consumer-state).",
+      "type": "string"
+    },
+    "canonical_run_version": {
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semver MAJOR.MINOR.PATCH for this canonical-run definition. Strict-additive widenings (adding required_gates, adding phases at the tail) bump MINOR; required-field changes or reordering bump MAJOR. Consumers MAY use this to detect drift between the canonical-run version they pinned and the one currently published.",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.6.0\" for the cycle-005 ship line.",
+      "const": "8.6.0",
+      "type": "string"
+    },
+    "epic_kind": {
+      "minLength": 1,
+      "description": "EPIC classification this canonical-run shapes — consumer- shaped namespace. Multiple `CanonicalRun` records may exist for the same `epic_kind` across versions; consumers select by (epic_kind, canonical_run_version) per their pinning policy.",
+      "type": "string"
+    },
+    "required_phases": {
+      "minItems": 1,
+      "description": "Ordered sequence of phases. The schema enforces ≥1 entry; CR-1 enforces 0-based contiguous monotonic ordered_index.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "One required-phase entry within a CanonicalRun. Cross-element ordering invariants live in CR-1.",
+        "type": "object",
+        "required": [
+          "phase_id",
+          "phase_kind",
+          "required_gates",
+          "ordered_index"
+        ],
+        "properties": {
+          "phase_id": {
+            "minLength": 1,
+            "description": "Stable opaque identifier for the phase (consumer-shaped — hounfour does not freeze the namespace). Pairs with `PhaseCompletionEnvelope.ingested_emission.payload.phase` on the consumer side for conformance scoring.",
+            "type": "string"
+          },
+          "phase_kind": {
+            "description": "Exhaustive 5-member enum classifying a phase within a CanonicalRun's required_phases sequence. Widening is strict-additive across minor versions.",
+            "anyOf": [
+              {
+                "const": "discovery",
+                "type": "string"
+              },
+              {
+                "const": "design",
+                "type": "string"
+              },
+              {
+                "const": "implement",
+                "type": "string"
+              },
+              {
+                "const": "audit",
+                "type": "string"
+              },
+              {
+                "const": "ship",
+                "type": "string"
+              }
+            ]
+          },
+          "required_gates": {
+            "minItems": 0,
+            "description": "Ordered list of gate identifiers that must be satisfied within this phase. Empty array is admissible (a phase with no gates is well-formed; per-EPIC policy decides whether that is acceptable).",
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "description": "Stable identifier for a gate the phase must satisfy before ship-eligibility. Consumer-shaped namespace.",
+              "type": "string"
+            }
+          },
+          "ordered_index": {
+            "minimum": 0,
+            "description": "Position of this phase in the canonical sequence — 0-based, contiguous, monotonic per CR-1. The schema enforces ≥0 integer; CR-1 enforces the cross-element invariants.",
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "ts_authored": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO 8601 UTC timestamp at which this canonical-run definition was authored (Z suffix). **Fractional-second precision is NOT admitted** (iter-4 F4 / iter-5 mitigation): the wire format is locked to second precision via a local TS_AUTHORED_Z_ONLY_PATTERN so cross-runner byte-identity (CR-3) holds without per-deployment fractional-digit negotiation — the BIP-0066 / Protobuf Timestamp lesson applied to the conformance-scoring source-of-truth. Consumers SHOULD treat ts_authored as monotonic-nondecreasing across successive (epic_kind, canonical_run_id) versions — the obligation owner is the consumer-side registry, NOT the schema. The schema admits any well-formed second-precision UTC timestamp; registry implementations wanting strict monotonic ordering enforce it at insert time per ADR-010 (cf. EpicCheckpoint EC-3 ts ordering as a companion runtime-deferred contract).",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

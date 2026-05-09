@@ -1,0 +1,40 @@
+{
+  "_comment": "Full canonical-order EPIC walking through all five PhaseKind members in sequence.",
+  "canonical_run_id": "canonical-run-002",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-002-discovery",
+      "phase_kind": "discovery",
+      "required_gates": ["gate-requirements-frozen"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-002-design",
+      "phase_kind": "design",
+      "required_gates": ["gate-architecture-review"],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-002-implement",
+      "phase_kind": "implement",
+      "required_gates": ["gate-tests-green", "gate-typecheck-clean"],
+      "ordered_index": 2
+    },
+    {
+      "phase_id": "phase-002-audit",
+      "phase_kind": "audit",
+      "required_gates": ["gate-security-review", "gate-code-review"],
+      "ordered_index": 3
+    },
+    {
+      "phase_id": "phase-002-ship",
+      "phase_kind": "ship",
+      "required_gates": ["gate-merge-clean"],
+      "ordered_index": 4
+    }
+  ],
+  "ts_authored": "2026-05-09T01:00:00Z"
+}

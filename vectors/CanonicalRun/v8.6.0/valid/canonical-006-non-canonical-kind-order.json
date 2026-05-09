@@ -1,0 +1,28 @@
+{
+  "_comment": "Phase kinds in non-canonical order — schema does NOT require kinds to follow a specific sequence; ordered_index alone enforces position. An audit-first / discovery-late EPIC is well-formed.",
+  "canonical_run_id": "canonical-run-006",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "audit-led-investigation",
+  "required_phases": [
+    {
+      "phase_id": "phase-006-audit-initial",
+      "phase_kind": "audit",
+      "required_gates": ["gate-baseline-snapshot"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-006-discovery",
+      "phase_kind": "discovery",
+      "required_gates": ["gate-root-cause-found"],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-006-implement",
+      "phase_kind": "implement",
+      "required_gates": ["gate-fix-applied"],
+      "ordered_index": 2
+    }
+  ],
+  "ts_authored": "2026-05-09T05:00:00Z"
+}

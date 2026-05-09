@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/required-phase",
+  "additionalProperties": false,
+  "description": "One required-phase entry within a CanonicalRun. Cross-element ordering invariants live in CR-1.",
+  "type": "object",
+  "required": [
+    "phase_id",
+    "phase_kind",
+    "required_gates",
+    "ordered_index"
+  ],
+  "properties": {
+    "phase_id": {
+      "minLength": 1,
+      "description": "Stable opaque identifier for the phase (consumer-shaped — hounfour does not freeze the namespace). Pairs with `PhaseCompletionEnvelope.ingested_emission.payload.phase` on the consumer side for conformance scoring.",
+      "type": "string"
+    },
+    "phase_kind": {
+      "description": "Exhaustive 5-member enum classifying a phase within a CanonicalRun's required_phases sequence. Widening is strict-additive across minor versions.",
+      "anyOf": [
+        {
+          "const": "discovery",
+          "type": "string"
+        },
+        {
+          "const": "design",
+          "type": "string"
+        },
+        {
+          "const": "implement",
+          "type": "string"
+        },
+        {
+          "const": "audit",
+          "type": "string"
+        },
+        {
+          "const": "ship",
+          "type": "string"
+        }
+      ]
+    },
+    "required_gates": {
+      "minItems": 0,
+      "description": "Ordered list of gate identifiers that must be satisfied within this phase. Empty array is admissible (a phase with no gates is well-formed; per-EPIC policy decides whether that is acceptable).",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "description": "Stable identifier for a gate the phase must satisfy before ship-eligibility. Consumer-shaped namespace.",
+        "type": "string"
+      }
+    },
+    "ordered_index": {
+      "minimum": 0,
+      "description": "Position of this phase in the canonical sequence — 0-based, contiguous, monotonic per CR-1. The schema enforces ≥0 integer; CR-1 enforces the cross-element invariants.",
+      "type": "integer"
+    }
+  },
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

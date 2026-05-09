@@ -1,0 +1,9 @@
+{
+  "_comment": "required_phases empty array fails Type.Array(..., { minItems: 1 }) — every CanonicalRun MUST define ≥1 phase.",
+  "canonical_run_id": "canonical-run-x",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}

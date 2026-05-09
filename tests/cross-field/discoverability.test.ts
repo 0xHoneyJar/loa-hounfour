@@ -182,6 +182,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'PlanAmendmentRequest',
     // v8.6.0 PR-A3.7 — FR-A1 Challenge layer.
     'Challenge',
+    // v8.6.0 PR-A3.8 — FR-B1 CanonicalRun.
+    'CanonicalRun',
   ];
 
   it('returns an array of strings', () => {

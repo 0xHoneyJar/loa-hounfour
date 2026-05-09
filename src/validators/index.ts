@@ -13,6 +13,11 @@ import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-len
 import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
 import { OracleDigestSchema } from '../operations/oracle-digest.js';
 import { LatencyHistogramEnvelopeSchema } from '../operations/latency-histogram-envelope.js';
+// v8.6.0 PR-A3.8 — FR-B1 CanonicalRun CR-1 cross-field validator.
+// The pure function lives in src/canonical/canonical-run.ts (the
+// schema's own module is the source of truth for CR-1 semantics);
+// this module wires it into the cross-field registry below.
+import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1201,6 +1206,30 @@ registerCrossFieldValidator('PlanAmendmentRequest', constraintFileOnlyValidator)
 // no library-evaluator builtin is required for FR-A1 (no schema-side
 // state machine to enforce).
 registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
+
+// v8.6.0 PR-A3.8 — FR-B1 CanonicalRunSchema. CR-1 (required_phases[*].
+// ordered_index forms a 0-based contiguous monotonic sequence with no
+// duplicates) is intra-record (all data is present in a single envelope),
+// so the TS reference implementation enforces it inline at validate()
+// time per AT-1 ("reference TS implementation is the golden corpus").
+// Cross-language runners (FR-A2 / PR-A3.9) re-implement the same check
+// per-runtime — the constraint file's CR-1 is marked runtime-deferred so
+// the obligation surfaces in the UnverifiedObligationsManifest for
+// non-TS consumers and so a future cycle promoting this to a generic
+// builtin (`array_index_well_ordered`) lands cleanly. CR-2 (canonical_
+// run_id uniqueness within cluster_id) is registry-state (consumer-side);
+// CR-3 (cross-language conformance %) is consumer-policy per ADR-010.
+//
+// The validator function lives in `src/canonical/canonical-run.ts` as
+// a pure exported helper (`validateCanonicalRunCR1`) — that file is
+// the source of truth for CR-1 semantics; this registration is a
+// thin wiring step. iter-3 F1 + F-002 + F11 mitigation: keeping the
+// validator function exported via the schema's own module rather
+// than via a `getCrossFieldValidator` registry-escape-hatch avoids
+// widening the public API surface for the test path (Hyrum's Law).
+// The import is hoisted to the top of this file per the
+// imports-at-top convention (iter-4 F11 mitigation).
+registerCrossFieldValidator('CanonicalRun', validateCanonicalRunCR1);
 
 /**
  * Returns schema $ids that have registered cross-field validators.

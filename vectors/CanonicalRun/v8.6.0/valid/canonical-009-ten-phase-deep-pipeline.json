@@ -1,0 +1,70 @@
+{
+  "_comment": "Larger required_phases array — exercises the cross-element CR-1 invariant at higher cardinality.",
+  "canonical_run_id": "canonical-run-009",
+  "canonical_run_version": "3.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "deep-pipeline",
+  "required_phases": [
+    {
+      "phase_id": "phase-009-discovery-a",
+      "phase_kind": "discovery",
+      "required_gates": ["gate-1"],
+      "ordered_index": 0
+    },
+    {
+      "phase_id": "phase-009-discovery-b",
+      "phase_kind": "discovery",
+      "required_gates": ["gate-2"],
+      "ordered_index": 1
+    },
+    {
+      "phase_id": "phase-009-design-a",
+      "phase_kind": "design",
+      "required_gates": ["gate-3"],
+      "ordered_index": 2
+    },
+    {
+      "phase_id": "phase-009-design-b",
+      "phase_kind": "design",
+      "required_gates": ["gate-4"],
+      "ordered_index": 3
+    },
+    {
+      "phase_id": "phase-009-implement-a",
+      "phase_kind": "implement",
+      "required_gates": ["gate-5"],
+      "ordered_index": 4
+    },
+    {
+      "phase_id": "phase-009-implement-b",
+      "phase_kind": "implement",
+      "required_gates": ["gate-6"],
+      "ordered_index": 5
+    },
+    {
+      "phase_id": "phase-009-implement-c",
+      "phase_kind": "implement",
+      "required_gates": ["gate-7"],
+      "ordered_index": 6
+    },
+    {
+      "phase_id": "phase-009-audit-a",
+      "phase_kind": "audit",
+      "required_gates": ["gate-8"],
+      "ordered_index": 7
+    },
+    {
+      "phase_id": "phase-009-audit-b",
+      "phase_kind": "audit",
+      "required_gates": ["gate-9"],
+      "ordered_index": 8
+    },
+    {
+      "phase_id": "phase-009-ship",
+      "phase_kind": "ship",
+      "required_gates": ["gate-10"],
+      "ordered_index": 9
+    }
+  ],
+  "ts_authored": "2026-05-09T08:00:00Z"
+}

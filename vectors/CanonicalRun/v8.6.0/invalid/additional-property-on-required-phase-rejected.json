@@ -1,0 +1,17 @@
+{
+  "_comment": "Extra field 'description' on a RequiredPhase entry violates additionalProperties: false on the inner object.",
+  "canonical_run_id": "canonical-run-x",
+  "canonical_run_version": "1.0.0",
+  "contract_version": "8.6.0",
+  "epic_kind": "feature-delivery",
+  "required_phases": [
+    {
+      "phase_id": "phase-x",
+      "phase_kind": "discovery",
+      "required_gates": [],
+      "ordered_index": 0,
+      "description": "human-readable note that does not belong on the wire"
+    }
+  ],
+  "ts_authored": "2026-05-09T00:00:00Z"
+}
