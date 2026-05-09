@@ -374,6 +374,32 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     }
   });
 
+  it('returns valid:false when all phases are malformed (iter-5 F-001 mitigation)', () => {
+    // wellShapedCount === 0 with phases.length > 0 means every element
+    // failed the per-element shape guards. Direct callers must see
+    // valid:false rather than a vacuous valid:true.
+    const cr1Validator = validateCanonicalRunCR1;
+    const allMalformed = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        null,
+        'string',
+        42,
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 'bad' },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(allMalformed);
+    expect(result.valid).toBe(false);
+    expect(
+      result.errors.some((e) => e.includes('structural shape precondition')),
+    ).toBe(true);
+    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+  });
+
   it('detects gap among well-shaped indices when malformed elements are interleaved', () => {
     // iter-4 F-002 mitigation: gap detection compares against count
     // of well-shaped elements, not phases.length. With 3 well-shaped

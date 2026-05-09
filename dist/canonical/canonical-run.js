@@ -295,6 +295,25 @@ export function validateCanonicalRunCR1(data) {
         }
         seenIndices.add(idx);
     }
+    // **All-malformed precondition** (iter-5 F-001 mitigation): if
+    // `phases.length > 0` but no element passed the per-element shape
+    // guards, the function would otherwise return valid:true with empty
+    // errors — a direct-caller false-positive that hides a totally
+    // malformed `required_phases` payload. Surface it as valid:false
+    // with a clearly-tagged precondition error so the failure mode IS
+    // the product (S3 NoSuchKey-vs-AccessDenied discipline). Under
+    // validate(...) this path is unreachable because Value.Check would
+    // reject the malformed elements at the structural tier; this guard
+    // defends direct-caller invocation.
+    if (wellShapedCount === 0 && phases.length > 0) {
+        return {
+            valid: false,
+            errors: [
+                `CR-1: structural shape precondition failed — required_phases has ${phases.length} element(s) but none passed the per-element shape guards (each MUST be a non-null object with an integer ordered_index); the cross-field validator requires the structural tier (Value.Check) to have passed first.`,
+            ],
+            warnings: [],
+        };
+    }
     // Contiguous + 0-based check: among the well-shaped subset, the
     // ordered_index set MUST be exactly {0, 1, ..., wellShapedCount-1}.
     //
