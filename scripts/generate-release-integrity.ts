@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isVectorExcluded as isVectorExcludedAbs } from './lib/release-integrity-predicates.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -58,29 +59,14 @@ interface FileChecksum {
 // filter; schemas/constraints walk unfiltered) and the `_meta/`
 // branch returns true (excluded) per the documented intent — iter-2
 // shipped an inverted predicate that included _meta/ files.
-// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks now
+// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks
 // operate on a forward-slash-normalized path *relative to the repo root*.
-// The project ships Linux/macOS only, so cross-platform breakage is
-// theoretical, but normalizing once at the boundary (rather than at
-// every call site) eliminates a sharp edge for contributor checkouts
-// and keeps the predicate semantically anchored to repo-relative
-// structure rather than absolute substring matches.
-const isVectorExcluded = (absPath: string): boolean => {
-  const rel = relative(root, absPath).split(sep).join('/');
-  // Per-fixture trace companions are diagnostics, not test inputs.
-  if (rel.endsWith('.trace.json')) return true;
-  // Top-level vectors/_meta/ directory holds tooling registries
-  // (constraint-level-invalids.json, regex-subset.md). Framework-
-  // internal; not part of the fixture corpus consumers verify.
-  if (rel.startsWith('vectors/_meta/')) return true;
-  // Per-schema vectors/<Schema>/_meta.json files carry schema-level
-  // metadata (e.g., `cycle-005-vector-budget`) — also tooling, not
-  // a test fixture. Anchored at depth-2 to avoid silently dropping
-  // a future fixture that happens to be named `_meta.json` deeper
-  // in the tree.
-  if (/^vectors\/[^/]+\/_meta\.json$/.test(rel)) return true;
-  return false;
-};
+// The predicate itself lives in `./lib/release-integrity-predicates.ts`
+// (extracted in PR-B1.0 hygiene so the truth table can be pinned by
+// unit tests — `tests/scripts/release-integrity-predicates.test.ts`).
+// Bound here with the resolved `root` so the call sites stay one-arg.
+const isVectorExcluded = (absPath: string): boolean =>
+  isVectorExcludedAbs(absPath, root);
 
 const dirs = [
   { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas',

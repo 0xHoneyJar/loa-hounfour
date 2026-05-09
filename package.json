@@ -88,7 +88,9 @@
     "author:vector": "tsx scripts/author-vectors.ts",
     "check:class-policy-boundary": "tsx scripts/check-class-policy-boundary.ts",
     "check:dist-parity": "tsx scripts/check-dist-parity.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity",
+    "check:release-integrity-parity": "tsx scripts/check-release-integrity-parity.ts",
+    "check:tarball-budget": "tsx scripts/check-tarball-budget.ts",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity && npm run check:release-integrity-parity && npm run check:tarball-budget",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"
