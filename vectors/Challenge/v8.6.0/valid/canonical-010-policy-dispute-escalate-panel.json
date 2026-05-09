@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=policy_dispute, requested_effect=escalate_panel.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-010",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-010",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000010",
+  "challenge_type": "policy_dispute",
+  "requested_effect": "escalate_panel",
+  "rationale": "Test challenge of type policy_dispute requesting effect escalate_panel.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

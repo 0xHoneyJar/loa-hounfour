@@ -233,6 +233,12 @@ import {
   AmendmentSeveritySchema,
   AmendmentTriggerClassSchema,
 } from '../src/governance/plan-amendment-request.js';
+// v8.6.0 PR-A3.7 — FR-A1 Challenge layer
+import {
+  ChallengeTypeSchema,
+  ChallengeRequestedEffectSchema,
+} from '../src/governance/challenge-types.js';
+import { ChallengeSchema } from '../src/governance/challenge.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -557,6 +563,10 @@ const schemas = [
   { name: 'amendment-severity', schema: AmendmentSeveritySchema },
   { name: 'amendment-trigger-class', schema: AmendmentTriggerClassSchema },
   { name: 'plan-amendment-request', schema: PlanAmendmentRequestSchema },
+  // v8.6.0 PR-A3.7 — FR-A1 Challenge layer
+  { name: 'challenge-type', schema: ChallengeTypeSchema },
+  { name: 'challenge-requested-effect', schema: ChallengeRequestedEffectSchema },
+  { name: 'challenge', schema: ChallengeSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

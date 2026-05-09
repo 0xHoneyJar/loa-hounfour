@@ -180,6 +180,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     // v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope + FR-B10 PlanAmendmentRequest.
     'PlanSignoffEnvelope',
     'PlanAmendmentRequest',
+    // v8.6.0 PR-A3.7 — FR-A1 Challenge layer.
+    'Challenge',
   ];
 
   it('returns an array of strings', () => {

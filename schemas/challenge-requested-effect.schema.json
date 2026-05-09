@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-requested-effect",
+  "description": "Exhaustive 6-member enum naming the disposition the challenger requests. Schema admits all (type, effect) pairings; per-pair acceptance is consumer-side policy.",
+  "anyOf": [
+    {
+      "const": "void",
+      "type": "string"
+    },
+    {
+      "const": "reverse",
+      "type": "string"
+    },
+    {
+      "const": "amend",
+      "type": "string"
+    },
+    {
+      "const": "escalate_panel",
+      "type": "string"
+    },
+    {
+      "const": "escalate_operator",
+      "type": "string"
+    },
+    {
+      "const": "annotate_only",
+      "type": "string"
+    }
+  ],
+  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+}

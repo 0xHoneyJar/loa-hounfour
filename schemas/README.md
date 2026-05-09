@@ -2,7 +2,7 @@
 
 **Contract version:** 8.6.0
 **Min supported:** 6.0.0
-**Schemas:** 251
+**Schemas:** 254
 
 ## Schemas
 
@@ -259,6 +259,9 @@
 | amendment-severity | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-severity` | [amendment-severity.schema.json](amendment-severity.schema.json) |
 | amendment-trigger-class | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/amendment-trigger-class` | [amendment-trigger-class.schema.json](amendment-trigger-class.schema.json) |
 | plan-amendment-request | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request` | [plan-amendment-request.schema.json](plan-amendment-request.schema.json) |
+| challenge-type | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-type` | [challenge-type.schema.json](challenge-type.schema.json) |
+| challenge-requested-effect | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge-requested-effect` | [challenge-requested-effect.schema.json](challenge-requested-effect.schema.json) |
+| challenge | `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge` | [challenge.schema.json](challenge.schema.json) |
 
 ## Usage
 

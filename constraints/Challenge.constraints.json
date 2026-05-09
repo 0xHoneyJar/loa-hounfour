@@ -1,0 +1,59 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "Challenge",
+  "origin": "genesis",
+  "contract_version": "8.6.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CHL-1",
+      "expression": "consumer verifies Ed25519 signature over RFC 8785 canonical JSON of all-other-fields using the challenger_id's public key resolved via Keyring",
+      "severity": "error",
+      "message": "Challenge Ed25519 signature MUST verify against the challenger derived from challenger_id per the consumer's keyring resolution policy.",
+      "fields": ["signature", "challenger_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic signature verification is consumer-side per NF-1 (library/runtime boundary). The library evaluator SKIPS this rule and surfaces it in the UnverifiedObligationsManifest under the 'x-crypto-bearing' path. **Lock-de-scope rationale (proactive disposition per Vision 009 / cycle-005 PR-A3.6 iter-1 precedent):** the runtime-deferred classification matches the established cycle-005 cycle-pattern for crypto-bearing schema-side rules — see SE-1 (SignatureEnvelope), PSE-1 (PlanSignoffEnvelope), PCE-1 (PhaseCompletionEnvelope). The library is a contracts library per ADR-010; cryptographic verification requires keyring access which is consumer-state. Consumers MUST: (1) reconstruct RFC 8785 canonical JSON of all fields except `signature`; (2) resolve the challenger's public key from `challenger_id` via their Keyring; (3) verify the Ed25519 signature; (4) reject the challenge on signature mismatch. The expression carries the narrative obligation rather than a parseable DSL expression because the rule is runtime-deferred. **What would change the lock:** native ed25519 verification at the library layer is a v9.0.0-class change (key-trust-root contract is consumer-side per AT-7); not in scope for v8.6.0 or v8.7.0.",
+      "type_signature": {
+        "signature": "string",
+        "challenger_id": "string"
+      }
+    },
+    {
+      "id": "CHL-2",
+      "expression": "consumer resolves target_assertion_id to a known v8.5.0 Assertion record in the consumer's assertion store",
+      "severity": "error",
+      "message": "target_assertion_id MUST resolve to a recorded Assertion. Challenges against vanished or unknown assertions are rejected at the consumer's acceptance gate.",
+      "fields": ["target_assertion_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record reference resolution. The schema validates the structural shape (non-empty string, lazy-link per SDD §1.5); resolution to a stored assertion is consumer-side because the assertion store is consumer-managed. **Lock-de-scope rationale (proactive disposition per Vision 009):** runtime-deferred is the established cycle-005 cycle-pattern for cross-record references — see PAR-3 (PlanAmendmentRequest.parent_signoff_id), PSE-4 (PlanSignoffEnvelope.parent_signoff_hash). Hounfour does NOT emit a manifest entry for missing target assertions per ADR-010 / FR-A1 design contract; the lookup is consumer-state and the consumer's acceptance gate decides whether to reject, defer, or accept. The composition test in PR-A3.7 exercises the round-trip: an Assertion with `status: 'challenged'` paired with a Challenge envelope whose `target_assertion_id === Assertion.assertion_id` — both records validate independently; the linkage is the string equality. **What would change the lock:** a consumer-managed assertion-store lookup primitive at the library layer would require importing AssertionSchema (currently lazy-link only) and shipping an in-memory store interface — both v9.0.0-class shape changes (cross-record-reference materialization is documented in v9.0.0 backlog, NOT in v8.6.0 / v8.7.0).",
+      "type_signature": {
+        "target_assertion_id": "string"
+      }
+    },
+    {
+      "id": "CHL-3",
+      "expression": "consumer adjudicates (challenge_type, requested_effect) pairing against per-cluster acceptance-gate policy; the schema admits all 9×6 = 54 combinations as well-formed",
+      "severity": "warning",
+      "message": "Schema admits all (challenge_type, requested_effect) pairings; per-pair acceptance is consumer-side policy per ADR-010.",
+      "fields": ["challenge_type", "requested_effect"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Per ADR-010 / NFR-8, the schema does NOT silently constrain which effects are available for which challenge types (e.g., a `signature_replay` challenge requesting `annotate_only` is well-formed at the schema layer; whether the consumer's acceptance gate accepts that pairing is consumer policy). The schema admits the 54-pairing cross product so a consumer-side acceptance gate can surface the discrepancy explicitly rather than have the gate happen silently at the structural layer. Severity: warning because every pairing is well-formed at the schema layer; it's the acceptance gate that decides whether to accept, reject, or escalate. Mirrors PAR-2 (PlanAmendmentRequest severity-correction policy) and PSE-5 (PlanSignoffEnvelope cumulative_drift_pct threshold) — schema-admits-looser, consumer-side-policy is the v8.6.0 plan-governance / challenge-layer pattern.",
+      "type_signature": {
+        "challenge_type": "string",
+        "requested_effect": "string"
+      }
+    },
+    {
+      "id": "CHL-4",
+      "expression": "consumer dedupes evidence_hashes per their content-addressed store policy; the schema admits duplicates and the empty array",
+      "severity": "warning",
+      "message": "evidence_hashes admits duplicates and empty arrays at the schema layer; consumer-side de-duplication and minimum-evidence policy live in the acceptance gate.",
+      "fields": ["evidence_hashes"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "The schema validates each entry's sha256:<64-hex> shape but does NOT enforce uniqueness or a non-empty array. Empty `evidence_hashes` is admissible (a `signature_replay` challenge may need no evidence beyond the duplicate signature itself). Duplicates are admissible (a multi-signer assertion may produce identical hashes from independent signing paths). Per-challenge-type minimum-evidence policy is consumer-side per ADR-010 — e.g., a consumer may require ≥1 evidence hash for `factual_dispute` and 0 for `signature_replay`. Case-insensitive hex comparison contract: consumer-side de-duplication MUST lowercase-normalize per FR-C4 / PSE-2 precedent before equivalence check (Go strings.ToLower / Python .lower() / Rust .to_ascii_lowercase()) so mixed-case wire payloads do not silently produce duplicate ledger entries.",
+      "type_signature": {
+        "evidence_hashes": "array"
+      }
+    }
+  ]
+}

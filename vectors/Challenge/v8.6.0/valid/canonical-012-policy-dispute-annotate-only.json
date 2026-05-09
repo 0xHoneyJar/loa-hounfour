@@ -1,0 +1,14 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=policy_dispute, requested_effect=annotate_only.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-012",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-012",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000012",
+  "challenge_type": "policy_dispute",
+  "requested_effect": "annotate_only",
+  "rationale": "Test challenge of type policy_dispute requesting effect annotate_only.",
+  "evidence_hashes": [],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

@@ -1,0 +1,17 @@
+{
+  "_comment": "Canonical Challenge: challenge_type=class_violation, requested_effect=void.",
+  "envelope_kind": "challenge",
+  "contract_version": "8.6.0",
+  "challenge_id": "challenge-043",
+  "ts": "2026-05-09T12:00:00Z",
+  "challenger_id": "challenger-043",
+  "target_assertion_id": "00000000-0000-4000-8000-000000000043",
+  "challenge_type": "class_violation",
+  "requested_effect": "void",
+  "rationale": "Test challenge of type class_violation requesting effect void.",
+  "evidence_hashes": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

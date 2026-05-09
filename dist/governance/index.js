@@ -132,4 +132,7 @@ export { PolicyDecisionOutcomeSchema, } from './policy-decision-outcome.js';
 // Schemas — Plan Governance (v8.6.0, FR-B9 + FR-B10, PR-A3.6)
 export { PlanSignoffEnvelopeSchema, SignoffActorClassSchema, SignoffTierSchema, } from './plan-signoff-envelope.js';
 export { PlanAmendmentRequestSchema, AmendmentSeveritySchema, AmendmentTriggerClassSchema, } from './plan-amendment-request.js';
+// Schemas — Challenge layer (v8.6.0, FR-A1, PR-A3.7)
+export { ChallengeTypeSchema, ChallengeRequestedEffectSchema, } from './challenge-types.js';
+export { ChallengeSchema, } from './challenge.js';
 //# sourceMappingURL=index.js.map

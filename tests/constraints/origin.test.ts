@@ -25,7 +25,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(133); // 131 pre-PR-A3.6 + 2 plan-governance (PlanSignoffEnvelope + PlanAmendmentRequest)
+    expect(files.length).toBe(134); // 131 pre-PR-A3.6 + 2 plan-governance (PR-A3.6) + 1 Challenge (PR-A3.7 / FR-A1)
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));
