@@ -95,10 +95,16 @@ export const ChallengeSchema = Type.Object({
     evidence_hashes: Type.Array(Type.String({
         pattern: SHA256_HEX_PATTERN,
         description: 'sha256:<64-hex> content hash of a supporting evidence ' +
-            'artifact. Mixed-case hex per SHA256_HEX_PATTERN; ' +
-            'consumer-side comparison should lowercase-normalize ' +
-            'per FR-C4 / PSE-2 precedent if cross-checking against ' +
-            'a content-addressed store.',
+            'artifact. **Wire-compare contract:** the pattern admits ' +
+            'mixed-case hex `[A-Fa-f0-9]{64}` per the v8.5.0 ' +
+            'SignatureEnvelope precedent (PSE-2 / FR-C4 are the ' +
+            'cycle-005 sibling examples). Two semantically-equivalent ' +
+            'hashes can disagree on byte equality (`SHA256:AA…` vs ' +
+            '`sha256:aa…`) — consumers MUST lowercase-normalize both ' +
+            'sides before equivalence checks (Go `strings.ToLower`, ' +
+            'Python `.lower()`, Rust `.to_ascii_lowercase()`) so ' +
+            'duplicate-detection and content-addressed-store lookups ' +
+            'produce stable answers across producers.',
     }), {
         description: 'Array of supporting evidence hashes. Empty array is ' +
             'admissible (a `signature_replay` challenge may need no ' +

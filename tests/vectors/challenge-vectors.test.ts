@@ -28,14 +28,26 @@ import {
   ChallengeRequestedEffectSchema,
 } from '../../src/governance/challenge-types.js';
 import { validate } from '../../src/validators/index.js';
-import '../../src/validators/index.js';
 
-// F-006 mitigation: derive expected fixture cardinality from the enum
-// schemas themselves rather than hardcoding 54. When the vocabularies
-// widen (strict-additive per FR-A1), the assertion self-updates.
-const EXPECTED_VALID_COUNT =
-  (ChallengeTypeSchema.anyOf?.length ?? 0) *
-  (ChallengeRequestedEffectSchema.anyOf?.length ?? 0);
+// iter-1 F-006 / iter-2 F-001 mitigation: vocabulary derived from the
+// enum schemas themselves — TYPES + EFFECTS pull from
+// `Schema.anyOf[].const` rather than mirror lists, and the cardinality
+// assertion is "fixtures cover the cross-product" not "fixtures equal
+// the magic number 54". Strict-additive enum widening self-updates the
+// expected pairings without a parallel test edit; the protobuf-team
+// pattern of separating shape contracts (live-derived) from cardinality
+// contracts (versioned snapshots).
+function constLiterals(schema: { anyOf?: Array<{ const?: unknown }> }): string[] {
+  return (schema.anyOf ?? [])
+    .map((s) => s.const)
+    .filter((c): c is string => typeof c === 'string');
+}
+const TYPES = constLiterals(
+  ChallengeTypeSchema as { anyOf?: Array<{ const?: unknown }> },
+);
+const EFFECTS = constLiterals(
+  ChallengeRequestedEffectSchema as { anyOf?: Array<{ const?: unknown }> },
+);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -68,9 +80,13 @@ describe('Challenge vector fixtures (FR-A1 / PR-A3.7)', () => {
   const validFixtures = listFixtures('valid');
   const invalidFixtures = listFixtures('invalid');
 
-  it('publishes 9 × 6 = 54 valid fixtures (full enum cross-product)', () => {
-    expect(EXPECTED_VALID_COUNT).toBe(54);
-    expect(validFixtures.length).toBe(EXPECTED_VALID_COUNT);
+  it('publishes a fixture for every (challenge_type, requested_effect) pairing', () => {
+    // Shape contract: every cross-product entry is covered. The exact
+    // cardinality is *derived* from the live enum schemas, not pinned to
+    // a magic number — strict-additive enum widening self-updates.
+    expect(validFixtures.length).toBe(TYPES.length * EFFECTS.length);
+    expect(TYPES.length).toBeGreaterThan(0);
+    expect(EFFECTS.length).toBeGreaterThan(0);
   });
 
   it('publishes invalid fixtures across required-field + format-level negatives', () => {
@@ -81,26 +97,7 @@ describe('Challenge vector fixtures (FR-A1 / PR-A3.7)', () => {
     expect(invalidFixtures.length).toBeGreaterThanOrEqual(20);
   });
 
-  it('valid/ contains all 54 (challenge_type, requested_effect) pairings', () => {
-    const TYPES = [
-      'factual_dispute',
-      'policy_dispute',
-      'competence_dispute',
-      'procedural_dispute',
-      'drift_assertion',
-      'signature_replay',
-      'chain_corruption',
-      'class_violation',
-      'other',
-    ];
-    const EFFECTS = [
-      'void',
-      'reverse',
-      'amend',
-      'escalate_panel',
-      'escalate_operator',
-      'annotate_only',
-    ];
+  it('valid/ contains every (challenge_type, requested_effect) cross-product entry derived from the live enum schemas', () => {
     const expectedPairs = new Set<string>();
     for (const t of TYPES) {
       for (const e of EFFECTS) {

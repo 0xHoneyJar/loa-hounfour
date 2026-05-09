@@ -201,12 +201,11 @@ tarball includes `dist/`. Committing the tree means:
 - The `tsc` output is part of the diff a reviewer reads, so a silent change
   to emitted JS surfaces in PR review.
 
-The mitigation against `dist/` drifting from `src/` is the regular-cadence
-`npm run build` invocation that every PR's author runs locally before pushing
-(plus the per-PR test suite that imports `src/` directly, surfacing any
-type-level drift). A future hardening would be a CI gate running `tsc --noEmit`
-followed by `git diff --exit-code dist/` to fail PRs where the two disagree;
-that gate is tracked as a hardening item but not blocking on this convention.
+The drift mitigation is **`npm run check:dist-parity`** (also part of
+`npm run check:all`): it runs `tsc` and then `git diff --exit-code dist/`,
+failing if the committed tree disagrees with the freshly emitted tree. PRs
+that edit `src/` without rebuilding fail this check. The per-PR test suite
+imports `src/` directly, so type-level drift surfaces independently.
 
 ## Versioning
 

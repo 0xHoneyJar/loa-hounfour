@@ -85,7 +85,8 @@
     "integrity:generate": "tsx scripts/generate-release-integrity.ts",
     "author:vector": "tsx scripts/author-vectors.ts",
     "check:class-policy-boundary": "tsx scripts/check-class-policy-boundary.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary",
+    "check:dist-parity": "tsx scripts/check-dist-parity.ts",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
     "typecheck": "tsc --noEmit"

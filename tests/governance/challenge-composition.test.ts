@@ -31,7 +31,6 @@ import {
   ChallengeSchema,
 } from '../../src/governance/index.js';
 import { validate } from '../../src/validators/index.js';
-import '../../src/validators/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -127,7 +126,7 @@ describe('Challenge ↔ Assertion composition (FR-A1 / PR-A3.7)', () => {
       challenge_id: 'challenge-composition-003',
       ts: '2026-05-09T12:00:00Z',
       challenger_id: 'challenger-composition-003',
-      target_assertion_id: '00000000-0000-4000-8000-deadbeefdead',
+      target_assertion_id: 'never-recorded-assertion-001',
       challenge_type: 'chain_corruption' as const,
       requested_effect: 'escalate_operator' as const,
       rationale:
