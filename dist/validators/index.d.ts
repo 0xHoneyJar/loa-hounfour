@@ -43,6 +43,20 @@ export type CrossFieldValidator = (data: unknown) => {
  */
 export declare function registerCrossFieldValidator(schemaId: string, validator: CrossFieldValidator): void;
 /**
+ * Returns the registered cross-field validator for a given schema $id,
+ * or `undefined` if none is registered. Enables direct invocation of a
+ * single cross-field validator — useful for partial-validation tests
+ * that need to exercise the cross-field tier in isolation from the
+ * structural Value.Check tier (e.g., the iter-2 F2+F7 accumulated-
+ * error-preservation contract verification).
+ *
+ * The standard validation pipeline (`validate(...)`) is the canonical
+ * entry point; this getter is the direct-invocation escape hatch.
+ *
+ * @since v8.6.0 — PR-A3.8 (FR-B1 iter-3 testability surface).
+ */
+export declare function getCrossFieldValidator(schemaId: string): CrossFieldValidator | undefined;
+/**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
  */

@@ -18,7 +18,10 @@ import {
   PhaseKindSchema,
   PHASE_KINDS,
 } from '../../src/canonical/index.js';
-import { validate } from '../../src/validators/index.js';
+import {
+  validate,
+  getCrossFieldValidator,
+} from '../../src/validators/index.js';
 import '../../src/validators/index.js';
 
 const EXPECTED_PHASE_KINDS = [
@@ -256,5 +259,87 @@ describe('CanonicalRun CR-1 inline cross-field validator (FR-B1)', () => {
     expect(
       result.errors.some((e) => e.includes('ordered_index=0')),
     ).toBe(true);
+  });
+});
+
+describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () => {
+  // The cross-field validator MUST NOT discard CR-1 errors accumulated
+  // against earlier well-shaped phases when a later phase has a
+  // structurally malformed shape. The standard validate() path rejects
+  // the whole record at Value.Check before invoking the cross-field
+  // tier, so this defends a future caller invoking the cross-field
+  // validator in isolation (e.g., for partial-validation testing).
+  // Pattern parallel: AWS IAM 2019 incident — partial evaluators must
+  // preserve accumulated state, not return valid:true on truncation.
+
+  // Invoke the cross-field validator directly to exercise the
+  // mid-iteration malformed-element path, bypassing Value.Check.
+  // The validator is registered by schema $id; access via the
+  // cross-field discovery surface (`validators` Map exported from
+  // src/validators/index.ts).
+
+  it('preserves duplicate-error when a later phase has non-integer ordered_index', () => {
+    const cr1Validator = getCrossFieldValidator('CanonicalRun');
+    expect(cr1Validator).toBeDefined();
+    if (!cr1Validator) return;
+    const malformedRecord = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        { phase_id: 'b', phase_kind: 'design', required_gates: [], ordered_index: 0 },
+        { phase_id: 'c', phase_kind: 'audit', required_gates: [], ordered_index: 'bad' },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(malformedRecord);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
+  });
+
+  it('preserves duplicate-error when a later phase is non-object', () => {
+    const cr1Validator = getCrossFieldValidator('CanonicalRun');
+    expect(cr1Validator).toBeDefined();
+    if (!cr1Validator) return;
+    const malformedRecord = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        { phase_id: 'b', phase_kind: 'design', required_gates: [], ordered_index: 0 },
+        null,
+        'not-an-object',
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(malformedRecord);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
+  });
+
+  it('returns valid:true when all elements are well-shaped and CR-1-clean', () => {
+    const cr1Validator = getCrossFieldValidator('CanonicalRun');
+    expect(cr1Validator).toBeDefined();
+    if (!cr1Validator) return;
+    const cleanRecord = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        { phase_id: 'b', phase_kind: 'design', required_gates: [], ordered_index: 1 },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    const result = cr1Validator(cleanRecord);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
   });
 });
