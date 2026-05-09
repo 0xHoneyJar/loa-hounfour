@@ -26,12 +26,38 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
+
+// rfc3339UTCDateTime matches the same shape Python (cross_runner.py)
+// and Rust (cross-runner/src/main.rs) accept: 4-2-2 date, T, 2-2-2
+// time, optional 1-9 fractional digits, mandatory Z suffix. Hand-
+// rolled to lock cross-runner parity rather than relying on the
+// santhosh-tekuri/jsonschema library default (iter-1 mitigation:
+// three implementations, three potentially divergent date-time
+// semantics — unify on the same regex shape across all three).
+var rfc3339UTCDateTime = regexp.MustCompile(
+	`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$`,
+)
+
+// dateTimeFormat replaces the library default's date-time checker
+// with a regex matching the cycle-005 ISO8601_UTC_PATTERN. Returns
+// nil on success, error on failure (the v6 API contract).
+func dateTimeFormat(value any) error {
+	s, ok := value.(string)
+	if !ok {
+		return nil // type-mismatch reported separately by structural tier
+	}
+	if !rfc3339UTCDateTime.MatchString(s) {
+		return fmt.Errorf("not RFC 3339 UTC date-time: %q", s)
+	}
+	return nil
+}
 
 // PARITY_PROTOCOL_VERSION MUST match scripts/cross-runner.ts.
 const ParityProtocolVersion = "1.1.0"
@@ -80,11 +106,16 @@ type DiagnosticPtr struct {
 	Path string `json:"path"`
 }
 
+// camelToKebab converts PascalCase / camelCase to kebab-case using
+// rune-indexed iteration. Schema names are ASCII today, but iter-1 F-001
+// flagged the byte/rune mismatch in `for i, r := range s; s[i-1]` — the
+// `[]rune(s)` slice form is correct for any future Unicode-bearing names.
 func camelToKebab(s string) string {
 	var out strings.Builder
-	for i, r := range s {
+	runes := []rune(s)
+	for i, r := range runes {
 		if r >= 'A' && r <= 'Z' && i > 0 {
-			prev := rune(s[i-1])
+			prev := runes[i-1]
 			if !(prev >= 'A' && prev <= 'Z') {
 				out.WriteByte('-')
 			}
@@ -135,10 +166,18 @@ func loadSchema(name string) (*jsonschema.Schema, error) {
 	// JSON Schema 2020-12 makes `format` an annotation by default.
 	// Cycle-005 contracts treat format as ASSERTIVE (TypeBox's
 	// FormatRegistry rejects malformed date-time, etc.) so the Go
-	// runner enables format-assertion to match — without this,
-	// fixtures like `created_at: "yesterday"` pass Go's structural
-	// check while TypeBox rejects them, breaking cross-runner parity.
+	// runner enables format-assertion to match.
 	c.AssertFormat()
+	// iter-1 mitigation: register a custom date-time checker matching
+	// the same regex shape Python and Rust use (rfc3339UTCDateTime
+	// above). Without this, the santhosh-tekuri library's default
+	// date-time checker may accept / reject edge cases (`+00:00`
+	// timezone offset, fractional-precision boundaries) that diverge
+	// from the hand-rolled checkers in the other two runners.
+	c.RegisterFormat(&jsonschema.Format{
+		Name:     "date-time",
+		Validate: dateTimeFormat,
+	})
 	return c.Compile(schemaPath)
 }
 

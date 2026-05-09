@@ -52,13 +52,15 @@ GOPATH="${GOPATH:-$HOME/go}" go -C vectors/runners/go run ./cmd/cross-runner --e
   2>"$TMP_DIR/go.stderr" > "$TMP_DIR/go.json"
 
 echo "[cross-runners] Rust (vectors/runners/rust/target/release/cross-runner) ..."
-RUST_BIN="vectors/runners/rust/target/release/cross-runner"
-if [[ ! -x "$RUST_BIN" ]]; then
-  echo "  building Rust runner..."
-  cargo build --release --manifest-path vectors/runners/rust/Cargo.toml --bin cross-runner \
-    2>"$TMP_DIR/rust.build.stderr"
-fi
-"$REPO_ROOT/$RUST_BIN" --emit-manifest > "$TMP_DIR/rust.json"
+# iter-1 mitigation: ALWAYS rebuild the Rust binary before running it.
+# The previous "build only when missing" path silently ran a stale
+# binary after main.rs edits — exactly the failure mode parity tests
+# exist to prevent. Cargo's incremental compilation makes
+# unconditional rebuild cheap (≤1 s when source is unchanged).
+cargo build --release --manifest-path vectors/runners/rust/Cargo.toml --bin cross-runner \
+  --quiet 2>"$TMP_DIR/rust.build.stderr"
+RUST_BIN="$REPO_ROOT/vectors/runners/rust/target/release/cross-runner"
+"$RUST_BIN" --emit-manifest > "$TMP_DIR/rust.json"
 
 # Sort each manifest deterministically before comparison so insertion
 # order from each runner does not matter — the contract is set

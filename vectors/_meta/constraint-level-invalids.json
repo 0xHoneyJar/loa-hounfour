@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
-  "description": "Vector fixtures that pass TypeBox structural check but target constraint-DSL rules (PDA-2/4/5, PV-1/3, CSR-1, SP-1/2). The cross-field validators registered for v8.4.0 are presently the constraintFileOnlyValidator stub per src/validators/index.ts:870; consumers evaluate the constraint files via evaluateConstraint(...) to enforce these rules. Single source of truth for the TS test harness, the cross-runner driver, and any other-language runner that wants to special-case these fixtures.",
+  "description": "Vector fixtures that pass TypeBox structural check but target constraint-DSL rules (PDA-2/4/5, PV-1/3, CSR-1, SP-1/2) or LOCAL evaluator builtins (NFR-4 utf8_byte_length_max). The cross-field validators registered for v8.4.0 are presently the constraintFileOnlyValidator stub per src/validators/index.ts:870; consumers evaluate the constraint files via evaluateConstraint(...) to enforce these rules. v8.6.0 LOCAL builtins fire at validate() time but their fixtures still pass Value.Check (structural only). Single source of truth for the TS test harness, the cross-runner driver, and any other-language runner that wants to special-case these fixtures.",
   "see_also": ["SDD section 1.9 — Two-tier evaluator pattern"],
+  "rationale_per_fixture": {
+    "OracleDigest/v8.6.0/invalid/telegram-variant-multibyte-bypass.json": "Targets the LOCAL `utf8_byte_length_max` builtin (NFR-4 4 KB cap on telegram_variant_md_below_4kb). The fixture's value is structurally a valid string; the builtin's UTF-8 byte-length check rejects it post-Value.Check. Cross-runner manifest emits 'pass-constraint-level' so the four-runtime parity diff (PR-A3.9 / FR-A2) doesn't flag the structural pass as a failure."
+  },
   "fixtures": [
     "PanelDecisionArtifact/invalid/pda-2-claim-dag-cycle.json",
     "PanelDecisionArtifact/invalid/pda-4-speculative-on-auto-honor.json",

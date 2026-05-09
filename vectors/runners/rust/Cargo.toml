@@ -5,11 +5,25 @@ edition = "2021"
 description = "Cross-language conformance runner for loa-hounfour (Rust)"
 publish = false
 
+# Default binary (`cargo run` / `cargo build` without --bin) is the
+# legacy multi-vector-file runner — preserved verbatim from before
+# PR-A3.9 to keep the v0/v1/v2 schema corpus reachable per FR-A2's
+# "no coverage regression" contract (iter-1 mitigation).
+[[bin]]
+name = "legacy-vectors"
+path = "src/main.rs"
+
+# PR-A3.9 cross-runner — emits the byte-identical manifest the
+# four-runtime harness diffs against the TS reference. Lives under
+# src/bin/ so cargo auto-discovery would also wire it; the explicit
+# [[bin]] table pins the name so consumers can rely on
+# `cargo run --bin cross-runner` without grepping the layout.
 [[bin]]
 name = "cross-runner"
-path = "src/main.rs"
+path = "src/bin/cross-runner.rs"
 
 [dependencies]
 jsonschema = "=0.28.3"
 serde_json = "1"
 serde = { version = "1", features = ["derive"] }
+glob = "0.3"
