@@ -23,6 +23,16 @@ import { relative, sep } from 'node:path';
  * stays semantically anchored to repo-relative structure rather
  * than absolute substring matches.
  *
+ * The predicate is **self-sufficient** — it does NOT rely on the
+ * caller having pre-filtered to `.json` filenames. The truth-table
+ * tests therefore reflect runtime behavior accurately, and a future
+ * caller (e.g., a hypothetical content-only audit tool) cannot
+ * accidentally bypass an exclusion by calling the predicate without
+ * the caller-side filter (PR-B1.0 iter-2 c1f72d4c). The cost is
+ * three branches that the current generator never reaches because
+ * it pre-filters by `.json`; the value is no caller can introduce
+ * a regression by pre-filtering differently.
+ *
  * Excludes (returns `true`):
  *   - `*.trace.json` — per-fixture diagnostic companions, not test inputs
  *   - `vectors/_meta/...` — top-level tooling registries
@@ -37,18 +47,19 @@ import { relative, sep } from 'node:path';
  *     manifest-generation layer (PR-A3.13 prepack hook fires only
  *     at `npm pack` time, AFTER the manifest is generated).
  *   - `vectors/runners/go/cross-runner` and `vectors/runners/go/
- *     cross-runner.exe` — compiled Go binaries. Gitignored.
- *   - `vectors/runners/python/__pycache__/...` — Python bytecode
- *     cache. Gitignored.
+ *     cross-runner.exe` — compiled Go binaries. Gitignored. Defense-
+ *     in-depth even though `.json`-filtered callers won't see them.
+ *   - `vectors/runners/python/__pycache__/...` and `.venv/...` —
+ *     Python build cache. Gitignored. Same defense-in-depth note.
+ *   - `*.pyc` — Python bytecode. Same.
  *
  * Includes (returns `false`):
  *   - `vectors/<Schema>/v8.6.0/{valid,invalid,boundary,
  *     invalid-cross-field}/*.json` — the actual fixture corpus
- *   - `vectors/runners/<lang>/{src,cmd,...}/*.{rs,go,py}` — runner
- *     source contracts (consumers may reference these as reference
- *     implementations). NOTE: the predicate operates on `.json`
- *     filenames anyway (the generator filters by `.json` extension
- *     before calling the predicate); listed here for completeness.
+ *   - `vectors/runners/_shared/*.txt` — cross-runner SSOT files
+ *     (parity-protocol-version.txt, rfc3339-utc-pattern.txt) — these
+ *     are NOT json so the generator won't checksum them anyway, but
+ *     the predicate doesn't exclude them
  *   - Anything not matching the exclusion patterns above
  */
 export const isVectorExcluded = (absPath: string, root: string): boolean => {
@@ -58,7 +69,9 @@ export const isVectorExcluded = (absPath: string, root: string): boolean => {
   if (/^vectors\/[^/]+\/_meta\.json$/.test(rel)) return true;
   // Runner build artifacts. Mirrors `scripts/prepack-clean.mjs`'s
   // PATHS_TO_CLEAN list — both must agree on what is build-output
-  // vs. fixture-corpus.
+  // vs. fixture-corpus. Defense-in-depth: the .json-filtered call
+  // site won't see most of these, but the predicate is the single
+  // source of truth for the policy regardless of caller filter.
   if (rel.startsWith('vectors/runners/rust/target/')) return true;
   if (rel === 'vectors/runners/go/cross-runner') return true;
   if (rel === 'vectors/runners/go/cross-runner.exe') return true;

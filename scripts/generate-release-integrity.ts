@@ -137,7 +137,19 @@ const manifest = {
   checksums,
 };
 
-const outPath = join(root, 'RELEASE-INTEGRITY.json');
+// PR-B1.0 iter-2 (F-001): support an `--out <path>` flag so the
+// `check:release-integrity-parity` gate can regenerate the manifest
+// to a tmp file without mutating the tracked `RELEASE-INTEGRITY.json`.
+// Hermetic verification gates should not write to the working tree
+// (Bazel/Buck2 sandbox precedent).
+function parseOutPath(): string {
+  const idx = process.argv.indexOf('--out');
+  if (idx >= 0 && idx + 1 < process.argv.length) {
+    return process.argv[idx + 1];
+  }
+  return join(root, 'RELEASE-INTEGRITY.json');
+}
+const outPath = parseOutPath();
 writeFileSync(outPath, JSON.stringify(manifest, null, 2) + '\n');
 
 console.log(`RELEASE-INTEGRITY.json generated:`);

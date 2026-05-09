@@ -9,20 +9,32 @@
  * the second layer — catches `package.json#files` drift across PRs
  * even when the prepack hook is in place. Defense in depth.
  *
- * Mechanism: invokes `npm pack --dry-run --json` with PREPACK_MODE=publish
- * (so the prepack hook fires in destructive mode and the test
- * exercises the actual publish-equivalent tarball), parses the JSON
- * output, and asserts:
- *   - Unpacked size < UNPACKED_SIZE_CEILING_BYTES
+ * Mechanism: invokes `npm pack --dry-run --json --ignore-scripts`,
+ * parses the JSON output, and asserts:
+ *   - Unpacked size strictly below UNPACKED_SIZE_CEILING_BYTES
  *   - No file path matches FORBIDDEN_PATH_FRAGMENTS
+ *
+ * **Why `--ignore-scripts`** (PR-B1.0 iter-2 F-002): without it,
+ * `npm pack` fires the `prepack` hook, which in publish mode would
+ * destructively `rm -rf` cargo target/ and the compiled Go binary
+ * out of the contributor's working tree. Running `check:all` would
+ * then silently nuke a developer's compiled cross-runner binary —
+ * exactly the "toxic side effect" pattern we banned in PR-A3.13
+ * iter-1. With `--ignore-scripts`, the gate measures the structural
+ * tarball composition (what `package.json#files` resolves to) without
+ * any lifecycle side effects. If artifacts ARE present in the working
+ * tree, they will appear in the tarball and the FORBIDDEN_PATH_FRAGMENTS
+ * + size-ceiling assertions catch the leak; if they're absent, the
+ * gate passes the same way it would post-prepack-cleanup.
  *
  * Distinct from `tests/scripts/prepack-clean.test.ts` — that vitest
  * test covers the prepack-hook's own behavior (positive + negative
- * paths). This guard is structural: it runs against the actual
- * package.json#files whitelist + lifecycle-hook chain regardless of
- * which fix-it-up mechanism is in place. If a future PR removes the
- * prepack hook AND adds something to `files` that re-introduces the
- * leak, this gate catches it; the vitest test wouldn't.
+ * paths) under controlled conditions. This guard is structural: it
+ * runs against the actual `package.json#files` whitelist + raw
+ * filesystem state regardless of which fix-it-up mechanism is in
+ * place. If a future PR removes the prepack hook AND adds something
+ * to `files` that re-introduces the leak, this gate catches it; the
+ * vitest test wouldn't.
  *
  * Wired into `check:all` so it runs on every PR alongside the other
  * structural-correctness gates.
@@ -34,8 +46,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
-// 15 MB unpacked. v8.6.0 ships at ~14 MB; 15 MB gives modest headroom
+// 15 MB unpacked. v8.6.0 ships at ~8 MB; 15 MB gives modest headroom
 // for cycle-006+ growth while still catching a 100 MB-class regression.
+// The ceiling is exclusive — tarball must be strictly less than this.
 const UNPACKED_SIZE_CEILING_BYTES = 15 * 1024 * 1024;
 
 // Paths that MUST NOT appear in the published tarball. Matches the
@@ -59,9 +72,8 @@ interface PackOutput {
   readonly files: readonly PackEntry[];
 }
 
-const stdout = execSync('npm pack --dry-run --json', {
+const stdout = execSync('npm pack --dry-run --json --ignore-scripts', {
   cwd: root,
-  env: { ...process.env, PREPACK_MODE: 'publish' },
   encoding: 'utf-8',
   stdio: ['ignore', 'pipe', 'inherit'],
 });
@@ -75,10 +87,10 @@ const pack = parsed[0];
 
 const errors: string[] = [];
 
-// Size ceiling check
+// Size ceiling check (exclusive — must be strictly less than ceiling)
 if (pack.unpackedSize >= UNPACKED_SIZE_CEILING_BYTES) {
   errors.push(
-    `unpacked size ${pack.unpackedSize} bytes (~${(pack.unpackedSize / 1024 / 1024).toFixed(1)} MB) ≥ ceiling ${UNPACKED_SIZE_CEILING_BYTES} bytes (${UNPACKED_SIZE_CEILING_BYTES / 1024 / 1024} MB)`,
+    `unpacked size ${pack.unpackedSize} bytes (~${(pack.unpackedSize / 1024 / 1024).toFixed(1)} MB) is at or above the ${UNPACKED_SIZE_CEILING_BYTES / 1024 / 1024} MB ceiling`,
   );
 }
 
