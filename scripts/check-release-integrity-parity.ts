@@ -59,11 +59,29 @@ function loadAndNormalize(path: string): NormalizedManifest {
   return raw as NormalizedManifest;
 }
 
+/**
+ * Build a human-readable diff between the committed manifest and
+ * the regenerated manifest. Surfaces three drift classes per the
+ * PR-B1.0 iter-3 F-001-parity-drift mitigation:
+ *
+ *   - `totals.<category>`: count mismatches
+ *   - `+<category>: <path>` / `-<category>: <path>`: path-set diffs
+ *     (added or removed entries between committed and regenerated)
+ *   - `~<category>: <path> sha256 a→b size N→M`: same path, drifted
+ *     content (changed sha256 OR changed size). The original
+ *     diffSummary missed this class entirely — a hand-edit that
+ *     changed an existing file's content but left the path alone
+ *     would surface as a generic "totals and path sets match"
+ *     failure with no triage breadcrumbs.
+ *
+ * Output is capped at 10 entries per drift class with a "... and K
+ * more" tail to keep CI logs readable. The intent is enough signal
+ * for a 3am triage; the full diff is always reproducible by
+ * regenerating both manifests and `diff`-ing the JSON directly.
+ */
 function diffSummary(before: NormalizedManifest, after: NormalizedManifest): string[] {
   const lines: string[] = [];
-  // Totals diff — show every category that exists in either side
-  // (the iter-1 implementation iterated `before.totals` only,
-  // missing categories that the regeneration ADDED).
+  // Totals diff — show every category that exists in either side.
   const allCategories = new Set([
     ...Object.keys(before.totals),
     ...Object.keys(after.totals),
@@ -73,21 +91,40 @@ function diffSummary(before: NormalizedManifest, after: NormalizedManifest): str
     const b = after.totals[cat] ?? 0;
     if (a !== b) lines.push(`  totals.${cat}: ${a} → ${b}`);
   }
-  // Per-category checksum-set diff — same union semantics so a
-  // category present in only one side still gets reported.
+  // Per-category checksum diff: union of categories so a category
+  // present in only one side still gets reported.
   const allChecksumCats = new Set([
     ...Object.keys(before.checksums),
     ...Object.keys(after.checksums),
   ]);
   for (const cat of [...allChecksumCats].sort()) {
-    const beforePaths = new Set((before.checksums[cat] ?? []).map((e) => e.path));
-    const afterPaths = new Set((after.checksums[cat] ?? []).map((e) => e.path));
-    const added = [...afterPaths].filter((p) => !beforePaths.has(p)).sort();
-    const removed = [...beforePaths].filter((p) => !afterPaths.has(p)).sort();
+    const beforeByPath = new Map(
+      (before.checksums[cat] ?? []).map((e) => [e.path, e]),
+    );
+    const afterByPath = new Map(
+      (after.checksums[cat] ?? []).map((e) => [e.path, e]),
+    );
+    const added = [...afterByPath.keys()].filter((p) => !beforeByPath.has(p)).sort();
+    const removed = [...beforeByPath.keys()].filter((p) => !afterByPath.has(p)).sort();
+    // Same path, drifted content — the diagnostic class the iter-2
+    // implementation entirely missed.
+    const changed: string[] = [];
+    for (const path of [...beforeByPath.keys()].sort()) {
+      const a = beforeByPath.get(path);
+      const b = afterByPath.get(path);
+      if (!a || !b) continue;
+      if (a.sha256 !== b.sha256 || a.size_bytes !== b.size_bytes) {
+        changed.push(
+          `  ~${cat}: ${path} sha256 ${a.sha256.slice(0, 8)}…→${b.sha256.slice(0, 8)}… size ${a.size_bytes}→${b.size_bytes}`,
+        );
+      }
+    }
     for (const p of added.slice(0, 10)) lines.push(`  +${cat}: ${p}`);
     if (added.length > 10) lines.push(`  +${cat}: ... and ${added.length - 10} more`);
     for (const p of removed.slice(0, 10)) lines.push(`  -${cat}: ${p}`);
     if (removed.length > 10) lines.push(`  -${cat}: ... and ${removed.length - 10} more`);
+    for (const line of changed.slice(0, 10)) lines.push(line);
+    if (changed.length > 10) lines.push(`  ~${cat}: ... and ${changed.length - 10} more changed entries`);
   }
   return lines;
 }

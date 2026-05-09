@@ -14,7 +14,10 @@
 import { describe, expect, it } from 'vitest';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isVectorExcluded } from '../../scripts/lib/release-integrity-predicates.js';
+import {
+  isBuildArtifact,
+  isVectorExcluded,
+} from '../../scripts/lib/release-integrity-predicates.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
@@ -189,4 +192,53 @@ describe('isVectorExcluded — truth table', () => {
   // exhaustively test the win32 path, the predicate would need to
   // accept the `path` module as a parameter — over-engineering for a
   // defensive feature consumers don't currently exercise.
+});
+
+describe('isBuildArtifact — tarball-side subset', () => {
+  // The build-artifact predicate is the SHARED subset used by both
+  // `scripts/check-tarball-budget.ts` and (transitively, via
+  // isVectorExcluded) `scripts/generate-release-integrity.ts`.
+  // It must NOT include the manifest-only "tooling not fixture" rules
+  // (`_meta`, `.trace.json`) — those legitimately ship in the tarball.
+  const SHARED_TABLE: ReadonlyArray<{ relPath: string; isArtifact: boolean }> = [
+    // Build-output exclusions — same as the manifest predicate.
+    { relPath: 'vectors/runners/rust/target/release/.fingerprint/foo/lib.json', isArtifact: true },
+    { relPath: 'vectors/runners/go/cross-runner', isArtifact: true },
+    { relPath: 'vectors/runners/go/cross-runner.exe', isArtifact: true },
+    { relPath: 'vectors/runners/python/__pycache__/cross_runner.cpython-312.pyc', isArtifact: true },
+    { relPath: 'vectors/runners/python/.venv/bin/python3', isArtifact: true },
+    { relPath: 'src/foo.pyc', isArtifact: true }, // .pyc anywhere
+    // NOT build-output — the tarball legitimately ships these even though
+    // the manifest excludes them (consumers may reference _meta + traces
+    // for tooling integration; they're just not fixtures).
+    { relPath: 'vectors/_meta/constraint-level-invalids.json', isArtifact: false },
+    { relPath: 'vectors/CanonicalRun/_meta.json', isArtifact: false },
+    { relPath: 'vectors/CanonicalRun/v8.6.0/valid/canonical-001.trace.json', isArtifact: false },
+    // Real fixtures and source code — neither predicate excludes.
+    { relPath: 'vectors/CanonicalRun/v8.6.0/valid/canonical-001.json', isArtifact: false },
+    { relPath: 'vectors/runners/rust/Cargo.toml', isArtifact: false },
+    { relPath: 'vectors/runners/go/cmd/cross-runner/main.go', isArtifact: false },
+  ];
+  for (const row of SHARED_TABLE) {
+    it(`${row.isArtifact ? 'IS' : 'is NOT'} build-artifact: ${row.relPath}`, () => {
+      const abs = join(ROOT, row.relPath);
+      expect(isBuildArtifact(abs, ROOT)).toBe(row.isArtifact);
+    });
+  }
+
+  // Subset relationship — isVectorExcluded is a strict superset of
+  // isBuildArtifact. Anything the tarball gate flags MUST also flag
+  // in the manifest gate; the reverse is allowed (manifest excludes
+  // _meta + traces; tarball includes them).
+  it('isVectorExcluded ⊇ isBuildArtifact (every artifact is also manifest-excluded)', () => {
+    for (const row of SHARED_TABLE) {
+      if (row.isArtifact) {
+        const abs = join(ROOT, row.relPath);
+        expect(
+          isVectorExcluded(abs, ROOT),
+          `${row.relPath} is build-artifact but manifest predicate doesn't exclude it`,
+        ).toBe(true);
+      }
+    }
+  });
 });

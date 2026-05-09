@@ -42,6 +42,7 @@
 import { execSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isBuildArtifact } from './lib/release-integrity-predicates.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -50,14 +51,6 @@ const root = join(__dirname, '..');
 // for cycle-006+ growth while still catching a 100 MB-class regression.
 // The ceiling is exclusive — tarball must be strictly less than this.
 const UNPACKED_SIZE_CEILING_BYTES = 15 * 1024 * 1024;
-
-// Paths that MUST NOT appear in the published tarball. Matches the
-// PR-A3.13 prepack-clean PATHS_TO_CLEAN list — both must agree on
-// what is build-output vs. source contract.
-const FORBIDDEN_PATH_FRAGMENTS = [
-  'vectors/runners/rust/target/',
-  'vectors/runners/go/cross-runner', // matches both the binary and the path prefix
-] as const;
 
 interface PackEntry {
   readonly path: string;
@@ -94,10 +87,27 @@ if (pack.unpackedSize >= UNPACKED_SIZE_CEILING_BYTES) {
   );
 }
 
-// Forbidden-path check
+// Forbidden-path check via the shared `isBuildArtifact` predicate
+// (PR-B1.0 iter-3 F-001-fragment-match): reuse the build-artifact
+// subset from `scripts/lib/release-integrity-predicates.ts` so the
+// tarball gate agrees with the prepack hook + the manifest gate on
+// what counts as build-output. Defense-in-depth requires the layers
+// to share the same definition — Knight Capital lost $440M because
+// two layers of the same system disagreed on what they were
+// filtering.
+//
+// Note: this gate uses `isBuildArtifact` (NOT `isVectorExcluded`)
+// because the tarball legitimately ships `_meta.json` and
+// `.trace.json` files — those are tooling references for consumers,
+// just not part of the integrity-checksummed fixture corpus.
+// `isVectorExcluded` is the manifest-side superset.
+//
+// `pack.files[].path` is repo-relative-with-forward-slashes already
+// (npm normalizes). The predicate accepts an absolute path and the
+// repo root, so we re-absolutize via `join(root, p)`.
 const offenders = pack.files
   .map((f) => f.path)
-  .filter((p) => FORBIDDEN_PATH_FRAGMENTS.some((fragment) => p.includes(fragment)));
+  .filter((p) => isBuildArtifact(join(root, p), root));
 if (offenders.length > 0) {
   errors.push(
     `forbidden build-artifact paths in tarball:\n${offenders.map((o) => `    - ${o}`).join('\n')}`,

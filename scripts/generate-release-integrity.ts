@@ -142,12 +142,21 @@ const manifest = {
 // to a tmp file without mutating the tracked `RELEASE-INTEGRITY.json`.
 // Hermetic verification gates should not write to the working tree
 // (Bazel/Buck2 sandbox precedent).
+//
+// PR-B1.0 iter-3 (F-002-out-arg): validate the `--out` value to
+// reject flag-like or empty arguments. Silently accepting `--out
+// --foo` or `--out ` would write to a surprising location or fail
+// with a non-actionable filesystem error (Kubernetes CLI conventions
+// + Go flag package strictness precedent).
 function parseOutPath(): string {
   const idx = process.argv.indexOf('--out');
-  if (idx >= 0 && idx + 1 < process.argv.length) {
-    return process.argv[idx + 1];
+  if (idx < 0) return join(root, 'RELEASE-INTEGRITY.json');
+  const val = process.argv[idx + 1];
+  if (val === undefined || val === '' || val.startsWith('-')) {
+    console.error(`generate-release-integrity: --out requires a non-flag path argument, got: ${JSON.stringify(val)}`);
+    process.exit(2);
   }
-  return join(root, 'RELEASE-INTEGRITY.json');
+  return val;
 }
 const outPath = parseOutPath();
 writeFileSync(outPath, JSON.stringify(manifest, null, 2) + '\n');
