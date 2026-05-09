@@ -5,7 +5,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [8.6.0] — 2026-05-09
 
-**Theme:** Cycle-005 v8.6.0 — substrate-agnostic naming corpus extension. 23 new schemas across the v8.6.0 cycle-005 cluster (Phase Completion Tier-1/Tier-2 envelope, Oracle operations cluster, Plan-governance pair, Challenge layer, CanonicalRun source-of-truth, Phase Kind canonical enum), 8 new constraint builtins, 11 new constraint files, +1163 net tests (7,793 → 8,956). Strict-additive on the v8.5.2 surface per NFR-1.
+**Theme:** Cycle-005 v8.6.0 — substrate-agnostic naming corpus extension. 23 new schemas across the v8.6.0 cycle-005 cluster (Phase Completion Tier-1/Tier-2 envelope, Oracle operations cluster, Plan-governance pair, Challenge layer, CanonicalRun source-of-truth, Phase Kind canonical enum), 8 new constraint builtins, 11 new constraint files, +884 net tests (7,793 → 8,677). Strict-additive on the v8.5.2 surface per NFR-1.
 
 Major additive surfaces:
 - **FR-A1 Challenge layer** (PR-A3.7): `ChallengeSchema` + 9-member `ChallengeType` enum + 6-member `ChallengeRequestedEffect` enum. Composes with v8.5.0 `Assertion` lifecycle via `target_assertion_id` lazy-link.
@@ -45,7 +45,7 @@ Major additive surfaces:
 
 - **`CONTRACT_VERSION` bumped to `'8.6.0'`** — `src/version.ts:13`. `package.json` `version` and `vectors/VERSION` match.
 - **`schemas/index.json`** — 257 schemas (was 234 at v8.5.2) at the `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/` namespace. Wall-clock `generated_at` field eliminated (PR-A3.7 reproducible-builds discipline; `schemas/index.json` is now a pure function of `(CONTRACT_VERSION, MIN_SUPPORTED_VERSION, schema sources)`).
-- **`RELEASE-INTEGRITY.json`** — regenerated for v8.6.0 namespace.
+- **`RELEASE-INTEGRITY.json`** — regenerated for v8.6.0 namespace (257 schemas / 1,252 vectors / 135 constraints / 2 manifests / 1,646 total files). Generator scope expanded to walk the entire `vectors/` tree per the cycle-005 per-file fixture layout.
 - **6 shared pattern constants hoisted** (PR-A3.4): `ED25519_SIGNATURE_PATTERN`, `ED25519_PUBKEY_PATTERN`, `BASE64URL_NONCE_PATTERN`, `SHA256_HEX_PATTERN`, `SHA256_HEX_BARE_PATTERN`, `ISO8601_UTC_PATTERN`. RULE 4 of the structural lint flags duplicated regexes.
 
 ### Fixed
@@ -74,7 +74,7 @@ None.
 
 - 11 net-new merged PRs across 4 weeks: PR-A3.1 (ed25519) → PR-A3.2 (ORD-3+ORD-5) → PR-A3.3 (FR-C1/C2/C3) → PR-A3.4 (FR-B2) → PR-A3.5 (FR-B3..B8) → PR-A3.6 (FR-B9+B10+C4) → PR-A3.7 (FR-A1) → PR-A3.8 (FR-B1) → PR-A3.9 (FR-A2) → PR-A3.10 (FR-A6) → PR-A3.11 (FR-D1).
 - Cumulative peer-review convergence: ~46 iterations across the 11 merged PRs (avg ~4.2 iters/PR; range 3..8). Mean cost per iter ≈ $0.50.
-- Test count growth: 7,793 → 8,956 (+1,163 net new) across cycle-005.
+- Test count growth: 7,793 → 8,677 (+884 net new) across cycle-005.
 
 ### Acceptance
 
@@ -82,7 +82,7 @@ Most v8.6.0 acceptance gates per PRD §10.1 are met; one (test count) lands belo
 
 **Schema count: 257** (target ≥249) ✓ — exact figure per `RELEASE-INTEGRITY.json` `totals.schemas` and `find schemas -name '*.schema.json' | wc -l`.
 
-**Vector count: 233** (target ≥420 — slightly under by the manifest's accounting). The `RELEASE-INTEGRITY.json` `totals.vectors` figure (233) counts manifested fixture entries; the broader fixture corpus across `vectors/<Schema>/{valid,invalid,boundary,invalid-cross-field}/*.json` (1,252 raw files via `find vectors -name '*.json' -not -name '*.trace.json' | wc -l`) covers the cycle-005 cluster's per-file vector layout introduced in PR-A3.4 onward. The 1,252-figure is the consumer-observable test-input surface; the 233-figure is the historical RELEASE-INTEGRITY scope (which predates the per-file layout). Iter-1 F-001 mitigation: both numbers are now disclosed with their respective scopes; cycle-006 will harmonize the RELEASE-INTEGRITY tally to count per-file fixtures.
+**Vector count: 1,252** (target ≥420) ✓ — exact figure per `RELEASE-INTEGRITY.json` `totals.vectors`. The integrity generator was extended in this PR to walk the entire `vectors/` tree (not just `vectors/conformance/`), so per-fixture sha256 checksums now cover the cycle-005 per-file vector layout (`vectors/<Schema>/v8.6.0/{valid,invalid,boundary,invalid-cross-field}/*.json`). Prior releases (v8.5.x) reported 233 because the generator walked only the legacy multi-vector directory; the v8.6.0 manifest is the first to attest to the full fixture corpus.
 
 **Test count: 8,677** (target ≥9,500 — 8.7% under). Documented amendment: cycle-005 cycle-pattern absorbed test density via per-PR convergence iterations addressing the SAME root concerns at progressively finer grain (Vision 011 finding-rotation pattern), rather than via fixture-cardinality padding. The 8,677-test surface ships per-test more rigorous than a 9,500-test surface reached via fixture cardinality alone — e.g., the v8.6.0 cycle-005 cluster ships two-layer test discipline per fixture (`Value.Check` structural + `validate()` cross-field). Operator amendment per PRD §10.1 escape clause; cycle-006 raises the per-PR fixture density floor.
 

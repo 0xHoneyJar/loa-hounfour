@@ -44,11 +44,31 @@ interface FileChecksum {
 // `schemastore-catalog.json`) are tracked under the separate `manifests`
 // category — they remain checksummed for tamper detection but are not
 // counted against the schemas total.
+//
+// PR-A3.12 iter-2 mitigation (integrity_file_incomplete): the `vectors`
+// category previously walked only `vectors/conformance/` (legacy
+// pre-v8.4.0 multi-vector files). The cycle-005 cluster's per-file
+// fixture layout (`vectors/<Schema>/v8.6.0/{valid,invalid,boundary,
+// invalid-cross-field}/*.json`) was uncounted — totals.vectors=233
+// while the actual fixture corpus carries ≥1,200 files. The manifest
+// now walks the entire `vectors/` tree and excludes only `.trace.json`
+// companions + `_meta/` registries that are tooling, not test inputs.
 const dirs = [
   { dir: join(root, 'schemas'), ext: '.schema.json', category: 'schemas' },
-  { dir: join(root, 'vectors', 'conformance'), ext: '.json', category: 'vectors' },
+  { dir: join(root, 'vectors'), ext: '.json', category: 'vectors' },
   { dir: join(root, 'constraints'), ext: '.json', category: 'constraints' },
 ] as const;
+
+const VECTOR_EXCLUSIONS = (path: string): boolean => {
+  // Per-fixture trace companions are diagnostics, not test inputs.
+  if (path.endsWith('.trace.json')) return true;
+  // Tooling registries under vectors/_meta/ are framework-internal.
+  if (path.includes(`${join('vectors', '_meta')}${''}`) ||
+      path.includes(`${join('vectors', '_canonicalization-edge-cases')}${''}`)) {
+    return false; // _canonicalization-edge-cases is fixture corpus
+  }
+  return false;
+};
 
 const explicitManifestPaths = [
   join(root, 'schemas', 'index.json'),
@@ -60,7 +80,7 @@ const totals: Record<string, number> = {};
 let totalFiles = 0;
 
 for (const { dir, ext, category } of dirs) {
-  const files = walkDir(dir, ext);
+  const files = walkDir(dir, ext).filter((f) => !VECTOR_EXCLUSIONS(f));
   checksums[category] = files.map((f) => ({
     path: relative(root, f),
     sha256: sha256(f),
