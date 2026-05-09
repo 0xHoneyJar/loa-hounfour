@@ -7,5 +7,5 @@
  * per ADR-010.
  */
 export { PHASE_KINDS, PhaseKindSchema, type PhaseKind, } from './phase-kinds.js';
-export { CanonicalRunSchema, RequiredPhaseSchema, type CanonicalRun, type RequiredPhase, } from './canonical-run.js';
+export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, type CanonicalRun, type RequiredPhase, } from './canonical-run.js';
 //# sourceMappingURL=index.d.ts.map

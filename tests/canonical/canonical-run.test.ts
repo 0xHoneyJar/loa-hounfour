@@ -17,11 +17,9 @@ import {
   RequiredPhaseSchema,
   PhaseKindSchema,
   PHASE_KINDS,
+  validateCanonicalRunCR1,
 } from '../../src/canonical/index.js';
-import {
-  validate,
-  getCrossFieldValidator,
-} from '../../src/validators/index.js';
+import { validate } from '../../src/validators/index.js';
 import '../../src/validators/index.js';
 
 const EXPECTED_PHASE_KINDS = [
@@ -279,9 +277,10 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
   // src/validators/index.ts).
 
   it('preserves duplicate-error when a later phase has non-integer ordered_index', () => {
-    const cr1Validator = getCrossFieldValidator('CanonicalRun');
-    expect(cr1Validator).toBeDefined();
-    if (!cr1Validator) return;
+    // Invoke the pure-function CR-1 evaluator directly (exported from
+    // src/canonical/canonical-run.ts as the source-of-truth surface).
+    // No registry-internal escape hatch needed.
+    const cr1Validator = validateCanonicalRunCR1;
     const malformedRecord = {
       canonical_run_id: 'r',
       canonical_run_version: '1.0.0',
@@ -301,9 +300,10 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
   });
 
   it('preserves duplicate-error when a later phase is non-object', () => {
-    const cr1Validator = getCrossFieldValidator('CanonicalRun');
-    expect(cr1Validator).toBeDefined();
-    if (!cr1Validator) return;
+    // Invoke the pure-function CR-1 evaluator directly (exported from
+    // src/canonical/canonical-run.ts as the source-of-truth surface).
+    // No registry-internal escape hatch needed.
+    const cr1Validator = validateCanonicalRunCR1;
     const malformedRecord = {
       canonical_run_id: 'r',
       canonical_run_version: '1.0.0',
@@ -323,10 +323,46 @@ describe('CanonicalRun CR-1 accumulated-error preservation (iter-2 F2+F7)', () =
     expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
   });
 
+  it('preserves duplicate-error when later phases have Symbol/string/null/NaN/Infinity ordered_index', () => {
+    // iter-3 F-001 mitigation: cover the type-guard ladder explicitly.
+    // None of these input types should throw; all should be skipped
+    // by the per-element shape guards and accumulated CR-1 state from
+    // earlier well-shaped phases must survive.
+    const cr1Validator = validateCanonicalRunCR1;
+    const malformedRecord = {
+      canonical_run_id: 'r',
+      canonical_run_version: '1.0.0',
+      contract_version: '8.6.0',
+      epic_kind: 'k',
+      required_phases: [
+        { phase_id: 'a', phase_kind: 'discovery', required_gates: [], ordered_index: 0 },
+        { phase_id: 'b', phase_kind: 'design', required_gates: [], ordered_index: 0 },
+        { phase_id: 'c', phase_kind: 'audit', required_gates: [], ordered_index: Symbol('s') as unknown as number },
+        { phase_id: 'd', phase_kind: 'audit', required_gates: [], ordered_index: 'string' as unknown as number },
+        { phase_id: 'e', phase_kind: 'audit', required_gates: [], ordered_index: null as unknown as number },
+        { phase_id: 'f', phase_kind: 'audit', required_gates: [], ordered_index: Number.NaN },
+        { phase_id: 'g', phase_kind: 'audit', required_gates: [], ordered_index: Number.POSITIVE_INFINITY },
+        { phase_id: 'h', phase_kind: 'audit', required_gates: [], ordered_index: 1.5 },
+      ],
+      ts_authored: '2026-05-09T00:00:00Z',
+    };
+    // Must not throw, must not coerce silently.
+    const result = cr1Validator(malformedRecord);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('CR-1'))).toBe(true);
+    expect(result.errors.some((e) => e.includes('duplicate'))).toBe(true);
+  });
+
+  it('does not throw on a non-array required_phases (defers to TypeBox)', () => {
+    const cr1Validator = validateCanonicalRunCR1;
+    expect(() => cr1Validator({ required_phases: 'not-array' })).not.toThrow();
+    expect(() => cr1Validator({ required_phases: null })).not.toThrow();
+    expect(() => cr1Validator({ required_phases: 42 })).not.toThrow();
+    expect(() => cr1Validator({})).not.toThrow();
+  });
+
   it('returns valid:true when all elements are well-shaped and CR-1-clean', () => {
-    const cr1Validator = getCrossFieldValidator('CanonicalRun');
-    expect(cr1Validator).toBeDefined();
-    if (!cr1Validator) return;
+    const cr1Validator = validateCanonicalRunCR1;
     const cleanRecord = {
       canonical_run_id: 'r',
       canonical_run_version: '1.0.0',

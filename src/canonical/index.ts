@@ -14,6 +14,7 @@ export {
 export {
   CanonicalRunSchema,
   RequiredPhaseSchema,
+  validateCanonicalRunCR1,
   type CanonicalRun,
   type RequiredPhase,
 } from './canonical-run.js';

@@ -1214,99 +1214,16 @@ registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
 // builtin (`array_index_well_ordered`) lands cleanly. CR-2 (canonical_
 // run_id uniqueness within cluster_id) is registry-state (consumer-side);
 // CR-3 (cross-language conformance %) is consumer-policy per ADR-010.
-registerCrossFieldValidator('CanonicalRun', (data) => {
-  const errors: string[] = [];
-  const phases = (data as { required_phases?: unknown }).required_phases;
-  if (!Array.isArray(phases)) {
-    // The whole record is structurally malformed — defer to TypeBox.
-    // No CR-1 errors could have been accumulated yet (early termination
-    // before iteration begins), so returning valid:true is honest.
-    return { valid: true, errors: [], warnings: [] };
-  }
-  // Per-element shape guard at the trust boundary (PR-A3.6 iter-3
-  // pattern). TypeBox already enforces required_phases[*] shape at
-  // structural validation, but cross-field validators run independently
-  // and must defend against malformed input — Symbol-typed
-  // ordered_index would explode `Number()` and a non-array required_
-  // phases would explode `.length`.
-  //
-  // **Accumulated-error preservation contract** (iter-2 F2+F7
-  // mitigation): when a per-element shape guard trips mid-iteration,
-  // we MUST NOT discard CR-1 errors already accumulated against earlier
-  // well-shaped elements. The malformed element's structural failure
-  // surfaces via TypeBox/Value.Check; the cross-field tier reports
-  // whatever CR-1 violations it actually observed before reaching the
-  // bad element. Returning `valid: true` mid-iteration would leak a
-  // false-clear under inputs like `[{idx:0}, {idx:0}, {idx:'bad'}]` —
-  // the duplicate at index 1 is a real CR-1 violation and must not be
-  // erased by the malformed element at index 2. Pattern parallel: AWS
-  // IAM policy evaluator (2019 incident) — partial evaluators must
-  // preserve accumulated state, not return clean from a truncated pass.
-  const seenIndices = new Set<number>();
-  for (let i = 0; i < phases.length; i += 1) {
-    const phase = phases[i];
-    if (typeof phase !== 'object' || phase === null) {
-      // Structural failure surfaces via TypeBox; skip THIS element but
-      // preserve any CR-1 errors already accumulated against earlier
-      // well-shaped phases.
-      continue;
-    }
-    const idx = (phase as { ordered_index?: unknown }).ordered_index;
-    if (typeof idx !== 'number' || !Number.isInteger(idx)) {
-      // Same — TypeBox owns the structural rejection of this element;
-      // we keep accumulated CR-1 state for siblings.
-      continue;
-    }
-    if (seenIndices.has(idx)) {
-      errors.push(
-        `CR-1: required_phases[${i}].ordered_index=${idx} duplicates a prior phase's ordered_index; the sequence must be unique.`,
-      );
-    }
-    seenIndices.add(idx);
-  }
-  // Contiguous + 0-based check: the set of ordered_index values MUST
-  // be exactly {0, 1, ..., N-1} where N = phases.length.
-  //
-  // Progressive-disclosure UX choice (iter-1 F1 disposition): when
-  // duplicates are present `seenIndices.size < phases.length`, so this
-  // branch is skipped and only the duplicate error fires. A producer
-  // fixing the duplicate then re-submits to discover any remaining
-  // contiguity gap. Trade-off: surfaces one error class per pass
-  // (cleaner output, more iteration cycles) instead of all classes at
-  // once (more output, fewer cycles). The cycle-005 cycle pattern
-  // matches per-element shape validators in PR-A3.6 (FR-C4
-  // plan-content-hash builtin) — single-class error reporting per pass.
-  if (seenIndices.size === phases.length) {
-    for (let i = 0; i < phases.length; i += 1) {
-      if (!seenIndices.has(i)) {
-        errors.push(
-          `CR-1: required_phases ordered_index sequence has a gap — expected ${i} but it is missing; the sequence must be 0-based contiguous (0..${phases.length - 1}).`,
-        );
-        break;
-      }
-    }
-  }
-  return { valid: errors.length === 0, errors, warnings: [] };
-});
-
-/**
- * Returns the registered cross-field validator for a given schema $id,
- * or `undefined` if none is registered. Enables direct invocation of a
- * single cross-field validator — useful for partial-validation tests
- * that need to exercise the cross-field tier in isolation from the
- * structural Value.Check tier (e.g., the iter-2 F2+F7 accumulated-
- * error-preservation contract verification).
- *
- * The standard validation pipeline (`validate(...)`) is the canonical
- * entry point; this getter is the direct-invocation escape hatch.
- *
- * @since v8.6.0 — PR-A3.8 (FR-B1 iter-3 testability surface).
- */
-export function getCrossFieldValidator(
-  schemaId: string,
-): CrossFieldValidator | undefined {
-  return crossFieldRegistry.get(schemaId);
-}
+//
+// The validator function lives in `src/canonical/canonical-run.ts` as
+// a pure exported helper (`validateCanonicalRunCR1`) — that file is
+// the source of truth for CR-1 semantics; this registration is a
+// thin wiring step. iter-3 F1 + F-002 + F11 mitigation: keeping the
+// validator function exported via the schema's own module rather
+// than via a `getCrossFieldValidator` registry-escape-hatch avoids
+// widening the public API surface for the test path (Hyrum's Law).
+import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
+registerCrossFieldValidator('CanonicalRun', validateCanonicalRunCR1);
 
 /**
  * Returns schema $ids that have registered cross-field validators.
