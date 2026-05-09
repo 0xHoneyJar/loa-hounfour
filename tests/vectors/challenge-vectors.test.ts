@@ -67,13 +67,17 @@ function loadFixture(
 }
 
 function listFixtures(bucket: string): string[] {
-  try {
-    return readdirSync(join(vectorsRoot(), bucket))
-      .filter((f) => f.endsWith('.json'))
-      .sort();
-  } catch {
-    return [];
-  }
+  // iter-3 F-001 mitigation: do NOT swallow filesystem errors. A
+  // renamed/missing/unreadable directory must surface as a clear
+  // ENOENT/EACCES with the failing path, not as a downstream
+  // length-assertion failure that costs an hour of debugging. The
+  // S3-SDK precedent of distinguishing NoSuchKey from AccessDenied
+  // is the right shape here: failure mode IS the product for
+  // test-infrastructure code.
+  const dir = join(vectorsRoot(), bucket);
+  return readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .sort();
 }
 
 describe('Challenge vector fixtures (FR-A1 / PR-A3.7)', () => {

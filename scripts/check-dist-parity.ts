@@ -10,8 +10,23 @@
  *
  * Mechanism:
  *   1. Run `tsc` (writes to `dist/`).
- *   2. Run `git diff --exit-code dist/`. Exit 0 = parity; exit 1 =
- *      drift, with the unified diff on stdout for the reviewer.
+ *   2. Run `git status --porcelain -- dist/` — the unified status
+ *      check covers staged, unstaged, AND untracked changes against
+ *      HEAD, regardless of index state. A pre-commit hook that
+ *      `git add`s dist/ no longer hides drift behind a clean
+ *      `git diff` (iter-3 F1 mitigation: index state is developer-
+ *      local and unreliable as a CI invariant; HEAD is the ground
+ *      truth for build-artifact verification per the Buck2 / Bazel
+ *      hermeticity pattern).
+ *
+ * **State-mutation note** (iter-3 F-002): the script writes to
+ * tracked `dist/` files as part of step 1. On failure the working
+ * tree is left dirty so the reviewer can inspect the diff; on
+ * success the tree is byte-identical to its pre-run state. Running
+ * outside CI in a dirty repo is fine — re-run `npm run build` at any
+ * point to restore parity. A future variant could build into a temp
+ * directory to keep verification non-mutating, at the cost of
+ * losing the in-place diff for triage.
  *
  * Wired into `check:all` per the cycle-005 PR-A3.7 iter-2 bridge
  * disposition of F5 (dist/ committed without enforced parity gate).
@@ -43,16 +58,29 @@ if (build.code !== 0) {
   process.exit(build.code);
 }
 
-console.log('[check:dist-parity] Comparing committed dist/ against tsc output...');
-const diff = run('git diff --exit-code -- dist/');
-if (diff.code !== 0) {
+// iter-3 F1 mitigation: compare against HEAD, not the index.
+//   - `git status --porcelain -- dist/` yields one line per file with
+//     status differing from HEAD across staged/unstaged/untracked
+//     buckets — a unified check.
+//   - A pre-commit hook running `git add dist/` would otherwise hide
+//     drift from `git diff`; `git status --porcelain` catches it.
+console.log('[check:dist-parity] Comparing committed dist/ (HEAD) against tsc output...');
+const status = run('git status --porcelain -- dist/');
+if (status.stdout.trim().length > 0) {
   console.error(
     '[check:dist-parity] FAIL: committed dist/ does not match tsc output.\n' +
       'Either run `npm run build` and commit the result, or check that ' +
       '`src/` was edited without rebuilding.\n\n' +
-      'Drift summary:',
+      'Drift summary (one line per file; index-aware):',
   );
-  console.error(diff.stdout);
+  console.error(status.stdout);
+  // For triage: also surface the working-tree-vs-HEAD diff so the
+  // reviewer can read the actual byte changes, not just file names.
+  const headDiff = run('git diff HEAD -- dist/');
+  if (headDiff.stdout.length > 0) {
+    console.error('\nDetailed diff against HEAD:');
+    console.error(headDiff.stdout);
+  }
   process.exit(1);
 }
-console.log('[check:dist-parity] OK: dist/ tree is byte-identical to tsc output.');
+console.log('[check:dist-parity] OK: dist/ tree at HEAD is byte-identical to tsc output.');

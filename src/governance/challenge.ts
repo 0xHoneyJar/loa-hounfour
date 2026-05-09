@@ -121,12 +121,17 @@ export const ChallengeSchema = Type.Object(
           'produce stable answers across producers.',
       }),
       {
+        maxItems: 256,
         description:
           'Array of supporting evidence hashes. Empty array is ' +
           'admissible (a `signature_replay` challenge may need no ' +
           'evidence beyond the duplicate signature itself); ' +
           'consumer-side acceptance-gate policy decides whether ' +
-          'an empty array is accepted for a given challenge_type.',
+          'an empty array is accepted for a given challenge_type. ' +
+          'maxItems: 256 caps the array so the canonical-JSON over ' +
+          'which the signature is computed has a bounded size ' +
+          'envelope (matches the rationale-maxLength contract — ' +
+          'all signed-payload fields are jointly bounded).',
       },
     ),
     signature: Type.String({
