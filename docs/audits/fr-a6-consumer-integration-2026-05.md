@@ -198,38 +198,90 @@ distinction is what makes the firing-rate gate meaningful.
 
 #!/bin/bash
 # ORD-5 firing-rate query (run in consumer repo's log-archive dir).
-# Adjust LOG_GLOB to match your storage layout. Defaults to JSON-lines
-# under logs/. Uses awk for arithmetic (portable across Alpine /
-# Windows / minimal CI runners that lack `bc`).
+# Requires jq (POSIX-portable) to parse each line as JSON instead of
+# pattern-matching at the line-text level — iter-2 F-003 mitigation:
+# grep-based counting overcounts if a line carries multiple events,
+# embedded JSON, or non-validation records that happen to contain
+# the pattern keys. The promotion gate is too consequential to drive
+# off line-level heuristics.
+#
+# Assumed log shape (JSONL — one JSON object per line):
+#   { "schema": "<SchemaName>", "valid": <bool>,
+#     "unverified_obligations": {
+#       "unverified_rules": [
+#         { "rule_id": "<id>", ... }
+#       ]
+#     },
+#     ...
+#   }
+#
+# Adjust the jq selectors below if your shape differs (e.g. nested
+# under "validation_result", "manifest", etc.). The script's
+# guarantees rest on the input being valid JSON-per-line; mixed
+# log streams must be filtered to validation records first.
 set -euo pipefail
 LOG_GLOB="${1:-logs/*.jsonl}"
 
-# Total validation records: lines whose JSON shape carries a top-level
-# `"schema":` key. Tighter than `grep validate` (which would match
-# stack traces, doc strings, error prose).
-TOTAL_VALIDATIONS=$(grep -hE '"schema"[[:space:]]*:[[:space:]]*"' \
-    $LOG_GLOB 2>/dev/null | wc -l)
-
-# ORD-5 firings: lines whose JSON shape carries a `"rule_id":"ORD-5"`
-# inside an unverified_rules manifest entry. The double-quote
-# anchoring rejects stack-trace mentions of the literal token.
-ORD5_FIRINGS=$(grep -hE '"rule_id"[[:space:]]*:[[:space:]]*"ORD-5"' \
-    $LOG_GLOB 2>/dev/null | wc -l)
-
-echo "Glob: $LOG_GLOB"
-echo "Total validations: $TOTAL_VALIDATIONS"
-echo "ORD-5 firings: $ORD5_FIRINGS"
-
-if [[ "$TOTAL_VALIDATIONS" -gt 0 ]]; then
-  PCT=$(awk -v n="$ORD5_FIRINGS" -v d="$TOTAL_VALIDATIONS" \
-       'BEGIN { printf "%.4f", (n * 100.0) / d }')
-  echo "Firing rate: ${PCT}%"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "FATAL: jq is required. Install via package manager (apt: jq, brew: jq, etc.)." >&2
+  exit 2
 fi
 
-Decision gate:
-- <1% → ORD-5 promotion to severity:'error' is approved
-- 1-5% → defer promotion to v8.7.0; current vocabulary is close-enough
-- >5% → vocabulary expansion required first; promotion blocked
+# Total validation records: each input line that parses as a JSON
+# object with a top-level `schema` field. Non-JSON lines (logger
+# preamble, stack traces, etc.) are silently filtered by jq's
+# `select(...)` after surviving the initial parse.
+TOTAL_VALIDATIONS=$(cat $LOG_GLOB 2>/dev/null \
+  | jq -c 'select(type == "object" and has("schema"))' \
+  | wc -l)
+
+# ORD-5 firings: validation records whose `unverified_obligations.
+# unverified_rules[]` array contains an entry with rule_id == "ORD-5".
+# Counts records, not rule entries — a record with two ORD-5 entries
+# still counts as one firing event, matching the gate's per-validation
+# semantics.
+ORD5_FIRINGS=$(cat $LOG_GLOB 2>/dev/null \
+  | jq -c 'select(type == "object" and has("schema") and
+           (.unverified_obligations.unverified_rules // [] |
+            map(.rule_id == "ORD-5") | any))' \
+  | wc -l)
+
+echo "Glob: $LOG_GLOB"
+echo "Total validation records: $TOTAL_VALIDATIONS"
+echo "ORD-5-firing records: $ORD5_FIRINGS"
+
+# Minimum-sample-size floor (iter-2 F-001 mitigation):
+# ratios computed on tiny denominators are noise. The promotion gate
+# requires N ≥ 1000 validation records before any decision is
+# binding. Below the floor, the result is "INSUFFICIENT_DATA" — the
+# audit closes with the consumer marked as "no signal" rather than
+# letting absence of data be misread as signal of absence.
+SAMPLE_SIZE_FLOOR=1000
+if [[ "$TOTAL_VALIDATIONS" -lt "$SAMPLE_SIZE_FLOOR" ]]; then
+  echo "Sample size below floor (${SAMPLE_SIZE_FLOOR}); decision: INSUFFICIENT_DATA"
+  echo "  → in the integration report, mark this consumer as 'no signal'"
+  echo "  → the gate cannot be declared satisfied from this consumer alone"
+  exit 0
+fi
+
+PCT=$(awk -v n="$ORD5_FIRINGS" -v d="$TOTAL_VALIDATIONS" \
+     'BEGIN { printf "%.4f", (n * 100.0) / d }')
+echo "Firing rate: ${PCT}%"
+
+Decision gate (per consumer, after sample-size floor):
+- <1% AND total ≥ 1000 → contributes vote: PROMOTE
+- 1-5% AND total ≥ 1000 → contributes vote: DEFER (to v8.7.0)
+- >5% AND total ≥ 1000 → contributes vote: BLOCK (vocabulary expansion required)
+- total < 1000 → INSUFFICIENT_DATA; consumer cannot vote on the gate
+
+Aggregate gate (across all responding consumers):
+- ALL responding consumers vote PROMOTE → promotion ships in this PR
+- ANY responding consumer votes BLOCK → promotion blocked; vocabulary
+  expansion required before re-attempting in v8.7.0
+- MIXED vote (some PROMOTE, some DEFER, no BLOCK) → defer to v8.7.0
+- ALL responding consumers INSUFFICIENT_DATA → ship the audit framework
+  only; promotion deferred to v8.7.0 with a "shadow window inadequate
+  on first pass" entry
 ```
 
 ### Q8. v8.6.0 schema adoption intent
@@ -271,13 +323,44 @@ After consumer answers land, drift is classified per:
 
 ORD-5 promotion: separate decision per Q7's firing-rate data. Promotion is a `severity` edit on the ORD-5 entry of [`constraints/OrgRepresentativeDelegation.constraints.json`](../../constraints/OrgRepresentativeDelegation.constraints.json) (one line: `"severity": "warning"` → `"severity": "error"`) plus +N acceptance vectors covering the new error-mode behavior.
 
-## 5. Status
+## 5. Status & explicit completion criteria
 
-Per-consumer dispatched questionnaires + ORD-5 firing-rate queries are operator-driven parallel work. As consumer answers land, this audit is updated; if material drift surfaces, targeted patches ship in this PR. If no material drift surfaces by the cycle-005 close, ORD-5 promotion ships standalone (or defers to v8.7.0).
+Per-consumer dispatched questionnaires + ORD-5 firing-rate queries are operator-driven parallel work. The audit is **complete** only when ALL of the following hold:
 
-**Targeted patches in this PR**: TBD — pending consumer answers.
+### 5.1 Dispatch completeness
 
-**ORD-5 promotion**: TBD — pending firing-rate data.
+- [ ] Every known downstream consumer has been contacted with the §3 questionnaire. Consumer count and identities recorded in operator-private notes (anonymized roll-up posted here as Consumer A / B / N).
+- [ ] Each consumer's response status is one of: `responded` (answers provided), `offline` (no log archive available, explicitly noted), `declined` (consumer maintainer declined to participate, noted with reason), or `pending` (still awaiting reply by the cycle-005 close).
+- [ ] Pending count below cycle-005 ship threshold: ≤1 consumer in `pending` at ship time, with the gate held open OR the pending consumer documented as a v8.7.0 follow-up commitment.
+
+### 5.2 ORD-5 promotion criteria
+
+The promotion gate cannot be declared satisfied by absence of data. Specifically:
+
+- [ ] At least **two** distinct responding consumers contributed a vote (PROMOTE / DEFER / BLOCK / INSUFFICIENT_DATA per §3 Q7's decision gate).
+- [ ] At least **one** responding consumer cleared the sample-size floor (≥1000 validation records). If zero clear the floor, the gate result is INSUFFICIENT_DATA and promotion defers to v8.7.0 with a "first-pass shadow window inadequate" entry.
+- [ ] Aggregate vote computed per §3 Q7's aggregate-gate rules.
+
+### 5.3 Drift triage criteria
+
+- [ ] Every Q9 free-form response triaged as material-broken-contract / material-unverified-obligation / cosmetic / no-drift per §4.
+- [ ] Material-broken-contract findings have either a landed patch in this PR OR a forward-pointer commit message naming the v8.7.0 follow-up.
+- [ ] Material-unverified-obligation findings have a MIGRATION.md entry.
+- [ ] Cosmetic findings logged in the reuse-audit log.
+
+### 5.4 Live status (filled in as operator dispatches resolve)
+
+| Consumer | Status | Sample size | Vote (Q7) | Drift findings (Q9) |
+|---|---|---|---|---|
+| Consumer A | pending | — | — | — |
+| Consumer B | pending | — | — | — |
+| Consumer N | pending | — | — | — |
+
+**Targeted patches in this PR**: pending §5.3 triage.
+
+**ORD-5 promotion decision**: pending §5.2 criteria; current state INSUFFICIENT_DATA.
+
+> §5.4 above is the cycle-005 ship gate. Until every row is populated and §5.1 + §5.2 + §5.3 boxes are checked, the audit is INCOMPLETE and the cycle-005 PR-A3.12 ship is conditional on either (a) completing the audit or (b) explicitly carrying ORD-5 promotion + outstanding consumer responses to v8.7.0 with a NOTES.md entry.
 
 ---
 
