@@ -134,7 +134,7 @@ if (isNonNpmPublisher && !isPublish && !explicitMode && inCI) {
 }
 
 const mode = isPublish ? 'publish (destructive)' : 'pack (dry-run only)';
-console.log(`prepack-clean: mode=${mode}${userAgent ? ` (ua=${userAgent.split(' ')[0]})` : ''}`);
+console.error(`prepack-clean: mode=${mode}${userAgent ? ` (ua=${userAgent.split(' ')[0]})` : ''}`);
 
 if (isNonNpmPublisher && !isPublish && !explicitMode) {
   console.warn(
@@ -184,11 +184,11 @@ for (const { rel, isDir } of PATHS_TO_CLEAN) {
       continue;
     }
     if (wasPresent) {
-      console.log(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
+      console.error(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
     }
   } else {
     if (!existsSync(abs)) continue;
-    console.log(
+    console.error(
       `prepack-clean: would-remove ${rel}${isDir ? '/' : ''} (set PREPACK_MODE=publish to act)`,
     );
   }
