@@ -2,10 +2,14 @@
 name = "loa-hounfour-vectors"
 version = "0.1.0"
 edition = "2021"
-description = "Cross-language golden vector runner for loa-hounfour"
+description = "Cross-language conformance runner for loa-hounfour (Rust)"
 publish = false
+
+[[bin]]
+name = "cross-runner"
+path = "src/main.rs"
 
 [dependencies]
 jsonschema = "=0.28.3"
 serde_json = "1"
-glob = "0.3"
+serde = { version = "1", features = ["derive"] }

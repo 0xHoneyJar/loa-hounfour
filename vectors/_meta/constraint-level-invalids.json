@@ -10,6 +10,7 @@
     "PanelVerdict/invalid/pv-3-asymmetric-blocker-inconsistent.json",
     "CrossScoreReport/invalid/csr-1-self-scoring.json",
     "SuccessionPolicy/invalid/sp-1-asymmetric-ladder-violation.json",
-    "SuccessionPolicy/invalid/sp-2-cooldown-decreasing.json"
+    "SuccessionPolicy/invalid/sp-2-cooldown-decreasing.json",
+    "OracleDigest/v8.6.0/invalid/telegram-variant-multibyte-bypass.json"
   ]
 }

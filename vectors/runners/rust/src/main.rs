@@ -1,213 +1,289 @@
-//! Cross-language golden vector runner for loa-hounfour.
-//!
-//! Validates JSON Schema files against golden test vectors using the
-//! `jsonschema` crate. No TypeScript toolchain required.
-//!
-//! # Usage
-//!
-//! ```bash
-//! cd vectors/runners/rust
-//! cargo run
-//! ```
+// Cross-language conformance runner for loa-hounfour (Rust).
+//
+// Mirrors `scripts/cross-runner.ts` (TS reference). Walks the per-file
+// vector layout and emits a JSON manifest of `{schema, vector,
+// expected, result}` entries. Cross-language harness diffs the Rust
+// output against the TS golden corpus per AT-1.
+//
+// Schema validation uses the `jsonschema` crate against the JSON
+// Schema 2020-12 artifacts under `schemas/`. Cross-field invariants
+// (CR-1, FR-C builtins, byte-cap, etc.) are NOT evaluated here —
+// those are consumer-side per ADR-010 and surface as
+// `'pass-cross-field-deferred'` in the manifest.
+//
+// Usage:
+//
+//   cd vectors/runners/rust
+//   cargo run --release --bin cross-runner -- --emit-manifest
+//   cargo run --release --bin cross-runner   # exit 1 on parity divergence
+//
+// @since v8.6.0 — PR-A3.9 (FR-A2)
 
-use glob::glob;
+use serde::Serialize;
 use serde_json::Value;
+use std::collections::HashSet;
+use std::fs;
 use std::path::{Path, PathBuf};
-use std::process;
+use std::process::ExitCode;
+
+/// MUST match `PARITY_PROTOCOL_VERSION` in scripts/cross-runner.ts.
+const PARITY_PROTOCOL_VERSION: &str = "1.1.0";
+
+#[derive(Debug, Clone)]
+struct SchemaReg {
+    name: &'static str,
+    version_path: Option<&'static str>,
+    buckets: &'static [&'static str],
+}
+
+/// Mirrors the SCHEMAS dict in scripts/cross-runner.ts. Keep in
+/// lockstep with the Python and Go registries.
+const SCHEMAS: &[SchemaReg] = &[
+    // v8.4.0 substrate — flat layout.
+    SchemaReg { name: "PanelDecisionArtifact", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "PanelVerdict", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "DeliberationDissent", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "CrossScoreReport", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "OrgIdentity", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "OrgRepresentativeDelegation", version_path: None, buckets: &["valid", "invalid"] },
+    SchemaReg { name: "SuccessionPolicy", version_path: None, buckets: &["valid", "invalid"] },
+    // v8.6.0 cycle-005 cluster — versioned layout.
+    // PhaseCompletionEnvelope deferred — see Tier-1/Tier-2 fixture-
+    // routing rationale in scripts/cross-runner.ts (TS reference).
+    // SchemaReg { name: "PhaseCompletionEnvelope", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "OracleDigest", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "EpicCheckpoint", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "PlanSignoffEnvelope", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "PlanAmendmentRequest", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "Challenge", version_path: Some("v8.6.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "CanonicalRun", version_path: Some("v8.6.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
+];
+
+#[derive(Serialize, Debug)]
+struct Diagnostic {
+    code: String,
+    path: String,
+}
+
+#[derive(Serialize, Debug)]
+struct ManifestEntry {
+    schema: String,
+    vector: String,
+    expected: String,
+    result: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    diagnostic: Option<Diagnostic>,
+}
+
+fn camel_to_kebab(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 4);
+    let chars: Vec<char> = s.chars().collect();
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_ascii_uppercase() && i > 0 && !chars[i - 1].is_ascii_uppercase() {
+            out.push('-');
+        }
+        out.extend(c.to_lowercase());
+    }
+    out
+}
 
 fn repo_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..")
-        .join("..")
-        .canonicalize()
-        .expect("Failed to resolve repo root")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent().unwrap()
+        .parent().unwrap()
+        .parent().unwrap()
+        .to_path_buf()
 }
 
-fn load_json(path: &Path) -> Value {
-    let content = std::fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("Failed to read {}: {e}", path.display()));
-    serde_json::from_str(&content)
-        .unwrap_or_else(|e| panic!("Failed to parse {}: {e}", path.display()))
-}
-
-fn compile_schema(schema: &Value) -> jsonschema::Validator {
-    jsonschema::validator_for(schema)
-        .unwrap_or_else(|e| panic!("Failed to compile schema: {e}"))
-}
-
-struct TestResult {
-    passed: u32,
-    failed: u32,
-    errors: Vec<String>,
-}
-
-impl TestResult {
-    fn new() -> Self {
-        Self {
-            passed: 0,
-            failed: 0,
-            errors: Vec::new(),
-        }
-    }
-}
-
-fn run_vector_suite(
-    result: &mut TestResult,
-    schema_name: &str,
-    vector_path: &Path,
-    valid_key: &str,
-    invalid_key: &str,
-) {
-    let root = repo_root();
-    let schema_path = root.join("schemas").join(format!("{schema_name}.schema.json"));
-
-    if !schema_path.exists() {
-        eprintln!("  SKIP: schema not found: {}", schema_path.display());
-        return;
-    }
-
-    if !vector_path.exists() {
-        eprintln!("  SKIP: vectors not found: {}", vector_path.display());
-        return;
-    }
-
-    let schema_json = load_json(&schema_path);
-    let validator = compile_schema(&schema_json);
-    let vectors = load_json(vector_path);
-
-    println!("\n{schema_name} ({}):", vector_path.file_name().unwrap().to_str().unwrap());
-
-    // Valid vectors
-    if let Some(valid_arr) = vectors.get(valid_key).and_then(|v| v.as_array()) {
-        for entry in valid_arr {
-            let id = entry.get("id").and_then(|v| v.as_str()).unwrap_or("unknown");
-            let data = entry.get("data").expect("Missing 'data' field");
-
-            if validator.validate(data).is_ok() {
-                result.passed += 1;
-                println!("  [PASS] {id}");
-            } else {
-                result.failed += 1;
-                let msg = format!("{schema_name}/{id}: expected valid, got invalid");
-                println!("  [FAIL] {id}");
-                result.errors.push(msg);
+fn load_constraint_level_invalids(root: &Path) -> HashSet<String> {
+    let path = root.join("vectors").join("_meta").join("constraint-level-invalids.json");
+    let raw = match fs::read_to_string(&path) {
+        Ok(s) => s,
+        Err(_) => return HashSet::new(),
+    };
+    let v: Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(_) => return HashSet::new(),
+    };
+    let mut set = HashSet::new();
+    if let Some(arr) = v.get("fixtures").and_then(|x| x.as_array()) {
+        for item in arr {
+            if let Some(s) = item.as_str() {
+                set.insert(s.to_string());
             }
         }
     }
+    set
+}
 
-    // Invalid vectors
-    if let Some(invalid_arr) = vectors.get(invalid_key).and_then(|v| v.as_array()) {
-        for entry in invalid_arr {
-            let id = entry.get("id").and_then(|v| v.as_str()).unwrap_or("unknown");
-            let data = match entry.get("data") {
-                Some(d) => d,
-                None => continue, // Skip entries without data
+/// Conservative RFC 3339 / ISO 8601 UTC date-time check matching
+/// the TypeBox ISO8601_UTC_PATTERN (Z suffix, optional 1-9 fractional
+/// digits). Cycle-005 contracts treat `format: date-time` as
+/// ASSERTIVE; this function backs the format-assertion path so the
+/// Rust runner rejects the same fixtures TypeBox does.
+fn check_rfc3339_date_time(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    if bytes.len() < 20 {
+        return false;
+    }
+    if *bytes.last().unwrap() != b'Z' {
+        return false;
+    }
+    let is_d = |b: u8| b.is_ascii_digit();
+    let pos = |i: usize| bytes.get(i).copied();
+    if !(is_d(pos(0).unwrap_or(0)) && is_d(pos(1).unwrap_or(0)) && is_d(pos(2).unwrap_or(0)) && is_d(pos(3).unwrap_or(0))) { return false; }
+    if pos(4) != Some(b'-') { return false; }
+    if !(is_d(pos(5).unwrap_or(0)) && is_d(pos(6).unwrap_or(0))) { return false; }
+    if pos(7) != Some(b'-') { return false; }
+    if !(is_d(pos(8).unwrap_or(0)) && is_d(pos(9).unwrap_or(0))) { return false; }
+    if pos(10) != Some(b'T') { return false; }
+    if !(is_d(pos(11).unwrap_or(0)) && is_d(pos(12).unwrap_or(0))) { return false; }
+    if pos(13) != Some(b':') { return false; }
+    if !(is_d(pos(14).unwrap_or(0)) && is_d(pos(15).unwrap_or(0))) { return false; }
+    if pos(16) != Some(b':') { return false; }
+    if !(is_d(pos(17).unwrap_or(0)) && is_d(pos(18).unwrap_or(0))) { return false; }
+    let tail = &bytes[19..];
+    if tail == b"Z" {
+        return true;
+    }
+    if tail.first() != Some(&b'.') {
+        return false;
+    }
+    let frac = &tail[1..tail.len() - 1];
+    if frac.is_empty() || frac.len() > 9 {
+        return false;
+    }
+    frac.iter().all(|b| b.is_ascii_digit())
+}
+
+fn load_schema(root: &Path, name: &str) -> Result<jsonschema::Validator, String> {
+    let stem = camel_to_kebab(name);
+    let schema_path = root.join("schemas").join(format!("{}.schema.json", stem));
+    let raw = fs::read_to_string(&schema_path)
+        .map_err(|e| format!("read {}: {}", schema_path.display(), e))?;
+    let value: Value = serde_json::from_str(&raw)
+        .map_err(|e| format!("parse {}: {}", schema_path.display(), e))?;
+    jsonschema::options()
+        .with_format("date-time", check_rfc3339_date_time)
+        .should_validate_formats(true)
+        .build(&value)
+        .map_err(|e| format!("compile {}: {}", schema_path.display(), e))
+}
+
+fn list_json_files(dir: &Path) -> Vec<String> {
+    let entries = match fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return vec![],
+    };
+    let mut out: Vec<String> = entries
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .filter(|n| n.ends_with(".json") && !n.ends_with(".trace.json"))
+        .collect();
+    out.sort();
+    out
+}
+
+fn strip_comment(value: Value) -> Value {
+    if let Value::Object(mut map) = value {
+        map.remove("_comment");
+        Value::Object(map)
+    } else {
+        value
+    }
+}
+
+fn emit_manifest(root: &Path) -> Result<Vec<ManifestEntry>, String> {
+    let cl_invalids = load_constraint_level_invalids(root);
+    let mut manifest = Vec::new();
+    for reg in SCHEMAS {
+        let validator = load_schema(root, reg.name)?;
+        for &bucket in reg.buckets {
+            let mut bucket_dir = root.join("vectors").join(reg.name);
+            if let Some(vp) = reg.version_path {
+                bucket_dir.push(vp);
+            }
+            bucket_dir.push(bucket);
+            let vector_prefix = match reg.version_path {
+                Some(vp) => format!("{}/{}", vp, bucket),
+                None => bucket.to_string(),
             };
-
-            if validator.validate(data).is_err() {
-                result.passed += 1;
-                println!("  [PASS] {id}");
-            } else {
-                result.failed += 1;
-                let msg = format!("{schema_name}/{id}: expected invalid, got valid");
-                println!("  [FAIL] {id}");
-                result.errors.push(msg);
+            for fname in list_json_files(&bucket_dir) {
+                let fpath = bucket_dir.join(&fname);
+                let raw = match fs::read_to_string(&fpath) {
+                    Ok(s) => s,
+                    Err(e) => return Err(format!("read {}: {}", fpath.display(), e)),
+                };
+                let parsed: Result<Value, _> = serde_json::from_str(&raw);
+                let data = match parsed {
+                    Ok(d) => strip_comment(d),
+                    Err(_) => {
+                        manifest.push(ManifestEntry {
+                            schema: reg.name.to_string(),
+                            vector: format!("{}/{}", vector_prefix, fname),
+                            expected: bucket.to_string(),
+                            result: "fail".to_string(),
+                            diagnostic: Some(Diagnostic {
+                                code: "FIXTURE_PARSE_ERROR".to_string(),
+                                path: "$".to_string(),
+                            }),
+                        });
+                        continue;
+                    }
+                };
+                let ok = validator.is_valid(&data);
+                let key = format!("{}/{}/{}", reg.name, vector_prefix, fname);
+                let result = match bucket {
+                    "invalid-cross-field" => if ok { "pass-cross-field-deferred" } else { "fail" },
+                    "boundary" => if ok { "pass" } else { "fail" },
+                    _ if cl_invalids.contains(&key) => if ok { "pass-constraint-level" } else { "fail" },
+                    _ => {
+                        let expected_valid = bucket == "valid";
+                        if ok == expected_valid { "pass" } else { "fail" }
+                    }
+                };
+                manifest.push(ManifestEntry {
+                    schema: reg.name.to_string(),
+                    vector: format!("{}/{}", vector_prefix, fname),
+                    expected: bucket.to_string(),
+                    result: result.to_string(),
+                    diagnostic: None,
+                });
             }
         }
     }
+    Ok(manifest)
 }
 
-fn main() {
+fn main() -> ExitCode {
+    let emit = std::env::args().any(|a| a == "--emit-manifest");
     let root = repo_root();
-    let vectors_dir = root.join("vectors");
-    let mut result = TestResult::new();
-
-    println!("loa-hounfour Golden Vector Runner (Rust)");
-    println!("========================================");
-
-    // Domain events
-    run_vector_suite(
-        &mut result,
-        "domain-event",
-        &vectors_dir.join("domain-event").join("events.json"),
-        "valid_events",
-        "invalid",
-    );
-
-    // Domain event batches
-    run_vector_suite(
-        &mut result,
-        "domain-event-batch",
-        &vectors_dir.join("domain-event").join("batches.json"),
-        "valid_batches",
-        "invalid_batches",
-    );
-
-    // Conversations
-    run_vector_suite(
-        &mut result,
-        "conversation",
-        &vectors_dir.join("conversation").join("conversations.json"),
-        "valid_conversations",
-        "invalid",
-    );
-
-    // Billing allocation
-    run_vector_suite(
-        &mut result,
-        "billing-entry",
-        &vectors_dir.join("billing").join("allocation.json"),
-        "valid_entries",
-        "invalid_entries",
-    );
-
-    // Transfer specs
-    run_vector_suite(
-        &mut result,
-        "transfer-spec",
-        &vectors_dir.join("transfer").join("transfers.json"),
-        "valid_transfers",
-        "invalid_transfers",
-    );
-
-    // Agent lifecycle payloads
-    run_vector_suite(
-        &mut result,
-        "lifecycle-transition-payload",
-        &vectors_dir.join("agent").join("lifecycle-payloads.json"),
-        "valid_payloads",
-        "invalid_payloads",
-    );
-
-    // Health status (v3.1.0)
-    run_vector_suite(
-        &mut result,
-        "health-status",
-        &vectors_dir.join("health").join("health-status.json"),
-        "valid",
-        "invalid",
-    );
-
-    // Thinking traces (v3.1.0)
-    run_vector_suite(
-        &mut result,
-        "thinking-trace",
-        &vectors_dir.join("thinking").join("thinking-traces.json"),
-        "valid",
-        "invalid",
-    );
-
-    // Summary
-    println!("\n{}", "=".repeat(50));
-    println!("Results: {} passed, {} failed", result.passed, result.failed);
-
-    if !result.errors.is_empty() {
-        println!("\nFailures:");
-        for e in &result.errors {
-            println!("  {e}");
+    let manifest = match emit_manifest(&root) {
+        Ok(m) => m,
+        Err(e) => {
+            eprintln!("FATAL: {}", e);
+            return ExitCode::from(2);
         }
+    };
+    if emit {
+        match serde_json::to_string(&manifest) {
+            Ok(s) => println!("{}", s),
+            Err(e) => {
+                eprintln!("marshal: {}", e);
+                return ExitCode::from(2);
+            }
+        }
+        return ExitCode::SUCCESS;
     }
-
-    process::exit(if result.failed > 0 { 1 } else { 0 });
+    let fails = manifest.iter().filter(|e| e.result == "fail").count();
+    if fails > 0 {
+        eprintln!("FAIL: {} fixture(s) diverged from expectation", fails);
+        return ExitCode::from(1);
+    }
+    println!(
+        "OK: {} fixtures validated (parity_protocol_version={})",
+        manifest.len(),
+        PARITY_PROTOCOL_VERSION
+    );
+    ExitCode::SUCCESS
 }

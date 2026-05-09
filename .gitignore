@@ -46,3 +46,7 @@ temp/
 
 # Claude Code session state
 .claude/
+
+# Cross-language runner build outputs (PR-A3.9 / FR-A2)
+vectors/runners/rust/target/
+vectors/runners/go/cross-runner
