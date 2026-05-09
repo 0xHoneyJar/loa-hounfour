@@ -74,7 +74,7 @@
       "message": "ttl_seconds_at_emit upper bound 2^53-1 enforced consumer-side per AT-8; schema enforces format only (^[1-9][0-9]*$).",
       "fields": ["ttl_seconds_at_emit"],
       "evaluator": "runtime-deferred",
-      "evaluation_note": "CT-03 string-encoded integer pattern. The schema's `^[1-9][0-9]*$` rejects '0' (reserved as expired-on-emit sentinel) and any leading-zero form, guaranteeing `BigInt(value)` succeeds. JSON Schema 2020-12 has no numeric upper-bound for string-encoded integers; consumers parse to BigInt and reject values exceeding 2^53-1 (or their own TTL ceiling) before treating the signoff as authoritative. Per AT-8 acknowledged tradeoff: cross-language JSON portability outranks per-consumer parsing convenience.",
+      "evaluation_note": "CT-03 string-encoded integer pattern. The schema's `^[1-9][0-9]*$` rejects '0' (reserved as expired-on-emit sentinel) and any leading-zero form, guaranteeing `BigInt(value)` succeeds. The schema's `maxLength: 19` (iter-2 F5 mitigation) caps the digit count at 19 — the representation length of 2^63-1, the Int64 ceiling — to prevent unbounded BigInt-parse DoS on attacker-controlled payloads; the 2^53-1 / Number.MAX_SAFE_INTEGER consumer ceiling per AT-8 is well within this cap. JSON Schema 2020-12 has no numeric upper-bound for string-encoded integers; consumers parse to BigInt and reject values exceeding 2^53-1 (or their own TTL ceiling) before treating the signoff as authoritative. Per AT-8 acknowledged tradeoff: cross-language JSON portability outranks per-consumer parsing convenience.",
       "type_signature": {
         "ttl_seconds_at_emit": "string"
       }

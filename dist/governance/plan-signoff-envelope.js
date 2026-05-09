@@ -131,14 +131,23 @@ export const PlanSignoffEnvelopeSchema = Type.Object({
     }),
     ttl_seconds_at_emit: Type.String({
         pattern: '^[1-9][0-9]*$',
+        maxLength: 19,
         description: 'String-encoded positive integer TTL in seconds at emission ' +
             'time (CT-03). Pattern `^[1-9][0-9]*$` rejects "0" (reserved ' +
             'as expired-on-emit sentinel) and any leading-zero form. ' +
             'The upper bound `2^53-1` is enforced consumer-side per ' +
             'AT-8: JSON Schema\'s numeric `maximum` cannot apply to a ' +
-            'string-encoded field. Consumers parse via ' +
+            'string-encoded field. **`maxLength: 19` (iter-2 F5 ' +
+            'mitigation):** caps the digit count at 19 — the ' +
+            'representation length of `2^63-1`, the Int64 ceiling — to ' +
+            'prevent unbounded BigInt-parse DoS on attacker-controlled ' +
+            'payloads. The 2^53-1 (Number.MAX_SAFE_INTEGER, 16 digits) ' +
+            'consumer ceiling per AT-8 is well within this cap; the ' +
+            '19-digit cap is a defense-in-depth structural guard, not ' +
+            'the semantic ceiling. Consumers parse via ' +
             '`BigInt(envelope.ttl_seconds_at_emit)` after validation; ' +
-            'the regex guarantees a successful parse without try/catch.',
+            'the regex + cap guarantee a bounded-cost successful parse ' +
+            'without try/catch.',
     }),
     chain_refs: Type.Object({
         prev_envelope_hash: Type.String({
