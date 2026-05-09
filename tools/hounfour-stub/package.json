@@ -1,16 +1,26 @@
 {
   "name": "@0xhoneyjar/loa-hounfour-stub",
   "version": "0.0.0-cycle-005-stub",
-  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Re-exports the v8.6.0 cycle-005 schema cluster + 4 FR-C constraint builtins from the main package's source. Consumers alias `\"@0xhoneyjar/loa-hounfour\": \"file:./tools/hounfour-stub\"` during RC to lock against the staged surface; after GA they switch the alias to the published version. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE so the stub is unpublishable; schema $id strings retain the production namespace so consumers see no surface drift between stub and post-publish.",
+  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Re-exports the v8.6.0 cycle-005 schema cluster + 4 FR-C constraint builtins from the main package's source. Consumers alias `\"@0xhoneyjar/loa-hounfour\": \"file:./tools/hounfour-stub\"` during RC to lock against the staged surface; after GA they switch the alias to the published version. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE so the stub is unpublishable; schema $id strings retain the production short-form (PascalCase) so consumers see no surface drift between stub and post-publish.",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
   "files": [
-    "src/"
+    "dist/",
+    "src/",
+    "README.md"
   ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "tsc"
+  },
   "publishConfig": {
     "access": "restricted"
   },

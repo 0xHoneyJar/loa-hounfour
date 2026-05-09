@@ -40,7 +40,9 @@ A search by `@0xhoneyjar/loa-hounfour` in the npm / GitHub Packages registry ret
 
 ## Schema `$id` discipline
 
-Every re-exported schema's `$id` retains the production namespace (`@0xhoneyjar/loa-hounfour/...`). Consumers querying `Schema.$id` see the production identifier whether they resolved the schema via the stub or via the published version — no surface drift across the alias swap.
+Every re-exported schema's in-memory TypeBox `$id` retains the production short-form (PascalCase, e.g. `'CanonicalRun'`, `'Challenge'`, `'PhaseCompletionEnvelope'`) — the same value the main package's source files declare. Consumers querying `Schema.$id` see this identical short-form whether they resolved the schema via the stub or via the published version, so there is no surface drift across the alias swap.
+
+The URI form (`https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/<schema>`) is post-processed by `scripts/generate-schemas.ts` at JSON Schema artifact generation time and lives in the emitted `schemas/<name>.schema.json` files; it is NOT the in-memory `$id` and the stub does not affect it. Consumers reading from `schemas/` JSON artifacts see the URI; consumers reading the in-memory schema objects see the short-form. Both are stable across the stub-vs-published swap.
 
 ## Contract enforcement
 

@@ -1,18 +1,22 @@
 # PR-A3.11 (FR-D1) — Stub-vs-main differential surface check.
 #
 # Runs `tests/stub/diff-against-main.test.ts` on every PR and on
-# pushes to main. The test asserts that the stub package
+# every push to main. The test asserts that the stub package
 # (`tools/hounfour-stub/`) re-exports the same v8.6.0 cycle-005
 # schemas + 4 FR-C constraint builtins as the main package, that
-# canonical-JSON serialization is byte-equal, and that schema $id
-# values retain the production namespace (NA-2 fix). Drift
-# between stub and main is a hard CI failure — consumers aliased
-# to `file:./tools/hounfour-stub` during the v8.6.0 RC window
-# must see the same surface they'll see post-GA.
+# the export-name SETS match (reflection-based drift detector),
+# that canonical-JSON serialization is byte-equal across both
+# sides, and that schema $id values retain the production short-
+# form (NA-2 fix).
 #
-# This workflow is separate from `ci.yml` so its failure mode is
-# legible to reviewers (the test file is the contract surface; if
-# this job fails, the stub diverged from main).
+# **Path-filter design (iter-1 F-002 + MANUAL_CI_PATH_SYNC
+# mitigation)**: this workflow runs on EVERY change to main /
+# every PR, with no path scoping. Hand-curated path filters drift
+# silently as new domains land in `src/` — a future v8.7.0 schema
+# in a directory not in the allowlist would be added to the stub
+# without triggering this gate. The cost of running the test on
+# every PR is small (≤2 s vitest) and worth the elimination of the
+# drift surface.
 #
 # @since v8.6.0 — PR-A3.11 (FR-D1)
 name: Stub Differential
@@ -20,30 +24,8 @@ name: Stub Differential
 on:
   push:
     branches: [main]
-    paths:
-      - 'tools/hounfour-stub/**'
-      - 'tests/stub/**'
-      - 'src/canonical/**'
-      - 'src/governance/challenge*.ts'
-      - 'src/governance/plan-signoff-envelope.ts'
-      - 'src/governance/plan-amendment-request.ts'
-      - 'src/operations/**'
-      - 'src/integrity/phase-completion-envelope*.ts'
-      - 'src/constraints/builtins/**'
-      - '.github/workflows/stub-differential.yml'
   pull_request:
     branches: [main]
-    paths:
-      - 'tools/hounfour-stub/**'
-      - 'tests/stub/**'
-      - 'src/canonical/**'
-      - 'src/governance/challenge*.ts'
-      - 'src/governance/plan-signoff-envelope.ts'
-      - 'src/governance/plan-amendment-request.ts'
-      - 'src/operations/**'
-      - 'src/integrity/phase-completion-envelope*.ts'
-      - 'src/constraints/builtins/**'
-      - '.github/workflows/stub-differential.yml'
 
 permissions:
   contents: read
@@ -65,8 +47,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm run typecheck
+      - name: Build (main + stub)
+        run: |
+          pnpm run build
+          pnpm exec tsc --project tools/hounfour-stub/tsconfig.json
 
       - name: Stub differential test
         run: pnpm exec vitest run tests/stub/diff-against-main.test.ts

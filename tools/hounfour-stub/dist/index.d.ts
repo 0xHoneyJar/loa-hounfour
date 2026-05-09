@@ -33,88 +33,23 @@
  *
  * @since v8.6.0 — PR-A3.11 (FR-D1)
  */
-
-// v8.6.0 cycle-005 cluster — schemas
-export {
-  PhaseCompletionEnvelopeTier1Schema,
-  type PhaseCompletionEnvelopeTier1,
-} from '../../../dist/integrity/phase-completion-envelope-tier1.js';
-export {
-  PhaseCompletionEnvelopeSchema,
-  type PhaseCompletionEnvelope,
-} from '../../../dist/integrity/phase-completion-envelope.js';
-export {
-  OracleDigestSchema,
-  PulseKindSchema,
-  type OracleDigest,
-  type PulseKind,
-} from '../../../dist/operations/oracle-digest.js';
-export {
-  OracleHealthEnvelopeSchema,
-  type OracleHealthEnvelope,
-} from '../../../dist/operations/oracle-health-envelope.js';
-export {
-  EscalationEnvelopeSchema,
-  type EscalationEnvelope,
-} from '../../../dist/operations/escalation-envelope.js';
-export {
-  RollbackPlanSchema,
-  type RollbackPlan,
-} from '../../../dist/operations/rollback-plan.js';
-export {
-  LatencyHistogramEnvelopeSchema,
-  type LatencyHistogramEnvelope,
-} from '../../../dist/operations/latency-histogram-envelope.js';
-export {
-  EpicCheckpointSchema,
-  type EpicCheckpoint,
-} from '../../../dist/operations/epic-checkpoint.js';
-export {
-  PlanSignoffEnvelopeSchema,
-  SignoffActorClassSchema,
-  SignoffTierSchema,
-  type PlanSignoffEnvelope,
-  type SignoffActorClass,
-  type SignoffTier,
-} from '../../../dist/governance/plan-signoff-envelope.js';
-export {
-  PlanAmendmentRequestSchema,
-  type PlanAmendmentRequest,
-} from '../../../dist/governance/plan-amendment-request.js';
-export {
-  ChallengeSchema,
-  type Challenge,
-} from '../../../dist/governance/challenge.js';
-export {
-  ChallengeTypeSchema,
-  ChallengeRequestedEffectSchema,
-  CHALLENGE_TYPES,
-  CHALLENGE_REQUESTED_EFFECTS,
-  type ChallengeType,
-  type ChallengeRequestedEffect,
-} from '../../../dist/governance/challenge-types.js';
-export {
-  CanonicalRunSchema,
-  RequiredPhaseSchema,
-  validateCanonicalRunCR1,
-  type CanonicalRun,
-  type RequiredPhase,
-} from '../../../dist/canonical/canonical-run.js';
-export {
-  PhaseKindSchema,
-  PHASE_KINDS,
-  type PhaseKind,
-} from '../../../dist/canonical/phase-kinds.js';
-
-// v8.6.0 FR-C constraint builtins (4 standalone evaluators)
+export { PhaseCompletionEnvelopeTier1Schema, type PhaseCompletionEnvelopeTier1, } from '../../../dist/integrity/phase-completion-envelope-tier1.js';
+export { PhaseCompletionEnvelopeSchema, type PhaseCompletionEnvelope, } from '../../../dist/integrity/phase-completion-envelope.js';
+export { OracleDigestSchema, PulseKindSchema, type OracleDigest, type PulseKind, } from '../../../dist/operations/oracle-digest.js';
+export { OracleHealthEnvelopeSchema, type OracleHealthEnvelope, } from '../../../dist/operations/oracle-health-envelope.js';
+export { EscalationEnvelopeSchema, type EscalationEnvelope, } from '../../../dist/operations/escalation-envelope.js';
+export { RollbackPlanSchema, type RollbackPlan, } from '../../../dist/operations/rollback-plan.js';
+export { LatencyHistogramEnvelopeSchema, type LatencyHistogramEnvelope, } from '../../../dist/operations/latency-histogram-envelope.js';
+export { EpicCheckpointSchema, type EpicCheckpoint, } from '../../../dist/operations/epic-checkpoint.js';
+export { PlanSignoffEnvelopeSchema, SignoffActorClassSchema, SignoffTierSchema, type PlanSignoffEnvelope, type SignoffActorClass, type SignoffTier, } from '../../../dist/governance/plan-signoff-envelope.js';
+export { PlanAmendmentRequestSchema, type PlanAmendmentRequest, } from '../../../dist/governance/plan-amendment-request.js';
+export { ChallengeSchema, type Challenge, } from '../../../dist/governance/challenge.js';
+export { ChallengeTypeSchema, ChallengeRequestedEffectSchema, CHALLENGE_TYPES, CHALLENGE_REQUESTED_EFFECTS, type ChallengeType, type ChallengeRequestedEffect, } from '../../../dist/governance/challenge-types.js';
+export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, type CanonicalRun, type RequiredPhase, } from '../../../dist/canonical/canonical-run.js';
+export { PhaseKindSchema, PHASE_KINDS, type PhaseKind, } from '../../../dist/canonical/phase-kinds.js';
 export { evaluateNonceUniquePerSignerWindow } from '../../../dist/constraints/builtins/nonce-unique-per-signer-window.js';
 export { evaluateSequenceMonotonicPerCluster } from '../../../dist/constraints/builtins/sequence-monotonic-per-cluster.js';
 export { evaluateChainValidatorPrevHash } from '../../../dist/constraints/builtins/chain-validator-prev-hash.js';
 export { evaluatePlanContentHashUnchangedSinceSignoff } from '../../../dist/constraints/builtins/plan-content-hash-unchanged-since-signoff.js';
-
-// Cross-cutting — version constants
-export {
-  CONTRACT_VERSION,
-  MIN_SUPPORTED_VERSION,
-  SCHEMA_BASE_URL,
-} from '../../../dist/version.js';
+export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, } from '../../../dist/version.js';
+//# sourceMappingURL=index.d.ts.map

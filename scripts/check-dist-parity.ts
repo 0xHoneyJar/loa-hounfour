@@ -63,29 +63,47 @@ if (build.code !== 0) {
   process.exit(build.code);
 }
 
+// PR-A3.11 (FR-D1): also build the hounfour-stub package's dist/ so
+// the parity gate covers both main and stub trees in lockstep. Stub's
+// committed `tools/hounfour-stub/dist/` is consumer-observable surface
+// (consumers aliasing `file:./tools/hounfour-stub` resolve through it
+// without running their own build step), and silent drift between
+// stub source and stub dist would defeat the differential gate.
+console.log('[check:dist-parity] Building hounfour-stub (writes tools/hounfour-stub/dist/)...');
+const stubBuild = run('npx tsc --project tools/hounfour-stub/tsconfig.json');
+if (stubBuild.code !== 0) {
+  console.error('[check:dist-parity] stub build failed:');
+  console.error(stubBuild.stdout);
+  console.error(stubBuild.stderr);
+  process.exit(stubBuild.code);
+}
+
 // iter-3 F1 mitigation: compare against HEAD, not the index.
-//   - `git status --porcelain -- dist/` yields one line per file with
-//     status differing from HEAD across staged/unstaged/untracked
-//     buckets — a unified check.
+//   - `git status --porcelain -- <paths>` yields one line per file
+//     with status differing from HEAD across staged/unstaged/
+//     untracked buckets — a unified check.
 //   - A pre-commit hook running `git add dist/` would otherwise hide
 //     drift from `git diff`; `git status --porcelain` catches it.
-console.log('[check:dist-parity] Comparing committed dist/ (HEAD) against tsc output...');
-const status = run('git status --porcelain -- dist/');
+// Both main `dist/` and stub `tools/hounfour-stub/dist/` are scoped
+// in the same status check so a single command surfaces drift in
+// either tree.
+console.log('[check:dist-parity] Comparing committed dist/ (HEAD) against tsc output (main + stub)...');
+const status = run('git status --porcelain -- dist/ tools/hounfour-stub/dist/');
 if (status.stdout.trim().length > 0) {
   console.error(
     '[check:dist-parity] FAIL: committed dist/ does not match tsc output.\n' +
-      'Either run `npm run build` and commit the result, or check that ' +
-      '`src/` was edited without rebuilding.\n\n' +
+      'Either run `npm run build` and `npx tsc --project tools/hounfour-stub/` and commit the result, or check that ' +
+      '`src/` (main or stub) was edited without rebuilding.\n\n' +
       'Drift summary (one line per file; index-aware):',
   );
   console.error(status.stdout);
   // For triage: also surface the working-tree-vs-HEAD diff so the
   // reviewer can read the actual byte changes, not just file names.
-  const headDiff = run('git diff HEAD -- dist/');
+  const headDiff = run('git diff HEAD -- dist/ tools/hounfour-stub/dist/');
   if (headDiff.stdout.length > 0) {
     console.error('\nDetailed diff against HEAD:');
     console.error(headDiff.stdout);
   }
   process.exit(1);
 }
-console.log('[check:dist-parity] OK: dist/ tree at HEAD is byte-identical to tsc output.');
+console.log('[check:dist-parity] OK: main + stub dist/ trees at HEAD are byte-identical to tsc output.');
