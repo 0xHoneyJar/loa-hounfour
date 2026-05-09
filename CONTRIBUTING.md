@@ -202,10 +202,15 @@ tarball includes `dist/`. Committing the tree means:
   to emitted JS surfaces in PR review.
 
 The drift mitigation is **`npm run check:dist-parity`** (also part of
-`npm run check:all`): it runs `tsc` and then `git diff --exit-code dist/`,
-failing if the committed tree disagrees with the freshly emitted tree. PRs
-that edit `src/` without rebuilding fail this check. The per-PR test suite
-imports `src/` directly, so type-level drift surfaces independently.
+`npm run check:all`): it runs `npm run build` and then
+`git status --porcelain -- dist/`, failing if the committed `dist/` at
+HEAD disagrees with the freshly emitted tree (covering staged, unstaged,
+and untracked changes uniformly — index state is developer-local and not
+a reliable CI invariant; the porcelain check sees through it). On
+failure the script also prints the unified `git diff HEAD -- dist/` so
+the reviewer can read the actual byte changes. PRs that edit `src/`
+without rebuilding fail this check. The per-PR test suite imports
+`src/` directly, so type-level drift surfaces independently.
 
 ## Versioning
 

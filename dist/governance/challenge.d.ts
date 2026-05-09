@@ -48,8 +48,8 @@ export declare const ChallengeSchema: import("@sinclair/typebox").TObject<{
     ts: import("@sinclair/typebox").TString;
     challenger_id: import("@sinclair/typebox").TString;
     target_assertion_id: import("@sinclair/typebox").TString;
-    challenge_type: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"factual_dispute">, import("@sinclair/typebox").TLiteral<"policy_dispute">, import("@sinclair/typebox").TLiteral<"competence_dispute">, import("@sinclair/typebox").TLiteral<"procedural_dispute">, import("@sinclair/typebox").TLiteral<"drift_assertion">, import("@sinclair/typebox").TLiteral<"signature_replay">, import("@sinclair/typebox").TLiteral<"chain_corruption">, import("@sinclair/typebox").TLiteral<"class_violation">, import("@sinclair/typebox").TLiteral<"other">]>;
-    requested_effect: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"void">, import("@sinclair/typebox").TLiteral<"reverse">, import("@sinclair/typebox").TLiteral<"amend">, import("@sinclair/typebox").TLiteral<"escalate_panel">, import("@sinclair/typebox").TLiteral<"escalate_operator">, import("@sinclair/typebox").TLiteral<"annotate_only">]>;
+    challenge_type: import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"factual_dispute" | "policy_dispute" | "competence_dispute" | "procedural_dispute" | "drift_assertion" | "signature_replay" | "chain_corruption" | "class_violation" | "other">[]>;
+    requested_effect: import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"reverse" | "amend" | "void" | "escalate_panel" | "escalate_operator" | "annotate_only">[]>;
     rationale: import("@sinclair/typebox").TString;
     evidence_hashes: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString>;
     signature: import("@sinclair/typebox").TString;

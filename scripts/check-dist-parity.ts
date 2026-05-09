@@ -49,10 +49,15 @@ function run(cmd: string): { code: number; stdout: string; stderr: string } {
   }
 }
 
-console.log('[check:dist-parity] Running tsc (writes dist/)...');
-const build = run('npx tsc');
+// iter-4 F2 mitigation: invoke the same `npm run build` contributors
+// run, not `npx tsc` directly. If `npm run build` ever expands beyond
+// `tsc` (asset copies, post-processing, schema generation), the gate
+// expands with it — single source of truth for "what does building
+// this package produce." Doc and CI agree by construction.
+console.log('[check:dist-parity] Running `npm run build` (writes dist/)...');
+const build = run('npm run build');
 if (build.code !== 0) {
-  console.error('[check:dist-parity] tsc failed:');
+  console.error('[check:dist-parity] build failed:');
   console.error(build.stdout);
   console.error(build.stderr);
   process.exit(build.code);

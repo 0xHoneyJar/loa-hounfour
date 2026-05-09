@@ -30,6 +30,23 @@
  */
 import { type Static } from '@sinclair/typebox';
 /**
+ * Canonical exhaustive list of `ChallengeType` enum members.
+ *
+ * Single source of truth — both `ChallengeTypeSchema` (built from
+ * this list) and the conformance vector suite consume the same
+ * array, so widening or reordering produces a single-edit diff.
+ *
+ * @since v8.6.0 — FR-A1 (PR-A3.7)
+ */
+export declare const CHALLENGE_TYPES: readonly ["factual_dispute", "policy_dispute", "competence_dispute", "procedural_dispute", "drift_assertion", "signature_replay", "chain_corruption", "class_violation", "other"];
+/**
+ * Canonical exhaustive list of `ChallengeRequestedEffect` enum
+ * members. Single source of truth — see `CHALLENGE_TYPES`.
+ *
+ * @since v8.6.0 — FR-A1 (PR-A3.7)
+ */
+export declare const CHALLENGE_REQUESTED_EFFECTS: readonly ["void", "reverse", "amend", "escalate_panel", "escalate_operator", "annotate_only"];
+/**
  * What kind of challenge is being raised against the target
  * `Assertion`. Nine exhaustive members.
  *
@@ -48,7 +65,7 @@ import { type Static } from '@sinclair/typebox';
  *   - `other` — explicit catch-all; preferred over silent default.
  *
  */
-export declare const ChallengeTypeSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"factual_dispute">, import("@sinclair/typebox").TLiteral<"policy_dispute">, import("@sinclair/typebox").TLiteral<"competence_dispute">, import("@sinclair/typebox").TLiteral<"procedural_dispute">, import("@sinclair/typebox").TLiteral<"drift_assertion">, import("@sinclair/typebox").TLiteral<"signature_replay">, import("@sinclair/typebox").TLiteral<"chain_corruption">, import("@sinclair/typebox").TLiteral<"class_violation">, import("@sinclair/typebox").TLiteral<"other">]>;
+export declare const ChallengeTypeSchema: import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"factual_dispute" | "policy_dispute" | "competence_dispute" | "procedural_dispute" | "drift_assertion" | "signature_replay" | "chain_corruption" | "class_violation" | "other">[]>;
 export type ChallengeType = Static<typeof ChallengeTypeSchema>;
 /**
  * What the challenger asks the dispositioning authority to do.
@@ -67,6 +84,6 @@ export type ChallengeType = Static<typeof ChallengeTypeSchema>;
  * effects are available for which types is consumer-side per
  * ADR-010.
  */
-export declare const ChallengeRequestedEffectSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"void">, import("@sinclair/typebox").TLiteral<"reverse">, import("@sinclair/typebox").TLiteral<"amend">, import("@sinclair/typebox").TLiteral<"escalate_panel">, import("@sinclair/typebox").TLiteral<"escalate_operator">, import("@sinclair/typebox").TLiteral<"annotate_only">]>;
+export declare const ChallengeRequestedEffectSchema: import("@sinclair/typebox").TUnion<import("@sinclair/typebox").TLiteral<"reverse" | "amend" | "void" | "escalate_panel" | "escalate_operator" | "annotate_only">[]>;
 export type ChallengeRequestedEffect = Static<typeof ChallengeRequestedEffectSchema>;
 //# sourceMappingURL=challenge-types.d.ts.map

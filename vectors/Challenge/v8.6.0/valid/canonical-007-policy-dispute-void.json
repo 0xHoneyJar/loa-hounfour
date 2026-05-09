@@ -1,5 +1,5 @@
 {
-  "_comment": "Canonical Challenge: challenge_type=policy_dispute, requested_effect=void.",
+  "_comment": "Canonical Challenge: challenge_type=policy_dispute, requested_effect=void. Signature placeholder exercises the full base64url alphabet (A-Z, a-z, 0-9, \"-\", \"_\") per F6 mitigation.",
   "envelope_kind": "challenge",
   "contract_version": "8.6.0",
   "challenge_id": "challenge-007",
@@ -13,5 +13,5 @@
     "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   ],
-  "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  "signature": "ed25519:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ABCDEFGHIJKLMNOPQRSTUV"
 }

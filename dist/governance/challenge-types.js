@@ -30,6 +30,40 @@
  */
 import { Type } from '@sinclair/typebox';
 /**
+ * Canonical exhaustive list of `ChallengeType` enum members.
+ *
+ * Single source of truth — both `ChallengeTypeSchema` (built from
+ * this list) and the conformance vector suite consume the same
+ * array, so widening or reordering produces a single-edit diff.
+ *
+ * @since v8.6.0 — FR-A1 (PR-A3.7)
+ */
+export const CHALLENGE_TYPES = [
+    'factual_dispute',
+    'policy_dispute',
+    'competence_dispute',
+    'procedural_dispute',
+    'drift_assertion',
+    'signature_replay',
+    'chain_corruption',
+    'class_violation',
+    'other',
+];
+/**
+ * Canonical exhaustive list of `ChallengeRequestedEffect` enum
+ * members. Single source of truth — see `CHALLENGE_TYPES`.
+ *
+ * @since v8.6.0 — FR-A1 (PR-A3.7)
+ */
+export const CHALLENGE_REQUESTED_EFFECTS = [
+    'void',
+    'reverse',
+    'amend',
+    'escalate_panel',
+    'escalate_operator',
+    'annotate_only',
+];
+/**
  * What kind of challenge is being raised against the target
  * `Assertion`. Nine exhaustive members.
  *
@@ -48,17 +82,7 @@ import { Type } from '@sinclair/typebox';
  *   - `other` — explicit catch-all; preferred over silent default.
  *
  */
-export const ChallengeTypeSchema = Type.Union([
-    Type.Literal('factual_dispute'),
-    Type.Literal('policy_dispute'),
-    Type.Literal('competence_dispute'),
-    Type.Literal('procedural_dispute'),
-    Type.Literal('drift_assertion'),
-    Type.Literal('signature_replay'),
-    Type.Literal('chain_corruption'),
-    Type.Literal('class_violation'),
-    Type.Literal('other'),
-], {
+export const ChallengeTypeSchema = Type.Union(CHALLENGE_TYPES.map((m) => Type.Literal(m)), {
     $id: 'ChallengeType',
     description: 'Exhaustive 9-member enum classifying a Challenge envelope. ' +
         'Composes with v8.5.0 Assertion lifecycle and signer-competence ' +
@@ -81,14 +105,7 @@ export const ChallengeTypeSchema = Type.Union([
  * effects are available for which types is consumer-side per
  * ADR-010.
  */
-export const ChallengeRequestedEffectSchema = Type.Union([
-    Type.Literal('void'),
-    Type.Literal('reverse'),
-    Type.Literal('amend'),
-    Type.Literal('escalate_panel'),
-    Type.Literal('escalate_operator'),
-    Type.Literal('annotate_only'),
-], {
+export const ChallengeRequestedEffectSchema = Type.Union(CHALLENGE_REQUESTED_EFFECTS.map((m) => Type.Literal(m)), {
     $id: 'ChallengeRequestedEffect',
     description: 'Exhaustive 6-member enum naming the disposition the ' +
         'challenger requests. Schema admits all (type, effect) ' +

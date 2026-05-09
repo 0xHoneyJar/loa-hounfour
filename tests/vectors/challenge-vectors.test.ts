@@ -4,11 +4,16 @@
  *
  * Walks `vectors/Challenge/v8.6.0/{valid,invalid}` and asserts:
  *   - `valid/*.json` payloads pass `Value.Check` (structural).
- *   - `valid/*.json` payloads pass `validate(..., { acceptDeferred: true })`
- *     (cross-field — the two-layer vector-runner contract per PR-A3.5
- *     iter-5: every fixture exercised through BOTH structural Value.Check
- *     AND validate() so we close the protobuf-conformance gap where a
- *     structurally-valid fixture could pass while cross-field-failing).
+ *   - `valid/*.json` payloads pass `validate(..., { acceptDeferred: true })`.
+ *     CHL-1..CHL-4 are runtime-deferred / consumer-policy, so this
+ *     second layer verifies envelope-level deferral and manifest
+ *     emission — NOT in-library cross-field DSL evaluation. Per the
+ *     PR-A3.5 two-layer vector-runner discipline: every fixture
+ *     exercised through both Value.Check AND validate() so the gap
+ *     between shape-correct and contract-correct closes (the
+ *     manifest emission check catches the "x-crypto-bearing flag
+ *     dropped silently in a refactor" failure mode that pure
+ *     Value.Check would miss).
  *   - `invalid/*.json` payloads fail `Value.Check`.
  *
  * Cardinality assertion: 54 valid (9 challenge_type × 6 requested_effect)
@@ -24,30 +29,22 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ChallengeSchema } from '../../src/governance/challenge.js';
 import {
-  ChallengeTypeSchema,
-  ChallengeRequestedEffectSchema,
+  CHALLENGE_TYPES,
+  CHALLENGE_REQUESTED_EFFECTS,
 } from '../../src/governance/challenge-types.js';
 import { validate } from '../../src/validators/index.js';
 
-// iter-1 F-006 / iter-2 F-001 mitigation: vocabulary derived from the
-// enum schemas themselves — TYPES + EFFECTS pull from
-// `Schema.anyOf[].const` rather than mirror lists, and the cardinality
-// assertion is "fixtures cover the cross-product" not "fixtures equal
-// the magic number 54". Strict-additive enum widening self-updates the
-// expected pairings without a parallel test edit; the protobuf-team
-// pattern of separating shape contracts (live-derived) from cardinality
-// contracts (versioned snapshots).
-function constLiterals(schema: { anyOf?: Array<{ const?: unknown }> }): string[] {
-  return (schema.anyOf ?? [])
-    .map((s) => s.const)
-    .filter((c): c is string => typeof c === 'string');
-}
-const TYPES = constLiterals(
-  ChallengeTypeSchema as { anyOf?: Array<{ const?: unknown }> },
-);
-const EFFECTS = constLiterals(
-  ChallengeRequestedEffectSchema as { anyOf?: Array<{ const?: unknown }> },
-);
+// iter-1 F-006 / iter-2 F-001 / iter-4 F-002 mitigation: TYPES and
+// EFFECTS pull from the source-of-truth canonical arrays exported
+// alongside the schemas themselves. Tests no longer reverse-engineer
+// the schema's internal anyOf encoding (which would silently break
+// under a future TypeBox refactor); the schemas and the tests
+// consume the same arrays. Strict-additive enum widening is a
+// single-edit diff at the source of truth; the cardinality
+// assertion is "fixtures cover the cross-product" not "fixtures
+// equal the magic number 54".
+const TYPES = CHALLENGE_TYPES;
+const EFFECTS = CHALLENGE_REQUESTED_EFFECTS;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
