@@ -73,7 +73,7 @@ None.
 ### Source
 
 - 11 net-new merged PRs across 4 weeks: PR-A3.1 (ed25519) → PR-A3.2 (ORD-3+ORD-5) → PR-A3.3 (FR-C1/C2/C3) → PR-A3.4 (FR-B2) → PR-A3.5 (FR-B3..B8) → PR-A3.6 (FR-B9+B10+C4) → PR-A3.7 (FR-A1) → PR-A3.8 (FR-B1) → PR-A3.9 (FR-A2) → PR-A3.10 (FR-A6) → PR-A3.11 (FR-D1).
-- Cumulative peer-review convergence: ~46 iterations across the 11 merged PRs (avg ~4.2 iters/PR; range 3..8). Mean cost per iter ≈ $0.50.
+- Cumulative peer-review convergence: ~46 iterations across the 11 merged PRs (avg ~4.2 iters/PR; range 3..8).
 - Test count growth: 7,793 → 8,677 (+884 net new) across cycle-005.
 
 ### Acceptance

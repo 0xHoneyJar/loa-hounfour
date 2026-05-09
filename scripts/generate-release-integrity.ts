@@ -6,7 +6,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
-import { join, dirname, relative } from 'node:path';
+import { join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -58,17 +58,27 @@ interface FileChecksum {
 // filter; schemas/constraints walk unfiltered) and the `_meta/`
 // branch returns true (excluded) per the documented intent — iter-2
 // shipped an inverted predicate that included _meta/ files.
-const isVectorExcluded = (path: string): boolean => {
+// PR-A3.12 iter-4 mitigation (F-001 + path-bug-1): exclusion checks now
+// operate on a forward-slash-normalized path *relative to the repo root*.
+// The project ships Linux/macOS only, so cross-platform breakage is
+// theoretical, but normalizing once at the boundary (rather than at
+// every call site) eliminates a sharp edge for contributor checkouts
+// and keeps the predicate semantically anchored to repo-relative
+// structure rather than absolute substring matches.
+const isVectorExcluded = (absPath: string): boolean => {
+  const rel = relative(root, absPath).split(sep).join('/');
   // Per-fixture trace companions are diagnostics, not test inputs.
-  if (path.endsWith('.trace.json')) return true;
+  if (rel.endsWith('.trace.json')) return true;
   // Top-level vectors/_meta/ directory holds tooling registries
   // (constraint-level-invalids.json, regex-subset.md). Framework-
   // internal; not part of the fixture corpus consumers verify.
-  if (path.includes(`${'/'}vectors${'/'}_meta${'/'}`)) return true;
+  if (rel.startsWith('vectors/_meta/')) return true;
   // Per-schema vectors/<Schema>/_meta.json files carry schema-level
   // metadata (e.g., `cycle-005-vector-budget`) — also tooling, not
-  // a test fixture. Filename match: `_meta.json` exactly.
-  if (path.endsWith(`${'/'}_meta.json`)) return true;
+  // a test fixture. Anchored at depth-2 to avoid silently dropping
+  // a future fixture that happens to be named `_meta.json` deeper
+  // in the tree.
+  if (/^vectors\/[^/]+\/_meta\.json$/.test(rel)) return true;
   return false;
 };
 
