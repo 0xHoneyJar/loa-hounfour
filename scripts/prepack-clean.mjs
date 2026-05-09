@@ -28,16 +28,38 @@
  * paths after this stage would re-introduce the leak — keep that
  * invariant in mind when extending.
  *
- * Inspection-vs-commitment guard: `npm pack` is commonly used for
- * tarball *inspection* without intent to publish. Silently nuking a
- * 260 MB cargo cache during a `pack` would surprise developers
- * (Google SRE "toxic side effect" pattern). The destructive branch
- * runs only when `npm_command === 'publish'`; on `pack` we emit a
- * dry-run report listing what *would* be removed and let the
- * artifacts stay.
+ * ## Pack-vs-publish gate
+ *
+ * `npm pack` is commonly used for tarball *inspection* without intent
+ * to publish. Silently nuking a 260 MB cargo cache during a `pack`
+ * would surprise developers (Google SRE "toxic side effect" pattern).
+ * Detection signals (in priority order):
+ *
+ *   1. `PREPACK_MODE=publish` explicit env override (CI / cross-runtime)
+ *   2. `npm_command === 'publish'` (set by npm itself)
+ *   3. `npm_lifecycle_event === 'publish'` (alt npm signal)
+ *
+ * If none match, treat as pack mode (dry-run report). Power-users who
+ * want a publish-equivalent pack tarball can run
+ * `PREPACK_MODE=publish npm pack`.
+ *
+ * Currently supported package managers: npm 9+. pnpm / yarn / bun do
+ * not set `npm_command` and will fall through to dry-run; CI flows
+ * using non-npm publishers MUST set `PREPACK_MODE=publish` explicitly.
+ *
+ * ## Failure semantics
+ *
+ * Lifecycle hooks have asymmetric failure costs (Apollo / Amazon
+ * deployment-pipeline lesson): a false negative (failing to clean)
+ * ships bad bytes to every consumer; a false positive (aborting
+ * publish) costs one developer five minutes. We fail-closed: any
+ * residual artifact in publish mode aborts the publish via a non-zero
+ * exit. Post-removal `existsSync` verification anchors this — even if
+ * an `rmSync` lies about success, a residual path on disk fails the
+ * publish.
  */
 import { rmSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -50,28 +72,61 @@ const PATHS_TO_CLEAN = [
   { rel: 'vectors/runners/go/cross-runner.exe', isDir: false },
 ];
 
-const isPublish = process.env.npm_command === 'publish';
+const isPublish =
+  process.env.PREPACK_MODE === 'publish' ||
+  process.env.npm_command === 'publish' ||
+  process.env.npm_lifecycle_event === 'publish';
 const mode = isPublish ? 'publish (destructive)' : 'pack (dry-run only)';
 console.log(`prepack-clean: mode=${mode}`);
 
-let actedOn = 0;
+const failures = [];
+
 for (const { rel, isDir } of PATHS_TO_CLEAN) {
   const abs = join(root, rel);
-  if (!existsSync(abs)) continue;
+  // Defense in depth: ensure entries stay under repo root. Hardcoded
+  // today so not exploitable, but cheap insurance if PATHS_TO_CLEAN
+  // ever becomes config/env-driven.
+  const rootResolved = resolve(root);
+  if (!resolve(abs).startsWith(rootResolved + sep) && resolve(abs) !== rootResolved) {
+    failures.push({ rel, reason: 'path resolves outside repo root' });
+    continue;
+  }
+
   if (isPublish) {
+    // `rmSync` with `force: true` swallows ENOENT, so we don't pre-check
+    // existence in the destructive branch. Catch + record any other
+    // error (EBUSY, EACCES, EPERM); fail-closed at the end.
     try {
       rmSync(abs, { recursive: true, force: true });
-      console.log(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
     } catch (err) {
-      console.warn(
-        `prepack-clean: WARN failed to remove ${rel} — ${err instanceof Error ? err.message : String(err)}`,
-      );
+      failures.push({
+        rel,
+        reason: err instanceof Error ? err.message : String(err),
+      });
+      continue;
     }
+    // Anchor: post-removal verification. Even if rmSync returned
+    // success, a residual path on disk is a publish-blocker.
+    if (existsSync(abs)) {
+      failures.push({ rel, reason: 'still present after rmSync' });
+      continue;
+    }
+    console.log(`prepack-clean: removed ${rel}${isDir ? '/' : ''}`);
   } else {
-    console.log(`prepack-clean: would-remove ${rel}${isDir ? '/' : ''} (set npm_command=publish to act)`);
+    if (!existsSync(abs)) continue;
+    console.log(
+      `prepack-clean: would-remove ${rel}${isDir ? '/' : ''} (set PREPACK_MODE=publish to act)`,
+    );
   }
-  actedOn += 1;
 }
-if (actedOn === 0) {
-  console.log('prepack-clean: no build artifacts present');
+
+if (isPublish && failures.length > 0) {
+  console.error('prepack-clean: ABORTING publish — residual build artifacts:');
+  for (const { rel, reason } of failures) {
+    console.error(`  - ${rel}: ${reason}`);
+  }
+  console.error(
+    'prepack-clean: shipping the tarball with these paths would inflate it from ~1 MB to ~100 MB.',
+  );
+  process.exit(1);
 }
