@@ -80,22 +80,29 @@ const PATHS_TO_CLEAN = [
   { rel: 'vectors/runners/go/cross-runner.exe', isDir: false },
 ];
 
+// Detection matrix (npm/non-npm × pack/publish):
+//
+//   | UA       | publish signal? | mode    | warn? |
+//   |----------|-----------------|---------|-------|
+//   | npm      | yes             | publish | no    |
+//   | npm      | no              | pack    | no    |
+//   | non-npm  | yes             | publish | no    |
+//   | non-npm  | no              | pack    | YES   |
+//
+// "Publish signal" = `PREPACK_MODE=publish` OR `npm_command=publish` OR
+// `npm_lifecycle_event=publish`. The non-npm + no-signal case warns
+// loudly because we cannot positively distinguish `pnpm pack` (benign,
+// pack mode is correct) from `pnpm publish` (which on older pnpm
+// versions may not set npm_command). The warning is the operator's
+// breadcrumb to set PREPACK_MODE=publish if they're actually publishing.
+//
+// We DON'T fail-closed in this cell because aborting `pnpm pack`
+// inspection workflows breaks benign DX. The blast-radius asymmetry
+// reverses for inspection: a clobbered binary takes 5 minutes to
+// rebuild; a blocked `pnpm pack` blocks an engineer.
 const userAgent = process.env.npm_config_user_agent ?? '';
 const isNonNpmPublisher = /\b(pnpm|yarn|bun)\//i.test(userAgent);
 const explicitMode = process.env.PREPACK_MODE; // 'publish' | 'pack' | undefined
-
-if (isNonNpmPublisher && !explicitMode) {
-  console.error(
-    `prepack-clean: ABORTING — non-npm package manager detected (user-agent="${userAgent}") and PREPACK_MODE is unset.`,
-  );
-  console.error(
-    'prepack-clean: pnpm/yarn/bun publish flows MUST set `PREPACK_MODE=publish` (or `PREPACK_MODE=pack` for inspection) before invoking this hook.',
-  );
-  console.error(
-    'prepack-clean: silent fallthrough on unknown publisher state would risk shipping ~100 MB of build artifacts.',
-  );
-  process.exit(1);
-}
 
 const isPublish =
   explicitMode === 'publish' ||
@@ -104,15 +111,29 @@ const isPublish =
 const mode = isPublish ? 'publish (destructive)' : 'pack (dry-run only)';
 console.log(`prepack-clean: mode=${mode}${userAgent ? ` (ua=${userAgent.split(' ')[0]})` : ''}`);
 
+if (isNonNpmPublisher && !isPublish && !explicitMode) {
+  console.warn(
+    `prepack-clean: WARNING — non-npm package manager (${userAgent.split(' ')[0]}) without explicit PREPACK_MODE.`,
+  );
+  console.warn(
+    'prepack-clean: defaulting to pack mode (non-destructive). If this is a publish flow, set PREPACK_MODE=publish to enable artifact cleanup.',
+  );
+}
+
 const failures = [];
+
+// Defense in depth: ensure each entry stays under repo root. Hardcoded
+// today so not exploitable, but cheap insurance if PATHS_TO_CLEAN ever
+// becomes config/env-driven.
+const rootResolved = resolve(root);
+const isWithinRoot = (abs) => {
+  const r = resolve(abs);
+  return r === rootResolved || r.startsWith(rootResolved + sep);
+};
 
 for (const { rel, isDir } of PATHS_TO_CLEAN) {
   const abs = join(root, rel);
-  // Defense in depth: ensure entries stay under repo root. Hardcoded
-  // today so not exploitable, but cheap insurance if PATHS_TO_CLEAN
-  // ever becomes config/env-driven.
-  const rootResolved = resolve(root);
-  if (!resolve(abs).startsWith(rootResolved + sep) && resolve(abs) !== rootResolved) {
+  if (!isWithinRoot(abs)) {
     failures.push({ rel, reason: 'path resolves outside repo root' });
     continue;
   }
