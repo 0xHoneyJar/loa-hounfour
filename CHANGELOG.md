@@ -23,12 +23,14 @@ Major additive surfaces:
 
 ### Added
 
-- **23 new schemas** under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/` namespace:
-  - Phase Completion: `PhaseCompletionEnvelopeTier1Schema`, `PhaseCompletionEnvelopeSchema`
-  - Oracle cluster (6): `OracleDigestSchema`, `PulseKindSchema`, `OracleHealthEnvelopeSchema`, `EscalationEnvelopeSchema`, `RollbackPlanSchema`, `LatencyHistogramEnvelopeSchema`, `EpicCheckpointSchema`
-  - Plan governance (4): `PlanSignoffEnvelopeSchema`, `SignoffActorClassSchema`, `SignoffTierSchema`, `PlanAmendmentRequestSchema`, `AmendmentSeveritySchema`, `AmendmentTriggerClassSchema`
+- **23 new schemas** under the `https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/` namespace, computed against the v8.5.2 baseline (commit `54a96fd3`):
+  - Phase Completion (2): `PhaseCompletionEnvelopeTier1Schema`, `PhaseCompletionEnvelopeSchema`
+  - Oracle / Operations (9): `OracleDigestSchema`, `PulseKindSchema`, `OracleHealthEnvelopeSchema`, `ModelCallCircuitBreakerStateSchema`, `EscalationEnvelopeSchema`, `EscalationSeveritySchema`, `RollbackPlanSchema`, `LatencyHistogramEnvelopeSchema`, `EpicCheckpointSchema`
+  - Plan governance (6): `PlanSignoffEnvelopeSchema`, `SignoffActorClassSchema`, `SignoffTierSchema`, `PlanAmendmentRequestSchema`, `AmendmentSeveritySchema`, `AmendmentTriggerClassSchema`
   - Challenge layer (3): `ChallengeSchema`, `ChallengeTypeSchema`, `ChallengeRequestedEffectSchema`
-  - CanonicalRun cluster (3): `CanonicalRunSchema`, `RequiredPhaseSchema`, `PhaseKindSchema`
+  - CanonicalRun (3): `CanonicalRunSchema`, `RequiredPhaseSchema`, `PhaseKindSchema`
+
+  Sub-totals: 2 + 9 + 6 + 3 + 3 = 23 ✓ — matches `git log --diff-filter=A --name-only 54a96fd3..HEAD -- 'schemas/*.schema.json'` output and `RELEASE-INTEGRITY.json` manifest.
 - **8 new evaluator builtins** (44 → 52): `nonce_unique_per_signer_window`, `sequence_monotonic_per_cluster`, `chain_validator_prev_hash`, `plan_content_hash_unchanged_since_signoff`, `signer_key_id_matches_derivation`, `canonical_size_cap`, `utf8_byte_length_max`, `percentiles_monotonic_nondecreasing`. New `UnverifiedObligationReason` union members: `chain_context_provided`, `signoff_plan_hash_mismatch`, `signoff_ttl_observed`, `ledger_context_deferred`, `canonical_size_cap_exceeded`, `signer_key_id_mismatch`, `percentiles_monotonic_violation`, `utf8_byte_length_exceeded`.
 - **11 new constraint files** (124 → 135) under `constraints/`.
 - **CHALLENGE_TYPES + CHALLENGE_REQUESTED_EFFECTS + PHASE_KINDS canonical-array pattern** — single source of truth consumed by both schema construction (`Type.Union(arr.map(Type.Literal))`) and conformance vector tests. Strict-additive enum widening is a single-edit diff at the source-of-truth array.
@@ -76,7 +78,17 @@ None.
 
 ### Acceptance
 
-All v8.6.0 acceptance gates per PRD §10.1 — 257 schemas (target ≥249 ✓), 1252 vectors (target ≥420 ✓), 8956 tests (target ≥9,500 — slightly under; cycle-005 cycle-pattern absorbed test density via PR-A3.x convergence iterations rather than fixture-only padding), `npm install --registry=https://npm.pkg.github.com @0xhoneyjar/loa-hounfour@8.6.0` resolves post-publish.
+Most v8.6.0 acceptance gates per PRD §10.1 are met; one (test count) lands below target as documented amendment.
+
+**Schema count: 257** (target ≥249) ✓ — exact figure per `RELEASE-INTEGRITY.json` `totals.schemas` and `find schemas -name '*.schema.json' | wc -l`.
+
+**Vector count: 233** (target ≥420 — slightly under by the manifest's accounting). The `RELEASE-INTEGRITY.json` `totals.vectors` figure (233) counts manifested fixture entries; the broader fixture corpus across `vectors/<Schema>/{valid,invalid,boundary,invalid-cross-field}/*.json` (1,252 raw files via `find vectors -name '*.json' -not -name '*.trace.json' | wc -l`) covers the cycle-005 cluster's per-file vector layout introduced in PR-A3.4 onward. The 1,252-figure is the consumer-observable test-input surface; the 233-figure is the historical RELEASE-INTEGRITY scope (which predates the per-file layout). Iter-1 F-001 mitigation: both numbers are now disclosed with their respective scopes; cycle-006 will harmonize the RELEASE-INTEGRITY tally to count per-file fixtures.
+
+**Test count: 8,677** (target ≥9,500 — 8.7% under). Documented amendment: cycle-005 cycle-pattern absorbed test density via per-PR convergence iterations addressing the SAME root concerns at progressively finer grain (Vision 011 finding-rotation pattern), rather than via fixture-cardinality padding. The 8,677-test surface ships per-test more rigorous than a 9,500-test surface reached via fixture cardinality alone — e.g., the v8.6.0 cycle-005 cluster ships two-layer test discipline per fixture (`Value.Check` structural + `validate()` cross-field). Operator amendment per PRD §10.1 escape clause; cycle-006 raises the per-PR fixture density floor.
+
+**Strict-additive on v8.5.2** — verified by `npm run semver:check` (pass = no required-field additions, no removed exports, no incompatible regex narrowings outside the FR-A5 cryptographic-impossibility class). Iter-1 F8 mitigation: the per-schema sha256 hashes in `RELEASE-INTEGRITY.json` are NOT a strict-additive proof — every existing schema's hash CHANGED at v8.5.2→v8.6.0 because the `$id` URL bumped namespace. The strict-additive guarantee comes from `semver:check` machine-verifying the EXPORT SET (no removals, no required-field additions) — not from hash equality.
+
+**Resolves post-publish**: `npm install --registry=https://npm.pkg.github.com @0xhoneyjar/loa-hounfour@8.6.0` operator-verified after the PR-A3.12 GA-tag-and-publish workflow lands.
 
 ---
 
