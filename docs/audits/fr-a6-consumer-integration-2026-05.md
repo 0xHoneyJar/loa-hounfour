@@ -20,11 +20,14 @@ The v8.5.0 substrate-agnostic naming pass renamed several schema surfaces from w
 
 Every downstream consumer that integrated against the v8.4.0 surface needs to:
 
-1. Update their `package.json` pinning (`@0xhoneyjar/loa-hounfour@^8.5.0` minimum to pick up substrate-agnostic names).
+1. Confirm `package.json` pins `@0xhoneyjar/loa-hounfour` at a range that resolves v8.5.0 — `^8.4.0` resolves the new minor under standard npm semver and is sufficient at the install layer; `^8.5.0` is the recommended explicit pin so a future re-pin doesn't accidentally backslide. (The contradiction between "anything ≥ ^8.4.0 works" and "we recommend ^8.5.0" is intentional: the first is a portability claim, the second is a hygiene claim.)
 2. Confirm any direct schema-name references migrated to v8.5.0 names (or that they were never holding the wedge-fitted names directly).
 3. Decide whether to opt into v8.6.0's new contract surfaces (FR-A4 fail-closed, FR-B* schemas, FR-A2 cross-runner harness) at their own cadence.
 
-Material drift = a contract claim hounfour cannot satisfy. Cosmetic drift = naming-only difference with no semantic gap.
+**Material vs cosmetic** (single definition, owns both directions):
+
+- **Material drift** = a *consumer-observable behavior change* between v8.4.0 and v8.6.0 that requires either (a) a hounfour patch to restore prior behavior, or (b) a documented consumer-side migration. Material drift can be hounfour-side (broken contract — patch lands here) or consumer-side (consumer code observes behavior it didn't before — MIGRATION.md entry, no hounfour patch). Both classes are "material"; the matrix in §4 splits them by who owns the change.
+- **Cosmetic drift** = a naming-only difference in non-load-bearing surfaces (comments, doc strings, internal variable names) that does not affect runtime or types. No patch, no migration; reuse-audit log entry only.
 
 ## 2. Hounfour-side surface inventory (v8.5.0 → v8.6.0)
 
@@ -81,10 +84,11 @@ Dispatched to each downstream consumer's maintainer (or AI agent instance workin
 
 ```
 What does your package.json pin for @0xhoneyjar/loa-hounfour?
-- [ ] ^8.4.0 (will pick up v8.5.0 substrate-agnostic names automatically)
-- [ ] ^8.5.0 (already on substrate-agnostic surface)
-- [ ] 8.5.x exact (will need bump for v8.6.0 features)
-- [ ] ^8.6.0 or 8.6.0 exact (already on cycle-005 surface)
+- [ ] ^8.4.0  — resolves v8.5.0+ on `npm install`; fine at the install layer
+- [ ] ^8.5.0  — explicit floor at the substrate-agnostic surface (RECOMMENDED if you depend on the renamed exports by name)
+- [ ] 8.5.x exact  — will need a re-pin to pick up v8.6.0 features
+- [ ] ^8.6.0  — already on cycle-005 surface
+- [ ] 8.6.0 exact  — pinned to RC; intentional
 - [ ] file: link to local hounfour-stub (RC mode)
 - [ ] other: ___
 ```
@@ -95,11 +99,19 @@ What does your package.json pin for @0xhoneyjar/loa-hounfour?
 Do you reference any of the v8.4.0 → v8.5.0 RENAMED schema names directly
 in your source (imports, type names, hardcoded $id strings)?
 
-Run:
-  grep -rE 'SyntheticDeliberation|OrgOverseer|ProtocolPanel' src/
+Run from your repo root, adjusting paths to match your project layout:
+
+  # Default (covers most layouts):
+  grep -rnE 'SyntheticDeliberation|OrgOverseer|ProtocolPanel' \
+      --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' \
+      --include='*.json' --include='*.md' \
+      .
+
+  # If your repo is large and you want to scope:
+  # Replace `.` with any of: src/  app/  lib/  packages/  apps/  pkg/
 
 If non-zero matches:
-- Material drift if any reference is on the import surface (cannot resolve).
+- Material drift if any reference is on the import / type surface (cannot resolve).
 - Cosmetic drift if it's only in comments / docs.
 List matches: ___
 ```
@@ -169,17 +181,48 @@ Have you observed the ORD-5 capability-scope-vocabulary check fire
 in your validation logs / unverified_obligations manifests over the
 v8.6.0 RC shadow window (since 2026-05-07)?
 
-Run the snippet below in your validation log archive (adjust paths
-per your storage layout):
+The script below counts firings against total validations. It assumes
+your validation logs are JSON-lines with one record per `validate(...)`
+call — the JSON shape that matters is:
+
+    { ..., "schema": "OrgRepresentativeDelegation", ... }
+    { ..., "unverified_obligations": { "unverified_rules": [
+        { "rule_id": "ORD-5", ... }
+    ] } }
+
+If your logging shape differs, replace the JSON-shaped patterns below
+with your equivalent. The numerator must count ONLY ORD-5 emissions
+on the unverified_obligations manifest, NOT mentions of "ORD-5" in
+arbitrary log content (stack traces, debug strings, etc.) — that
+distinction is what makes the firing-rate gate meaningful.
 
 #!/bin/bash
-# ORD-5 firing-rate query (run in consumer repo's log-archive dir)
-TOTAL_VALIDATIONS=$(grep -c "validate.*:" logs/*.jsonl 2>/dev/null || echo 0)
-ORD5_FIRINGS=$(grep -cE "ORD-5|capability_scope_vocabulary|ord-5" logs/*.jsonl 2>/dev/null || echo 0)
+# ORD-5 firing-rate query (run in consumer repo's log-archive dir).
+# Adjust LOG_GLOB to match your storage layout. Defaults to JSON-lines
+# under logs/. Uses awk for arithmetic (portable across Alpine /
+# Windows / minimal CI runners that lack `bc`).
+set -euo pipefail
+LOG_GLOB="${1:-logs/*.jsonl}"
+
+# Total validation records: lines whose JSON shape carries a top-level
+# `"schema":` key. Tighter than `grep validate` (which would match
+# stack traces, doc strings, error prose).
+TOTAL_VALIDATIONS=$(grep -hE '"schema"[[:space:]]*:[[:space:]]*"' \
+    $LOG_GLOB 2>/dev/null | wc -l)
+
+# ORD-5 firings: lines whose JSON shape carries a `"rule_id":"ORD-5"`
+# inside an unverified_rules manifest entry. The double-quote
+# anchoring rejects stack-trace mentions of the literal token.
+ORD5_FIRINGS=$(grep -hE '"rule_id"[[:space:]]*:[[:space:]]*"ORD-5"' \
+    $LOG_GLOB 2>/dev/null | wc -l)
+
+echo "Glob: $LOG_GLOB"
 echo "Total validations: $TOTAL_VALIDATIONS"
 echo "ORD-5 firings: $ORD5_FIRINGS"
-if [[ $TOTAL_VALIDATIONS -gt 0 ]]; then
-  PCT=$(echo "scale=4; $ORD5_FIRINGS * 100 / $TOTAL_VALIDATIONS" | bc)
+
+if [[ "$TOTAL_VALIDATIONS" -gt 0 ]]; then
+  PCT=$(awk -v n="$ORD5_FIRINGS" -v d="$TOTAL_VALIDATIONS" \
+       'BEGIN { printf "%.4f", (n * 100.0) / d }')
   echo "Firing rate: ${PCT}%"
 fi
 
@@ -226,7 +269,7 @@ After consumer answers land, drift is classified per:
 | **Cosmetic — naming only** | Consumer comments / docs reference the renamed surface | Reuse-audit log entry only. No patch. |
 | **No drift** | Consumer already on substrate-agnostic naming; no broken imports | Confirmatory entry in audit log. No patch. |
 
-ORD-5 promotion: separate decision per Q7's firing-rate data. Promotion is a 1-line edit to `constraints/OrgRepresentativeDelegation.constraints.json` (or wherever ORD-5 lives) plus +N acceptance vectors.
+ORD-5 promotion: separate decision per Q7's firing-rate data. Promotion is a `severity` edit on the ORD-5 entry of [`constraints/OrgRepresentativeDelegation.constraints.json`](../../constraints/OrgRepresentativeDelegation.constraints.json) (one line: `"severity": "warning"` → `"severity": "error"`) plus +N acceptance vectors covering the new error-mode behavior.
 
 ## 5. Status
 
