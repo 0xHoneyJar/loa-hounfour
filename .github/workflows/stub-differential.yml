@@ -47,10 +47,10 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build (main + stub)
+      - name: Build main + bundle stub
         run: |
           pnpm run build
-          pnpm exec tsc --project tools/hounfour-stub/tsconfig.json
+          node tools/hounfour-stub/scripts/build.mjs
 
       - name: Stub differential test
         run: pnpm exec vitest run tests/stub/diff-against-main.test.ts

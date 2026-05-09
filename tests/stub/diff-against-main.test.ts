@@ -34,22 +34,25 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import * as Stub from '../../tools/hounfour-stub/dist/index.js';
-// Main exports for the cycle-005 cluster live across sub-package
-// indices (`/governance`, `/operations`, `/integrity`, `/canonical`,
-// `/constraints/builtins/...`). The root `src/index.ts` does not
-// re-export everything (by design — to keep root namespace clean of
-// crypto-bearing / chain-bearing surfaces). Aggregate Main from the
-// canonical sub-paths the stub draws from.
-import * as MainGovernance from '../../src/governance/index.js';
-import * as MainOperations from '../../src/operations/index.js';
-import * as MainIntegrity from '../../src/integrity/index.js';
-import * as MainCanonical from '../../src/canonical/index.js';
-import * as MainChallengeTypes from '../../src/governance/challenge-types.js';
-import * as MainNonce from '../../src/constraints/builtins/nonce-unique-per-signer-window.js';
-import * as MainSeq from '../../src/constraints/builtins/sequence-monotonic-per-cluster.js';
-import * as MainChain from '../../src/constraints/builtins/chain-validator-prev-hash.js';
-import * as MainPlanHash from '../../src/constraints/builtins/plan-content-hash-unchanged-since-signoff.js';
-import * as MainVersion from '../../src/version.js';
+// Iter-3 mitigation: import Main from the SAME compiled dist tree the
+// stub bundles. The earlier version imported from `../../src/...`
+// which compiles on-demand via vitest's tsx — the resulting
+// function `.toString()` representation differs from the tsc-emitted
+// form bundled into `tools/hounfour-stub/dist/_main/`. Comparing
+// stub-bundle to source-on-the-fly produced false drift on the 4
+// FR-C builtins + validateCanonicalRunCR1. Pulling Main from the
+// committed dist tree (same emitter that produced _main/) restores
+// byte-equality.
+import * as MainGovernance from '../../dist/governance/index.js';
+import * as MainOperations from '../../dist/operations/index.js';
+import * as MainIntegrity from '../../dist/integrity/index.js';
+import * as MainCanonical from '../../dist/canonical/index.js';
+import * as MainChallengeTypes from '../../dist/governance/challenge-types.js';
+import * as MainNonce from '../../dist/constraints/builtins/nonce-unique-per-signer-window.js';
+import * as MainSeq from '../../dist/constraints/builtins/sequence-monotonic-per-cluster.js';
+import * as MainChain from '../../dist/constraints/builtins/chain-validator-prev-hash.js';
+import * as MainPlanHash from '../../dist/constraints/builtins/plan-content-hash-unchanged-since-signoff.js';
+import * as MainVersion from '../../dist/version.js';
 
 // Aggregate the cycle-005 stub-relevant Main surface into one namespace
 // so the drift detector compares apples-to-apples. Later sub-packages

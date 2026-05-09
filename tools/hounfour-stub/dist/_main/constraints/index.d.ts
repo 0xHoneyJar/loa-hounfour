@@ -1,0 +1,30 @@
+/**
+ * Constraints sub-package barrel.
+ *
+ * Re-exports cross-language constraint types, evaluator,
+ * and DDD vocabulary (state machines, aggregate boundaries, temporal properties).
+ *
+ * Constraint files serve as the protocol's institutional rules — in the sense
+ * of Elinor Ostrom's Institutional Analysis and Development (IAD) framework.
+ * Each constraint defines a rule that governs how protocol participants may
+ * interact with a schema. The `expression_version` field enables rule evolution
+ * without breaking existing participants — Ostrom's "minimal recognition of
+ * rights to organize" principle.
+ *
+ * @see Ostrom, E. (1990). Governing the Commons.
+ * @see constraints/GovernanceConfig.constraints.json — governance parameters as institutional rules (v5.3.0)
+ */
+export { type ConstraintFile, type Constraint, type NativeEnforcement, type ConstraintOrigin, type ConstraintCondition, expressionVersionSupported, EXPRESSION_VERSIONS_SUPPORTED } from './types.js';
+export { evaluateConstraint, resolveConditionalExpression, MAX_EXPRESSION_DEPTH, EVALUATOR_BUILTINS, RESERVED_EVALUATOR_NAMES, type EvaluatorBuiltin, type EvaluationContext } from './evaluator.js';
+export { EXPRESSION_VERSION, validateExpression } from './grammar.js';
+export { evaluateConstraintDetailed, type EvaluationResult } from './detailed-evaluator.js';
+export { tokenize, TokenizerError, type Token, type TokenType } from './tokenizer.js';
+export { evaluateIsValidDag, extractPath, IS_VALID_DAG_OP_CAP, IS_VALID_DAG_ITEMS_CAP, IS_VALID_DAG_BYTES_CAP, type IsValidDagDiagnostic, type IsValidDagErrorCode, type IsValidDagPhase, type IsValidDagResult, } from './is-valid-dag.js';
+export { buildUnverifiedObligationsManifest, hasUnverifiedObligations, type UnverifiedObligationEntry, type UnverifiedObligationsManifest, } from './unverified-obligations.js';
+export { EVALUATOR_BUILTIN_SPECS, type EvaluatorBuiltinSpec, type ArgumentSpec, type EvaluatorExample, } from './evaluator-spec.js';
+export { ConstraintTypeSchema, ConstraintTypeSignatureSchema, CONSTRAINT_TYPES, type ConstraintType, type ConstraintTypeSignature, type ConstraintASTNode, } from './constraint-types.js';
+export { typeCheckConstraintFile, type TypeCheckError, type TypeCheckWarning, type TypeCheckResult, type SchemaRegistryEntry, } from './type-checker.js';
+export { STATE_MACHINES, getValidTransitions, isTerminalState, isValidTransition as isValidStateMachineTransition, type StateMachineDefinition, type StateMachineTransition, } from '../vocabulary/state-machines.js';
+export { AGGREGATE_BOUNDARIES, type AggregateBoundary, type ConsistencyModel, } from '../vocabulary/aggregate-boundaries.js';
+export { TEMPORAL_PROPERTIES, type TemporalProperty, type PropertyType, } from '../vocabulary/temporal-properties.js';
+//# sourceMappingURL=index.d.ts.map

@@ -1,7 +1,7 @@
 {
   "name": "@0xhoneyjar/loa-hounfour-stub",
   "version": "0.0.0-cycle-005-stub",
-  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Re-exports the v8.6.0 cycle-005 schema cluster + 4 FR-C constraint builtins from the main package's source. Consumers alias `\"@0xhoneyjar/loa-hounfour\": \"file:./tools/hounfour-stub\"` during RC to lock against the staged surface; after GA they switch the alias to the published version. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE so the stub is unpublishable; schema $id strings retain the production short-form (PascalCase) so consumers see no surface drift between stub and post-publish.",
+  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Bundles main's compiled dist + cherry-picks the v8.6.0 cycle-005 cluster export surface so consumer `file:./` installs work without symlinking. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE; bundled `_main/` carries production schema $id values byte-for-byte.",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -14,12 +14,17 @@
   },
   "files": [
     "dist/",
-    "src/",
+    "scripts/",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "tsc"
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.0.1",
+    "@sinclair/typebox": "^0.34.48",
+    "canonicalize": "^2.1.0",
+    "jose": "^6.2.2"
   },
   "publishConfig": {
     "access": "restricted"
