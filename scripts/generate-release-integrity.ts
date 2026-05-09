@@ -96,6 +96,15 @@ const explicitManifestPaths = [
   join(root, 'schemas', 'schemastore-catalog.json'),
 ] as const;
 
+// PR-A3.12 iter-5 mitigation (F-001 finer-grain rotation): emitted `path`
+// fields are POSIX-normalized so manifest bytes are platform-independent.
+// On Linux/macOS this is a no-op (`relative()` already emits `/`); the
+// normalization is purely defensive against a future Windows
+// contributor checkout serializing backslashes into the manifest and
+// silently breaking byte-equality reproducibility.
+const toPosixRel = (absPath: string): string =>
+  relative(root, absPath).split(sep).join('/');
+
 const checksums: Record<string, FileChecksum[]> = {};
 const totals: Record<string, number> = {};
 let totalFiles = 0;
@@ -104,7 +113,7 @@ for (const { dir, ext, category, exclude } of dirs) {
   const allFiles = walkDir(dir, ext);
   const files = exclude ? allFiles.filter((f) => !exclude(f)) : allFiles;
   checksums[category] = files.map((f) => ({
-    path: relative(root, f),
+    path: toPosixRel(f),
     sha256: sha256(f),
     size_bytes: statSync(f).size,
   }));
@@ -123,7 +132,7 @@ const manifestFiles = explicitManifestPaths
   })
   .sort();
 checksums.manifests = manifestFiles.map((f) => ({
-  path: relative(root, f),
+  path: toPosixRel(f),
   sha256: sha256(f),
   size_bytes: statSync(f).size,
 }));
