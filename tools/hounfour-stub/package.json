@@ -1,0 +1,23 @@
+{
+  "name": "@0xhoneyjar/loa-hounfour-stub",
+  "version": "0.0.0-cycle-005-stub",
+  "description": "RC-staging stub for @0xhoneyjar/loa-hounfour. Re-exports the v8.6.0 cycle-005 schema cluster + 4 FR-C constraint builtins from the main package's source. Consumers alias `\"@0xhoneyjar/loa-hounfour\": \"file:./tools/hounfour-stub\"` during RC to lock against the staged surface; after GA they switch the alias to the published version. NA-2 fix per cycle-005 PRD: `private: true` makes `npm publish` fail with EPRIVATE so the stub is unpublishable; schema $id strings retain the production namespace so consumers see no surface drift between stub and post-publish.",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src/"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xHoneyJar/loa-hounfour.git",
+    "directory": "tools/hounfour-stub"
+  }
+}

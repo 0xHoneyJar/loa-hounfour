@@ -1,0 +1,72 @@
+# PR-A3.11 (FR-D1) — Stub-vs-main differential surface check.
+#
+# Runs `tests/stub/diff-against-main.test.ts` on every PR and on
+# pushes to main. The test asserts that the stub package
+# (`tools/hounfour-stub/`) re-exports the same v8.6.0 cycle-005
+# schemas + 4 FR-C constraint builtins as the main package, that
+# canonical-JSON serialization is byte-equal, and that schema $id
+# values retain the production namespace (NA-2 fix). Drift
+# between stub and main is a hard CI failure — consumers aliased
+# to `file:./tools/hounfour-stub` during the v8.6.0 RC window
+# must see the same surface they'll see post-GA.
+#
+# This workflow is separate from `ci.yml` so its failure mode is
+# legible to reviewers (the test file is the contract surface; if
+# this job fails, the stub diverged from main).
+#
+# @since v8.6.0 — PR-A3.11 (FR-D1)
+name: Stub Differential
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/hounfour-stub/**'
+      - 'tests/stub/**'
+      - 'src/canonical/**'
+      - 'src/governance/challenge*.ts'
+      - 'src/governance/plan-signoff-envelope.ts'
+      - 'src/governance/plan-amendment-request.ts'
+      - 'src/operations/**'
+      - 'src/integrity/phase-completion-envelope*.ts'
+      - 'src/constraints/builtins/**'
+      - '.github/workflows/stub-differential.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/hounfour-stub/**'
+      - 'tests/stub/**'
+      - 'src/canonical/**'
+      - 'src/governance/challenge*.ts'
+      - 'src/governance/plan-signoff-envelope.ts'
+      - 'src/governance/plan-amendment-request.ts'
+      - 'src/operations/**'
+      - 'src/integrity/phase-completion-envelope*.ts'
+      - 'src/constraints/builtins/**'
+      - '.github/workflows/stub-differential.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  stub-differential:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Stub differential test
+        run: pnpm exec vitest run tests/stub/diff-against-main.test.ts
