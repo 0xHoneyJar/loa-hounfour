@@ -65,7 +65,25 @@
             "type": "string"
           },
           "epic_status": {
-            "$ref": "ClusterRunRepoStatus"
+            "description": "Per-repo EPIC status across a cluster-spanning workstream. Locked enum; promotion to a discriminated union keyed on epic_status is deferred to v8.8.0+ pending consumer-corpus signal.",
+            "anyOf": [
+              {
+                "const": "queued",
+                "type": "string"
+              },
+              {
+                "const": "running",
+                "type": "string"
+              },
+              {
+                "const": "completed",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              }
+            ]
           },
           "failure_mode": {
             "description": "Free-form failure-mode classifier. MUST be null when epic_status ≠ \"failed\", and non-null when epic_status = \"failed\" (CRS-2). Promotion to a discriminated union is deferred to v8.8.0+ pending consumer-corpus signal.",

@@ -1,6 +1,6 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-10T09:58:03.961Z",
+  "generated_at": "2026-05-10T10:28:52.793Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -190,8 +190,8 @@
       },
       {
         "path": "schemas/cluster-run-series.schema.json",
-        "sha256": "dc08ec773080a32165baf0d4ba55884d9e6c08845da9cb84de2e6b2a896746a4",
-        "size_bytes": 4460
+        "sha256": "a4ba76bc7c2309bc5b731f7fdd593e4c1171a5254f29aaf0be6b528ad6ae3823",
+        "size_bytes": 5074
       },
       {
         "path": "schemas/collection-governance-config.schema.json",
