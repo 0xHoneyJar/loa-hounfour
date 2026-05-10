@@ -100,8 +100,9 @@ function buildKickoffAmendment(): unknown {
     '',
     'Phase 0 review converged after 3 multi-model adversarial-review',
     'runs. RFC committed at docs/rfcs/v8.7.0-conformance-measurability.md.',
-    'PR-A4.0 scaffolds: 5 schema stubs + 5 constraint stubs + 3 cross-',
-    'runner SSOT files + this amendment script.',
+    'PR-A4.0 scaffolds: 5 schema stubs (Type.Never reservations) + 3',
+    'cross-runner SSOT files + this amendment script. Constraint files',
+    'land per-schema in PR-A4.1..A4.5 alongside the bodies.',
   ].join('\n');
 
   return {
