@@ -1,9 +1,0 @@
-{
-  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
-  "schema_id": "RevocationList",
-  "origin": "genesis",
-  "contract_version": "8.7.0",
-  "expression_version": "1.0",
-  "constraints": [],
-  "_pr_a4_0_note": "STUB — PR-A4.0 reservation. RL-1..RL-12 invariants (with RL-8 as explicit non-constraint to prevent finding-rotation per PR-A3.8 lesson) land in PR-A4.4 alongside the schema body. See RFC docs/rfcs/v8.7.0-conformance-measurability.md §3.4 + §4 for the locked constraint set, including the signed-payload boundary discipline (signature + quorum_signatures fields OMITTED during canonicalization for signing)."
-}

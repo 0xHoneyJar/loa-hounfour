@@ -1,9 +1,0 @@
-{
-  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
-  "schema_id": "MergeArtifact",
-  "origin": "genesis",
-  "contract_version": "8.7.0",
-  "expression_version": "1.0",
-  "constraints": [],
-  "_pr_a4_0_note": "STUB — PR-A4.0 reservation. MA-1..MA-4 invariants land in PR-A4.5 alongside the schema body. See RFC docs/rfcs/v8.7.0-conformance-measurability.md §3.5 + §4 for the locked constraint set, including the SHA-1 git binding (with SHA-256 future-compat path tracked at PRD BL-8) and the master_content_hash JCS-canonical-form precondition."
-}
