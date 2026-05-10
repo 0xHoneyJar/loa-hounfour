@@ -1,0 +1,31 @@
+{
+  "_comment": "Three proposed goals with distinct ids — ISSA-2 distinctness invariant satisfied. Each goal carries an independent conformance_impact_pct estimate.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T10:15:30Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-003",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "Migrate vendored client SDK to the v8.7.0 conformance-replay surface.",
+      "conformance_impact_pct": 18.0
+    },
+    {
+      "id": "goal-002",
+      "description": "Expand cross-runner conformance corpus to all five v8.7.0 schemas.",
+      "conformance_impact_pct": 32.5
+    },
+    {
+      "id": "goal-003",
+      "description": "Adopt the inter-series-scoping artifact in the cycle-007 ship runbook.",
+      "conformance_impact_pct": -5.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "proof_path": []
+  },
+  "conformance_chain": []
+}

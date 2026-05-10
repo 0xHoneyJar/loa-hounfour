@@ -1,0 +1,26 @@
+{
+  "_comment": "Structural: proof_path[*].sibling_hash MUST match the canonical sha256:<64-hex> pattern. Free-form strings are rejected at the structural tier.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-x",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "baseline",
+      "conformance_impact_pct": 0.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "proof_path": [
+      {
+        "sibling_hash": "not-a-sha256-string",
+        "position": "left"
+      }
+    ]
+  },
+  "conformance_chain": []
+}

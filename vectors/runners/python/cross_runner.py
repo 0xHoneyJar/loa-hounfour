@@ -78,6 +78,8 @@ SCHEMAS: list[tuple[str, str | None, tuple[str, ...]]] = [
     ("CanonicalRun", "v8.6.0", ("valid", "invalid", "invalid-cross-field")),
     # v8.7.0 cycle-007 cluster — versioned layout. PR-A4.1 (FR-G1).
     ("ClusterRunSeries", "v8.7.0", ("valid", "invalid", "invalid-cross-field")),
+    # v8.7.0 cycle-007 cluster — versioned layout. PR-A4.2 (FR-G2).
+    ("InterSeriesScopingArtifact", "v8.7.0", ("valid", "invalid", "invalid-cross-field")),
 ]
 
 # Schema-name → schema-file-name (kebab-case). Most files map by

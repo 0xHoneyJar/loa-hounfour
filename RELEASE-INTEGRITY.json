@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-10T10:38:04.682Z",
+  "generated_at": "2026-05-10T11:20:57.622Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1105,
-    "constraints": 136,
+    "vectors": 1133,
+    "constraints": 137,
     "manifests": 2,
-    "total": 1505
+    "total": 1534
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -635,8 +635,8 @@
       },
       {
         "path": "schemas/inter-series-scoping-artifact.schema.json",
-        "sha256": "f7dac74196601f2212444cac1e4b698550b0509b9568ad5f3441d44b07c5e171",
-        "size_bytes": 315
+        "sha256": "73c78a99b399da5832c8a7c13f74bec3eb103aa525e06993759c2dc726c2fc4d",
+        "size_bytes": 7282
       },
       {
         "path": "schemas/invariant-result.schema.json",
@@ -2849,6 +2849,146 @@
         "path": "vectors/ForgetRecord/valid/pii-only-minimal.json",
         "sha256": "3db3e01020b73a45edd786e053c25d7de632f59a36db59855ebabb86e9d7d075",
         "size_bytes": 238
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid-cross-field/issa2-duplicate-goal-id-rejected.json",
+        "sha256": "204cc058ad9fa6dc15fab559b504f568e276526b813e3ec317387e39910f99df",
+        "size_bytes": 995
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid-cross-field/issa2-three-way-duplicate-rejected.json",
+        "sha256": "02c99965dab82d41313a9e65029d618de7d7780f65a360f07fa4ec0dd4e3d7e0",
+        "size_bytes": 1103
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "5fa614526530c8d36bf355a4019145c1072732b7862382a43f55287898f78d44",
+        "size_bytes": 725
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/additional-property-on-merkle-step-rejected.json",
+        "sha256": "d1dce4baaa87ec26792b426f72150d3f3d54b454adc4a7854499649a2a9ad81d",
+        "size_bytes": 837
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/additional-property-on-proposed-goal-rejected.json",
+        "sha256": "1dc0c25c1ba855e6d44b95f28ced76d0426b177df14cb5ea20b42ea8197e1854",
+        "size_bytes": 683
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/conformance-impact-pct-above-maximum-rejected.json",
+        "sha256": "c0c3dfc955cb79984d6816243fb6c1eef1c6d19c547fa38760d6b54bac222a7b",
+        "size_bytes": 713
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/conformance-impact-pct-below-minimum-rejected.json",
+        "sha256": "4a0036229c09db5dae6487d35989a3924ce90e7a4f622b5e9ded919eed7fe95a",
+        "size_bytes": 709
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "cc6a78da2651f24c388faf8ff4a95dc87fb4694f95bf958d0783e4e3825528f6",
+        "size_bytes": 695
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/envelope-kind-wrong-literal-rejected.json",
+        "sha256": "c63dec699e11bda591b98126798a7b54148bc2bfa400b71d9f69408c446c1d50",
+        "size_bytes": 744
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/parent-series-id-empty-string-rejected.json",
+        "sha256": "30bf7827fd258ea1f839f6e03a2c9a692dbebaaf0c472fbd20c5a7081974c19e",
+        "size_bytes": 680
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/proof-path-position-out-of-vocab-rejected.json",
+        "sha256": "47b261a71ceea63bd7a81f99cafbe0a76bd3de8e69f6483dbf2a00a41ff13efa",
+        "size_bytes": 920
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/proof-path-sibling-hash-not-sha256-rejected.json",
+        "sha256": "9eb63adac5d91da92af609d13a956fc0232367cd9aa40f47af14ced583907b3e",
+        "size_bytes": 802
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/proposed-goal-description-empty-rejected.json",
+        "sha256": "78aa7a0549e6f2b483ffa9743106effdd59abbd3b009df7f7241dbfde7779484",
+        "size_bytes": 699
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/proposed-goal-description-too-long-rejected.json",
+        "sha256": "e70e3b113bc6223b067f2903a4b75366ab53cb7f46d442356144de2f41b24024",
+        "size_bytes": 4789
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/proposed-series-goals-empty-array-rejected.json",
+        "sha256": "14b719eab1f9431249a619202ff65b340a156ae181ba1188c903f8e54ee084dc",
+        "size_bytes": 568
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/signoff-envelope-id-empty-string-rejected.json",
+        "sha256": "b81494d0b1cadb6edead4a6c8dfca6f59a39aadeb0a16a63a8fa9eefd4a26a2a",
+        "size_bytes": 764
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/soul-hash-not-sha256-rejected.json",
+        "sha256": "537cb2512fc1c306d34ecec27c7a5a86a47b35d02e04129665094acfd101604e",
+        "size_bytes": 657
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/invalid/ts-non-utc-rejected.json",
+        "sha256": "4c45ca5b4da2809122fc198c4952ec39d75becc9a1c5177b6d85ae727ba11231",
+        "size_bytes": 738
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-001-minimal-empty-proof.json",
+        "sha256": "033900d56b498400bda12ca05a8f0d9fe667dd572658c6f52b25c408e0ccd9de",
+        "size_bytes": 812
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-002-with-signoff-envelope.json",
+        "sha256": "99005e064e0cd62d4e8aab888bdf92831419e378d7400c71010525de95029718",
+        "size_bytes": 1034
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-003-multi-goal-distinct-ids.json",
+        "sha256": "a34ba89c3a33c769a9da3a03576c22eb35e8988ff2e2efa6103cd72436e1c8fe",
+        "size_bytes": 1111
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-004-proof-single-step-left.json",
+        "sha256": "f679aa6264088c679b2181f4937e7271f1a617c4019062abf2a88a380cd0a146",
+        "size_bytes": 906
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-005-proof-single-step-right.json",
+        "sha256": "fdcf17e40b4f516a1cc3dd665dd429988d5b19297e5f4e10c3e156853c443f5d",
+        "size_bytes": 910
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-006-matching-twins-disambiguated.json",
+        "sha256": "73046754f44585ce37622e40bbc5b4070cde088c752b8b897001fd747bcd70fb",
+        "size_bytes": 1426
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-007-conformance-chain-populated.json",
+        "sha256": "36117d9d378ba7ea2361ba6569f5391c1b03792fbcc1bb0a8dfe1e971a5f55ba",
+        "size_bytes": 1042
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-008-impact-pct-boundary-min.json",
+        "sha256": "b5a3f0546d647400f1f8ddb47c8758a9d44a3b3e4fce10444811d3d317465ad5",
+        "size_bytes": 779
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-009-impact-pct-boundary-max.json",
+        "sha256": "1d1a1479e0d73a55f3b61eb11a0dec293fb5019077a426b19a5a1e30bea8ec23",
+        "size_bytes": 775
+      },
+      {
+        "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-010-deep-proof-path.json",
+        "sha256": "a156807b6268273c20f8947231bc2243eb2a08da37ae66f4cbfd9aeed10ebdcb",
+        "size_bytes": 5355
       },
       {
         "path": "vectors/Keyring/invalid/additional-property.json",
@@ -7178,6 +7318,11 @@
         "size_bytes": 4212
       },
       {
+        "path": "constraints/InterSeriesScopingArtifact.constraints.json",
+        "sha256": "c318cacdb3a0ad65e5f5dfcb84e6491ea6da0595bd1f5be69c8dd586f0ed474e",
+        "size_bytes": 8948
+      },
+      {
         "path": "constraints/JwtBoundarySpec.constraints.json",
         "sha256": "bca9786dfd955fc6f107512daa4cf9a4bab607d2d744dc2cdb13d65b39522a46",
         "size_bytes": 1321
@@ -7536,8 +7681,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "94b11556b6fe95403895ff96171ae24bbd717b46a90d3daf8330a719d4e24503",
-        "size_bytes": 85334
+        "sha256": "2a290e7db2c2413e48e73b1f9349cd31f23f57d0a47e1df10e21dbf284327d21",
+        "size_bytes": 85801
       },
       {
         "path": "schemas/schemastore-catalog.json",

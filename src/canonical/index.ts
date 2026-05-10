@@ -33,7 +33,12 @@ export {
 } from './cluster-run-series.js';
 export {
   InterSeriesScopingArtifactSchema,
+  MerkleProofStepSchema,
+  ProposedSeriesGoalSchema,
+  validateInterSeriesScopingArtifact,
   type InterSeriesScopingArtifact,
+  type MerkleProofStep,
+  type ProposedSeriesGoal,
 } from './inter-series-scoping-artifact.js';
 export {
   SubscriptionPoolStateSchema,

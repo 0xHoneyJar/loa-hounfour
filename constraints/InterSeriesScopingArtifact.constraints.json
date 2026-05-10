@@ -1,0 +1,69 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "InterSeriesScopingArtifact",
+  "origin": "genesis",
+  "contract_version": "8.7.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "ISSA-1",
+      "expression": "proposed_series_goals MUST be a non-empty array — minimum length one element. TypeBox enforces this at the structural tier via the minItems schema keyword on the proposed_series_goals array. This entry is a redundant declaratory record so consumers reading the constraint file see the full invariant set without cross-referencing the schema.",
+      "severity": "error",
+      "message": "InterSeriesScopingArtifact.proposed_series_goals MUST contain at least one ProposedSeriesGoal entry. An empty proposed_series_goals breaks the artifact's documentary purpose — a scoping artifact with zero proposed goals is semantically void and consumers cannot derive a conformance-impact estimate from it.",
+      "fields": ["proposed_series_goals"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier — minItems one on the proposed_series_goals array. Cross-language runners MUST recognize the same minimum-length precondition; corpus extension in vectors/runners drives byte-identical agreement on rejection of empty-array payloads. The constraint-file entry is the documentary anchor; evaluator library reflects that no runtime-deferred consumer policy applies.",
+      "type_signature": {
+        "proposed_series_goals": "array"
+      }
+    },
+    {
+      "id": "ISSA-2",
+      "expression": "proposed_series_goals[*].id values MUST be distinct within a single InterSeriesScopingArtifact — no two entries in the proposed_series_goals array may share the same id. Aggregate-cluster id uniqueness across multiple artifacts is consumer-state via a consumer-side registry, not enforced at the schema level.",
+      "severity": "error",
+      "message": "InterSeriesScopingArtifact.proposed_series_goals[*].id MUST be distinct within an artifact. Duplicate id entries ambiguate the consumer's per-goal conformance aggregation — the consumer-side selection of goals by id relies on equality, and a duplicate would produce non-deterministic goal selection.",
+      "fields": ["proposed_series_goals"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces ISSA-2 inline at validate() time** via the validateInterSeriesScopingArtifact cross-field validator — see src/validators/index.ts registerCrossFieldValidator on InterSeriesScopingArtifact. Per AT-1, cross-language runners MUST re-implement the per-array distinctness check per-runtime. Marked runtime-deferred rather than library because the per-element array_field_distinct helper is LOCAL — inline only, NOT a DSL primitive — per SDD section 4.6. ISSA-2 shares the helper with CRS-4, SPS-2, RL-1, and RL-12; promotion to a DSL primitive is the planned cycle-007 follow-up once all five sites have landed. **What would change the lock:** when PR-A4.5 lands and the fifth use site is in place, generalize array_field_distinct to a registered DSL builtin and re-mark CRS-4, ISSA-2, SPS-2, RL-1, RL-12 as evaluator library in a follow-up cycle-007.x patch.",
+      "type_signature": {
+        "proposed_series_goals": "array"
+      }
+    },
+    {
+      "id": "ISSA-3",
+      "expression": "constitutional_hash_proof.proof_path[*] MUST be well-formed — each step has a position field equal to left or right and a sibling_hash field matching the canonical sha256 hex pattern. Composition is shape-level only; semantic root verification — composing all steps from soul_hash per the raw-byte rule and comparing against a consumer-published constitutional-root — stays consumer-state per ADR-010.",
+      "severity": "error",
+      "message": "InterSeriesScopingArtifact.constitutional_hash_proof.proof_path[*] MUST be a well-formed Merkle proof step shape. The position discriminator MUST disambiguate matching twins per RFC 6962; sibling_hash MUST be canonical sha256 hex so the consumer-side reference verifier can decode to the raw 32-byte digest before composition.",
+      "fields": ["constitutional_hash_proof"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces ISSA-3 well-formedness at validate() time** via the validateInterSeriesScopingArtifact cross-field validator, which delegates to the LOCAL merkle_proof_composition_well_formed helper — see src/constraints/builtins/inter-series-scoping-artifact-local.ts. Per AT-1, cross-language runners MUST re-implement the per-step well-formedness check per-runtime. **Shape-level vs consumer-state lock (OQ-1)**: the helper validates step shape only. Semantic root verification is consumer-state per ADR-010; manifest emits INTER_SERIES_MERKLE_ROOT_VERIFICATION_CONTEXT_DEFERRED. The raw-byte composition rule documented in SDD section 3.4 ISSA-3 is non-normative shape supplement — hounfour does not bundle a SHA-256 implementation. **What would change the lock:** ADR-010 boundary movement — promoting Merkle root verification to library-state would require hounfour to ship a SHA-256 implementation plus a cross-runner byte-identity contract for the composition algorithm, both v9.0.0 contract-bump territory.",
+      "type_signature": {
+        "constitutional_hash_proof": "object"
+      }
+    },
+    {
+      "id": "ISSA-4",
+      "expression": "proposed_series_goals[*].conformance_impact_pct MUST be a numeric value within the closed interval from -100 to +100 inclusive. TypeBox enforces this at the structural tier via the minimum and maximum schema keywords. The schema does NOT freeze the consumer-side conformance-scoring algorithm — the bound is a sanity clamp on the percentage representation, not a semantic guarantee.",
+      "severity": "error",
+      "message": "InterSeriesScopingArtifact.proposed_series_goals[*].conformance_impact_pct MUST be a number satisfying minus one hundred less-than-or-equal value less-than-or-equal one hundred. Out-of-range values break the consumer-side percentage-arithmetic invariant; the bound matches the conformance-percentage representation surface across cycle-007 conformance scoring.",
+      "fields": ["proposed_series_goals"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier — Type.Number with minimum minus one hundred and maximum positive one hundred on conformance_impact_pct. Cross-language runners MUST recognize the same numeric range; corpus extension in vectors/runners drives byte-identical agreement on rejection of out-of-range values. The constraint-file entry is the documentary anchor; evaluator library reflects that no runtime-deferred consumer policy applies. **Numeric-precision note**: cross-runner byte-identity for floating-point conformance_impact_pct values follows the same JCS canonicalization discipline as ts and other numeric fields per SDD section 2.0.1.",
+      "type_signature": {
+        "proposed_series_goals": "array"
+      }
+    },
+    {
+      "id": "ISSA-5",
+      "expression": "constitutional_hash_proof.proof_path[*].position MUST be a member of the locked enum left or right — TypeBox enforces this at the structural tier via Type.Union of Type.Literal members. This entry is a redundant declaratory record so consumers reading the constraint file see the full invariant set without cross-referencing the schema. Direct callers bypassing Value.Check MUST treat out-of-vocab position values as cross-field structural-precondition errors per the inter-series-scoping-artifact validateInterSeriesScopingArtifact contract.",
+      "severity": "error",
+      "message": "InterSeriesScopingArtifact.constitutional_hash_proof.proof_path[*].position MUST be one of: left, right. Out-of-vocab position values blind the consumer-side reference verifier to the matching-twins disambiguation; the locked enum is the cross-runtime alignment surface for Merkle composition.",
+      "fields": ["constitutional_hash_proof"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier — Type.Union of Type.Literal on left and right. Cross-language runners MUST recognize the same two literals; corpus extension in vectors/runners drives byte-identical agreement on rejection of out-of-vocab position values. The constraint-file entry is the documentary anchor; evaluator library reflects that no runtime-deferred consumer policy applies. **Lexicographic-sort trap mitigation**: ISSA-5 is the structural floor for ISSA-3 well-formedness — without a locked position enum, a sorted-merkle heuristic would silently collapse matching-twins traces.",
+      "type_signature": {
+        "constitutional_hash_proof": "object"
+      }
+    }
+  ]
+}

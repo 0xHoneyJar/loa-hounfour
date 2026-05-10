@@ -1,0 +1,28 @@
+{
+  "_comment": "Valid artifact with a non-null signoff_envelope_id lazy-link to a PlanSignoffEnvelope (FR-B9, v8.6.0). Resolution is consumer-state per ADR-010.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T08:30:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-002",
+  "signoff_envelope_id": "plan-signoff-envelope-2026-05-09-001",
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "Adopt v8.7.0 conformance scoring across all three repos in lockstep.",
+      "conformance_impact_pct": 25.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+    "proof_path": [
+      {
+        "sibling_hash": "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+        "position": "right"
+      }
+    ]
+  },
+  "conformance_chain": [
+    "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  ]
+}

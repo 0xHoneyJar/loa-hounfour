@@ -23,6 +23,13 @@ import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
 // internally delegates to LOCAL helpers in
 // src/constraints/builtins/cluster-run-series-local.ts.
 import { validateClusterRunSeries } from '../canonical/cluster-run-series.js';
+// v8.7.0 PR-A4.2 — FR-G2 InterSeriesScopingArtifact cross-field
+// validator (ISSA-2 + ISSA-3 well-formedness). Pure function lives
+// in inter-series-scoping-artifact.ts and delegates to LOCAL helpers
+// (arrayFieldDistinct from cluster-run-series-local;
+// merkleProofCompositionWellFormed from
+// inter-series-scoping-artifact-local).
+import { validateInterSeriesScopingArtifact } from '../canonical/inter-series-scoping-artifact.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
@@ -1244,6 +1251,19 @@ registerCrossFieldValidator('CanonicalRun', validateCanonicalRunCR1);
 // ADR-010 with manifest reason
 // `CLUSTER_RUN_SERIES_CROSS_RUNTIME_CONTEXT_DEFERRED`.
 registerCrossFieldValidator('ClusterRunSeries', validateClusterRunSeries);
+
+// v8.7.0 PR-A4.2 — InterSeriesScopingArtifact cross-field validator. Enforces:
+//   - ISSA-2: `proposed_series_goals[*].id` distinct within the array
+//   - ISSA-3: Merkle proof composition well-formedness (per-step shape only;
+//     root verification consumer-state per ADR-010 with manifest reason
+//     `INTER_SERIES_MERKLE_ROOT_VERIFICATION_CONTEXT_DEFERRED`)
+// ISSA-1 (proposed_series_goals minItems 1), ISSA-4 (conformance_impact_pct
+// range), and ISSA-5 (proof_path[*].position enum membership) are
+// structural via TypeBox.
+registerCrossFieldValidator(
+  'InterSeriesScopingArtifact',
+  validateInterSeriesScopingArtifact,
+);
 
 /**
  * Returns schema $ids that have registered cross-field validators.
