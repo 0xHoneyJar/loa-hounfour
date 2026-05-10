@@ -2,7 +2,7 @@
   "vector_id": "conformance-recall-wedge-004",
   "category": "recall-wedge",
   "description": "Recall Wedge round-trip — RecallReceipt signed over the RecallPack body hash (crypto-bearing, deferred per ADR-010).",
-  "contract_version": "8.6.0",
+  "contract_version": "8.7.0",
   "input": {
     "receipt_id": "44444444-4444-4444-8444-444444444444",
     "pack_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",

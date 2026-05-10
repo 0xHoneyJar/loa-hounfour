@@ -205,6 +205,10 @@
         {
           "const": "governed-resource-runtime",
           "type": "string"
+        },
+        {
+          "const": "recall-wedge",
+          "type": "string"
         }
       ]
     },

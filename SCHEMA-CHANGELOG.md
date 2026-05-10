@@ -12,16 +12,24 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 **Theme:** Documentation + conformance-corpus surface describing how the
 existing v8.5.0 PR-A2.3 / v8.6.0 PR-A3.7 schemas compose into the
-Straylight Recall Wedge. **Strict no-op at the schema layer** — no
-`$id` additions, no field changes, no enum modifications, no constraint
-edits, no generated `schemas/*.schema.json` regeneration. The change is
-informational + corpus-side only.
+Straylight Recall Wedge. **Strict-additive at the schema layer** — a
+single category-enum literal extension to `ConformanceCategorySchema`
+plus a soft-registry vocabulary entry; no `$id` additions, no field
+changes, no required-field additions, no constraint edits, and no
+breaking changes.
 
-### No schema modifications
+### Schema modifications — strict-additive only
 
+- **`ConformanceCategorySchema`** (`src/vocabulary/conformance-category.ts`):
+  one new `Type.Literal('recall-wedge')` member appended to the
+  category union; corresponding `'recall-wedge'` entry appended to
+  `CONFORMANCE_CATEGORIES`. The schema's `$id` is unchanged. The
+  generated `schemas/conformance-vector.schema.json` was regenerated
+  via `npm run schema:generate` so the published JSON Schema enum
+  surfaces the new literal for cross-language consumers; no other
+  generated schema file changed.
 - Zero new `$id`-bearing schemas.
-- Zero modifications to existing TypeBox sources or generated JSON
-  Schema outputs under `schemas/`.
+- Zero modifications to any other TypeBox source under `src/`.
 - Zero modifications to constraint files under `constraints/`.
 - Zero modifications to `src/index.ts` or `src/governance/index.ts`
   exports — every Recall Wedge primitive (`AgentEstate`,

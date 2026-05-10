@@ -70,6 +70,7 @@ interface AssertionFixture {
   assertion_id: string;
   body_hash: string;
   status: string;
+  recall_scope: string;
   signatures?: Array<{ envelope_id: string }>;
 }
 interface RecallRequestFixture {
@@ -206,6 +207,10 @@ describe('Recall Wedge round-trip — conformance corpus', () => {
 
     it('the request scope is the private surface (matches the assertion recall_scope policy)', () => {
       expect(request.surface_context).toBe('private');
+    });
+
+    it('assertion.recall_scope === request.surface_context (the wedge entry-point and the request agree on the surface)', () => {
+      expect(assertion.recall_scope).toBe(request.surface_context);
     });
   });
 });

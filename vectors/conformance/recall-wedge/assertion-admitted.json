@@ -2,7 +2,7 @@
   "vector_id": "conformance-recall-wedge-001",
   "category": "recall-wedge",
   "description": "Recall Wedge round-trip — admitted Assertion that becomes the subject of the recall (per ADR-010 consumer-side composition).",
-  "contract_version": "8.6.0",
+  "contract_version": "8.7.0",
   "input": {
     "assertion_id": "11111111-1111-4111-8111-111111111111",
     "body_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
