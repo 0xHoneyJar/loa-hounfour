@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 46 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(46);
+  it('contains exactly 47 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(47);
   });
 
   it('includes all valid categories', () => {
@@ -114,6 +114,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       // v8.3.0 — Consumer Contracts + GovernedResource Runtime
       'consumer-contract',
       'governed-resource-runtime',
+      // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
+      'recall-wedge',
     ]);
   });
 });

@@ -1,0 +1,43 @@
+{
+  "vector_id": "conformance-recall-wedge-001",
+  "category": "recall-wedge",
+  "description": "Recall Wedge round-trip — admitted Assertion that becomes the subject of the recall (per ADR-010 consumer-side composition).",
+  "contract_version": "8.6.0",
+  "input": {
+    "assertion_id": "11111111-1111-4111-8111-111111111111",
+    "body_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "provenance": [
+      {
+        "type": "tool_output",
+        "output_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ],
+    "privacy_scope": "public",
+    "risk_level": "routine",
+    "recall_scope": "private",
+    "assertion_class": "attestation",
+    "confidence": 0.92,
+    "created_at": "2026-05-10T00:00:00Z",
+    "contract_version": "8.6.0",
+    "status": "admitted",
+    "signatures": [
+      {
+        "envelope_id": "66666666-6666-4666-8666-666666666666",
+        "signature_type": "attestation",
+        "key_ref": "kms://example/recall-wedge/assertion-signer-1",
+        "signed_payload_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "signature_value": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "signed_at": "2026-05-10T00:00:00Z",
+        "contract_version": "8.6.0"
+      }
+    ]
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "wedge_role": "subject_assertion",
+    "schema_ref": "AssertionSchema",
+    "crypto_bearing": true,
+    "round_trip_step": 1
+  }
+}

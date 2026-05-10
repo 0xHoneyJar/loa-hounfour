@@ -1,0 +1,31 @@
+{
+  "vector_id": "conformance-recall-wedge-004",
+  "category": "recall-wedge",
+  "description": "Recall Wedge round-trip — RecallReceipt signed over the RecallPack body hash (crypto-bearing, deferred per ADR-010).",
+  "contract_version": "8.6.0",
+  "input": {
+    "receipt_id": "44444444-4444-4444-8444-444444444444",
+    "pack_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "detail_level": "standard",
+    "signature_envelope": {
+      "envelope_id": "77777777-7777-4777-8777-777777777777",
+      "signature_type": "attestation",
+      "key_ref": "kms://example/recall-wedge/receipt-signer-1",
+      "signed_payload_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "signature_value": "ed25519:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+      "signed_at": "2026-05-10T00:03:00Z",
+      "contract_version": "8.6.0"
+    },
+    "receipt_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "signed_at": "2026-05-10T00:03:00Z",
+    "contract_version": "8.6.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "wedge_role": "recall_receipt",
+    "schema_ref": "RecallReceiptSchema",
+    "crypto_bearing": true,
+    "round_trip_step": 4
+  }
+}
