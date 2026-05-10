@@ -15,6 +15,6 @@
       "type": "string"
     }
   ],
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/reservation-state",
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/reservation-state",
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

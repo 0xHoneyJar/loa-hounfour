@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/latency-histogram-envelope",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/latency-histogram-envelope",
   "additionalProperties": false,
   "description": "Per-phase per-cluster latency percentile snapshot. The p50 ≤ p95 ≤ p99 ≤ max invariant (LHE-1) is enforced inline by `validate(LatencyHistogramEnvelopeSchema, x)` via the LOCAL builtin `percentiles_monotonic_nondecreasing(measurements)` — a structural-only consumer using `Value.Check` will accept monotonicity violations because the invariant is constraint- level, not schema-level. Use `validate()` for full enforcement.",
   "type": "object",
@@ -62,5 +62,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,0 +1,21 @@
+# ts_started Z-only second-precision pattern (cycle-007 / v8.7.0)
+
+^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
+
+# Used by:
+#   - ClusterRunSeriesSchema.ts_started (FR-G1)
+#
+# Why local override of the broader ISO8601_UTC_PATTERN:
+# CanonicalRun (FR-B1, v8.6.0 PR-A3.8) established the same Z-only
+# second-precision discipline for its `ts_authored` field — for the
+# same reason: cross-runner producers must emit byte-identical
+# timestamps without negotiating a per-deployment fractional-digit
+# count.
+#
+# This file is the SSOT for the override. Cross-runner harnesses
+# (vectors/runners/{ts,python,go,rust}/) MUST load this pattern
+# verbatim when validating ts_started fields.
+#
+# Pre-merge gate: scripts/check-vectors.ts asserts this pattern is
+# referenced in the ClusterRunSeries TypeBox source (single source
+# of truth — drift detector).

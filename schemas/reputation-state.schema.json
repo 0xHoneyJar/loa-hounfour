@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/reputation-state",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/reputation-state",
   "description": "Reputation state-machine state: cold → warming → established → authoritative. Transitions are protocol-fixed.",
   "anyOf": [
     {
@@ -20,5 +20,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

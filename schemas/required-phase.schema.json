@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/required-phase",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/required-phase",
   "additionalProperties": false,
   "description": "One required-phase entry within a CanonicalRun. Cross-element ordering invariants live in CR-1.",
   "type": "object",
@@ -57,5 +57,5 @@
       "type": "integer"
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/assertion-class",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/assertion-class",
   "description": "Illocutionary-force vocabulary for Assertion. Substrate-agnostic core of 7 speech-act categories (attestation | observation | assessment | consent | delegation | commitment | disclosure) plus a 3-segment consumer namespace fallback. Member set locked at PR-A2.1 design-freeze gate per D-006.",
   "anyOf": [
     {
@@ -44,5 +44,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

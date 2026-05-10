@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-tier",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/signoff-tier",
   "description": "Schema-restricted signoff tier. T0/T1 are explicitly excluded (rejected at validate() time). Widening to T0/T1/etc. is strict-additive; consumers built against the v8.6.0 enum continue to validate T2/T3 unchanged.",
   "anyOf": [
     {
@@ -12,5 +12,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/phase-kind",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/phase-kind",
   "description": "Exhaustive 5-member enum classifying a phase within a CanonicalRun's required_phases sequence. Widening is strict-additive across minor versions.",
   "anyOf": [
     {
@@ -24,5 +24,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/cross-score-report",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/cross-score-report",
   "additionalProperties": false,
   "x-cross-field-validated": true,
   "description": "Signed pairwise cross-scoring attestation. Cross-field rule (no-self-scoring) in constraints/CrossScoreReport.constraints.json.",
@@ -753,5 +753,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }
