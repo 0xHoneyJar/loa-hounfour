@@ -52,6 +52,7 @@ import { PlanSignoffEnvelopeSchema } from '../src/governance/plan-signoff-envelo
 import { PlanAmendmentRequestSchema } from '../src/governance/plan-amendment-request.js';
 import { ChallengeSchema } from '../src/governance/challenge.js';
 import { CanonicalRunSchema } from '../src/canonical/canonical-run.js';
+import { ClusterRunSeriesSchema } from '../src/canonical/cluster-run-series.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -127,6 +128,12 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
   CanonicalRun: {
     schema: CanonicalRunSchema,
     versionPath: 'v8.6.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  // v8.7.0 cycle-007 cluster — PR-A4.1 (FR-G1).
+  ClusterRunSeries: {
+    schema: ClusterRunSeriesSchema,
+    versionPath: 'v8.7.0',
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },
 };

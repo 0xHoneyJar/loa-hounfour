@@ -1549,7 +1549,7 @@
       "name": "cluster-run-series",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/cluster-run-series",
       "file": "cluster-run-series.schema.json",
-      "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.1."
+      "description": "Multi-repo run state envelope. Captures per-repo EPIC status across a cluster-spanning workstream. NOT crypto-bearing; NOT chain-bearing at the cluster-run level — chain-bearing primitives are the per-repo PhaseCompletionEnvelope records (FR-B2, v8.6.0) referenced via the optional phase_envelope_chain_root lazy-link. Round-trip parse + re-serialize bit-identical: every well-formed payload `s` satisfies `JSON.stringify(JSON.parse(s)) === s` when `s` is itself the JSON-stringified canonical form."
     },
     {
       "name": "inter-series-scoping-artifact",

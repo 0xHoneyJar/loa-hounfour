@@ -17,6 +17,11 @@ import { OracleDigestSchema } from '../operations/oracle-digest.js';
 // schema's own module is the source of truth for CR-1 semantics);
 // this module wires it into the cross-field registry below.
 import { validateCanonicalRunCR1 } from '../canonical/canonical-run.js';
+// v8.7.0 PR-A4.1 — FR-G1 ClusterRunSeries cross-field validator
+// (CRS-2 + CRS-4). Pure function lives in cluster-run-series.ts and
+// internally delegates to LOCAL helpers in
+// src/constraints/builtins/cluster-run-series-local.ts.
+import { validateClusterRunSeries } from '../canonical/cluster-run-series.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -1030,6 +1035,14 @@ registerCrossFieldValidator('Challenge', constraintFileOnlyValidator);
 // The import is hoisted to the top of this file per the
 // imports-at-top convention (iter-4 F11 mitigation).
 registerCrossFieldValidator('CanonicalRun', validateCanonicalRunCR1);
+// v8.7.0 PR-A4.1 — ClusterRunSeries cross-field validator. Enforces:
+//   - CRS-2: per-element `failure_mode != null ↔ epic_status === "failed"`
+//   - CRS-4: `repos[*].repo_slug` distinct within a series
+// CRS-1 (epic_status enum) is structural via TypeBox Type.Union of
+// literals; CRS-3 (cross-runtime byte-identity) is consumer-state per
+// ADR-010 with manifest reason
+// `CLUSTER_RUN_SERIES_CROSS_RUNTIME_CONTEXT_DEFERRED`.
+registerCrossFieldValidator('ClusterRunSeries', validateClusterRunSeries);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

@@ -1,0 +1,17 @@
+{
+  "_comment": "Structural fail: phase_envelope_chain_root carries a non-SHA-256 hex string (missing sha256: prefix; 32 hex chars instead of 64).",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-bad-root",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-x",
+      "canonical_run_id": "canonical-run-x-001",
+      "epic_status": "completed",
+      "failure_mode": null,
+      "phase_envelope_chain_root": "abcdef1234567890abcdef1234567890"
+    }
+  ]
+}

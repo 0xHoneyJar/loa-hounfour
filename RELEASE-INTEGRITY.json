@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-10T09:16:26.793Z",
+  "generated_at": "2026-05-10T10:38:04.682Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1082,
-    "constraints": 135,
+    "vectors": 1105,
+    "constraints": 136,
     "manifests": 2,
-    "total": 1481
+    "total": 1505
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -190,8 +190,8 @@
       },
       {
         "path": "schemas/cluster-run-series.schema.json",
-        "sha256": "a032da31e9310fe9ef32090c4c6ee3c3bcf9c04644e187c14e64c50f88432215",
-        "size_bytes": 304
+        "sha256": "a4ba76bc7c2309bc5b731f7fdd593e4c1171a5254f29aaf0be6b528ad6ae3823",
+        "size_bytes": 5074
       },
       {
         "path": "schemas/collection-governance-config.schema.json",
@@ -2099,6 +2099,121 @@
         "path": "vectors/Challenge/v8.6.0/valid/canonical-054-other-annotate-only.json",
         "sha256": "69298a07e60fd70074b9a8960a045eb80517fea20ff53832d4796f21e49eb622",
         "size_bytes": 613
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid-cross-field/crs2-and-crs4-combined-rejected.json",
+        "sha256": "e7da5d5c2b9275f763c5646a45ab4c063fddbad89427de0b412d1820dea9e8ed",
+        "size_bytes": 1021
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid-cross-field/crs2-failed-without-failure-mode-rejected.json",
+        "sha256": "c926b4bd53a4d0a5c44b4bd85d0bebac12a66bfdf5ca3888149beb1e1b799c95",
+        "size_bytes": 595
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid-cross-field/crs2-failure-mode-on-non-failed-rejected.json",
+        "sha256": "2ea9c7da8a36fc9607416a99427d75ebffb25eca715cb804d1cae4c1a9b520af",
+        "size_bytes": 678
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid-cross-field/crs4-duplicate-repo-slug-rejected.json",
+        "sha256": "f6577edf70c891c2e163cce8cc4e5d2f804f85682ea7333d094d0f5bf0a6e3c2",
+        "size_bytes": 978
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "bac2d8dbd653de95e2fad5b3be44171ee28dc63cd688b711caca6e8570ff61d6",
+        "size_bytes": 579
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/additional-property-on-repo-entry-rejected.json",
+        "sha256": "43695b0e467823aefc440a0b9b146b38301ee60ed10c96a33eaf8cfeaddb113c",
+        "size_bytes": 569
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "1c3c357e99ad33cd9c011b21ac0a99680c85e0928bb229599464b46cebec4aeb",
+        "size_bytes": 567
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/epic-status-out-of-vocab-rejected.json",
+        "sha256": "3f7ec1ac38015ef1cc3bb64cf0ccc345a0e54812ce7acd1ecb55022e51fdfb33",
+        "size_bytes": 579
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/phase-envelope-chain-root-not-sha256-rejected.json",
+        "sha256": "7f8a1ebd692d600b65b640e3bcc6e6fea823a92add2b54729b20433900b975c1",
+        "size_bytes": 581
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/repo-slug-pattern-violation-rejected.json",
+        "sha256": "3d25128d40fbae82f364d0a8ba5c65b851fee533fdb863a37f7dc630d586303a",
+        "size_bytes": 545
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/repos-empty-array-rejected.json",
+        "sha256": "04e51417cdb50b8c6e55362cef59534e1cdaba2e42844a11cdfaf6eb4f41208b",
+        "size_bytes": 276
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/ts-started-fractional-rejected.json",
+        "sha256": "d3dbfde2ad5c5c1cf66f7bfb71d68976e04acc57e94ee0445225ffbf970c2cae",
+        "size_bytes": 586
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/invalid/ts-started-non-utc-rejected.json",
+        "sha256": "3248d98982850070ff7f0e9431aaf4ea219381d0e252960fd851b0d0c4dde364",
+        "size_bytes": 543
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-001-single-repo-queued.json",
+        "sha256": "295bed6c408a26fd240134378f289f0c2a37875d1d71fa44d0a2f3f23dfc3732",
+        "size_bytes": 519
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-002-three-repos-running.json",
+        "sha256": "0628b06bbabd9d297a7990a690121cd185dbf8fbe5c77203c3a5aa162f3c37c1",
+        "size_bytes": 1103
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-003-mixed-statuses-no-failed.json",
+        "sha256": "fc415b1865c090a7e236c49898e75447adfcb4632f859de87c8c7597f88c830b",
+        "size_bytes": 1018
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-004-single-repo-failed.json",
+        "sha256": "43a6f4f309ef4a1956dfebd212c26340f67b5121a54bf8daa7c3a5b6ea147faf",
+        "size_bytes": 622
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-005-mixed-with-failed.json",
+        "sha256": "85cfd1bf705b16c285839561bfff5b54d895106dc95c098098663501c3b44a0c",
+        "size_bytes": 1146
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-006-all-completed.json",
+        "sha256": "9c9ab978a44a2901501e99e5983bfcda5edfaa3f10cd6f78dd9c9228c94abac0",
+        "size_bytes": 843
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-007-all-failed.json",
+        "sha256": "1c3df82ca2d2d261905d6be5ef06ebf822107c8566073e6b1afebc54cc79ae57",
+        "size_bytes": 929
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-008-failure-mode-max-length.json",
+        "sha256": "5f0f159e0f7576a0bb79d2b05161f62841cedc9ce5c0da0d56d657be4090682d",
+        "size_bytes": 805
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-009-failure-mode-min-length.json",
+        "sha256": "d29a4f86024f3e50f054583edbc86f2b084b251bdc6475af8e0198b4127d17e6",
+        "size_bytes": 547
+      },
+      {
+        "path": "vectors/ClusterRunSeries/v8.7.0/valid/cluster-010-many-repos.json",
+        "sha256": "342a968467052cc9f03dbc466230280ea762e17d85b0f16545c32ebf799ed77f",
+        "size_bytes": 2148
       },
       {
         "path": "vectors/CommitmentRoot/invalid/extra-field.json",
@@ -6828,6 +6943,11 @@
         "size_bytes": 7634
       },
       {
+        "path": "constraints/ClusterRunSeries.constraints.json",
+        "sha256": "048c16e469dd4e51ee32c05caa2d0ef0699556099367eebb7d3090e68dcf64c0",
+        "size_bytes": 8996
+      },
+      {
         "path": "constraints/CollectionGovernanceConfig.constraints.json",
         "sha256": "b8e415d34cd905af1792fae9eb05d69f2500e3c3c9e30bc33e7efca04b40a455",
         "size_bytes": 1393
@@ -7416,8 +7536,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "f844646797b824de568a7696b9a9e271662a11920e814991d306f6ad0fa35a2a",
-        "size_bytes": 84897
+        "sha256": "94b11556b6fe95403895ff96171ae24bbd717b46a90d3daf8330a719d4e24503",
+        "size_bytes": 85334
       },
       {
         "path": "schemas/schemastore-catalog.json",

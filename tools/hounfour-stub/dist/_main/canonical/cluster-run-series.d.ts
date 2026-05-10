@@ -41,17 +41,122 @@
  *   - CRS-4: `repos[*].repo_slug` distinct within a series —
  *     library-evaluable via LOCAL helper `array_field_distinct`.
  *
+ * **`$id` convention** (mirrors CanonicalRun / PhaseKind precedent):
+ * the TypeBox-internal `$id` values declared in this file
+ * (`'ClusterRunSeries'`, `'ClusterRunSeriesRepoEntry'`,
+ * `'ClusterRunRepoStatus'`) are short tokens used by the TypeBox type
+ * system for self-reference within the runtime. They are
+ * **overridden at JSON Schema generation time** by
+ * `scripts/generate-schemas.ts` (line ~607) to the canonical
+ * versioned URI form:
+ * `https://schemas.0xhoneyjar.com/loa-hounfour/<CONTRACT_VERSION>/<name>`.
+ * Standalone JSON Schema consumers (Python `jsonschema`, Go
+ * `gojsonschema`, Rust `jsonschema`) only ever see the URI form.
+ * The nested-`$id` values on sub-schemas are stripped by
+ * `scripts/schema-postprocess.ts#stripNestedIds` so the generated
+ * artifact carries exactly one unambiguous identifier (the URI).
+ *
  * @see RFC docs/rfcs/v8.7.0-conformance-measurability.md §3.1
  * @see ADR-010 — class-vs-policy boundary (consumers compute
  *      conformance %; hounfour ships shape).
- * @since v8.7.0 — FR-G1.
+ * @since v8.7.0 — FR-G1 (PR-A4.1).
  */
 import { type Static } from '@sinclair/typebox';
 /**
- * @internal
- * Stub placeholder — replaced with full schema body in PR-A4.1.
- * Validating any payload against this returns `false`.
+ * `ClusterRunRepoStatusSchema` — locked per-repo EPIC status enum.
+ *
+ * Promotion to a discriminated union keyed on `epic_status` is deferred
+ * to v8.8.0+ pending consumer-corpus signal. v8.7.0 ships the union of
+ * literals; CRS-2 (failure_mode iff failed) is enforced at the
+ * cross-field tier instead.
+ *
+ * @since v8.7.0 — FR-G1 (PR-A4.1).
  */
-export declare const ClusterRunSeriesSchema: import("@sinclair/typebox").TNever;
+export declare const ClusterRunRepoStatusSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"queued">, import("@sinclair/typebox").TLiteral<"running">, import("@sinclair/typebox").TLiteral<"completed">, import("@sinclair/typebox").TLiteral<"failed">]>;
+export type ClusterRunRepoStatus = Static<typeof ClusterRunRepoStatusSchema>;
+/**
+ * `ClusterRunSeriesRepoEntrySchema` — one entry in
+ * `ClusterRunSeriesSchema.repos`. Hoisted so the cross-runner
+ * conformance suite can validate per-element shape independently of
+ * the parent envelope.
+ *
+ * @since v8.7.0 — FR-G1 (PR-A4.1).
+ */
+export declare const ClusterRunSeriesRepoEntrySchema: import("@sinclair/typebox").TObject<{
+    repo_slug: import("@sinclair/typebox").TString;
+    canonical_run_id: import("@sinclair/typebox").TString;
+    epic_status: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"queued">, import("@sinclair/typebox").TLiteral<"running">, import("@sinclair/typebox").TLiteral<"completed">, import("@sinclair/typebox").TLiteral<"failed">]>;
+    failure_mode: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TNull]>;
+    phase_envelope_chain_root: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TNull]>;
+}>;
+export type ClusterRunSeriesRepoEntry = Static<typeof ClusterRunSeriesRepoEntrySchema>;
+export declare const ClusterRunSeriesSchema: import("@sinclair/typebox").TObject<{
+    envelope_kind: import("@sinclair/typebox").TLiteral<"cluster_run_series">;
+    contract_version: import("@sinclair/typebox").TLiteral<"8.7.0">;
+    run_id: import("@sinclair/typebox").TString;
+    cluster_id: import("@sinclair/typebox").TString;
+    ts_started: import("@sinclair/typebox").TString;
+    repos: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+        repo_slug: import("@sinclair/typebox").TString;
+        canonical_run_id: import("@sinclair/typebox").TString;
+        epic_status: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"queued">, import("@sinclair/typebox").TLiteral<"running">, import("@sinclair/typebox").TLiteral<"completed">, import("@sinclair/typebox").TLiteral<"failed">]>;
+        failure_mode: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TNull]>;
+        phase_envelope_chain_root: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TNull]>;
+    }>>;
+}>;
 export type ClusterRunSeries = Static<typeof ClusterRunSeriesSchema>;
+/**
+ * `validateClusterRunSeries` — pure-function evaluator for the cross-
+ * field invariants CRS-2 (failure_mode iff failed status, per element)
+ * and CRS-4 (repo_slug distinctness within the series).
+ *
+ * **Source of truth** for CRS-2 and CRS-4. Registered into the global
+ * cross-field validator registry by `src/validators/index.ts`; exported
+ * here so:
+ *
+ *   - tests can exercise the cross-field tier in isolation without
+ *     bypassing the structural Value.Check tier;
+ *   - cross-language reference implementations (FR-A2 / TS-as-golden-
+ *     corpus per AT-1) have a single TS function to mirror.
+ *
+ * **Defensive contract** (mirrors the CanonicalRun CR-1 precedent): the
+ * function MUST NOT throw on malformed input. Direct callers bypassing
+ * the structural tier (Value.Check) receive a tagged precondition
+ * error rather than a TypeError. Under the standard `validate(...)`
+ * pipeline this defensive path is unreachable — Value.Check rejects
+ * non-array `repos`, null elements, missing fields, and out-of-vocab
+ * `epic_status` at the structural tier first.
+ *
+ * **Accumulated-error preservation** (CR-1 precedent): if a per-element
+ * shape guard trips mid-iteration, the function MUST NOT discard
+ * cross-field errors already accumulated against earlier well-shaped
+ * entries. Each malformed element emits its own per-element
+ * structural-precondition error; well-shaped entries continue to be
+ * checked against CRS-2 / CRS-4.
+ *
+ * **CRS-1 is NOT enforced here** — it is a TypeBox `enum` constraint
+ * (Type.Union of literals) handled at the structural tier. The
+ * constraint-file entry for CRS-1 is a redundant declaratory record
+ * mirroring the cycle-005 cycle-pattern (per CanonicalRun precedent
+ * for documenting library-evaluable invariants in the constraint file).
+ *
+ * **CRS-3 is consumer-state** per ADR-010 — cross-runtime byte-
+ * identity is verified by the FR-A2 cross-language harness, not by
+ * this validator. Manifest emission is the consumer's responsibility
+ * via the `CLUSTER_RUN_SERIES_CROSS_RUNTIME_CONTEXT_DEFERRED` reason.
+ *
+ * @param data — record to evaluate; the function defends against
+ *   malformed input (non-array repos, non-object entries, missing
+ *   fields) without throwing.
+ * @returns `{ valid, errors, warnings }` — `errors` carries CRS-2 /
+ *   CRS-4-tagged strings naming the offending index/value for
+ *   actionability.
+ *
+ * @since v8.7.0 — FR-G1 (PR-A4.1).
+ */
+export declare function validateClusterRunSeries(data: unknown): {
+    valid: boolean;
+    errors: string[];
+    warnings: string[];
+};
 //# sourceMappingURL=cluster-run-series.d.ts.map

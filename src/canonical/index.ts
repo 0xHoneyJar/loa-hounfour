@@ -19,13 +19,17 @@ export {
   type RequiredPhase,
 } from './canonical-run.js';
 
-// v8.7.0 cluster-level coordination schemas — STUBs in PR-A4.0;
-// full bodies land in PR-A4.1..A4.5. Each stub returns Type.Never()
-// so any payload fails validation against it, signaling the schema
-// is not yet ready for consumer use at the alpha tag.
+// v8.7.0 cluster-level coordination schemas. ClusterRunSeries body
+// lands in PR-A4.1; remaining four schemas are STUBs (Type.Never())
+// until their respective PRs ship in PR-A4.2..A4.5.
 export {
   ClusterRunSeriesSchema,
+  ClusterRunRepoStatusSchema,
+  ClusterRunSeriesRepoEntrySchema,
+  validateClusterRunSeries,
   type ClusterRunSeries,
+  type ClusterRunRepoStatus,
+  type ClusterRunSeriesRepoEntry,
 } from './cluster-run-series.js';
 export {
   InterSeriesScopingArtifactSchema,

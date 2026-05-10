@@ -109,6 +109,8 @@ var Schemas = []SchemaReg{
 	{"PlanAmendmentRequest", "v8.6.0", []string{"valid", "invalid"}},
 	{"Challenge", "v8.6.0", []string{"valid", "invalid"}},
 	{"CanonicalRun", "v8.6.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.1 (FR-G1).
+	{"ClusterRunSeries", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
 }
 
 type ManifestEntry struct {

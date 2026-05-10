@@ -1,0 +1,62 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ClusterRunSeries",
+  "origin": "genesis",
+  "contract_version": "8.7.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "CRS-1",
+      "expression": "repos[*].epic_status MUST be a member of the locked enum {queued, running, completed, failed} — TypeBox enforces this at the structural tier via Type.Union of Type.Literal members; this entry is a redundant declaratory record so consumers reading the constraint file see the full invariant set without cross-referencing the schema. Direct callers bypassing Value.Check (e.g. invoking the cross-field validator alone) MUST treat out-of-vocab epic_status values as cross-field structural-precondition errors per the cluster-run-series.ts validateClusterRunSeries contract.",
+      "severity": "error",
+      "message": "ClusterRunSeries.repos[*].epic_status MUST be one of: queued, running, completed, failed. Out-of-vocab values break consumer-side per-status conformance aggregation; the locked enum is the cross-runtime alignment surface for cross-language conformance scoring.",
+      "fields": ["repos"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier (Type.Union of Type.Literal). Cross-language runners (Python / Go / Rust per FR-A2) MUST recognize the same four literals; corpus extension in vectors/runners/{python,go,rust}/* drives byte-identical agreement on rejection of out-of-vocab values. The constraint-file entry is the documentary anchor — `evaluator: 'library'` reflects that no runtime-deferred consumer policy applies.",
+      "type_signature": {
+        "repos": "array"
+      }
+    },
+    {
+      "id": "CRS-2",
+      "expression": "for each entry in repos[*]: failure_mode != null ↔ epic_status === 'failed'. Concretely: when epic_status is 'failed' the entry MUST carry a non-null failure_mode classifier value — a string of length 1 to 256; for any other epic_status the failure_mode field MUST be null. The biconditional is enforced per-element; aggregate behavior across the repos array is consumer-shaped — no schema-level aggregation invariant applies.",
+      "severity": "error",
+      "message": "ClusterRunSeries.repos[*] MUST satisfy: failure_mode != null iff epic_status === 'failed'. A failed entry without a failure_mode classifier blinds consumers to the upstream master-plan §5.0.B failure-mode classification; a non-null failure_mode on a non-failed entry breaks the consumer's status-to-failure-mode alignment (consumers expect the field to be a sentinel populated only on the failed path).",
+      "fields": ["repos"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces CRS-2 inline at validate() time** — see `src/validators/index.ts` `registerCrossFieldValidator('ClusterRunSeries', ...)` — so a TS consumer running `validate(ClusterRunSeriesSchema, payload)` receives `{ valid: false, errors: ['CRS-2: ...'] }` on a malformed payload. Per AT-1 (reference-TS-implementation-is-the-golden-corpus), cross-language runners (Python / Go / Rust per FR-A2) MUST re-implement the same per-element predicate per-runtime so cross-runner conformance is well-defined. Marked `runtime-deferred` rather than `library` because the cycle-005 cycle-pattern reserves `evaluator: 'library'` for constraint expressions that name a registered builtin in `EVALUATOR_BUILTINS`; the per-element predicate `failure_mode_iff_failed_status` is LOCAL (inline only, NOT a DSL primitive) per SDD §4.6 — promotion gates on consumer-corpus signal of a second use site. **What would change the lock:** if a future schema introduces a similar status-iff-classifier per-element shape, generalize to a registered DSL builtin and re-mark CRS-2 as `evaluator: 'library'`.",
+      "type_signature": {
+        "repos": "array"
+      }
+    },
+    {
+      "id": "CRS-3",
+      "expression": "consumer computes cross-language byte-identical canonicalization for ClusterRunSeries — TS + Python + Go + Rust runners produce identical canonical-JSON bytes for identical input objects. Round-trip parse and re-serialize is bit-identical for every well-formed payload, when the payload is the JSON-stringified canonical form.",
+      "severity": "warning",
+      "message": "ClusterRunSeries ships only the shape; cross-runner byte-identity is consumer-side per ADR-010. The schema pins ts_started to Z-only second precision (TS_STARTED_Z_ONLY_PATTERN) so producers across runtimes emit `2026-05-09T00:00:00Z` byte-identical without per-deployment fractional-digit negotiation, but consumers must select a canonical-JSON serializer that emits keys in the schema-authored order.",
+      "fields": ["envelope_kind", "contract_version", "run_id", "cluster_id", "ts_started", "repos"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-language conformance contract. Per RFC §3.1 / ADR-010, hounfour ships shape; the cross-runner byte-identity verification is consumer-side. The TS reference implementation uses `JSON.stringify` with key ordering as authored by the schema; cross-language runners MUST emit keys in the same order (Go: a canonical-JSON library or `encoding/json` with field-tagged order; Python: `json.dumps(payload, sort_keys=False)` with explicit dict ordering matching the schema field order; Rust: `serde_json::to_string` with the `preserve_order` feature on `Map`). The conformance vector test suite at `tests/canonical/cluster-run-series.test.ts` exercises both layers — structural via Value.Check + cross-field via validate() — for every fixture, mirroring the cycle-005 PR-A3.5 two-layer vector-runner discipline established for CanonicalRun (CR-3). **Lock-de-scope rationale (proactive disposition per Vision 009):** consumer-side byte-identity is the established cycle-005 cycle-pattern for cross-language runtime concerns — see CR-3 (CanonicalRun cross-language conformance), CHL-3 (Challenge type/effect acceptance gate). Hounfour does NOT freeze the cross-runner canonicalization algorithm in v8.7.0 — that surface stabilizes when the FR-A2 cross-language runner harness has accumulated empirical conformance traces across all four runtimes for cycle-007 schemas. **Manifest emission**: when a consumer's `validate(...)` wrapper has not supplied cross-runtime context, attach `CLUSTER_RUN_SERIES_CROSS_RUNTIME_CONTEXT_DEFERRED` to the consumer's UnverifiedObligationsManifest at runtime. **What would change the lock:** a frozen cross-runner canonicalization contract requires (1) reaching cross-runner-stable behavior across all v8.7.0 schemas in the FR-A2 harness; (2) v9.0.0 contract bump; (3) ADR for the canonicalization-policy boundary.",
+      "type_signature": {
+        "envelope_kind": "string",
+        "contract_version": "string",
+        "run_id": "string",
+        "cluster_id": "string",
+        "ts_started": "string",
+        "repos": "array"
+      }
+    },
+    {
+      "id": "CRS-4",
+      "expression": "repos[*].repo_slug values MUST be distinct within a single ClusterRunSeries — no two entries in the repos array may share the same repo_slug. Aggregate-cluster repo_slug uniqueness across multiple ClusterRunSeries records is consumer-state via a consumer-side registry, not enforced at the schema level.",
+      "severity": "error",
+      "message": "ClusterRunSeries.repos[*].repo_slug MUST be distinct within a series. Duplicate repo_slug entries ambiguate the consumer's per-repo conformance aggregation — the join from ClusterRunSeries.repos to per-repo PhaseCompletionEnvelope chains relies on repo_slug equality, and a duplicate would produce non-deterministic chain selection.",
+      "fields": ["repos"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces CRS-4 inline at validate() time** via the same `validateClusterRunSeries` cross-field validator that enforces CRS-2 — see `src/validators/index.ts` `registerCrossFieldValidator('ClusterRunSeries', ...)`. Per AT-1, cross-language runners MUST re-implement the per-array distinctness check per-runtime. Marked `runtime-deferred` rather than `library` because the per-element `array_field_distinct` helper is LOCAL (inline only, NOT a DSL primitive) per SDD §4.6 — multiple cycle-007 schemas (CRS-4, ISSA-2, SPS-2, RL-1, RL-12) will use this shape, and promotion to a DSL primitive is the planned cycle-007 follow-up once all five sites have landed. **What would change the lock:** when PR-A4.5 lands and the fifth use site is in place, generalize `array_field_distinct` to a registered DSL builtin in `EVALUATOR_BUILTINS` and re-mark CRS-4 / ISSA-2 / SPS-2 / RL-1 / RL-12 as `evaluator: 'library'` in a follow-up cycle-007.x patch (or fold into PR-A4.7 final-ship).",
+      "type_signature": {
+        "repos": "array"
+      }
+    }
+  ]
+}
