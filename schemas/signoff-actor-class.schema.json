@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/signoff-actor-class",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/signoff-actor-class",
   "description": "Exhaustive 3-member enum for the actor class authorizing a plan signoff. Schema admits all three; v1 acceptance accepts only `single_operator` is a consumer-side gate per prd.md:269-271 / ADR-010, NOT a schema-level constraint.",
   "anyOf": [
     {
@@ -16,5 +16,5 @@
       "type": "string"
     }
   ],
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

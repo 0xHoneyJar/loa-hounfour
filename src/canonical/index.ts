@@ -18,3 +18,28 @@ export {
   type CanonicalRun,
   type RequiredPhase,
 } from './canonical-run.js';
+
+// v8.7.0 cluster-level coordination schemas — STUBs in PR-A4.0;
+// full bodies land in PR-A4.1..A4.5. Each stub returns Type.Never()
+// so any payload fails validation against it, signaling the schema
+// is not yet ready for consumer use at the alpha tag.
+export {
+  ClusterRunSeriesSchema,
+  type ClusterRunSeries,
+} from './cluster-run-series.js';
+export {
+  InterSeriesScopingArtifactSchema,
+  type InterSeriesScopingArtifact,
+} from './inter-series-scoping-artifact.js';
+export {
+  SubscriptionPoolStateSchema,
+  type SubscriptionPoolState,
+} from './subscription-pool-state.js';
+export {
+  RevocationListSchema,
+  type RevocationList,
+} from './revocation-list.js';
+export {
+  MergeArtifactSchema,
+  type MergeArtifact,
+} from './merge-artifact.js';

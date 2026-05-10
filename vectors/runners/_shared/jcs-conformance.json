@@ -1,0 +1,8 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/jcs-conformance-fixture.json",
+  "fixture_kind": "jcs_conformance",
+  "contract_version": "8.7.0",
+  "rfc": "RFC 8785",
+  "_pr_a4_0_note": "STUB — PR-A4.0 reservation. The full 20+ adversarial-input fixture landing in PR-A4.1 (per RFC docs/rfcs/v8.7.0-conformance-measurability.md §5). cycle-007's cross-runner CI gate asserts TS + Python + Go + Rust produce byte-identical JCS-canonical-form for each fixture. Categories planned for the full fixture: (a) Unicode pre/post-NFC normalization (combining-character vs precomposed); (b) integer boundary at 2^53 + 1; (c) hash-key ordering with non-ASCII keys (lexicographic on UTF-16 code units); (d) control-character JSON-escaping; (e) deeply-nested structures (10+ levels); (f) large arrays (1024+ entries); (g) trailing whitespace stripping; (h) BOM handling.",
+  "fixtures": []
+}

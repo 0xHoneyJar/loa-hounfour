@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/phase-completion-envelope-tier1",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/phase-completion-envelope-tier1",
   "additionalProperties": false,
   "x-crypto-bearing": true,
   "description": "Agent-emission Tier-1 phase-completion envelope. Wrapped by Tier-2 PhaseCompletionEnvelopeSchema for cluster ingestion. Crypto-bearing: validate() requires { acceptDeferred: true } to receive shape-only valid:true.",
@@ -65,5 +65,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/plan-amendment-request",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/plan-amendment-request",
   "additionalProperties": false,
   "x-chain-bearing": true,
   "description": "Plan-amendment proposal envelope. Chain-bearing (carries prev_envelope_hash) but NOT crypto-bearing — amendments inherit the cluster's trust context. Severity-correction (e.g. observed_failure → major) is consumer-side per prd.md:289 / ADR-010; the schema admits looser combinations so the discrepancy can be surfaced explicitly.",
@@ -162,5 +162,5 @@
       }
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

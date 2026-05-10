@@ -244,6 +244,12 @@ import {
   CanonicalRunSchema,
   RequiredPhaseSchema,
   PhaseKindSchema,
+  // v8.7.0 cycle-007 PR-A4.0 — FR-G1..G5 stubs (full bodies in PR-A4.1..A4.5)
+  ClusterRunSeriesSchema,
+  InterSeriesScopingArtifactSchema,
+  SubscriptionPoolStateSchema,
+  RevocationListSchema,
+  MergeArtifactSchema,
 } from '../src/canonical/index.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
@@ -577,6 +583,15 @@ const schemas = [
   { name: 'phase-kind', schema: PhaseKindSchema },
   { name: 'required-phase', schema: RequiredPhaseSchema },
   { name: 'canonical-run', schema: CanonicalRunSchema },
+  // v8.7.0 cycle-007 PR-A4.0 — FR-G1..G5 stubs.
+  // Stubs use Type.Never() until full bodies land in PR-A4.1..A4.5;
+  // generated JSON Schema serializes as `{ "not": {} }` which matches
+  // every payload to fail validation. Reserves the $id namespace.
+  { name: 'cluster-run-series', schema: ClusterRunSeriesSchema },
+  { name: 'inter-series-scoping-artifact', schema: InterSeriesScopingArtifactSchema },
+  { name: 'subscription-pool-state', schema: SubscriptionPoolStateSchema },
+  { name: 'revocation-list', schema: RevocationListSchema },
+  { name: 'merge-artifact', schema: MergeArtifactSchema },
 ];
 
 mkdirSync(outDir, { recursive: true });

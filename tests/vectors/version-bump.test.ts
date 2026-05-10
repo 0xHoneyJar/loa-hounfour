@@ -15,7 +15,7 @@ const root = join(__dirname, '..', '..');
 
 describe('version bump', () => {
   it('CONTRACT_VERSION matches current version', () => {
-    expect(CONTRACT_VERSION).toBe('8.6.0');
+    expect(CONTRACT_VERSION).toBe('8.7.0');
   });
 
   it('MIN_SUPPORTED_VERSION is 6.0.0', () => {
@@ -24,17 +24,17 @@ describe('version bump', () => {
 
   it('package.json version matches CONTRACT_VERSION', () => {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf-8'));
-    expect(pkg.version).toBe('8.6.0');
+    expect(pkg.version).toBe('8.7.0');
   });
 
   it('schemas/index.json version matches CONTRACT_VERSION', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
-    expect(index.version).toBe('8.6.0');
+    expect(index.version).toBe('8.7.0');
   });
 
   it('vectors/VERSION matches CONTRACT_VERSION', () => {
     const version = readFileSync(join(root, 'vectors', 'VERSION'), 'utf-8').trim();
-    expect(version).toBe('8.6.0');
+    expect(version).toBe('8.7.0');
   });
 
   it('schemas/index.json includes v5.1.0 schemas', () => {
@@ -129,7 +129,7 @@ describe('version bump', () => {
   it('schemas/index.json schema $ids all use the current contract version', () => {
     const index = JSON.parse(readFileSync(join(root, 'schemas', 'index.json'), 'utf-8'));
     for (const schema of index.schemas) {
-      expect(schema.$id).toMatch(/\/8\.6\.0\//);
+      expect(schema.$id).toMatch(/\/8\.7\.0\//);
     }
   });
 
@@ -322,6 +322,10 @@ describe('version bump', () => {
     // PR-A3.7 (FR-A1) adds 3 more: ChallengeType, ChallengeRequestedEffect,
     // Challenge → 254.
     // PR-A3.8 (FR-B1) adds 3 more: PhaseKind, RequiredPhase, CanonicalRun → 257.
-    expect(index.schemas).toHaveLength(257);
+    // cycle-007 PR-A4.0 adds 5 stub schemas (FR-G1..G5; bodies in PR-A4.1..A4.5):
+    // ClusterRunSeries, InterSeriesScopingArtifact, SubscriptionPoolState,
+    // RevocationList, MergeArtifact → 262. Stubs use Type.Never() so any
+    // payload fails validation; the $id namespace is reserved.
+    expect(index.schemas).toHaveLength(262);
   });
 });

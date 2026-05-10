@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.6.0/challenge",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/challenge",
   "additionalProperties": false,
   "x-crypto-bearing": true,
   "description": "Formal challenge envelope against an Assertion (FR-A1). Crypto-bearing — validate() defaults to CRYPTO_DEFERRED; consumers opting in via { acceptDeferred: true } receive the unverified-obligations manifest entry for the Ed25519 signature verification. Composes with v8.5.0 Assertion via target_assertion_id lazy-link string reference.",
@@ -141,5 +141,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.6.0, min_supported=6.0.0"
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

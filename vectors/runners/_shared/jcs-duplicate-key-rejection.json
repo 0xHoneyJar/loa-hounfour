@@ -1,0 +1,8 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/jcs-duplicate-key-rejection-fixture.json",
+  "fixture_kind": "jcs_duplicate_key_rejection",
+  "contract_version": "8.7.0",
+  "rfc": "RFC 8785 §3.2.3",
+  "_pr_a4_0_note": "STUB — PR-A4.0 reservation. The 5-fixture full set lands in PR-A4.1 alongside ClusterRunSeriesSchema (per RFC docs/rfcs/v8.7.0-conformance-measurability.md §5). Each fixture contains duplicate keys at various nesting depths (root, nested object, array element). Cross-runner gate asserts ALL 4 runners reject these as malformed JSON BEFORE schema validation. Some JSON parsers silently accept duplicates and use last-key-wins, which would cause cross-runner divergence.",
+  "fixtures": []
+}
