@@ -1,7 +1,100 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/cluster-run-series",
-  "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.1.",
-  "not": {},
+  "additionalProperties": false,
+  "description": "Multi-repo run state envelope. Captures per-repo EPIC status across a cluster-spanning workstream. NOT crypto-bearing; NOT chain-bearing at the cluster-run level — chain-bearing primitives are the per-repo PhaseCompletionEnvelope records (FR-B2, v8.6.0) referenced via the optional phase_envelope_chain_root lazy-link. Round-trip parse + re-serialize bit-identical: every well-formed payload `s` satisfies `JSON.stringify(JSON.parse(s)) === s` when `s` is itself the JSON-stringified canonical form.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "run_id",
+    "cluster_id",
+    "ts_started",
+    "repos"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator pinning this envelope shape.",
+      "const": "cluster_run_series",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.7.0\" for the cycle-007 ship line.",
+      "const": "8.7.0",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "description": "Stable opaque series identifier. Consumer-shaped namespace.",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Consumer-shaped cluster identifier.",
+      "type": "string"
+    },
+    "ts_started": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO 8601 UTC timestamp at which this cluster run series started (Z suffix). **Fractional-second precision is NOT admitted**: the wire format is locked to second precision via TS_STARTED_Z_ONLY_PATTERN so cross-runner byte-identity (CRS-3) holds without per-deployment fractional-digit negotiation. Mirrors CanonicalRun.ts_authored discipline from v8.6.0 PR-A3.8 iter-5.",
+      "type": "string"
+    },
+    "repos": {
+      "minItems": 1,
+      "description": "Non-empty array of per-repo entries. Order is consumer-shaped (no schema-level ordering invariant). Per-series repo_slug distinctness is CRS-4.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "One per-repo entry within a ClusterRunSeries. Cross-element invariants (repo_slug distinctness, failure_mode iff failed) live in CRS-2 / CRS-4.",
+        "type": "object",
+        "required": [
+          "repo_slug",
+          "canonical_run_id",
+          "epic_status",
+          "failure_mode",
+          "phase_envelope_chain_root"
+        ],
+        "properties": {
+          "repo_slug": {
+            "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+            "description": "GitHub-shaped owner/name slug. Consumer-shaped namespace; hounfour does not freeze the registry. Per-series distinctness is CRS-4.",
+            "type": "string"
+          },
+          "canonical_run_id": {
+            "minLength": 1,
+            "description": "Lazy-link to a CanonicalRunSchema (FR-B1, v8.6.0) record. Resolution is consumer-state per ADR-010 — hounfour does not bundle a registry implementation.",
+            "type": "string"
+          },
+          "epic_status": {
+            "$ref": "ClusterRunRepoStatus"
+          },
+          "failure_mode": {
+            "description": "Free-form failure-mode classifier. MUST be null when epic_status ≠ \"failed\", and non-null when epic_status = \"failed\" (CRS-2). Promotion to a discriminated union is deferred to v8.8.0+ pending consumer-corpus signal.",
+            "anyOf": [
+              {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phase_envelope_chain_root": {
+            "description": "Optional lazy-link to the per-repo PhaseCompletionEnvelope chain root (SHA-256 of the chain-tail envelope). Null if no envelopes have been emitted yet for this repo. Resolution is consumer-state per ADR-010.",
+            "anyOf": [
+              {
+                "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
   "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

@@ -1,0 +1,31 @@
+{
+  "_comment": "Three-repo cluster, all running. Each carries a chain-root SHA-256 from per-repo PhaseCompletionEnvelope chains.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-002",
+  "cluster_id": "cluster-honeyjar-prod",
+  "ts_started": "2026-05-09T01:30:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/loa-finn",
+      "canonical_run_id": "canonical-run-finn-001",
+      "epic_status": "running",
+      "failure_mode": null,
+      "phase_envelope_chain_root": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    {
+      "repo_slug": "0xhoneyjar/loa-dixie",
+      "canonical_run_id": "canonical-run-dixie-001",
+      "epic_status": "running",
+      "failure_mode": null,
+      "phase_envelope_chain_root": "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+    },
+    {
+      "repo_slug": "0xhoneyjar/loa-freeside",
+      "canonical_run_id": "canonical-run-freeside-001",
+      "epic_status": "running",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    }
+  ]
+}

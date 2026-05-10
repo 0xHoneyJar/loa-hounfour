@@ -1,0 +1,17 @@
+{
+  "_comment": "Structural fail: contract_version pinned to '8.7.0' literal; '8.6.0' is rejected because cycle-007 schemas require the cycle-007 ship-line pin.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.6.0",
+  "run_id": "cluster-run-wrong-version",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-x",
+      "canonical_run_id": "canonical-run-x-001",
+      "epic_status": "queued",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    }
+  ]
+}

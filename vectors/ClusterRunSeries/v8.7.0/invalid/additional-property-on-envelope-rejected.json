@@ -1,0 +1,18 @@
+{
+  "_comment": "Structural fail: top-level envelope carries an extra `extra_field` not declared in the schema. additionalProperties: false rejects.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-extra",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "extra_field": "not-allowed",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-x",
+      "canonical_run_id": "canonical-run-x-001",
+      "epic_status": "queued",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "_comment": "Structural fail: repos array is empty; minItems: 1 is enforced.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-empty",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "repos": []
+}

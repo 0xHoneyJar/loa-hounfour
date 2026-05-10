@@ -1,0 +1,24 @@
+{
+  "_comment": "Cluster where every repo has completed — terminal-success state for the series.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-006",
+  "cluster_id": "cluster-shipped",
+  "ts_started": "2026-05-09T05:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-x",
+      "canonical_run_id": "canonical-run-x-001",
+      "epic_status": "completed",
+      "failure_mode": null,
+      "phase_envelope_chain_root": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    },
+    {
+      "repo_slug": "0xhoneyjar/repo-y",
+      "canonical_run_id": "canonical-run-y-001",
+      "epic_status": "completed",
+      "failure_mode": null,
+      "phase_envelope_chain_root": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    }
+  ]
+}

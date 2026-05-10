@@ -1,0 +1,31 @@
+{
+  "_comment": "CRS-4 fail: repo_slug 0xhoneyjar/repo-dup appears at indices 0 and 2. Structurally valid; cross-field distinctness check rejects.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-crs4-duplicate-slug",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-dup",
+      "canonical_run_id": "canonical-run-dup-001",
+      "epic_status": "running",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    },
+    {
+      "repo_slug": "0xhoneyjar/repo-other",
+      "canonical_run_id": "canonical-run-other-001",
+      "epic_status": "queued",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    },
+    {
+      "repo_slug": "0xhoneyjar/repo-dup",
+      "canonical_run_id": "canonical-run-dup-002",
+      "epic_status": "queued",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "_comment": "CRS-1 fail (structural): epic_status='abandoned' is not in the locked enum {queued, running, completed, failed}. TypeBox Type.Union rejects at Value.Check.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-bad-status",
+  "cluster_id": "cluster-edge",
+  "ts_started": "2026-05-09T00:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/repo-x",
+      "canonical_run_id": "canonical-run-x-001",
+      "epic_status": "abandoned",
+      "failure_mode": null,
+      "phase_envelope_chain_root": null
+    }
+  ]
+}
