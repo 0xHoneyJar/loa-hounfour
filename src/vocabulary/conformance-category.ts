@@ -56,6 +56,8 @@ export const ConformanceCategorySchema = Type.Union(
     // v8.3.0 — Consumer Contracts + GovernedResource Runtime
     Type.Literal('consumer-contract'),
     Type.Literal('governed-resource-runtime'),
+    // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
+    Type.Literal('recall-wedge'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -115,4 +117,6 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   // v8.3.0 — Consumer Contracts + GovernedResource Runtime
   'consumer-contract',
   'governed-resource-runtime',
+  // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
+  'recall-wedge',
 ] as const;

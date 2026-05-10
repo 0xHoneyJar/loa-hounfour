@@ -20,6 +20,7 @@ import { LifecycleTransitionPayloadSchema } from '../src/schemas/lifecycle-event
 import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../src/schemas/capability.js';
 import { ProtocolDiscoverySchema } from '../src/schemas/discovery.js';
 import { SagaContextSchema } from '../src/schemas/saga-context.js';
+import { ConformanceVectorSchema } from '../src/schemas/model/conformance-vector.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -52,6 +53,7 @@ const schemas = [
   { name: 'capability-response', schema: CapabilityResponseSchema },
   { name: 'protocol-discovery', schema: ProtocolDiscoverySchema },
   { name: 'saga-context', schema: SagaContextSchema },
+  { name: 'conformance-vector', schema: ConformanceVectorSchema },
 ];
 
 let stale = false;

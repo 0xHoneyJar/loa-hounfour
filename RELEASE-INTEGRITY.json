@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-10T10:38:04.682Z",
+  "generated_at": "2026-05-10T15:44:19.104Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1105,
+    "vectors": 1110,
     "constraints": 136,
     "manifests": 2,
-    "total": 1505
+    "total": 1510
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -345,8 +345,8 @@
       },
       {
         "path": "schemas/conformance-vector.schema.json",
-        "sha256": "acff9db4afed150e1cd5b63618beb2c03b2dd9ab0671aa488eb3e4d84a359a6f",
-        "size_bytes": 7337
+        "sha256": "b9d61636aa590fa8a5ee8e98b17b95603bde5c42f9f2b246b94833b59eaa7748",
+        "size_bytes": 7420
       },
       {
         "path": "schemas/conservation-property-registry.schema.json",
@@ -5859,6 +5859,31 @@
         "path": "vectors/conformance/provider-normalization/openai-tool-calls.json",
         "sha256": "1716c674df9543a06f43eb0df771d16b357cf694b65be3ff0d8b127b5bef29e3",
         "size_bytes": 1183
+      },
+      {
+        "path": "vectors/conformance/recall-wedge/assertion-admitted.json",
+        "sha256": "21dd16aa35d44d65c6ffafc009f2eb5a9c9ff26cd46140e24f91988b2582f9d1",
+        "size_bytes": 1580
+      },
+      {
+        "path": "vectors/conformance/recall-wedge/commitment-root.json",
+        "sha256": "bacadada840bec57a2b735c223157e4734205db171782c2487a47b7c37db74d5",
+        "size_bytes": 771
+      },
+      {
+        "path": "vectors/conformance/recall-wedge/recall-pack.json",
+        "sha256": "176e5a9b10f685c1ced6ece3f63d86dba616e4c9db28985fbfdec8f6575532b8",
+        "size_bytes": 1221
+      },
+      {
+        "path": "vectors/conformance/recall-wedge/recall-receipt.json",
+        "sha256": "d2e2dea3e1c7e400a1840e2f301e77c9be9b4617a9fb2753b2587d36bd5649f2",
+        "size_bytes": 1323
+      },
+      {
+        "path": "vectors/conformance/recall-wedge/recall-request.json",
+        "sha256": "920f2f18c79dcb346218752af69dcfaf3feb43f81db3d9a6101b7b28b0b92ac1",
+        "size_bytes": 770
       },
       {
         "path": "vectors/conformance/registry-bridge/duplicate-invariant-ids.json",
