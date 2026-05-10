@@ -1,0 +1,17 @@
+{
+  "_comment": "Single failed repo carrying a failure_mode classifier (CRS-2: failed iff failure_mode non-null).",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "run_id": "cluster-run-004",
+  "cluster_id": "cluster-honeyjar-prod",
+  "ts_started": "2026-05-09T03:00:00Z",
+  "repos": [
+    {
+      "repo_slug": "0xhoneyjar/loa-finn",
+      "canonical_run_id": "canonical-run-finn-fail-001",
+      "epic_status": "failed",
+      "failure_mode": "phase-D-gate-spec-mismatch",
+      "phase_envelope_chain_root": "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    }
+  ]
+}

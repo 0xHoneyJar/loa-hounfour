@@ -8,7 +8,7 @@
  */
 export { PHASE_KINDS, PhaseKindSchema, type PhaseKind, } from './phase-kinds.js';
 export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, type CanonicalRun, type RequiredPhase, } from './canonical-run.js';
-export { ClusterRunSeriesSchema, type ClusterRunSeries, } from './cluster-run-series.js';
+export { ClusterRunSeriesSchema, ClusterRunRepoStatusSchema, ClusterRunSeriesRepoEntrySchema, validateClusterRunSeries, type ClusterRunSeries, type ClusterRunRepoStatus, type ClusterRunSeriesRepoEntry, } from './cluster-run-series.js';
 export { InterSeriesScopingArtifactSchema, type InterSeriesScopingArtifact, } from './inter-series-scoping-artifact.js';
 export { SubscriptionPoolStateSchema, type SubscriptionPoolState, } from './subscription-pool-state.js';
 export { RevocationListSchema, type RevocationList, } from './revocation-list.js';

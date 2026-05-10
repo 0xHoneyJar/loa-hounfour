@@ -184,6 +184,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'Challenge',
     // v8.6.0 PR-A3.8 — FR-B1 CanonicalRun.
     'CanonicalRun',
+    // v8.7.0 PR-A4.1 — FR-G1 ClusterRunSeries.
+    'ClusterRunSeries',
   ];
 
   it('returns an array of strings', () => {
