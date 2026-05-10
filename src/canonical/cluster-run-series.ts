@@ -41,6 +41,21 @@
  *   - CRS-4: `repos[*].repo_slug` distinct within a series —
  *     library-evaluable via LOCAL helper `array_field_distinct`.
  *
+ * **`$id` convention** (mirrors CanonicalRun / PhaseKind precedent):
+ * the TypeBox-internal `$id` values declared in this file
+ * (`'ClusterRunSeries'`, `'ClusterRunSeriesRepoEntry'`,
+ * `'ClusterRunRepoStatus'`) are short tokens used by the TypeBox type
+ * system for self-reference within the runtime. They are
+ * **overridden at JSON Schema generation time** by
+ * `scripts/generate-schemas.ts` (line ~607) to the canonical
+ * versioned URI form:
+ * `https://schemas.0xhoneyjar.com/loa-hounfour/<CONTRACT_VERSION>/<name>`.
+ * Standalone JSON Schema consumers (Python `jsonschema`, Go
+ * `gojsonschema`, Rust `jsonschema`) only ever see the URI form.
+ * The nested-`$id` values on sub-schemas are stripped by
+ * `scripts/schema-postprocess.ts#stripNestedIds` so the generated
+ * artifact carries exactly one unambiguous identifier (the URI).
+ *
  * @see RFC docs/rfcs/v8.7.0-conformance-measurability.md §3.1
  * @see ADR-010 — class-vs-policy boundary (consumers compute
  *      conformance %; hounfour ships shape).
