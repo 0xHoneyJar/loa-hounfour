@@ -68,9 +68,10 @@ for (const file of files) {
     ids.add(id);
   }
 
-  // 5. Has type field
-  check(file, schema.type !== undefined || schema.oneOf !== undefined || schema.anyOf !== undefined,
-    'Missing type, oneOf, or anyOf');
+  // 5. Has type field. `not` is accepted for stub reservations
+  // (`Type.Never()` produces `{"not": {}}`, a valid "matches nothing" schema).
+  check(file, schema.type !== undefined || schema.oneOf !== undefined || schema.anyOf !== undefined || schema.not !== undefined,
+    'Missing type, oneOf, anyOf, or not');
 
   console.log(`  ${passed > 0 && errors.filter(e => e.includes(file)).length === 0 ? '✓' : '✗'} ${file}`);
 }
