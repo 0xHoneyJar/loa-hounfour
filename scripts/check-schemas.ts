@@ -1,62 +1,31 @@
 /**
  * Verify that generated JSON Schema files are up to date.
  * Exit 1 if any schema is stale (needs regeneration).
+ *
+ * **Single-source-of-truth refactor** (PR-A4.1 iter-3 + PR-A4.4 iter-3
+ * lesson): this script previously maintained its own 22-entry SCHEMAS
+ * array while `scripts/generate-schemas.ts` had 262. The divergence
+ * allowed cycle-005 + cycle-007 schemas to drift silently between
+ * TypeBox source and the published artifact, surfacing as bridge
+ * HIGH_CONSENSUS findings only at the multi-model PR review tier.
+ * The script now imports `SCHEMAS` from `generate-schemas.ts` so the
+ * pre-commit `npm run schema:check` covers the full published
+ * artifact surface.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../src/schemas/jwt-claims.js';
-import { InvokeResponseSchema, UsageReportSchema } from '../src/schemas/invoke-response.js';
-import { StreamEventSchema } from '../src/schemas/stream-events.js';
-import { RoutingPolicySchema } from '../src/schemas/routing-policy.js';
-import { AgentDescriptorSchema } from '../src/schemas/agent-descriptor.js';
-import { AgentLifecycleStateSchema } from '../src/schemas/agent-lifecycle.js';
-import { BillingEntrySchema, CreditNoteSchema } from '../src/schemas/billing-entry.js';
-import { ConversationSchema, MessageSchema } from '../src/schemas/conversation.js';
-import { TransferSpecSchema, TransferEventSchema } from '../src/schemas/transfer-spec.js';
-import { DomainEventSchema, DomainEventBatchSchema } from '../src/schemas/domain-event.js';
-import { LifecycleTransitionPayloadSchema } from '../src/schemas/lifecycle-event-payload.js';
-import { CapabilitySchema, CapabilityQuerySchema, CapabilityResponseSchema } from '../src/schemas/capability.js';
-import { ProtocolDiscoverySchema } from '../src/schemas/discovery.js';
-import { SagaContextSchema } from '../src/schemas/saga-context.js';
+import { SCHEMAS } from './generate-schemas.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '..', 'schemas');
 
-const schemas = [
-  { name: 'jwt-claims', schema: JwtClaimsSchema },
-  { name: 's2s-jwt-claims', schema: S2SJwtClaimsSchema },
-  { name: 'invoke-response', schema: InvokeResponseSchema },
-  { name: 'usage-report', schema: UsageReportSchema },
-  { name: 'stream-event', schema: StreamEventSchema },
-  { name: 'routing-policy', schema: RoutingPolicySchema },
-  // v2.0.0
-  { name: 'agent-descriptor', schema: AgentDescriptorSchema },
-  { name: 'agent-lifecycle-state', schema: AgentLifecycleStateSchema },
-  { name: 'billing-entry', schema: BillingEntrySchema },
-  { name: 'credit-note', schema: CreditNoteSchema },
-  { name: 'conversation', schema: ConversationSchema },
-  { name: 'message', schema: MessageSchema },
-  { name: 'transfer-spec', schema: TransferSpecSchema },
-  { name: 'transfer-event', schema: TransferEventSchema },
-  { name: 'domain-event', schema: DomainEventSchema },
-  // v2.1.0
-  { name: 'domain-event-batch', schema: DomainEventBatchSchema },
-  { name: 'lifecycle-transition-payload', schema: LifecycleTransitionPayloadSchema },
-  // v2.2.0
-  { name: 'capability', schema: CapabilitySchema },
-  { name: 'capability-query', schema: CapabilityQuerySchema },
-  { name: 'capability-response', schema: CapabilityResponseSchema },
-  { name: 'protocol-discovery', schema: ProtocolDiscoverySchema },
-  { name: 'saga-context', schema: SagaContextSchema },
-];
-
 let stale = false;
 
-for (const { name, schema } of schemas) {
+for (const { name, schema } of SCHEMAS) {
   const path = join(outDir, `${name}.schema.json`);
   const jsonSchema: Record<string, unknown> = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -83,7 +52,9 @@ for (const { name, schema } of schemas) {
     console.error(`STALE: ${path}`);
     stale = true;
   } else {
-    console.log(`OK: ${path}`);
+    // Suppressed per-schema OK log for the 262-entry surface; only
+    // STALE / MISSING lines and the final tally are emitted to keep
+    // CI output manageable.
   }
 }
 
@@ -92,4 +63,4 @@ if (stale) {
   process.exit(1);
 }
 
-console.log(`\nAll ${schemas.length} schemas up to date.`);
+console.log(`All ${SCHEMAS.length} schemas up to date.`);
