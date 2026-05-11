@@ -14,6 +14,6 @@ export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, } fro
 export { ClusterRunSeriesSchema, ClusterRunRepoStatusSchema, ClusterRunSeriesRepoEntrySchema, validateClusterRunSeries, } from './cluster-run-series.js';
 export { InterSeriesScopingArtifactSchema, MerkleProofStepSchema, ProposedSeriesGoalSchema, validateInterSeriesScopingArtifact, } from './inter-series-scoping-artifact.js';
 export { SubscriptionPoolStateSchema, SubscriptionAccountStateSchema, SubscriptionAccountEntrySchema, RateEnvelopeSchema, validateSubscriptionPoolState, } from './subscription-pool-state.js';
-export { RevocationListSchema, } from './revocation-list.js';
+export { RevocationListSchema, RevocationReasonSchema, RevocationListEntrySchema, QuorumSignatureEntrySchema, validateRevocationList, } from './revocation-list.js';
 export { MergeArtifactSchema, } from './merge-artifact.js';
 //# sourceMappingURL=index.js.map

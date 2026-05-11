@@ -1,0 +1,620 @@
+{
+  "_comment": "100 distinct revoked_keys entries. Validates RL-1 distinctness check across a larger fixture.",
+  "envelope_kind": "revocation_list",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "list_id": "rl-011",
+  "issued_at": "2026-05-01T00:00:00Z",
+  "valid_from": "2026-05-01T00:00:00Z",
+  "valid_until": null,
+  "max_staleness_seconds": null,
+  "nonce": 1,
+  "prev_envelope_hash": null,
+  "next_page_hash": null,
+  "revoked_keys": [
+    {
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:UGXK44MarG-dX4balzxGKzcIaw-27M-YuqyCcsyEZfi",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:h9SsQYZ2TgksXykzLwbPKrBe0BIOfuFgjhtFaJOPCWc",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:HYnxQNM5kH5ZQ4BNdOKw2heh4GrNvJVtIBvLMIF8GDY",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:CenPgC0z7hh_aqzc48WcztuaJ2ZreEZCYZ-R2N4EVuo",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:Je6uJepCmJXmRnuxsDzZlPWQMmggEIzMH5RDMNE7m-D",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:mQ352NSwJl7eE2LaeYr_QQv3ynf4WmF76paK7ZZzMcp",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:4IydVy6Z_5DoVIKYrBKJNNlP867qdMZ2qKiYBTcxZbi",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:r5Q-ATv0NjnkRdH1F8-F7eG7Bg7kJXecR9BHuO04VMt",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:iFoIC_q4mWrMzFNFYocPmP6plxZ9igb-i0iu9LxN1bb",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:H6ptsdxsnocdu86MhsOMk14JtP3pW7LKXlhCL7UFyoa",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:gxva1N5ug_77skPLKtxsN2XBclywAF_qQiGuCjLA1WD",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:Bdz5WyGAJKX5dzf0SJ8SVFrl1LUnivyZOPXp74apHkO",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:uz68BSbziR_CEqfpoqAXRfWPSEyr1O8GmgJpOvjknwe",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:UO_iOfPA7TMVcOhsM5OIDzzO4phRQBl-jxr5gCPahYI",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:VC54qR7fseFEtjnnkCTfOpM3XcKmuOeWgHcL3wQwyHq",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:mvuGU2D1h4z_RafrYjmroH-Py2L1tWY4TG-wsPhjVpC",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:IbOGhIpc3BHDOXfkmBLv9ECsLkouN4DqqmhjRGpwaZY",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:1Y8kP1-7Y9WMsN3AeQPxv2SKgkCdlh0d6uQMsz0sWVX",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:NlX8E7INDpnQMEgQF3IEcd67n1Sf_q9bIDtPDGNHRUK",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:12IpO_EerE6k1VRJd0Dm6C-1rvxzho_ChIDsiaI4mkZ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:ICtdY_AOZ3WtOJHcVq54xzeACaoEehgy-rc-OBq8BbV",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:y_2uKvghtSTto_lbxNTYm_5IGe9FYKVO1Le-EnOI530",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:EUt4ATqp0FAU9tTHU-nWDT3jnAdwAhVWywmBun3ocob",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:JPEla_KezcX_gdbGXmmT_8O6w6MInpcYJx-Dr0K0uCZ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:hGG3goMJYJUXWLpNh0C0RRnq_7Z-GevJsD4TKbTxBzL",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:gDauz5llMrReQtqW72BoUvwoDkYxVu1X43dEHr-AKWr",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:wlbx9QmNwa6NJ09atLs9oAG5DfWAvOw-JxrbURHswZl",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:UE7V-2HHs7H7ZzFoPGglcp8KSsqQ5Xse9otF4yuEfcZ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:sxGEDB1Utf8dHD2w_Iy0zgn7QItUZU0Fu33mFmorcln",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:QvXYCLosekRdmxAo-U3nk6xy9fbXK-LJyXGL4XctLt9",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:0LYQDYo-kLPcVn8lXYXVrRPSfirn6wDSv_LzRcH-vaB",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:A8zJmAxZYpJhi-54ugOd7Fyxj9h8lcJ4x5oy0GS65g8",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:exZdhtmawmZcF23ZmaE7waCblsWianLNghNUVnpDPkz",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:0Y8cSUNx4ULuF6ylpsUG_g2Zu0qxVJ9NMYqFjOVVl0S",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:4dK2aJz7L8BRFfknjZJoAjHKsmaOHEGd1ZSBAb5F1sT",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:qJ2t8cy5YBXqltAKVZetOFyVQ_GvC3M_0jXv1NNgHpl",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:fEg8JaowtgBaFXDvJ6xfBTK1SRsJ5EgcgDBrxLbL0CN",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:9RI8STJqMPLW873tLtI4XBnz0xE5Me9-zpzokB8f24h",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:yJKF_1Gkkc-Wf3-wfZuX0aq8Db0P-k0NLfA03wnvq8_",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:c5L0DfJquhqG1rY57tnmpvG4YN5lQqcmGq1nngXdwGP",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:XMojg7A5SpFCHQwGrKt7d37-GgPcIqnwiEpzznuA56z",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:ENQ9-T2AOqYjD0P8g5qucZ4JQV3CIf480uog_WOqsW_",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:7VgUqHh9e6zm8KmtPECqya-x0ZM_Gwt20a87fhg3e5G",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:5A3PgzSQFmw2e--TMuPzZh0oR-GTnKmqWUsy-iDiqBj",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:JOAmhl2DUt4bz5vY65eamIhocIfFEgBDnOEMRM1rueN",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:OEAz0Zh4kAfJde_2NiHDlysNHyEOvyjJXBSvJVl9GWv",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:sHVR1Vv6a4NcfS4261MRUCC_-jpGUNypN7_feiifRQp",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:HgLABMhwHNRlNCt8pGsTP4Ifm1Zqz4f7nKzOt6aL-yW",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:LZ84U6A2VPMPUT3wy2p6_FW5x8r84Bqu6Xq0eAyGE5C",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:nIvhJjZ7hH4T997TyyEcwF_aP3E7huXB5hsLDdIBDqz",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:8vzIbeKgVHY-RWanpXnauOAmRGdAZqw7iF6S7dSKAUO",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:s0qiU201RhEO-q5PjPsjegtVaFXODI_dGVWf1hgHntA",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:nhTJoxkpbkVPUtRHi7UdBIEdWJzVAsKX8l7vXM9R7Z9",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:k8lgLkivTKEVecISie1OlGv2b7kL_VEuiomvDv4pmQm",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:5G6LqGmUYyoV5ZD71dTu-qElEp0p_RRDhWHcMQln1SK",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:8DWZOIKYR-qq1xrSYhbIiKw6F_HK1zrw2huq8SCYK4q",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:j-h2AnunCLFBbqaSSbnIwfpHysFjtgxmgS4sPr1R6tG",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:ADqCi1E3RkSTpt-kn_BC8N1_IWJB_tAQBiDwbhozMB6",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:K1xEabRJFWNSY_G8l0qXmQ3ZDsXk4EF5D-jIwbJK5Y0",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:xshe8VA0Ee6p3Xdx07mms3Gc83Ntv8Y2ipKx3wjMu0y",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:4NHUkYCIHv7ZDKaR9Dqn6vEi4tgPzl7dYtH5bIAXgDr",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:1jGx17eFR-jTCQeeAMEVywLzWwbRADFoz8X7TFyrNgT",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:TQfE2MX6d8sIHubev--W6EUUu9RBM_FWAz51BDZd_bJ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:Oqnlo6ksPMoHcumW0-75bRts0LZMlH7MCLaH6RvUaIi",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:TsyBw2Ho8Pon-HGxFSiqjyzmWy6aaMtK32CfRGubbL6",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:fm9J7pD9pKEPhPh9DPvcb_S7cdtBbSbPKmGlbaTSgPU",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:XT-EFM0dg0NNnhIgaxTX-UlorIx3qxQsrtUapSUKbp5",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:x3I8rWLvpSkeIqFYJmbirSinBUCyexlsgWfkvf2zgYd",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:y4fuOGkeheBfCs46xtpyS1gOBmWR41fH60xuFYZFv1q",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:a0jo1GRO82D6CXOv-ru_o8EaUy3kfQ0GcrUsz5ywdqr",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:wXHB4KPYRDBFnv2uOxwX3V57w0QO-hEmP4AiX8tm_MC",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:4LGYbmgrwXDodxvr8w_MJR_G05tSHQ9qb4k4NrUMWCK",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:PpYoRLwbiNDfIrNnjw7At7XHFZ1mp7rGs47RfkuppU3",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:7uFM-CeJhGmjxsz33Wsfq50i0tut8vPjqCxR4fh1xi4",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:mfNUUGTXERd48zkWrHa8vkRCR1pfqMyG_wlj5l-sxdP",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:w50sQzM7u-FY-RREqPtxQyTmkRaxMZFWdw-jhoZJkz6",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:_mEQ20KZwfxw3QK61vq65z5E5fYc3npgG_V1DTKDyPp",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:D8lzUJV0m61uXY6oK2DsDolADCxD-lyWIG9VwMvSeG2",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:cALuBMROinAmITiAxan6vXJTMVhAE2kQOuBtkf3Zyz5",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:E0dCI9B51mnxkl-867GzzDsMBD3ZEgHzKz90PdcGL7c",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:VeA4OrWHUgUvi966NhTimrMIPoTt-9HZKwamkgHqCv_",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:-RNh8rqSuXXQc25FupDa36AZBZ4XlA1mEBH1i5LsOuB",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:BMuVnzgJ9jkLI3tEwswpX8Wm3N_eoqkZolwmviOpc4_",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:fVVccQ3g0qnksCfNH8_VELGK5spJacVNy_xVhekzZcJ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:OUrLIG1Rle9GXoBbwicM6ZowiizVvUhRJJ8XZ_hnRNQ",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:ijDJofNXza7y5Stb4WOOR-iLto5K7B41yhreiODp1OH",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:KU40mgX0Qnb8bhsAgSGIImzyQDQdjhf5A7l6IBnlx6z",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:7yh5hKweZLjfwN8CyQTY_kMoQAd3ETzPguhWWeGE_4g",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:pNEaiye68SIuY9YVPwEBH_O2cWZxDnybbNpPQBJiEgL",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:sffxkqT_tlibF00vYgwzxa7AQh6nZanfLZUv0IM8ZFP",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:YUOy_GngGIFRj7wutBfh5HfqFr4JgNQ937SYfldG9Yz",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:BJbjzm5kAIEm0sZGRIXWa4Vt6-KPCwo2wASoHslo0et",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:da47lx9fX017p0k3QO8STM_4PUF-uOy0jt44RIa6Xiy",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:JF4nwRRL_tGALpEWppuJqe05cxtt3wjFi4imLyc6d0v",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:bg_OQtIRGpStO9WpQnjPYKJfAMPqz5o90RmgRO4t8wH",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:fZfronEKaDUDSzhkNT3Evk1uz50kWKEnjsymtVTxbSb",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:pVLhpynchJyg2O-c9xPeoMLdrsryJQ6KZLTr7PWC_tv",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:1Tmrdp_n2BAU14A777fw_EbE4peD7le9hBs8csoeDE5",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    },
+    {
+      "key_id": "ed25519-pub:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    }
+  ],
+  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
+  "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
+  "quorum_signatures": null,
+  "root_of_trust_id": null
+}

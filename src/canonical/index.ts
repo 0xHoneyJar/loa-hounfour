@@ -53,7 +53,14 @@ export {
 } from './subscription-pool-state.js';
 export {
   RevocationListSchema,
+  RevocationReasonSchema,
+  RevocationListEntrySchema,
+  QuorumSignatureEntrySchema,
+  validateRevocationList,
   type RevocationList,
+  type RevocationReason,
+  type RevocationListEntry,
+  type QuorumSignatureEntry,
 } from './revocation-list.js';
 export {
   MergeArtifactSchema,

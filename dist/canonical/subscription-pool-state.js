@@ -335,7 +335,7 @@ export function validateSubscriptionPoolState(data) {
             errors.push(`SPS-1: accounts[${i}] ${sps1.reason}`);
         }
         const stableUntil = entry.stable_until;
-        const sps4 = iso8601GeField(stableUntil, envelopeTs);
+        const sps4 = iso8601GeField(stableUntil, envelopeTs, 'stable_until', 'ts');
         if (!sps4.valid) {
             errors.push(`SPS-4: accounts[${i}] ${sps4.reason}`);
         }

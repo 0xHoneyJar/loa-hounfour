@@ -1,0 +1,39 @@
+{
+  "_comment": "Quorum signatures with the primary signer_key_id present in the set. RL-12 first arm (distinct) and second arm (primary in set) both satisfied.",
+  "envelope_kind": "revocation_list",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "list_id": "rl-008",
+  "issued_at": "2026-05-01T00:00:00Z",
+  "valid_from": "2026-05-01T00:00:00Z",
+  "valid_until": null,
+  "max_staleness_seconds": null,
+  "nonce": 1,
+  "prev_envelope_hash": null,
+  "next_page_hash": null,
+  "revoked_keys": [
+    {
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    }
+  ],
+  "signer_key_id": "ed25519-pub:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi",
+  "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
+  "quorum_signatures": [
+    {
+      "signer_key_id": "ed25519-pub:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi",
+      "signature": "ed25519:_ToGYi7imNJYSzFpc8sE1qiE45s6M1maGRr-k_FUqqg_2w8Kf2miIp3BwOggAKoHW5v4jzdduCNIdJFdWd2K-M"
+    },
+    {
+      "signer_key_id": "ed25519-pub:U-xYdMP3KIGOeSl0fK_wskLIDGKssl7js9623rIKt_1",
+      "signature": "ed25519:w-xl9Oj8U2oh2rNHZmtt-Nxb8Znmb-Qs2jJKCKvDlibVxtIrtzZDEwh27GKGnysxMBw99rZFELOXfdcPwd1TKu"
+    },
+    {
+      "signer_key_id": "ed25519-pub:tGDK9PCfgOpo5ecVFifU4oHbe3lSuXiZjlT27HR5jvm",
+      "signature": "ed25519:UiS4XAkYsRqNDtF5Z1qh8YmhcNsOnGA3KxGIagYjGchsw6XjdTs5Zw0GsnvqSx-rzryfYsEuCYmR9GFEfMIWnf"
+    }
+  ],
+  "root_of_trust_id": null
+}

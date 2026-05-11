@@ -1,0 +1,26 @@
+{
+  "_comment": "Structural: signature MUST match ED25519_SIGNATURE_PATTERN (86 chars with ed25519 prefix).",
+  "envelope_kind": "revocation_list",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "list_id": "rl-005",
+  "issued_at": "2026-05-01T00:00:00Z",
+  "valid_from": "2026-05-01T00:00:00Z",
+  "valid_until": null,
+  "max_staleness_seconds": null,
+  "nonce": 1,
+  "prev_envelope_hash": null,
+  "next_page_hash": null,
+  "revoked_keys": [
+    {
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
+      "reason": "compromise",
+      "revoked_at": "2026-04-01T00:00:00Z",
+      "revocation_evidence_hash": null
+    }
+  ],
+  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
+  "signature": "not-an-ed25519-signature",
+  "quorum_signatures": null,
+  "root_of_trust_id": null
+}

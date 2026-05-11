@@ -124,12 +124,21 @@ export declare function stringMicroUsdLe(consumed: unknown, allocated: unknown):
  *   `accounts[*].stable_until`).
  * @param earlierField — value of the reference operand (e.g.
  *   envelope `ts`).
+ * @param laterFieldName — optional label for the later operand in
+ *   error messages; defaults to 'stable_until' (the SPS-4 use site).
+ *   PR-A4.4 callers (RL-7 / RL-9 / RL-10) pass 'revoked_at' /
+ *   'valid_from' / 'valid_until' / 'issued_at' as appropriate so
+ *   the error reason names the actual fields rather than the SPS-4
+ *   defaults.
+ * @param earlierFieldName — optional label for the earlier operand;
+ *   defaults to 'ts'.
  * @returns `{ valid, reason }`; `reason` is set only when valid is
  *   false, naming the offending values for actionability.
  *
- * @since v8.7.0 — FR-G3 (PR-A4.3).
+ * @since v8.7.0 — FR-G3 (PR-A4.3); field-name params added PR-A4.4
+ *   iter-1 LOW mitigation.
  */
-export declare function iso8601GeField(laterField: unknown, earlierField: unknown): {
+export declare function iso8601GeField(laterField: unknown, earlierField: unknown, laterFieldName?: string, earlierFieldName?: string): {
     valid: boolean;
     reason?: string;
 };

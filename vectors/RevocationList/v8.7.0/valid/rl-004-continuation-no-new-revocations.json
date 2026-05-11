@@ -1,0 +1,19 @@
+{
+  "_comment": "Continuation page with empty revoked_keys and non-null prev_envelope_hash. RL-8 explicit non-constraint: empty revoked_keys is admissible at non-genesis envelopes.",
+  "envelope_kind": "revocation_list",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "list_id": "rl-004",
+  "issued_at": "2026-05-01T00:00:00Z",
+  "valid_from": "2026-05-01T00:00:00Z",
+  "valid_until": null,
+  "max_staleness_seconds": null,
+  "nonce": 43,
+  "prev_envelope_hash": "sha256:3a6069bc20c5187c17ccc8e13600900d117cd52ced08d025d74219d5a58194dc",
+  "next_page_hash": null,
+  "revoked_keys": [],
+  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
+  "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
+  "quorum_signatures": null,
+  "root_of_trust_id": null
+}
