@@ -111,6 +111,8 @@ export const RULE_4_CRYPTO_BEARING_NAMES = [
   'PlanSignoffEnvelopeSchema',
   // v8.6.0 PR-A3.7 — FR-A1 Challenge layer (x-crypto-bearing).
   'ChallengeSchema',
+  // v8.7.0 PR-A4.3 — FR-G3 SubscriptionPoolState (x-crypto-bearing).
+  'SubscriptionPoolStateSchema',
 ];
 const RULE_4_PATTERN = new RegExp(
   String.raw`assertValid\s*\(\s*(?:${RULE_4_CRYPTO_BEARING_NAMES.join('|')})\b`,

@@ -29,6 +29,15 @@ import { validateClusterRunSeries } from '../canonical/cluster-run-series.js';
 // merkleProofCompositionWellFormed from
 // inter-series-scoping-artifact-local).
 import { validateInterSeriesScopingArtifact } from '../canonical/inter-series-scoping-artifact.js';
+// v8.7.0 PR-A4.3 — FR-G3 SubscriptionPoolState cross-field validator
+// (SPS-1 bigint-safe consumed_units ≤ allocated_units, SPS-2
+// account_id distinct, SPS-4 stable_until ≥ ts with JCS-canonical-
+// form precondition). Pure function lives in subscription-pool-state.ts
+// and delegates to LOCAL helpers (stringMicroUsdLe + iso8601GeField
+// from subscription-pool-state-local; arrayFieldDistinct from
+// cluster-run-series-local). SPS-3 (signature derivation) is
+// consumer-state per ADR-010.
+import { validateSubscriptionPoolState } from '../canonical/subscription-pool-state.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -1059,6 +1068,17 @@ registerCrossFieldValidator('ClusterRunSeries', validateClusterRunSeries);
 // range), and ISSA-5 (proof_path[*].position enum membership) are
 // structural via TypeBox.
 registerCrossFieldValidator('InterSeriesScopingArtifact', validateInterSeriesScopingArtifact);
+// v8.7.0 PR-A4.3 — SubscriptionPoolState cross-field validator. Enforces:
+//   - SPS-1: per-element `consumed_units ≤ allocated_units` via bigint-
+//     safe string-numeric comparison (LOCAL `string_micro_usd_le`).
+//   - SPS-2: `accounts[*].account_id` distinct within a pool.
+//   - SPS-4: per-element `stable_until ≥ ts` via lexicographic
+//     comparison with JCS-canonical-form precondition (LOCAL
+//     `iso8601_ge_field`; SDD §2.0.1).
+// SPS-3 (signature/derivation matching) is consumer-state per ADR-010
+// with manifest reason
+// `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`.
+registerCrossFieldValidator('SubscriptionPoolState', validateSubscriptionPoolState);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

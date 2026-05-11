@@ -1,0 +1,59 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SubscriptionPoolState",
+  "origin": "genesis",
+  "contract_version": "8.7.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SPS-1",
+      "expression": "for each entry in accounts[*]: consumed_units MUST be at-or-below allocated_units as bigint-safe ordered string-numeric values. Both fields satisfy the canonical micro-USD pattern ^[0-9]+$ at the structural tier — the cross-field validator decodes both to BigInt before ordering to avoid floating-point rounding on values that exceed Number.MAX_SAFE_INTEGER.",
+      "severity": "error",
+      "message": "SubscriptionPoolState.accounts[*] MUST satisfy: consumed_units is at-or-below allocated_units per the bigint-safe ordering on the ^[0-9]+$ micro-USD representation. A consumed-overrun ambiguates the consumer's per-account pool-capacity audit; the closed at-or-below invariant is the cross-account-account aggregation precondition.",
+      "fields": ["accounts"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces SPS-1 inline at validate() time** via the validateSubscriptionPoolState cross-field validator — see src/validators/index.ts registerCrossFieldValidator on SubscriptionPoolState. Per AT-1, cross-language runners MUST re-implement the per-element bigint-safe ordering per-runtime so cross-runner conformance is well-defined. Marked runtime-deferred rather than library because the per-element string_micro_usd_le helper is LOCAL — inline only, NOT a DSL primitive — per SDD section 4.6. **Bigint-safety lock**: 10^50-digit values are admitted by the ^[0-9]+$ pattern at the structural tier; BigInt is the documented safe path. The MICRO_USD_REGEX inside the helper is the precondition that rejects malformed inputs like BigInt empty-string throws or BigInt 0x-prefix bypass. **What would change the lock:** if a future schema introduces a similar bigint-safe ordering shape, generalize to a registered DSL builtin in EVALUATOR_BUILTINS and re-mark SPS-1 as evaluator library in a follow-up cycle-007.x patch.",
+      "type_signature": {
+        "accounts": "array"
+      }
+    },
+    {
+      "id": "SPS-2",
+      "expression": "accounts[*].account_id values MUST be distinct within a single SubscriptionPoolState — no two entries in the accounts array may share the same account_id. Aggregate-cluster account_id uniqueness across multiple pool-state snapshots is consumer-state via a consumer-side registry, not enforced at the schema level.",
+      "severity": "error",
+      "message": "SubscriptionPoolState.accounts[*].account_id MUST be distinct within a pool. Duplicate account_id entries ambiguate the consumer's per-account aggregation — the consumer-side selection of accounts by account_id relies on equality, and a duplicate would produce non-deterministic account selection.",
+      "fields": ["accounts"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces SPS-2 inline at validate() time** via the validateSubscriptionPoolState cross-field validator. Per AT-1, cross-language runners MUST re-implement the per-array distinctness check per-runtime. Marked runtime-deferred rather than library because the per-element array_field_distinct helper is LOCAL — inline only, NOT a DSL primitive — per SDD section 4.6. SPS-2 is the third use site of array_field_distinct after CRS-4 and ISSA-2; promotion to a DSL primitive is the planned cycle-007 follow-up when the fifth use site lands in PR-A4.4 RL-1 plus RL-12. **What would change the lock:** when PR-A4.4 lands and the fifth use site is in place, generalize array_field_distinct to a registered DSL builtin and re-mark CRS-4, ISSA-2, SPS-2, RL-1, RL-12 as evaluator library in a follow-up cycle-007.x patch.",
+      "type_signature": {
+        "accounts": "array"
+      }
+    },
+    {
+      "id": "SPS-3",
+      "expression": "consumer computes ed25519 signature derivation matching for the SubscriptionPoolState envelope — the signature field MUST verify under the public key derived from signer_cluster_id per the consumer-side ed25519 verifier. Hounfour ships the shape; consumers verify.",
+      "severity": "warning",
+      "message": "SubscriptionPoolState ships only the shape; signature derivation matching is consumer-state per ADR-010. The schema pins signature to the canonical ed25519 hex pattern so consumers across runtimes can decode the signature byte-identical; semantic verification — composing the canonicalized payload bytes and verifying under the public key derived from signer_cluster_id — stays consumer-side.",
+      "fields": ["signature", "signer_cluster_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Crypto-bearing consumer-state contract. Per RFC section 3.3 and ADR-010, hounfour ships shape; the ed25519 signature verification is consumer-side. The TS reference implementation does NOT bundle an ed25519 verifier; cross-language runners — Python pynacl / Go crypto-ed25519 / Rust ed25519-dalek — verify against the canonicalized payload bytes per the consumer-side reference verifier. Reuses the v8.6.0 signer_key_id_matches_derivation builtin pattern at the consumer-side verifier layer; PR-A4.3 does NOT add a hounfour-side signer-derivation primitive. **Manifest emission**: when a consumer's validate wrapper has not supplied signature context, attach SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Lock-de-scope rationale (proactive disposition per Vision 009):** consumer-side signature verification is the established cycle-005 cycle-pattern for crypto-bearing concerns. Hounfour does NOT bundle an ed25519 implementation in v8.7.0. **What would change the lock:** a hounfour-side ed25519 implementation requires reaching cross-runner stability across all crypto-bearing v8.7.0 schemas in the FR-A2 harness and a v9.0.0 contract bump.",
+      "type_signature": {
+        "signature": "string",
+        "signer_cluster_id": "string"
+      }
+    },
+    {
+      "id": "SPS-4",
+      "expression": "for each entry in accounts[*]: stable_until MUST be at-or-after the envelope ts via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. Both fields share the ISO8601_UTC_PATTERN structural-tier check; lexicographic ordering is monotonic only under the precondition that both operands are in JCS-canonical form per SDD section 2.0.1 — UTC, Z-suffix, fixed precision, NFC-normalized.",
+      "severity": "error",
+      "message": "SubscriptionPoolState.accounts[*] MUST satisfy: stable_until is at-or-after the envelope ts via lexicographic ordering on ISO 8601 UTC strings. A stability window that precedes the snapshot timestamp violates the SPS-4 ordering invariant; consumers depend on the at-or-after invariant for per-account pause-resume idempotency.",
+      "fields": ["accounts", "ts"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces SPS-4 inline at validate() time** via the validateSubscriptionPoolState cross-field validator, which delegates to the LOCAL iso8601_ge_field helper — see src/constraints/builtins/subscription-pool-state-local.ts. Per AT-1, cross-language runners MUST re-implement the lexicographic ordering per-runtime. **JCS-canonical-form precondition lock (run-2 IMP-006 fix):** the helper re-checks the ISO8601_UTC_PATTERN on both operands before ordering. If either fails the precondition, the helper returns a tagged violation rather than a silent miscompare. Lexicographic ordering on ISO 8601 strings is monotonic only when both operands are in JCS-canonical form per SDD section 2.0.1. **Why lexicographic vs Date parsing**: cross-runner byte-identity concerns dominate at the FR-A2 cross-language harness. Lexicographic ordering on JCS-canonicalized strings is deterministic across Python Go Rust TS without any per-runtime calendar library disagreement. **What would change the lock:** if a future schema introduces a similar ordered timestamp comparison shape and the fifth use site lands, generalize iso8601_ge_field to a registered DSL builtin and re-mark SPS-4, RL-7, RL-9, RL-10 as evaluator library in a follow-up cycle-007.x patch.",
+      "type_signature": {
+        "accounts": "array",
+        "ts": "string"
+      }
+    }
+  ]
+}

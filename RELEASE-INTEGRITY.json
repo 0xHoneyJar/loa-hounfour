@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T03:09:01.452Z",
+  "generated_at": "2026-05-11T03:26:04.395Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1133,
-    "constraints": 137,
+    "vectors": 1162,
+    "constraints": 138,
     "manifests": 2,
-    "total": 1534
+    "total": 1564
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -1205,8 +1205,8 @@
       },
       {
         "path": "schemas/subscription-pool-state.schema.json",
-        "sha256": "3e2eefd19ff005d0990b5486c580bdbc4325cc6dbae46578ca8d05f9114237d8",
-        "size_bytes": 309
+        "sha256": "1c2f4a69e8b47a74eb45d076a2adcfce344ea2ca682bccd2304a71d0659c458a",
+        "size_bytes": 7714
       },
       {
         "path": "schemas/succession-policy.schema.json",
@@ -5036,6 +5036,151 @@
         "size_bytes": 10
       },
       {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid-cross-field/sps1-and-sps4-combined-rejected.json",
+        "sha256": "a0629241502ea9b591a4fca8e14b858bcb6a6a2d000482eb7b310e9627c14055",
+        "size_bytes": 1335
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid-cross-field/sps1-bigint-overrun-rejected.json",
+        "sha256": "fcf89483a9d3238edecf057f72fddbf044d2edf10c8d35637d5534e258590149",
+        "size_bytes": 1097
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid-cross-field/sps1-consumed-exceeds-allocated-rejected.json",
+        "sha256": "1af5a135bf41c7fd076d3e0a425408fb50eef581e0505cab7ed21fa25760d4ac",
+        "size_bytes": 910
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid-cross-field/sps2-duplicate-account-id-rejected.json",
+        "sha256": "2010c69c8c0624e937d6f0aa2685be4e9f4071f107f4ba75e2751c438fddb308",
+        "size_bytes": 1264
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid-cross-field/sps4-stable-until-before-ts-rejected.json",
+        "sha256": "c6a30ae3ac834517ded336adfb34905bd1e7bc83e01e16407e326a25b9dba8dd",
+        "size_bytes": 993
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/account-state-out-of-vocab-rejected.json",
+        "sha256": "24019e465307bed9ef67d38e2c4ca59c19c3ad02cc838aee931de20dfdd53bbd",
+        "size_bytes": 884
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/accounts-empty-array-rejected.json",
+        "sha256": "3c87821274539b2a21523981b6bd093c796c7e531aad0078bdec11c2d2ac873b",
+        "size_bytes": 506
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/additional-property-on-account-rejected.json",
+        "sha256": "47ad7bf1dc54125ccfe099a6a3c02d048480fe5b717efcb279e65be84f585a1e",
+        "size_bytes": 877
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "f3658abc77af7f794b852f10c7347dd0e232815d43608706c6f9b1aab18ab022",
+        "size_bytes": 862
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/allocated-units-negative-rejected.json",
+        "sha256": "03dc91f141d7f82a24c8ff39a12f7d6011afe23ed678cf9a8973f1732e9accb3",
+        "size_bytes": 895
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/cluster-id-empty-rejected.json",
+        "sha256": "82dc62dd8d60b0bbf9e99dbcaf714e8c2a02f98c7ba05485cc915a8f6ea1c9ec",
+        "size_bytes": 850
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/consumed-units-non-integer-rejected.json",
+        "sha256": "59fc7378a3245d8d9635ce08db7110319744c3f969e90d9d1feae9f583da63d7",
+        "size_bytes": 921
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "a28e1a0923ec262dc26805c160b67673b5a888f604b659f876a634a865c8aaf1",
+        "size_bytes": 877
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/envelope-kind-wrong-literal-rejected.json",
+        "sha256": "b68408397e20660e9b61cc9a76cb39f690f28184f33df6ff42b95ef9b8159019",
+        "size_bytes": 888
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/provider-over-max-length-rejected.json",
+        "sha256": "bcd0c81aae4c305324852376bc065e7557a129fcb1b79adc19ed06a771617a9a",
+        "size_bytes": 928
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/rate-envelope-req-per-min-above-max-rejected.json",
+        "sha256": "ac33539904cebbc07c05a3288518c9074bbf2c5c144162d3c5f44a6737ba9589",
+        "size_bytes": 909
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/signature-pattern-violation-rejected.json",
+        "sha256": "cb38f444df76486c6e959f818ca53b10f61dc3f909b810ccdedbbf6c66c3830f",
+        "size_bytes": 892
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/signer-cluster-id-empty-rejected.json",
+        "sha256": "a7ac3d3d49e10e6909168bcd590c6a942dec47b6703e7eb4a33cfd934a7263f5",
+        "size_bytes": 838
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/invalid/ts-non-utc-rejected.json",
+        "sha256": "f9db75c642ff7dc30feae4329aae5b342b73c1463ac21cd2685e3ca271efc3b1",
+        "size_bytes": 925
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-001-minimal-healthy.json",
+        "sha256": "12ac4d91b6e140583a2204e2f06c8499a86bd35862cc3e4923712b58a85998e2",
+        "size_bytes": 902
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-002-with-pool-health-link.json",
+        "sha256": "77e6b475c585d6505de0bc3118c62ee518b36546e2b4b2b29de0bf5f29bf31ef",
+        "size_bytes": 917
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-003-multi-account-mixed-states.json",
+        "sha256": "74b0517297fce8dee5ca19cf8fb3ec6071d9ddc0f14588bbb2f1b3d7c8936087",
+        "size_bytes": 1615
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-004-bigint-stress-10pow50.json",
+        "sha256": "20bbe07418da5e899c3487a6de2845fbe622a41d37f1b837d53eb33b5e814b52",
+        "size_bytes": 1169
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-005-consumed-equals-allocated.json",
+        "sha256": "448b4b55d13f45a2c5aca4224b0bf9067135afca4dd32c568b5a6aba638cdb0e",
+        "size_bytes": 869
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-006-zero-consumed.json",
+        "sha256": "8463126bc9f5b0a687d64c9a1d672943bc2538610560d0333a8b12d89d061b31",
+        "size_bytes": 881
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-007-stable-until-equals-ts.json",
+        "sha256": "f5a816b0a14833dd353facfd376d8a7332683ec0b462c9112ac7aa958907da89",
+        "size_bytes": 863
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-008-max-256-accounts.json",
+        "sha256": "506348bd1fda7cb7a52f6a7566c0665162773408e2a18a6bd1e7923f60ac6bf5",
+        "size_bytes": 85316
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-009-rate-envelope-maximums.json",
+        "sha256": "ad94370edd06d7ecd5eb8254a61af9f7ee0b31786e8b562f9299adb4749d63ab",
+        "size_bytes": 913
+      },
+      {
+        "path": "vectors/SubscriptionPoolState/v8.7.0/valid/sps-010-provider-max-length.json",
+        "sha256": "de9a5f105cae13fa76fda9c37062c04c45259cdb302db58d0eeff9d33946dc5a",
+        "size_bytes": 923
+      },
+      {
         "path": "vectors/SuccessionPolicy/invalid/cooldown-negative.json",
         "sha256": "eeca542b6c9747e00379e01b4ee8022c0ce7400da534d6b0025ae7aa767a44c2",
         "size_bytes": 427
@@ -7658,6 +7803,11 @@
         "size_bytes": 1923
       },
       {
+        "path": "constraints/SubscriptionPoolState.constraints.json",
+        "sha256": "ee7a12bdbf53eec43d5766a8def01580f325a015e0865009375d777bddcf14bb",
+        "size_bytes": 8573
+      },
+      {
         "path": "constraints/SuccessionPolicy.constraints.json",
         "sha256": "ad0b4eb7cb0713cd926f229bdb1113e6842b56f3a93772f5e9965d5f58c59e80",
         "size_bytes": 1882
@@ -7681,8 +7831,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "2a290e7db2c2413e48e73b1f9349cd31f23f57d0a47e1df10e21dbf284327d21",
-        "size_bytes": 85801
+        "sha256": "2bf69c947a5717217bea9123a7257b4957ed797ac2a73f460fe8b6bd0984b078",
+        "size_bytes": 86149
       },
       {
         "path": "schemas/schemastore-catalog.json",

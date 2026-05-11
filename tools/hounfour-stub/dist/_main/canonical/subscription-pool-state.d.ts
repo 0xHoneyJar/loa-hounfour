@@ -11,7 +11,8 @@
  * `signature` (ed25519 pattern); consumers chain via the
  * `pause_resume_pair_id` idempotency marker rather than a
  * `prev_envelope_hash` chain. Default validation mode is shape-only
- * (manifest emits `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`)
+ * (manifest emits
+ * `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`)
  * unless the consumer opts in via `validate(..., { failClosed: true })`
  * per cycle-005 FR-A4. Default-flip to fail-closed is v9.0.0 work.
  *
@@ -20,32 +21,178 @@
  * CLAUDE.md financial-value convention. No floating point — bigint-
  * safe comparison via LOCAL helper `string_micro_usd_le`.
  *
+ * **In-runtime canonical-form idempotency** (V8 / Node.js scope):
+ * within a single Node.js process, `JSON.stringify(JSON.parse(s))`
+ * over a valid payload `s` returns a string equal to `s` when `s` is
+ * the canonical-shaped form. NOT a cross-runtime byte-identity claim;
+ * cross-runtime byte-identity is FR-A2 cross-language harness's
+ * domain via RFC 8785 JCS.
+ *
  * **Schema-level invariants** (constraint file
  * `constraints/SubscriptionPoolState.constraints.json` —
  * SPS-1..SPS-4):
  *   - SPS-1: `accounts[*].consumed_units ≤ accounts[*].allocated_units`
- *     (LOCAL `string_micro_usd_le`; bigint-safe).
+ *     (LOCAL `string_micro_usd_le`; bigint-safe per CLAUDE.md
+ *     financial-value convention).
  *   - SPS-2: `accounts[*].account_id` distinct (LOCAL
- *     `array_field_distinct`).
- *   - SPS-3: `signature` matches `signer_cluster_id` derivation
- *     (consumer-state; v8.5.0 `signer_key_id_matches_derivation`).
+ *     `array_field_distinct`; third use site after CRS-4 and ISSA-2).
+ *   - SPS-3: `signature` matches `signer_cluster_id` derivation —
+ *     consumer-state per ADR-010; manifest emits
+ *     `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`.
+ *     Reuses the v8.6.0 `signer_key_id_matches_derivation` builtin
+ *     pattern at the consumer-side verifier layer.
  *   - SPS-4: `accounts[*].stable_until ≥ ts` (LOCAL `iso8601_ge_field`
- *     with JCS-canonical-form precondition per SDD §2.0.1).
+ *     with JCS-canonical-form precondition per SDD §2.0.1 — both
+ *     fields MUST match `ISO8601_UTC_PATTERN` for the lexicographic
+ *     comparison to be monotonic).
+ *
+ * **`$id` convention** (mirrors CanonicalRun / PhaseKind /
+ * ClusterRunSeries / InterSeriesScopingArtifact precedent): the
+ * TypeBox-internal `$id` values declared in this file
+ * (`'SubscriptionPoolState'`, `'SubscriptionAccountState'`,
+ * `'SubscriptionAccountEntry'`, `'RateEnvelope'`) are short tokens
+ * used by the TypeBox type system for self-reference within the
+ * runtime. They are **overridden at JSON Schema generation time** by
+ * `scripts/generate-schemas.ts` (line ~607) to the canonical
+ * versioned URI form:
+ * `https://schemas.0xhoneyjar.com/loa-hounfour/<CONTRACT_VERSION>/<name>`.
+ * Standalone JSON Schema consumers (Python `jsonschema`, Go
+ * `gojsonschema`, Rust `jsonschema`) only ever see the URI form. The
+ * nested-`$id` values on sub-schemas are stripped by
+ * `scripts/schema-postprocess.ts#stripNestedIds` so the generated
+ * artifact carries exactly one unambiguous identifier (the URI).
  *
  * **Carry-forward**: this schema was scheduled for v8.7.0 in
  * cycle-005's forward plan as FR-E3. User-confirmed inclusion in
  * cycle-007 scope on 2026-05-10.
  *
  * @see RFC docs/rfcs/v8.7.0-conformance-measurability.md §3.3
- * @see ADR-010 — class-vs-policy boundary.
- * @since v8.7.0 — FR-G3.
+ * @see ADR-010 — class-vs-policy boundary (consumer-side signature
+ *      verification; hounfour ships shape + manifest reason code).
+ * @since v8.7.0 — FR-G3 (PR-A4.3).
  */
 import { type Static } from '@sinclair/typebox';
 /**
- * @internal
- * Stub placeholder — replaced with full schema body in PR-A4.3.
- * Validating any payload against this returns `false`.
+ * `SubscriptionAccountStateSchema` — locked per-account health enum.
+ *
+ * Three locked members: `'healthy'`, `'rate_limited'`, `'exhausted'`.
+ * Promotion to a discriminated union keyed on `state` is deferred to
+ * v8.8.0+ pending consumer-corpus signal. v8.7.0 ships the union of
+ * literals; pool-level aggregation (e.g. "if any account is exhausted,
+ * the pool is degraded") is consumer-shaped.
+ *
+ * @since v8.7.0 — FR-G3 (PR-A4.3).
  */
-export declare const SubscriptionPoolStateSchema: import("@sinclair/typebox").TNever;
+export declare const SubscriptionAccountStateSchema: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"healthy">, import("@sinclair/typebox").TLiteral<"rate_limited">, import("@sinclair/typebox").TLiteral<"exhausted">]>;
+export type SubscriptionAccountState = Static<typeof SubscriptionAccountStateSchema>;
+/**
+ * `RateEnvelopeSchema` — per-account rate-limit envelope. Hoisted so
+ * cross-runner conformance suites can validate per-element shape
+ * independently of the parent envelope.
+ *
+ * @since v8.7.0 — FR-G3 (PR-A4.3).
+ */
+export declare const RateEnvelopeSchema: import("@sinclair/typebox").TObject<{
+    req_per_min: import("@sinclair/typebox").TInteger;
+    req_per_hour: import("@sinclair/typebox").TInteger;
+}>;
+export type RateEnvelope = Static<typeof RateEnvelopeSchema>;
+/**
+ * `SubscriptionAccountEntrySchema` — one entry in
+ * `SubscriptionPoolStateSchema.accounts`. Hoisted so cross-runner
+ * conformance suites can validate per-element shape independently of
+ * the parent envelope.
+ *
+ * @since v8.7.0 — FR-G3 (PR-A4.3).
+ */
+export declare const SubscriptionAccountEntrySchema: import("@sinclair/typebox").TObject<{
+    account_id: import("@sinclair/typebox").TString;
+    provider: import("@sinclair/typebox").TString;
+    state: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"healthy">, import("@sinclair/typebox").TLiteral<"rate_limited">, import("@sinclair/typebox").TLiteral<"exhausted">]>;
+    stable_until: import("@sinclair/typebox").TString;
+    rate_envelope: import("@sinclair/typebox").TObject<{
+        req_per_min: import("@sinclair/typebox").TInteger;
+        req_per_hour: import("@sinclair/typebox").TInteger;
+    }>;
+    thrash_count_24h: import("@sinclair/typebox").TInteger;
+    allocated_units: import("@sinclair/typebox").TString;
+    consumed_units: import("@sinclair/typebox").TString;
+}>;
+export type SubscriptionAccountEntry = Static<typeof SubscriptionAccountEntrySchema>;
+export declare const SubscriptionPoolStateSchema: import("@sinclair/typebox").TObject<{
+    envelope_kind: import("@sinclair/typebox").TLiteral<"subscription_pool_state">;
+    contract_version: import("@sinclair/typebox").TLiteral<"8.7.0">;
+    ts: import("@sinclair/typebox").TString;
+    cluster_id: import("@sinclair/typebox").TString;
+    pool_health_id: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TString, import("@sinclair/typebox").TNull]>;
+    accounts: import("@sinclair/typebox").TArray<import("@sinclair/typebox").TObject<{
+        account_id: import("@sinclair/typebox").TString;
+        provider: import("@sinclair/typebox").TString;
+        state: import("@sinclair/typebox").TUnion<[import("@sinclair/typebox").TLiteral<"healthy">, import("@sinclair/typebox").TLiteral<"rate_limited">, import("@sinclair/typebox").TLiteral<"exhausted">]>;
+        stable_until: import("@sinclair/typebox").TString;
+        rate_envelope: import("@sinclair/typebox").TObject<{
+            req_per_min: import("@sinclair/typebox").TInteger;
+            req_per_hour: import("@sinclair/typebox").TInteger;
+        }>;
+        thrash_count_24h: import("@sinclair/typebox").TInteger;
+        allocated_units: import("@sinclair/typebox").TString;
+        consumed_units: import("@sinclair/typebox").TString;
+    }>>;
+    pause_resume_pair_id: import("@sinclair/typebox").TString;
+    signer_cluster_id: import("@sinclair/typebox").TString;
+    signature: import("@sinclair/typebox").TString;
+}>;
 export type SubscriptionPoolState = Static<typeof SubscriptionPoolStateSchema>;
+/**
+ * `validateSubscriptionPoolState` — pure-function evaluator for the
+ * cross-field invariants SPS-1 (consumed at-or-below allocated),
+ * SPS-2 (account_id distinct), and SPS-4 (stable_until at-or-after ts).
+ *
+ * **Source of truth** for SPS-1, SPS-2, and SPS-4. Registered into the
+ * global cross-field validator registry by `src/validators/index.ts`;
+ * exported here so:
+ *
+ *   - tests can exercise the cross-field tier in isolation without
+ *     bypassing the structural Value.Check tier;
+ *   - cross-language reference implementations (FR-A2 / TS-as-golden-
+ *     corpus per AT-1) have a single TS function to mirror.
+ *
+ * **Defensive contract** (mirrors the CanonicalRun CR-1 +
+ * ClusterRunSeries + InterSeriesScopingArtifact precedent): the
+ * function MUST NOT throw on malformed input. Under the standard
+ * `validate(...)` pipeline this defensive path is unreachable —
+ * Value.Check rejects non-object envelopes, missing fields, and
+ * malformed micro-USD strings first.
+ *
+ * **SPS-3 is NOT enforced here** — signature/derivation matching is
+ * consumer-state per ADR-010. Manifest emits
+ * `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`.
+ *
+ * **Bigint-safe SPS-1 comparison**: `string_micro_usd_le` uses
+ * `BigInt` to avoid floating-point rounding on values larger than
+ * `Number.MAX_SAFE_INTEGER` (e.g. 10^50-digit fixtures). The
+ * `^[0-9]+$` structural-tier pattern is the precondition.
+ *
+ * **JCS-canonical-form precondition on SPS-4**: `iso8601_ge_field`
+ * validates that both `stable_until` and `ts` match the shared
+ * `ISO8601_UTC_PATTERN` before lexicographic comparison.
+ * Lexicographic comparison on ISO 8601 strings is monotonic ONLY
+ * when both operands are in JCS-canonical form (UTC, Z-suffix, fixed
+ * precision, NFC-normalized) per SDD §2.0.1. If the precondition
+ * fails, the helper returns a tagged violation rather than a silent
+ * miscompare.
+ *
+ * @param data — record to evaluate; the function defends against
+ *   malformed input without throwing.
+ * @returns `{ valid, errors, warnings }` — errors carries SPS-1 /
+ *   SPS-2 / SPS-4-tagged strings naming the offending account index
+ *   for actionability.
+ *
+ * @since v8.7.0 — FR-G3 (PR-A4.3).
+ */
+export declare function validateSubscriptionPoolState(data: unknown): {
+    valid: boolean;
+    errors: string[];
+    warnings: string[];
+};
 //# sourceMappingURL=subscription-pool-state.d.ts.map
