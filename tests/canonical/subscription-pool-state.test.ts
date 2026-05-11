@@ -409,6 +409,15 @@ describe('SubscriptionPoolState published JSON Schema $id contract (PR-A4.2 iter
     expect(raw).not.toContain('"$ref"');
   });
 
+  it('the cross-field validator registry key matches the TypeBox $id (iter-2 MEDIUM mitigation — no two-string drift)', async () => {
+    const { getCrossFieldValidatorSchemas } = await import(
+      '../../src/validators/index.js'
+    );
+    const registered = getCrossFieldValidatorSchemas();
+    expect(registered).toContain(SubscriptionPoolStateSchema.$id);
+    expect(SubscriptionPoolStateSchema.$id).toBe('SubscriptionPoolState');
+  });
+
   it('the published JSON Schema carries x-crypto-bearing:true (consumer-visible flag)', () => {
     const schemaPath = join(
       dirname(fileURLToPath(import.meta.url)),
