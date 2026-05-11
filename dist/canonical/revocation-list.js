@@ -157,7 +157,10 @@ export const QuorumSignatureEntrySchema = Type.Object({
     signer_key_id: Type.String({
         pattern: ED25519_PUBKEY_PATTERN,
         description: 'ed25519 public-key identifier of this quorum signer. ' +
-            'Same byte-shape as the primary signer_key_id per FR-A5.',
+            '32-byte public key encoded as 43-char unpadded base64url ' +
+            'with the `ed25519-pub:` prefix per the v8.6.0 ' +
+            'ED25519_PUBKEY_PATTERN (distinct from the 86-char ed25519 ' +
+            'signature pattern; PR-A4.4 iter-1 fix).',
     }),
     signature: Type.String({
         pattern: ED25519_SIGNATURE_PATTERN,
@@ -429,11 +432,15 @@ export function validateRevocationList(data) {
             continue;
         }
         const revokedAt = entry.revoked_at;
-        // iso8601GeField(later, earlier) — for RL-7 we want
-        // revoked_at at-or-before issued_at, i.e. issued_at at-or-after
-        // revoked_at. Pass field-name labels (PR-A4.4 iter-1 LOW
-        // mitigation) so error messages name RL-7 fields rather than the
-        // SPS-4 defaults.
+        // RL-7 invariant: revoked_at MUST be at-or-before issued_at.
+        // Helper contract: iso8601GeField(later, earlier) returns valid
+        // iff later >= earlier (in lexicographic-on-JCS-canonical order).
+        // To enforce revoked_at <= issued_at we therefore pass
+        // issued_at as the LATER operand and revoked_at as the EARLIER
+        // operand. The field-name labels are passed in the same order
+        // (laterFieldName='issued_at', earlierFieldName='revoked_at') so
+        // any error message labels operands by their real field name
+        // rather than the SPS-4 defaults. PR-A4.4 iter-1 LOW mitigation.
         const rl7 = iso8601GeField(issuedAt, revokedAt, 'issued_at', 'revoked_at');
         if (!rl7.valid) {
             errors.push(`RL-7: revoked_keys[${i}] ${rl7.reason}`);
