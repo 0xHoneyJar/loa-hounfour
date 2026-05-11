@@ -109,9 +109,9 @@
     },
     {
       "id": "RL-10",
-      "expression": "valid_from MUST be at-or-before issued_at via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. A list cannot take effect before it is issued — the temporal-causality invariant on the envelope's primary validity window.",
+      "expression": "valid_from MUST be at-or-before issued_at via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. The effective-from timestamp cannot exceed the issuance timestamp; pre-issuance valid_from is admissible for retroactive revocation policies whereas scheduled-future lists with valid_from after issued_at are NOT supported by v8.7.0.",
       "severity": "error",
-      "message": "RevocationList MUST satisfy: valid_from is at-or-before issued_at via lexicographic ordering on ISO 8601 UTC strings. A list that takes effect before its own issuance violates the temporal-causality invariant; consumers cannot reason about the windowed-trust semantics under a from-after-issuance ordering.",
+      "message": "RevocationList MUST satisfy: valid_from is at-or-before issued_at via lexicographic ordering on ISO 8601 UTC strings. A list whose effective-from timestamp exceeds its issuance timestamp represents a scheduled-future list, which v8.7.0 does not support; pre-issuance valid_from is admissible for retroactive revocation policies.",
       "fields": ["valid_from", "issued_at"],
       "evaluator": "runtime-deferred",
       "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-10 inline at validate() time** via the validateRevocationList cross-field validator, delegating to iso8601_ge_field. Per AT-1, cross-language runners MUST replicate the lexicographic ordering with the fixed-fractional-precision precondition per-runtime.",

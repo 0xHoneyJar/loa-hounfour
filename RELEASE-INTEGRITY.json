@@ -1,6 +1,6 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T05:16:21.060Z",
+  "generated_at": "2026-05-11T05:25:25.734Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -7929,8 +7929,8 @@
       },
       {
         "path": "constraints/RevocationList.constraints.json",
-        "sha256": "9e3d238cecb484002dd51c9634f57f6a821534d425edfd58e3e2d94c9214832d",
-        "size_bytes": 17906
+        "sha256": "64281aa49bd410ce35f557597d63926f808acb63cc6db335b95f1a1c984b58a2",
+        "size_bytes": 18035
       },
       {
         "path": "constraints/RiskLevel.constraints.json",

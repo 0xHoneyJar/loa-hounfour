@@ -207,10 +207,13 @@ export const RevocationListEntrySchema = Type.Object(
     key_id: Type.String({
       pattern: ED25519_PUBKEY_PATTERN,
       description:
-        'ed25519 public-key identifier being revoked. Same byte-' +
-        'shape as SignatureEnvelope.signature_value per FR-A5 ' +
-        'alignment. Per-list distinctness is RL-1; the revoking ' +
-        'envelope MUST NOT include its own signer_key_id (RL-5).',
+        'ed25519 public-key identifier being revoked. 32-byte ' +
+        'public key encoded as 43-char unpadded base64url with the ' +
+        '`ed25519-pub:` prefix per the v8.6.0 ED25519_PUBKEY_PATTERN ' +
+        '(distinct from the 86-char ed25519 signature pattern; ' +
+        'PR-A4.4 iter-1 fix). Per-list distinctness is RL-1; the ' +
+        'revoking envelope MUST NOT include its own signer_key_id ' +
+        '(RL-5).',
     }),
     reason: RevocationReasonSchema,
     revoked_at: Type.String({
@@ -273,9 +276,16 @@ export const RevocationListSchema = Type.Object(
     valid_from: Type.String({
       pattern: ISO8601_UTC_PATTERN,
       description:
-        'List takes effect at this time. RL-10 enforces ' +
-        'valid_from at-or-before issued_at (the list cannot take ' +
-        'effect before it is issued).',
+        'Effective-from timestamp for this list. RL-10 enforces ' +
+        'valid_from at-or-before issued_at — the effective-from ' +
+        'timestamp cannot exceed the issuance timestamp. Pre-' +
+        'issuance valid_from is admissible for retroactive ' +
+        'revocation policies (revocations effective from valid_from ' +
+        'with the list issued at issued_at); scheduled-future lists ' +
+        'with valid_from > issued_at are NOT supported by v8.7.0. ' +
+        'PR-A4.4 iter-2 prose-alignment fix to remove the ' +
+        'contradictory parenthetical that the original SDD wording ' +
+        'carried.',
     }),
     valid_until: Type.Union(
       [Type.String({ pattern: ISO8601_UTC_PATTERN }), Type.Null()],
