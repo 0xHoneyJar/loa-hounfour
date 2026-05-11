@@ -389,6 +389,37 @@ describe('validateInterSeriesScopingArtifact — defensive contract (FR-G2)', ()
     ).toBe(true);
   });
 
+  it('surfaces a structural-precondition error when proof_path is missing (iter-1 MEDIUM #1 mitigation)', () => {
+    const result = validateInterSeriesScopingArtifact({
+      proposed_series_goals: [baseGoal('goal-001')],
+      constitutional_hash_proof: {
+        soul_hash: ZERO_HASH,
+      },
+    });
+    expect(result.valid).toBe(false);
+    const preconditionError = result.errors.find((e) =>
+      e.includes('proof_path must be a non-null array'),
+    );
+    expect(preconditionError).toBeDefined();
+    expect(preconditionError).toContain('undefined');
+  });
+
+  it('surfaces a structural-precondition error when proof_path is non-array (iter-1 MEDIUM #1 mitigation)', () => {
+    const result = validateInterSeriesScopingArtifact({
+      proposed_series_goals: [baseGoal('goal-001')],
+      constitutional_hash_proof: {
+        soul_hash: ZERO_HASH,
+        proof_path: 'not-an-array',
+      },
+    });
+    expect(result.valid).toBe(false);
+    const preconditionError = result.errors.find((e) =>
+      e.includes('proof_path must be a non-null array'),
+    );
+    expect(preconditionError).toBeDefined();
+    expect(preconditionError).toContain('string');
+  });
+
   it('accumulates ISSA-2 + ISSA-3 errors in a single pass when both fail', () => {
     const result = validateInterSeriesScopingArtifact({
       proposed_series_goals: [baseGoal('shared'), baseGoal('shared')],

@@ -385,10 +385,22 @@ export function validateInterSeriesScopingArtifact(data: unknown): {
     );
   } else {
     const proofPath = (proof as { proof_path?: unknown }).proof_path;
-    const wellFormed = merkleProofCompositionWellFormed(proofPath);
-    if (!wellFormed.valid) {
-      for (const issue of wellFormed.issues) {
-        errors.push(`ISSA-3: ${issue}`);
+    if (!Array.isArray(proofPath)) {
+      // ISSA-3 wrapper-level precondition: surface non-array proof_path as a
+      // structural-precondition error so cross-language reference
+      // implementations (FR-A2 / AT-1) mirroring this validator have a
+      // single, unambiguous contract — the LOCAL helper deliberately
+      // returns valid:true on non-array input (mirrors arrayFieldDistinct),
+      // but the wrapper is the published cross-field tier surface.
+      errors.push(
+        `ISSA: structural shape precondition failed — constitutional_hash_proof.proof_path must be a non-null array; got ${proofPath === null ? 'null' : proofPath === undefined ? 'undefined' : typeof proofPath}. The cross-field validator requires the structural tier (Value.Check) to have rejected this envelope first.`,
+      );
+    } else {
+      const wellFormed = merkleProofCompositionWellFormed(proofPath);
+      if (!wellFormed.valid) {
+        for (const issue of wellFormed.issues) {
+          errors.push(`ISSA-3: ${issue}`);
+        }
       }
     }
   }
