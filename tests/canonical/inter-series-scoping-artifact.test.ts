@@ -15,6 +15,9 @@
  */
 import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   InterSeriesScopingArtifactSchema,
   MerkleProofStepSchema,
@@ -298,6 +301,36 @@ describe('InterSeriesScopingArtifactSchema structural (FR-G2)', () => {
     expect(InterSeriesScopingArtifactSchema.$id).toBe(
       'InterSeriesScopingArtifact',
     );
+  });
+});
+
+describe('InterSeriesScopingArtifact published JSON Schema $id contract (iter-2 LOW mitigation)', () => {
+  it('the published JSON Schema $id is the canonical versioned URI (not the TypeBox short token)', () => {
+    const schemaPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      '..',
+      '..',
+      'schemas',
+      'inter-series-scoping-artifact.schema.json',
+    );
+    const generated = JSON.parse(readFileSync(schemaPath, 'utf8')) as {
+      $id: string;
+    };
+    expect(generated.$id).toBe(
+      'https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/inter-series-scoping-artifact',
+    );
+  });
+
+  it('the published JSON Schema carries zero $ref values (no Type.Ref drift, mirrors CanonicalRun precedent)', () => {
+    const schemaPath = join(
+      dirname(fileURLToPath(import.meta.url)),
+      '..',
+      '..',
+      'schemas',
+      'inter-series-scoping-artifact.schema.json',
+    );
+    const raw = readFileSync(schemaPath, 'utf8');
+    expect(raw).not.toContain('"$ref"');
   });
 });
 
