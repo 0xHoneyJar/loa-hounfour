@@ -262,7 +262,23 @@ import { postProcessSchema } from './schema-postprocess.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '..', 'schemas');
 
-const schemas = [
+/**
+ * Single source of truth for the published JSON Schema artifact set.
+ *
+ * Exported so `scripts/check-schemas.ts` can iterate the same list
+ * without maintaining a parallel registry. Prior to this hoist,
+ * `check-schemas.ts` had its own 22-entry array while `generate-schemas.ts`
+ * had 262; the divergence allowed cycle-005 + cycle-007 schemas to drift
+ * silently between TypeBox source and the published artifact. The
+ * PR-A4.1 iter-3 broken-`$ref` and PR-A4.4 iter-3 stale-prose bug
+ * classes both surfaced as a bridge HIGH_CONSENSUS finding precisely
+ * because the local pre-flight didn't cover those schemas.
+ *
+ * **Contract**: every published `schemas/*.schema.json` MUST have a
+ * matching entry here so `npm run schema:check` flags any source/
+ * artifact drift across the entire surface.
+ */
+export const SCHEMAS = [
   { name: 'jwt-claims', schema: JwtClaimsSchema },
   { name: 's2s-jwt-claims', schema: S2SJwtClaimsSchema },
   { name: 'invoke-response', schema: InvokeResponseSchema },
@@ -594,9 +610,28 @@ const schemas = [
   { name: 'merge-artifact', schema: MergeArtifactSchema },
 ];
 
+// Guard the entry-point execution so `scripts/check-schemas.ts` can
+// import `SCHEMAS` without triggering schema regeneration as an
+// import side-effect. `walkAndStrip` (via postProcessSchema) mutates
+// nested objects of the generated schemas in place; without this
+// guard, importing SCHEMAS from another script would invisibly run
+// the generator AND mutate the TypeBox source object references,
+// causing the check-schemas comparison to see a moving target. The
+// `process.argv[1]` check matches the standard
+// `if __name__ == '__main__'` idiom: top-level script execution
+// runs the body; module imports get only the exported SCHEMAS.
+const isMainModule =
+  !!process.argv[1] &&
+  fileURLToPath(import.meta.url) === process.argv[1];
+
+if (!isMainModule) {
+  // Loaded by another module (e.g. check-schemas.ts importing
+  // SCHEMAS); skip the generator body.
+} else {
+
 mkdirSync(outDir, { recursive: true });
 
-for (const { name, schema } of schemas) {
+for (const { name, schema } of SCHEMAS) {
   const jsonSchema: Record<string, unknown> = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     ...schema,
@@ -615,7 +650,7 @@ for (const { name, schema } of schemas) {
   console.log(`Generated: ${path}`);
 }
 
-console.log(`\n${schemas.length} schemas generated.`);
+console.log(`\n${SCHEMAS.length} schemas generated.`);
 
 // Generate schemas/index.json — machine-readable schema registry.
 //
@@ -636,7 +671,7 @@ const index = {
   $schema: 'https://schemas.0xhoneyjar.com/loa-hounfour/index',
   version: CONTRACT_VERSION,
   min_supported_version: MIN_SUPPORTED_VERSION,
-  schemas: schemas.map(({ name, schema }) => ({
+  schemas: SCHEMAS.map(({ name, schema }) => ({
     name,
     $id: `https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}`,
     file: `${name}.schema.json`,
@@ -654,13 +689,13 @@ const readmeLines = [
   '',
   `**Contract version:** ${CONTRACT_VERSION}`,
   `**Min supported:** ${MIN_SUPPORTED_VERSION}`,
-  `**Schemas:** ${schemas.length}`,
+  `**Schemas:** ${SCHEMAS.length}`,
   '',
   '## Schemas',
   '',
   '| Schema | $id | File |',
   '|--------|-----|------|',
-  ...schemas.map(({ name }) =>
+  ...SCHEMAS.map(({ name }) =>
     `| ${name} | \`https://schemas.0xhoneyjar.com/loa-hounfour/${CONTRACT_VERSION}/${name}\` | [${name}.schema.json](${name}.schema.json) |`,
   ),
   '',
@@ -685,3 +720,5 @@ const readmeLines = [
 const readmePath = join(outDir, 'README.md');
 writeFileSync(readmePath, readmeLines.join('\n'));
 console.log(`Generated: ${readmePath}`);
+
+} // end isMainModule
