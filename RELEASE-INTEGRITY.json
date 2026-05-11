@@ -1,6 +1,6 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T05:51:24.117Z",
+  "generated_at": "2026-05-11T05:59:32.974Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -680,8 +680,8 @@
       },
       {
         "path": "schemas/merge-artifact.schema.json",
-        "sha256": "d021e59a9a8c3af871877198dd0f0683e83412f899fb26cbec9acdb3ce3e540c",
-        "size_bytes": 3664
+        "sha256": "cab3848ff96949ecbe199ec60c078f05b7f6cc2e0ed11ac7bd235720725e1d0c",
+        "size_bytes": 3827
       },
       {
         "path": "schemas/message.schema.json",
@@ -3321,9 +3321,9 @@
         "size_bytes": 597
       },
       {
-        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-009-3-segment-slug.json",
-        "sha256": "90b4de0c2510bc7eb8cff0b9361c45986038ed7679f91c22853b1ef533e26f75",
-        "size_bytes": 599
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-009-mixed-case-with-dots.json",
+        "sha256": "c5abf2c061c11322715a6165330d32d308facc9c19382abe60079c7b1a31629d",
+        "size_bytes": 686
       },
       {
         "path": "vectors/MergeArtifact/v8.7.0/valid/ma-010-merged-at-fractional-seconds.json",

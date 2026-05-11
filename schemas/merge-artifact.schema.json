@@ -33,10 +33,11 @@
       "type": "string"
     },
     "epic_checkpoint_id": {
-      "description": "Optional lazy-link to an EpicCheckpointSchema record (FR-B8, v8.6.0). Null if the merge is not bound to a checkpoint — e.g. hotfixes outside a checkpoint window. Resolution is consumer-state per ADR-010.",
+      "description": "Optional lazy-link to an EpicCheckpointSchema record (FR-B8, v8.6.0). Null if the merge is not bound to a checkpoint — e.g. hotfixes outside a checkpoint window. Resolution is consumer-state per ADR-010. maxLength 256 mirrors merger_actor_id (PR-A4.5 iter-1 MEDIUM mitigation: sibling identifier fields should have consistent DoS guards).",
       "anyOf": [
         {
           "minLength": 1,
+          "maxLength": 256,
           "type": "string"
         },
         {

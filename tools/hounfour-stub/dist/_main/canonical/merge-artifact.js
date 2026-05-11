@@ -90,11 +90,14 @@ export const MergeArtifactSchema = Type.Object({
         minLength: 1,
         description: 'Consumer-shaped cluster identifier.',
     }),
-    epic_checkpoint_id: Type.Union([Type.String({ minLength: 1 }), Type.Null()], {
+    epic_checkpoint_id: Type.Union([Type.String({ minLength: 1, maxLength: 256 }), Type.Null()], {
         description: 'Optional lazy-link to an EpicCheckpointSchema record ' +
             '(FR-B8, v8.6.0). Null if the merge is not bound to a ' +
             'checkpoint — e.g. hotfixes outside a checkpoint window. ' +
-            'Resolution is consumer-state per ADR-010.',
+            'Resolution is consumer-state per ADR-010. maxLength 256 ' +
+            'mirrors merger_actor_id (PR-A4.5 iter-1 MEDIUM mitigation: ' +
+            'sibling identifier fields should have consistent DoS ' +
+            'guards).',
     }),
     repo_slug: Type.String({
         pattern: REPO_SLUG_PATTERN,
@@ -183,6 +186,25 @@ export function validateMergeArtifact(data) {
             valid: false,
             errors: [
                 `MA: structural shape precondition failed — input must be a non-null object (MergeArtifact record); got ${data === null ? 'null' : Array.isArray(data) ? 'array' : typeof data}.`,
+            ],
+            warnings: [],
+        };
+    }
+    // PR-A4.5 iter-1 MEDIUM mitigation (Anthropic+Codex consensus):
+    // beyond the non-null-object check, the shim also guards the
+    // envelope_kind discriminator. Direct callers bypassing Value.Check
+    // who pass an unrelated shape (e.g. a SubscriptionPoolState
+    // envelope) get a tagged precondition error rather than a false-
+    // positive valid:true. The structural tier (Value.Check) is still
+    // the authoritative shape gate; this is a defense-in-depth check
+    // matching the wrapper-precondition pattern from the other
+    // cycle-007 cross-field validators.
+    const envelopeKind = data.envelope_kind;
+    if (envelopeKind !== 'merge_artifact') {
+        return {
+            valid: false,
+            errors: [
+                `MA: structural shape precondition failed — envelope_kind is ${envelopeKind === undefined ? 'missing' : typeof envelopeKind === 'string' ? `"${envelopeKind}"` : typeof envelopeKind}, expected "merge_artifact". The shim guards the discriminator to reject envelopes of other shapes.`,
             ],
             warnings: [],
         };

@@ -1,5 +1,5 @@
 {
-  "_comment": "repo_slug pattern admits 2-segment owner/name. This fixture verifies a typical owner/name slug; longer paths are NOT admissible.",
+  "_comment": "repo_slug with mixed case characters and dots within the name segment \u2014 pattern admits letters, digits, underscore, dot, and hyphen. Single slash separator pinned at one occurrence by the GitHub-shaped pattern.",
   "envelope_kind": "merge_artifact",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",
