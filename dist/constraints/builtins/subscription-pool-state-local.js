@@ -196,8 +196,6 @@ export function iso8601GeField(laterField, earlierField) {
     // because '.' (0x2E) < 'Z' (0x5A) — the bare-second form sorts AFTER
     // the fractional-second form for the same instant. Reject mixed
     // precisions as a precondition violation.
-    const laterFrac = laterField.length - laterField.lastIndexOf('.');
-    const earlierFrac = earlierField.length - earlierField.lastIndexOf('.');
     const laterHasFrac = laterField.includes('.');
     const earlierHasFrac = earlierField.includes('.');
     if (laterHasFrac !== earlierHasFrac) {
@@ -206,11 +204,22 @@ export function iso8601GeField(laterField, earlierField) {
             reason: `JCS-canonical-form precondition failed — fractional-precision mismatch. stable_until "${laterField}" ${laterHasFrac ? 'includes' : 'omits'} fractional seconds; ts "${earlierField}" ${earlierHasFrac ? 'includes' : 'omits'} fractional seconds. Lexicographic at-or-after comparison requires identical fractional-precision representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent precision across both fields.`,
         };
     }
-    if (laterHasFrac && earlierHasFrac && laterFrac !== earlierFrac) {
-        return {
-            valid: false,
-            reason: `JCS-canonical-form precondition failed — fractional-digit-count mismatch. stable_until "${laterField}" has a different fractional-digit count than ts "${earlierField}". Lexicographic at-or-after comparison requires identical digit-count representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent digit-count across both fields.`,
-        };
+    if (laterHasFrac && earlierHasFrac) {
+        // Both have a fractional component; compare digit-count
+        // representations. iter-3 LOW mitigation: previously the length
+        // arithmetic ran unconditionally and computed length+1 on
+        // no-fractional inputs because lastIndexOf returns -1, which was
+        // dead-code-path defensively but bad form. Guarding the
+        // computation inside the both-have-frac branch removes the
+        // ambiguity.
+        const laterFracLen = laterField.length - laterField.lastIndexOf('.');
+        const earlierFracLen = earlierField.length - earlierField.lastIndexOf('.');
+        if (laterFracLen !== earlierFracLen) {
+            return {
+                valid: false,
+                reason: `JCS-canonical-form precondition failed — fractional-digit-count mismatch. stable_until "${laterField}" has a different fractional-digit count than ts "${earlierField}". Lexicographic at-or-after comparison requires identical digit-count representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent digit-count across both fields.`,
+            };
+        }
     }
     if (laterField < earlierField) {
         return {
