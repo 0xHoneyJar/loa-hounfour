@@ -113,6 +113,8 @@ export const RULE_4_CRYPTO_BEARING_NAMES = [
   'ChallengeSchema',
   // v8.7.0 PR-A4.3 — FR-G3 SubscriptionPoolState (x-crypto-bearing).
   'SubscriptionPoolStateSchema',
+  // v8.7.0 PR-A4.4 — FR-G4 RevocationList (x-crypto-bearing + x-chain-bearing).
+  'RevocationListSchema',
 ];
 const RULE_4_PATTERN = new RegExp(
   String.raw`assertValid\s*\(\s*(?:${RULE_4_CRYPTO_BEARING_NAMES.join('|')})\b`,

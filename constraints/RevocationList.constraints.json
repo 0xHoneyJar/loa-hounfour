@@ -1,0 +1,150 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RevocationList",
+  "origin": "genesis",
+  "contract_version": "8.7.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "RL-1",
+      "expression": "revoked_keys[*].key_id values MUST be distinct within a single RevocationList — no two entries in the revoked_keys array may share the same key_id. Aggregate-cluster key_id uniqueness across multiple revocation lists is consumer-state via the chain semantics; the schema-level invariant is per-envelope.",
+      "severity": "error",
+      "message": "RevocationList.revoked_keys[*].key_id MUST be distinct within a list. Duplicate key_id entries blind the consumer's per-key revocation aggregation; the cluster verifier's selection of a revoked key by key_id relies on equality, and a duplicate would produce non-deterministic per-key reason resolution.",
+      "fields": ["revoked_keys"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-1 inline at validate() time** via the validateRevocationList cross-field validator. Per AT-1, cross-language runners MUST re-implement the per-array distinctness check per-runtime. Marked runtime-deferred rather than library because the per-element array_field_distinct helper is LOCAL — inline only, NOT a DSL primitive — per SDD section 4.6. RL-1 is the fourth use site of array_field_distinct after CRS-4, ISSA-2, SPS-2; RL-12 is the fifth — closing the SDD section 4.6 promotion threshold. **What would change the lock:** generalize array_field_distinct to a registered DSL builtin in EVALUATOR_BUILTINS and re-mark CRS-4, ISSA-2, SPS-2, RL-1, RL-12 as evaluator library in a follow-up cycle-007.x patch.",
+      "type_signature": {
+        "revoked_keys": "array"
+      }
+    },
+    {
+      "id": "RL-2",
+      "expression": "consumer computes per-cluster nonce monotonicity for the RevocationList envelope — within a single cluster_id, successive lists MUST have strictly increasing nonce values. Hounfour ships the shape and the monotonicity builtin pattern; consumers maintain the per-cluster state.",
+      "severity": "warning",
+      "message": "RevocationList ships only the shape; nonce monotonicity per cluster_id is consumer-state per ADR-010. The schema pins nonce to an integer in the [0, Number.MAX_SAFE_INTEGER] range so cross-runner integer arithmetic is bigint-safe at the JSON boundary; semantic monotonicity verification stays consumer-side via the v8.6.0 sequence_monotonic_per_cluster builtin.",
+      "fields": ["nonce", "cluster_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-envelope consumer-state contract. Per RFC section 3.4 and ADR-010, hounfour ships shape; the per-cluster nonce monotonicity verification is consumer-side. Reuses the v8.6.0 sequence_monotonic_per_cluster builtin pattern at the consumer-side verifier layer. **Manifest emission**: when a consumer's validate wrapper has not supplied per-cluster sequence context, attach REVOCATION_LIST_NONCE_MONOTONICITY_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Lock-de-scope rationale:** per-cluster sequence state is the established cycle-005 cycle-pattern for chain-bearing concerns. Hounfour does NOT bundle a per-cluster state-store in v8.7.0.",
+      "type_signature": {
+        "nonce": "integer",
+        "cluster_id": "string"
+      }
+    },
+    {
+      "id": "RL-3",
+      "expression": "consumer computes prev_envelope_hash chain integrity for the RevocationList — the prev_envelope_hash field MUST equal the canonical-form hash of the predecessor list. Null prev_envelope_hash is admissible for genesis envelopes — the first list in a chain — where chain verification is skipped at genesis.",
+      "severity": "warning",
+      "message": "RevocationList ships only the shape; chain-prev hash integrity is consumer-state per ADR-010. The schema pins prev_envelope_hash to the canonical sha256 hex pattern so cross-runner byte-identity holds; semantic chain verification stays consumer-side via the v8.6.0 chain_validator_prev_hash builtin.",
+      "fields": ["prev_envelope_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-envelope consumer-state contract. Per RFC section 3.4 and ADR-010, hounfour ships shape; the chain-prev verification is consumer-side. Reuses the v8.6.0 chain_validator_prev_hash builtin pattern at the consumer-side verifier layer. **Manifest emission**: when a consumer's validate wrapper has not supplied predecessor canonical-form context, attach REVOCATION_LIST_CHAIN_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Genesis admissibility**: null prev_envelope_hash is admissible for the first list in a chain; chain verification is skipped at genesis. The signed-payload boundary documented in the schema JSDoc clarifies that the signature signs the JCS-canonical-form payload with signature and quorum_signatures fields omitted; the prev_envelope_hash field is inside the signed boundary.",
+      "type_signature": {
+        "prev_envelope_hash": "string"
+      }
+    },
+    {
+      "id": "RL-4",
+      "expression": "consumer computes ed25519 signature derivation matching for the RevocationList envelope — the signature field MUST verify under the public key derived from signer_key_id per the consumer-side ed25519 verifier. Hounfour ships the shape; consumers verify.",
+      "severity": "warning",
+      "message": "RevocationList ships only the shape; signature derivation matching is consumer-state per ADR-010. The schema pins signature to the canonical ed25519 hex pattern so consumers across runtimes can decode the signature byte-identical; semantic verification stays consumer-side per the v8.5.0 signer_key_id_matches_derivation builtin pattern.",
+      "fields": ["signature", "signer_key_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Crypto-bearing consumer-state contract. Per RFC section 3.4 and ADR-010, hounfour ships shape; the ed25519 signature verification is consumer-side. The TS reference implementation does NOT bundle an ed25519 verifier; cross-language runners — Python pynacl / Go crypto-ed25519 / Rust ed25519-dalek — verify against the canonicalized payload bytes per the consumer-side reference verifier. **Manifest emission**: when a consumer's validate wrapper has not supplied signature context, attach REVOCATION_LIST_SIGNER_DERIVATION_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Signed-payload boundary**: the signature signs the JCS-canonical-form bytes of the envelope with the signature AND quorum_signatures fields omitted; see file-level JSDoc for the step-by-step procedure.",
+      "type_signature": {
+        "signature": "string",
+        "signer_key_id": "string"
+      }
+    },
+    {
+      "id": "RL-5",
+      "expression": "signer_key_id MUST NOT appear in revoked_keys[*].key_id — a key cannot revoke itself within the envelope it signs. Use a successor key to revoke the predecessor. The self-revocation lock prevents the trivial bypass where a compromised key conceals its own compromise by listing itself.",
+      "severity": "error",
+      "message": "RevocationList.signer_key_id MUST NOT appear in revoked_keys[*].key_id. Self-revocation within the same envelope is a trivial bypass surface — a compromised signer could otherwise sign an envelope that revokes itself, blinding the cluster verifier to the compromise. The successor-key recovery path is documented in the file-level JSDoc Layer 2.",
+      "fields": ["signer_key_id", "revoked_keys"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-5 inline at validate() time** via the validateRevocationList cross-field validator, which delegates to the NEW LOCAL field_not_in_array_field helper — see src/constraints/builtins/revocation-list-local.ts. Per AT-1, cross-language runners MUST re-implement the per-element membership check per-runtime. Marked runtime-deferred rather than library because field_not_in_array_field is LOCAL — inline only, NOT a DSL primitive — per SDD section 4.6. **Anti-finding-rotation pre-emptive lock**: this constraint is documented per the PR-A3.8 lesson — the bridge would otherwise surface the self-revocation bypass as a finding-rotation candidate. **What would change the lock:** if a second schema introduces a similar field-not-in-array-field shape, generalize the helper to a registered DSL builtin in EVALUATOR_BUILTINS and re-mark RL-5 as evaluator library.",
+      "type_signature": {
+        "signer_key_id": "string",
+        "revoked_keys": "array"
+      }
+    },
+    {
+      "id": "RL-6",
+      "expression": "consumer computes nonce uniqueness per signer_key_id within the issuing window for the RevocationList envelope. Hounfour ships the shape; consumers maintain the per-signer windowed state via the v8.6.0 nonce_unique_per_signer_window builtin.",
+      "severity": "warning",
+      "message": "RevocationList ships only the shape; per-signer windowed nonce uniqueness is consumer-state per ADR-010. The schema pins nonce to a bounded integer so cross-runner arithmetic is well-defined; semantic uniqueness verification stays consumer-side via the v8.6.0 nonce_unique_per_signer_window builtin.",
+      "fields": ["nonce", "signer_key_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-envelope consumer-state contract. Per RFC section 3.4 and ADR-010, hounfour ships shape; per-signer windowed nonce uniqueness verification is consumer-side. Reuses the v8.6.0 nonce_unique_per_signer_window builtin pattern at the consumer-side verifier layer. **Manifest emission**: when a consumer's validate wrapper has not supplied per-signer window context, attach REVOCATION_LIST_NONCE_WINDOW_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime.",
+      "type_signature": {
+        "nonce": "integer",
+        "signer_key_id": "string"
+      }
+    },
+    {
+      "id": "RL-7",
+      "expression": "for each entry in revoked_keys[*]: revoked_at MUST be at-or-before issued_at via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. The fixed-fractional-precision precondition from PR-A4.3 iter-1 applies — producers MUST emit consistent precision across both fields.",
+      "severity": "error",
+      "message": "RevocationList.revoked_keys[*] MUST satisfy: revoked_at is at-or-before issued_at via lexicographic ordering on ISO 8601 UTC strings. A per-entry revocation timestamp after the envelope's issuance violates the temporal-causality invariant; consumers depend on this for the per-key revocation aggregation across pages.",
+      "fields": ["revoked_keys", "issued_at"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-7 inline at validate() time** via the validateRevocationList cross-field validator, delegating to iso8601_ge_field reused from PR-A4.3 subscription-pool-state-local. Per AT-1, cross-language runners MUST re-implement the lexicographic ordering with the fixed-fractional-precision precondition per-runtime. **JCS-canonical-form precondition lock (PR-A4.3 iter-1 fix)**: the helper validates pattern conformance AND fixed-precision representation before ordering; mixed-precision pairs return a tagged violation rather than silent miscompare. **What would change the lock:** when iso8601_ge_field is promoted to a registered DSL builtin in EVALUATOR_BUILTINS — gated on second-and-fifth use site evidence — re-mark RL-7, RL-9, RL-10, SPS-4 as evaluator library.",
+      "type_signature": {
+        "revoked_keys": "array",
+        "issued_at": "string"
+      }
+    },
+    {
+      "id": "RL-9",
+      "expression": "when both valid_from and valid_until are non-null: valid_from MUST be at-or-before valid_until via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. Null valid_until is admissible — open-ended validity until superseded by next nonce.",
+      "severity": "error",
+      "message": "RevocationList MUST satisfy: when valid_until is non-null, valid_from is at-or-before valid_until via lexicographic ordering on ISO 8601 UTC strings. An inverted validity window represents a list that expires before it takes effect; consumers cannot reason about the windowed-trust semantics under inversion.",
+      "fields": ["valid_from", "valid_until"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-9 inline at validate() time** via the validateRevocationList cross-field validator, delegating to iso8601_ge_field. **Null valid_until semantics**: open-ended validity until superseded by next nonce — the constraint is conditional on valid_until being non-null. Per AT-1, cross-language runners MUST replicate the conditional-evaluation discipline; checking the null case before invoking the helper avoids spurious precondition violations on the admissible open-ended case. **Anti-finding-rotation pre-emptive lock**: null valid_until admissibility is documented per the PR-A3.8 lesson; the bridge would otherwise surface open-ended lists as defects.",
+      "type_signature": {
+        "valid_from": "string",
+        "valid_until": "string"
+      }
+    },
+    {
+      "id": "RL-10",
+      "expression": "valid_from MUST be at-or-before issued_at via lexicographic ordering on JCS-canonical-form ISO 8601 UTC strings. A list cannot take effect before it is issued — the temporal-causality invariant on the envelope's primary validity window.",
+      "severity": "error",
+      "message": "RevocationList MUST satisfy: valid_from is at-or-before issued_at via lexicographic ordering on ISO 8601 UTC strings. A list that takes effect before its own issuance violates the temporal-causality invariant; consumers cannot reason about the windowed-trust semantics under a from-after-issuance ordering.",
+      "fields": ["valid_from", "issued_at"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-10 inline at validate() time** via the validateRevocationList cross-field validator, delegating to iso8601_ge_field. Per AT-1, cross-language runners MUST replicate the lexicographic ordering with the fixed-fractional-precision precondition per-runtime.",
+      "type_signature": {
+        "valid_from": "string",
+        "issued_at": "string"
+      }
+    },
+    {
+      "id": "RL-11",
+      "expression": "consumer computes pagination forward-link integrity for the RevocationList envelope — when next_page_hash is non-null, it MUST point to a list with the same cluster_id. Null next_page_hash is admissible at the last page in the chain at issued_at time.",
+      "severity": "warning",
+      "message": "RevocationList ships only the shape; pagination forward-link integrity is consumer-state per ADR-010. The schema pins next_page_hash to the canonical sha256 hex pattern so cross-runner byte-identity holds; cluster_id continuity across pages stays consumer-side.",
+      "fields": ["next_page_hash", "cluster_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-envelope consumer-state contract. Per RFC section 3.4 and ADR-010, hounfour ships shape; pagination forward-link integrity verification is consumer-side. **Manifest emission**: when a consumer's validate wrapper has not supplied pagination context, attach REVOCATION_LIST_PAGINATION_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Anti-finding-rotation pre-emptive lock**: null next_page_hash admissibility is documented per the PR-A3.8 lesson — the bridge would otherwise surface last-page envelopes as defects.",
+      "type_signature": {
+        "next_page_hash": "string",
+        "cluster_id": "string"
+      }
+    },
+    {
+      "id": "RL-12",
+      "expression": "when quorum_signatures is non-null: quorum_signatures[*].signer_key_id values MUST be distinct AND the primary signer_key_id MUST appear in quorum_signatures[*].signer_key_id. Null quorum_signatures is admissible — that case is the single-signer model.",
+      "severity": "error",
+      "message": "RevocationList MUST satisfy: when quorum_signatures is non-null, quorum signers are distinct AND the primary signer is one of them. Duplicate quorum signers blind the consumer's m-of-n threshold count; a primary signer absent from the quorum produces an inconsistent signed-payload boundary (the primary's signature signs the same bytes as the quorum entries should).",
+      "fields": ["quorum_signatures", "signer_key_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Intra-record cross-field invariant. **TS reference implementation enforces RL-12 inline at validate() time** via the validateRevocationList cross-field validator, delegating to array_field_distinct (RL-12 first arm; reused from PR-A4.1) AND field_in_array_field (RL-12 second arm; NEW LOCAL helper inverse of RL-5's field_not_in_array_field). **Null quorum_signatures semantics**: single-signer model — the constraint is conditional on quorum_signatures being non-null. Per AT-1, cross-language runners MUST replicate the conditional-evaluation discipline. **Fifth use site of array_field_distinct**: RL-12 closes the SDD section 4.6 promotion threshold; cycle-007 follow-up patch promotes array_field_distinct to a registered DSL builtin and re-marks CRS-4, ISSA-2, SPS-2, RL-1, RL-12 as evaluator library.",
+      "type_signature": {
+        "quorum_signatures": "array",
+        "signer_key_id": "string"
+      }
+    }
+  ]
+}

@@ -11,6 +11,6 @@ export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, type 
 export { ClusterRunSeriesSchema, ClusterRunRepoStatusSchema, ClusterRunSeriesRepoEntrySchema, validateClusterRunSeries, type ClusterRunSeries, type ClusterRunRepoStatus, type ClusterRunSeriesRepoEntry, } from './cluster-run-series.js';
 export { InterSeriesScopingArtifactSchema, MerkleProofStepSchema, ProposedSeriesGoalSchema, validateInterSeriesScopingArtifact, type InterSeriesScopingArtifact, type MerkleProofStep, type ProposedSeriesGoal, } from './inter-series-scoping-artifact.js';
 export { SubscriptionPoolStateSchema, SubscriptionAccountStateSchema, SubscriptionAccountEntrySchema, RateEnvelopeSchema, validateSubscriptionPoolState, type SubscriptionPoolState, type SubscriptionAccountState, type SubscriptionAccountEntry, type RateEnvelope, } from './subscription-pool-state.js';
-export { RevocationListSchema, type RevocationList, } from './revocation-list.js';
+export { RevocationListSchema, RevocationReasonSchema, RevocationListEntrySchema, QuorumSignatureEntrySchema, validateRevocationList, type RevocationList, type RevocationReason, type RevocationListEntry, type QuorumSignatureEntry, } from './revocation-list.js';
 export { MergeArtifactSchema, type MergeArtifact, } from './merge-artifact.js';
 //# sourceMappingURL=index.d.ts.map

@@ -1567,7 +1567,7 @@
       "name": "revocation-list",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/revocation-list",
       "file": "revocation-list.schema.json",
-      "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.4."
+      "description": "Cluster verifiers MUST consult before accepting envelopes signed under any listed key. Crypto-bearing AND chain-bearing — full FR-A5 + FR-C1 + FR-C2 + FR-C3 discipline applies. Optional quorum-signature + root-of-trust hooks per the signer-compromise recovery doc. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form."
     },
     {
       "name": "merge-artifact",

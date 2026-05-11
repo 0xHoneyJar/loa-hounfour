@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T04:01:10.938Z",
+  "generated_at": "2026-05-11T04:22:44.947Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1162,
-    "constraints": 138,
+    "vectors": 1201,
+    "constraints": 139,
     "manifests": 2,
-    "total": 1564
+    "total": 1604
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -1065,8 +1065,8 @@
       },
       {
         "path": "schemas/revocation-list.schema.json",
-        "sha256": "3b59df417f8e77f421de50ca1ea1b3712d4d943ddc559481bf22f11d78a32c6d",
-        "size_bytes": 301
+        "sha256": "73f42e39419ff769cb3d4eab16c964aaa82f94930fd5b7ae8bc9debab3da2a40",
+        "size_bytes": 10197
       },
       {
         "path": "schemas/risk-level.schema.json",
@@ -4406,6 +4406,201 @@
         "size_bytes": 11
       },
       {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl1-and-rl7-and-rl10-combined-rejected.json",
+        "sha256": "18e3f831f2675be87d688af9dd0463b39315ec76cb2b6d202a27201898334e21",
+        "size_bytes": 1399
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl1-duplicate-key-id-rejected.json",
+        "sha256": "a3d088a9d8d0e5d5b0881898227baaa61adc01a54100ce81d9e3012a16916971",
+        "size_bytes": 1279
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl10-valid-from-after-issued-rejected.json",
+        "sha256": "701c77dde640acc76821ffe36cfcbf08cc93318eb5be176d1d4e5ff7e0252ab3",
+        "size_bytes": 1068
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl12-duplicate-quorum-signers-rejected.json",
+        "sha256": "b78b78aadd9c5ed51187ee67e1cde890ffb1d4dc1d9fa8e326b1ee06d87c4e5f",
+        "size_bytes": 1804
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl12-quorum-missing-primary-rejected.json",
+        "sha256": "646daa090fa4de32b371d1cc3beea1ead0e3e2da07625512146ced4a243c320f",
+        "size_bytes": 1567
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl5-self-revocation-rejected.json",
+        "sha256": "83e97d1429c492fb196e9eca210d544b94e9eb134206515df329beb63b2d3fee",
+        "size_bytes": 1136
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl7-revoked-at-after-issued-rejected.json",
+        "sha256": "ba6f75507f870e0aebbac38f1d13557b637890b52f180967b73cddc8862bc5d4",
+        "size_bytes": 1093
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid-cross-field/rl9-valid-until-before-valid-from-rejected.json",
+        "sha256": "821fc4aebf3de1c95741077611df062a0551935ba0c6d9bcd1a82b62bfbbe414",
+        "size_bytes": 1066
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "48ed14d2a4b8eda7949cec006433588bfd0b1f17aa41254498f83aaa0417c3ef",
+        "size_bytes": 1003
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/cluster-id-empty-rejected.json",
+        "sha256": "3e55f53222e8aabef387b5a6bc1b5373715a1dc1f06c1bdf08a173d0f0a12e41",
+        "size_bytes": 953
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "83bc50d8ddd15ffd884b7edb57a24d1bb8fe270aa1f7a75d329f0acedd9f65a2",
+        "size_bytes": 970
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/envelope-kind-wrong-literal-rejected.json",
+        "sha256": "62e84ae9d8840a4d8375a2e782b739001c462533a2af87e2b702327fa0beb299",
+        "size_bytes": 992
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/issued-at-non-utc-rejected.json",
+        "sha256": "ae7f4b05544c3409b3691765efc8c6088f6b62396f45eefe4abb8cd84b075896",
+        "size_bytes": 988
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/list-id-empty-rejected.json",
+        "sha256": "08888dc07a77a7a8689ea101199dd51110c83d36ee2bf03777844f61c20499fe",
+        "size_bytes": 965
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/max-staleness-seconds-above-max-rejected.json",
+        "sha256": "99063294eb6b08d107caefeb5ad631eb953460f3038f11c8512716acb8a89d90",
+        "size_bytes": 1024
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/nonce-above-max-safe-integer-rejected.json",
+        "sha256": "aea9b50e4896185bd717f7e6fff9b5fab623444ecf80a7aea8aff2deb6234c73",
+        "size_bytes": 1115
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/nonce-negative-rejected.json",
+        "sha256": "bb22d7310802032c898b5a7bf0f79b30d3b1b4b33ade2a885bd1b728b179ebbf",
+        "size_bytes": 978
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/prev-envelope-hash-pattern-violation-rejected.json",
+        "sha256": "727c41bb5d7867d4d81b192e60368d7fa6ceb06d9b4364992c58e82d3bc09cf3",
+        "size_bytes": 990
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/quorum-signatures-too-many-rejected.json",
+        "sha256": "d24dd80729df10e4dbf186ce3cede3b6acf14a8d05ac430ac06de5b95f8f97f5",
+        "size_bytes": 9264
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/reason-out-of-vocab-rejected.json",
+        "sha256": "10b837729a2ba3ca5f122f5640a93afd7a4e705339f7688ac5720f896d51e428",
+        "size_bytes": 1017
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/revocation-evidence-hash-pattern-violation-rejected.json",
+        "sha256": "a8f47304a2f1d5fceb2a75709805a41c109f756bddd18658fe6060e3e441e9aa",
+        "size_bytes": 996
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/revoked-at-malformed-rejected.json",
+        "sha256": "bf5656a37deae3b9269ba9388a09db23fa010b95deac209713e1ba477e520c1d",
+        "size_bytes": 969
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/revoked-key-id-pattern-violation-rejected.json",
+        "sha256": "dd24497df3f3ff8b1ae09e12136769b26b7d2d73b843f9d9eaa27ad3612e5c0d",
+        "size_bytes": 903
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/root-of-trust-id-over-max-length-rejected.json",
+        "sha256": "110b7e8c7b87007bf1d3ab17a90e28b134bc53e9a9fbf21b3de38bab7ec585e2",
+        "size_bytes": 1221
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/signature-pattern-violation-rejected.json",
+        "sha256": "de6998093abe4404a1d1a77da0a0c4e99f7a89b8c195f8c9722eb5fd9cc84fee",
+        "size_bytes": 899
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/signer-key-id-pattern-violation-rejected.json",
+        "sha256": "af85ef7aa581997c91e0d5046eb3d936dbefd5a304af4f1e328501f423e5f3a0",
+        "size_bytes": 899
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/invalid/valid-from-malformed-iso8601-rejected.json",
+        "sha256": "ae29353a6ed1c0295f1f7cc93c1bcdf05de83f2b18d939eda3f66c21271db20a",
+        "size_bytes": 986
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-001-genesis-empty.json",
+        "sha256": "cde9f909790543a224c6a446f6cfcd8372425a8dba6a932ecddf996ed4273ca1",
+        "size_bytes": 840
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-002-genesis-single-revocation.json",
+        "sha256": "f2bd2c18acd5a74fda34917fa4842168f8657c4ff3dd8aae4a27e49fd5f23755",
+        "size_bytes": 1055
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-003-non-genesis-single-new.json",
+        "sha256": "3b0fe082deab992bb34426da1468b06da87a78a7a85e3fa46c33752347806d89",
+        "size_bytes": 1107
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-004-continuation-no-new-revocations.json",
+        "sha256": "1244b97d856cdf1be0618e1ed79166850af9667a5335abfd40a215c885e225b8",
+        "size_bytes": 940
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-005-all-reasons-represented.json",
+        "sha256": "6a856b2e3566dbfcd3ba849dbd6bce68dbcd7177c22825ab7623f7afdc7c19f2",
+        "size_bytes": 2023
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-006-closed-validity-window.json",
+        "sha256": "941260534f0cc6efd719cfaf53032eb68caddd12709e25681761169f3f5bc6a5",
+        "size_bytes": 1033
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-007-max-staleness-set.json",
+        "sha256": "552ffa48129c25f766385333baacb280f26f36b27172c44f571baa5144690625",
+        "size_bytes": 1036
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-008-quorum-with-primary-member.json",
+        "sha256": "3931680683190419080b1102fc67dccff7e7ffa3b2e3b7a18fac126e3e675335",
+        "size_bytes": 1803
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-009-mixed-evidence-hash.json",
+        "sha256": "f483c926113291dba9eff730da7a1b0d30b52c43efd1c86d7abfeab490c3e1bf",
+        "size_bytes": 1676
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-010-root-of-trust-binding.json",
+        "sha256": "67bd410bdd3479069b3e2642fc8c47a46828f61fb93723e111279d7fca604ef0",
+        "size_bytes": 1098
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-011-many-revocations-100.json",
+        "sha256": "ea41bf32e339daf6a8bae7f9f56401769dbd728087a581f541d046d16ab69b34",
+        "size_bytes": 24845
+      },
+      {
+        "path": "vectors/RevocationList/v8.7.0/valid/rl-012-quorum-max-32-signers.json",
+        "sha256": "060654a09a9e458a811503cdf1479c2a5cc33c6bba2270109cad53fd1a026ab3",
+        "size_bytes": 9017
+      },
+      {
         "path": "vectors/RiskLevel/invalid/empty-string.json",
         "sha256": "bd85bcdb8d4e613a79cb62d0903946ad10c83e63dc75f67614c159c0dbf4d184",
         "size_bytes": 3
@@ -7723,6 +7918,11 @@
         "size_bytes": 581
       },
       {
+        "path": "constraints/RevocationList.constraints.json",
+        "sha256": "9e3d238cecb484002dd51c9634f57f6a821534d425edfd58e3e2d94c9214832d",
+        "size_bytes": 17906
+      },
+      {
         "path": "constraints/RiskLevel.constraints.json",
         "sha256": "a0cfbdab05b07858c0867ae4725d4859606b7324d06b0abe3ae8fbebb93c3680",
         "size_bytes": 207
@@ -7831,8 +8031,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "2bf69c947a5717217bea9123a7257b4957ed797ac2a73f460fe8b6bd0984b078",
-        "size_bytes": 86149
+        "sha256": "c8e09eb3c001c3e12b79a74cfc568e66282d2d49c88ace96909f5fd07a7dd918",
+        "size_bytes": 86529
       },
       {
         "path": "schemas/schemastore-catalog.json",

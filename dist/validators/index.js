@@ -38,6 +38,14 @@ import { validateInterSeriesScopingArtifact } from '../canonical/inter-series-sc
 // cluster-run-series-local). SPS-3 (signature derivation) is
 // consumer-state per ADR-010.
 import { validateSubscriptionPoolState } from '../canonical/subscription-pool-state.js';
+// v8.7.0 PR-A4.4 — FR-G4 RevocationList cross-field validator
+// (RL-1 + RL-5 + RL-7 + RL-9 + RL-10 + RL-12). Pure function lives in
+// revocation-list.ts and delegates to LOCAL helpers (arrayFieldDistinct
+// from cluster-run-series-local; iso8601GeField from
+// subscription-pool-state-local; fieldNotInArrayField + fieldInArrayField
+// from revocation-list-local). RL-2/3/4/6/11 are consumer-state per
+// ADR-010 with manifest reason codes.
+import { validateRevocationList } from '../canonical/revocation-list.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -1079,6 +1087,19 @@ registerCrossFieldValidator('InterSeriesScopingArtifact', validateInterSeriesSco
 // with manifest reason
 // `SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED`.
 registerCrossFieldValidator('SubscriptionPoolState', validateSubscriptionPoolState);
+// v8.7.0 PR-A4.4 — RevocationList cross-field validator. Enforces the
+// library-evaluable subset:
+//   - RL-1: revoked_keys[*].key_id distinct
+//   - RL-5: signer_key_id NOT in revoked_keys[*].key_id (self-revocation lock)
+//   - RL-7: per-element revoked_at at-or-before issued_at
+//   - RL-9: valid_from at-or-before valid_until when both non-null
+//   - RL-10: valid_from at-or-before issued_at
+//   - RL-12: when quorum_signatures non-null, entries distinct AND
+//     primary signer_key_id is one of them
+// RL-2/3/4/6/11 are consumer-state per ADR-010 with manifest reason
+// codes (REVOCATION_LIST_*_CONTEXT_DEFERRED). RL-8 is an explicit
+// non-constraint per the PR-A3.8 anti-finding-rotation lesson.
+registerCrossFieldValidator('RevocationList', validateRevocationList);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

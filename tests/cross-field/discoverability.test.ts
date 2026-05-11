@@ -190,6 +190,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'InterSeriesScopingArtifact',
     // v8.7.0 PR-A4.3 — FR-G3 SubscriptionPoolState.
     'SubscriptionPoolState',
+    // v8.7.0 PR-A4.4 — FR-G4 RevocationList.
+    'RevocationList',
   ];
 
   it('returns an array of strings', () => {

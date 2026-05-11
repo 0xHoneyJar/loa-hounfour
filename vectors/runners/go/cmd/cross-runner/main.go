@@ -115,6 +115,8 @@ var Schemas = []SchemaReg{
 	{"InterSeriesScopingArtifact", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
 	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.3 (FR-G3).
 	{"SubscriptionPoolState", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.4 (FR-G4).
+	{"RevocationList", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
 }
 
 type ManifestEntry struct {
