@@ -71,18 +71,42 @@ export declare function stringMicroUsdLe(consumed: unknown, allocated: unknown):
 };
 /**
  * `iso8601GeField` — at-or-after comparison between two ISO 8601 UTC
- * timestamp string fields via lexicographic ordering.
+ * timestamp string fields via lexicographic ordering on JCS-canonical-
+ * form strings.
  *
  * Used by SPS-4 (`accounts[*].stable_until ≥ envelope.ts`).
  *
- * **JCS-canonical-form precondition** (per SDD §2.0.1): lexicographic
- * comparison on ISO 8601 strings is monotonic ONLY when both
- * operands are in JCS-canonical form — UTC, Z-suffix, fixed-precision,
- * NFC-normalized. The helper re-checks the TypeBox `ISO8601_UTC_PATTERN`
- * on both operands before comparison; if either fails, the helper
- * returns a tagged precondition violation rather than a silent
- * miscompare. This closes the run-2 IMP-006 lexicographic-monotonicity
- * gap.
+ * **JCS-canonical-form precondition** (per SDD §2.0.1, two-part):
+ * lexicographic comparison on ISO 8601 strings is monotonic ONLY when
+ * both operands are in JCS-canonical form — UTC, Z-suffix, **fixed
+ * fractional-precision**, NFC-normalized. The helper enforces both
+ * parts in order:
+ *
+ *   1. **Pattern conformance**: both operands MUST match
+ *      `ISO8601_UTC_PATTERN`. The shared pattern admits optional 1-9
+ *      digit fractional seconds; pattern conformance alone is NOT
+ *      sufficient for lexicographic monotonicity.
+ *   2. **Fixed fractional-precision**: both operands MUST share the
+ *      same fractional-second precision representation. Concretely,
+ *      either both omit the fractional part OR both include the same
+ *      digit count. Mixing precisions inverts lexicographic ordering
+ *      because `'Z'` (0x5A) sorts after `'.'` (0x2E) — the bug class
+ *      caught by iter-1 bridge review (PR-A4.3 iter-1 MEDIUM, three-
+ *      model consensus).
+ *
+ * If either precondition fails, the helper returns a tagged
+ * precondition violation rather than a silent miscompare. This closes
+ * the run-2 IMP-006 lexicographic-monotonicity gap.
+ *
+ * **Why this matters in adversarial scenarios**: a payload with
+ * `ts = "2026-05-09T00:00:00Z"` and
+ * `stable_until = "2026-05-09T00:00:00.5Z"` represents stable_until
+ * one half-second AFTER ts. Naive lexicographic comparison would
+ * report stable_until < ts (because `.` < `Z`), inverting the
+ * semantic ordering and producing a silent SPS-4 false-positive
+ * rejection. The fixed-fractional-precision precondition rejects
+ * the pair as a precondition violation, surfacing the issue
+ * rather than silently miscomparing.
  *
  * **Defensive contract**: non-string inputs OR strings that do not
  * match the pattern return a tagged precondition violation rather

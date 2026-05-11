@@ -158,6 +158,56 @@ describe('iso8601GeField (LOCAL helper, FR-G3)', () => {
     expect(() => iso8601GeField({}, [])).not.toThrow();
     expect(() => iso8601GeField('', '')).not.toThrow();
   });
+
+  // iter-1 bridge review MEDIUM #1 (three-model consensus): fixed-
+  // fractional-precision precondition. ISO8601_UTC_PATTERN admits
+  // optional fractional seconds with 1-9 digits; pattern conformance
+  // alone is not sufficient for lexicographic monotonicity because
+  // '.' (0x2E) < 'Z' (0x5A) — naive lex-compare inverts ordering for
+  // mixed-precision pairs.
+  it('flags JCS-canonical-form precondition: fractional precision present on later but absent on earlier (iter-1 MEDIUM mitigation)', () => {
+    const r = iso8601GeField(
+      '2026-05-09T00:00:00.5Z',
+      '2026-05-09T00:00:00Z',
+    );
+    expect(r.valid).toBe(false);
+    expect(r.reason).toContain('fractional-precision mismatch');
+    expect(r.reason).toContain('includes');
+    expect(r.reason).toContain('omits');
+  });
+
+  it('flags JCS-canonical-form precondition: fractional precision present on earlier but absent on later (iter-1 MEDIUM mitigation)', () => {
+    const r = iso8601GeField(
+      '2026-05-09T00:00:00Z',
+      '2026-05-09T00:00:00.0Z',
+    );
+    expect(r.valid).toBe(false);
+    expect(r.reason).toContain('fractional-precision mismatch');
+  });
+
+  it('flags JCS-canonical-form precondition: fractional-digit-count mismatch (iter-1 MEDIUM mitigation)', () => {
+    const r = iso8601GeField(
+      '2026-05-09T00:00:01.5Z',
+      '2026-05-09T00:00:00.000000Z',
+    );
+    expect(r.valid).toBe(false);
+    expect(r.reason).toContain('fractional-digit-count mismatch');
+  });
+
+  it('admits matching fractional precision: both with 3-digit milliseconds', () => {
+    expect(
+      iso8601GeField('2026-05-09T01:00:00.000Z', '2026-05-09T00:00:00.000Z'),
+    ).toEqual({ valid: true });
+  });
+
+  it('admits matching fractional precision: both with 9-digit nanoseconds', () => {
+    expect(
+      iso8601GeField(
+        '2026-05-09T01:00:00.000000001Z',
+        '2026-05-09T00:00:00.000000000Z',
+      ),
+    ).toEqual({ valid: true });
+  });
 });
 
 describe('SubscriptionPoolState.constraints.json — file structure', () => {
