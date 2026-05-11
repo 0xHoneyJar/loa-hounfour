@@ -1,0 +1,12 @@
+{
+  "_comment": "Structural: accounts MUST have minItems 1; empty array rejected at the structural tier.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [],
+  "pause_resume_pair_id": "pause-resume-001",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:Lm97DQnosSn_emfXxEuOznBth0RQ4zyBzQaDIwbTaKjclejRUxPEF4t3SRafcw841hTXZYilYV5C4i94veJSwd"
+}

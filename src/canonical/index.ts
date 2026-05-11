@@ -42,7 +42,14 @@ export {
 } from './inter-series-scoping-artifact.js';
 export {
   SubscriptionPoolStateSchema,
+  SubscriptionAccountStateSchema,
+  SubscriptionAccountEntrySchema,
+  RateEnvelopeSchema,
+  validateSubscriptionPoolState,
   type SubscriptionPoolState,
+  type SubscriptionAccountState,
+  type SubscriptionAccountEntry,
+  type RateEnvelope,
 } from './subscription-pool-state.js';
 export {
   RevocationListSchema,

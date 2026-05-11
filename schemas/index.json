@@ -1561,7 +1561,7 @@
       "name": "subscription-pool-state",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/subscription-pool-state",
       "file": "subscription-pool-state.schema.json",
-      "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.3."
+      "description": "Pool-state snapshot for shared-capacity audits. Crypto-bearing because the envelope carries an Ed25519 signature field. NOT chain-bearing — consumers chain via pause_resume_pair_id idempotency rather than a prev_envelope_hash chain. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form."
     },
     {
       "name": "revocation-list",

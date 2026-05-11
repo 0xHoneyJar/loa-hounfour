@@ -1,7 +1,164 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/subscription-pool-state",
-  "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.3.",
-  "not": {},
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "description": "Pool-state snapshot for shared-capacity audits. Crypto-bearing because the envelope carries an Ed25519 signature field. NOT chain-bearing — consumers chain via pause_resume_pair_id idempotency rather than a prev_envelope_hash chain. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "pool_health_id",
+    "accounts",
+    "pause_resume_pair_id",
+    "signer_cluster_id",
+    "signature"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator pinning this envelope shape.",
+      "const": "subscription_pool_state",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.7.0\" for the cycle-007 ship line.",
+      "const": "8.7.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at which this pool-state snapshot was taken. SPS-4 enforces accounts[*].stable_until at-or-after ts via the LOCAL iso8601_ge_field helper.",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Consumer-shaped cluster identifier.",
+      "type": "string"
+    },
+    "pool_health_id": {
+      "description": "Optional lazy-link to an OracleHealthEnvelopeSchema record (FR-B4, v8.6.0) for monitoring tie-in. Null when no health envelope has been emitted; resolution is consumer-state per ADR-010.",
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "accounts": {
+      "minItems": 1,
+      "maxItems": 256,
+      "description": "Non-empty array of per-account state entries. Per-array account_id distinctness is SPS-2; per-element consumed_units at-or-below allocated_units is SPS-1. Upper bound 256 matches the consumer-side practical ceiling for per-pool account counts.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "One per-account entry within a SubscriptionPoolState. Cross-element invariants — account_id distinctness per SPS-2 and consumed_units at-or-below allocated_units per SPS-1 — live in the cross-field tier.",
+        "type": "object",
+        "required": [
+          "account_id",
+          "provider",
+          "state",
+          "stable_until",
+          "rate_envelope",
+          "thrash_count_24h",
+          "allocated_units",
+          "consumed_units"
+        ],
+        "properties": {
+          "account_id": {
+            "minLength": 1,
+            "description": "Stable opaque account identifier within the pool. Per-array distinctness is SPS-2; consumers select accounts by account_id from the pool-scoped namespace.",
+            "type": "string"
+          },
+          "provider": {
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Free-form provider classifier (e.g. \"anthropic\", \"openai\"). Consumer-shaped namespace; hounfour does not freeze the provider registry. 64-char upper bound matches the consumer-side display surface.",
+            "type": "string"
+          },
+          "state": {
+            "description": "Per-account health state across a subscription pool. Locked three-member enum; promotion to a discriminated union keyed on state is deferred to v8.8.0+ pending consumer-corpus signal.",
+            "anyOf": [
+              {
+                "const": "healthy",
+                "type": "string"
+              },
+              {
+                "const": "rate_limited",
+                "type": "string"
+              },
+              {
+                "const": "exhausted",
+                "type": "string"
+              }
+            ]
+          },
+          "stable_until": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+            "description": "ISO 8601 UTC timestamp after which the account state may change. SPS-4 enforces stable_until at-or-after envelope.ts per element; both fields share the ISO8601_UTC_PATTERN so the lexicographic comparison is monotonic.",
+            "type": "string"
+          },
+          "rate_envelope": {
+            "additionalProperties": false,
+            "description": "Per-account rate-limit envelope. Library-clamped integer bounds; cross-account aggregation is consumer-side.",
+            "type": "object",
+            "required": [
+              "req_per_min",
+              "req_per_hour"
+            ],
+            "properties": {
+              "req_per_min": {
+                "minimum": 0,
+                "maximum": 1000000,
+                "description": "Per-minute request allowance for the account. Integer with closed upper bound 1,000,000 — the consumer-side practical ceiling for per-minute rates across known providers.",
+                "type": "integer"
+              },
+              "req_per_hour": {
+                "minimum": 0,
+                "maximum": 60000000,
+                "description": "Per-hour request allowance for the account. Integer with closed upper bound 60,000,000 — matches the per-minute ceiling scaled to a one-hour window. Pool-level aggregation across accounts is consumer-shaped.",
+                "type": "integer"
+              }
+            }
+          },
+          "thrash_count_24h": {
+            "minimum": 0,
+            "maximum": 100000,
+            "description": "24-hour rolling count of state-thrash events. Closed upper bound 100,000 — saturation indicates a misconfigured consumer-side rate limiter.",
+            "type": "integer"
+          },
+          "allocated_units": {
+            "pattern": "^[0-9]+$",
+            "description": "String-encoded micro-USD per CLAUDE.md financial-value convention. No floating point; bigint-safe arbitrary-precision values admissible. Pool-level aggregation is consumer-shaped.",
+            "type": "string"
+          },
+          "consumed_units": {
+            "pattern": "^[0-9]+$",
+            "description": "String-encoded micro-USD. MUST be at-or-below allocated_units per SPS-1 — enforced at the cross-field tier via the LOCAL bigint-safe string_micro_usd_le helper.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "pause_resume_pair_id": {
+      "minLength": 1,
+      "description": "Idempotency marker pairing each pause with its corresponding resume. Consumer-side state — hounfour does not enforce pause-resume ordering across snapshots; the marker is the consumer-side chain primitive replacing the prev_envelope_hash pattern from chain-bearing schemas.",
+      "type": "string"
+    },
+    "signer_cluster_id": {
+      "minLength": 1,
+      "description": "Consumer-shaped identifier for the signing cluster. SPS-3 derivation matching is consumer-state per ADR-010 with manifest reason SUBSCRIPTION_POOL_STATE_SIGNATURE_VERIFICATION_CONTEXT_DEFERRED.",
+      "type": "string"
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature over the canonicalized payload (consumer-side verifier). Pattern-locked; semantic verification is consumer-state per ADR-010.",
+      "type": "string"
+    }
+  },
   "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

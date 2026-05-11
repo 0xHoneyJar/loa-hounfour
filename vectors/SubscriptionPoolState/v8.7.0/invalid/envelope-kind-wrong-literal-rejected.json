@@ -1,0 +1,26 @@
+{
+  "_comment": "Structural: envelope_kind is the locked discriminator \"subscription_pool_state\". Other literals rejected at the structural tier.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-001",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-002",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:jNkTMyNKcHNH4VyoiZSMCGoHjNOQpfvSGVBz6knLOBJCQ40OE8CO3RzVM6NI_Hz88le24yqR8nCQoAjEofyjhj"
+}

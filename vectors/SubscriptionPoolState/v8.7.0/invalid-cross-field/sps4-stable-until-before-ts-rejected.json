@@ -1,0 +1,26 @@
+{
+  "_comment": "SPS-4: stable_until \"2026-05-08T00:00:00Z\" is one day before envelope ts \"2026-05-09T00:00:00Z\". Structurally valid (both match ISO8601_UTC_PATTERN); cross-field validator rejects via lexicographic ordering on JCS-canonical-form strings.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-004",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-08T00:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-004",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:93UovTZbk5hPvP3LzuNOADIqlKgMZ0qA7w-m1cQZJO6-lHcyjkNfja0peNTOJIUt1S241HHULb6mFCfLL0NtK9"
+}

@@ -1,0 +1,26 @@
+{
+  "_comment": "SPS-1 boundary case: consumed_units exactly equals allocated_units. The closed at-or-below invariant admits equality.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-005",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "9999",
+      "consumed_units": "9999"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-005",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:4wY8tXvkwWjQwkByD46o-N90Hq7-Nh0W4__VzIGWO0GL9Y7ShAsqihEY39Lamd3uUCL2QeOw_rp7AfY6Fk3vpc"
+}

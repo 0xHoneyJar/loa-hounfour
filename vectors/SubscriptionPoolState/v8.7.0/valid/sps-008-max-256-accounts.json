@@ -1,0 +1,3341 @@
+{
+  "_comment": "Boundary case: accounts at the maxItems=256 ceiling. Validates the SPS-2 distinctness check across 256 entries plus the structural minItems/maxItems invariant.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-001",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-002",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-003",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-004",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-005",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-006",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-007",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-008",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-009",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-010",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-011",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-012",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-013",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-014",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-015",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-016",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-017",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-018",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-019",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-020",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-021",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-022",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-023",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-024",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-025",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-026",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-027",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-028",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-029",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-030",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-031",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-032",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-033",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-034",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-035",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-036",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-037",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-038",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-039",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-040",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-041",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-042",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-043",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-044",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-045",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-046",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-047",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-048",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-049",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-050",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-051",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-052",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-053",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-054",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-055",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-056",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-057",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-058",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-059",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-060",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-061",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-062",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-063",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-064",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-065",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-066",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-067",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-068",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-069",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-070",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-071",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-072",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-073",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-074",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-075",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-076",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-077",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-078",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-079",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-080",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-081",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-082",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-083",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-084",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-085",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-086",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-087",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-088",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-089",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-090",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-091",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-092",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-093",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-094",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-095",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-096",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-097",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-098",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-099",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-100",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-101",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-102",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-103",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-104",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-105",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-106",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-107",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-108",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-109",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-110",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-111",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-112",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-113",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-114",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-115",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-116",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-117",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-118",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-119",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-120",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-121",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-122",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-123",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-124",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-125",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-126",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-127",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-128",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-129",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-130",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-131",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-132",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-133",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-134",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-135",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-136",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-137",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-138",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-139",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-140",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-141",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-142",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-143",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-144",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-145",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-146",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-147",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-148",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-149",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-150",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-151",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-152",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-153",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-154",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-155",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-156",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-157",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-158",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-159",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-160",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-161",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-162",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-163",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-164",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-165",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-166",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-167",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-168",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-169",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-170",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-171",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-172",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-173",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-174",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-175",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-176",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-177",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-178",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-179",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-180",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-181",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-182",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-183",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-184",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-185",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-186",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-187",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-188",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-189",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-190",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-191",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-192",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-193",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-194",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-195",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-196",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-197",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-198",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-199",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-200",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-201",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-202",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-203",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-204",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-205",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-206",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-207",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-208",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-209",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-210",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-211",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-212",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-213",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-214",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-215",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-216",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-217",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-218",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-219",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-220",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-221",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-222",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-223",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-224",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-225",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-226",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-227",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-228",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-229",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-230",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-231",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-232",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-233",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-234",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-235",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-236",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-237",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-238",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-239",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-240",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-241",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-242",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-243",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-244",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-245",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-246",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-247",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-248",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-249",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-250",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-251",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-252",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-253",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-254",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-255",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    },
+    {
+      "account_id": "acct-256",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-008",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:i04yrmfnm2mm76gu-yOSPdU0CwU-8mWF-_E54hz8pCOwYlMJbYY2mHjUN5iqe7PjVCzYUFsyyllJ_Lzb6usU4h"
+}

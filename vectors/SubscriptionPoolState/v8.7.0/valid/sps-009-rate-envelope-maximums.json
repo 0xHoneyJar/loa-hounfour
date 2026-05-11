@@ -1,0 +1,26 @@
+{
+  "_comment": "Boundary case: rate_envelope.req_per_min at the 1,000,000 maximum, req_per_hour at the 60,000,000 maximum, thrash_count_24h at the 100,000 maximum.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-009",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 1000000,
+        "req_per_hour": 60000000
+      },
+      "thrash_count_24h": 100000,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-009",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:rDJgG9KHYCr1k44JHelXUNiU-3QCBjc9zyE_6SYHPYQdDLR7YAEXWxzNFQ2ALm0SMvfpqXK27rjUB1Co8VZT84"
+}

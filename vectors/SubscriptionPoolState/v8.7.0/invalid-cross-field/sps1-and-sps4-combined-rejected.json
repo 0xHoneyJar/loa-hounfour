@@ -1,0 +1,39 @@
+{
+  "_comment": "Accumulated violations: account 0 violates SPS-1 (consumed > allocated); account 1 violates SPS-4 (stable_until before ts). The cross-field validator does NOT short-circuit; both errors appear in the output, enabling actionable per-account remediation.",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "pool_health_id": null,
+  "accounts": [
+    {
+      "account_id": "acct-001",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-05-09T01:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "9000"
+    },
+    {
+      "account_id": "acct-002",
+      "provider": "anthropic",
+      "state": "healthy",
+      "stable_until": "2026-01-01T00:00:00Z",
+      "rate_envelope": {
+        "req_per_min": 60,
+        "req_per_hour": 3600
+      },
+      "thrash_count_24h": 0,
+      "allocated_units": "5000",
+      "consumed_units": "1000"
+    }
+  ],
+  "pause_resume_pair_id": "pause-resume-005",
+  "signer_cluster_id": "signer-cluster-001",
+  "signature": "ed25519:4wY8tXvkwWjQwkByD46o-N90Hq7-Nh0W4__VzIGWO0GL9Y7ShAsqihEY39Lamd3uUCL2QeOw_rp7AfY6Fk3vpc"
+}

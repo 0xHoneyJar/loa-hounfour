@@ -13,7 +13,7 @@ export { CanonicalRunSchema, RequiredPhaseSchema, validateCanonicalRunCR1, } fro
 // until their respective PRs ship in PR-A4.2..A4.5.
 export { ClusterRunSeriesSchema, ClusterRunRepoStatusSchema, ClusterRunSeriesRepoEntrySchema, validateClusterRunSeries, } from './cluster-run-series.js';
 export { InterSeriesScopingArtifactSchema, MerkleProofStepSchema, ProposedSeriesGoalSchema, validateInterSeriesScopingArtifact, } from './inter-series-scoping-artifact.js';
-export { SubscriptionPoolStateSchema, } from './subscription-pool-state.js';
+export { SubscriptionPoolStateSchema, SubscriptionAccountStateSchema, SubscriptionAccountEntrySchema, RateEnvelopeSchema, validateSubscriptionPoolState, } from './subscription-pool-state.js';
 export { RevocationListSchema, } from './revocation-list.js';
 export { MergeArtifactSchema, } from './merge-artifact.js';
 //# sourceMappingURL=index.js.map

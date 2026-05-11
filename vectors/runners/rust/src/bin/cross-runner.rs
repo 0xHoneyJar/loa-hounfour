@@ -107,6 +107,8 @@ const SCHEMAS: &[SchemaReg] = &[
     SchemaReg { name: "ClusterRunSeries", version_path: Some("v8.7.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
     // v8.7.0 cycle-007 cluster — versioned layout. PR-A4.2 (FR-G2).
     SchemaReg { name: "InterSeriesScopingArtifact", version_path: Some("v8.7.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
+    // v8.7.0 cycle-007 cluster — versioned layout. PR-A4.3 (FR-G3).
+    SchemaReg { name: "SubscriptionPoolState", version_path: Some("v8.7.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
 ];
 
 #[derive(Serialize, Debug)]
