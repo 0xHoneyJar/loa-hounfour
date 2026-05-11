@@ -1,5 +1,5 @@
 {
-  "_comment": "Structural: revoked_keys[*].key_id MUST match ED25519_KEY_ID_PATTERN.",
+  "_comment": "Structural: revoked_keys[*].key_id MUST match ED25519_PUBKEY_PATTERN (43 chars with ed25519-pub prefix).",
   "envelope_kind": "revocation_list",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",
@@ -19,7 +19,7 @@
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kaknqZEop0pmrCKzrvUFf-aV2iI8OImy_ATf2VPF5BJv1BP",
+  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
   "quorum_signatures": null,
   "root_of_trust_id": null

@@ -158,34 +158,43 @@ export function stringMicroUsdLe(consumed, allocated) {
  *   `accounts[*].stable_until`).
  * @param earlierField — value of the reference operand (e.g.
  *   envelope `ts`).
+ * @param laterFieldName — optional label for the later operand in
+ *   error messages; defaults to 'stable_until' (the SPS-4 use site).
+ *   PR-A4.4 callers (RL-7 / RL-9 / RL-10) pass 'revoked_at' /
+ *   'valid_from' / 'valid_until' / 'issued_at' as appropriate so
+ *   the error reason names the actual fields rather than the SPS-4
+ *   defaults.
+ * @param earlierFieldName — optional label for the earlier operand;
+ *   defaults to 'ts'.
  * @returns `{ valid, reason }`; `reason` is set only when valid is
  *   false, naming the offending values for actionability.
  *
- * @since v8.7.0 — FR-G3 (PR-A4.3).
+ * @since v8.7.0 — FR-G3 (PR-A4.3); field-name params added PR-A4.4
+ *   iter-1 LOW mitigation.
  */
-export function iso8601GeField(laterField, earlierField) {
+export function iso8601GeField(laterField, earlierField, laterFieldName = 'stable_until', earlierFieldName = 'ts') {
     if (typeof laterField !== 'string') {
         return {
             valid: false,
-            reason: `stable_until precondition failed — value is ${laterField === null ? 'null' : typeof laterField}, not a string. Structural tier admits only ISO 8601 UTC strings.`,
+            reason: `${laterFieldName} precondition failed — value is ${laterField === null ? 'null' : typeof laterField}, not a string. Structural tier admits only ISO 8601 UTC strings.`,
         };
     }
     if (typeof earlierField !== 'string') {
         return {
             valid: false,
-            reason: `ts precondition failed — value is ${earlierField === null ? 'null' : typeof earlierField}, not a string. Structural tier admits only ISO 8601 UTC strings.`,
+            reason: `${earlierFieldName} precondition failed — value is ${earlierField === null ? 'null' : typeof earlierField}, not a string. Structural tier admits only ISO 8601 UTC strings.`,
         };
     }
     if (!ISO8601_UTC_REGEX.test(laterField)) {
         return {
             valid: false,
-            reason: `stable_until "${laterField}" is not JCS-canonical ISO 8601 UTC — lexicographic at-or-after comparison requires both operands to match ISO8601_UTC_PATTERN for monotonicity per SDD §2.0.1.`,
+            reason: `${laterFieldName} "${laterField}" is not JCS-canonical ISO 8601 UTC — lexicographic at-or-after comparison requires both operands to match ISO8601_UTC_PATTERN for monotonicity per SDD §2.0.1.`,
         };
     }
     if (!ISO8601_UTC_REGEX.test(earlierField)) {
         return {
             valid: false,
-            reason: `ts "${earlierField}" is not JCS-canonical ISO 8601 UTC — lexicographic at-or-after comparison requires both operands to match ISO8601_UTC_PATTERN for monotonicity per SDD §2.0.1.`,
+            reason: `${earlierFieldName} "${earlierField}" is not JCS-canonical ISO 8601 UTC — lexicographic at-or-after comparison requires both operands to match ISO8601_UTC_PATTERN for monotonicity per SDD §2.0.1.`,
         };
     }
     // Fixed-fractional-precision precondition (iter-1 MEDIUM mitigation):
@@ -201,7 +210,7 @@ export function iso8601GeField(laterField, earlierField) {
     if (laterHasFrac !== earlierHasFrac) {
         return {
             valid: false,
-            reason: `JCS-canonical-form precondition failed — fractional-precision mismatch. stable_until "${laterField}" ${laterHasFrac ? 'includes' : 'omits'} fractional seconds; ts "${earlierField}" ${earlierHasFrac ? 'includes' : 'omits'} fractional seconds. Lexicographic at-or-after comparison requires identical fractional-precision representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent precision across both fields.`,
+            reason: `JCS-canonical-form precondition failed — fractional-precision mismatch. ${laterFieldName} "${laterField}" ${laterHasFrac ? 'includes' : 'omits'} fractional seconds; ${earlierFieldName} "${earlierField}" ${earlierHasFrac ? 'includes' : 'omits'} fractional seconds. Lexicographic at-or-after comparison requires identical fractional-precision representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent precision across both fields.`,
         };
     }
     if (laterHasFrac && earlierHasFrac) {
@@ -217,14 +226,14 @@ export function iso8601GeField(laterField, earlierField) {
         if (laterFracLen !== earlierFracLen) {
             return {
                 valid: false,
-                reason: `JCS-canonical-form precondition failed — fractional-digit-count mismatch. stable_until "${laterField}" has a different fractional-digit count than ts "${earlierField}". Lexicographic at-or-after comparison requires identical digit-count representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent digit-count across both fields.`,
+                reason: `JCS-canonical-form precondition failed — fractional-digit-count mismatch. ${laterFieldName} "${laterField}" has a different fractional-digit count than ${earlierFieldName} "${earlierField}". Lexicographic at-or-after comparison requires identical digit-count representation per SDD §2.0.1 (fixed precision); producers MUST emit consistent digit-count across both fields.`,
             };
         }
     }
     if (laterField < earlierField) {
         return {
             valid: false,
-            reason: `stable_until "${laterField}" is before ts "${earlierField}" — per-account stability window precedes the snapshot timestamp, which violates the SPS-4 ordering invariant.`,
+            reason: `${laterFieldName} "${laterField}" is before ${earlierFieldName} "${earlierField}" — the later operand precedes the earlier, violating the at-or-after ordering invariant.`,
         };
     }
     return { valid: true };

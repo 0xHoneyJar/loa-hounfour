@@ -1,11 +1,11 @@
 {
-  "_comment": "RL-10: valid_from is after issued_at (temporal-causality violation).",
+  "_comment": "Quorum at the minItems 1 lower bound: a single quorum entry that IS the primary signer. PR-A4.4 iter-1 fix: minItems lowered from 0 to 1 because an empty quorum cannot satisfy RL-12.",
   "envelope_kind": "revocation_list",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",
-  "list_id": "rl-005",
+  "list_id": "rl-013",
   "issued_at": "2026-05-01T00:00:00Z",
-  "valid_from": "2027-01-01T00:00:00Z",
+  "valid_from": "2026-05-01T00:00:00Z",
   "valid_until": null,
   "max_staleness_seconds": null,
   "nonce": 1,
@@ -19,8 +19,13 @@
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
+  "signer_key_id": "ed25519-pub:Ete8m8mRI9syCEsF_7Iat3wGIYjdj61jLuTBmRabZ87",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
-  "quorum_signatures": null,
+  "quorum_signatures": [
+    {
+      "signer_key_id": "ed25519-pub:Ete8m8mRI9syCEsF_7Iat3wGIYjdj61jLuTBmRabZ87",
+      "signature": "ed25519:xzQaxgHIPi6BtlNa4CcCtmx9eo7aZB1XoTxRabiqLM-2kEf66BTe6yf7Z0Zd46v9Vrqpvn8BX1Lz-BQr67wOtA"
+    }
+  ],
   "root_of_trust_id": null
 }

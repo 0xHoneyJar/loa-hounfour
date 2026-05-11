@@ -127,7 +127,7 @@
         ],
         "properties": {
           "key_id": {
-            "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+            "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
             "description": "ed25519 public-key identifier being revoked. Same byte-shape as SignatureEnvelope.signature_value per FR-A5 alignment. Per-list distinctness is RL-1; the revoking envelope MUST NOT include its own signer_key_id (RL-5).",
             "type": "string"
           },
@@ -177,7 +177,7 @@
       }
     },
     "signer_key_id": {
-      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
       "description": "ed25519 public-key identifier of the primary signer. RL-4 (consumer-state) verifies derivation against signature; RL-5 (LOCAL) enforces this key MUST NOT appear in revoked_keys[*].key_id (self-revocation lock).",
       "type": "string"
     },
@@ -187,10 +187,10 @@
       "type": "string"
     },
     "quorum_signatures": {
-      "description": "Optional quorum-of-signatures over the canonical-form payload. Null means single-signer model (signer_key_id + signature). Non-null means consumer-policy m-of-n quorum verification (consumer-side per ADR-010). RL-12: when non-null, quorum_signatures[*].signer_key_id distinct AND signer_key_id is one of them.",
+      "description": "Optional quorum-of-signatures over the canonical-form payload. Null means single-signer model (signer_key_id + signature). Non-null means consumer-policy m-of-n quorum verification (consumer-side per ADR-010). RL-12: when non-null, quorum_signatures[*].signer_key_id distinct AND signer_key_id is one of them. **minItems 1 (iter-1 MEDIUM mitigation, three-model consensus)**: an empty quorum array is structurally rejected because RL-12 requires the primary signer to appear in the array, which is impossible for an empty array. Consumers that do not want quorum-signature semantics set the field to null; consumers that opt into quorum include at least the primary signer.",
       "anyOf": [
         {
-          "minItems": 0,
+          "minItems": 1,
           "maxItems": 32,
           "type": "array",
           "items": {
@@ -203,7 +203,7 @@
             ],
             "properties": {
               "signer_key_id": {
-                "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+                "pattern": "^ed25519-pub:[A-Za-z0-9_-]{43}$",
                 "description": "ed25519 public-key identifier of this quorum signer. Same byte-shape as the primary signer_key_id per FR-A5.",
                 "type": "string"
               },

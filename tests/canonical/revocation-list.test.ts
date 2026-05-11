@@ -39,10 +39,14 @@ const REASONS = [
   'manual',
 ] as const;
 
-const KEY_PRIMARY = 'ed25519:' + 'A'.repeat(86);
-const KEY_OTHER_1 = 'ed25519:' + 'B'.repeat(86);
-const KEY_OTHER_2 = 'ed25519:' + 'C'.repeat(86);
-const KEY_OTHER_3 = 'ed25519:' + 'D'.repeat(86);
+// Public-key identifiers: 43-char unpadded base64url with `ed25519-pub:`
+// prefix (32-byte Ed25519 public key per RFC 4648 §5). Distinct from
+// signature pattern (86 chars, `ed25519:` prefix, 64-byte signature).
+// iter-1 MEDIUM mitigation: pattern alignment to v8.6.0 precedent.
+const KEY_PRIMARY = 'ed25519-pub:' + 'A'.repeat(43);
+const KEY_OTHER_1 = 'ed25519-pub:' + 'B'.repeat(43);
+const KEY_OTHER_2 = 'ed25519-pub:' + 'C'.repeat(43);
+const KEY_OTHER_3 = 'ed25519-pub:' + 'D'.repeat(43);
 const SIG_SAMPLE = 'ed25519:' + 'E'.repeat(86);
 const SIG_QUORUM_1 = 'ed25519:' + 'F'.repeat(86);
 const SIG_QUORUM_2 = 'ed25519:' + 'G'.repeat(86);
@@ -190,9 +194,10 @@ describe('RevocationListSchema structural (FR-G4)', () => {
   it('admits revoked_keys up to maxItems boundary (4096)', () => {
     const entries = Array.from({ length: 4096 }, (_, i) => {
       const e = baseEntry(KEY_OTHER_1);
-      // Each key_id must be distinct for RL-1; alter via base64-url chars.
-      const idx = i.toString().padStart(86, '0').slice(-86);
-      e.key_id = 'ed25519:' + idx;
+      // Each key_id must be distinct for RL-1 + pubkey-pattern-valid.
+      // 43-char unpadded base64url payload.
+      const idx = i.toString().padStart(43, '0').slice(-43);
+      e.key_id = 'ed25519-pub:' + idx;
       return e;
     });
     expect(Value.Check(RevocationListSchema, baseEnvelope(entries))).toBe(true);
@@ -255,7 +260,7 @@ describe('RevocationListSchema structural (FR-G4)', () => {
   it('admits quorum_signatures at the 32-signer maxItems boundary', () => {
     const quorum = Array.from({ length: 32 }, (_, i) => ({
       signer_key_id:
-        'ed25519:' + i.toString().padStart(86, '0').slice(-86),
+        'ed25519-pub:' + i.toString().padStart(43, '0').slice(-43),
       signature: SIG_QUORUM_1,
     }));
     const env = baseEnvelope();

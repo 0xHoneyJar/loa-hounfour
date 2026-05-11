@@ -13,13 +13,13 @@
   "next_page_hash": null,
   "revoked_keys": [
     {
-      "key_id": "ed25519:UGXK44MarG-dX4balzxGKzcIaw-27M-YuqyCcsyEZfildQ0joJvroeGZuuNaNIVTfU664DvNFADyLV0xE0P-5T",
+      "key_id": "ed25519-pub:UGXK44MarG-dX4balzxGKzcIaw-27M-YuqyCcsyEZfi",
       "reason": "compromise",
       "revoked_at": "2026-04-01T00:00:00Z",
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kaknqZEop0pmrCKzrvUFf-aV2iI8OImy_ATf2VPF5BJv1BP",
+  "signer_key_id": "ed25519-pub:RrKdnaklpH9UtQLOKLEnjfToB167hwEDAdKrWV0kakn",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
   "quorum_signatures": null,
   "root_of_trust_id": null

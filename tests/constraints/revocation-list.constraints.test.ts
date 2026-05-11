@@ -28,9 +28,9 @@ const CONSTRAINT_FILE = join(
   'RevocationList.constraints.json',
 );
 
-const KEY_A = 'ed25519:' + 'A'.repeat(86);
-const KEY_B = 'ed25519:' + 'B'.repeat(86);
-const KEY_C = 'ed25519:' + 'C'.repeat(86);
+const KEY_A = 'ed25519-pub:' + 'A'.repeat(43);
+const KEY_B = 'ed25519-pub:' + 'B'.repeat(43);
+const KEY_C = 'ed25519-pub:' + 'C'.repeat(43);
 
 describe('fieldNotInArrayField (LOCAL helper, FR-G4)', () => {
   it('returns valid:true when scalar is not in the array', () => {

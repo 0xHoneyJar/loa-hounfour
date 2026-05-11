@@ -1,5 +1,5 @@
 {
-  "_comment": "RL-12: quorum_signatures is non-null but primary signer_key_id is not in the set. Structurally valid; cross-field validator rejects via field_in_array_field.",
+  "_comment": "RL-12: quorum_signatures is non-null but primary signer_key_id is not in the set.",
   "envelope_kind": "revocation_list",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",
@@ -13,21 +13,21 @@
   "next_page_hash": null,
   "revoked_keys": [
     {
-      "key_id": "ed25519:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw8N6ZIwFWrVZxWf47Cx0uyklgmRe8mocZ5vffVwLa3Ra",
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
       "reason": "compromise",
       "revoked_at": "2026-04-01T00:00:00Z",
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519:SZtJquptpNv0mOIgvjEp3x2bOsJZj_5MQY_BhowsPY4f6HjIpnBZM4DbMBd7lF84RojPqEmDjjZ8eX9d-ispWW",
+  "signer_key_id": "ed25519-pub:SZtJquptpNv0mOIgvjEp3x2bOsJZj_5MQY_BhowsPY4",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
   "quorum_signatures": [
     {
-      "signer_key_id": "ed25519:DwzKtbcIdJ_WIdkPu9LBhIxXddaoCET_XwfvBZH13cR5Y9NBb_AWhKRt3CKp8Lc_cnNSmJeVe3QQRxhSURWJ81",
+      "signer_key_id": "ed25519-pub:DwzKtbcIdJ_WIdkPu9LBhIxXddaoCET_XwfvBZH13cR",
       "signature": "ed25519:grseJw3sl2b-tUYLQ4WeuUWDdd28cIrkhJiSBdbloPoGjj_ssAuQZ_Sc0UvaL6203k4lHNgXj2PbrBGL-ilIIL"
     },
     {
-      "signer_key_id": "ed25519:uOc-0EmPLFyMAMq_RK-1f0nAJSD49asGawgRRnWVHO9E0Jf86zM2ZmCn_qoodB49larAzZf_nhH4pUNRriCaWm",
+      "signer_key_id": "ed25519-pub:uOc-0EmPLFyMAMq_RK-1f0nAJSD49asGawgRRnWVHO9",
       "signature": "ed25519:QPRTyCNHLypgcUFc--7IDigXIeCmJRbdhy0OnFoyV3Li59UgTH7O8VVgvxf_f_oH652iPq0z634aerzNjUNT7s"
     }
   ],

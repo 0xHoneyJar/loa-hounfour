@@ -107,16 +107,22 @@
  */
 import { Type } from '@sinclair/typebox';
 import { ISO8601_UTC_PATTERN } from '../utilities/iso8601-utc-pattern.js';
-import { ED25519_SIGNATURE_PATTERN } from '../governance/signature-envelope.js';
+import { ED25519_SIGNATURE_PATTERN, ED25519_PUBKEY_PATTERN, } from '../governance/signature-envelope.js';
 import { SHA256_HEX_PATTERN } from '../integrity/sha256-pattern.js';
 import { arrayFieldDistinct } from '../constraints/builtins/cluster-run-series-local.js';
 import { iso8601GeField } from '../constraints/builtins/subscription-pool-state-local.js';
 import { fieldNotInArrayField, fieldInArrayField, } from '../constraints/builtins/revocation-list-local.js';
-// ed25519 key-id byte-shape is identical to ed25519 signature byte-
-// shape per FR-A5 alignment — same 256-bit payload encoded as base64-
-// url-without-padding (86 chars). The shared pattern is alias-locked
-// for clarity at the call sites where both kinds appear.
-const ED25519_KEY_ID_PATTERN = ED25519_SIGNATURE_PATTERN;
+// ed25519 key-id pattern (iter-1 MEDIUM mitigation, three-model
+// consensus): public keys and signatures are **DIFFERENT** byte
+// shapes. An Ed25519 public key is 32 bytes (43 unpadded base64url
+// chars with `ed25519-pub:` prefix per `ED25519_PUBKEY_PATTERN`);
+// an Ed25519 signature is 64 bytes (86 unpadded base64url chars
+// with `ed25519:` prefix per `ED25519_SIGNATURE_PATTERN`). The
+// cycle-005 SDD §3.6 carry-forward aliased these incorrectly with
+// a "same byte-shape per FR-A5 alignment" comment — that claim was
+// wrong. The v8.6.0 precedent (PhaseCompletionEnvelopeTier1.agent_key_pubkey)
+// correctly uses ED25519_PUBKEY_PATTERN for public key identifiers.
+// PR-A4.4 iter-1 corrects to the v8.6.0 precedent.
 /**
  * `RevocationReasonSchema` — locked 5-member revocation classifier.
  *
@@ -149,7 +155,7 @@ export const RevocationReasonSchema = Type.Union([
  */
 export const QuorumSignatureEntrySchema = Type.Object({
     signer_key_id: Type.String({
-        pattern: ED25519_KEY_ID_PATTERN,
+        pattern: ED25519_PUBKEY_PATTERN,
         description: 'ed25519 public-key identifier of this quorum signer. ' +
             'Same byte-shape as the primary signer_key_id per FR-A5.',
     }),
@@ -176,7 +182,7 @@ export const QuorumSignatureEntrySchema = Type.Object({
  */
 export const RevocationListEntrySchema = Type.Object({
     key_id: Type.String({
-        pattern: ED25519_KEY_ID_PATTERN,
+        pattern: ED25519_PUBKEY_PATTERN,
         description: 'ed25519 public-key identifier being revoked. Same byte-' +
             'shape as SignatureEnvelope.signature_value per FR-A5 ' +
             'alignment. Per-list distinctness is RL-1; the revoking ' +
@@ -274,7 +280,7 @@ export const RevocationListSchema = Type.Object({
             'against unbounded single-list growth.',
     }),
     signer_key_id: Type.String({
-        pattern: ED25519_KEY_ID_PATTERN,
+        pattern: ED25519_PUBKEY_PATTERN,
         description: 'ed25519 public-key identifier of the primary signer. RL-4 ' +
             '(consumer-state) verifies derivation against signature; ' +
             'RL-5 (LOCAL) enforces this key MUST NOT appear in ' +
@@ -288,7 +294,7 @@ export const RevocationListSchema = Type.Object({
             'protocol.md for the step-by-step procedure.',
     }),
     quorum_signatures: Type.Union([
-        Type.Array(QuorumSignatureEntrySchema, { minItems: 0, maxItems: 32 }),
+        Type.Array(QuorumSignatureEntrySchema, { minItems: 1, maxItems: 32 }),
         Type.Null(),
     ], {
         description: 'Optional quorum-of-signatures over the canonical-form ' +
@@ -296,7 +302,14 @@ export const RevocationListSchema = Type.Object({
             'signature). Non-null means consumer-policy m-of-n quorum ' +
             'verification (consumer-side per ADR-010). RL-12: when ' +
             'non-null, quorum_signatures[*].signer_key_id distinct ' +
-            'AND signer_key_id is one of them.',
+            'AND signer_key_id is one of them. **minItems 1 (iter-1 ' +
+            'MEDIUM mitigation, three-model consensus)**: an empty ' +
+            'quorum array is structurally rejected because RL-12 ' +
+            'requires the primary signer to appear in the array, ' +
+            'which is impossible for an empty array. Consumers that ' +
+            'do not want quorum-signature semantics set the field to ' +
+            'null; consumers that opt into quorum include at least ' +
+            'the primary signer.',
     }),
     root_of_trust_id: Type.Union([Type.String({ minLength: 1, maxLength: 256 }), Type.Null()], {
         description: 'Optional lazy-link to a consumer-state root-of-trust ' +
@@ -407,21 +420,24 @@ export function validateRevocationList(data) {
         }
         const revokedAt = entry.revoked_at;
         // iso8601GeField(later, earlier) — for RL-7 we want
-        // revoked_at at-or-before issued_at, i.e. issued_at at-or-after revoked_at.
-        const rl7 = iso8601GeField(issuedAt, revokedAt);
+        // revoked_at at-or-before issued_at, i.e. issued_at at-or-after
+        // revoked_at. Pass field-name labels (PR-A4.4 iter-1 LOW
+        // mitigation) so error messages name RL-7 fields rather than the
+        // SPS-4 defaults.
+        const rl7 = iso8601GeField(issuedAt, revokedAt, 'issued_at', 'revoked_at');
         if (!rl7.valid) {
             errors.push(`RL-7: revoked_keys[${i}] ${rl7.reason}`);
         }
     }
     // RL-9: valid_from at-or-before valid_until when both non-null.
     if (validUntil !== null && validUntil !== undefined) {
-        const rl9 = iso8601GeField(validUntil, validFrom);
+        const rl9 = iso8601GeField(validUntil, validFrom, 'valid_until', 'valid_from');
         if (!rl9.valid) {
             errors.push(`RL-9: ${rl9.reason}`);
         }
     }
     // RL-10: valid_from at-or-before issued_at.
-    const rl10 = iso8601GeField(issuedAt, validFrom);
+    const rl10 = iso8601GeField(issuedAt, validFrom, 'issued_at', 'valid_from');
     if (!rl10.valid) {
         errors.push(`RL-10: ${rl10.reason}`);
     }

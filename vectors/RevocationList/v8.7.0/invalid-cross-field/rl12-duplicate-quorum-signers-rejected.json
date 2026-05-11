@@ -1,5 +1,5 @@
 {
-  "_comment": "RL-12 first arm: quorum_signatures[*].signer_key_id has a duplicate. Structurally valid; cross-field validator rejects via array_field_distinct.",
+  "_comment": "RL-12 first arm: quorum_signatures[*].signer_key_id has a duplicate.",
   "envelope_kind": "revocation_list",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",
@@ -13,25 +13,25 @@
   "next_page_hash": null,
   "revoked_keys": [
     {
-      "key_id": "ed25519:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw8N6ZIwFWrVZxWf47Cx0uyklgmRe8mocZ5vffVwLa3Ra",
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
       "reason": "compromise",
       "revoked_at": "2026-04-01T00:00:00Z",
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519:7_WLzBTw6eDaVvMjg8IZSpSlcG7ZBCMSpy0bV9AmkkuIRFpD3B2rg5F8seGzRvJWfVvTLjLvkQEiiv497rBj4W",
+  "signer_key_id": "ed25519-pub:7_WLzBTw6eDaVvMjg8IZSpSlcG7ZBCMSpy0bV9Amkku",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
   "quorum_signatures": [
     {
-      "signer_key_id": "ed25519:7_WLzBTw6eDaVvMjg8IZSpSlcG7ZBCMSpy0bV9AmkkuIRFpD3B2rg5F8seGzRvJWfVvTLjLvkQEiiv497rBj4W",
+      "signer_key_id": "ed25519-pub:7_WLzBTw6eDaVvMjg8IZSpSlcG7ZBCMSpy0bV9Amkku",
       "signature": "ed25519:cinZF3T_hvq4cIPy929OwL4AaKTUS35GE2riFVQY65Ul2ThHGjcTuVXGb3SPLbh81tvQ_LFrDrdvvTp-5irK8I"
     },
     {
-      "signer_key_id": "ed25519:g6neNo00UtpnOu1dcAs0gqDhbtdOshkZvSRKQw7bzRjGYyjRwizzQTfMh6jD0HRwTjST_N3UW6z7wDwWKDqa9H",
+      "signer_key_id": "ed25519-pub:g6neNo00UtpnOu1dcAs0gqDhbtdOshkZvSRKQw7bzRj",
       "signature": "ed25519:HguORTxOKt7FjZGqlav71T1Bu2asmcAEcCqB562kjYED-IigDITfGT2WhIpYABQyuxr3tmSwU7z-RBrGYbLb-o"
     },
     {
-      "signer_key_id": "ed25519:g6neNo00UtpnOu1dcAs0gqDhbtdOshkZvSRKQw7bzRjGYyjRwizzQTfMh6jD0HRwTjST_N3UW6z7wDwWKDqa9H",
+      "signer_key_id": "ed25519-pub:g6neNo00UtpnOu1dcAs0gqDhbtdOshkZvSRKQw7bzRj",
       "signature": "ed25519:bFYnhOIsNPpJMyWrWwJRGlAMuxS5iQh795dnJMmplA5WbxNbGp-dVsHvyWADJUMqhNEG6A9iXvbhM_AcL0M44P"
     }
   ],

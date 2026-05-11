@@ -13,25 +13,25 @@
   "next_page_hash": null,
   "revoked_keys": [
     {
-      "key_id": "ed25519:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw8N6ZIwFWrVZxWf47Cx0uyklgmRe8mocZ5vffVwLa3Ra",
+      "key_id": "ed25519-pub:LxdP8LKVONqjPf7BQwy7EqTDpNiY1kn8sZQuSbv0_Uw",
       "reason": "compromise",
       "revoked_at": "2026-04-01T00:00:00Z",
       "revocation_evidence_hash": null
     }
   ],
-  "signer_key_id": "ed25519:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi9Jy3m3nVbZWYhIllW790LYzuNdCazlzbC9UQ6Yt8hHg",
+  "signer_key_id": "ed25519-pub:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi",
   "signature": "ed25519:YdW3f5YAxPzKMdVT7TPVmG57b4OAi3qLeJztkc3MaLXm71I-ncxl8hw3cfHxbQ1dihEPq1g5ohmJ5gNHEYq5vz",
   "quorum_signatures": [
     {
-      "signer_key_id": "ed25519:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi9Jy3m3nVbZWYhIllW790LYzuNdCazlzbC9UQ6Yt8hHg",
+      "signer_key_id": "ed25519-pub:WEffJAS6eSh8tU5xYyOxUeQFYJFE9LSPEwFemlBFyTi",
       "signature": "ed25519:_ToGYi7imNJYSzFpc8sE1qiE45s6M1maGRr-k_FUqqg_2w8Kf2miIp3BwOggAKoHW5v4jzdduCNIdJFdWd2K-M"
     },
     {
-      "signer_key_id": "ed25519:U-xYdMP3KIGOeSl0fK_wskLIDGKssl7js9623rIKt_1NCb38G5A171HL0hDVmlE7ZyZBSn95MBViK_iYvtHB87",
+      "signer_key_id": "ed25519-pub:U-xYdMP3KIGOeSl0fK_wskLIDGKssl7js9623rIKt_1",
       "signature": "ed25519:w-xl9Oj8U2oh2rNHZmtt-Nxb8Znmb-Qs2jJKCKvDlibVxtIrtzZDEwh27GKGnysxMBw99rZFELOXfdcPwd1TKu"
     },
     {
-      "signer_key_id": "ed25519:tGDK9PCfgOpo5ecVFifU4oHbe3lSuXiZjlT27HR5jvmEVH06EiF7seh9qmnEM5KCq4AsOpzftTz4jZK8-3Gpmd",
+      "signer_key_id": "ed25519-pub:tGDK9PCfgOpo5ecVFifU4oHbe3lSuXiZjlT27HR5jvm",
       "signature": "ed25519:UiS4XAkYsRqNDtF5Z1qh8YmhcNsOnGA3KxGIagYjGchsw6XjdTs5Zw0GsnvqSx-rzryfYsEuCYmR9GFEfMIWnf"
     }
   ],
