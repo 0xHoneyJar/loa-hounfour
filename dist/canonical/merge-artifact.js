@@ -155,6 +155,14 @@ export const MergeArtifactSchema = Type.Object({
 /**
  * `validateMergeArtifact` — defensive-shim cross-field validator.
  *
+ * **THIS IS NOT A STRUCTURAL VALIDATOR.** Callers MUST run
+ * `Value.Check(MergeArtifactSchema, data)` first — that is the
+ * authoritative shape gate. The shim only checks the most basic
+ * preconditions (non-null object + correct envelope_kind
+ * discriminator) and returns `valid:true` for any payload past
+ * those guards. Required-field presence, field-pattern validity,
+ * and additionalProperties enforcement live in the structural tier.
+ *
  * MergeArtifact has no library-evaluable cross-field invariants in
  * v8.7.0 — MA-1 + MA-3 are pure TypeBox structural patterns; MA-2 +
  * MA-4 are consumer-state per ADR-010 with manifest reason codes.
@@ -162,15 +170,18 @@ export const MergeArtifactSchema = Type.Object({
  * gate (every constraint file MUST have a registered cross-field
  * validator) and as a hook for future cross-field invariants if any
  * are promoted from consumer-state to library-evaluable in
- * v8.8.0+.
+ * v8.8.0+. **Direct callers bypassing Value.Check** SHOULD treat the
+ * shim's `valid:true` as "passes the cross-field tier" only, NOT as
+ * "is a well-formed MergeArtifact envelope."
  *
  * **Defensive contract** (mirrors the CanonicalRun CR-1 plus
  * ClusterRunSeries plus InterSeriesScopingArtifact plus
  * SubscriptionPoolState plus RevocationList precedent): the
  * function MUST NOT throw on malformed input. Returns a structural-
- * precondition error if `data` is not a non-null object; otherwise
- * returns valid:true (no library-evaluable cross-field invariants
- * to enforce at this layer).
+ * precondition error if `data` is not a non-null object OR if its
+ * envelope_kind discriminator doesn't match; otherwise returns
+ * valid:true (no library-evaluable cross-field invariants to
+ * enforce at this layer).
  *
  * @param data — record to evaluate; the function defends against
  *   malformed input without throwing.

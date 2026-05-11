@@ -208,7 +208,7 @@ describe('MergeArtifact published JSON Schema $id contract', () => {
     expect(raw).not.toContain('"$ref"');
   });
 
-  it('MergeArtifact IS in the cross-field validator registry as a defensive-shim (satisfies the constraint-coverage gate; no library-evaluable cross-field invariants in v8.7.0)', async () => {
+  it('MergeArtifact is registered as a defensive-shim cross-field validator (satisfies the constraint-coverage gate; no library-evaluable cross-field invariants in v8.7.0)', async () => {
     const { getCrossFieldValidatorSchemas } = await import(
       '../../src/validators/index.js'
     );

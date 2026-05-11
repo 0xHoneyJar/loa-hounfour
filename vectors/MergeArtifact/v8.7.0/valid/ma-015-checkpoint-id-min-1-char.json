@@ -1,5 +1,5 @@
 {
-  "_comment": "epic_checkpoint_id at minLength 1 lower bound (single character). Resolution consumer-state per ADR-010.",
+  "_comment": "epic_checkpoint_id at minLength 1 lower bound (single character). The optional lazy-link is admissible at any length within [1, 256]; this fixture exercises the lower bound. Resolution is consumer-state per ADR-010.",
   "envelope_kind": "merge_artifact",
   "contract_version": "8.7.0",
   "cluster_id": "cluster-honeyjar-prod",

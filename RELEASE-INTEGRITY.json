@@ -1,6 +1,6 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T05:59:32.974Z",
+  "generated_at": "2026-05-11T06:06:40.817Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -3351,9 +3351,9 @@
         "size_bytes": 551
       },
       {
-        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-015-checkpoint-id-256-chars.json",
-        "sha256": "dc9572c622fcb56560d7054854f27f1cbd8ce9cd89017dc12064851787009869",
-        "size_bytes": 568
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-015-checkpoint-id-min-1-char.json",
+        "sha256": "624f3e12d17144035890bd3132f36e40f835068925e78f4276fbbe6fee4deda7",
+        "size_bytes": 679
       },
       {
         "path": "vectors/OracleDigest/v8.6.0/invalid/attention-component-over-1.json",
