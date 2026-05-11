@@ -1573,7 +1573,7 @@
       "name": "merge-artifact",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/merge-artifact",
       "file": "merge-artifact.schema.json",
-      "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.5."
+      "description": "Cluster-level merge event. NOT crypto-bearing, NOT chain-bearing at the merge-artifact level — consumers wrap in SignatureEnvelope (v8.5.0) per their own policy when signing is required. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form."
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-2: master_content_hash MUST match the canonical sha256 hex pattern.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "80d3762ed8eb656b4158e2cff174d5803949797c",
+  "master_content_hash": "not-sha256",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

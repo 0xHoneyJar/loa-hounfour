@@ -1,0 +1,13 @@
+{
+  "_comment": "repo_slug with mixed-case owner+name. The pattern is case-sensitive but admits both cases.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "OxHoneyJar/loa-Finn",
+  "pr_number": 14,
+  "merged_commit_sha": "5bc91029a4a774c164a7a0690432450b26b8dc1d",
+  "master_content_hash": "sha256:00ed99b6105c9de1d39864552818e5bdd3239ca2c7cc7e9a9da2174408470d1d",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-3: merged_at MUST be Z-suffix UTC. Offset-bearing forms rejected.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "d51358a4f067b37c20df2d5aa94d01e72ed50729",
+  "master_content_hash": "sha256:d60a2324e0934680423e8accfc587e86253ec0f8cff1a4de0f3dc5dd29cbe0bf",
+  "merged_at": "2026-05-01T00:00:00+02:00",
+  "merger_actor_id": "github-user-alice"
+}

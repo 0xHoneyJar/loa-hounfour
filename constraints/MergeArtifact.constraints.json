@@ -1,0 +1,57 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "MergeArtifact",
+  "origin": "genesis",
+  "contract_version": "8.7.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "MA-1",
+      "expression": "merged_commit_sha MUST match the lowercase 40-hex pattern ^[0-9a-f]{40}$ — the canonical git SHA-1 wire shape. TypeBox enforces this at the structural tier via the pattern keyword. Uppercase hex and shorter or longer lengths are rejected.",
+      "severity": "error",
+      "message": "MergeArtifact.merged_commit_sha MUST be a lowercase 40-hex string matching ^[0-9a-f]{40}$. Cluster-spanning audit aggregation across merge events relies on byte-identical commit SHA representation; mixed-case forms or non-40 lengths break consumer-side deduplication and chain-of-merges reconstruction.",
+      "fields": ["merged_commit_sha"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier — Type.String with the GIT_SHA1_PATTERN. Cross-language runners MUST recognize the same pattern; corpus extension in vectors/runners drives byte-identical agreement on rejection of mixed-case and wrong-length forms. **Future-compat note (PRD BL-8)**: Git is migrating to SHA-256 via extensions.objectFormat sha256. cycle-007 ships SHA-1 binding for current git infrastructure compatibility; v8.8.0+ may add an optional merged_commit_sha_sha256 field when consumer-corpus repos transition. SHA-1 is acknowledged collision-attackable but git's migration timeline is the authoritative pace. **What would change the lock:** a v9.0.0 contract bump may flip the canonical binding when consumer-corpus signal warrants.",
+      "type_signature": {
+        "merged_commit_sha": "string"
+      }
+    },
+    {
+      "id": "MA-2",
+      "expression": "master_content_hash MUST match the canonical sha256:<64-hex> pattern AND was computed via JCS-canonical-form per RFC 8785 and SDD section 2.0.1. TypeBox enforces the wire-shape pattern at the structural tier; canonicalization correctness is consumer-state per ADR-010.",
+      "severity": "error",
+      "message": "MergeArtifact.master_content_hash MUST match the sha256 hex pattern. The library-evaluable wire shape is the consumer's deduplication key; canonicalization correctness — whether the SHA-256 was actually computed over the JCS-canonical-form bytes of the master content rather than over some other serialization — is consumer-side per ADR-010 with manifest reason MERGE_ARTIFACT_CONTENT_HASH_CANONICALIZATION_CONTEXT_DEFERRED.",
+      "fields": ["master_content_hash"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable for wire shape via TypeBox structural tier — Type.String with SHA256_HEX_PATTERN. Canonicalization correctness is consumer-state per ADR-010. **Two-part contract**: hounfour ships the byte-shape pattern; consumers verify that the SHA-256 was actually computed over JCS-canonical-form bytes. **Manifest emission**: when a consumer's validate wrapper has not supplied canonicalization context, attach MERGE_ARTIFACT_CONTENT_HASH_CANONICALIZATION_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. Cross-language runners MUST recognize the same hex pattern; canonicalization-correctness verification requires a JCS implementation which hounfour does not bundle.",
+      "type_signature": {
+        "master_content_hash": "string"
+      }
+    },
+    {
+      "id": "MA-3",
+      "expression": "merged_at MUST match the ISO 8601 UTC pattern with mandatory Z suffix. TypeBox enforces this at the structural tier via the shared ISO8601_UTC_PATTERN. Offset-bearing timestamps are rejected.",
+      "severity": "error",
+      "message": "MergeArtifact.merged_at MUST be Z-suffix UTC matching ISO8601_UTC_PATTERN. Cross-runner byte-identity for merge-time audits requires Z-only canonicalization; producers MUST emit UTC with Z suffix.",
+      "fields": ["merged_at"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via TypeBox structural tier — Type.String with ISO8601_UTC_PATTERN. Cross-language runners MUST recognize the same pattern; corpus extension in vectors/runners drives byte-identical agreement on rejection of offset-bearing timestamps. **Fractional-precision admissibility**: the shared pattern admits optional fractional seconds with 1 to 9 digits; producers SHOULD emit consistent precision across all envelopes within a cluster to satisfy the FR-A2 cross-language harness JCS byte-identity contract.",
+      "type_signature": {
+        "merged_at": "string"
+      }
+    },
+    {
+      "id": "MA-4",
+      "expression": "consumer verifies that master_content_hash was computed from JCS-canonical-form master content at merge time. The schema pins the wire shape via MA-2; canonicalization-provenance verification is consumer-side per ADR-010 — hounfour does NOT bundle a JCS implementation.",
+      "severity": "warning",
+      "message": "MergeArtifact ships only the shape; master-content-hash canonicalization-provenance verification is consumer-state per ADR-010. The schema pins master_content_hash to the sha256 hex pattern so cross-runner byte-identity holds; whether the digest was actually computed over JCS-canonical-form bytes stays consumer-side.",
+      "fields": ["master_content_hash"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-event consumer-state contract. Per RFC section 3.5 and ADR-010, hounfour ships shape; canonicalization-provenance verification is consumer-side. Consumers compute JCS over the master-content document at merge time and check the resulting SHA-256 byte-identical against master_content_hash. **Manifest emission**: when a consumer's validate wrapper has not supplied canonicalization-provenance context, attach MERGE_ARTIFACT_CONTENT_HASH_CONTEXT_DEFERRED to the consumer's UnverifiedObligationsManifest at runtime. **Lock-de-scope rationale**: bundling a JCS implementation in hounfour would couple the library to RFC 8785 specifics whose cross-language byte-identity has not yet been exercised at scale across the FR-A2 harness. v8.8.0+ may reconsider when consumer-corpus signal warrants. **Distinction from MA-2**: MA-2 is the wire-shape pattern check (library-evaluable); MA-4 is the provenance check (consumer-state). Both reference master_content_hash for clarity.",
+      "type_signature": {
+        "master_content_hash": "string"
+      }
+    }
+  ]
+}

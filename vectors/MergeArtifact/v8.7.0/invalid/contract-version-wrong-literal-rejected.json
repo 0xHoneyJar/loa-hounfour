@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: contract_version pinned to \"8.7.0\".",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.6.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "7ea78d6ebc5693818c4fa1f6c5fc388025779859",
+  "master_content_hash": "sha256:2fb45d8b4d5af9cbb07fcc9b92a9d2a0f1052b6cedb0235a852e55cbab93383f",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

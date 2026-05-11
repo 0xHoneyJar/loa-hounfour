@@ -192,6 +192,9 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'SubscriptionPoolState',
     // v8.7.0 PR-A4.4 — FR-G4 RevocationList.
     'RevocationList',
+    // v8.7.0 PR-A4.5 — FR-G5 MergeArtifact (defensive-shim cross-field
+    // validator; no library-evaluable cross-field invariants in v8.7.0).
+    'MergeArtifact',
   ];
 
   it('returns an array of strings', () => {

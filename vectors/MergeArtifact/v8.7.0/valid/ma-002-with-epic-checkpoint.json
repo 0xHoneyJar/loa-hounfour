@@ -1,0 +1,13 @@
+{
+  "_comment": "Merge bound to an EpicCheckpoint (FR-B8, v8.6.0) via lazy-link. Resolution is consumer-state per ADR-010.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": "epic-checkpoint-2026-05-01-001",
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 42,
+  "merged_commit_sha": "4a167fe482ed4a92c8c8050eed40ef171cc2784d",
+  "master_content_hash": "sha256:638b34fa781359331a3ed13a32e97cc31667baf165d337643e7d80fdfed27360",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

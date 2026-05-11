@@ -1,0 +1,13 @@
+{
+  "_comment": "merged_at with fractional-second precision. The shared ISO8601_UTC_PATTERN admits optional fractional seconds with 1 to 9 digits.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 12,
+  "merged_commit_sha": "8ed4d7cb51f2fdbffc5c087aa9df130e8e31de46",
+  "master_content_hash": "sha256:2f471e27abf6b26176f057fd1a8f5631d7aa90c3291c33d52e0d2242a00c3520",
+  "merged_at": "2026-05-01T12:30:45.123Z",
+  "merger_actor_id": "github-user-alice"
+}

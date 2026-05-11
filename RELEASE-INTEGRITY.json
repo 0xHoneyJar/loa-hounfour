@@ -1,14 +1,14 @@
 {
   "release_version": "8.7.0",
-  "generated_at": "2026-05-11T05:33:24.397Z",
+  "generated_at": "2026-05-11T06:06:40.817Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 262,
-    "vectors": 1203,
-    "constraints": 139,
+    "vectors": 1236,
+    "constraints": 140,
     "manifests": 2,
-    "total": 1606
+    "total": 1640
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -680,8 +680,8 @@
       },
       {
         "path": "schemas/merge-artifact.schema.json",
-        "sha256": "292ca52f2c4d4803c44f7463b13850cc1b7d27c85010312bf41242da661fb63b",
-        "size_bytes": 300
+        "sha256": "cab3848ff96949ecbe199ec60c078f05b7f6cc2e0ed11ac7bd235720725e1d0c",
+        "size_bytes": 3827
       },
       {
         "path": "schemas/message.schema.json",
@@ -3189,6 +3189,171 @@
         "path": "vectors/LatencyHistogramEnvelope/v8.6.0/valid/canonical-010-equal-p99-max.json",
         "sha256": "7a3ecf401395d9d1d49bd6964104cda2d95c8c7a2bb232453601b0e4b825cf0f",
         "size_bytes": 258
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "d86ac560253b29a1bc1800a1a50404a7f21177ef9ff048e7c32d66183a00d019",
+        "size_bytes": 549
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/cluster-id-empty-rejected.json",
+        "sha256": "5371e3630377aa8089001f839cc80744a4eb5e19c4f1e5f1efd26aaedb2a0966",
+        "size_bytes": 484
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "c4753ad6a06111eb2e7174765dd09a37366525b49c3b018dafbb0d6242e806b3",
+        "size_bytes": 513
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/envelope-kind-wrong-literal-rejected.json",
+        "sha256": "1a2f0ede6f74b0ff353c8e57faf789a7a505f5e4c7bde5429e5912784e3dcff9",
+        "size_bytes": 531
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/epic-checkpoint-id-empty-string-rejected.json",
+        "sha256": "d45b76870f088f15d83f70bf84f1cb8fd5cfd6a7657e1c0a45762deaafa29599",
+        "size_bytes": 617
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/master-content-hash-malformed-rejected.json",
+        "sha256": "ba739119187854ba9f3b38770559b2b55307141d8570c9fb6f558edd6262230f",
+        "size_bytes": 484
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merged-at-malformed-rejected.json",
+        "sha256": "5397c702991d0f71e7a1f38e0a7235092b98453f54baeba13512af5f6a911803",
+        "size_bytes": 511
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merged-at-non-utc-rejected.json",
+        "sha256": "26247284564fe39a261b12c917f3170c66e44de645fa1b3c946dcb093de8b7d0",
+        "size_bytes": 548
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merged-commit-sha-too-long-rejected.json",
+        "sha256": "a5bb5c068bb8fd2f4466986622d8389be61f9d545f83cc3a79089d698ac87e14",
+        "size_bytes": 697
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merged-commit-sha-too-short-rejected.json",
+        "sha256": "14c5bf0d3279265119ad6c75c9a250264841a0467463c9be86e75e3893de5c23",
+        "size_bytes": 522
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merged-commit-sha-uppercase-rejected.json",
+        "sha256": "552bd7030469aa1a06fd2a54cb9d4d5e5dfdef8514d50980876e5c5bf09ad720",
+        "size_bytes": 649
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merger-actor-id-empty-rejected.json",
+        "sha256": "4d28588b60e312b354811aec65dcdf8936af6a98f5eb4c97867bbb4ca3015bfb",
+        "size_bytes": 516
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/merger-actor-id-too-long-rejected.json",
+        "sha256": "2cb54c5e09de98cee2ee702db49b73d6bdccfedf8271908f1659f95650bd7ebd",
+        "size_bytes": 759
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/pr-number-above-max-safe-rejected.json",
+        "sha256": "1aa3dce459437dec3e8341f516e84aa7503350ba4d8004c0879d3494871ea197",
+        "size_bytes": 581
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/pr-number-negative-rejected.json",
+        "sha256": "7cbefe3c24a266ff0fc777fe5f625504babfa9f94404d2207fce91c7bc47069c",
+        "size_bytes": 536
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/pr-number-zero-rejected.json",
+        "sha256": "de928af5e51a30f4a0405651a4b976361cf03fc9835ee4c30f06e97a7db16f6d",
+        "size_bytes": 524
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/repo-slug-no-slash-rejected.json",
+        "sha256": "e9c1336ef6d3f302fa673138b1db8f89f2a3c3a7997d50e77b220a9f57c877e3",
+        "size_bytes": 567
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/invalid/repo-slug-with-spaces-rejected.json",
+        "sha256": "66c7dc168d1488228d8bffcd0554208ae814b14de4124a382a47e445313edb89",
+        "size_bytes": 518
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-001-minimal.json",
+        "sha256": "d90807792667052aa59e60e13c9e89f27ee90b5a1e62b98983b70ad58a6984b1",
+        "size_bytes": 570
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-002-with-epic-checkpoint.json",
+        "sha256": "07e57dfa0417b52d5adfe2e3e98cf8ad94774032db2f7d4433537c3e511f723a",
+        "size_bytes": 598
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-003-bot-actor.json",
+        "sha256": "901c1462b5114d05cb30d3f296e9919eb76989658d0c1f305c9010fcec81b78a",
+        "size_bytes": 582
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-004-large-pr-number.json",
+        "sha256": "ef90726e6c03755c7d35d474bf29473b2ec6bc2388f0d03d8b884ca6f3708328",
+        "size_bytes": 593
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-005-min-pr-number.json",
+        "sha256": "2bc7373aee3f88ded0d59c142091576c522fa1325dfd064882a3861445bec7a3",
+        "size_bytes": 572
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-006-merger-actor-max-length.json",
+        "sha256": "acbe664543d118891daabf7f198d8f4bf2b0ae7cd696151a514d0891360b21b1",
+        "size_bytes": 788
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-007-merger-actor-single-char.json",
+        "sha256": "2d2d23d57d2ad97cde9de72d11c41bb9bcd2d54683d2fc5f62f216bddcb987e0",
+        "size_bytes": 530
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-008-different-repo.json",
+        "sha256": "500bdd412edc59744a21a983ce66c618af418aab772bb3d05b67b8ce8b364c77",
+        "size_bytes": 597
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-009-mixed-case-with-dots.json",
+        "sha256": "c5abf2c061c11322715a6165330d32d308facc9c19382abe60079c7b1a31629d",
+        "size_bytes": 686
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-010-merged-at-fractional-seconds.json",
+        "sha256": "0361df9c16a7d7d8170978afd174c83b7572deccc78320ec0e7f983291819679",
+        "size_bytes": 598
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-011-merged-at-nanosecond-precision.json",
+        "sha256": "4b2582ecba0f5070e126e5ff51a0e79fd0e0b387a3297edd9872b8386ea757ac",
+        "size_bytes": 563
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-012-mixed-case-repo-slug.json",
+        "sha256": "35a066cc168e403194f5d6a95dbff5604b8371cf020e4f4680841a9ae30ba88c",
+        "size_bytes": 555
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-013-numeric-only-slug.json",
+        "sha256": "be0b7dc8002468b456e5a59da7c321cb4fc4c29cd083e2be4db84a86824a0437",
+        "size_bytes": 557
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-014-empty-slug-segment-with-dots.json",
+        "sha256": "a279545a27ff13f948e962a8351ce89b28137ffc6c3dd270793bc9c3da43f022",
+        "size_bytes": 551
+      },
+      {
+        "path": "vectors/MergeArtifact/v8.7.0/valid/ma-015-checkpoint-id-min-1-char.json",
+        "sha256": "624f3e12d17144035890bd3132f36e40f835068925e78f4276fbbe6fee4deda7",
+        "size_bytes": 679
       },
       {
         "path": "vectors/OracleDigest/v8.6.0/invalid/attention-component-over-1.json",
@@ -7693,6 +7858,11 @@
         "size_bytes": 584
       },
       {
+        "path": "constraints/MergeArtifact.constraints.json",
+        "sha256": "df04b5b651dbf41e97393f740851b1894608f938cc26b6ad680938b7582e6f40",
+        "size_bytes": 6489
+      },
+      {
         "path": "constraints/MicroUSDC.constraints.json",
         "sha256": "fdc41082a50fcfa4783b3f52ff8b919cde57f540b291a4e4adc03fcf75fa5776",
         "size_bytes": 828
@@ -8041,8 +8211,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "c8e09eb3c001c3e12b79a74cfc568e66282d2d49c88ace96909f5fd07a7dd918",
-        "size_bytes": 86529
+        "sha256": "85be3c5d67d84484601fb8acfa3a128af6c4a8857325525b359e8114e4ffb67d",
+        "size_bytes": 86831
       },
       {
         "path": "schemas/schemastore-catalog.json",

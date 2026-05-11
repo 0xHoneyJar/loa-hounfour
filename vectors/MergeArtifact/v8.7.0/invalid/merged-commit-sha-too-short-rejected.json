@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-1: merged_commit_sha MUST be exactly 40 hex chars. Shorter forms rejected.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "abcdef1234",
+  "master_content_hash": "sha256:01c71d70f3b2a2e4a45e264b3ab0723a0bdf6216b15e2cc2f280a7ba26ad11c9",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "PR number at the locked minimum (1). PR numbers are positive integers; 0 is rejected at the structural tier.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "37d16a3b73a0cc162f803d7caf9fe9b8d8eb743a",
+  "master_content_hash": "sha256:c8a41445823bb168636e9bdc605cdf6b8933605a627290690a270635c6cd4108",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

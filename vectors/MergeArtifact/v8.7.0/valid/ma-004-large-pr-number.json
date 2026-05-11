@@ -1,0 +1,13 @@
+{
+  "_comment": "Large PR number within the Number.MAX_SAFE_INTEGER ceiling. Validates the bigint-safe integer arithmetic boundary.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 9007199254740990,
+  "merged_commit_sha": "31ce692edfce0b5ecdc4c1dd3d74c3035df4a6f8",
+  "master_content_hash": "sha256:f1f2f416b598694b0e8bba51a55db4466426fae9480469a7737ec218a5dca330",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

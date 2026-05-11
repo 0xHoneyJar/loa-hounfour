@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-3: merged_at MUST match ISO8601_UTC_PATTERN.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "993fe74713380e32bed509ecddf5f61422fcfa2f",
+  "master_content_hash": "sha256:bec3924b2bff6ff09ef39e2b3f2e1bae74314106bfe76817daa21d45f126b8e1",
+  "merged_at": "yesterday",
+  "merger_actor_id": "github-user-alice"
+}
