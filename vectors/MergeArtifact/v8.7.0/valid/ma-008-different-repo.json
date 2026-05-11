@@ -1,0 +1,13 @@
+{
+  "_comment": "Cross-repo merge: different repo_slug from the cluster-default. Cluster-spanning audit aggregation aggregates across multiple repos.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-dixie",
+  "pr_number": 7,
+  "merged_commit_sha": "0c7ae29a7155ad5b4fd8755f68fa8635cac38e7b",
+  "master_content_hash": "sha256:1f932881fe71d7b84df386e8ed4c6e8d449f728588753b93c0bbc6adf7089dd7",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

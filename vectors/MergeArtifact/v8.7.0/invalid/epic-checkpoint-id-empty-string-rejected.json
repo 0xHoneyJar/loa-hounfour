@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: epic_checkpoint_id is admissible as null OR a non-empty string. Empty strings rejected; the canonical \"no checkpoint\" representation is null.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": "",
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "505d3aa3b52692d44b95ef5e53fe63b2b925a0e4",
+  "master_content_hash": "sha256:80faa0b66872ba4aa492d1b11133483b4073e50aeda218b143f471204c5b1c0d",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

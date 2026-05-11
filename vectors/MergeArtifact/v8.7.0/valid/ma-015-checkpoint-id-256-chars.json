@@ -1,0 +1,13 @@
+{
+  "_comment": "epic_checkpoint_id at minLength 1 lower bound (single character). Resolution consumer-state per ADR-010.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": "x",
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 17,
+  "merged_commit_sha": "84c35cd515ebe6f77e8cb19d851a496b50d5f4ff",
+  "master_content_hash": "sha256:1a5caf29c01c5699af5c986a31b768447f4e71d7e71ad5518edbeac8132c085c",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

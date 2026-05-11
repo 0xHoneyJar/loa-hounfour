@@ -1,0 +1,13 @@
+{
+  "_comment": "Minimal merge_artifact: single PR merge with no EpicCheckpoint linkage (hotfix outside checkpoint window).",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "a043bae1603803a839c0cb52f511d9cb8f68d9d9",
+  "master_content_hash": "sha256:b0341314a5534ea92b26fa8adc30543fe5a6e743849e63f8101ac616f8fd0ba8",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

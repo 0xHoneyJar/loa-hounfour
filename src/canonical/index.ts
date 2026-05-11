@@ -64,5 +64,6 @@ export {
 } from './revocation-list.js';
 export {
   MergeArtifactSchema,
+  validateMergeArtifact,
   type MergeArtifact,
 } from './merge-artifact.js';

@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: pr_number MUST satisfy maximum Number.MAX_SAFE_INTEGER. Values above the ceiling rejected.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 9007199254740992,
+  "merged_commit_sha": "a8f7b74bdc67a3abc1f768eb8c5e8a1ca5a0fa6c",
+  "master_content_hash": "sha256:f604889976c985016f1f2473777b54c1daa2f3228f362a609396b3cc11d2574d",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

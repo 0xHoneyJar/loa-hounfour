@@ -46,6 +46,15 @@ import { validateSubscriptionPoolState } from '../canonical/subscription-pool-st
 // from revocation-list-local). RL-2/3/4/6/11 are consumer-state per
 // ADR-010 with manifest reason codes.
 import { validateRevocationList } from '../canonical/revocation-list.js';
+// v8.7.0 PR-A4.5 — FR-G5 MergeArtifact cross-field validator
+// (defensive-shim). MergeArtifact has no library-evaluable cross-
+// field invariants in v8.7.0 — MA-1 + MA-3 are pure TypeBox
+// structural patterns; MA-2 + MA-4 are consumer-state per ADR-010
+// with manifest reason codes. The function exists to satisfy the
+// cycle-007 constraint-coverage gate and as a hook for future MA-N
+// invariants if any are promoted from consumer-state to library-
+// evaluable in v8.8.0+.
+import { validateMergeArtifact } from '../canonical/merge-artifact.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
 if (!FormatRegistry.Has('date-time')) {
@@ -1100,6 +1109,13 @@ registerCrossFieldValidator('SubscriptionPoolState', validateSubscriptionPoolSta
 // codes (REVOCATION_LIST_*_CONTEXT_DEFERRED). RL-8 is an explicit
 // non-constraint per the PR-A3.8 anti-finding-rotation lesson.
 registerCrossFieldValidator('RevocationList', validateRevocationList);
+// v8.7.0 PR-A4.5 — MergeArtifact defensive-shim cross-field validator.
+// Registered to satisfy the cycle-007 constraint-coverage gate; the
+// body is a structural-precondition guard with no library-evaluable
+// cross-field invariants. MA-2 + MA-4 are consumer-state per ADR-010
+// (manifest reasons `MERGE_ARTIFACT_CONTENT_HASH_CONTEXT_DEFERRED` +
+// `MERGE_ARTIFACT_CONTENT_HASH_CANONICALIZATION_CONTEXT_DEFERRED`).
+registerCrossFieldValidator('MergeArtifact', validateMergeArtifact);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

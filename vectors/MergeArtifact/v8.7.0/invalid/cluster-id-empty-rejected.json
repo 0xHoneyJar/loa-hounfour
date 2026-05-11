@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: cluster_id MUST be non-empty.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "443b55ec41a6fdfc44b574738eb2993a8a06b1c0",
+  "master_content_hash": "sha256:8e6ee73f5ae198bee2e2ef67efee091f4f87fd7312742bc9c2ded81a225343cf",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

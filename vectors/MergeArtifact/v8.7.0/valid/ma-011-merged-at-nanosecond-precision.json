@@ -1,0 +1,13 @@
+{
+  "_comment": "merged_at at 9-digit nanosecond precision. The pattern admits up to 9 fractional digits.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 13,
+  "merged_commit_sha": "b8b7c818f0cd87f076a7e11914a85f8791bdacb3",
+  "master_content_hash": "sha256:7357616a52e1d11bc898515acdbf9593a31d5c9cdfd9a0ed42b450d962a0b365",
+  "merged_at": "2026-05-01T12:30:45.123456789Z",
+  "merger_actor_id": "github-user-alice"
+}

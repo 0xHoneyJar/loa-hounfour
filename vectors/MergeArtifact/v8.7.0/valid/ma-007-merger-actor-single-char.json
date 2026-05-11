@@ -1,0 +1,13 @@
+{
+  "_comment": "merger_actor_id at the minLength 1 lower bound. Single-char identifier admissible.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 3,
+  "merged_commit_sha": "8c237bf841332084f8b2d7d97720f7d61a0294f1",
+  "master_content_hash": "sha256:c9c3877df499bf33a22107943bb7aecaae68aed124b941bbf87106541fd9ffa4",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "x"
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-1: merged_commit_sha MUST be exactly 40 hex chars. Longer forms rejected (the v8.8.0+ optional merged_commit_sha_sha256 field is the future-compat path for git SHA-256 transitions; see PRD BL-8).",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+  "master_content_hash": "sha256:00c8a86b1894483c86ada1bbd016794bb1bb2f8cb22c4ec0c41b9175795419b3",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

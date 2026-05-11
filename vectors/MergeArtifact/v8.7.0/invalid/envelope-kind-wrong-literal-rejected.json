@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: envelope_kind is locked to \"merge_artifact\".",
+  "envelope_kind": "subscription_pool_state",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "8914fb8cd1fa7a5eca2f6e01225b5fed4a824882",
+  "master_content_hash": "sha256:f2ab9d9d00a9ac6a7a4f7ca41077395bbdf258574314693d2595c78740f8f350",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural MA-1: merged_commit_sha MUST be lowercase 40-hex. Uppercase rejected at the structural tier; cross-runner audit aggregation requires byte-identical commit SHA representation.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 1,
+  "merged_commit_sha": "ABCDEF1234567890ABCDEF1234567890ABCDEF12",
+  "master_content_hash": "sha256:a6d710c44827bc811cd5d0b8f1dc4f75d7fc3c95ba223305485b44dfa1fcefd2",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

@@ -1,0 +1,13 @@
+{
+  "_comment": "repo_slug with numeric-only segments. The pattern admits letters, digits, underscore, dot, and hyphen.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "1234/5678",
+  "pr_number": 15,
+  "merged_commit_sha": "d9878ce7ca57201e5b823778254659ca11a4baed",
+  "master_content_hash": "sha256:5925fb69f46cdadba8a65523f7321d1cde05c262dcc276a374b784c7d5ff7468",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

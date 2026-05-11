@@ -1,0 +1,13 @@
+{
+  "_comment": "repo_slug pattern admits 2-segment owner/name. This fixture verifies a typical owner/name slug; longer paths are NOT admissible.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "OWNER-DASH/repo.with.dots",
+  "pr_number": 11,
+  "merged_commit_sha": "87b6a27f5baddd65bcd01aefb61ad7be0c45289c",
+  "master_content_hash": "sha256:21d93e27440cea2759a64d367399f4fa49ab097e4c95a9abadaea479b14b228f",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

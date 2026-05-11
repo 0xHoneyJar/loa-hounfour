@@ -1,7 +1,81 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/merge-artifact",
-  "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.5.",
-  "not": {},
+  "additionalProperties": false,
+  "description": "Cluster-level merge event. NOT crypto-bearing, NOT chain-bearing at the merge-artifact level — consumers wrap in SignatureEnvelope (v8.5.0) per their own policy when signing is required. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "cluster_id",
+    "epic_checkpoint_id",
+    "repo_slug",
+    "pr_number",
+    "merged_commit_sha",
+    "master_content_hash",
+    "merged_at",
+    "merger_actor_id"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator pinning this envelope shape.",
+      "const": "merge_artifact",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.7.0\" for the cycle-007 ship line.",
+      "const": "8.7.0",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Consumer-shaped cluster identifier.",
+      "type": "string"
+    },
+    "epic_checkpoint_id": {
+      "description": "Optional lazy-link to an EpicCheckpointSchema record (FR-B8, v8.6.0). Null if the merge is not bound to a checkpoint — e.g. hotfixes outside a checkpoint window. Resolution is consumer-state per ADR-010.",
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "repo_slug": {
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "description": "GitHub-shaped owner/name slug. Consumer-shaped namespace; hounfour does not freeze the registry.",
+      "type": "string"
+    },
+    "pr_number": {
+      "minimum": 1,
+      "maximum": 9007199254740991,
+      "description": "Positive integer pull-request identifier. Upper bound is Number.MAX_SAFE_INTEGER to keep cross-runner integer arithmetic bigint-safe at the JSON boundary.",
+      "type": "integer"
+    },
+    "merged_commit_sha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "description": "Git SHA-1 commit hash — 40 lowercase hex chars. MA-1 library-evaluable byte-shape. Git is migrating to SHA-256 (extensions.objectFormat = sha256); cycle-007 ships SHA-1 for compatibility with current git infrastructure. Future-compat path documented in the file-level JSDoc and PRD BL-8.",
+      "type": "string"
+    },
+    "master_content_hash": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "description": "SHA-256 of the JCS-canonical-form (RFC 8785, per SDD §2.0.1) bytes of the master content at merge time. MA-2 library-evaluable byte-shape; canonicalization correctness is consumer-side per ADR-010 — consumer applies JCS to the master-content document then computes SHA-256 over the resulting bytes.",
+      "type": "string"
+    },
+    "merged_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at which the merge landed. MA-3 library-evaluable pattern.",
+      "type": "string"
+    },
+    "merger_actor_id": {
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Consumer-shaped actor identifier — typically a GitHub user or bot identifier. Hounfour does not freeze the namespace; the 256-char upper bound matches the consumer-side display surface.",
+      "type": "string"
+    }
+  },
   "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

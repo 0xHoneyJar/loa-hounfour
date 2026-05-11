@@ -25,7 +25,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(139);
+    expect(files.length).toBe(140);
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

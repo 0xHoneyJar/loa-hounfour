@@ -1,0 +1,13 @@
+{
+  "_comment": "repo_slug using dots within segments \u2014 like a name with a TLD-style suffix.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "owner/repo.with.many.dots",
+  "pr_number": 16,
+  "merged_commit_sha": "fdc24ad81dd4c4e26f3750083f50edac24db2b70",
+  "master_content_hash": "sha256:14d8b814406c71e908326936a1f188f867af40c5bacb508d2c7bac1c74030e8f",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

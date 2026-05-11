@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: repo_slug MUST match ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$. Slugs without a slash separator rejected.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "no-slash-here",
+  "pr_number": 1,
+  "merged_commit_sha": "4b0ab01468eb41e49322b96878a33cd17b190889",
+  "master_content_hash": "sha256:25813918c78707cb6db9051fe1e06ccfa6f6de6aa8a5288b3004a88d354eb1c6",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "github-user-alice"
+}

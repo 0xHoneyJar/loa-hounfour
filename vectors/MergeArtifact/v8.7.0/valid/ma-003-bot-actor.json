@@ -1,0 +1,13 @@
+{
+  "_comment": "Bot merger_actor_id (e.g. a deploy bot). The consumer-shaped actor-id namespace admits both human and bot identifiers.",
+  "envelope_kind": "merge_artifact",
+  "contract_version": "8.7.0",
+  "cluster_id": "cluster-honeyjar-prod",
+  "epic_checkpoint_id": null,
+  "repo_slug": "0xhoneyjar/loa-finn",
+  "pr_number": 100,
+  "merged_commit_sha": "6f4c76ff8b24f98b098d2f129a31e399698e3b36",
+  "master_content_hash": "sha256:a45c17ff134eee52db9fa0d4af211849b3a47ed1640ca4b8601ee8d9224ecde3",
+  "merged_at": "2026-05-01T00:00:00Z",
+  "merger_actor_id": "deploy-bot[bot]"
+}
