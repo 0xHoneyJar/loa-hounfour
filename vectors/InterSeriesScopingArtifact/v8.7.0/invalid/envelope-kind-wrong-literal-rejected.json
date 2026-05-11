@@ -1,0 +1,21 @@
+{
+  "_comment": "Structural: envelope_kind is the locked discriminator \"inter_series_scoping_artifact\". Any other literal is rejected at the structural tier; the discriminator pins envelope shape selection.",
+  "envelope_kind": "cluster_run_series",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-x",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "baseline",
+      "conformance_impact_pct": 0.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "proof_path": []
+  },
+  "conformance_chain": []
+}

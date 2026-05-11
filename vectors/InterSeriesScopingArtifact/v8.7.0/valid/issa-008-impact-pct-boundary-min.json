@@ -1,0 +1,21 @@
+{
+  "_comment": "Boundary case: conformance_impact_pct at the ISSA-4 minimum (-100). The library-clamped closed interval admits both endpoints.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T14:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-008",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "Maximally negative conformance impact — full regression of all currently-tracked invariants.",
+      "conformance_impact_pct": -100
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "proof_path": []
+  },
+  "conformance_chain": []
+}

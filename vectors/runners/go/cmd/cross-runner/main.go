@@ -111,6 +111,8 @@ var Schemas = []SchemaReg{
 	{"CanonicalRun", "v8.6.0", []string{"valid", "invalid", "invalid-cross-field"}},
 	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.1 (FR-G1).
 	{"ClusterRunSeries", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.2 (FR-G2).
+	{"InterSeriesScopingArtifact", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
 }
 
 type ManifestEntry struct {

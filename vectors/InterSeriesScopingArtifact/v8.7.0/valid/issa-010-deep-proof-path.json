@@ -1,0 +1,150 @@
+{
+  "_comment": "Deep-tree case: 32-step proof_path with alternating positions. Validates the ISSA-3 well-formedness check scales across the schema-admitted depth (maxItems 64).",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T16:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-010",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-001",
+      "description": "Validate deep-tree proof_path acceptance.",
+      "conformance_impact_pct": 0.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "proof_path": [
+      {
+        "sibling_hash": "sha256:0101010101010101010101010101010101010101010101010101010101010101",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0202020202020202020202020202020202020202020202020202020202020202",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0303030303030303030303030303030303030303030303030303030303030303",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0404040404040404040404040404040404040404040404040404040404040404",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0505050505050505050505050505050505050505050505050505050505050505",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0606060606060606060606060606060606060606060606060606060606060606",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0707070707070707070707070707070707070707070707070707070707070707",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0808080808080808080808080808080808080808080808080808080808080808",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0909090909090909090909090909090909090909090909090909090909090909",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e0e",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1010101010101010101010101010101010101010101010101010101010101010",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1212121212121212121212121212121212121212121212121212121212121212",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1313131313131313131313131313131313131313131313131313131313131313",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1414141414141414141414141414141414141414141414141414141414141414",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1515151515151515151515151515151515151515151515151515151515151515",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1616161616161616161616161616161616161616161616161616161616161616",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1717171717171717171717171717171717171717171717171717171717171717",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1818181818181818181818181818181818181818181818181818181818181818",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1919191919191919191919191919191919191919191919191919191919191919",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e",
+        "position": "right"
+      },
+      {
+        "sibling_hash": "sha256:1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f",
+        "position": "left"
+      },
+      {
+        "sibling_hash": "sha256:2020202020202020202020202020202020202020202020202020202020202020",
+        "position": "right"
+      }
+    ]
+  },
+  "conformance_chain": []
+}

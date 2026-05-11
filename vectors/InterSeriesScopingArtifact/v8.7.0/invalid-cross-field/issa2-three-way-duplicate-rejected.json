@@ -1,0 +1,31 @@
+{
+  "_comment": "ISSA-2 stress: three goals share the same id. Cross-field error reporting accumulates the offending indices [0, 1, 2] in the duplicate report; the validator does NOT short-circuit after the first duplicate.",
+  "envelope_kind": "inter_series_scoping_artifact",
+  "contract_version": "8.7.0",
+  "ts": "2026-05-09T00:00:00Z",
+  "cluster_id": "cluster-honeyjar-prod",
+  "parent_series_id": "cluster-run-002",
+  "signoff_envelope_id": null,
+  "proposed_series_goals": [
+    {
+      "id": "goal-shared",
+      "description": "First entry — same id repeated below.",
+      "conformance_impact_pct": 1.0
+    },
+    {
+      "id": "goal-shared",
+      "description": "Second entry — same id repeated above and below.",
+      "conformance_impact_pct": 2.0
+    },
+    {
+      "id": "goal-shared",
+      "description": "Third entry — same id repeated above twice.",
+      "conformance_impact_pct": 3.0
+    }
+  ],
+  "constitutional_hash_proof": {
+    "soul_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "proof_path": []
+  },
+  "conformance_chain": []
+}

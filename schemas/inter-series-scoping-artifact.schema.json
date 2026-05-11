@@ -1,7 +1,154 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/inter-series-scoping-artifact",
-  "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.2.",
-  "not": {},
+  "additionalProperties": false,
+  "description": "Cross-EPIC scoping artifact. Merkle proof composition is library-evaluable for shape-level well-formedness only per ISSA-3; cluster constitutional-root resolution is consumer-state per ADR-010. NOT crypto-bearing; NOT chain-bearing — records a scoping decision over a parent ClusterRunSeries record (FR-G1) and an optional PlanSignoffEnvelope (FR-B9). Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form.",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "ts",
+    "cluster_id",
+    "parent_series_id",
+    "signoff_envelope_id",
+    "proposed_series_goals",
+    "constitutional_hash_proof",
+    "conformance_chain"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator pinning this envelope shape.",
+      "const": "inter_series_scoping_artifact",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.7.0\" for the cycle-007 ship line.",
+      "const": "8.7.0",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC timestamp at which this scoping artifact was authored, with mandatory Z suffix. Uses the shared ISO8601_UTC_PATTERN; cross-runner byte-identity for ts is consumer-state per ADR-010 and verified on the FR-A2 harness.",
+      "type": "string"
+    },
+    "cluster_id": {
+      "minLength": 1,
+      "description": "Consumer-shaped cluster identifier.",
+      "type": "string"
+    },
+    "parent_series_id": {
+      "minLength": 1,
+      "description": "Lazy-link to ClusterRunSeries.run_id (FR-G1) of the parent series this scoping artifact applies to. Resolution is consumer-state per ADR-010 — hounfour does not bundle a registry implementation.",
+      "type": "string"
+    },
+    "signoff_envelope_id": {
+      "description": "Optional lazy-link to a PlanSignoffEnvelopeSchema record (FR-B9, v8.6.0) for the inter-series scoping signoff. Null when no signoff envelope has been emitted; resolution is consumer-state per ADR-010.",
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposed_series_goals": {
+      "minItems": 1,
+      "maxItems": 64,
+      "description": "Non-empty array of proposed goals for the scoped series. Per-array id distinctness is ISSA-2; per-element shape is ProposedSeriesGoal. Upper bound 64 matches the consumer-side practical ceiling for per-artifact goal counts.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "description": "One per-goal entry within an InterSeriesScopingArtifact. Cross-element invariants — id distinctness within the array — are enforced at the cross-field tier per ISSA-2.",
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "conformance_impact_pct"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "description": "Stable opaque goal identifier within the artifact. Per-array distinctness is ISSA-2; consumers select goals by id from the artifact-scoped namespace.",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "Free-form goal description. 4 KiB upper bound matches the consumer-side display surface; longer rationale belongs in the consumer-side decision log.",
+            "type": "string"
+          },
+          "conformance_impact_pct": {
+            "minimum": -100,
+            "maximum": 100,
+            "description": "Estimated conformance percentage delta if this goal lands. Library-clamped to the closed interval [-100, 100] per ISSA-4; consumers compute meaning per ADR-010 — the schema does NOT freeze the conformance-scoring algorithm at this layer.",
+            "type": "number"
+          }
+        }
+      }
+    },
+    "constitutional_hash_proof": {
+      "additionalProperties": false,
+      "description": "Merkle proof anchoring the parent series to a consumer-published constitutional-root. Shape-level only; semantic root verification is consumer-state per ADR-010.",
+      "type": "object",
+      "required": [
+        "soul_hash",
+        "proof_path"
+      ],
+      "properties": {
+        "soul_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "Leaf hash — typically the canonical-form hash of the parent series's constitutional reference. Composition starts here; see SDD §3.4 ISSA-3 raw-byte rule.",
+          "type": "string"
+        },
+        "proof_path": {
+          "minItems": 0,
+          "maxItems": 64,
+          "description": "Ordered sequence of Merkle proof steps from leaf to root. Empty array is admissible — a one-leaf tree where soul_hash is also the root. The 2 to the 64th leaf ceiling is practically unbounded for any real ledger. Per-step position is mandatory per ISSA-3.",
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "description": "One per-step entry within a Merkle proof path. Composition is shape-level only per ISSA-3; semantic root verification is consumer-state per ADR-010.",
+            "type": "object",
+            "required": [
+              "sibling_hash",
+              "position"
+            ],
+            "properties": {
+              "sibling_hash": {
+                "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+                "description": "SHA-256 digest of the sibling node, in canonical `sha256:<64-hex>` form. Decoded to 32 raw bytes for composition per the SDD §3.4 ISSA-3 lock.",
+                "type": "string"
+              },
+              "position": {
+                "description": "Position discriminator pinning which side of the concatenation the sibling occupies. Avoids the lexicographic-sort trap that collides for matching twins. ISSA-3 mandates explicit per-step position; ISSA-5 enforces the locked enum membership.",
+                "anyOf": [
+                  {
+                    "const": "left",
+                    "type": "string"
+                  },
+                  {
+                    "const": "right",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "conformance_chain": {
+      "minItems": 0,
+      "maxItems": 1024,
+      "description": "Ordered sequence of conformance-evaluation hashes; consumer-shaped. Each entry is a sha256 digest in canonical hex form. Empty array is admissible. Upper bound 1024 matches the consumer-side practical ceiling for per-artifact evaluation counts.",
+      "type": "array",
+      "items": {
+        "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+        "type": "string"
+      }
+    }
+  },
   "$comment": "contract_version=8.7.0, min_supported=6.0.0"
 }

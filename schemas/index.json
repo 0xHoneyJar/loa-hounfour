@@ -1555,7 +1555,7 @@
       "name": "inter-series-scoping-artifact",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/inter-series-scoping-artifact",
       "file": "inter-series-scoping-artifact.schema.json",
-      "description": "STUB — PR-A4.0 reservation. Full schema body lands in PR-A4.2."
+      "description": "Cross-EPIC scoping artifact. Merkle proof composition is library-evaluable for shape-level well-formedness only per ISSA-3; cluster constitutional-root resolution is consumer-state per ADR-010. NOT crypto-bearing; NOT chain-bearing — records a scoping decision over a parent ClusterRunSeries record (FR-G1) and an optional PlanSignoffEnvelope (FR-B9). Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form."
     },
     {
       "name": "subscription-pool-state",

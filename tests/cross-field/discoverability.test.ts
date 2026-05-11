@@ -186,6 +186,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'CanonicalRun',
     // v8.7.0 PR-A4.1 — FR-G1 ClusterRunSeries.
     'ClusterRunSeries',
+    // v8.7.0 PR-A4.2 — FR-G2 InterSeriesScopingArtifact.
+    'InterSeriesScopingArtifact',
   ];
 
   it('returns an array of strings', () => {

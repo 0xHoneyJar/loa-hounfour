@@ -53,6 +53,7 @@ import { PlanAmendmentRequestSchema } from '../src/governance/plan-amendment-req
 import { ChallengeSchema } from '../src/governance/challenge.js';
 import { CanonicalRunSchema } from '../src/canonical/canonical-run.js';
 import { ClusterRunSeriesSchema } from '../src/canonical/cluster-run-series.js';
+import { InterSeriesScopingArtifactSchema } from '../src/canonical/inter-series-scoping-artifact.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -133,6 +134,12 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
   // v8.7.0 cycle-007 cluster — PR-A4.1 (FR-G1).
   ClusterRunSeries: {
     schema: ClusterRunSeriesSchema,
+    versionPath: 'v8.7.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  // v8.7.0 cycle-007 cluster — PR-A4.2 (FR-G2).
+  InterSeriesScopingArtifact: {
+    schema: InterSeriesScopingArtifactSchema,
     versionPath: 'v8.7.0',
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },
