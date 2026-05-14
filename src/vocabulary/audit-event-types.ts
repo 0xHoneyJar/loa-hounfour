@@ -55,10 +55,28 @@
  * by adding an entry here in a follow-up PR. Absence of an entry is
  * not a rejection — uniqueness is a structural property of the
  * 3-segment format, not a registration gate.
+ *
+ * **Conventional event-type vocabulary by prefix** (informational —
+ * not enforced by Hounfour; consumers MAY mint additional types
+ * under their own prefix, and the listed types are the recall-wedge
+ * lifecycle the prefix's owning consumer is expected to honor):
+ *
+ * - `0xhoneyjar:straylight:` — Recall Wedge composition over the
+ *   v8.5.0 PR-A2.3 surface + v8.6.0 PR-A3.7 Challenge layer. See
+ *   `docs/architecture/recall-wedge-composition.md`. Conventional
+ *   event types under this prefix:
+ *     - `0xhoneyjar:straylight:assertion.admitted`
+ *     - `0xhoneyjar:straylight:assertion.challenged`
+ *     - `0xhoneyjar:straylight:assertion.revoked`
+ *     - `0xhoneyjar:straylight:assertion.forgotten`
+ *     - `0xhoneyjar:straylight:estate.transition.applied`
+ *     - `0xhoneyjar:straylight:recall.request.received`
+ *     - `0xhoneyjar:straylight:recall.pack.assembled`
+ *     - `0xhoneyjar:straylight:recall.receipt.signed`
+ *     - `0xhoneyjar:straylight:commitment.anchored`
  */
 export const AUDIT_EVENT_TYPES_KNOWN_PREFIXES: readonly string[] = [
-  // No third-party prefixes registered yet. Add entries via PR as
-  // consumers adopt the 3-segment format.
+  '0xhoneyjar:straylight:',
 ] as const;
 
 /**
