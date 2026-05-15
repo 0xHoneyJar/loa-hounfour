@@ -1,0 +1,21 @@
+{
+  "vector_id": "conformance-recall-wedge-005",
+  "category": "recall-wedge",
+  "description": "Recall Wedge round-trip — CommitmentRoot anchoring the receipt body hash (commitment_type=recall_receipt; crypto-bearing, deferred per ADR-010).",
+  "contract_version": "8.7.0",
+  "input": {
+    "commitment_id": "55555555-5555-4555-8555-555555555555",
+    "commitment_type": "recall_receipt",
+    "subject_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "created_at": "2026-05-10T00:04:00Z",
+    "contract_version": "8.6.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "wedge_role": "commitment_root",
+    "schema_ref": "CommitmentRootSchema",
+    "crypto_bearing": true,
+    "round_trip_step": 5
+  }
+}
