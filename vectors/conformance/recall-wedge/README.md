@@ -20,7 +20,7 @@ Every JSON file in `vectors/conformance/**` must validate against
   "vector_id":        "conformance-recall-wedge-NNN",
   "category":         "recall-wedge",        // registered in ConformanceCategorySchema (v8.7.0)
   "description":      "...",
-  "contract_version": "8.6.0",
+  "contract_version": "8.7.0",
   "input":            { /* the domain payload — Assertion, RecallRequest, … */ },
   "expected_output":  {},
   "expected_valid":   true,

@@ -144,7 +144,7 @@ hash-domain freeze that load-bears each `*_hash` field above.
 
 ## Crypto-bearing safe-by-default
 
-The wedge surface includes four crypto-bearing schemas:
+The wedge surface includes five crypto-bearing schemas:
 
 - `Assertion` (variant-aware: 7 of 8 variants)
 - `SignatureEnvelope`

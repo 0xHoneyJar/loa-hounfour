@@ -199,9 +199,9 @@ describe('Recall Wedge round-trip — conformance corpus', () => {
       expect(commitment.commitment_type).toBe('recall_receipt');
     });
 
-    it('the packed item references the assertion via item_id suffix', () => {
+    it('the packed item references the assertion via the documented `assertion-<assertion_id>` lazy-link form', () => {
       expect(pack.items.length).toBeGreaterThanOrEqual(1);
-      expect(pack.items[0].item_id.endsWith(assertion.assertion_id)).toBe(true);
+      expect(pack.items[0].item_id).toBe(`assertion-${assertion.assertion_id}`);
       expect(pack.items[0].item_type).toBe('assertion');
     });
 
