@@ -1420,6 +1420,24 @@
       "description": "Cluster-wrapped Tier-2 phase-completion envelope. Wraps Tier-1 (PhaseCompletionEnvelopeTier1Schema) for cluster-side ingestion with cluster_signature + signer_key_id (sha256-derived) + prev_envelope_hash chain link. Crypto-bearing + chain-bearing + canonical-size-capped at 4 KB (NFR-4)."
     },
     {
+      "name": "span-move",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/span-move",
+      "file": "span-move.schema.json",
+      "description": "One hash-chained move in a Legba span log. Chain-bearing (prev_hash/record_hash intra-span chain), CAS-referencing (input/output hashes), canonical-size-capped at 4 KB. Not crypto-bearing: moves are not individually signed — the gate token signs the span head (GateToken)."
+    },
+    {
+      "name": "gate-token",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/gate-token",
+      "file": "gate-token.schema.json",
+      "description": "Ed25519-signed Legba gate token — the key between gates. Crypto-bearing + chain-bearing (prev_token_hash) + canonical-size-capped. Cycle-1 transport: embedded at the handoff envelope's `verdict.gate_token` (schema-legal — the envelope verdict object is construct-shaped); first-class envelope field at construct-handoff v1.2 in the turnstile rung."
+    },
+    {
+      "name": "run-receipt",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/run-receipt",
+      "file": "run-receipt.schema.json",
+      "description": "Legba run receipt — the token-hash chain + receipt-bound key set compiled to one verifiable hash. Chain-bearing; not itself crypto-bearing (the tokens it sequences carry the signatures; external anchoring into the loa audit chain provides the tamper-evidence for the receipt itself)."
+    },
+    {
       "name": "pulse-kind",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/pulse-kind",
       "file": "pulse-kind.schema.json",

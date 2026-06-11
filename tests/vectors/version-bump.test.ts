@@ -326,6 +326,7 @@ describe('version bump', () => {
     // ClusterRunSeries, InterSeriesScopingArtifact, SubscriptionPoolState,
     // RevocationList, MergeArtifact → 262. Stubs use Type.Never() so any
     // payload fails validation; the $id namespace is reserved.
-    expect(index.schemas).toHaveLength(262);
+    // legba-substrate cycle 1 adds 3: SpanMove, GateToken, RunReceipt → 265.
+    expect(index.schemas).toHaveLength(265);
   });
 });

@@ -1,0 +1,26 @@
+{
+  "_comment": "signature fails ED25519 pattern — structural rejection (forgery).",
+  "token_kind": "legba_gate_token",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "gate_index": 0,
+  "wave_number": 0,
+  "prev_token_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "span_log_head": "8bf3197745503554d778d51cebc0a733fdaec651d1c09b2d4a80df6e9a8dea4b",
+  "span_move_count": 2,
+  "artifact_hashes": [
+    "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  ],
+  "verdict": "pass",
+  "checks": {
+    "chain": true,
+    "cas_complete": true,
+    "replay_sample": "pass",
+    "artifact_shape": true
+  },
+  "replay_seed": "1111111111111111111111111111111111111111111111111111111111111111",
+  "gatekeeper_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+  "key_version": 1,
+  "ts": "2026-06-11T00:00:02.000000Z",
+  "signature": "ed25519:short"
+}
