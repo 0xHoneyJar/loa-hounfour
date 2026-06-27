@@ -1,104 +1,63 @@
 # Eileen Daily Implementation Agent Mode Agent
 
-This file is the repo-local runbook for the daily GPT-5.5 Thinking implementation agent. The daily agent prompt must explicitly read this file before editing this repo. This file is intentionally separate from `AGENTS.md`; it is a workflow contract for converting Daily Deep Research Report issues into additive implementation PRs.
+This repo-local runbook must be read by the daily GPT-5.5 Thinking implementation agent before editing `0xHoneyJar/loa-hounfour`. The agent must decide what should be implemented and why before coding, then write a PR report that traces every commit/file change back to repo value, scaling, security, and simplicity.
 
 ## Repository responsibility
 
-`0xHoneyJar/loa-hounfour` owns protocol/schema contracts: TypeBox/JSON Schema, constraint DSL, conformance vectors, cross-language validation, package integrity, and schema-level governance primitives.
+`loa-hounfour` owns protocol/schema contracts: TypeBox/JSON Schema, constraint DSL, conformance vectors, cross-language validation, package integrity, and schema-level governance primitives.
 
-This repo is not the place for runtime servers, transport layers, model calls, Freeside product behavior, Dixie BFF routes, Finn experiment verdicts, Straylight runtime semantics, Aleph précis doctrine, or Arcturus revenue-oracle logic.
+It must not own runtime servers, transport layers, model calls, Freeside product behavior, Dixie BFF routes, Finn experiment verdicts, Straylight runtime semantics, Aleph précis doctrine, or Arcturus revenue-oracle logic.
 
 ## Eligible input
 
-Only implement from a Daily Deep Research Report issue or follow-up plan-audit issue/comment that contains:
+Implement only from a Daily Deep Research Report or plan-audit item with `PROPOSED_NEXT_LANE_SEED`, candidate ID, repo-fit reasoning, acceptance criteria, rollback path, and `VERDICT: ACCEPT_PLAN`.
 
-- `PROPOSED_NEXT_LANE_SEED`
-- candidate ID
-- repo-fit reasoning
-- acceptance criteria
-- rollback path
-- `VERDICT: ACCEPT_PLAN`
+Without `VERDICT: ACCEPT_PLAN`, the agent may self-audit only docs, fixtures, tests, checkers, or clearly experimental schema/vector candidates.
 
-If the candidate lacks `VERDICT: ACCEPT_PLAN`, the agent may perform in-run plan audit only for docs, fixtures, tests, checkers, or explicitly experimental schema/vector candidates.
+## Required pre-implementation thesis
 
-## Selection rule
+Before editing, write and preserve this analysis:
 
-Pick at most one candidate per run. Prefer work that strengthens schema clarity, conformance vectors, validation tests, or package integrity without changing existing schema semantics.
+1. candidate issue, candidate ID, and verdict
+2. what should be implemented
+3. why it should be implemented now
+4. why it belongs in Hounfour and not a sibling repo
+5. what this is good for
+6. why the implementation path should work
+7. how it advances Hounfour's endgame as a portable governance-contract substrate
+8. creative future paths not implemented now
+9. mass-user scaling impact for validation cost, package consumers, vector volume, schema versioning, and integration drift
+10. security scope for malformed input, package integrity, supply-chain, and cross-repo contract risks
+11. simplicity argument: how the design avoids hidden runtime complexity
+12. non-goals, forbidden surfaces, checks, and rollback
 
-Priority order:
-
-1. docs-only schema/governance notes
-2. fixture/vector-only additions
-3. test-only conformance coverage
-4. checker/validator-only additions
-5. experimental schema candidates clearly marked non-canonical
+If this thesis is weak, do not implement.
 
 ## Additive-only policy
 
-Nothing currently working may stop functioning.
+Allowed by default: new docs, conformance vectors, tests, validators/checkers, experimental schema candidates marked as such, and non-canonical examples.
 
-Allowed by default:
-
-- new docs
-- new conformance vectors
-- new tests
-- new validators/checkers
-- new experimental schema candidates marked as such
-- non-canonical examples
-
-Forbidden without explicit Eileen approval:
-
-- deleting files
-- changing canonical schema semantics
-- renaming public exports
-- changing package API behavior by default
-- adding runtime servers or transport behavior
-- model calls
-- production migrations
-- broad refactors
-- unrelated dependency upgrades
-- sibling repo mutation
-- auto-merge
-- closing source issues
+Forbidden without explicit Eileen approval: deleting files, changing canonical schema semantics, renaming public exports, changing package API behavior by default, adding runtime servers or transport behavior, model calls, production migrations, broad refactors, unrelated dependency upgrades, sibling repo mutation, auto-merge, or closing source issues.
 
 ## Hounfour-specific stop conditions
 
-Stop and return `VERDICT: NEEDS_HUMAN` if the candidate would:
-
-- move runtime or HTTP responsibility into Hounfour
-- change existing canonical schema meaning
-- collapse experimental vectors into canonical contracts without acceptance
-- weaken cross-field invariants or constraint evaluation
-- introduce model invocation or network transport
+Stop with `VERDICT: NEEDS_HUMAN` if the candidate moves runtime or HTTP responsibility into Hounfour, changes existing canonical schema meaning, promotes experimental vectors into canonical contracts without acceptance, weakens cross-field invariants, or introduces model invocation/network transport.
 
 ## Implementation steps
 
-1. Read this file, README/package scripts, and relevant docs near the target surface.
-2. Inspect the source issue and confirm `VERDICT: ACCEPT_PLAN`.
-3. Check for obvious duplicate open issues/PRs.
-4. Write a short plan: selected candidate, implementation class, allowed files, forbidden surfaces, checks, rollback.
-5. Create a branch named `daily-impl/YYYY-MM-DD-loa-hounfour-<candidate>`.
-6. Implement exactly one candidate with a minimal diff.
-7. Run relevant checks from the repo.
-8. Open a draft PR.
-9. Add `CODEX AUDIT REQUEST` to the PR body.
-10. Comment: `@codex review for additive-only scope violations, schema-semantic regressions, public export changes, failing or missing tests, rollback clarity, repo-boundary violations, and security regressions`.
-11. Do not merge and do not close the source issue.
+1. Read this file, README/package scripts, and nearby docs.
+2. Confirm `VERDICT: ACCEPT_PLAN`.
+3. Check for duplicate open issues/PRs.
+4. Write the required pre-implementation thesis.
+5. Create branch `daily-impl/YYYY-MM-DD-loa-hounfour-<candidate>`.
+6. Implement exactly one candidate with minimal diff.
+7. Prefer explicit schemas/vectors/checks over clever abstractions.
+8. Run relevant checks.
+9. Open a draft PR.
+10. Add `CODEX AUDIT REQUEST` and the traceability report.
+11. Comment: `@codex review for additive-only scope violations, schema-semantic regressions, public export changes, scaling risks, security regressions, unnecessary complexity, failing or missing tests, rollback clarity, and repo-boundary violations`.
+12. Do not merge or close the source issue.
 
-## PR body requirements
+## Required PR traceability report
 
-The PR must include:
-
-- source issue
-- candidate ID
-- implementation class
-- what changed
-- what did not change
-- checks run
-- skipped or failing checks
-- rollback path
-- Codex audit request
-
-## Final run report
-
-Report the selected repo, source issue, branch, PR URL, files changed, checks run, Codex review status, blockers, and whether any boundary was approached.
+Every implementation PR must include source issue and candidate ID, pre-implementation thesis summary, file-by-file change rationale, why each changed file is good for Hounfour, why it advances the repo endgame, why it should work, mass-user scaling analysis, security scope, simplicity analysis, tests/checks, skipped checks, rollback path, future creative paths not implemented, and `CODEX AUDIT REQUEST`.
