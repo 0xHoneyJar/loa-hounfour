@@ -36,6 +36,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Validator registry contract test
+        run: pnpm exec vitest run tests/validators/registry-contract.test.ts
+
       - name: Test
         run: pnpm run test
 
