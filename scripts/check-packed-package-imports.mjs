@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
-import { basename, dirname, resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 
 const root = process.cwd();
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
 const failures = [];
+const packEnv = { ...process.env, PREPACK_MODE: process.env.PREPACK_MODE ?? 'pack' };
 
 function fail(message) {
   failures.push(message);
@@ -79,7 +80,7 @@ function parsePackFileList(stdout) {
   return new Set(files.map((file) => file.path));
 }
 
-const packDryRun = run('npm', ['pack', '--dry-run', '--json']);
+const packDryRun = run('npm', ['pack', '--dry-run', '--json'], { env: packEnv });
 let packedFiles = new Set();
 
 if (packDryRun.status === 0) {
@@ -99,7 +100,7 @@ for (const expectedFile of collectExpectedFiles()) {
 const tempRoot = await mkdtemp(resolve(root, '.packed-package-audit-'));
 
 try {
-  const pack = run('npm', ['pack', '--json', '--pack-destination', tempRoot]);
+  const pack = run('npm', ['pack', '--json', '--pack-destination', tempRoot], { env: packEnv });
 
   if (pack.status === 0) {
     let tarballPath;
@@ -113,24 +114,23 @@ try {
     }
 
     if (tarballPath) {
-      const unpackRoot = resolve(tempRoot, 'unpacked');
-      mkdirSync(unpackRoot, { recursive: true });
-      const unpack = spawnSync('tar', ['-xzf', tarballPath, '-C', unpackRoot], {
-        encoding: 'utf8',
-      });
+      const consumerRoot = resolve(tempRoot, 'consumer');
+      mkdirSync(consumerRoot, { recursive: true });
 
-      if (unpack.status !== 0) {
-        fail(`Unable to unpack package tarball: ${unpack.stderr || unpack.stdout}`);
+      const install = spawnSync(
+        'npm',
+        ['install', '--ignore-scripts', '--no-package-lock', '--omit=dev', tarballPath],
+        { cwd: consumerRoot, encoding: 'utf8' },
+      );
+
+      if (install.status !== 0) {
+        fail(`Unable to install packed package in temporary consumer project: ${install.stderr || install.stdout}`);
       } else {
-        const installedPackageRoot = resolve(tempRoot, 'node_modules', ...pkg.name.split('/'));
-        mkdirSync(dirname(installedPackageRoot), { recursive: true });
-        cpSync(resolve(unpackRoot, 'package'), installedPackageRoot, { recursive: true });
-
         for (const specifier of collectImportSpecifiers()) {
           const importCheck = spawnSync(
             process.execPath,
             ['--input-type=module', '--eval', `await import(${JSON.stringify(specifier)});`],
-            { cwd: tempRoot, encoding: 'utf8' },
+            { cwd: consumerRoot, encoding: 'utf8' },
           );
 
           if (importCheck.status !== 0) {
