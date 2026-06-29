@@ -14,14 +14,14 @@ function report(message) {
 }
 
 const registrations = [...source.matchAll(/registerCrossFieldValidator\('([^']+)'/g)].map((m) => m[1]);
-const duplicates = registrations.filter((id, index) => registrations.indexOf(id) !== index);
+const duplicateIds = [...new Set(registrations.filter((id, index) => registrations.indexOf(id) !== index))].sort();
 
 if (registrations.length === 0) {
   report('No cross-field validator registrations found.');
 }
 
-if (duplicates.length > 0) {
-  report(`Duplicate cross-field validator registrations: ${[...new Set(duplicates)].join(', ')}`);
+if (duplicateIds.length > 0) {
+  report(`Duplicate cross-field validator registrations: ${duplicateIds.join(', ')}`);
 }
 
 if (!source.includes('export function registerCrossFieldValidator')) {
@@ -42,13 +42,18 @@ if (!source.includes('TypeCompiler.Compile(schema)')) {
   report('Validator compilation path not found.');
 }
 
+console.log('Validator registry advisory scan (non-blocking):');
+console.log('- This script is inventory evidence only.');
+console.log('- It intentionally exits 0 so check:all can surface drift without claiming full contract enforcement.');
+console.log('- Runtime enforcement evidence belongs in focused tests such as tests/validators/registry-contract.test.ts.');
+
 if (findings.length > 0) {
-  console.warn('Validator registry advisory findings:');
+  console.warn(`Advisory findings (${findings.length}):`);
   for (const finding of findings) {
     console.warn(`- ${finding}`);
   }
 } else {
-  console.log(`Validator registry advisory passed (${registrations.length} unique registrations).`);
+  console.log(`No advisory findings across ${registrations.length} registrations.`);
 }
 
 process.exit(0);
