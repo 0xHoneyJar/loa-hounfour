@@ -16,8 +16,6 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "your-team"
-    labels:
-      - "integration"
     # Group non-security updates to reduce PR noise
     groups:
       development-dependencies:
@@ -57,8 +55,6 @@ updates:
       day: "monday"
       time: "10:00"
     open-pull-requests-limit: 3
-    labels:
-      - "docker"
     commit-message:
       prefix: "chore(docker)"
 
@@ -70,8 +66,6 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
-    labels:
-      - "ci"
     commit-message:
       prefix: "chore(ci)"
 
