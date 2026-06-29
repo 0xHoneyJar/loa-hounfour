@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { basename, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { basename, dirname, resolve } from 'node:path';
 
 const root = process.cwd();
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
@@ -54,24 +52,23 @@ function collectExpectedFiles() {
   return [...expected].sort();
 }
 
-function collectImportTargets() {
-  const targets = new Set();
+function collectImportSpecifiers() {
+  const specifiers = new Set();
 
-  if (pkg.main) targets.add(normalizePackagePath(pkg.main));
-
-  for (const exportTarget of Object.values(pkg.exports ?? {})) {
+  for (const [exportName, exportTarget] of Object.entries(pkg.exports ?? {})) {
     if (typeof exportTarget === 'string') {
       if (!exportTarget.includes('*') && exportTarget.endsWith('.js')) {
-        targets.add(normalizePackagePath(exportTarget));
+        specifiers.add(exportName === '.' ? pkg.name : `${pkg.name}/${exportName.replace(/^\.\//, '')}`);
       }
       continue;
     }
 
-    const target = exportTarget?.import;
-    if (target) targets.add(normalizePackagePath(target));
+    if (exportTarget?.import) {
+      specifiers.add(exportName === '.' ? pkg.name : `${pkg.name}/${exportName.replace(/^\.\//, '')}`);
+    }
   }
 
-  return [...targets].sort();
+  return [...specifiers].sort();
 }
 
 function parsePackFileList(stdout) {
@@ -99,7 +96,7 @@ for (const expectedFile of collectExpectedFiles()) {
   }
 }
 
-const tempRoot = await mkdtemp(resolve(tmpdir(), 'loa-hounfour-pack-audit-'));
+const tempRoot = await mkdtemp(resolve(root, '.packed-package-audit-'));
 
 try {
   const pack = run('npm', ['pack', '--json', '--pack-destination', tempRoot]);
@@ -125,14 +122,19 @@ try {
       if (unpack.status !== 0) {
         fail(`Unable to unpack package tarball: ${unpack.stderr || unpack.stdout}`);
       } else {
-        const packageRoot = resolve(unpackRoot, 'package');
+        const installedPackageRoot = resolve(tempRoot, 'node_modules', ...pkg.name.split('/'));
+        mkdirSync(dirname(installedPackageRoot), { recursive: true });
+        cpSync(resolve(unpackRoot, 'package'), installedPackageRoot, { recursive: true });
 
-        for (const importTarget of collectImportTargets()) {
-          const targetUrl = pathToFileURL(resolve(packageRoot, importTarget)).href;
-          try {
-            await import(targetUrl);
-          } catch (error) {
-            fail(`Packed package import failed for ${importTarget}: ${error.message}`);
+        for (const specifier of collectImportSpecifiers()) {
+          const importCheck = spawnSync(
+            process.execPath,
+            ['--input-type=module', '--eval', `await import(${JSON.stringify(specifier)});`],
+            { cwd: tempRoot, encoding: 'utf8' },
+          );
+
+          if (importCheck.status !== 0) {
+            fail(`Packed package import failed for ${specifier}: ${importCheck.stderr || importCheck.stdout}`);
           }
         }
       }
