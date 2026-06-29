@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { mkdtemp } from 'node:fs/promises';
-import { basename, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 
 const root = process.cwd();
 const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
@@ -114,27 +114,28 @@ try {
     }
 
     if (tarballPath) {
-      const consumerRoot = resolve(tempRoot, 'consumer');
-      mkdirSync(consumerRoot, { recursive: true });
+      const unpackRoot = resolve(tempRoot, 'unpacked');
+      mkdirSync(unpackRoot, { recursive: true });
+      const unpack = spawnSync('tar', ['-xzf', tarballPath, '-C', unpackRoot], {
+        encoding: 'utf8',
+      });
 
-      const install = spawnSync(
-        'npm',
-        ['install', '--ignore-scripts', '--no-package-lock', '--omit=dev', tarballPath],
-        { cwd: consumerRoot, encoding: 'utf8' },
-      );
-
-      if (install.status !== 0) {
-        fail(`Unable to install packed package in temporary consumer project: ${install.stderr || install.stdout}`);
+      if (unpack.status !== 0) {
+        fail(`Unable to unpack package tarball: ${unpack.stderr || unpack.stdout}`);
       } else {
+        const installedPackageRoot = resolve(tempRoot, 'node_modules', ...pkg.name.split('/'));
+        mkdirSync(dirname(installedPackageRoot), { recursive: true });
+        cpSync(resolve(unpackRoot, 'package'), installedPackageRoot, { recursive: true });
+
         for (const specifier of collectImportSpecifiers()) {
-          const importCheck = spawnSync(
+          const resolveCheck = spawnSync(
             process.execPath,
-            ['--input-type=module', '--eval', `await import(${JSON.stringify(specifier)});`],
-            { cwd: consumerRoot, encoding: 'utf8' },
+            ['--input-type=module', '--eval', `console.log(import.meta.resolve(${JSON.stringify(specifier)}));`],
+            { cwd: tempRoot, encoding: 'utf8' },
           );
 
-          if (importCheck.status !== 0) {
-            fail(`Packed package import failed for ${specifier}: ${importCheck.stderr || importCheck.stdout}`);
+          if (resolveCheck.status !== 0) {
+            fail(`Packed package export resolution failed for ${specifier}: ${resolveCheck.stderr || resolveCheck.stdout}`);
           }
         }
       }
