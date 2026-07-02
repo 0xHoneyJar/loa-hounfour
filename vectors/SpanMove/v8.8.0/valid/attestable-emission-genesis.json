@@ -1,0 +1,16 @@
+{
+  "_comment": "Genesis attestable move; record_hash matches JCS(record minus record_hash).",
+  "move_kind": "legba_span_move",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "span_index": 0,
+  "seq": 0,
+  "prev_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "kind": "emission",
+  "determinism": "attestable",
+  "label": "plan",
+  "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "output_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "ts": "2026-06-11T00:00:00.000000Z",
+  "record_hash": "f28d6dfa8dd41376fbbb78839cff5a498b2f13246aa91b99177fc93bd69b80c9"
+}

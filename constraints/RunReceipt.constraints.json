@@ -1,0 +1,73 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "RunReceipt",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "LR-1",
+      "expression": "receipt_hash == sha256(RFC8785_canonical_json({genesis_anchor, token_hash_sequence, key_set, status}))",
+      "severity": "error",
+      "message": "RunReceipt.receipt_hash MUST cover the key_set; a mutated key_set breaks the receipt (binds signer identity).",
+      "fields": [
+        "receipt_hash",
+        "genesis_anchor",
+        "token_hash_sequence",
+        "key_set",
+        "status"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Single-record derivation over the four covered fields.",
+      "type_signature": {
+        "receipt_hash": "string",
+        "genesis_anchor": "string",
+        "token_hash_sequence": "array",
+        "key_set": "array",
+        "status": "string"
+      }
+    },
+    {
+      "id": "LR-2",
+      "expression": "genesis_anchor == 'sha256:000...000' (the pinned literal)",
+      "severity": "error",
+      "message": "RunReceipt.genesis_anchor MUST be the pinned chain-root literal; no implementation-divergent roots (LG-3b).",
+      "fields": [
+        "genesis_anchor"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Literal check; also enforced by the schema's Type.Literal.",
+      "type_signature": {
+        "genesis_anchor": "string"
+      }
+    },
+    {
+      "id": "LR-3",
+      "expression": "token_hash_sequence ordered by (gate_index, wave_number) ascending",
+      "severity": "error",
+      "message": "RunReceipt.token_hash_sequence MUST be in (gate_index, wave_number) order so verifiers walk the chain deterministically.",
+      "fields": [
+        "token_hash_sequence"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Order check; requires resolving each token hash to its (gate_index, wave_number).",
+      "type_signature": {
+        "token_hash_sequence": "array"
+      }
+    },
+    {
+      "id": "LR-4",
+      "expression": "receipt_hash is emitted into the loa audit chain via audit_emit at run close",
+      "severity": "error",
+      "message": "RunReceipt.receipt_hash MUST be externally anchored; retroactive forgery must also rewrite the independent hash-chained signed audit log.",
+      "fields": [
+        "receipt_hash"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer policy \u2014 the loa audit chain is the external anchor.",
+      "type_signature": {
+        "receipt_hash": "string"
+      }
+    }
+  ]
+}

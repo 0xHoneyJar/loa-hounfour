@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/gate-token",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "x-crypto-bearing": true,
+  "x-chain-bearing": true,
+  "x-canonical-size-cap-bytes": 4096,
+  "description": "Ed25519-signed Legba gate token — the key between gates. Crypto-bearing + chain-bearing (prev_token_hash) + canonical-size-capped. Cycle-1 transport: embedded at the handoff envelope's `verdict.gate_token` (schema-legal — the envelope verdict object is construct-shaped); first-class envelope field at construct-handoff v1.2 in the turnstile rung.",
+  "type": "object",
+  "required": [
+    "token_kind",
+    "contract_version",
+    "run_id",
+    "gate_index",
+    "wave_number",
+    "prev_token_hash",
+    "span_log_head",
+    "span_move_count",
+    "artifact_hashes",
+    "verdict",
+    "checks",
+    "replay_seed",
+    "gatekeeper_key_id",
+    "key_version",
+    "ts",
+    "signature"
+  ],
+  "properties": {
+    "token_kind": {
+      "description": "Discriminator literal pinning the GateToken shape.",
+      "const": "legba_gate_token",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned for the Legba cycle-1 ship line; the merge train assigns the final literal.",
+      "const": "8.8.0",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "description": "Composition run identifier. Forged/replayed-token defense binds signature verification to run_id + gate_index + wave_number.",
+      "type": "string"
+    },
+    "gate_index": {
+      "minimum": 0,
+      "description": "Zero-based gate position (gate N closes span N).",
+      "type": "integer"
+    },
+    "wave_number": {
+      "minimum": 0,
+      "description": "Wave ordinal within a DAG fan-out segment (LG-9). Serial execution uses 0. A token is issued only when its whole wave has drained.",
+      "type": "integer"
+    },
+    "prev_token_hash": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "description": "sha256:<64-hex> of the previous token's canonical form; gate 0 anchors the chain with the genesis literal (LG-3b — the run receipt binds the anchor so verifiers agree on the first link).",
+      "type": "string"
+    },
+    "span_log_head": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "The closed span's final record_hash. The gate replays the span chain and MUST recompute this head (check `chain`).",
+      "type": "string"
+    },
+    "span_move_count": {
+      "minimum": 0,
+      "description": "Move count of the closed span (cheap census check).",
+      "type": "integer"
+    },
+    "artifact_hashes": {
+      "description": "Content-addressed ids of the claimed handover objects (handoff envelope ids). Phantom artifacts fail check `cas_complete`.",
+      "type": "array",
+      "items": {
+        "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+        "type": "string"
+      }
+    },
+    "verdict": {
+      "description": "Gate verdict. Only `pass` opens the next span; `fail` is terminal and provable (the refusal enters the chain and the receipt closes blocked_at_gate_N).",
+      "anyOf": [
+        {
+          "const": "pass",
+          "type": "string"
+        },
+        {
+          "const": "fail",
+          "type": "string"
+        }
+      ]
+    },
+    "checks": {
+      "additionalProperties": false,
+      "description": "Named results of the four deterministic gate checks.",
+      "type": "object",
+      "required": [
+        "chain",
+        "cas_complete",
+        "replay_sample",
+        "artifact_shape"
+      ],
+      "properties": {
+        "chain": {
+          "type": "boolean"
+        },
+        "cas_complete": {
+          "type": "boolean"
+        },
+        "replay_sample": {
+          "description": "`degraded` = ≥3 environment-divergence downgrades drawn in one gate (loud, audited; visible to turnstile + receipt).",
+          "anyOf": [
+            {
+              "const": "pass",
+              "type": "string"
+            },
+            {
+              "const": "fail",
+              "type": "string"
+            },
+            {
+              "const": "degraded",
+              "type": "string"
+            }
+          ]
+        },
+        "artifact_shape": {
+          "type": "boolean"
+        }
+      }
+    },
+    "replay_seed": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "sha256(span_log_head || gatekeeper_sig(span_log_head)) — the worker cannot predict the sample (it cannot compute the gatekeeper's signature); any verifier reproduces it from the token (LT-2). Kept explicit for audit readability.",
+      "type": "string"
+    },
+    "gatekeeper_key_id": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Derived sha256 hex (bare form) of `gatekeeper_id || \":\" || key_version` — the hounfour signer-key-id derivation, verified by the LOCAL builtin (LT-1). Keys resolve through the loa trust-store, never bare manifest publication.",
+      "type": "string"
+    },
+    "key_version": {
+      "minimum": 1,
+      "description": "Gatekeeper key version (1-indexed). Mid-run rotation creates a named activation boundary; the receipt binds the key set.",
+      "type": "integer"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC token issuance time (Z suffix).",
+      "type": "string"
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Ed25519 signature (unpadded base64url, 86 chars after the \"ed25519:\" prefix) over the RFC 8785 canonical JSON of all-other-fields. Hounfour does NOT verify; consumer-side verification per NF-1.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
+}

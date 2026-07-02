@@ -96,3 +96,21 @@ export {
   SHA256_HEX_PATTERN,
   SHA256_HEX_BARE_PATTERN,
 } from './sha256-pattern.js';
+
+// Legba substrate schemas (cycle 1 — loa-freeside legba-substrate ladder).
+// SpanMove (chain-bearing), GateToken (crypto + chain-bearing), RunReceipt
+// (chain-bearing). Cross-field invariants live in constraints/<Schema>.constraints.json;
+// hand-written cross-field validators + registry wiring are a follow-up (post-ratification).
+export {
+  SpanMoveSchema,
+  LEGBA_GENESIS_ANCHOR,
+  type SpanMove,
+} from './legba-span-move.js';
+export {
+  GateTokenSchema,
+  type GateToken,
+} from './legba-gate-token.js';
+export {
+  RunReceiptSchema,
+  type RunReceipt,
+} from './legba-run-receipt.js';

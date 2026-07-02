@@ -1,0 +1,17 @@
+{
+  "_comment": "LM-1: seq jumps 0->5 (schema-valid integer; cross-field monotonicity reject).",
+  "move_kind": "legba_span_move",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "span_index": 0,
+  "seq": 5,
+  "prev_hash": "sha256:f28d6dfa8dd41376fbbb78839cff5a498b2f13246aa91b99177fc93bd69b80c9",
+  "kind": "tool",
+  "determinism": "re_executable",
+  "tool": "augury_sweep",
+  "input_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "output_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "env_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "ts": "2026-06-11T00:00:01.000000Z",
+  "record_hash": "b30a5f705329c8a87cd749a107f97f1c5ae72d315a17765a7dea1b4f5e40dfeb"
+}
