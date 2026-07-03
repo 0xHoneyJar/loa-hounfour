@@ -8,6 +8,7 @@
  */
 import { type TypeCheck } from '@sinclair/typebox/compiler';
 import { type TSchema } from '@sinclair/typebox';
+export { registerHounfourFormats, assertHounfourFormats, isStrictIsoDateTime, isStrictHttpUri, isStrictUuid, parseIsoDateTimeStrict, HOUNFOUR_FORMATS, } from './formats.js';
 import type { UnverifiedObligationsManifest } from '../constraints/unverified-obligations.js';
 /**
  * Outcome of `validate(schema, data)`. Additively extended in v8.4.0 to carry
@@ -21,27 +22,77 @@ import type { UnverifiedObligationsManifest } from '../constraints/unverified-ob
 export type ValidationResult = {
     valid: true;
     warnings?: string[];
+    warning_details?: ValidationWarning[];
     unverified_obligations?: UnverifiedObligationsManifest;
 } | {
     valid: false;
     errors: string[];
     warnings?: string[];
+    warning_details?: ValidationWarning[];
     unverified_obligations?: UnverifiedObligationsManifest;
 };
 /**
+ * Machine-readable warning metadata (issues #130, #139, #143).
+ *
+ * `code` is a stable, versioned identifier — consumers MUST route,
+ * suppress, or escalate on `code`, never on `message` text (messages are
+ * display metadata and may be reworded in PATCH releases; codes are only
+ * removed/renamed in a MAJOR release). The full code registry with
+ * per-code consumer guidance lives in
+ * `docs/architecture/runtime-validation.md`.
+ *
+ * @since v8.7.x — additive; `warnings: string[]` is preserved unchanged.
+ */
+export interface ValidationWarning {
+    /** Stable machine-readable warning identifier (e.g. `BILLING_PROVENANCE_MISSING_SOURCE_COMPLETION_ID`). */
+    code: string;
+    /** Human-readable display text. NOT a stable API — do not parse. */
+    message: string;
+}
+/**
+ * Introspect the compiled-validator cache (issue #148). `size` counts
+ * fingerprint-keyed entries (the by-reference fast path is a WeakMap and
+ * has no observable size); `maxSize` is the FIFO eviction bound.
+ */
+export declare function getValidatorCacheStats(): {
+    size: number;
+    maxSize: number;
+};
+/**
+ * Clear all cached compiled validators (issue #148). Intended for tests
+ * and long-running hosts that want deterministic memory baselines;
+ * subsequent validations recompile lazily.
+ */
+export declare function clearValidatorCache(): void;
+/**
  * Cross-field validator function signature.
  * Returns errors and warnings for cross-field invariant violations.
+ *
+ * `warning_details` is an additive, optional companion to `warnings`:
+ * when present it MUST contain one entry per `warnings` string, carrying
+ * the stable machine-readable `code` for that warning (issues #130/#143).
  */
 export type CrossFieldValidator = (data: unknown) => {
     valid: boolean;
     errors: string[];
     warnings: string[];
+    warning_details?: ValidationWarning[];
 };
 /**
  * Register a cross-field validator for a schema.
  * Used internally to wire cross-field checks into the main pipeline.
+ *
+ * Duplicate registration for the same `schemaId` THROWS (issues #124/#138):
+ * silently replacing a protocol invariant was a last-import-wins failure
+ * mode. Replacing an existing validator must be explicit — pass
+ * `{ override: true }` (intended for tests and controlled consumer
+ * extension; the built-in registry never overrides). Because all built-in
+ * registrations run at module load, the module itself acts as the
+ * startup-time duplicate check: a duplicate id in this file fails import.
  */
-export declare function registerCrossFieldValidator(schemaId: string, validator: CrossFieldValidator): void;
+export declare function registerCrossFieldValidator(schemaId: string, validator: CrossFieldValidator, options?: {
+    override?: boolean;
+}): void;
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -150,6 +201,18 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      * @since v8.6.0 — FR-A4 (DP-02 option C)
      */
     failClosed?: boolean;
+    /**
+     * Strict warning handling (issue #150). When `true`, cross-field
+     * warnings are promoted to errors: a structurally valid artifact whose
+     * cross-field validator emits warnings returns `{ valid: false }` with
+     * one `<CODE>: <message>` error per warning. Use this in consumers
+     * (e.g. audit/reconciliation paths) that must not accept artifacts
+     * with provenance or policy gaps. Default `false` preserves the
+     * existing warn-and-accept behavior.
+     *
+     * @since v8.7.x — issues #125, #150, #153
+     */
+    strictWarnings?: boolean;
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{
