@@ -1323,9 +1323,21 @@ export function validate(schema, data, options) {
     // warnings to errors. Error strings are `<CODE>: <message>` when the
     // validator supplied warning codes, else the raw warning message.
     if (options?.strictWarnings === true && crossWarnings !== undefined) {
-        const errors = crossWarningDetails
-            ? crossWarningDetails.map((d) => `${d.code}: ${d.message}`)
-            : [...crossWarnings];
+        // Promote EVERY warning. warning_details is optional and may be partial
+        // (extension validators can supply details for only some warnings), so
+        // the promoted error list is derived from `crossWarnings` — using the
+        // matching detail's `<CODE>: <message>` form when one exists and the
+        // raw warning text otherwise. Deriving it from warning_details alone
+        // would silently drop undetailed warnings from strict escalation.
+        const detailByMessage = new Map();
+        for (const d of crossWarningDetails ?? []) {
+            if (!detailByMessage.has(d.message))
+                detailByMessage.set(d.message, d);
+        }
+        const errors = crossWarnings.map((w) => {
+            const d = detailByMessage.get(w);
+            return d ? `${d.code}: ${d.message}` : w;
+        });
         return {
             valid: false,
             errors,

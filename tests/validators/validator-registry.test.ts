@@ -118,4 +118,25 @@ describe('warning metadata (issues #130 / #139 / #143 / #150)', () => {
     expect(result.errors).toEqual(['TEST_PROVENANCE_GAP: provenance gap: missing source']);
     expect(result.warnings).toEqual(['provenance gap: missing source']);
   });
+
+  it('strictWarnings promotes EVERY warning when warning_details is partial', () => {
+    // Extension validators may supply details for only some warnings; the
+    // undetailed ones must still escalate (as their raw warning text).
+    const partialId = 'test:warning-details-partial';
+    const partialSchema = Type.Object({ x: Type.String() }, { $id: partialId });
+    registerCrossFieldValidator(partialId, () => ({
+      valid: true,
+      errors: [],
+      warnings: ['detailed warning', 'undetailed warning'],
+      warning_details: [{ code: 'TEST_DETAILED', message: 'detailed warning' }],
+    }));
+
+    const result = validate(partialSchema, { x: 'v' }, { strictWarnings: true });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual([
+      'TEST_DETAILED: detailed warning',
+      'undetailed warning',
+    ]);
+    expect(result.warnings).toEqual(['detailed warning', 'undetailed warning']);
+  });
 });

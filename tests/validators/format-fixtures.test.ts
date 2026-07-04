@@ -91,6 +91,11 @@ const URI_REJECT: string[] = [
   'https://example.com/\tpath', // control char
   'https://example.com/\npath', // newline
   'http://[invalid', // unparsable host
+  // raw backslash — WHATWG normalizes `\` to `/` in http(s) URLs, so the
+  // validated string would differ from what downstream parsers see
+  'https://example.com\\evil.com/x',
+  'https://example.com/a\\b',
+  'https:\\\\example.com', // backslash scheme separator
 ];
 
 // ---------------------------------------------------------------------------
@@ -172,6 +177,30 @@ describe('parseIsoDateTimeStrict', () => {
     expect(parseIsoDateTimeStrict('2026-01-01T00:00:00.250Z')?.getTime()).toBe(
       Date.UTC(2026, 0, 1, 0, 0, 0, 250),
     );
+  });
+
+  it('truncates (never rounds) sub-millisecond fractions — .9999 stays in its second', () => {
+    expect(parseIsoDateTimeStrict('2025-12-31T23:59:59.9999Z')?.getTime()).toBe(
+      Date.UTC(2025, 11, 31, 23, 59, 59, 999),
+    );
+    // short fractions are padded, not scaled
+    expect(parseIsoDateTimeStrict('2026-01-01T00:00:00.5Z')?.getTime()).toBe(
+      Date.UTC(2026, 0, 1, 0, 0, 0, 500),
+    );
+  });
+
+  it('represents years 0000–0099 without the legacy Date.UTC 1900 offset', () => {
+    const y1 = parseIsoDateTimeStrict('0001-01-01T00:00:00Z');
+    expect(y1?.getUTCFullYear()).toBe(1);
+    const y99 = parseIsoDateTimeStrict('0099-12-31T23:59:59Z');
+    expect(y99?.getUTCFullYear()).toBe(99);
+    const y0 = parseIsoDateTimeStrict('0000-01-01T00:00:00Z');
+    expect(y0?.getUTCFullYear()).toBe(0);
+    // leap-day in an early leap year survives the fixed-year construction
+    const leap = parseIsoDateTimeStrict('0004-02-29T00:00:00Z');
+    expect(leap?.getUTCFullYear()).toBe(4);
+    expect(leap?.getUTCMonth()).toBe(1);
+    expect(leap?.getUTCDate()).toBe(29);
   });
 
   it('fails closed (null) on every reject fixture', () => {
