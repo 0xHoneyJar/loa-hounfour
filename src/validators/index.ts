@@ -215,7 +215,12 @@ function warningSink(): {
 // cached. `getValidatorCacheStats()` / `clearValidatorCache()` expose the
 // cache to tests and operators.
 const VALIDATOR_CACHE_MAX_SIZE = 1024;
-let compiledBySchemaRef = new WeakMap<TSchema, TypeCheck<TSchema>>();
+// By-reference fast path stores the cache KEY only — never the compiled
+// validator. Compiled validators live exclusively in the bounded FIFO map,
+// so long-lived consumer schema objects (plugin/tenant registries) cannot
+// retain validators past eviction: the advertised VALIDATOR_CACHE_MAX_SIZE
+// bound holds on every path.
+let keyBySchemaRef = new WeakMap<TSchema, string>();
 const cache = new Map<string, TypeCheck<TSchema>>();
 
 /**
@@ -230,13 +235,18 @@ function schemaFingerprint(schema: TSchema): string {
 }
 
 function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
-  // Fast path: same schema object seen before (module-constant schemas).
-  const byRef = compiledBySchemaRef.get(schema);
-  if (byRef) return byRef as TypeCheck<T>;
+  // Fast path: same schema object seen before (module-constant schemas) —
+  // skips the fingerprint cost, but resolves through the bounded map so an
+  // evicted validator is recompiled instead of resurrected.
+  const knownKey = keyBySchemaRef.get(schema);
+  if (knownKey !== undefined) {
+    const byRef = cache.get(knownKey);
+    if (byRef) return byRef as TypeCheck<T>;
+  }
 
   const id = schema.$id;
   if (id) {
-    const key = `${id} ${schemaFingerprint(schema)}`;
+    const key = knownKey ?? `${id}\u0000${schemaFingerprint(schema)}`;
     let compiled = cache.get(key);
     if (!compiled) {
       compiled = TypeCompiler.Compile(schema);
@@ -247,7 +257,7 @@ function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
       }
       cache.set(key, compiled);
     }
-    compiledBySchemaRef.set(schema, compiled);
+    keyBySchemaRef.set(schema, key);
     return compiled as TypeCheck<T>;
   }
   // Non-$id schemas are compiled per-call (no caching) to prevent
@@ -271,7 +281,7 @@ export function getValidatorCacheStats(): { size: number; maxSize: number } {
  */
 export function clearValidatorCache(): void {
   cache.clear();
-  compiledBySchemaRef = new WeakMap<TSchema, TypeCheck<TSchema>>();
+  keyBySchemaRef = new WeakMap<TSchema, string>();
 }
 
 /**

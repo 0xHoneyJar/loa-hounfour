@@ -61,6 +61,29 @@ describe('compile cache bounds and observability (issue #148)', () => {
     expect(getValidatorCacheStats().size).toBe(0);
   });
 
+  it('by-reference fast path cannot retain validators past eviction (bound holds)', () => {
+    clearValidatorCache();
+    const { maxSize } = getValidatorCacheStats();
+
+    // A long-lived consumer schema object (e.g. plugin/tenant registry)
+    const pinned = Type.Object({ x: Type.String() }, { $id: 'test:cache-pinned' });
+    expect(validate(pinned, { x: 'v' }).valid).toBe(true);
+
+    // Flood the cache far past the bound so the pinned entry is evicted
+    for (let i = 0; i < maxSize + 8; i++) {
+      const s = Type.Object({ x: Type.String() }, { $id: `test:cache-flood-${i}` });
+      validate(s, { x: 'v' });
+    }
+    expect(getValidatorCacheStats().size).toBeLessThanOrEqual(maxSize);
+
+    // The same schema OBJECT still validates (recompiled into the bounded
+    // map, not resurrected from an unbounded side channel) and the stats
+    // bound still holds afterwards.
+    expect(validate(pinned, { x: 'v' }).valid).toBe(true);
+    expect(getValidatorCacheStats().size).toBeLessThanOrEqual(maxSize);
+    clearValidatorCache();
+  });
+
   it('never grows past maxSize (FIFO eviction)', () => {
     const { maxSize } = getValidatorCacheStats();
     for (let i = 0; i <= maxSize; i++) {
