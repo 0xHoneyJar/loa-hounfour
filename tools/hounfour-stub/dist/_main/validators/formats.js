@@ -118,16 +118,19 @@ export function parseIsoDateTimeStrict(value) {
     return new Date(utcDate.getTime() - offsetMinutes * 60_000);
 }
 /**
- * Characters that must never appear raw in a protocol URI. The WHATWG URL
- * parser silently strips ASCII tab/newline and percent-encodes other
- * whitespace, so an explicit pre-parse reject keeps the wire artifact
- * canonical (what validates is byte-for-byte what downstream parsers see).
- * Raw backslash is included: the WHATWG parser normalizes `\` to `/` in
- * http(s) URLs, so `https://example.com\evil` would silently change
- * meaning between validation and downstream parsing.
+ * Characters that must never appear raw in a protocol URI, expressed as a
+ * printable-ASCII allowlist (`!`–`~` minus backslash). The WHATWG URL
+ * parser silently strips ASCII tab/newline, percent-encodes other
+ * whitespace AND raw non-ASCII (e.g. `https://example.com/ x`), and
+ * punycodes Unicode hostnames (`https://例え.テスト/`), so an explicit
+ * pre-parse reject keeps the wire artifact canonical (what validates is
+ * byte-for-byte what downstream parsers see). Raw backslash is excluded
+ * from the allowlist: the WHATWG parser normalizes `\` to `/` in http(s)
+ * URLs, so `https://example.com\evil` would silently change meaning
+ * between validation and downstream parsing. Non-ASCII destinations are
+ * still expressible — in their canonical percent-encoded/punycoded form.
  */
-// eslint-disable-next-line no-control-regex
-const URI_FORBIDDEN_CHARS = /[\u0000-\u0020\u007F\\]/;
+const URI_FORBIDDEN_CHARS = /[^\u0021-\u005B\u005D-\u007E]/;
 /**
  * Strict `uri` format validation.
  *

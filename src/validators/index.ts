@@ -215,12 +215,13 @@ function warningSink(): {
 // cached. `getValidatorCacheStats()` / `clearValidatorCache()` expose the
 // cache to tests and operators.
 const VALIDATOR_CACHE_MAX_SIZE = 1024;
-// By-reference fast path stores the cache KEY only — never the compiled
-// validator. Compiled validators live exclusively in the bounded FIFO map,
-// so long-lived consumer schema objects (plugin/tenant registries) cannot
-// retain validators past eviction: the advertised VALIDATOR_CACHE_MAX_SIZE
-// bound holds on every path.
-let keyBySchemaRef = new WeakMap<TSchema, string>();
+// No by-reference (WeakMap) fast path: a schema object mutated after its
+// first validation (dynamic registries changing `$id` or properties) would
+// be served the stale compiled validator, and detecting mutation requires
+// recomputing the content fingerprint — the exact cost the fast path
+// existed to skip. Every lookup therefore pays the fingerprint and resolves
+// through the single bounded FIFO map, which stays correct under mutation
+// and holds the advertised VALIDATOR_CACHE_MAX_SIZE bound on every path.
 const cache = new Map<string, TypeCheck<TSchema>>();
 
 /**
@@ -235,18 +236,12 @@ function schemaFingerprint(schema: TSchema): string {
 }
 
 function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
-  // Fast path: same schema object seen before (module-constant schemas) —
-  // skips the fingerprint cost, but resolves through the bounded map so an
-  // evicted validator is recompiled instead of resurrected.
-  const knownKey = keyBySchemaRef.get(schema);
-  if (knownKey !== undefined) {
-    const byRef = cache.get(knownKey);
-    if (byRef) return byRef as TypeCheck<T>;
-  }
-
   const id = schema.$id;
   if (id) {
-    const key = knownKey ?? `${id}\u0000${schemaFingerprint(schema)}`;
+    // The key is recomputed from current content on every call so a schema
+    // object mutated since its last validation compiles (and caches) under
+    // its NEW fingerprint instead of reusing the stale validator.
+    const key = `${id}\u0000${schemaFingerprint(schema)}`;
     let compiled = cache.get(key);
     if (!compiled) {
       compiled = TypeCompiler.Compile(schema);
@@ -257,7 +252,6 @@ function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
       }
       cache.set(key, compiled);
     }
-    keyBySchemaRef.set(schema, key);
     return compiled as TypeCheck<T>;
   }
   // Non-$id schemas are compiled per-call (no caching) to prevent
@@ -267,8 +261,7 @@ function getOrCompile<T extends TSchema>(schema: T): TypeCheck<T> {
 
 /**
  * Introspect the compiled-validator cache (issue #148). `size` counts
- * fingerprint-keyed entries (the by-reference fast path is a WeakMap and
- * has no observable size); `maxSize` is the FIFO eviction bound.
+ * fingerprint-keyed entries; `maxSize` is the FIFO eviction bound.
  */
 export function getValidatorCacheStats(): { size: number; maxSize: number } {
   return { size: cache.size, maxSize: VALIDATOR_CACHE_MAX_SIZE };
@@ -281,7 +274,6 @@ export function getValidatorCacheStats(): { size: number; maxSize: number } {
  */
 export function clearValidatorCache(): void {
   cache.clear();
-  keyBySchemaRef = new WeakMap<TSchema, string>();
 }
 
 /**
@@ -1656,14 +1648,29 @@ export function validate<T extends TSchema>(
     // matching detail's `<CODE>: <message>` form when one exists and the
     // raw warning text otherwise. Deriving it from warning_details alone
     // would silently drop undetailed warnings from strict escalation.
-    const detailByMessage = new Map<string, ValidationWarning>();
-    for (const d of crossWarningDetails ?? []) {
-      if (!detailByMessage.has(d.message)) detailByMessage.set(d.message, d);
+    //
+    // Detail matching is INDEX-ALIGNED when the arrays are in lockstep
+    // (same length): two warnings may share a display message but carry
+    // different codes, and a message-keyed lookup would promote both under
+    // the first code. Only a partial details array falls back to
+    // message-keyed matching (index alignment is meaningless there).
+    const details = crossWarningDetails ?? [];
+    let errors: string[];
+    if (details.length === crossWarnings.length) {
+      errors = crossWarnings.map((w, i) => {
+        const d = details[i];
+        return d ? `${d.code}: ${d.message}` : w;
+      });
+    } else {
+      const detailByMessage = new Map<string, ValidationWarning>();
+      for (const d of details) {
+        if (!detailByMessage.has(d.message)) detailByMessage.set(d.message, d);
+      }
+      errors = crossWarnings.map((w) => {
+        const d = detailByMessage.get(w);
+        return d ? `${d.code}: ${d.message}` : w;
+      });
     }
-    const errors = crossWarnings.map((w) => {
-      const d = detailByMessage.get(w);
-      return d ? `${d.code}: ${d.message}` : w;
-    });
     return {
       valid: false,
       errors,

@@ -30,9 +30,20 @@ const REVERSE_GAP_BASELINE = 106;
 const root = process.cwd();
 const writeReport = process.argv.includes('--write');
 
-/** Normalize identifiers so `micro-usdc` and `MicroUSDC` compare equal. */
-function norm(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+/**
+ * Deterministic PascalCase → kebab-case conversion (`MicroUSDC` →
+ * `micro-usdc`, `DisputeRecord` → `dispute-record`). Registry keys are
+ * PascalCase TypeBox ids; generated schema slugs are kebab-case. This is
+ * the ONE reviewed convention bridging them — unlike the previous
+ * strip-all-punctuation normalization, casing/punctuation drift (e.g. a
+ * slug `disputerecord`) no longer silently compares equal: it surfaces as
+ * marked-but-unregistered and fails the forward gate.
+ */
+function pascalToKebab(name: string): string {
+  return name
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .toLowerCase();
 }
 
 function schemaSlug(id: string | undefined, filename: string): string {
@@ -45,22 +56,32 @@ function schemaSlug(id: string | undefined, filename: string): string {
 
 async function main(): Promise<void> {
   const schemasDir = resolve(root, 'schemas');
-  const marked = new Map<string, string>(); // norm -> display slug
+  const marked = new Map<string, string>(); // kebab slug -> display slug (exact)
   for (const file of readdirSync(schemasDir)) {
     if (!file.endsWith('.json')) continue;
     const doc = JSON.parse(readFileSync(resolve(schemasDir, file), 'utf8')) as Record<string, unknown>;
     if (doc['x-cross-field-validated'] === true) {
       const slug = schemaSlug(doc.$id as string | undefined, file);
-      marked.set(norm(slug), slug);
+      marked.set(slug, slug);
     }
   }
 
   const validators = await import(resolve(root, 'dist/validators/index.js')) as {
     getCrossFieldValidatorSchemas(): string[];
   };
-  const registered = new Map<string, string>(); // norm -> registry key
+  const registered = new Map<string, string>(); // kebab(key) -> registry key
   for (const key of validators.getCrossFieldValidatorSchemas()) {
-    registered.set(norm(key), key);
+    const kebab = pascalToKebab(key);
+    if (registered.has(kebab)) {
+      // Two PascalCase keys collapsing to one kebab slug would make the
+      // coverage comparison ambiguous — surface instead of guessing.
+      console.error(
+        `[check:crossfield-coverage] FAIL: registry keys '${registered.get(kebab)}' and ` +
+          `'${key}' both map to kebab slug '${kebab}'.`,
+      );
+      process.exit(1);
+    }
+    registered.set(kebab, key);
   }
 
   const markedUnregistered = [...marked.entries()]
@@ -118,10 +139,15 @@ async function main(): Promise<void> {
     failed = true;
   }
   if (registeredUnmarked.length < REVERSE_GAP_BASELINE) {
-    console.warn(
-      `[check:crossfield-coverage] NOTE: reverse gap is ${registeredUnmarked.length}, below the ` +
-        `baseline ${REVERSE_GAP_BASELINE} — lower REVERSE_GAP_BASELINE to ratchet.`,
+    // Improvements MUST ratchet: a warn-and-pass here would leave a stale
+    // higher baseline that lets a later PR reintroduce unmarked validators
+    // up to the old count without failing CI.
+    console.error(
+      `[check:crossfield-coverage] FAIL: reverse gap improved to ${registeredUnmarked.length}, ` +
+        `below the baseline ${REVERSE_GAP_BASELINE}. Lower REVERSE_GAP_BASELINE to ` +
+        `${registeredUnmarked.length} in this commit so the improvement sticks.`,
     );
+    failed = true;
   }
 
   if (failed) process.exit(1);

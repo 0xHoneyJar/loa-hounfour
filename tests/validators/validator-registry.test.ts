@@ -84,6 +84,20 @@ describe('compile cache bounds and observability (issue #148)', () => {
     clearValidatorCache();
   });
 
+  it('recompiles when a schema object is mutated in place (no stale reuse)', () => {
+    // Dynamic registries can mutate a long-lived schema object (issue: the
+    // by-reference fast path returned the stale compiled validator). The
+    // cache key is recomputed from current content on every call, so the
+    // mutated object must validate under its NEW rules.
+    const schema = Type.Object({ x: Type.String() }, { $id: 'test:cache-mutated' });
+    expect(validate(schema, { x: 'v' }).valid).toBe(true);
+    expect(validate(schema, { x: 42 }).valid).toBe(false);
+
+    (schema as unknown as { properties: unknown }).properties = { x: Type.Integer() };
+    expect(validate(schema, { x: 42 }).valid).toBe(true);
+    expect(validate(schema, { x: 'v' }).valid).toBe(false);
+  });
+
   it('never grows past maxSize (FIFO eviction)', () => {
     const { maxSize } = getValidatorCacheStats();
     for (let i = 0; i <= maxSize; i++) {
@@ -161,5 +175,29 @@ describe('warning metadata (issues #130 / #139 / #143 / #150)', () => {
       'undetailed warning',
     ]);
     expect(result.warnings).toEqual(['detailed warning', 'undetailed warning']);
+  });
+
+  it('strictWarnings keeps distinct codes for duplicate messages (index-aligned lockstep)', () => {
+    // Two warnings may share a display message but carry different codes;
+    // `code` is the stable machine-readable value, so a message-keyed
+    // lookup must not promote both under the first code.
+    const dupId = 'test:warning-details-duplicate-message';
+    const dupSchema = Type.Object({ x: Type.String() }, { $id: dupId });
+    registerCrossFieldValidator(dupId, () => ({
+      valid: true,
+      errors: [],
+      warnings: ['threshold exceeded', 'threshold exceeded'],
+      warning_details: [
+        { code: 'TEST_SOFT_LIMIT', message: 'threshold exceeded' },
+        { code: 'TEST_HARD_LIMIT', message: 'threshold exceeded' },
+      ],
+    }));
+
+    const result = validate(dupSchema, { x: 'v' }, { strictWarnings: true });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual([
+      'TEST_SOFT_LIMIT: threshold exceeded',
+      'TEST_HARD_LIMIT: threshold exceeded',
+    ]);
   });
 });

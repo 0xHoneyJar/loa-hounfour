@@ -96,6 +96,14 @@ const URI_REJECT: string[] = [
   'https://example.com\\evil.com/x',
   'https://example.com/a\\b',
   'https:\\\\example.com', // backslash scheme separator
+  // raw non-ASCII — WHATWG percent-encodes raw Unicode in paths and
+  // punycodes Unicode hostnames, so the validated string would differ from
+  // the canonical wire artifact downstream parsers see. The canonical
+  // spellings (percent-encoded path, xn-- hostname) remain accepted.
+  'https://\u4f8b\u3048.\u30c6\u30b9\u30c8/', // unicode hostname (punycoded by URL)
+  'https://example.com/p\u00e1th', // unicode path char (percent-encoded by URL)
+  'https://example.com/\u00a0x', // non-breaking space (not C0, still non-ASCII)
+  'https://example.com/x\u2028y', // line separator
 ];
 
 // ---------------------------------------------------------------------------

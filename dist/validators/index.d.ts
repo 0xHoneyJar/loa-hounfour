@@ -51,8 +51,7 @@ export interface ValidationWarning {
 }
 /**
  * Introspect the compiled-validator cache (issue #148). `size` counts
- * fingerprint-keyed entries (the by-reference fast path is a WeakMap and
- * has no observable size); `maxSize` is the FIFO eviction bound.
+ * fingerprint-keyed entries; `maxSize` is the FIFO eviction bound.
  */
 export declare function getValidatorCacheStats(): {
     size: number;
