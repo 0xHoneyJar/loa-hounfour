@@ -2,7 +2,7 @@
   "name": "@0xhoneyjar/loa-hounfour",
   "version": "8.7.0",
   "type": "module",
-  "description": "Constitutional protocol contracts for an AI agent economy — loa-finn ↔ arrakis integration layer",
+  "description": "Constitutional protocol contracts for an AI agent economy \u2014 loa-finn \u2194 arrakis integration layer",
   "license": "AGPL-3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -92,10 +92,11 @@
     "check:public-exports": "node scripts/check-public-exports.mjs",
     "check:packed-imports": "node scripts/check-packed-package-imports.mjs",
     "check:tarball-budget": "tsx scripts/check-tarball-budget.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity && npm run check:release-integrity-parity && npm run check:public-exports && npm run check:packed-imports && npm run check:tarball-budget",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity && npm run check:release-integrity-parity && npm run check:public-exports && npm run check:packed-imports && npm run check:tarball-budget && npm run check:crossfield-coverage",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:crossfield-coverage": "tsx scripts/check-crossfield-coverage.ts"
   },
   "dependencies": {
     "@noble/hashes": "^2.0.1",
