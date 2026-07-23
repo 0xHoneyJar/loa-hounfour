@@ -107,6 +107,7 @@ export const RULE_4_CRYPTO_BEARING_NAMES = [
   // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2).
   'PhaseCompletionEnvelopeTier1Schema',
   'PhaseCompletionEnvelopeSchema',
+  'GateTokenSchema',
   // v8.6.0 PR-A3.6 — FR-B9 PlanSignoffEnvelope (x-crypto-bearing).
   'PlanSignoffEnvelopeSchema',
   // v8.6.0 PR-A3.7 — FR-A1 Challenge layer (x-crypto-bearing).

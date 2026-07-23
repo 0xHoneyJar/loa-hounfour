@@ -1,0 +1,19 @@
+{
+  "_comment": "genesis_anchor not the pinned literal — structural rejection (Type.Literal).",
+  "receipt_kind": "legba_run_receipt",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "genesis_anchor": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "token_hash_sequence": [
+    "sha256:7a5eacb885e422af7486518123c461f9f9dbd30c8ceedf0f8986285f909ec563"
+  ],
+  "key_set": [
+    {
+      "gatekeeper_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+      "key_version": 1,
+      "pubkey": "ed25519:KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
+    }
+  ],
+  "status": "passed",
+  "receipt_hash": "1321c46b407acabd5978b4738a44b80f647dbf1e6bcdd95ff45e5492c943f5ff"
+}

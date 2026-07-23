@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/run-receipt",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "x-chain-bearing": true,
+  "description": "Legba run receipt — the token-hash chain + receipt-bound key set compiled to one verifiable hash. Chain-bearing; not itself crypto-bearing (the tokens it sequences carry the signatures; external anchoring into the loa audit chain provides the tamper-evidence for the receipt itself).",
+  "type": "object",
+  "required": [
+    "receipt_kind",
+    "contract_version",
+    "run_id",
+    "genesis_anchor",
+    "token_hash_sequence",
+    "key_set",
+    "status",
+    "receipt_hash"
+  ],
+  "properties": {
+    "receipt_kind": {
+      "description": "Discriminator literal pinning the RunReceipt shape.",
+      "const": "legba_run_receipt",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned for the Legba cycle-1 ship line; the merge train assigns the final literal.",
+      "const": "8.8.0",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "description": "Composition run identifier the receipt closes.",
+      "type": "string"
+    },
+    "genesis_anchor": {
+      "description": "Pinned chain-root literal (the PCE genesis convention). Vectors cover it; implementations cannot diverge on the first link (LG-3b).",
+      "const": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "type": "string"
+    },
+    "token_hash_sequence": {
+      "minItems": 1,
+      "description": "Ordered token hashes — (gate_index, wave_number) order (LR-3). The full chain, retained for auditability.",
+      "type": "array",
+      "items": {
+        "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+        "type": "string"
+      }
+    },
+    "key_set": {
+      "minItems": 1,
+      "description": "The signing keys this run's tokens used. Receipt-bound (covered by receipt_hash): rotation mid-run appends an entry and creates a named activation boundary — tokens signed by a revoked version after the boundary fail verification.",
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "gatekeeper_key_id",
+          "key_version",
+          "pubkey"
+        ],
+        "properties": {
+          "gatekeeper_key_id": {
+            "pattern": "^[A-Fa-f0-9]{64}$",
+            "type": "string"
+          },
+          "key_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pubkey": {
+            "minLength": 1,
+            "description": "Ed25519 public key (consumer-shaped encoding). MUST match the trust-store-resolved key for the key_id — bare manifest publication is NOT trusted (anti-substitution).",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "description": "Terminal run status. A fail-token terminates the run as blocked_at_gate_N — provable refusal, not silent halt.",
+      "anyOf": [
+        {
+          "const": "passed",
+          "type": "string"
+        },
+        {
+          "pattern": "^blocked_at_gate_[0-9]+$",
+          "type": "string"
+        }
+      ]
+    },
+    "receipt_hash": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "sha256 (bare hex) of the RFC 8785 canonical JSON of {genesis_anchor, token_hash_sequence, key_set, status} (LR-1). Anchored into the loa audit chain at run close (LR-4).",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
+}

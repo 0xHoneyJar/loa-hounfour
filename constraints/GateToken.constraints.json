@@ -1,0 +1,93 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "GateToken",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "LT-1",
+      "expression": "gatekeeper_key_id == sha256(gatekeeper_id || ':' || key_version)",
+      "severity": "error",
+      "message": "GateToken.gatekeeper_key_id MUST equal the hounfour signer-key-id derivation (reuses signer_key_id_matches_derivation).",
+      "fields": [
+        "gatekeeper_key_id",
+        "key_version"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "LOCAL derivation builtin; gatekeeper_id is resolved from the trust-store by the consumer.",
+      "type_signature": {
+        "gatekeeper_key_id": "string",
+        "key_version": "integer"
+      }
+    },
+    {
+      "id": "LT-2",
+      "expression": "replay_seed == sha256(span_log_head || ed25519_sig(span_log_head, gatekeeper_key))",
+      "severity": "error",
+      "message": "GateToken.replay_seed MUST be unpredictable to the worker and reproducible by a verifier holding the token (seed binds the gatekeeper signature over the head).",
+      "fields": [
+        "replay_seed",
+        "span_log_head",
+        "signature"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Requires the gatekeeper's signature over span_log_head; verified consumer-side alongside the token signature.",
+      "type_signature": {
+        "replay_seed": "string",
+        "span_log_head": "string",
+        "signature": "string"
+      }
+    },
+    {
+      "id": "LT-3",
+      "expression": "prev_token_hash chains to the prior token; gate_index 0 uses the genesis anchor",
+      "severity": "error",
+      "message": "GateToken.prev_token_hash MUST chain the token sequence; gate 0 anchors with sha256:000...000 (LG-3b).",
+      "fields": [
+        "prev_token_hash",
+        "gate_index"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Cross-token continuity; the genesis anchor is bound by the run receipt.",
+      "type_signature": {
+        "prev_token_hash": "string",
+        "gate_index": "integer"
+      }
+    },
+    {
+      "id": "LT-4",
+      "expression": "ed25519 signature verifies over RFC8785 canonical json of all-other-fields, against the trust-store-resolved gatekeeper pubkey",
+      "severity": "error",
+      "message": "GateToken.signature MUST verify; hounfour does not verify, consumer-side per NF-1. Keys resolve through the loa trust-store, never bare manifest publication.",
+      "fields": [
+        "signature",
+        "gatekeeper_key_id",
+        "key_version"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cryptographic verification is consumer policy.",
+      "type_signature": {
+        "signature": "string",
+        "gatekeeper_key_id": "string",
+        "key_version": "integer"
+      }
+    },
+    {
+      "id": "LT-5",
+      "expression": "turnstile split predicate: across segments gate_index == next_span_index - 1 (wave 0); within fan-out wave_number > prior.wave_number at same gate_index",
+      "severity": "error",
+      "message": "Turnstile advancement MUST satisfy the split predicate; the serial path (wave 0, gate_index bump) must work \u2014 the single-predicate form rejected every serial run after gate 0.",
+      "fields": [
+        "gate_index",
+        "wave_number"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Evaluated by the turnstile at dispatch; encoded here for vector coverage (serial-turnstile-regression fixture).",
+      "type_signature": {
+        "gate_index": "integer",
+        "wave_number": "integer"
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 **Contract version:** 8.7.0
 **Min supported:** 6.0.0
-**Schemas:** 262
+**Schemas:** 265
 
 ## Schemas
 
@@ -244,6 +244,9 @@
 | assertion | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/assertion` | [assertion.schema.json](assertion.schema.json) |
 | phase-completion-envelope-tier1 | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/phase-completion-envelope-tier1` | [phase-completion-envelope-tier1.schema.json](phase-completion-envelope-tier1.schema.json) |
 | phase-completion-envelope | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/phase-completion-envelope` | [phase-completion-envelope.schema.json](phase-completion-envelope.schema.json) |
+| span-move | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/span-move` | [span-move.schema.json](span-move.schema.json) |
+| gate-token | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/gate-token` | [gate-token.schema.json](gate-token.schema.json) |
+| run-receipt | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/run-receipt` | [run-receipt.schema.json](run-receipt.schema.json) |
 | pulse-kind | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/pulse-kind` | [pulse-kind.schema.json](pulse-kind.schema.json) |
 | oracle-digest | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/oracle-digest` | [oracle-digest.schema.json](oracle-digest.schema.json) |
 | model-call-circuit-breaker-state | `https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/model-call-circuit-breaker-state` | [model-call-circuit-breaker-state.schema.json](model-call-circuit-breaker-state.schema.json) |

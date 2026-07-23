@@ -206,6 +206,10 @@ import {
 import {
   PhaseCompletionEnvelopeSchema,
 } from '../src/integrity/phase-completion-envelope.js';
+// Legba substrate schemas (cycle 1)
+import { SpanMoveSchema } from '../src/integrity/legba-span-move.js';
+import { GateTokenSchema } from '../src/integrity/legba-gate-token.js';
+import { RunReceiptSchema } from '../src/integrity/legba-run-receipt.js';
 // v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster
 import {
   OracleDigestSchema,
@@ -574,6 +578,10 @@ export const SCHEMAS = [
   // v8.6.0 PR-A3.4 — FR-B2 PhaseCompletionEnvelope (Tier-1 + Tier-2)
   { name: 'phase-completion-envelope-tier1', schema: PhaseCompletionEnvelopeTier1Schema },
   { name: 'phase-completion-envelope', schema: PhaseCompletionEnvelopeSchema },
+  // Legba substrate schemas (cycle 1)
+  { name: 'span-move', schema: SpanMoveSchema },
+  { name: 'gate-token', schema: GateTokenSchema },
+  { name: 'run-receipt', schema: RunReceiptSchema },
   // v8.6.0 PR-A3.5 — FR-B3..B8 Operations cluster
   { name: 'pulse-kind', schema: PulseKindSchema },
   { name: 'oracle-digest', schema: OracleDigestSchema },

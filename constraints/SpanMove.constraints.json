@@ -1,0 +1,85 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SpanMove",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "LM-1",
+      "expression": "seq strictly increases by 1 per span_index, starting at 0",
+      "severity": "error",
+      "message": "SpanMove.seq MUST be strictly monotonic per span (no gaps, no repeats); a gap or repeat is a chain violation.",
+      "fields": [
+        "seq",
+        "span_index"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Cross-record (per-span) check; the library walks the span log in order.",
+      "type_signature": {
+        "seq": "integer",
+        "span_index": "integer"
+      }
+    },
+    {
+      "id": "LM-2",
+      "expression": "prev_hash equals the prior move's record_hash; the first move of a span uses the genesis anchor sha256:000...000",
+      "severity": "error",
+      "message": "SpanMove.prev_hash MUST chain to the prior move's record_hash; flipping any byte of history changes the head (LG-2).",
+      "fields": [
+        "prev_hash",
+        "record_hash"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Cross-record continuity check.",
+      "type_signature": {
+        "prev_hash": "string",
+        "record_hash": "string"
+      }
+    },
+    {
+      "id": "LM-3",
+      "expression": "record_hash equals sha256(RFC8785_canonical_json(record with the record_hash key absent))",
+      "severity": "error",
+      "message": "SpanMove.record_hash MUST be the sha256 of the canonical record with the record_hash key OMITTED before canonicalization (not empty, not null).",
+      "fields": [
+        "record_hash"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Single-record derivation; the canonicalizer omits the record_hash key.",
+      "type_signature": {
+        "record_hash": "string"
+      }
+    },
+    {
+      "id": "LM-4",
+      "expression": "env_fingerprint is present if and only if determinism == 're_executable'",
+      "severity": "error",
+      "message": "A re_executable move MUST carry env_fingerprint (LG-4b); an attestable move MUST NOT.",
+      "fields": [
+        "env_fingerprint",
+        "determinism"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Single-record conditional-presence check.",
+      "type_signature": {
+        "env_fingerprint": "string",
+        "determinism": "string"
+      }
+    },
+    {
+      "id": "LM-5",
+      "expression": "RFC8785 canonical-json byte length of the record <= 4096",
+      "severity": "error",
+      "message": "SpanMove canonical form MUST NOT exceed 4096 bytes; the recorder refuses loudly (LEGBA_MOVE_TOO_LARGE) at record time, never truncates.",
+      "fields": [
+        "record_hash"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "LOCAL canonical_size_cap pattern; reads x-canonical-size-cap-bytes.",
+      "type_signature": {
+        "record_hash": "string"
+      }
+    }
+  ]
+}

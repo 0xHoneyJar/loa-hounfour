@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/span-move",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "x-chain-bearing": true,
+  "x-cas-reference": true,
+  "x-canonical-size-cap-bytes": 4096,
+  "description": "One hash-chained move in a Legba span log. Chain-bearing (prev_hash/record_hash intra-span chain), CAS-referencing (input/output hashes), canonical-size-capped at 4 KB. Not crypto-bearing: moves are not individually signed — the gate token signs the span head (GateToken).",
+  "type": "object",
+  "required": [
+    "move_kind",
+    "contract_version",
+    "run_id",
+    "span_index",
+    "seq",
+    "prev_hash",
+    "kind",
+    "determinism",
+    "input_hash",
+    "output_hash",
+    "ts",
+    "record_hash"
+  ],
+  "properties": {
+    "move_kind": {
+      "description": "Discriminator literal pinning the SpanMove shape.",
+      "const": "legba_span_move",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned for the Legba cycle-1 ship line; the merge train assigns the final literal.",
+      "const": "8.8.0",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "description": "Composition run identifier (consumer-shaped). Binds the move to one run; tokens and the receipt carry the same id.",
+      "type": "string"
+    },
+    "span_index": {
+      "minimum": 0,
+      "description": "Zero-based segment index within the run.",
+      "type": "integer"
+    },
+    "seq": {
+      "minimum": 0,
+      "description": "Strictly monotonic move sequence within the span (LM-1). Gaps and repeats are chain violations.",
+      "type": "integer"
+    },
+    "prev_hash": {
+      "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+      "description": "sha256:<64-hex> of the prior move's canonical form; the first move of a span carries the genesis anchor (LEGBA_GENESIS_ANCHOR). LM-2 verifies chain continuity.",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Event class: a tool invocation or a model emission (narration, judgment, verdict).",
+      "anyOf": [
+        {
+          "const": "tool",
+          "type": "string"
+        },
+        {
+          "const": "emission",
+          "type": "string"
+        }
+      ]
+    },
+    "determinism": {
+      "description": "Verification regime (LG-5). `re_executable` REQUIRES the tool to be content-recording allowlisted (replay needs retention); unlisted and nondeterministic tools are `attestable` by construction. Misclassification is the substrate's main integrity lie — the determinism manifest lint owns it.",
+      "anyOf": [
+        {
+          "const": "re_executable",
+          "type": "string"
+        },
+        {
+          "const": "attestable",
+          "type": "string"
+        }
+      ]
+    },
+    "tool": {
+      "minLength": 1,
+      "description": "Tool name for kind=tool (per the determinism manifest).",
+      "type": "string"
+    },
+    "label": {
+      "minLength": 1,
+      "description": "Emission label for kind=emission.",
+      "type": "string"
+    },
+    "input_hash": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Bare 64-hex sha256 over the canonical input bytes (composition rule in the schema header). CAS reference (`x-cas-reference`).",
+      "type": "string"
+    },
+    "output_hash": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Bare 64-hex sha256 over the canonical output bytes. CAS reference; re-execution divergence on an allowlisted re_executable move is a machine-detectable fraud proof (LG-4).",
+      "type": "string"
+    },
+    "env_fingerprint": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Bare 64-hex sha256 of the tool version + environment manifest (LG-4b). REQUIRED when determinism=re_executable (LM-4); replay under a divergent environment downgrades to attestable for that challenge — never false fraud.",
+      "type": "string"
+    },
+    "ts": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC, microsecond precision, Z suffix (no offset form) — format pinned because ts participates in the canonical bytes.",
+      "type": "string"
+    },
+    "record_hash": {
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Bare 64-hex sha256 of the RFC 8785 canonical JSON of this record with the record_hash key ABSENT (LM-3). The span head is the final move's record_hash.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.7.0, min_supported=6.0.0"
+}

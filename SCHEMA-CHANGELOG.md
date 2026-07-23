@@ -10,6 +10,38 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ## [Unreleased] — Recall Wedge composition
 
+### Legba substrate schemas (cycle 1) — proposal
+
+Three crypto/chain-bearing integrity schemas for the Legba operator substrate
+(cryptographic validation of agentic state transitions; authored in
+`loa-freeside` legba-substrate ladder, cycle 1):
+
+- **`SpanMove`** (`x-chain-bearing`) — one hash-chained move in a span log.
+  Moves are `re_executable` (allowlisted tool calls, replayable from CAS) or
+  `attestable` (emissions + hash-only tools). Intra-span chain via
+  `prev_hash`/`record_hash`. Constraints LM-1..5 (seq monotonicity, chain
+  continuity, record_hash JCS-omission derivation, env_fingerprint-iff-
+  re_executable, 4 KB canonical cap).
+- **`GateToken`** (`x-crypto-bearing`, `x-chain-bearing`) — the ed25519-signed
+  key between gates. Turnstile precondition: span N>0 refuses without gate
+  N-1's pass-token. Wave-level under DAG fan-out (`wave_number`). Constraints
+  LT-1..5 (key-id derivation, unpredictable replay_seed, token chain, signature
+  verify, split turnstile predicate). Cycle-1 transport: embedded in the
+  construct-handoff `verdict.gate_token` (no envelope schema bump).
+- **`RunReceipt`** (`x-chain-bearing`) — the token-hash chain + receipt-bound
+  key set compiled to one verifiable hash. Constraints LR-1..4 (receipt_hash
+  covers key_set, pinned genesis literal, sequence order, external audit-chain
+  anchoring).
+
+Vectors: `vectors/<Schema>/v8.8.0/{valid,invalid,invalid-cross-field}` (21
+fixtures; structural-tier runner green). Schemas pin their own `8.8.0`
+introduction literal; the global `CONTRACT_VERSION` bump is deferred to the
+release decision. **Cross-field validator implementations + registry wiring are
+a post-ratification follow-up** — the constraint files + cross-field vector
+corpus are staged so that work has its contract ready. Open questions for review
+in the PR body (version literal, pubkey encoding, status string-vs-object).
+
+
 **Theme:** Documentation + conformance-corpus surface describing how the
 existing v8.5.0 PR-A2.3 / v8.6.0 PR-A3.7 schemas compose into the
 Straylight Recall Wedge. **Strict-additive at the schema layer** — a

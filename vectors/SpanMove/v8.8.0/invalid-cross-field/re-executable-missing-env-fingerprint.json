@@ -1,0 +1,16 @@
+{
+  "_comment": "LM-4: re_executable move lacks env_fingerprint (schema-valid; cross-field reject).",
+  "move_kind": "legba_span_move",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "span_index": 0,
+  "seq": 1,
+  "prev_hash": "sha256:f28d6dfa8dd41376fbbb78839cff5a498b2f13246aa91b99177fc93bd69b80c9",
+  "kind": "tool",
+  "determinism": "re_executable",
+  "tool": "augury_sweep",
+  "input_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "output_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ts": "2026-06-11T00:00:01.000000Z",
+  "record_hash": "cd6dc262d19fe65ae17df64e590f66706cdf7f0a0763b532bfc7606dedf3688d"
+}

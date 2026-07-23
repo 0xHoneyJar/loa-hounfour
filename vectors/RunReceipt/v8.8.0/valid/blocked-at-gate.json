@@ -1,0 +1,19 @@
+{
+  "_comment": "blocked_at_gate_0 terminal status; receipt_hash recomputed.",
+  "receipt_kind": "legba_run_receipt",
+  "contract_version": "8.8.0",
+  "run_id": "vec-run",
+  "genesis_anchor": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "token_hash_sequence": [
+    "sha256:7a5eacb885e422af7486518123c461f9f9dbd30c8ceedf0f8986285f909ec563"
+  ],
+  "key_set": [
+    {
+      "gatekeeper_key_id": "2222222222222222222222222222222222222222222222222222222222222222",
+      "key_version": 1,
+      "pubkey": "ed25519:KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
+    }
+  ],
+  "status": "blocked_at_gate_0",
+  "receipt_hash": "382d3659e9c07e7f2ba261898fafbbe32d58751d35d2315d8220f5a88c793c66"
+}
