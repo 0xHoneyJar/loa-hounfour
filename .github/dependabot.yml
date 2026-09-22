@@ -2,41 +2,11 @@
 # LOW-004: Security fix for automated dependency monitoring
 #
 # This configuration enables Dependabot to automatically check for and create
-# pull requests for dependency updates in the integration layer.
+# pull requests for dependency updates in the package and CI workflows.
 
 version: 2
 updates:
-  # Integration layer (Discord bot, Linear integration, webhooks)
-  - package-ecosystem: "npm"
-    directory: "/integration"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "your-team"
-    # Group non-security updates to reduce PR noise
-    groups:
-      development-dependencies:
-        dependency-type: "development"
-        patterns:
-          - "*"
-      production-dependencies:
-        dependency-type: "production"
-        patterns:
-          - "*"
-    # Allow both direct and indirect dependency updates
-    versioning-strategy: "increase"
-    # Automatically rebase pull requests when base branch is updated
-    rebase-strategy: "auto"
-    # Commit message prefix
-    commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
-      include: "scope"
-
-  # Root package.json (if exists)
+  # Root package.json
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -46,17 +16,6 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
-
-  # Docker base images
-  - package-ecosystem: "docker"
-    directory: "/integration"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "10:00"
-    open-pull-requests-limit: 3
-    commit-message:
-      prefix: "chore(docker)"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -75,10 +34,9 @@ updates:
 # - Critical vulnerabilities will open PRs even if open-pull-requests-limit is reached
 #
 # To customize for your team:
-# 1. Replace "your-team" with your GitHub team name or individual usernames
-# 2. Adjust schedule timing to match your team's workflow
-# 3. Add assignees if you want automatic PR assignments
-# 4. Configure ignore rules if specific packages should not be updated
+# 1. Adjust schedule timing to match your team's workflow
+# 2. Add assignees if you want automatic PR assignments
+# 3. Configure ignore rules if specific packages should not be updated
 #
 # Example ignore configuration (add to any update block):
 # ignore:
