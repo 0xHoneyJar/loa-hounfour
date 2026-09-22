@@ -8,6 +8,114 @@ Per-schema evolution tracking for `@0xhoneyjar/loa-hounfour`. Each entry records
 
 ---
 
+## [Unreleased] — Recall Wedge composition
+
+**Theme:** Documentation + conformance-corpus surface describing how the
+existing v8.5.0 PR-A2.3 / v8.6.0 PR-A3.7 schemas compose into the
+Straylight Recall Wedge. **Strict-additive at the schema layer** — a
+single category-enum literal extension to `ConformanceCategorySchema`
+plus a soft-registry vocabulary entry; no `$id` additions, no field
+changes, no required-field additions, no constraint edits, and no
+breaking changes. Lands on top of the cycle-007 schemas #103–#109
+without touching any of them.
+
+### Schema modifications — strict-additive only
+
+- **`ConformanceCategorySchema`** (`src/vocabulary/conformance-category.ts`):
+  one new `Type.Literal('recall-wedge')` member appended to the
+  category union; corresponding `'recall-wedge'` entry appended to
+  `CONFORMANCE_CATEGORIES`. The schema's `$id` is unchanged. The
+  generated `schemas/conformance-vector.schema.json` is regenerated
+  via the standard `npm run schema:generate` pipeline so the published
+  JSON Schema enum surfaces the new literal for cross-language
+  consumers; no other generated schema file changes. The #109
+  hoisted-`SCHEMAS` single-source-of-truth covers both
+  `schema:generate` and `schema:check` from the same array.
+- Zero new `$id`-bearing schemas.
+- Zero modifications to any other TypeBox source under `src/`.
+- Zero modifications to constraint files under `constraints/`.
+- Zero modifications to `src/index.ts` or `src/governance/index.ts`
+  exports — every Recall Wedge primitive (`AgentEstate`,
+  `AgentEstateStatus`, `Assertion`, `AssertionClass`, `AssertionStatus`,
+  `SignatureEnvelope`, `Keyring`, `SignerCompetenceRule`,
+  `SignerCompetenceResult`, `PolicyDecisionOutcome`, `Challenge`,
+  `RecallRequest`, `RecallPack`, `RecallReceipt`, `ReceiptDetailLevel`,
+  `SurfaceContext`, `PrivacyScope`, `RiskLevel`, `ForgetRecord`,
+  `CommitmentRoot`, `CommitmentType`) is already exported at root
+  and via the `/governance` subpath.
+
+### Vocabulary registry — soft additive
+
+- **`AUDIT_EVENT_TYPES_KNOWN_PREFIXES`** in
+  `src/vocabulary/audit-event-types.ts`: adds `'0xhoneyjar:straylight:'`
+  to the informational soft prefix registry. The registry is documented
+  as informational and NOT validated against `AuditEntry.event_type`
+  (the field stays open by design); this addition is documentation-only
+  and does not affect any JSON Schema output. The conventional event-
+  type vocabulary under the prefix (9 dotted-name conventions for
+  `assertion.*`, `estate.transition.applied`, `recall.*`, and
+  `commitment.anchored`) is captured as a comment block above the
+  registry.
+
+### Conformance vectors — additive
+
+- **`vectors/conformance/recall-wedge/`** (5 fixtures + README): end-to-
+  end Recall Wedge round-trip corpus. The fixtures share placeholder
+  hashes that thread the cross-record reference chain
+  (`pack.recall_request_ref` → `request.request_id`,
+  `receipt.pack_hash` → `pack.pack_hash`,
+  `commitment.subject_hash` → `receipt.receipt_hash`) so the harness can
+  assert both per-schema structural validity *and* the lazy-link string
+  equalities documented in [`sdd.md`](docs/architecture/sdd.md) §1.5.
+  No existing per-schema fixture under `vectors/<Schema>/` is touched.
+
+### Tests — additive
+
+- **`tests/vectors/recall-wedge-vectors.test.ts`**: per-schema
+  structural validation via `assertStructurallyValid` (the safe-by-
+  default helper that internally passes `{ acceptDeferred: true }` for
+  crypto-bearing schemas per ADR-010 G1) plus cross-record composition
+  invariants including the `recall_scope === surface_context` equality
+  between the admitted-assertion entry-point and the recall request.
+- **`tests/vocabulary/audit-event-types.test.ts`**: extended with
+  assertions that the registered `0xhoneyjar:straylight:` prefix is
+  present in the registry and that each of the 9 conventional event
+  types under the prefix is structurally well-formed under
+  `isThreeSegmentEventType` and round-trips through
+  `extractEventTypePrefix`. The shape-validation regex on the
+  registered-prefix loop is relaxed to match the runtime helper
+  (`/^[a-z0-9][a-z0-9-]*$/` on the org slot) so GitHub-style slugs
+  beginning with a digit (`0xhoneyjar`) are accepted.
+- **`tests/vocabulary/conformance-category.test.ts`**: count bumped
+  from 46 to 47 and the canonical-order assertion list extended with
+  `'recall-wedge'` so the regression test pins the category as the
+  47th literal in the v8.7.0 surface.
+
+### Documentation — additive
+
+- **`docs/architecture/recall-wedge-composition.md`**: requirement-to-
+  primitive map, round-trip flow diagram, audit/event vocabulary,
+  canonicalization path (anchors `safeCanonicalize`), crypto-bearing
+  safe-by-default reminders, and an explicit explanation of the
+  deferred-`EstateTransition` substitute composition (`AgentEstate` +
+  `AgentEstateStatus` + `CommitmentRoot{commitment_type:'transition_bundle'}`
+  + a `0xhoneyjar:straylight:estate.transition.applied` audit event).
+
+### Compatibility
+
+- **No `CONTRACT_VERSION` bump.** No version-pin change required for
+  consumers. Consumers already on v8.5.x or v8.6.x can adopt the
+  documented composition without code changes.
+- **Fully strict-additive** — no fixture rejection risk, no validator
+  behavior change, no manifest emission change.
+- **No conflict with cycle-007** — the wedge does not touch
+  `ClusterRunSeriesSchema`, `InterSeriesScopingArtifactSchema`,
+  `SubscriptionPoolStateSchema`, `RevocationListSchema`, or
+  `MergeArtifactSchema`; no overlap with the hoisted-`SCHEMAS` SSOT
+  refactor in #109.
+
+---
+
 ## v8.4.0
 
 **Theme:** Synthetic-deliberation protocol + organization-level governance primitives. Strict additive MINOR — no required-field additions, no breaking changes.

@@ -1,0 +1,23 @@
+{
+  "vector_id": "conformance-recall-wedge-002",
+  "category": "recall-wedge",
+  "description": "Recall Wedge round-trip — RecallRequest scoped to the private surface (per ADR-010 consumer-side composition).",
+  "contract_version": "8.7.0",
+  "input": {
+    "request_id": "22222222-2222-4222-8222-222222222222",
+    "subject_agent_id": "straylight-subject-001",
+    "surface_context": "private",
+    "detail_level": "standard",
+    "requested_at": "2026-05-10T00:01:00Z",
+    "requestor_signer_id": "straylight-requestor-001",
+    "contract_version": "8.6.0"
+  },
+  "expected_output": {},
+  "expected_valid": true,
+  "metadata": {
+    "wedge_role": "recall_request",
+    "schema_ref": "RecallRequestSchema",
+    "crypto_bearing": false,
+    "round_trip_step": 2
+  }
+}

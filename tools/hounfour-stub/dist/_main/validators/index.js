@@ -7,7 +7,6 @@
  * @see SDD 4.1 — Schema Validation
  */
 import { TypeCompiler } from '@sinclair/typebox/compiler';
-import { FormatRegistry } from '@sinclair/typebox';
 import { CONTRACT_VERSION } from '../version.js';
 import { evaluateUtf8ByteLengthMax } from '../constraints/builtins/utf8-byte-length-max.js';
 import { evaluatePercentilesMonotonicNondecreasing } from '../constraints/builtins/percentiles-monotonic-nondecreasing.js';
@@ -56,16 +55,13 @@ import { validateRevocationList } from '../canonical/revocation-list.js';
 // evaluable in v8.8.0+.
 import { validateMergeArtifact } from '../canonical/merge-artifact.js';
 // Register string formats so TypeCompiler validates them at runtime.
-// ISO 8601 date-time (simplified check — full ISO parsing delegated to consumers).
-if (!FormatRegistry.Has('date-time')) {
-    FormatRegistry.Set('date-time', (v) => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/.test(v));
-}
-if (!FormatRegistry.Has('uri')) {
-    FormatRegistry.Set('uri', (v) => /^https?:\/\/.+/.test(v));
-}
-if (!FormatRegistry.Has('uuid')) {
-    FormatRegistry.Set('uuid', (v) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v));
-}
+// Strict semantics live in ./formats.js (single source of truth) and are
+// registered UNCONDITIONALLY at module load so host-application import order
+// cannot weaken protocol validation (issues #120, #122, #123, #147).
+// Re-exported below so consumers can re-assert protocol semantics at startup.
+import { registerHounfourFormats } from './formats.js';
+registerHounfourFormats();
+export { registerHounfourFormats, assertHounfourFormats, isStrictIsoDateTime, isStrictHttpUri, isStrictUuid, parseIsoDateTimeStrict, HOUNFOUR_FORMATS, } from './formats.js';
 import { JwtClaimsSchema, S2SJwtClaimsSchema } from '../schemas/jwt-claims.js';
 import { InvokeResponseSchema, UsageReportSchema } from '../schemas/invoke-response.js';
 import { StreamEventSchema } from '../schemas/stream-events.js';
@@ -122,23 +118,90 @@ import { CrossScoreReportSchema } from '../governance/cross-score-report.js';
 import { OrgIdentitySchema } from '../governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../governance/succession-policy.js';
+/** Internal collector that keeps `warnings` (legacy strings) and `warning_details` in lockstep. */
+function warningSink() {
+    const details = [];
+    const messages = [];
+    return {
+        add(code, message) {
+            details.push({ code, message });
+            messages.push(message);
+        },
+        messages,
+        details,
+    };
+}
 // Compile cache — lazily populated on first use.
-// Only caches schemas with $id to prevent unbounded growth from
-// consumer-supplied schemas (BB-V3-003).
+//
+// Correctness (issue #121): entries are keyed by `$id` PLUS a content
+// fingerprint of the schema, never by `$id` alone — two distinct schemas
+// that share a `$id` can no longer silently reuse each other's compiled
+// validator. A `WeakMap` fast path serves repeat validations of the same
+// schema *object* (the common case: module-constant protocol schemas)
+// without paying the fingerprint cost.
+//
+// Bounds (issue #148, refines BB-V3-003): the fingerprint cache is bounded
+// at VALIDATOR_CACHE_MAX_SIZE entries with FIFO eviction (oldest insertion
+// evicted first). Schemas without `$id` are compiled per-call and never
+// cached. `getValidatorCacheStats()` / `clearValidatorCache()` expose the
+// cache to tests and operators.
+const VALIDATOR_CACHE_MAX_SIZE = 1024;
+// No by-reference (WeakMap) fast path: a schema object mutated after its
+// first validation (dynamic registries changing `$id` or properties) would
+// be served the stale compiled validator, and detecting mutation requires
+// recomputing the content fingerprint — the exact cost the fast path
+// existed to skip. Every lookup therefore pays the fingerprint and resolves
+// through the single bounded FIFO map, which stays correct under mutation
+// and holds the advertised VALIDATOR_CACHE_MAX_SIZE bound on every path.
 const cache = new Map();
+/**
+ * Stable content fingerprint for a schema. JSON.stringify is deterministic
+ * for a given object (insertion-ordered keys); two structurally different
+ * schemas always produce different fingerprints. Key-order-only differences
+ * may produce distinct fingerprints — that costs one extra cache entry, and
+ * never reuses the wrong validator.
+ */
+function schemaFingerprint(schema) {
+    return JSON.stringify(schema);
+}
 function getOrCompile(schema) {
     const id = schema.$id;
     if (id) {
-        let compiled = cache.get(id);
+        // The key is recomputed from current content on every call so a schema
+        // object mutated since its last validation compiles (and caches) under
+        // its NEW fingerprint instead of reusing the stale validator.
+        const key = `${id}\u0000${schemaFingerprint(schema)}`;
+        let compiled = cache.get(key);
         if (!compiled) {
             compiled = TypeCompiler.Compile(schema);
-            cache.set(id, compiled);
+            if (cache.size >= VALIDATOR_CACHE_MAX_SIZE) {
+                // FIFO eviction: drop the oldest insertion.
+                const oldest = cache.keys().next().value;
+                if (oldest !== undefined)
+                    cache.delete(oldest);
+            }
+            cache.set(key, compiled);
         }
         return compiled;
     }
     // Non-$id schemas are compiled per-call (no caching) to prevent
     // unbounded cache growth from arbitrary consumer schemas.
     return TypeCompiler.Compile(schema);
+}
+/**
+ * Introspect the compiled-validator cache (issue #148). `size` counts
+ * fingerprint-keyed entries; `maxSize` is the FIFO eviction bound.
+ */
+export function getValidatorCacheStats() {
+    return { size: cache.size, maxSize: VALIDATOR_CACHE_MAX_SIZE };
+}
+/**
+ * Clear all cached compiled validators (issue #148). Intended for tests
+ * and long-running hosts that want deterministic memory baselines;
+ * subsequent validations recompile lazily.
+ */
+export function clearValidatorCache() {
+    cache.clear();
 }
 /**
  * Registry of cross-field validators keyed by schema $id.
@@ -157,8 +220,21 @@ const crossFieldRegistry = new Map();
 /**
  * Register a cross-field validator for a schema.
  * Used internally to wire cross-field checks into the main pipeline.
+ *
+ * Duplicate registration for the same `schemaId` THROWS (issues #124/#138):
+ * silently replacing a protocol invariant was a last-import-wins failure
+ * mode. Replacing an existing validator must be explicit — pass
+ * `{ override: true }` (intended for tests and controlled consumer
+ * extension; the built-in registry never overrides). Because all built-in
+ * registrations run at module load, the module itself acts as the
+ * startup-time duplicate check: a duplicate id in this file fails import.
  */
-export function registerCrossFieldValidator(schemaId, validator) {
+export function registerCrossFieldValidator(schemaId, validator, options) {
+    if (crossFieldRegistry.has(schemaId) && options?.override !== true) {
+        throw new Error(`Cross-field validator for schema "${schemaId}" is already registered. ` +
+            'Duplicate registration silently replaces a protocol invariant; pass ' +
+            '{ override: true } to replace it explicitly.');
+    }
     crossFieldRegistry.set(schemaId, validator);
 }
 // Wire built-in cross-field validators (BB-C4-ADV-003)
@@ -175,27 +251,32 @@ registerCrossFieldValidator('BillingEntry', (data) => {
     if (!result.valid) {
         return { valid: false, errors: [result.reason], warnings: [] };
     }
-    // v5.1.0 — Pricing provenance rules (warning severity)
+    // v5.1.0 — Pricing provenance rules (warning severity). The warning
+    // severity is an explicit, versioned contract decision (issues #125/#153):
+    // provenance gaps stay warnings in the v8.x line so historical artifacts
+    // remain readable, and audit-grade consumers MUST escalate the BILLING_*
+    // codes (or validate with { strictWarnings: true }). See
+    // docs/architecture/runtime-validation.md § Billing provenance severity.
     const d = data;
-    const warnings = [];
+    const warn = warningSink();
     // Provenance: cost > 0 requires source_completion_id
     if (d.total_cost_micro !== '0' && d.source_completion_id === undefined) {
-        warnings.push('non-zero cost should include source_completion_id for provenance');
+        warn.add('BILLING_PROVENANCE_MISSING_SOURCE_COMPLETION_ID', 'non-zero cost should include source_completion_id for provenance');
     }
     // Provenance: if completion ref present, pricing snapshot should be too
     if (d.source_completion_id && !d.pricing_snapshot) {
-        warnings.push('source_completion_id present without pricing_snapshot');
+        warn.add('BILLING_PROVENANCE_MISSING_PRICING_SNAPSHOT', 'source_completion_id present without pricing_snapshot');
     }
     // Reconciliation: delta only with provider_invoice_authoritative
     if (d.reconciliation_delta_micro && d.reconciliation_mode !== 'provider_invoice_authoritative') {
-        warnings.push('reconciliation_delta_micro only applies with provider_invoice_authoritative mode');
+        warn.add('BILLING_RECONCILIATION_DELTA_MODE_MISMATCH', 'reconciliation_delta_micro only applies with provider_invoice_authoritative mode');
     }
-    return { valid: true, errors: [], warnings };
+    return { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('PerformanceRecord', (data) => {
     const record = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // dividend_split_bps is required when dividend_target is 'mixed'
     if (record.dividend_target === 'mixed' && record.dividend_split_bps === undefined) {
         errors.push('dividend_split_bps is required when dividend_target is "mixed"');
@@ -203,18 +284,18 @@ registerCrossFieldValidator('PerformanceRecord', (data) => {
     // Warn when outcome_validated is true but validated_by is empty or missing
     if (record.outcome?.outcome_validated === true &&
         (!record.outcome.validated_by || record.outcome.validated_by.length === 0)) {
-        warnings.push('outcome_validated is true but validated_by is empty or missing');
+        warn.add('PERFORMANCE_OUTCOME_VALIDATED_WITHOUT_VALIDATORS', 'outcome_validated is true but validated_by is empty or missing');
     }
     if (errors.length > 0) {
-        return { valid: false, errors, warnings };
+        return { valid: false, errors, warnings: warn.messages, warning_details: warn.details };
     }
-    return { valid: true, errors: [], warnings };
+    return { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // --- v4.x cross-field validators (BB-C7-VALIDATOR-001..004, BB-C7-SECURITY-001..002) ---
 registerCrossFieldValidator('EscrowEntry', (data) => {
     const entry = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // Self-escrow prevention (BB-C7-SECURITY-001)
     if (entry.payer_id === entry.payee_id) {
         errors.push('payer_id and payee_id must be different (self-escrow not allowed)');
@@ -231,7 +312,7 @@ registerCrossFieldValidator('EscrowEntry', (data) => {
     }
     // Escrow timeout (BB-V4-DEEP-002)
     if (entry.state === 'held' && !entry.expires_at) {
-        warnings.push('held escrow should have expires_at for TTL enforcement');
+        warn.add('ESCROW_HELD_WITHOUT_EXPIRES_AT', 'held escrow should have expires_at for TTL enforcement');
     }
     if (entry.expires_at && entry.held_at && new Date(entry.expires_at) <= new Date(entry.held_at)) {
         errors.push('expires_at must be after held_at');
@@ -245,7 +326,9 @@ registerCrossFieldValidator('EscrowEntry', (data) => {
             errors.push('released_at must be >= held_at');
         }
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('StakePosition', (data) => {
     const stake = data;
@@ -301,23 +384,23 @@ registerCrossFieldValidator('MutualCredit', (data) => {
 registerCrossFieldValidator('CommonsDividend', (data) => {
     const dividend = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // Temporal ordering
     if (new Date(dividend.period_end) <= new Date(dividend.period_start)) {
         errors.push('period_end must be after period_start');
     }
     // Source performance linkage (BB-V4-DEEP-003)
     if (!dividend.source_performance_ids) {
-        warnings.push('dividend should link to source performance records for audit trail');
+        warn.add('DIVIDEND_MISSING_SOURCE_PERFORMANCE_IDS', 'dividend should link to source performance records for audit trail');
     }
     if (dividend.distribution && !dividend.source_performance_ids) {
-        warnings.push('distributed dividend without provenance');
+        warn.add('DIVIDEND_DISTRIBUTION_WITHOUT_PROVENANCE', 'distributed dividend without provenance');
     }
     // Distribution share validation
     if (dividend.distribution) {
         const totalBps = dividend.distribution.recipients.reduce((sum, r) => sum + (r.share_bps ?? 0), 0);
         if (totalBps !== 10000) {
-            warnings.push(`distribution recipients share_bps sum to ${totalBps}, expected 10000`);
+            warn.add('DIVIDEND_SHARE_BPS_SUM_MISMATCH', `distribution recipients share_bps sum to ${totalBps}, expected 10000`);
         }
         // Amount conservation: if all recipients have amount_micro, sum must equal total_micro
         const recipients = dividend.distribution.recipients;
@@ -340,7 +423,9 @@ registerCrossFieldValidator('CommonsDividend', (data) => {
             }
         }
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('DisputeRecord', (data) => {
     const dispute = data;
@@ -361,7 +446,7 @@ import { ESCALATION_RULES } from '../vocabulary/sanctions.js';
 registerCrossFieldValidator('Sanction', (data) => {
     const sanction = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     if (sanction.severity === 'terminated' && sanction.expires_at) {
         errors.push('expires_at must not be present when severity is "terminated" (termination is permanent)');
     }
@@ -372,11 +457,11 @@ registerCrossFieldValidator('Sanction', (data) => {
         }
     }
     if ((sanction.severity === 'warning' || sanction.severity === 'rate_limited') && !sanction.expires_at) {
-        warnings.push(`expires_at recommended for severity "${sanction.severity}"`);
+        warn.add('SANCTION_EXPIRES_AT_RECOMMENDED', `expires_at recommended for severity "${sanction.severity}"`);
     }
     // Escalation linkage (BB-V4-DEEP-004)
     if (sanction.escalation_rule_applied !== undefined && sanction.escalation_rule_applied !== sanction.trigger.violation_type) {
-        warnings.push(`escalation_rule_applied ("${sanction.escalation_rule_applied}") should match trigger.violation_type ("${sanction.trigger.violation_type}")`);
+        warn.add('SANCTION_ESCALATION_RULE_MISMATCH', `escalation_rule_applied ("${sanction.escalation_rule_applied}") should match trigger.violation_type ("${sanction.trigger.violation_type}")`);
     }
     // Escalation rules wiring (BB-V4-DEEP-004)
     const rule = ESCALATION_RULES[sanction.trigger.violation_type];
@@ -390,7 +475,7 @@ registerCrossFieldValidator('Sanction', (data) => {
             }
         }
         if (expectedSeverity && sanction.severity !== expectedSeverity) {
-            warnings.push(`severity "${sanction.severity}" does not match escalation rule for ${sanction.trigger.violation_type} at occurrence ${sanction.trigger.occurrence_count} (expected "${expectedSeverity}")`);
+            warn.add('SANCTION_SEVERITY_ESCALATION_DRIFT', `severity "${sanction.severity}" does not match escalation rule for ${sanction.trigger.violation_type} at occurrence ${sanction.trigger.occurrence_count} (expected "${expectedSeverity}")`);
         }
     }
     // v5.1.0 — Graduated sanction rules
@@ -400,11 +485,11 @@ registerCrossFieldValidator('Sanction', (data) => {
     }
     // timed-sanctions-require-duration: if severity_level is present and not suspended, duration should be set
     if (sanction.severity_level && sanction.severity_level !== 'suspended' && sanction.duration_seconds === undefined) {
-        warnings.push('severity_level present without duration_seconds — timed sanctions should specify duration');
+        warn.add('SANCTION_MISSING_DURATION_SECONDS', 'severity_level present without duration_seconds — timed sanctions should specify duration');
     }
     // severity-field-precedence: if both severity and severity_level present, they should be consistent
     if (sanction.severity_level && sanction.severity !== sanction.severity_level) {
-        warnings.push(`severity ("${sanction.severity}") differs from severity_level ("${sanction.severity_level}") — severity_level takes precedence for enforcement`);
+        warn.add('SANCTION_SEVERITY_FIELD_DIVERGENCE', `severity ("${sanction.severity}") differs from severity_level ("${sanction.severity_level}") — severity_level takes precedence for enforcement`);
     }
     // appeal_dispute_id requires appeal_available to be true
     if (sanction.appeal_dispute_id && !sanction.appeal_available) {
@@ -415,32 +500,36 @@ registerCrossFieldValidator('Sanction', (data) => {
     // reservation floor. Higher severities (pool_restricted, suspended, terminated)
     // CAN breach the floor as they represent serious violations.
     if (sanction.severity === 'warning' || sanction.severity === 'rate_limited') {
-        warnings.push(`severity "${sanction.severity}" should preserve agent reservation floor — enforcement must not reduce capacity below reserved minimum`);
+        warn.add('SANCTION_RESERVATION_FLOOR_PRESERVATION', `severity "${sanction.severity}" should preserve agent reservation floor — enforcement must not reduce capacity below reserved minimum`);
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 import { MIN_REPUTATION_SAMPLE_SIZE } from '../vocabulary/reputation.js';
 registerCrossFieldValidator('ReputationScore', (data) => {
     const score = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     if (score.sample_size < MIN_REPUTATION_SAMPLE_SIZE) {
-        warnings.push(`sample_size (${score.sample_size}) is below minimum threshold (${MIN_REPUTATION_SAMPLE_SIZE})`);
+        warn.add('REPUTATION_SAMPLE_BELOW_MINIMUM', `sample_size (${score.sample_size}) is below minimum threshold (${MIN_REPUTATION_SAMPLE_SIZE})`);
     }
     if (score.score === 1.0 && score.sample_size < 10) {
-        warnings.push('perfect score with low sample is suspicious');
+        warn.add('REPUTATION_PERFECT_SCORE_LOW_SAMPLE', 'perfect score with low sample is suspicious');
     }
     // Sybil resistance (BB-V4-DEEP-001)
     if (score.min_unique_validators !== undefined && score.sample_size < score.min_unique_validators) {
         errors.push(`sample_size (${score.sample_size}) must be >= min_unique_validators (${score.min_unique_validators})`);
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // --- v5.0.0 — ModelPort cross-field validators ---
 registerCrossFieldValidator('CompletionRequest', (data) => {
     const req = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // tools present → tool_choice required
     if (req.tools && req.tools.length > 0 && req.tool_choice === undefined) {
         errors.push('tool_choice is required when tools are provided');
@@ -455,48 +544,54 @@ registerCrossFieldValidator('CompletionRequest', (data) => {
     }
     // budget_limit_micro must be > 0 when present
     if (req.budget_limit_micro !== undefined && req.budget_limit_micro === '0') {
-        warnings.push('budget_limit_micro is zero — request will be rejected by budget enforcement');
+        warn.add('COMPLETION_REQUEST_ZERO_BUDGET', 'budget_limit_micro is zero — request will be rejected by budget enforcement');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('CompletionResult', (data) => {
     const result = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // finish_reason=tool_calls → tool_calls must be non-empty
     if (result.finish_reason === 'tool_calls' && (!result.tool_calls || result.tool_calls.length === 0)) {
         errors.push('tool_calls must be non-empty when finish_reason is "tool_calls"');
     }
     // finish_reason=stop → content should be present
     if (result.finish_reason === 'stop' && !result.content) {
-        warnings.push('content is expected when finish_reason is "stop"');
+        warn.add('COMPLETION_RESULT_STOP_WITHOUT_CONTENT', 'content is expected when finish_reason is "stop"');
     }
     // usage.total_tokens conservation check
     const expected = result.usage.prompt_tokens + result.usage.completion_tokens + (result.usage.reasoning_tokens ?? 0);
     if (result.usage.total_tokens !== expected) {
         errors.push(`usage.total_tokens (${result.usage.total_tokens}) must equal prompt_tokens (${result.usage.prompt_tokens}) + completion_tokens (${result.usage.completion_tokens}) + reasoning_tokens (${result.usage.reasoning_tokens ?? 0}) = ${expected}`);
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('ProviderWireMessage', (data) => {
     const msg = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // role=tool → tool_call_id required
     if (msg.role === 'tool' && !msg.tool_call_id) {
         errors.push('tool_call_id is required when role is "tool"');
     }
     // role=assistant → content or tool_calls must be present
     if (msg.role === 'assistant' && !msg.content && (!msg.tool_calls || msg.tool_calls.length === 0)) {
-        warnings.push('assistant message should have content or tool_calls');
+        warn.add('WIRE_MESSAGE_ASSISTANT_EMPTY', 'assistant message should have content or tool_calls');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // v5.0.0 — Ensemble cross-field validators
 registerCrossFieldValidator('EnsembleRequest', (data) => {
     const req = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     if (req.strategy === 'consensus' && req.consensus_threshold === undefined) {
         errors.push('consensus_threshold is required when strategy is "consensus"');
     }
@@ -505,14 +600,16 @@ registerCrossFieldValidator('EnsembleRequest', (data) => {
     }
     // Dialogue strategy benefits from session_id for round correlation
     if (req.strategy === 'dialogue' && req.request && !req.request.session_id) {
-        warnings.push('session_id is recommended when strategy is "dialogue" for round correlation');
+        warn.add('ENSEMBLE_DIALOGUE_MISSING_SESSION_ID', 'session_id is recommended when strategy is "dialogue" for round correlation');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('EnsembleResult', (data) => {
     const result = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     if (result.strategy === 'consensus' && result.consensus_score === undefined) {
         errors.push('consensus_score is required when strategy is "consensus"');
     }
@@ -551,9 +648,11 @@ registerCrossFieldValidator('EnsembleResult', (data) => {
     }
     // consensus_method recommended when termination_reason is consensus_reached
     if (result.termination_reason === 'consensus_reached' && result.consensus_method == null) {
-        warnings.push('consensus_method is recommended when termination_reason is "consensus_reached" for audit trail');
+        warn.add('ENSEMBLE_CONSENSUS_METHOD_RECOMMENDED', 'consensus_method is recommended when termination_reason is "consensus_reached" for audit trail');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // SagaContext cross-field validator
 registerCrossFieldValidator('SagaContext', (data) => {
@@ -566,16 +665,12 @@ registerCrossFieldValidator('SagaContext', (data) => {
     }
     return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
 });
-// v5.0.0 — BudgetScope cross-field validator
-registerCrossFieldValidator('BudgetScope', (data) => {
-    const scope = data;
-    const errors = [];
-    const warnings = [];
-    if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
-        warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
-    }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
-});
+// v5.0.0 — BudgetScope cross-field validator: registered once, below, in
+// its v5.2.0 reservation-aware form. The historical v5.0.0 registration
+// here was silently overwritten by the v5.2.0 re-registration — exactly
+// the last-import-wins hazard issues #124/#138 flagged — so the two were
+// merged into the single registration further down (the v5.2.0 validator
+// is a strict superset of the v5.0.0 one).
 // v5.0.0 — ConstraintProposal cross-field validator
 registerCrossFieldValidator('ConstraintProposal', (data) => {
     const proposal = data;
@@ -601,7 +696,7 @@ registerCrossFieldValidator('ConstraintProposal', (data) => {
 registerCrossFieldValidator('ModelProviderSpec', (data) => {
     const d = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // certified-requires-vectors: protocol_certified requires all vector results passing
     if (d.conformance_level === 'protocol_certified') {
         if (!d.conformance_vector_results?.length) {
@@ -613,7 +708,7 @@ registerCrossFieldValidator('ModelProviderSpec', (data) => {
     }
     // community_verified should have vector results (warning)
     if (d.conformance_level === 'community_verified' && !d.conformance_vector_results?.length) {
-        warnings.push('community_verified should include conformance_vector_results');
+        warn.add('PROVIDER_COMMUNITY_VERIFIED_WITHOUT_VECTORS', 'community_verified should include conformance_vector_results');
     }
     // active-model-required: at least one active model
     if (!d.models.some((m) => m.status === 'active')) {
@@ -630,7 +725,7 @@ registerCrossFieldValidator('ModelProviderSpec', (data) => {
     if (d.metadata) {
         for (const key of Object.keys(d.metadata)) {
             if (!key.startsWith('x-')) {
-                warnings.push(`metadata key '${key}' should use x-* namespace`);
+                warn.add('PROVIDER_METADATA_NAMESPACE', `metadata key '${key}' should use x-* namespace`);
             }
         }
     }
@@ -648,13 +743,15 @@ registerCrossFieldValidator('ModelProviderSpec', (data) => {
             }
         }
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // --- v5.2.0 — AgentCapacityReservation cross-field validator ---
 registerCrossFieldValidator('AgentCapacityReservation', (data) => {
     const r = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     // Temporal ordering: effective_until must be after effective_from
     if (r.effective_until && r.effective_from) {
         if (new Date(r.effective_until) <= new Date(r.effective_from)) {
@@ -664,33 +761,35 @@ registerCrossFieldValidator('AgentCapacityReservation', (data) => {
     // Tier minimum: reserved_capacity_bps should meet the minimum for the conformance level
     const tierMin = RESERVATION_TIER_MAP[r.conformance_level];
     if (tierMin !== undefined && r.reserved_capacity_bps < tierMin) {
-        warnings.push(`reserved_capacity_bps (${r.reserved_capacity_bps}) is below minimum for ${r.conformance_level} (${tierMin} bps)`);
+        warn.add('RESERVATION_BELOW_TIER_MINIMUM', `reserved_capacity_bps (${r.reserved_capacity_bps}) is below minimum for ${r.conformance_level} (${tierMin} bps)`);
     }
     // Active reservations should have reasonable capacity
     if (r.state === 'active' && r.reserved_capacity_bps === 0) {
-        warnings.push('active reservation with 0 bps provides no capacity guarantee');
+        warn.add('RESERVATION_ACTIVE_ZERO_CAPACITY', 'active reservation with 0 bps provides no capacity guarantee');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
-// --- v5.2.0 — BudgetScope reservation cross-field enhancement ---
-// Enhance the existing BudgetScope validator to check reservation constraints.
-// The validator was already registered above — we augment it by re-registering.
-// The crossFieldRegistry.set() overwrites the old entry.
+// --- v5.0.0 + v5.2.0 — BudgetScope cross-field validator (single merged
+// registration; see the note at the former v5.0.0 site above) ---
 registerCrossFieldValidator('BudgetScope', (data) => {
     const scope = data;
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     if (BigInt(scope.spent_micro) > BigInt(scope.limit_micro)) {
-        warnings.push(`spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
+        warn.add('BUDGET_SPENT_EXCEEDS_LIMIT', `spent_micro (${scope.spent_micro}) exceeds limit_micro (${scope.limit_micro})`);
     }
     // v5.2.0 — Reservation fields cross-check
     if (scope.reserved_capacity_bps !== undefined && scope.reserved_capacity_bps > 0 && !scope.reservation_id) {
-        warnings.push('reserved_capacity_bps is set but reservation_id is absent');
+        warn.add('BUDGET_RESERVATION_ID_ABSENT', 'reserved_capacity_bps is set but reservation_id is absent');
     }
     if (scope.reservation_id && (scope.reserved_capacity_bps === undefined || scope.reserved_capacity_bps === 0)) {
-        warnings.push('reservation_id is present but reserved_capacity_bps is 0 or absent');
+        warn.add('BUDGET_RESERVATION_BPS_ABSENT', 'reservation_id is present but reserved_capacity_bps is 0 or absent');
     }
-    return errors.length > 0 ? { valid: false, errors, warnings } : { valid: true, errors: [], warnings };
+    return errors.length > 0
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 // --- v5.2.0 — AuditTrailEntry cross-field validator ---
 registerCrossFieldValidator('AuditTrailEntry', (data) => {
@@ -840,7 +939,7 @@ registerCrossFieldValidator('TaskTypeCohort', constraintFileOnlyValidator);
 // resolution at consumption time.
 registerCrossFieldValidator('Keyring', (data) => {
     const errors = [];
-    const warnings = [];
+    const warn = warningSink();
     const keyring = data;
     const signers = Array.isArray(keyring.signers) ? keyring.signers : [];
     // KR-1: signer_id MUST be unique within signers[]
@@ -881,11 +980,11 @@ registerCrossFieldValidator('Keyring', (data) => {
     for (const [ref, indices] of refIndices) {
         if (indices.length < 2)
             continue;
-        warnings.push(`KR-2: duplicate key_ref "${ref}" at signers[${indices.join(', ')}]. Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`);
+        warn.add('KEYRING_KR2_DUPLICATE_KEY_REF', `KR-2: duplicate key_ref "${ref}" at signers[${indices.join(', ')}]. Two SignerEntry rows referencing the same key material is typically a misconfiguration; if intentional (rotation overlap), set distinct signer_ids and document the window.`);
     }
     return errors.length > 0
-        ? { valid: false, errors, warnings }
-        : { valid: true, errors: [], warnings };
+        ? { valid: false, errors, warnings: warn.messages, warning_details: warn.details }
+        : { valid: true, errors: [], warnings: warn.messages, warning_details: warn.details };
 });
 registerCrossFieldValidator('SignerEntry', constraintFileOnlyValidator);
 registerCrossFieldValidator('SignerCompetenceRule', constraintFileOnlyValidator);
@@ -1191,7 +1290,14 @@ export function validate(schema, data, options) {
         return { valid: false, errors };
     }
     // Cross-field validation (BB-C4-ADV-003)
+    //
+    // Warnings no longer early-return here: they are carried through so the
+    // crypto-bearing safe-by-default gate and the unverified-obligations
+    // manifest below still apply to warned-but-valid artifacts (previously a
+    // cross-field warning skipped both — a fail-open ordering hazard).
     const runCrossField = options?.crossField !== false;
+    let crossWarnings;
+    let crossWarningDetails;
     if (runCrossField && schema.$id) {
         const crossValidator = crossFieldRegistry.get(schema.$id);
         if (crossValidator) {
@@ -1201,12 +1307,61 @@ export function validate(schema, data, options) {
                     valid: false,
                     errors: crossResult.errors,
                     warnings: crossResult.warnings.length > 0 ? crossResult.warnings : undefined,
+                    warning_details: crossResult.warning_details && crossResult.warning_details.length > 0
+                        ? crossResult.warning_details
+                        : undefined,
                 };
             }
             if (crossResult.warnings.length > 0) {
-                return { valid: true, warnings: crossResult.warnings };
+                crossWarnings = crossResult.warnings;
+                crossWarningDetails =
+                    crossResult.warning_details && crossResult.warning_details.length > 0
+                        ? crossResult.warning_details
+                        : undefined;
             }
         }
+    }
+    // Strict warning promotion (issue #150): opt-in escalation of cross-field
+    // warnings to errors. Error strings are `<CODE>: <message>` when the
+    // validator supplied warning codes, else the raw warning message.
+    if (options?.strictWarnings === true && crossWarnings !== undefined) {
+        // Promote EVERY warning. warning_details is optional and may be partial
+        // (extension validators can supply details for only some warnings), so
+        // the promoted error list is derived from `crossWarnings` — using the
+        // matching detail's `<CODE>: <message>` form when one exists and the
+        // raw warning text otherwise. Deriving it from warning_details alone
+        // would silently drop undetailed warnings from strict escalation.
+        //
+        // Detail matching is INDEX-ALIGNED when the arrays are in lockstep
+        // (same length): two warnings may share a display message but carry
+        // different codes, and a message-keyed lookup would promote both under
+        // the first code. Only a partial details array falls back to
+        // message-keyed matching (index alignment is meaningless there).
+        const details = crossWarningDetails ?? [];
+        let errors;
+        if (details.length === crossWarnings.length) {
+            errors = crossWarnings.map((w, i) => {
+                const d = details[i];
+                return d ? `${d.code}: ${d.message}` : w;
+            });
+        }
+        else {
+            const detailByMessage = new Map();
+            for (const d of details) {
+                if (!detailByMessage.has(d.message))
+                    detailByMessage.set(d.message, d);
+            }
+            errors = crossWarnings.map((w) => {
+                const d = detailByMessage.get(w);
+                return d ? `${d.code}: ${d.message}` : w;
+            });
+        }
+        return {
+            valid: false,
+            errors,
+            warnings: crossWarnings,
+            ...(crossWarningDetails !== undefined ? { warning_details: crossWarningDetails } : {}),
+        };
     }
     // Safe-by-default crypto-bearing API (G1, per ADR-010).
     // When the schema is flagged x-crypto-bearing, the consumer MUST
@@ -1273,6 +1428,8 @@ export function validate(schema, data, options) {
                     'signature; downstream verification is the consumer\'s responsibility. ' +
                     'See ADR-010 (Class-vs-Policy Boundary).',
             ],
+            ...(crossWarnings !== undefined ? { warnings: crossWarnings } : {}),
+            ...(crossWarningDetails !== undefined ? { warning_details: crossWarningDetails } : {}),
         };
     }
     // PR-A2.3 iter-3 refactor (F1 + F-002 mitigation): manifest entries now
@@ -1461,6 +1618,8 @@ export function validate(schema, data, options) {
     if (obligations.length > 0) {
         return {
             valid: true,
+            ...(crossWarnings !== undefined ? { warnings: crossWarnings } : {}),
+            ...(crossWarningDetails !== undefined ? { warning_details: crossWarningDetails } : {}),
             unverified_obligations: {
                 schema_id: manifestSchemaId,
                 contract_version: CONTRACT_VERSION,
@@ -1470,6 +1629,13 @@ export function validate(schema, data, options) {
                 manifest_emitted_at: options?.now ?? new Date().toISOString(),
                 unverified_rules: obligations,
             },
+        };
+    }
+    if (crossWarnings !== undefined) {
+        return {
+            valid: true,
+            warnings: crossWarnings,
+            ...(crossWarningDetails !== undefined ? { warning_details: crossWarningDetails } : {}),
         };
     }
     return { valid: true };

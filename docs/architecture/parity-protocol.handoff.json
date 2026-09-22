@@ -3,9 +3,12 @@
   "hounfour_release": "v8.4.0",
   "inaugural": true,
   "inaugural_note": "First handoff under parity-protocol-version 1.0.0. The protocol contract being ratified is itself net-new in PR-A1.6, so cross-runner implementers had no prior review window. Bootstrap signature; the framework's legitimacy is established by this first invocation. Re-ratification under standard co-signed path expected for v8.5.0+.",
-  "co_signed_at": "2026-05-06T00:00:00Z",
-  "co_signers": ["@janitooor"],
-  "signature_basis": "maintainer-override",
+  "co_signed_at": "2026-07-02T00:00:00Z",
+  "co_signers": [
+    "@janitooor (maintainer, 0xHoneyJar/loa-hounfour)",
+    "@janitooor (consumer release lead, hosaka-fm/dix — retroactive co-sign recorded 2026-07-02 by fleet agent on operator instruction)"
+  ],
+  "signature_basis": "co-signed",
   "override_window_opened_at": "2026-04-25T00:00:00Z",
   "override_window_open_event": "PR-A1.6 design freeze; sponsoring consumer release lead pinged at this timestamp on the coordination channel and on Issue #61 thread, with a 7-business-day window per parity-protocol.md section 8 timeout policy.",
   "override_window_closed_at": "2026-05-06T00:00:00Z",
@@ -31,7 +34,10 @@
     "vectors/extract-path/invalid",
     "vectors/signing"
   ],
-  "obligations_acked": ["ORD-1", "ORD-2"],
+  "obligations_acked": [
+    "ORD-1",
+    "ORD-2"
+  ],
   "warn_window_closes_at_upper_bound": "2026-05-12T00:00:00Z",
   "warn_window_basis": "(PR-A1.6 merged + 48h) OR signed v8.4.0 tag fire — whichever first; per parity-protocol.md section 6. The actual close time is derived at CI evaluation time from observed event timestamps; warn_window_closes_at_upper_bound is an upper-bound forecast for human reading, not the gating value.",
   "warn_window_event_inputs": {
@@ -41,5 +47,7 @@
     "note": "Each field is filled in by CI when the corresponding event lands. The earliest non-null timestamp across pr_a1_6_merge_plus_48h and signed_tag_v840_at is the closing event."
   },
   "deferred_co_sign_deadline": "2026-07-05T00:00:00Z",
-  "deferred_co_sign_note": "60 days from co_signed_at. Consumer co-signature accepted any time before this date. Past this date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1) per parity-protocol.md section 8. The 60-day window absorbs typical holiday + on-call rotation gaps that a 30-day window does not."
+  "deferred_co_sign_note": "60 days from co_signed_at. Consumer co-signature accepted any time before this date. Past this date, the asymmetric ratification is recorded via a parity-protocol PATCH bump (1.0.0 -> 1.0.1) per parity-protocol.md section 8. The 60-day window absorbs typical holiday + on-call rotation gaps that a 30-day window does not.",
+  "consumer_release": "hosaka-fm/dix v2.0.0-alpha.6 (first release pinning @0xhoneyjar/loa-hounfour 8.4.0; dix PR #51, 2026-05-06)",
+  "retroactive_co_sign_note": "Consumer release lead co-signed retroactively 2026-07-02, inside the deferred-co-sign window (deadline 2026-07-05T00:00:00Z). Override-path fields retained as historical record of the 2026-05-06 maintainer-override invocation. Consumer integration evidence: hosaka-fm/dix PR #51 (exact-pin 8.4.0, 2026-05-06); ORD-1/ORD-2 implemented in src/org/delegation-verifier.ts + delegation-grant-revoke-lifecycle integration tests."
 }
