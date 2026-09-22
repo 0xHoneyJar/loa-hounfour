@@ -587,7 +587,13 @@ const args = process.argv.slice(2);
 const emitManifest = args.includes('--emit-manifest');
 
 if (emitManifest) {
-  console.log(JSON.stringify(manifest, null, 2));
+  // Flush the complete JSON before exiting, including when stdout is a pipe.
+  await new Promise<void>((resolve, reject) => {
+    process.stdout.write(JSON.stringify(manifest, null, 2) + '\n', (error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
   process.exit(0);
 }
 
