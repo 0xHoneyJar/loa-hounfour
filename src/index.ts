@@ -152,7 +152,20 @@ export * from './commons/index.js';
 
 // Cross-cutting concerns (stay in root)
 export { CONTRACT_VERSION, MIN_SUPPORTED_VERSION, SCHEMA_BASE_URL, parseSemver } from './version.js';
-export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator, type ValidationResult } from './validators/index.js';
+export { validate, validators, registerCrossFieldValidator, getCrossFieldValidatorSchemas, type CrossFieldValidator, type ValidationResult, type ValidationWarning } from './validators/index.js';
+// v8.7.x — runtime-validation contract surface (issues #120–#160):
+// strict format semantics + registry determinism + cache observability.
+export {
+  registerHounfourFormats,
+  assertHounfourFormats,
+  isStrictIsoDateTime,
+  isStrictHttpUri,
+  isStrictUuid,
+  parseIsoDateTimeStrict,
+  HOUNFOUR_FORMATS,
+  getValidatorCacheStats,
+  clearValidatorCache,
+} from './validators/index.js';
 export { validateCompatibility, type CompatibilityResult } from './validators/compatibility.js';
 export { validateBillingEntryFull } from './validators/billing.js';
 // Note: computeReqHash, verifyReqHash, decompressBody, deriveIdempotencyKey now

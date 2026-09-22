@@ -2,7 +2,7 @@
   "name": "@0xhoneyjar/loa-hounfour",
   "version": "8.7.0",
   "type": "module",
-  "description": "Constitutional protocol contracts for an AI agent economy — loa-finn ↔ arrakis integration layer",
+  "description": "Constitutional protocol contracts for an AI agent economy \u2014 loa-finn \u2194 arrakis integration layer",
   "license": "AGPL-3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -89,24 +89,27 @@
     "check:class-policy-boundary": "tsx scripts/check-class-policy-boundary.ts",
     "check:dist-parity": "tsx scripts/check-dist-parity.ts",
     "check:release-integrity-parity": "tsx scripts/check-release-integrity-parity.ts",
+    "check:public-exports": "node scripts/check-public-exports.mjs",
+    "check:packed-imports": "node scripts/check-packed-package-imports.mjs",
     "check:tarball-budget": "tsx scripts/check-tarball-budget.ts",
-    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity && npm run check:release-integrity-parity && npm run check:tarball-budget",
+    "check:all": "npm run schema:check && npm run vectors:check && npm run check:migration && npm run schemas:validate && npm run check:constraints && npm run check:class-policy-boundary && npm run check:dist-parity && npm run check:release-integrity-parity && npm run check:public-exports && npm run check:packed-imports && npm run check:tarball-budget && npm run check:crossfield-coverage",
     "test": "vitest run",
     "test:vectors": "vitest run --reporter=verbose tests/vectors/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:crossfield-coverage": "tsx scripts/check-crossfield-coverage.ts"
   },
   "dependencies": {
     "@noble/hashes": "^2.2.0",
-    "@sinclair/typebox": "^0.34.48",
+    "@sinclair/typebox": "^0.34.49",
     "canonicalize": "^2.1.0",
-    "jose": "^6.2.2"
+    "jose": "^6.2.3"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
-    "fast-check": "^4.6.0",
-    "tsx": "^4.0.0",
+    "@types/node": "^26.0.1",
+    "fast-check": "^4.8.0",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.9"
   },
   "overrides": {
     "rollup": "^4.59.0"

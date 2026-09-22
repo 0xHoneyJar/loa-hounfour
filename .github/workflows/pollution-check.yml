@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (with full history for diff base)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Need at least 2 commits so we can diff against the merge base on
           # pull_request, OR the previous commit on push-to-main.

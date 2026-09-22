@@ -21,8 +21,11 @@ describe('AUDIT_EVENT_TYPES_KNOWN_PREFIXES', () => {
       const segments = entry.slice(0, -1).split(':');
       expect(segments).toHaveLength(2);
       const [org, consumer] = segments;
-      expect(org).toMatch(/^[a-z][a-z0-9]+$/);
-      expect(consumer).toMatch(/^[a-z][a-z0-9_-]+$/);
+      // Org regex matches the runtime `isThreeSegmentEventType` helper
+      // in src/vocabulary/audit-event-types.ts — GitHub-style slugs
+      // permit a leading digit (e.g. `0xhoneyjar`) and internal hyphens.
+      expect(org).toMatch(/^[a-z0-9][a-z0-9-]*$/);
+      expect(consumer).toMatch(/^[a-z][a-z0-9_-]*$/);
     }
   });
 });
@@ -77,4 +80,45 @@ describe('extractEventTypePrefix', () => {
     expect(extractEventTypePrefix('foo:bar')).toBeNull();
     expect(extractEventTypePrefix('foo:bar:baz:quux')).toBeNull();
   });
+});
+
+describe('Recall Wedge prefix registration (0xhoneyjar:straylight:)', () => {
+  // The Straylight Recall Wedge composes the v8.5.0 PR-A2.3 surface
+  // (Assertion / Recall* / Forget / CommitmentRoot / AgentEstate*) with
+  // the v8.6.0 PR-A3.7 Challenge layer. The conventional event-type
+  // vocabulary documented on AUDIT_EVENT_TYPES_KNOWN_PREFIXES is what
+  // straylight-side consumers SHOULD emit; this test asserts each
+  // conventional type is structurally well-formed under the registered
+  // prefix without claiming the prefix-list itself enumerates them
+  // (the registry is keyed by prefix, not by event type).
+  const STRAYLIGHT_PREFIX = '0xhoneyjar:straylight:';
+  const STRAYLIGHT_CONVENTIONAL_TYPES = [
+    '0xhoneyjar:straylight:assertion.admitted',
+    '0xhoneyjar:straylight:assertion.challenged',
+    '0xhoneyjar:straylight:assertion.revoked',
+    '0xhoneyjar:straylight:assertion.forgotten',
+    '0xhoneyjar:straylight:estate.transition.applied',
+    '0xhoneyjar:straylight:recall.request.received',
+    '0xhoneyjar:straylight:recall.pack.assembled',
+    '0xhoneyjar:straylight:recall.receipt.signed',
+    '0xhoneyjar:straylight:commitment.anchored',
+  ] as const;
+
+  it('registers the 0xhoneyjar:straylight: prefix in AUDIT_EVENT_TYPES_KNOWN_PREFIXES', () => {
+    expect(AUDIT_EVENT_TYPES_KNOWN_PREFIXES).toContain(STRAYLIGHT_PREFIX);
+  });
+
+  it.each(STRAYLIGHT_CONVENTIONAL_TYPES)(
+    '%s is a structurally well-formed 3-segment event type',
+    (eventType) => {
+      expect(isThreeSegmentEventType(eventType)).toBe(true);
+    },
+  );
+
+  it.each(STRAYLIGHT_CONVENTIONAL_TYPES)(
+    '%s round-trips to the registered straylight prefix',
+    (eventType) => {
+      expect(extractEventTypePrefix(eventType)).toBe(STRAYLIGHT_PREFIX);
+    },
+  );
 });
