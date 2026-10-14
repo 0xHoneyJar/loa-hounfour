@@ -45,8 +45,8 @@ describe('ConformanceCategorySchema', () => {
 });
 
 describe('CONFORMANCE_CATEGORIES', () => {
-  it('contains exactly 47 categories', () => {
-    expect(CONFORMANCE_CATEGORIES).toHaveLength(47);
+  it('contains exactly 48 categories', () => {
+    expect(CONFORMANCE_CATEGORIES).toHaveLength(48);
   });
 
   it('includes all valid categories', () => {
@@ -116,6 +116,8 @@ describe('CONFORMANCE_CATEGORIES', () => {
       'governed-resource-runtime',
       // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
       'recall-wedge',
+      // v8.8.0 — ScopeOfAutonomy inheritance evaluator (FR-C1)
+      'scope-inheritance',
     ]);
   });
 });

@@ -143,6 +143,21 @@ export {
   SharedSurfaceDeclarationSchema, type SharedSurfaceDeclaration,
   SharedSurfaceKindSchema, type SharedSurfaceKind,
   validateSharedSurfaceDeclaration,
+  // v8.8.0 PR-C1 Scope of autonomy (FR-C1)
+  ScopeOfAutonomySchema, type ScopeOfAutonomy,
+  DataAccessModeSchema, type DataAccessMode,
+  DataAccessGrantSchema, type DataAccessGrant,
+  SideEffectBudgetSchema, type SideEffectBudget,
+  EndingConditionKindSchema, type EndingConditionKind,
+  EndingConditionSchema, type EndingCondition,
+  StopWorkSchema, type StopWork,
+  validateScopeOfAutonomy,
+  evaluateScopeInheritance,
+  evaluateScopeActivity,
+  type ScopeInheritanceViolationCode,
+  type ScopeInheritanceViolation,
+  type ScopeInheritanceResult,
+  type ScopeActivityResult,
 } from './governance/index.js';
 
 export * from './constraints/index.js';

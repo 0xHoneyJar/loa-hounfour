@@ -58,6 +58,8 @@ export const ConformanceCategorySchema = Type.Union(
     Type.Literal('governed-resource-runtime'),
     // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
     Type.Literal('recall-wedge'),
+    // v8.8.0 — ScopeOfAutonomy inheritance evaluator (FR-C1)
+    Type.Literal('scope-inheritance'),
   ],
   {
     $id: 'ConformanceCategory',
@@ -119,4 +121,5 @@ export const CONFORMANCE_CATEGORIES: readonly ConformanceCategory[] = [
   'governed-resource-runtime',
   // v8.7.0 — Straylight Recall Wedge composition (per ADR-010)
   'recall-wedge',
+  'scope-inheritance',
 ] as const;

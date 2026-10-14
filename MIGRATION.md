@@ -110,6 +110,7 @@ against a closed schema must allow the two keys. No toggle is provided,
 because the shape is additive. Standalone builtin evaluators (for example
 `evaluatePlanContentHashUnchangedSinceSignoff`) return unannotated entries;
 pass them through `withConsumerObligation` to attach the fields.
+| `ScopeOfAutonomy` | strict (`additionalProperties: false` at every object level). New governance record of the autonomy a principal grants an agent: sub-goals, side-effect budget, tools, clarification triggers, ending condition, stop-work. SOA-1..5 enforced by `validate()`; SOA-6 inheritance via `evaluateScopeInheritance` or `validate(..., { scopeContext: { parent_scope } })`. Adds manifest reasons `scope_parent_context_deferred` and `scope_inheritance_violation`, and conformance category `scope-inheritance` (FR-C1). |
 
 ### Planned v9.0.0 fail-closed default flip
 

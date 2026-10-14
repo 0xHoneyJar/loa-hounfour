@@ -45,7 +45,7 @@ function isValidType(t: string): boolean {
 
 describe('type_signature migration (S2-T5)', () => {
   it('found constraint files', () => {
-    expect(allFiles.length).toBe(143); // +1 v8.8.0 PR-C4 ManifestConsumptionReceipt, +2 PR-C3 IrreversibleActionAttestation + SharedSurfaceDeclaration
+    expect(allFiles.length).toBe(144); // +1 v8.8.0 PR-C4 ManifestConsumptionReceipt, +2 PR-C3 IrreversibleActionAttestation + SharedSurfaceDeclaration, +1 PR-C1 ScopeOfAutonomy
   });
 
   for (const { filename, data } of allFiles) {

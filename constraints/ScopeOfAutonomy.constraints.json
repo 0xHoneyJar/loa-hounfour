@@ -1,0 +1,104 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ScopeOfAutonomy",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SOA-1",
+      "expression": "permitted_sub_goals values MUST be distinct — no two entries in the permitted_sub_goals array may be the same string.",
+      "severity": "error",
+      "message": "permitted_sub_goals MUST NOT contain duplicate sub-goals.",
+      "fields": ["permitted_sub_goals"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator validateScopeOfAutonomy (src/governance/scope-of-autonomy.ts), so validate() rejects duplicates. Stated in narrative form because the DSL builtin unique_values(array, field) compares a named field of object elements and permitted_sub_goals is an array of strings. Cross-language runners that implement only the structural tier treat the invalid-cross-field fixture as pass-cross-field-deferred.",
+      "type_signature": {
+        "permitted_sub_goals": "string[]"
+      }
+    },
+    {
+      "id": "SOA-2",
+      "expression": "ending_condition.kind != 'time_limit' || ending_condition.latest_time != null",
+      "severity": "error",
+      "message": "An ending condition of kind 'time_limit' MUST carry ending_condition.latest_time.",
+      "fields": ["ending_condition.kind", "ending_condition.latest_time"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time.",
+      "type_signature": {
+        "ending_condition.kind": "string",
+        "ending_condition.latest_time": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-3",
+      "expression": "expires_at == null || is_after(expires_at, issued_at)",
+      "severity": "error",
+      "message": "expires_at, when present, MUST be strictly after issued_at.",
+      "fields": ["expires_at", "issued_at"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time. Compares instants (offset-aware), not strings. Whether the scope has expired relative to a clock is NOT checked here (SOA-N2); use evaluateScopeActivity(scope, now).",
+      "type_signature": {
+        "expires_at": "string | undefined",
+        "issued_at": "string"
+      }
+    },
+    {
+      "id": "SOA-4",
+      "expression": "stop_work.requested != true || stop_work.requested_at != null",
+      "severity": "error",
+      "message": "A requested stop MUST record stop_work.requested_at.",
+      "fields": ["stop_work.requested", "stop_work.requested_at"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time.",
+      "type_signature": {
+        "stop_work.requested": "boolean",
+        "stop_work.requested_at": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-5",
+      "expression": "ending_condition.latest_time == null || expires_at == null || !is_after(ending_condition.latest_time, expires_at)",
+      "severity": "error",
+      "message": "ending_condition.latest_time MUST NOT be after expires_at.",
+      "fields": ["ending_condition.latest_time", "expires_at"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time. Equal instants are allowed.",
+      "type_signature": {
+        "ending_condition.latest_time": "string | undefined",
+        "expires_at": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-6",
+      "expression": "consumer resolves the parent scope named by parent_scope_id and evaluates that the child scope is within it: evaluateScopeInheritance(child, parent).within_parent",
+      "severity": "error",
+      "message": "A child scope MUST be within its parent scope: sub-goals, cost, wall clock, data access, tools, latest_time and expires_at no wider than the parent's, and a parent stop-work request carried through.",
+      "fields": ["parent_scope_id", "permitted_sub_goals", "side_effect_budget", "allowed_tools", "ending_condition.latest_time", "expires_at", "stop_work.requested"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record: the parent scope is consumer state. The consumer MUST run evaluateScopeInheritance(child, parent) with the resolved parent (src/governance/scope-of-autonomy-eval.ts), or pass it as validate(ScopeOfAutonomySchema, child, { scopeContext: { parent_scope } }). Without the parent, validate() emits a manifest entry with evaluator 'consumer' and reason 'scope_parent_context_deferred'; with the parent, violations return valid: false plus entries with reason 'scope_inheritance_violation'. Root scopes (no parent_scope_id) carry no SOA-6 obligation.",
+      "type_signature": {
+        "parent_scope_id": "string | undefined",
+        "permitted_sub_goals": "string[]",
+        "side_effect_budget": "SideEffectBudget",
+        "allowed_tools": "string[]",
+        "ending_condition.latest_time": "string | undefined",
+        "expires_at": "string | undefined",
+        "stop_work.requested": "boolean"
+      }
+    },
+    {
+      "id": "SOA-7",
+      "expression": "consumer evaluates that principal_id holds the authority to grant this scope to agent_id",
+      "severity": "error",
+      "message": "The principal MUST be authorized to grant the scope to the agent. The library does NOT adjudicate grant authority.",
+      "fields": ["principal_id", "agent_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer authority per ADR-010. principal_id and agent_id are opaque to the library; resolving them to identities and deciding whether the grant is permitted is the consumer's policy decision. validate() never evaluates this rule.",
+      "type_signature": {
+        "principal_id": "string",
+        "agent_id": "string"
+      }
+    }
+  ]
+}

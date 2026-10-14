@@ -1,0 +1,114 @@
+{
+  "vector_id": "conformance-scope-inheritance-001",
+  "category": "scope-inheritance",
+  "description": "Child narrower than its parent on every axis.",
+  "contract_version": "8.8.0",
+  "input": {
+    "child": {
+      "scope_id": "7a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c02",
+      "principal_id": "agent-builder-01",
+      "agent_id": "agent-tester-02",
+      "parent_scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+      "permitted_sub_goals": [
+        "write tests for the parser change"
+      ],
+      "side_effect_budget": {
+        "max_cost_micro": "5000000",
+        "max_wall_clock_ms": 3600000,
+        "data_access": [
+          {
+            "resource": "repo:tests",
+            "mode": "write"
+          },
+          {
+            "resource": "repo:src/constraints",
+            "mode": "read"
+          }
+        ]
+      },
+      "allowed_tools": [
+        "shell",
+        "test-runner"
+      ],
+      "clarification_triggers": [
+        "a test needs a change outside tests/"
+      ],
+      "ending_condition": {
+        "kind": "time_limit",
+        "latest_time": "2026-10-14T12:00:00Z"
+      },
+      "stop_work": {
+        "requested": false,
+        "propagates_to_children": true
+      },
+      "issued_at": "2026-10-14T09:30:00Z",
+      "expires_at": "2026-10-14T13:00:00Z",
+      "contract_version": "8.8.0"
+    },
+    "parent": {
+      "scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+      "principal_id": "org-honeyjar",
+      "agent_id": "agent-builder-01",
+      "permitted_sub_goals": [
+        "implement the parser change",
+        "write tests for the parser change",
+        "update the parser documentation"
+      ],
+      "side_effect_budget": {
+        "max_cost_micro": "25000000",
+        "max_wall_clock_ms": 14400000,
+        "data_access": [
+          {
+            "resource": "repo:src/constraints",
+            "mode": "read_write"
+          },
+          {
+            "resource": "repo:docs",
+            "mode": "write"
+          },
+          {
+            "resource": "repo:tests",
+            "mode": "read_write"
+          },
+          {
+            "resource": "ci:logs",
+            "mode": "read"
+          }
+        ]
+      },
+      "allowed_tools": [
+        "shell",
+        "editor",
+        "test-runner",
+        "git"
+      ],
+      "clarification_triggers": [
+        "a change would alter a published schema",
+        "estimated cost exceeds half the budget"
+      ],
+      "ending_condition": {
+        "kind": "composite",
+        "latest_time": "2026-10-14T17:00:00Z",
+        "description": "Ends when the parser change is merged or at 17:00 UTC, whichever is first."
+      },
+      "stop_work": {
+        "requested": false,
+        "propagates_to_children": true
+      },
+      "issued_at": "2026-10-14T09:00:00Z",
+      "expires_at": "2026-10-15T09:00:00Z",
+      "additional_details": "Granted for the tokenizer performance work; do not touch release tooling.",
+      "contract_version": "8.8.0"
+    }
+  },
+  "expected_output": {
+    "within_parent": true,
+    "violation_codes": []
+  },
+  "expected_valid": true,
+  "metadata": {
+    "sdd_section": "§1",
+    "fr": "FR-C1",
+    "evaluator": "evaluateScopeInheritance"
+  }
+}

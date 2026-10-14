@@ -66,6 +66,15 @@ import { validateMergeArtifact } from '../canonical/merge-artifact.js';
 // SSD-6 need consumer registry / runtime observation.
 import { validateIrreversibleActionAttestation } from '../governance/irreversible-action-attestation.js';
 import { validateSharedSurfaceDeclaration } from '../governance/shared-surface-declaration.js';
+// v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy cross-field validator (SOA-1..5)
+// plus the SOA-6 inheritance evaluator used by validate() when the
+// consumer supplies `scopeContext.parent_scope`.
+import {
+  ScopeOfAutonomySchema,
+  validateScopeOfAutonomy,
+  type ScopeOfAutonomy,
+} from '../governance/scope-of-autonomy.js';
+import { evaluateScopeInheritance } from '../governance/scope-of-autonomy-eval.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // Strict semantics live in ./formats.js (single source of truth) and are
@@ -1495,6 +1504,11 @@ registerCrossFieldValidator(
   'SharedSurfaceDeclaration',
   validateSharedSurfaceDeclaration,
 );
+// v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy. SOA-1..5 are library-evaluated
+// here; SOA-6 (child within parent) runs inside validate() when the
+// parent is supplied, else surfaces as a manifest entry; SOA-7 is
+// consumer authority (ADR-010).
+registerCrossFieldValidator('ScopeOfAutonomy', validateScopeOfAutonomy);
 
 /**
  * Returns schema $ids that have registered cross-field validators.
@@ -1620,6 +1634,23 @@ export function validate<T extends TSchema>(
      * @since v8.7.x — issues #125, #150, #153
      */
     strictWarnings?: boolean;
+    /**
+     * Auxiliary context for `ScopeOfAutonomy` rule SOA-6 (child scope
+     * within parent scope). Read only when validating a ScopeOfAutonomy
+     * record that carries `parent_scope_id`:
+     *
+     * - `parent_scope` absent: validate() stays `valid: true` and emits a
+     *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
+     * - `parent_scope` supplied: it is validated as a ScopeOfAutonomy
+     *   (invalid → `SCOPE_PARENT_CONTEXT_INVALID:` error), then
+     *   `evaluateScopeInheritance(record, parent_scope)` runs. Violations
+     *   return `valid: false` with one `SCOPE_INHERITANCE_VIOLATION:` error
+     *   and one `reason: 'scope_inheritance_violation'` manifest entry per
+     *   violation. A passing check emits no SOA-6 entry.
+     *
+     * @since v8.8.0 — FR-C1 (PR-C1)
+     */
+    scopeContext?: { parent_scope?: unknown };
   },
 ): ValidationResult {
   const compiled = getOrCompile(schema);
@@ -1968,6 +1999,71 @@ export function validate<T extends TSchema>(
             'NOTES.md ORD-5 fire-rate tracking template.',
           consumer_acknowledgment_required: true,
         });
+      }
+    }
+  }
+
+  // SOA-6 scope inheritance (PR-C1, v8.8.0 — FR-C1). $id-keyed like the
+  // ORD-5 block above: ScopeOfAutonomy is the only inheritance-bearing
+  // schema. Root scopes (no parent_scope_id) carry no SOA-6 obligation.
+  if (
+    schema.$id === 'ScopeOfAutonomy' &&
+    typeof data === 'object' &&
+    data !== null &&
+    (data as Record<string, unknown>).parent_scope_id !== undefined
+  ) {
+    const parentScope = options?.scopeContext?.parent_scope;
+    if (parentScope === undefined) {
+      obligations.push({
+        rule_id: 'SOA-6',
+        rule: 'The child scope is within its parent scope (evaluateScopeInheritance(child, parent).within_parent).',
+        evaluator: 'consumer',
+        reason: 'scope_parent_context_deferred',
+        evaluation_note:
+          'parent_scope_id is set but the parent scope was not supplied via ' +
+          '`{ scopeContext: { parent_scope } }`. SOA-6 cannot be evaluated from a ' +
+          'single record. The consumer MUST resolve the parent scope and run ' +
+          'evaluateScopeInheritance(child, parent), or re-validate with the parent ' +
+          'supplied, before treating the child scope as granted.',
+        consumer_acknowledgment_required: true,
+      });
+    } else {
+      const parentResult = validate(ScopeOfAutonomySchema, parentScope, { crossField: true });
+      if (!parentResult.valid) {
+        return {
+          valid: false,
+          errors: parentResult.errors.map(
+            (e) => `SCOPE_PARENT_CONTEXT_INVALID: scopeContext.parent_scope is not a valid ScopeOfAutonomy: ${e}`,
+          ),
+        };
+      }
+      const inheritance = evaluateScopeInheritance(
+        data as ScopeOfAutonomy,
+        parentScope as ScopeOfAutonomy,
+      );
+      if (!inheritance.within_parent) {
+        return {
+          valid: false,
+          errors: inheritance.violations.map(
+            (v) => `SCOPE_INHERITANCE_VIOLATION: ${v.code} at ${v.field}: ${v.message}`,
+          ),
+          unverified_obligations: {
+            schema_id: manifestSchemaId,
+            contract_version: CONTRACT_VERSION,
+            manifest_emitted_at: options?.now ?? new Date().toISOString(),
+            unverified_rules: [
+              ...obligations,
+              ...inheritance.violations.map((v): UnverifiedObligationEntry => ({
+                rule_id: 'SOA-6',
+                rule: 'The child scope is within its parent scope (evaluateScopeInheritance(child, parent).within_parent).',
+                evaluator: 'library',
+                reason: 'scope_inheritance_violation',
+                evaluation_note: `${v.code} at ${v.field}: ${v.message}`,
+                consumer_acknowledgment_required: true,
+              })),
+            ],
+          },
+        };
       }
     }
   }

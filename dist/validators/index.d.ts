@@ -212,6 +212,25 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      * @since v8.7.x — issues #125, #150, #153
      */
     strictWarnings?: boolean;
+    /**
+     * Auxiliary context for `ScopeOfAutonomy` rule SOA-6 (child scope
+     * within parent scope). Read only when validating a ScopeOfAutonomy
+     * record that carries `parent_scope_id`:
+     *
+     * - `parent_scope` absent: validate() stays `valid: true` and emits a
+     *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
+     * - `parent_scope` supplied: it is validated as a ScopeOfAutonomy
+     *   (invalid → `SCOPE_PARENT_CONTEXT_INVALID:` error), then
+     *   `evaluateScopeInheritance(record, parent_scope)` runs. Violations
+     *   return `valid: false` with one `SCOPE_INHERITANCE_VIOLATION:` error
+     *   and one `reason: 'scope_inheritance_violation'` manifest entry per
+     *   violation. A passing check emits no SOA-6 entry.
+     *
+     * @since v8.8.0 — FR-C1 (PR-C1)
+     */
+    scopeContext?: {
+        parent_scope?: unknown;
+    };
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{

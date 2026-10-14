@@ -629,3 +629,30 @@ export {
   type SharedSurfaceDeclaration,
   type SharedSurfaceKind,
 } from './shared-surface-declaration.js';
+// Schemas — Scope of autonomy (v8.8.0, FR-C1, PR-C1)
+export {
+  ScopeOfAutonomySchema,
+  DataAccessModeSchema,
+  DataAccessGrantSchema,
+  SideEffectBudgetSchema,
+  EndingConditionKindSchema,
+  EndingConditionSchema,
+  StopWorkSchema,
+  validateScopeOfAutonomy,
+  type ScopeOfAutonomy,
+  type DataAccessMode,
+  type DataAccessGrant,
+  type SideEffectBudget,
+  type EndingConditionKind,
+  type EndingCondition,
+  type StopWork,
+} from './scope-of-autonomy.js';
+
+export {
+  evaluateScopeInheritance,
+  evaluateScopeActivity,
+  type ScopeInheritanceViolationCode,
+  type ScopeInheritanceViolation,
+  type ScopeInheritanceResult,
+  type ScopeActivityResult,
+} from './scope-of-autonomy-eval.js';
