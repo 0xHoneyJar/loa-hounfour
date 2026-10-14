@@ -127,6 +127,10 @@ no earlier than 2027-01-15; the date is a planning target set 2026-10-14,
 not a commitment). Consumers can adopt the v9.0.0 behaviour today with
 `validate(schema, payload, { failClosed: true })`.
 
+### Reference verifier functions (FR-C2)
+
+No new schemas. Additive exports from `@0xhoneyjar/loa-hounfour/integrity` (and the root barrel): `verifyEnvelopeSignatureEd25519`, `isEd25519VerifyAvailable`, `lookupRevocation`, and the types `Ed25519VerifyResult`, `Ed25519VerifyOptions`, `RevocationLookupResult`. Consumers that hand-rolled signature checks can switch to the reference function; the signing input (`safeCanonicalize` of the envelope minus `signature` and `quorum_signatures`) is unchanged from the v8.7.0 RevocationList contract. The function needs WebCrypto Ed25519 (Node 22+, current browsers) and returns `verified: 'unverifiable'` where it is absent. See `docs/architecture/reference-verifier.md`.
+
 ---
 
 ## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 + FR-A4 + FR-A3)

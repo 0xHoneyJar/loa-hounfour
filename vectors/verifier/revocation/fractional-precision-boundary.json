@@ -1,0 +1,42 @@
+{
+  "case": "fractional-precision-boundary",
+  "kind": "revocation",
+  "input": {
+    "lists": [
+      {
+        "envelope_kind": "revocation_list",
+        "contract_version": "8.7.0",
+        "cluster_id": "cluster:verifier-conformance",
+        "list_id": "rl-fraction",
+        "issued_at": "2026-09-01T00:00:00Z",
+        "valid_from": "2026-08-01T00:00:00Z",
+        "valid_until": null,
+        "max_staleness_seconds": 86400,
+        "nonce": 1,
+        "prev_envelope_hash": null,
+        "next_page_hash": null,
+        "revoked_keys": [
+          {
+            "key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
+            "reason": "manual",
+            "revoked_at": "2026-08-15T00:00:00.5Z",
+            "revocation_evidence_hash": null
+          }
+        ],
+        "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
+        "root_of_trust_id": null,
+        "signature": "ed25519:s9xnTdDsJQUvRodiJbbe0M93IX7WbbygSZhjRvOcd6gUqlIe-ULAxu_mSsFZu5CbFMdJ-M2Vz_UBGi5ETsUKAQ",
+        "quorum_signatures": null
+      }
+    ],
+    "signer_key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
+    "at": "2026-08-15T00:00:00.500Z"
+  },
+  "expected": {
+    "revoked": true,
+    "revoked_at": "2026-08-15T00:00:00.5Z",
+    "list_id": "rl-fraction",
+    "reason": "manual",
+    "list_valid": true
+  }
+}

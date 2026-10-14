@@ -1,0 +1,15 @@
+{
+  "case": "empty-trail-valid",
+  "kind": "audit-trail",
+  "input": {
+    "trail": {
+      "entries": [],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    }
+  },
+  "expected": {
+    "valid": true
+  }
+}

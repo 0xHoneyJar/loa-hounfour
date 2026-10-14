@@ -1,0 +1,32 @@
+{
+  "case": "body-tampered",
+  "kind": "signature",
+  "input": {
+    "envelope": {
+      "envelope_kind": "verifier_test_envelope",
+      "contract_version": "8.8.0",
+      "issued_at": "2026-10-14T10:00:00Z",
+      "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
+      "body": {
+        "note": "café 가",
+        "amount_micro_usd": "2500001",
+        "weights": [
+          1,
+          2.5,
+          0.000001,
+          1e+21
+        ],
+        "flags": {
+          "enabled": true,
+          "label": null
+        }
+      },
+      "signature": "ed25519:hQmP21AaRmmD43MR77bEYPg2EDLk-oULHXPmFJdbBRp_d8vJGq7MO7MA7cgF1OZdxByHzjqEcB4rairumYCTCA"
+    },
+    "public_key": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ"
+  },
+  "expected": {
+    "verified": false,
+    "reason": "signature_mismatch"
+  }
+}

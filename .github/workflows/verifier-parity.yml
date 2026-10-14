@@ -1,0 +1,56 @@
+# FR-C2 (v8.8.0) — reference-verifier parity.
+#
+# Runs the verifier conformance suite (vectors/verifier/) through the
+# TS reference and the Go port and diffs the two result manifests
+# (scripts/run-verifier-parity.sh). Also runs `go vet` and the Go
+# verify package tests (shared JCS files + canonicalization edge corpus).
+#
+# Separate workflow because ci.yml does not set up a Go toolchain
+# (SDD §5: keep ci.yml unchanged in that case).
+#
+# @since v8.8.0 (FR-C2)
+name: Verifier Parity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verifier-parity:
+    runs-on: ubuntu-latest
+    # pinned to immutable commit SHAs; version noted per line
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: vectors/runners/go/go.mod
+          cache-dependency-path: vectors/runners/go/go.sum
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verifier vectors are regenerable byte for byte
+        run: pnpm exec tsx scripts/generate-verifier-vectors.ts --check
+
+      - name: Go vet + verify package tests
+        working-directory: vectors/runners/go
+        run: |
+          go vet ./...
+          go test ./verify/...
+
+      - name: TS vs Go parity
+        run: bash scripts/run-verifier-parity.sh

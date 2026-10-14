@@ -1,0 +1,193 @@
+{
+  "suite": "verifier",
+  "description": "Reference-verifier conformance suite (SDD §5). Every runtime port runs each case and must produce exactly `expected`.",
+  "contract_version": "8.8.0",
+  "generated_by": "scripts/generate-verifier-vectors.ts",
+  "generated_at": "2026-10-14",
+  "keys": [
+    {
+      "name": "signer-a",
+      "public_key": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ"
+    },
+    {
+      "name": "signer-b",
+      "public_key": "ed25519-pub:F-O3AHdAZ3I-dmDAcI0ejiwZaFeoyLacdfn5M23aD1o"
+    },
+    {
+      "name": "signer-c",
+      "public_key": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI"
+    }
+  ],
+  "cases": [
+    {
+      "kind": "audit-trail",
+      "case": "valid-3-entries",
+      "description": "Three chained entries; NFD payload string, IEEE-754 edge numbers, optional fields absent."
+    },
+    {
+      "kind": "audit-trail",
+      "case": "content-tampered-index-1",
+      "description": "Entry 1 payload edited after hashing; content phase fails at index 1."
+    },
+    {
+      "kind": "audit-trail",
+      "case": "chain-broken-index-2",
+      "description": "Entry 2 previous_hash does not link to entry 1; chain phase fails at index 2."
+    },
+    {
+      "kind": "audit-trail",
+      "case": "genesis-mismatch",
+      "description": "genesis_hash differs from entry 0 previous_hash; chain phase fails at index 0."
+    },
+    {
+      "kind": "audit-trail",
+      "case": "empty-trail-valid",
+      "description": "No entries; trivially valid."
+    },
+    {
+      "kind": "signature",
+      "case": "valid",
+      "description": "Signature over safeCanonicalize(envelope minus signature); wire strings are NFD, signing input is NFC."
+    },
+    {
+      "kind": "signature",
+      "case": "body-tampered",
+      "description": "One body field changed after signing."
+    },
+    {
+      "kind": "signature",
+      "case": "wrong-key",
+      "description": "Valid envelope checked against a different public key."
+    },
+    {
+      "kind": "signature",
+      "case": "malformed-signature",
+      "description": "Signature value is not ed25519: plus 86 base64url chars."
+    },
+    {
+      "kind": "signature",
+      "case": "malformed-signature-noncanonical-encoding",
+      "description": "Final base64url char sets a trailing pad bit; strict decoders reject it before any crypto."
+    },
+    {
+      "kind": "signature",
+      "case": "missing-signature-unverifiable",
+      "description": "No signature field; the check cannot be performed."
+    },
+    {
+      "kind": "signature",
+      "case": "null-signature-unverifiable",
+      "description": "Signature field present but JSON null; treated like an absent signature in every runtime."
+    },
+    {
+      "kind": "signature",
+      "case": "options-invalid-empty-signature-field",
+      "description": "options.signatureField is the empty string; rejected before any other check except envelope shape."
+    },
+    {
+      "kind": "signature",
+      "case": "lone-surrogate-nfc-failed",
+      "description": "A body string holds an unpaired UTF-16 surrogate (\\ud800 in the file); it has no NFC or UTF-8 form, so every runtime rejects it before any crypto."
+    },
+    {
+      "kind": "signature",
+      "case": "public-key-malformed",
+      "description": "Public key string lacks the ed25519-pub: prefix."
+    },
+    {
+      "kind": "signature",
+      "case": "quorum-field-omitted-valid",
+      "description": "RevocationList with quorum_signatures present; signature verifies with both signature and quorum_signatures omitted."
+    },
+    {
+      "kind": "signature",
+      "case": "quorum-entry-valid",
+      "description": "A quorum entry signs the same bytes as the primary signature; verified via an explicit signatureField on a synthetic view."
+    },
+    {
+      "kind": "revocation",
+      "case": "not-revoked",
+      "description": "Applicable list does not name the key."
+    },
+    {
+      "kind": "revocation",
+      "case": "revoked-before-at",
+      "description": "Key revoked before the query instant."
+    },
+    {
+      "kind": "revocation",
+      "case": "revoked-after-at-not-yet",
+      "description": "List applicable but its entry takes effect after the query instant."
+    },
+    {
+      "kind": "revocation",
+      "case": "list-not-yet-valid",
+      "description": "Query instant precedes valid_from; no list applies."
+    },
+    {
+      "kind": "revocation",
+      "case": "list-expired",
+      "description": "Query instant equals valid_until (exclusive bound); no list applies."
+    },
+    {
+      "kind": "revocation",
+      "case": "two-lists-latest-wins",
+      "description": "Two applicable lists revoke the key; the most recent issued_at supplies list_id, revoked_at and reason."
+    },
+    {
+      "kind": "revocation",
+      "case": "shape-invalid-list-ignored",
+      "description": "A list failing shape validation is ignored and reported; the valid list still answers."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid",
+      "description": "at carries a +02:00 offset instead of Z; no lookup is performed and the typed at_invalid result is returned."
+    },
+    {
+      "kind": "revocation",
+      "case": "impossible-date-list-shape-invalid",
+      "description": "issued_at 2026-13-40T99:99:99Z matches the schema pattern but is not an instant; that list is shape-invalid, the valid list answers."
+    },
+    {
+      "kind": "revocation",
+      "case": "invalid-leap-day-list-shape-invalid",
+      "description": "revoked_at 2027-02-29 does not exist (2027 is not a leap year); the list is shape-invalid."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid-leap-day",
+      "description": "at 2027-02-29T00:00:00Z is not a real date."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-valid-leap-day",
+      "description": "at 2028-02-29T00:00:00Z exists (2028 is a leap year)."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid-leap-second",
+      "description": "Second 60 is rejected (leap seconds are not instants in this library)."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-0001-min",
+      "description": "Lower year bound 0001 is accepted; no list applies that early."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-0000-rejected",
+      "description": "Year 0000 is outside 0001..9999."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-9999-max",
+      "description": "Upper year bound 9999 is accepted."
+    },
+    {
+      "kind": "revocation",
+      "case": "fractional-precision-boundary",
+      "description": "revoked_at \".5Z\" equals at \".500Z\"; comparison is on the instant, not the text, and is inclusive."
+    }
+  ]
+}

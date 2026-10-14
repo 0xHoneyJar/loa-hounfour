@@ -1,0 +1,68 @@
+{
+  "case": "shape-invalid-list-ignored",
+  "kind": "revocation",
+  "input": {
+    "lists": [
+      {
+        "envelope_kind": "revocation_list",
+        "contract_version": "9.9.9",
+        "cluster_id": "cluster:verifier-conformance",
+        "list_id": "rl-broken",
+        "issued_at": "2026-09-01T00:00:00Z",
+        "valid_from": "2026-08-01T00:00:00Z",
+        "valid_until": null,
+        "max_staleness_seconds": 86400,
+        "nonce": 1,
+        "prev_envelope_hash": null,
+        "next_page_hash": null,
+        "revoked_keys": [
+          {
+            "key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
+            "reason": "compromise",
+            "revoked_at": "2026-08-15T00:00:00Z",
+            "revocation_evidence_hash": null
+          }
+        ],
+        "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
+        "root_of_trust_id": null,
+        "signature": "ed25519:7vLHL7sDO795GIgsCG9Jnb8-rIl0h2ANdtrH0mOxm5dNAvk9wlAIA2py_K3-YpwI07ceBglxqUFnXTVlu_0BBQ",
+        "quorum_signatures": null
+      },
+      {
+        "envelope_kind": "revocation_list",
+        "contract_version": "8.7.0",
+        "cluster_id": "cluster:verifier-conformance",
+        "list_id": "rl-0001",
+        "issued_at": "2026-09-01T00:00:00Z",
+        "valid_from": "2026-08-01T00:00:00Z",
+        "valid_until": null,
+        "max_staleness_seconds": 86400,
+        "nonce": 1,
+        "prev_envelope_hash": null,
+        "next_page_hash": null,
+        "revoked_keys": [
+          {
+            "key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
+            "reason": "compromise",
+            "revoked_at": "2026-08-15T00:00:00Z",
+            "revocation_evidence_hash": null
+          }
+        ],
+        "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
+        "root_of_trust_id": null,
+        "signature": "ed25519:7vLHL7sDO795GIgsCG9Jnb8-rIl0h2ANdtrH0mOxm5dNAvk9wlAIA2py_K3-YpwI07ceBglxqUFnXTVlu_0BBQ",
+        "quorum_signatures": null
+      }
+    ],
+    "signer_key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
+    "at": "2026-10-14T00:00:00.000Z"
+  },
+  "expected": {
+    "revoked": true,
+    "revoked_at": "2026-08-15T00:00:00Z",
+    "list_id": "rl-0001",
+    "reason": "compromise",
+    "list_valid": false,
+    "list_validity_reason": "shape_invalid: lists[0]"
+  }
+}
