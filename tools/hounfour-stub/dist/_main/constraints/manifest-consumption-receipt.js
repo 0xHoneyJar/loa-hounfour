@@ -65,6 +65,8 @@ import { arrayFieldDistinct } from './builtins/cluster-run-series-local.js';
  * - `escalated`: the decision was handed to a higher authority and is not
  *   yet made. MC-1 treats this as not-yet-proceedable.
  */
+/** Schema `maxItems` for `decisions`; also bounds the direct-call validators. */
+const MAX_DECISIONS = 256;
 const ManifestConsumptionDecisionKindSchema = Type.Union([
     Type.Literal('verified_externally'),
     Type.Literal('accepted_risk'),
@@ -110,7 +112,7 @@ export const ManifestConsumptionReceiptSchema = Type.Object({
         description: 'manifest_emitted_at of the manifest this receipt answers; together with schema_id it identifies the manifest.',
     }),
     consumer_id: Type.String({ minLength: 1, description: 'Opaque identifier of the consuming system (MCR-N3).' }),
-    decisions: Type.Array(ManifestConsumptionDecisionSchema, { minItems: 1, maxItems: 256 }),
+    decisions: Type.Array(ManifestConsumptionDecisionSchema, { minItems: 1, maxItems: MAX_DECISIONS }),
     decided_at: Type.String({ format: 'date-time', description: 'When the receipt as a whole was finalized.' }),
 }, {
     $id: 'ManifestConsumptionReceipt',
@@ -122,10 +124,10 @@ export const ManifestConsumptionReceiptSchema = Type.Object({
 /**
  * Cross-field validator for ManifestConsumptionReceipt. Enforces MCR-1
  * (distinct `decisions[*].rule_id`). Safe to call directly, without the
- * structural tier: a non-object record, a non-array `decisions`, or any
- * element that is not a plain object with a string `rule_id` returns a
- * tagged `MCR: structural shape precondition failed` error rather than
- * passing.
+ * structural tier: a non-object record, a non-array `decisions`, more than
+ * 256 decisions (checked before any iteration), or any element that is not a
+ * plain object with a string `rule_id` returns a tagged
+ * `MCR: structural shape precondition failed` error rather than passing.
  *
  * @since v8.8.0 (SDD §3, FR-C4)
  */
@@ -142,6 +144,18 @@ export function validateManifestConsumptionReceipt(data) {
         return {
             valid: false,
             errors: ['MCR: structural shape precondition failed — decisions must be an array.'],
+            warnings: [],
+        };
+    }
+    // Bound the work before iterating: the schema caps decisions at
+    // MAX_DECISIONS, and a direct caller must not be able to force unbounded
+    // iteration or an unbounded error payload.
+    if (decisions.length > MAX_DECISIONS) {
+        return {
+            valid: false,
+            errors: [
+                `MCR: structural shape precondition failed — decisions has ${decisions.length} elements; at most ${MAX_DECISIONS} are allowed.`,
+            ],
             warnings: [],
         };
     }
@@ -170,9 +184,40 @@ export function validateManifestConsumptionReceipt(data) {
 function sortedUnique(values) {
     return [...new Set(values)].sort();
 }
+function isPlainObject(v) {
+    return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
+function inputShapeErrors(manifest, receipt) {
+    const tag = 'MCR-JOIN: input shape precondition failed — ';
+    const errors = [];
+    const checkArray = (owner, ownerName, field, max) => {
+        if (!isPlainObject(owner)) {
+            errors.push(`${tag}${ownerName} must be a non-null object.`);
+            return;
+        }
+        const arr = owner[field];
+        if (!Array.isArray(arr)) {
+            errors.push(`${tag}${ownerName}.${field} must be an array.`);
+            return;
+        }
+        if (max !== undefined && arr.length > max) {
+            errors.push(`${tag}${ownerName}.${field} has ${arr.length} elements; at most ${max} are allowed.`);
+            return;
+        }
+        const bad = arr.findIndex((e) => !isPlainObject(e) || typeof e.rule_id !== 'string');
+        if (bad >= 0) {
+            errors.push(`${tag}${ownerName}.${field}[${bad}] must be an object with a string rule_id.`);
+        }
+    };
+    checkArray(manifest, 'manifest', 'unverified_rules', undefined);
+    checkArray(receipt, 'receipt', 'decisions', MAX_DECISIONS);
+    return errors;
+}
 /**
- * Join a receipt to its manifest. Pure; no clock; never throws on
- * structurally valid inputs.
+ * Join a receipt to its manifest. Pure; no clock; never throws. Malformed
+ * inputs (a non-object manifest or receipt, a non-array `unverified_rules`
+ * or `decisions`, more than 256 decisions, or an element without a string
+ * `rule_id`) produce a result with `input_errors` set instead of a join.
  *
  * Algebraic properties (property-tested): the undecided and decided-known
  * rule_id sets partition the manifest's rule_id set; adding a decision for
@@ -182,6 +227,20 @@ function sortedUnique(values) {
  * @since v8.8.0 (SDD §3, FR-C4)
  */
 export function joinReceiptToManifest(manifest, receipt) {
+    const input_errors = inputShapeErrors(manifest, receipt);
+    if (input_errors.length > 0) {
+        return {
+            input_errors,
+            header_mismatches: [],
+            undecided_rule_ids: [],
+            unknown_rule_ids: [],
+            reason_mismatch_rule_ids: [],
+            rejected_rule_ids: [],
+            escalated_rule_ids: [],
+            complete: false,
+            mc1_satisfied: false,
+        };
+    }
     const header_mismatches = [];
     for (const field of ['schema_id', 'contract_version', 'manifest_emitted_at']) {
         if (manifest[field] !== receipt[field])
@@ -210,6 +269,7 @@ export function joinReceiptToManifest(manifest, receipt) {
         && unknown_rule_ids.length === 0
         && reason_mismatch_rule_ids.length === 0;
     return {
+        input_errors: [],
         header_mismatches,
         undecided_rule_ids,
         unknown_rule_ids,

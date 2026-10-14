@@ -141,6 +141,22 @@ describe('validateManifestConsumptionReceipt', () => {
       }
     });
 
+    it('more than 256 decisions fails before iterating; exactly 256 passes the precondition', () => {
+      const over = Array.from({ length: 257 }, (_, i) => d(`R-${i}`));
+      const r = validateManifestConsumptionReceipt({ decisions: over });
+      expect(r.valid).toBe(false);
+      expect(r.errors).toEqual([expect.stringMatching(PRE)]);
+      expect(r.errors[0]).toContain('257 elements; at most 256');
+      // Proof of no iteration: malformed elements past the bound produce no per-element errors.
+      const overMalformed = [...over.slice(0, 256), null];
+      expect(validateManifestConsumptionReceipt({ decisions: overMalformed }).errors).toHaveLength(1);
+      expect(validateManifestConsumptionReceipt({ decisions: over.slice(0, 256) })).toEqual({
+        valid: true,
+        errors: [],
+        warnings: [],
+      });
+    });
+
     it('a malformed element cannot let a duplicate pass vacuously', () => {
       const r = validateManifestConsumptionReceipt({ decisions: [d('A'), { rule_id: 5 }, d('A')] });
       expect(r.valid).toBe(false);
@@ -196,6 +212,7 @@ describe('joinReceiptToManifest — branches', () => {
       receipt([decision('CRYPTO_DEFERRED', 'verified_externally', 'crypto_deferred'), decision('ORD-3', 'accepted_risk')]),
     );
     expect(r).toEqual({
+      input_errors: [],
       header_mismatches: [],
       undecided_rule_ids: [],
       unknown_rule_ids: [],
@@ -271,6 +288,66 @@ describe('joinReceiptToManifest — branches', () => {
     const before = JSON.stringify([m, rc]);
     joinReceiptToManifest(m, rc);
     expect(JSON.stringify([m, rc])).toBe(before);
+  });
+});
+
+describe('joinReceiptToManifest — malformed direct-call inputs never throw', () => {
+  const okManifest = manifest([entry('A')]);
+  const okReceipt = receipt([decision('A')]);
+  const cast = <T>(v: unknown) => v as T;
+  const JOIN = /^MCR-JOIN: input shape precondition failed — /;
+
+  function expectInputError(m: unknown, rc: unknown, fragment: string): void {
+    let r!: ReturnType<typeof joinReceiptToManifest>;
+    expect(() => {
+      r = joinReceiptToManifest(cast(m), cast(rc));
+    }).not.toThrow();
+    expect(r.input_errors.length).toBeGreaterThan(0);
+    for (const e of r.input_errors) expect(e).toMatch(JOIN);
+    expect(r.input_errors.join('\n')).toContain(fragment);
+    expect(r.complete).toBe(false);
+    expect(r.mc1_satisfied).toBe(false);
+    expect(r.undecided_rule_ids).toEqual([]);
+    expect(r.rejected_rule_ids).toEqual([]);
+  }
+
+  it('manifest or receipt not an object', () => {
+    expectInputError(null, okReceipt, 'manifest must be a non-null object');
+    expectInputError(okManifest, undefined, 'receipt must be a non-null object');
+    expectInputError([], 'x', 'manifest must be a non-null object');
+  });
+
+  it('manifest.unverified_rules missing or not an array', () => {
+    const { unverified_rules: _u, ...noRules } = okManifest;
+    void _u;
+    expectInputError(noRules, okReceipt, 'manifest.unverified_rules must be an array');
+    expectInputError({ ...okManifest, unverified_rules: {} }, okReceipt, 'manifest.unverified_rules must be an array');
+  });
+
+  it('receipt.decisions missing or not an array', () => {
+    const { decisions: _d, ...noDecisions } = okReceipt;
+    void _d;
+    expectInputError(okManifest, noDecisions, 'receipt.decisions must be an array');
+    expectInputError(okManifest, { ...okReceipt, decisions: 'A' }, 'receipt.decisions must be an array');
+  });
+
+  it('elements without a string rule_id on either side', () => {
+    expectInputError({ ...okManifest, unverified_rules: [null] }, okReceipt, 'manifest.unverified_rules[0]');
+    expectInputError(okManifest, { ...okReceipt, decisions: [decision('A'), { rule_id: 3 }] }, 'receipt.decisions[1]');
+  });
+
+  it('more than 256 receipt decisions', () => {
+    const many = Array.from({ length: 257 }, (_, i) => decision(`R-${i}`));
+    expectInputError(okManifest, { ...okReceipt, decisions: many }, '257 elements; at most 256');
+  });
+
+  it('reports problems on both sides at once', () => {
+    const r = joinReceiptToManifest(cast({ ...okManifest, unverified_rules: 1 }), cast({ ...okReceipt, decisions: null }));
+    expect(r.input_errors).toHaveLength(2);
+  });
+
+  it('valid inputs carry an empty input_errors', () => {
+    expect(joinReceiptToManifest(okManifest, okReceipt).input_errors).toEqual([]);
   });
 });
 
