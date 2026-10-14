@@ -5,9 +5,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Added
+_No unreleased changes._
 
-<!-- v8.8.0 cycle-008 entries are added per feature PR -->
+## [8.8.0] — 2026-10-14
+
+**Theme:** cycle-008 — "Authority Separation": five additive governance surfaces that close the gaps a 2026-10 landscape comparison against frontier-lab practice made visible. All additive (MINOR); no existing schema changes meaning; the fail-closed default flip remains planned for v9.0.0.
+
+### Added
 
 - **Manifest-consumption contract (PR-C4, FR-C4).** `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT` gives every `UnverifiedObligationReason` a row: obligation level (`MUST`/`SHOULD`), the consumer action, one yes/no `judgement_requested` question for a human approver, and whether the v9.0.0 fail-closed default flip changes the `validate()` outcome. New exports: `describeConsumerObligation`, `withConsumerObligation`, `UNVERIFIED_OBLIGATION_REASONS`, `FAIL_CLOSED_DEFAULT_FLIP_VERSION`, and the `UnverifiedObligationReason`, `ConsumerObligation` and `ConsumerObligationLevel` types.
 - **Manifest entries carry their judgement.** `UnverifiedObligationEntry` gains optional `judgement_requested` and `consumer_obligation_level`. `validate()` populates both on every entry that has a `reason`, at its single manifest-aggregation layer; standalone builtins return unannotated entries for `withConsumerObligation`. Entries without a reason are unchanged.
