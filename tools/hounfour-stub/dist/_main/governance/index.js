@@ -138,4 +138,7 @@ export { ChallengeSchema, } from './challenge.js';
 // Schemas — Separation of duties (v8.8.0, FR-C3, PR-C3)
 export { IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, } from './irreversible-action-attestation.js';
 export { SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, } from './shared-surface-declaration.js';
+// Schemas — Scope of autonomy (v8.8.0, FR-C1, PR-C1)
+export { ScopeOfAutonomySchema, DataAccessModeSchema, DataAccessGrantSchema, SideEffectBudgetSchema, EndingConditionKindSchema, EndingConditionSchema, StopWorkSchema, validateScopeOfAutonomy, } from './scope-of-autonomy.js';
+export { evaluateScopeInheritance, evaluateScopeActivity, } from './scope-of-autonomy-eval.js';
 //# sourceMappingURL=index.js.map

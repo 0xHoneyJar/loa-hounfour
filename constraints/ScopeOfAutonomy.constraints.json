@@ -1,0 +1,129 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ScopeOfAutonomy",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SOA-1",
+      "expression": "unique_values(permitted_sub_goals)",
+      "severity": "error",
+      "message": "permitted_sub_goals MUST NOT contain duplicate sub-goals.",
+      "fields": [
+        "permitted_sub_goals"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated twice with the same result: by this DSL expression (the one-argument form of unique_values compares primitive array elements) and by the registered cross-field validator validateScopeOfAutonomy, so validate() rejects duplicates with an error prefixed 'SOA-1:'. Cross-language runners that implement only the structural tier report the invalid-cross-field fixture as pass-cross-field-deferred.",
+      "type_signature": {
+        "permitted_sub_goals": "string[]"
+      }
+    },
+    {
+      "id": "SOA-2",
+      "expression": "ending_condition.kind != 'time_limit' || ending_condition.latest_time != null",
+      "severity": "error",
+      "message": "An ending condition of kind 'time_limit' MUST carry ending_condition.latest_time.",
+      "fields": [
+        "ending_condition.kind",
+        "ending_condition.latest_time"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time; violations are reported with the prefix 'SOA-2:'.",
+      "type_signature": {
+        "ending_condition.kind": "string",
+        "ending_condition.latest_time": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-3",
+      "expression": "expires_at == null || is_after(expires_at, issued_at)",
+      "severity": "error",
+      "message": "expires_at, when present, MUST be strictly after issued_at.",
+      "fields": [
+        "expires_at",
+        "issued_at"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time; violations are reported with the prefix 'SOA-3:'. Compares instants, not strings. Whether the scope has expired relative to a clock is NOT checked here (SOA-N2); use evaluateScopeActivity(scope, now).",
+      "type_signature": {
+        "expires_at": "string | undefined",
+        "issued_at": "string"
+      }
+    },
+    {
+      "id": "SOA-4",
+      "expression": "stop_work.requested != true || stop_work.requested_at != null",
+      "severity": "error",
+      "message": "A requested stop MUST record stop_work.requested_at.",
+      "fields": [
+        "stop_work.requested",
+        "stop_work.requested_at"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time; violations are reported with the prefix 'SOA-4:'.",
+      "type_signature": {
+        "stop_work.requested": "boolean",
+        "stop_work.requested_at": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-5",
+      "expression": "ending_condition.latest_time == null || expires_at == null || !is_after(ending_condition.latest_time, expires_at)",
+      "severity": "error",
+      "message": "ending_condition.latest_time MUST NOT be after expires_at.",
+      "fields": [
+        "ending_condition.latest_time",
+        "expires_at"
+      ],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by validateScopeOfAutonomy at validate() time; violations are reported with the prefix 'SOA-5:'. Equal instants are allowed.",
+      "type_signature": {
+        "ending_condition.latest_time": "string | undefined",
+        "expires_at": "string | undefined"
+      }
+    },
+    {
+      "id": "SOA-6",
+      "expression": "consumer resolves the parent scope named by parent_scope_id and evaluates that the child scope is within it: evaluateScopeInheritance(child, parent).within_parent",
+      "severity": "error",
+      "message": "A child scope MUST be within its parent scope: sub-goals, cost, wall clock, data access, tools, latest_time and expires_at no wider than the parent's, and a parent stop-work request carried through.",
+      "fields": [
+        "parent_scope_id",
+        "permitted_sub_goals",
+        "side_effect_budget",
+        "allowed_tools",
+        "ending_condition.latest_time",
+        "expires_at",
+        "stop_work.requested"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record: the parent scope is consumer state. Applies only when parent_scope_id is present; root scopes carry no SOA-6 obligation. The consumer MUST resolve the parent and run evaluateScopeInheritance(child, parent) (src/governance/scope-of-autonomy-eval.ts), or pass it as validate(ScopeOfAutonomySchema, child, { scopeContext: { parent_scope } }). Without the parent, validate() returns valid: true with a manifest entry (rule_id 'SOA-6', evaluator 'consumer', reason 'scope_parent_context_deferred'). With the parent, the result is valid: false with one error 'SOA-6: <code> at <field>: ...' per violation (the verdict), plus one manifest entry per violation (evaluator 'library', reason 'scope_inheritance_violation') as the transparency record; codes are PARENT_ID_MISMATCH, SUB_GOAL_NOT_IN_PARENT, COST_EXCEEDS_PARENT, WALL_CLOCK_EXCEEDS_PARENT, DATA_ACCESS_EXCEEDS_PARENT, TOOL_NOT_IN_PARENT, LATEST_TIME_AFTER_PARENT, EXPIRES_AFTER_PARENT, STOP_WORK_NOT_INHERITED. A supplied parent that is not itself a valid ScopeOfAutonomy yields valid: false with each of the parent's diagnostics prefixed 'SOA-6 parent: '. The constraint-file row carries no reason field because the constraint-file format has none; the reasons above are emitted by validate(). Like SOA-1..5, SOA-6 is skipped entirely under validate(..., { crossField: false }), and the deferral entry is emitted only for records that pass the structural tier and SOA-1..5. Obligations carried by a valid supplied parent (for example its own SOA-6 deferral) are merged into the child's manifest with rule_id prefixed 'SOA-6 parent:' and evaluation_note prefixed 'Inherited from the supplied parent scope: '. The runtime-deferred row surfaces as evaluator 'consumer' for the context-absent deferral, matching ORD-3.",
+      "type_signature": {
+        "parent_scope_id": "string | undefined",
+        "permitted_sub_goals": "string[]",
+        "side_effect_budget": "SideEffectBudget",
+        "allowed_tools": "string[]",
+        "ending_condition.latest_time": "string | undefined",
+        "expires_at": "string | undefined",
+        "stop_work.requested": "boolean"
+      }
+    },
+    {
+      "id": "SOA-7",
+      "expression": "consumer evaluates that principal_id holds the authority to grant this scope to agent_id",
+      "severity": "error",
+      "message": "The principal MUST be authorized to grant the scope to the agent. The library does NOT adjudicate grant authority.",
+      "fields": [
+        "principal_id",
+        "agent_id"
+      ],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer authority per ADR-010. principal_id and agent_id are opaque to the library; resolving them to identities and deciding whether the grant is permitted is the consumer's policy decision. validate() never evaluates or emits this rule; it appears only in buildUnverifiedObligationsManifest(file) output.",
+      "type_signature": {
+        "principal_id": "string",
+        "agent_id": "string"
+      }
+    }
+  ]
+}

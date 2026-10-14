@@ -200,6 +200,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     // v8.8.0 PR-C3 — FR-C3 separation of duties.
     'IrreversibleActionAttestation',
     'SharedSurfaceDeclaration',
+    // v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy (SOA-1..5).
+    'ScopeOfAutonomy',
   ];
 
   it('returns an array of strings', () => {

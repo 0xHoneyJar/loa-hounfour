@@ -260,6 +260,8 @@ import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
 import { AssertionClassSchema } from '../src/governance/assertion-class.js';
 import { AssertionSchema } from '../src/governance/assertion.js';
+// v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy
+import { ScopeOfAutonomySchema } from '../src/governance/scope-of-autonomy.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../src/version.js';
 import { postProcessSchema } from './schema-postprocess.js';
 
@@ -617,6 +619,8 @@ export const SCHEMAS = [
   // v8.8.0 cycle-008 PR-C3 — FR-C3 separation of duties (SDD §2)
   { name: 'irreversible-action-attestation', schema: IrreversibleActionAttestationSchema },
   { name: 'shared-surface-declaration', schema: SharedSurfaceDeclarationSchema },
+  // v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy
+  { name: 'scope-of-autonomy', schema: ScopeOfAutonomySchema },
 ];
 
 // Guard the entry-point execution so `scripts/check-schemas.ts` can

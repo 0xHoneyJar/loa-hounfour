@@ -209,6 +209,10 @@
         {
           "const": "recall-wedge",
           "type": "string"
+        },
+        {
+          "const": "scope-inheritance",
+          "type": "string"
         }
       ]
     },

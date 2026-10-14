@@ -1,0 +1,24 @@
+{
+  "_comment": "SOA-3 boundary: expires_at one millisecond after issued_at is strictly after.",
+  "scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+  "principal_id": "org-honeyjar",
+  "agent_id": "agent-builder-01",
+  "permitted_sub_goals": [
+    "implement the parser change"
+  ],
+  "side_effect_budget": {
+    "data_access": []
+  },
+  "clarification_triggers": [],
+  "ending_condition": {
+    "kind": "explicit_stop",
+    "description": "Runs until the principal sends a stop request."
+  },
+  "stop_work": {
+    "requested": false,
+    "propagates_to_children": true
+  },
+  "issued_at": "2026-10-14T09:00:00Z",
+  "expires_at": "2026-10-14T09:00:00.001Z",
+  "contract_version": "8.8.0"
+}

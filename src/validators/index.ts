@@ -66,6 +66,15 @@ import { validateMergeArtifact } from '../canonical/merge-artifact.js';
 // SSD-6 need consumer registry / runtime observation.
 import { validateIrreversibleActionAttestation } from '../governance/irreversible-action-attestation.js';
 import { validateSharedSurfaceDeclaration } from '../governance/shared-surface-declaration.js';
+// v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy cross-field validator (SOA-1..5)
+// plus the SOA-6 inheritance evaluator used by validate() when the
+// consumer supplies `scopeContext.parent_scope`.
+import {
+  ScopeOfAutonomySchema,
+  validateScopeOfAutonomy,
+  type ScopeOfAutonomy,
+} from '../governance/scope-of-autonomy.js';
+import { evaluateScopeInheritance } from '../governance/scope-of-autonomy-eval.js';
 
 // Register string formats so TypeCompiler validates them at runtime.
 // Strict semantics live in ./formats.js (single source of truth) and are
@@ -1495,6 +1504,11 @@ registerCrossFieldValidator(
   'SharedSurfaceDeclaration',
   validateSharedSurfaceDeclaration,
 );
+// v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy. SOA-1..5 are library-evaluated
+// here; SOA-6 (child within parent) runs inside validate() when the
+// parent is supplied, else surfaces as a manifest entry; SOA-7 is
+// consumer authority (ADR-010).
+registerCrossFieldValidator('ScopeOfAutonomy', validateScopeOfAutonomy);
 
 /**
  * Returns schema $ids that have registered cross-field validators.
@@ -1620,7 +1634,71 @@ export function validate<T extends TSchema>(
      * @since v8.7.x — issues #125, #150, #153
      */
     strictWarnings?: boolean;
+    /**
+     * Auxiliary context for `ScopeOfAutonomy` rule SOA-6 (child scope
+     * within parent scope). Read only when validating a ScopeOfAutonomy
+     * record that carries `parent_scope_id`:
+     *
+     * - `parent_scope` absent: validate() stays `valid: true` and emits a
+     *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
+     * - `parent_scope` supplied but not itself a valid ScopeOfAutonomy:
+     *   `valid: false`, and each of the parent's own diagnostics is
+     *   returned prefixed `SOA-6 parent: `.
+     * - `parent_scope` supplied and valid: `evaluateScopeInheritance(record,
+     *   parent_scope)` runs. On violation the result is `valid: false` with
+     *   one `SOA-6: <CODE> at <field>: <message>` error per violation. The
+     *   `errors` array is the verdict. The result also carries one manifest
+     *   entry per violation (`evaluator: 'library'`,
+     *   `reason: 'scope_inheritance_violation'`) as the transparency record,
+     *   mirroring the nonce / sequence / chain builtins. A passing check is
+     *   `valid: true` with no SOA-6 entry.
+     *
+     * Cross-field opt-out: SOA-6 is a cross-field rule. With
+     * `{ crossField: false }` it is skipped entirely, like SOA-1..5. There
+     * is no parent validation, no SOA-6 manifest entry and no SOA-6 error.
+     *
+     * Parent option profile: with cross-field validation enabled (the
+     * default), the supplied parent is validated with the caller's options
+     * minus `scopeContext`. SOA-6 checks one link only, and the parent's own
+     * `parent_scope_id` is not followed, so consumers validate a scope chain
+     * one link at a time. Obligations the valid parent itself carries are
+     * not dropped. They are merged into this result with provenance:
+     * `rule_id` is prefixed `SOA-6 parent:` (for example
+     * `SOA-6 parent:SOA-6`), `evaluation_note` is prefixed "Inherited from
+     * the supplied parent scope: ", and `reason` and `evaluator` are kept.
+     *
+     * Evaluator label: the SOA-6 constraint row is `runtime-deferred`. The
+     * context-absent deferral entry carries `evaluator: 'consumer'`,
+     * matching ORD-3 `context_absent` entries (v8.5.0 widening).
+     *
+     * Manifest discipline (ADR-010, validation-result-vs-manifest): the
+     * deferral entry accompanies otherwise-valid records only. If the record
+     * fails the structural tier or SOA-1..5, validate() returns those errors
+     * and no `unverified_obligations` at all.
+     *
+     * @since v8.8.0 — FR-C1 (PR-C1)
+     */
+    scopeContext?: { parent_scope?: unknown };
   },
+): ValidationResult {
+  return validateImpl(schema, data, options, false);
+}
+
+/**
+ * Implementation of {@link validate}. `suppressScopeParent` is call-scoped
+ * re-entrancy state for SOA-6 (PR-C1). It is `true` only for the nested
+ * validation of a supplied `scopeContext.parent_scope`. That nested call
+ * never consults a parent context: it can only emit the SOA-6 deferral for
+ * the parent's own `parent_scope_id`, never evaluate or recurse.
+ * No module-level mutable state is involved,
+ * so concurrent or interleaved validate() calls cannot suppress each other.
+ * The flag is not reachable through the public `validate()` signature.
+ */
+function validateImpl<T extends TSchema>(
+  schema: T,
+  data: unknown,
+  options: Parameters<typeof validate>[2],
+  suppressScopeParent: boolean,
 ): ValidationResult {
   const compiled = getOrCompile(schema);
   if (!compiled.Check(data)) {
@@ -1968,6 +2046,110 @@ export function validate<T extends TSchema>(
             'NOTES.md ORD-5 fire-rate tracking template.',
           consumer_acknowledgment_required: true,
         });
+      }
+    }
+  }
+
+  // SOA-6 scope inheritance (PR-C1, v8.8.0 — FR-C1). $id-keyed like the
+  // ORD-5 block above: ScopeOfAutonomy is the only inheritance-bearing
+  // schema. Root scopes (no parent_scope_id) carry no SOA-6 obligation.
+  // Inside the nested parent validation below (suppressScopeParent, passed
+  // per call) no parent context is ever consulted. The parent's own
+  // parent_scope_id can only produce a deferral entry, which the outer call
+  // inherits with provenance. SOA-6 evaluates one link, child → supplied
+  // parent, and never recurses.
+  // SOA-6 is a cross-field rule: `{ crossField: false }` skips it entirely
+  // (no parent validation, no SOA-6 entry, no SOA-6 errors), like SOA-1..5.
+  if (
+    runCrossField &&
+    schema.$id === 'ScopeOfAutonomy' &&
+    typeof data === 'object' &&
+    data !== null &&
+    (data as Record<string, unknown>).parent_scope_id !== undefined
+  ) {
+    const parentScope = suppressScopeParent ? undefined : options?.scopeContext?.parent_scope;
+    if (parentScope === undefined) {
+      // Evaluator label: the constraint-file row is `runtime-deferred`; a
+      // context-absent deferral surfaces as `evaluator: 'consumer'`,
+      // matching ORD-3 `context_absent` entries (v8.5.0 widening; see
+      // UnverifiedObligationEntry.evaluator).
+      obligations.push({
+        rule_id: 'SOA-6',
+        rule: 'The child scope is within its parent scope (evaluateScopeInheritance(child, parent).within_parent).',
+        evaluator: 'consumer',
+        reason: 'scope_parent_context_deferred',
+        evaluation_note:
+          'parent_scope_id is set but the parent scope was not supplied via ' +
+          '`{ scopeContext: { parent_scope } }`. SOA-6 cannot be evaluated from a ' +
+          'single record. The consumer MUST resolve the parent scope and run ' +
+          'evaluateScopeInheritance(child, parent), or re-validate with the parent ' +
+          'supplied, before treating the child scope as granted.',
+        consumer_acknowledgment_required: true,
+      });
+    } else {
+      // Parent option profile: the caller's options minus scopeContext.
+      // Cross-field validation is enabled here (this branch only runs when
+      // the caller did not opt out), so the parent must satisfy SOA-1..5,
+      // which evaluateScopeInheritance assumes. strictWarnings, now,
+      // acceptDeferred, failClosed and chainContext are forwarded
+      // unchanged. The nested call runs with
+      // suppressScopeParent = true, so it cannot evaluate SOA-6 even if a
+      // future refactor forwarded scopeContext.
+      const { scopeContext: _omitScopeContext, ...forwarded } = options ?? {};
+      void _omitScopeContext;
+      const parentResult = validateImpl(
+        ScopeOfAutonomySchema,
+        parentScope,
+        forwarded,
+        true,
+      );
+      if (!parentResult.valid) {
+        // The parent's own diagnostics, each prefixed so they are not
+        // mistaken for errors on the record under validation.
+        return {
+          valid: false,
+          errors: parentResult.errors.map((e) => `SOA-6 parent: ${e}`),
+        };
+      }
+      // Inherited obligations: a valid parent may still carry deferred
+      // rules (e.g. its own SOA-6 deferral). Surface them with provenance
+      // so they are not silently dropped. reason and evaluator are kept.
+      for (const entry of parentResult.unverified_obligations?.unverified_rules ?? []) {
+        obligations.push({
+          ...entry,
+          rule_id: `SOA-6 parent:${entry.rule_id}`,
+          evaluation_note: `Inherited from the supplied parent scope: ${entry.evaluation_note}`,
+        });
+      }
+      const inheritance = evaluateScopeInheritance(
+        data as ScopeOfAutonomy,
+        parentScope as ScopeOfAutonomy,
+      );
+      if (!inheritance.within_parent) {
+        return {
+          valid: false,
+          errors: inheritance.violations.map(
+            (v) => `SOA-6: ${v.code} at ${v.field}: ${v.message}`,
+          ),
+          unverified_obligations: {
+            schema_id: manifestSchemaId,
+            contract_version: CONTRACT_VERSION,
+            manifest_emitted_at: options?.now ?? new Date().toISOString(),
+            // Annotated with the consumer contract row (FR-C4) exactly like
+            // the closing return below; this early return must not bypass it.
+            unverified_rules: [
+              ...obligations,
+              ...inheritance.violations.map((v): UnverifiedObligationEntry => ({
+                rule_id: 'SOA-6',
+                rule: 'The child scope is within its parent scope (evaluateScopeInheritance(child, parent).within_parent).',
+                evaluator: 'library',
+                reason: 'scope_inheritance_violation',
+                evaluation_note: `${v.code} at ${v.field}: ${v.message}`,
+                consumer_acknowledgment_required: true,
+              })),
+            ].map((entry) => withConsumerObligation(entry)),
+          },
+        };
       }
     }
   }

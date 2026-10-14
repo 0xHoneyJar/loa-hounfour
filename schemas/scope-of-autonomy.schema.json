@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/scope-of-autonomy",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Structured scope-of-autonomy record a principal grants to an agent, aligned to the structured scope-of-autonomy record described in public model behaviour policies: permitted sub-goals, side-effect budget, allowed tools, clarification triggers, ending condition and stop-work state. Scopes inherit via parent_scope_id; a child MUST stay within its parent (SOA-6). Shape only: whether an action falls inside the scope, and whether the principal may grant it, is consumer policy (ADR-010).",
+  "type": "object",
+  "required": [
+    "scope_id",
+    "principal_id",
+    "agent_id",
+    "permitted_sub_goals",
+    "side_effect_budget",
+    "clarification_triggers",
+    "ending_condition",
+    "stop_work",
+    "issued_at",
+    "contract_version"
+  ],
+  "properties": {
+    "scope_id": {
+      "format": "uuid",
+      "description": "Stable identifier of this scope (UUID).",
+      "type": "string"
+    },
+    "principal_id": {
+      "minLength": 1,
+      "description": "Who granted the scope (an AgentIdentity.agent_id or OrgIdentity.org_id). Opaque to the library; authority to grant is SOA-7 (consumer).",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "description": "The agent the scope applies to.",
+      "type": "string"
+    },
+    "parent_scope_id": {
+      "format": "uuid",
+      "description": "scope_id of the parent scope this scope inherits from. Absent means a root scope.",
+      "type": "string"
+    },
+    "permitted_sub_goals": {
+      "minItems": 1,
+      "maxItems": 64,
+      "description": "Sub-goals the agent may pursue. Distinct (SOA-1). Opaque strings; semantic matching is consumer policy (SOA-N1).",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "maxLength": 256,
+        "type": "string"
+      }
+    },
+    "side_effect_budget": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "data_access"
+      ],
+      "properties": {
+        "max_cost_micro": {
+          "pattern": "^[0-9]+$",
+          "description": "Maximum spend in string-encoded micro-USD. Absent means the scope sets no cost limit (an inherited parent limit still applies under SOA-6).",
+          "type": "string"
+        },
+        "max_wall_clock_ms": {
+          "minimum": 0,
+          "description": "Maximum wall-clock duration in milliseconds. Absent means the scope sets no duration limit.",
+          "type": "integer"
+        },
+        "data_access": {
+          "maxItems": 64,
+          "description": "Data resources the agent may touch and in which mode. Always present; an empty array grants no data access.",
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "resource",
+              "mode"
+            ],
+            "properties": {
+              "resource": {
+                "minLength": 1,
+                "maxLength": 512,
+                "description": "Opaque resource identifier (path, table, bucket, URI). Compared by exact string; the library does not interpret it.",
+                "type": "string"
+              },
+              "mode": {
+                "description": "Access mode granted on a data resource. 'read_write' covers both 'read' and 'write'.",
+                "anyOf": [
+                  {
+                    "const": "read",
+                    "type": "string"
+                  },
+                  {
+                    "const": "write",
+                    "type": "string"
+                  },
+                  {
+                    "const": "read_write",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "allowed_tools": {
+      "maxItems": 256,
+      "description": "Tools the agent may call. Absent means the scope does not restrict tools. Not checked against any registry (SOA-N3).",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "maxLength": 128,
+        "type": "string"
+      }
+    },
+    "clarification_triggers": {
+      "maxItems": 32,
+      "description": "Situations in which the agent must stop and ask its principal. May be empty. Interpreted by the consumer runtime.",
+      "type": "array",
+      "items": {
+        "minLength": 1,
+        "maxLength": 512,
+        "type": "string"
+      }
+    },
+    "ending_condition": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "description": "Kind of condition that ends the scope.",
+          "anyOf": [
+            {
+              "const": "time_limit",
+              "type": "string"
+            },
+            {
+              "const": "goal_satisfied",
+              "type": "string"
+            },
+            {
+              "const": "budget_exhausted",
+              "type": "string"
+            },
+            {
+              "const": "explicit_stop",
+              "type": "string"
+            },
+            {
+              "const": "composite",
+              "type": "string"
+            }
+          ]
+        },
+        "latest_time": {
+          "format": "date-time",
+          "description": "Latest instant at which the scope ends. Required when kind is 'time_limit' (SOA-2); MUST NOT be after expires_at (SOA-5).",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 1024,
+          "description": "Human-readable statement of the ending condition.",
+          "type": "string"
+        }
+      }
+    },
+    "stop_work": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "requested",
+        "propagates_to_children"
+      ],
+      "properties": {
+        "requested": {
+          "description": "True once a stop has been requested. A requested stop ends the scope immediately.",
+          "type": "boolean"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "description": "Instant the stop was requested. Required when requested is true (SOA-4).",
+          "type": "string"
+        },
+        "requested_by": {
+          "description": "Opaque identifier of whoever requested the stop.",
+          "type": "string"
+        },
+        "propagates_to_children": {
+          "description": "Pinned to true: a stop on a parent scope always binds every child scope (SOA-6 STOP_WORK_NOT_INHERITED).",
+          "const": true,
+          "type": "boolean"
+        }
+      }
+    },
+    "issued_at": {
+      "format": "date-time",
+      "description": "Instant the scope was issued. The scope is not active before it.",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "description": "Instant the scope expires. Strictly after issued_at (SOA-3). Not enforced at validate() time (SOA-N2).",
+      "type": "string"
+    },
+    "additional_details": {
+      "maxLength": 2048,
+      "description": "Free-text context from the principal.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this scope was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.8.0, min_supported=6.0.0"
+}

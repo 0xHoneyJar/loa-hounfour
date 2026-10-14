@@ -175,6 +175,14 @@ export interface UnverifiedObligationEntry {
    *   parent scope (a sub-goal, budget, tool, data-access mode or time
    *   bound outside the parent's).
    *
+   * Both are emitted by `validate(ScopeOfAutonomySchema, ...)` for a scope
+   * that carries `parent_scope_id` (rule SOA-6). Without
+   * `{ scopeContext: { parent_scope } }` the result stays `valid: true`
+   * with a `scope_parent_context_deferred` entry. With the parent
+   * supplied, each violation found by `evaluateScopeInheritance` yields
+   * `valid: false` and one `scope_inheritance_violation` entry, with the
+   * violation code quoted in `evaluation_note`.
+   *
    * Every member has a row in `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`
    * (v8.8.0, SDD §3) telling the consumer what to do with the entry.
    */

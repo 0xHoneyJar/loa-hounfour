@@ -212,6 +212,53 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      * @since v8.7.x — issues #125, #150, #153
      */
     strictWarnings?: boolean;
+    /**
+     * Auxiliary context for `ScopeOfAutonomy` rule SOA-6 (child scope
+     * within parent scope). Read only when validating a ScopeOfAutonomy
+     * record that carries `parent_scope_id`:
+     *
+     * - `parent_scope` absent: validate() stays `valid: true` and emits a
+     *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
+     * - `parent_scope` supplied but not itself a valid ScopeOfAutonomy:
+     *   `valid: false`, and each of the parent's own diagnostics is
+     *   returned prefixed `SOA-6 parent: `.
+     * - `parent_scope` supplied and valid: `evaluateScopeInheritance(record,
+     *   parent_scope)` runs. On violation the result is `valid: false` with
+     *   one `SOA-6: <CODE> at <field>: <message>` error per violation. The
+     *   `errors` array is the verdict. The result also carries one manifest
+     *   entry per violation (`evaluator: 'library'`,
+     *   `reason: 'scope_inheritance_violation'`) as the transparency record,
+     *   mirroring the nonce / sequence / chain builtins. A passing check is
+     *   `valid: true` with no SOA-6 entry.
+     *
+     * Cross-field opt-out: SOA-6 is a cross-field rule. With
+     * `{ crossField: false }` it is skipped entirely, like SOA-1..5. There
+     * is no parent validation, no SOA-6 manifest entry and no SOA-6 error.
+     *
+     * Parent option profile: with cross-field validation enabled (the
+     * default), the supplied parent is validated with the caller's options
+     * minus `scopeContext`. SOA-6 checks one link only, and the parent's own
+     * `parent_scope_id` is not followed, so consumers validate a scope chain
+     * one link at a time. Obligations the valid parent itself carries are
+     * not dropped. They are merged into this result with provenance:
+     * `rule_id` is prefixed `SOA-6 parent:` (for example
+     * `SOA-6 parent:SOA-6`), `evaluation_note` is prefixed "Inherited from
+     * the supplied parent scope: ", and `reason` and `evaluator` are kept.
+     *
+     * Evaluator label: the SOA-6 constraint row is `runtime-deferred`. The
+     * context-absent deferral entry carries `evaluator: 'consumer'`,
+     * matching ORD-3 `context_absent` entries (v8.5.0 widening).
+     *
+     * Manifest discipline (ADR-010, validation-result-vs-manifest): the
+     * deferral entry accompanies otherwise-valid records only. If the record
+     * fails the structural tier or SOA-1..5, validate() returns those errors
+     * and no `unverified_obligations` at all.
+     *
+     * @since v8.8.0 — FR-C1 (PR-C1)
+     */
+    scopeContext?: {
+        parent_scope?: unknown;
+    };
 }): ValidationResult;
 export declare const validators: {
     readonly jwtClaims: () => TypeCheck<import("@sinclair/typebox").TObject<{

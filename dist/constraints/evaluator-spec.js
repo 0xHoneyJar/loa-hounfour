@@ -544,11 +544,11 @@ export const EVALUATOR_BUILTIN_SPECS = new Map([
         }],
     ['unique_values', {
             name: 'unique_values',
-            signature: 'unique_values(array, field) → boolean',
-            description: 'Returns true if all values of the named field within the array are unique.',
+            signature: 'unique_values(array, field?) → boolean',
+            description: 'Returns true if all values of the named field within the array are unique. With one argument (v8.8.0), returns true if all primitive elements of the array are distinct.',
             arguments: [
-                { name: 'array', type: 'object[]', description: 'Array of objects to inspect' },
-                { name: 'field', type: 'string', description: 'Field name to extract from each element' },
+                { name: 'array', type: 'object[]', description: 'Array to inspect (objects for the two-argument form, primitives for the one-argument form)' },
+                { name: 'field', type: 'string', description: 'Field name to extract from each element; omit to compare primitive elements directly' },
             ],
             return_type: 'boolean',
             short_circuit: true,
@@ -565,8 +565,20 @@ export const EVALUATOR_BUILTIN_SPECS = new Map([
                     expression: "unique_values(items, 'id')",
                     expected: false,
                 },
+                {
+                    description: 'Distinct primitive elements (one-argument form)',
+                    context: { tags: ['a', 'b', 'c'] },
+                    expression: 'unique_values(tags)',
+                    expected: true,
+                },
+                {
+                    description: 'Duplicate primitive elements (one-argument form)',
+                    context: { tags: ['a', 'b', 'a'] },
+                    expression: 'unique_values(tags)',
+                    expected: false,
+                },
             ],
-            edge_cases: ['Non-array input returns true (vacuously)', 'Missing field on item is skipped', 'Empty array returns true'],
+            edge_cases: ['Non-array input returns true (vacuously)', 'Missing field on item is skipped', 'Empty array returns true', 'One-argument form skips object elements'],
         }],
     ['tree_budget_conserved', {
             name: 'tree_budget_conserved',

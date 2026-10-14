@@ -329,6 +329,7 @@ describe('version bump', () => {
     // cycle-008 PR-C4 adds ManifestConsumptionReceipt → 263.
     // cycle-008 PR-C3 (FR-C3) adds 2: IrreversibleActionAttestation,
     // SharedSurfaceDeclaration → 265.
-    expect(index.schemas).toHaveLength(265);
+    // cycle-008 PR-C1 (FR-C1) adds ScopeOfAutonomy → 266.
+    expect(index.schemas).toHaveLength(266);
   });
 });

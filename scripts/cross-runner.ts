@@ -61,6 +61,7 @@ import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-co
 // v8.8.0 cycle-008 PR-C3 (FR-C3) — separation of duties.
 import { IrreversibleActionAttestationSchema } from '../src/governance/irreversible-action-attestation.js';
 import { SharedSurfaceDeclarationSchema } from '../src/governance/shared-surface-declaration.js';
+import { ScopeOfAutonomySchema } from '../src/governance/scope-of-autonomy.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -187,6 +188,14 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
   },
   SharedSurfaceDeclaration: {
     schema: SharedSurfaceDeclarationSchema,
+    versionPath: 'v8.8.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  // v8.8.0 cycle-008 — PR-C1 (FR-C1). SOA-1..5 are cross-field
+  // (registered validator), so those fixtures live in
+  // 'invalid-cross-field' and pass the structural tier.
+  ScopeOfAutonomy: {
+    schema: ScopeOfAutonomySchema,
     versionPath: 'v8.8.0',
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },

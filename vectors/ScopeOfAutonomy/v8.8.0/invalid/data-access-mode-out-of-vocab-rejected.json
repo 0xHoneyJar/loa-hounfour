@@ -1,0 +1,27 @@
+{
+  "_comment": "data_access[*].mode must be 'read', 'write' or 'read_write'.",
+  "scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+  "principal_id": "org-honeyjar",
+  "agent_id": "agent-builder-01",
+  "permitted_sub_goals": [
+    "implement the parser change"
+  ],
+  "side_effect_budget": {
+    "data_access": [
+      {
+        "resource": "repo:src",
+        "mode": "admin"
+      }
+    ]
+  },
+  "clarification_triggers": [],
+  "ending_condition": {
+    "kind": "goal_satisfied"
+  },
+  "stop_work": {
+    "requested": false,
+    "propagates_to_children": true
+  },
+  "issued_at": "2026-10-14T09:00:00Z",
+  "contract_version": "8.8.0"
+}

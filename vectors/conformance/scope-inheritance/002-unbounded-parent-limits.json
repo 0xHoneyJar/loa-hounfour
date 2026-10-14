@@ -1,0 +1,89 @@
+{
+  "vector_id": "conformance-scope-inheritance-002",
+  "category": "scope-inheritance",
+  "description": "Parent sets no cost, wall-clock, tool, latest_time or expiry limits; any child values are within.",
+  "contract_version": "8.8.0",
+  "input": {
+    "child": {
+      "scope_id": "7a9b0c1d-2e3f-4a5b-8c6d-7e8f9a0b1c02",
+      "principal_id": "agent-builder-01",
+      "agent_id": "agent-tester-02",
+      "parent_scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+      "permitted_sub_goals": [
+        "write tests for the parser change"
+      ],
+      "side_effect_budget": {
+        "max_cost_micro": "5000000",
+        "max_wall_clock_ms": 3600000,
+        "data_access": [
+          {
+            "resource": "repo:tests",
+            "mode": "write"
+          },
+          {
+            "resource": "repo:src/constraints",
+            "mode": "read"
+          }
+        ]
+      },
+      "allowed_tools": [
+        "shell",
+        "test-runner"
+      ],
+      "clarification_triggers": [
+        "a test needs a change outside tests/"
+      ],
+      "ending_condition": {
+        "kind": "time_limit",
+        "latest_time": "2026-10-14T12:00:00Z"
+      },
+      "stop_work": {
+        "requested": false,
+        "propagates_to_children": true
+      },
+      "issued_at": "2026-10-14T09:30:00Z",
+      "expires_at": "2026-10-14T13:00:00Z",
+      "contract_version": "8.8.0"
+    },
+    "parent": {
+      "scope_id": "3f1c2a64-8d4e-4b7a-9c3e-1a2b3c4d5e01",
+      "principal_id": "org-honeyjar",
+      "agent_id": "agent-builder-01",
+      "permitted_sub_goals": [
+        "write tests for the parser change"
+      ],
+      "side_effect_budget": {
+        "data_access": [
+          {
+            "resource": "repo:tests",
+            "mode": "read_write"
+          },
+          {
+            "resource": "repo:src/constraints",
+            "mode": "read"
+          }
+        ]
+      },
+      "clarification_triggers": [],
+      "ending_condition": {
+        "kind": "goal_satisfied"
+      },
+      "stop_work": {
+        "requested": false,
+        "propagates_to_children": true
+      },
+      "issued_at": "2026-10-14T09:00:00Z",
+      "contract_version": "8.8.0"
+    }
+  },
+  "expected_output": {
+    "within_parent": true,
+    "violation_codes": []
+  },
+  "expected_valid": true,
+  "metadata": {
+    "sdd_section": "§1",
+    "fr": "FR-C1",
+    "evaluator": "evaluateScopeInheritance"
+  }
+}

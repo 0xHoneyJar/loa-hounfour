@@ -2,7 +2,7 @@
 
 **Contract version:** 8.8.0
 **Min supported:** 6.0.0
-**Schemas:** 265
+**Schemas:** 266
 
 ## Schemas
 
@@ -273,6 +273,7 @@
 | manifest-consumption-receipt | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt` | [manifest-consumption-receipt.schema.json](manifest-consumption-receipt.schema.json) |
 | irreversible-action-attestation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation` | [irreversible-action-attestation.schema.json](irreversible-action-attestation.schema.json) |
 | shared-surface-declaration | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/shared-surface-declaration` | [shared-surface-declaration.schema.json](shared-surface-declaration.schema.json) |
+| scope-of-autonomy | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/scope-of-autonomy` | [scope-of-autonomy.schema.json](scope-of-autonomy.schema.json) |
 
 ## Usage
 
