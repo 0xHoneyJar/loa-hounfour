@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateCompatibility } from '../../src/validators/compatibility.js';
 import { CONTRACT_VERSION, MIN_SUPPORTED_VERSION } from '../../src/version.js';
 
-describe('Version Compatibility (v7.0.0)', () => {
+describe('Version Compatibility', () => {
   it('exact match is fully compatible', () => {
     const result = validateCompatibility('8.8.0');
     expect(result.compatible).toBe(true);
