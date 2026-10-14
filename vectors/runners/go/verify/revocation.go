@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,16 +31,36 @@ func LoadRevocationListSchema(path string) (*jsonschema.Schema, error) {
 	return jsonschema.NewCompiler().Compile(path)
 }
 
-var isoUTCRe = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z$`)
+var isoUTCRe = regexp.MustCompile(`^((\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}))(?:\.(\d{1,9}))?Z$`)
+
+var daysInMonth = [12]int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 // normalizeUTC mirrors the TS helper: fixed-width nanosecond form so
-// instants compare correctly as strings.
+// instants compare correctly as strings. It fails unless the text names
+// a real instant: year 0001..9999, month 01..12, a day that exists in
+// that month (proleptic Gregorian leap years), hour 00..23, minute
+// 00..59, second 00..59 (leap seconds rejected, as in TS).
 func normalizeUTC(ts string) (string, bool) {
 	m := isoUTCRe.FindStringSubmatch(ts)
 	if m == nil {
 		return "", false
 	}
-	return m[1] + "." + m[2] + strings.Repeat("0", 9-len(m[2])) + "Z", true
+	n := make([]int, 6)
+	for i := range n {
+		n[i], _ = strconv.Atoi(m[i+2]) // regex guarantees digits
+	}
+	year, month, day, hour, minute, second := n[0], n[1], n[2], n[3], n[4], n[5]
+	if year < 1 || month < 1 || month > 12 || day < 1 || hour > 23 || minute > 59 || second > 59 {
+		return "", false
+	}
+	maxDay := daysInMonth[month-1]
+	if month == 2 && (year%4 == 0 && year%100 != 0 || year%400 == 0) {
+		maxDay = 29
+	}
+	if day > maxDay {
+		return "", false
+	}
+	return m[1] + "." + m[8] + strings.Repeat("0", 9-len(m[8])) + "Z", true
 }
 
 // LookupRevocationAt mirrors lookupRevocation called with a string `at`:
@@ -65,15 +86,16 @@ func atInvalid() RevocationLookupResult {
 // lists are ParseJSON trees. at is compared at nanosecond resolution.
 func LookupRevocation(lists []any, signerKeyID string, at time.Time, shape *jsonschema.Schema) RevocationLookupResult {
 	u := at.UTC()
-	if u.Year() < 0 || u.Year() > 9999 {
+	if u.Year() < 1 || u.Year() > 9999 {
 		return atInvalid()
 	}
 	return lookupNormalized(lists, signerKeyID, u.Format("2006-01-02T15:04:05.000000000Z"), shape)
 }
 
 // timestampsNormalize reports whether every timestamp the lookup reads
-// normalises. The schema pattern already guarantees this, so it is a
-// defence in depth: a failure is treated as shape-invalid, as in TS.
+// names a real instant. The schema pattern does not range-check calendar
+// fields, so a failure (2026-13-40, 2027-02-29, :60) makes the list
+// shape-invalid, as in TS.
 func timestampsNormalize(obj map[string]any) bool {
 	for _, f := range []string{"valid_from", "issued_at"} {
 		s, ok := obj[f].(string)

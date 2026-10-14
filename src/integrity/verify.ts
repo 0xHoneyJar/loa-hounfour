@@ -329,17 +329,40 @@ const AT_INVALID: RevocationLookupResult = {
   error: 'at_invalid',
 };
 
-const ISO_UTC_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z$/;
+const ISO_UTC_RE = /^((\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}))(?:\.(\d{1,9}))?Z$/;
+
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 /**
  * Normalise an ISO 8601 UTC timestamp to the fixed-width form
  * `YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ` so instants compare correctly as
  * strings at nanosecond resolution without platform date parsing.
+ *
+ * Returns null unless the text names a real instant: year 0001..9999,
+ * month 01..12, a day that exists in that month (proleptic Gregorian
+ * leap years), hour 00..23, minute 00..59, second 00..59. Leap seconds
+ * (`:60`) are rejected (decision): RFC 3339 admits them, but the
+ * library's other UTC patterns and JavaScript `Date` do not. Mirrored
+ * byte for byte by the Go port.
  */
 function normalizeUtc(ts: string): string | null {
   const m = ISO_UTC_RE.exec(ts);
   if (m === null) return null;
-  return `${m[1]}.${(m[2] ?? '').padEnd(9, '0')}Z`;
+  const [year, month, day, hour, minute, second] = m.slice(2, 8).map(Number);
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  if (
+    year < 1 ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > (month === 2 && leap ? 29 : DAYS_IN_MONTH[month - 1]) ||
+    hour > 23 ||
+    minute > 59 ||
+    second > 59
+  ) {
+    return null;
+  }
+  return `${m[1]}.${(m[8] ?? '').padEnd(9, '0')}Z`;
 }
 
 /**
@@ -359,10 +382,12 @@ function normalizeUtc(ts: string): string | null {
  * `at` is a `Date` (millisecond resolution) or a string in the strict
  * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
  * resolution). Timestamps compare at nanosecond resolution on their
- * textual value. An invalid `Date`, a Date outside years 0000..9999, or
- * a string not in that form yields the `at_invalid` result; it never
- * throws for `at`. The string form is checked textually only, like the
- * list timestamps (the shape pattern does not range-check fields).
+ * textual value. An invalid `Date`, a Date outside years 0001..9999, or
+ * a string that is not a real calendar instant (see `normalizeUtc`)
+ * yields the `at_invalid` result; it never throws for `at`. A list whose
+ * `valid_from`, `valid_until`, `issued_at` or any `revoked_at` is not a
+ * real instant is shape-invalid, because the schema pattern does not
+ * range-check fields.
  *
  * Pure. Throws `TypeError` only when `lists` is not an array.
  *
@@ -395,8 +420,9 @@ export function lookupRevocation(
       invalid.push(`lists[${i}]`);
       return;
     }
-    // The shape pattern already guarantees these normalise; a failure is
-    // still treated as shape-invalid (defence in depth, mirrored in Go).
+    // The shape pattern does not range-check calendar fields, so an
+    // impossible instant (2026-13-40, 2027-02-29, :60) fails here and the
+    // list is shape-invalid, as in Go.
     const from = normalizeUtc(list.valid_from);
     const issued = normalizeUtc(list.issued_at);
     const until = list.valid_until === null ? null : normalizeUtc(list.valid_until);

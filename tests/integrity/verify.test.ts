@@ -399,6 +399,37 @@ describe('lookupRevocation', () => {
     });
   });
 
+  it.each([
+    '2026-13-01T00:00:00Z', '2026-00-10T00:00:00Z', '2026-04-31T00:00:00Z', '2026-01-00T00:00:00Z',
+    '2027-02-29T00:00:00Z', '1900-02-29T00:00:00Z', '2026-01-01T24:00:00Z', '2026-01-01T00:60:00Z',
+    '2026-06-30T23:59:60Z', '0000-01-01T00:00:00Z', '2026-13-40T99:99:99Z',
+  ])('rejects the impossible instant %s as at and as a list timestamp', (ts) => {
+    expect(lookupRevocation([list()], KEY_X, ts).error).toBe('at_invalid');
+    for (const field of ['issued_at', 'valid_from'] as const) {
+      expect(lookupRevocation([list({ [field]: ts })], KEY_X, AT)).toEqual({
+        revoked: false,
+        list_valid: false,
+        list_validity_reason: 'shape_invalid: lists[0]',
+      });
+    }
+    expect(lookupRevocation([list({ valid_until: ts })], KEY_X, AT).list_valid).toBe(false);
+    const entry = { key_id: KEY_Y, reason: 'manual' as const, revoked_at: ts, revocation_evidence_hash: null };
+    expect(lookupRevocation([list({ revoked_keys: [entry] })], KEY_X, AT).list_valid).toBe(false);
+  });
+
+  it.each(['2028-02-29T00:00:00Z', '2000-02-29T00:00:00Z', '0001-01-01T00:00:00Z', '9999-12-31T23:59:59.999999999Z'])(
+    'accepts the real instant %s',
+    (ts) => {
+      expect(lookupRevocation([list()], KEY_X, ts).error).toBeUndefined();
+    },
+  );
+
+  it('rejects a Date in year 0000 as at_invalid', () => {
+    const d = new Date(Date.UTC(2000, 0, 1));
+    d.setUTCFullYear(0);
+    expect(lookupRevocation([list()], KEY_X, d).error).toBe('at_invalid');
+  });
+
   it('accepts a strict ISO 8601 UTC string at nanosecond resolution', () => {
     expect(lookupRevocation([list()], KEY_X, '2026-10-01T00:00:00Z')).toEqual(lookupRevocation([list()], KEY_X, AT));
     const nanos = list({

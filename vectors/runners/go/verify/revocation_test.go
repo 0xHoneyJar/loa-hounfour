@@ -67,6 +67,33 @@ func TestLookupRevocationAtInvalid(t *testing.T) {
 	}
 }
 
+func TestNormalizeUTCCalendar(t *testing.T) {
+	for _, bad := range []string{"2026-13-01T00:00:00Z", "2026-00-10T00:00:00Z", "2026-04-31T00:00:00Z", "2026-01-00T00:00:00Z",
+		"2027-02-29T00:00:00Z", "1900-02-29T00:00:00Z", "2026-01-01T24:00:00Z", "2026-01-01T00:60:00Z",
+		"2026-06-30T23:59:60Z", "0000-01-01T00:00:00Z", "2026-13-40T99:99:99Z"} {
+		if _, ok := normalizeUTC(bad); ok {
+			t.Errorf("accepted %s", bad)
+		}
+	}
+	for _, good := range []string{"2028-02-29T00:00:00Z", "2000-02-29T00:00:00Z", "0001-01-01T00:00:00Z", "9999-12-31T23:59:59.999999999Z"} {
+		if _, ok := normalizeUTC(good); !ok {
+			t.Errorf("rejected %s", good)
+		}
+	}
+	shape, err := LoadRevocationListSchema(filepath.Join(repoRoot(t), "schemas", "revocation-list.schema.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := json.Marshal(LookupRevocation(nil, keyX, time.Date(0, 12, 31, 0, 0, 0, 0, time.UTC), shape))
+	if !strings.Contains(string(b), `"error":"at_invalid"`) {
+		t.Errorf("year 0 time.Time: %s", b)
+	}
+	got := lookup(t, []any{rl(t, "bad", "2026-02-30T00:00:00Z", "", "")}, keyX, "2026-10-01T00:00:00Z")
+	if got != `{"revoked":false,"list_valid":false,"list_validity_reason":"shape_invalid: lists[0]"}` {
+		t.Errorf("impossible issued_at: %s", got)
+	}
+}
+
 func TestLookupRevocationBranches(t *testing.T) {
 	at := "2026-10-01T00:00:00Z"
 	l1 := rl(t, "l1", "2026-09-01T00:00:00Z", "", "2026-08-15T00:00:00Z")

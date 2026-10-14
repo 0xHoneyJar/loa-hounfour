@@ -1,0 +1,41 @@
+{
+  "case": "at-year-0000-rejected",
+  "kind": "revocation",
+  "input": {
+    "lists": [
+      {
+        "envelope_kind": "revocation_list",
+        "contract_version": "8.7.0",
+        "cluster_id": "cluster:verifier-conformance",
+        "list_id": "rl-0001",
+        "issued_at": "2026-09-01T00:00:00Z",
+        "valid_from": "2026-08-01T00:00:00Z",
+        "valid_until": null,
+        "max_staleness_seconds": 86400,
+        "nonce": 1,
+        "prev_envelope_hash": null,
+        "next_page_hash": null,
+        "revoked_keys": [
+          {
+            "key_id": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60",
+            "reason": "compromise",
+            "revoked_at": "2026-08-15T00:00:00Z",
+            "revocation_evidence_hash": null
+          }
+        ],
+        "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+        "root_of_trust_id": null,
+        "signature": "ed25519:t90Efx6-5YncAqATXLwodUKdGhhro3eMQelAl_K8qcywqutTrNWinUGyfvv4PT2aXT0iE7MjwYvry_S7mAwQDg",
+        "quorum_signatures": null
+      }
+    ],
+    "signer_key_id": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60",
+    "at": "0000-12-31T23:59:59Z"
+  },
+  "expected": {
+    "revoked": false,
+    "list_valid": false,
+    "list_validity_reason": "at_invalid",
+    "error": "at_invalid"
+  }
+}

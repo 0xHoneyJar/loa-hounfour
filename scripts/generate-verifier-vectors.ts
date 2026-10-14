@@ -411,6 +411,14 @@ function revocationCases(keys: Record<string, TestKey>): Case[] {
     revoked: [{ key_id: c.pub, reason: 'manual', revoked_at: '2026-08-15T00:00:00.5Z' }],
   });
   const brokenShape = { ...clone(l1), list_id: 'rl-broken', contract_version: '9.9.9' };
+  // Passes the schema pattern but names no real instant.
+  const impossible = buildList(a, { ...base, list_id: 'rl-impossible', issued_at: '2026-13-40T99:99:99Z' });
+  const badLeap = buildList(a, {
+    ...base,
+    list_id: 'rl-bad-leap',
+    revoked: [{ key_id: c.pub, reason: 'manual', revoked_at: '2027-02-29T00:00:00Z' }],
+  });
+  const atInvalid = { revoked: false, list_valid: false, list_validity_reason: 'at_invalid', error: 'at_invalid' };
 
   const q = (lists: unknown[], key: string, at: string) => ({ lists, signer_key_id: key, at });
   return [
@@ -476,6 +484,69 @@ function revocationCases(keys: Record<string, TestKey>): Case[] {
       description: 'at carries a +02:00 offset instead of Z; no lookup is performed and the typed at_invalid result is returned.',
       input: q([l1], c.pub, '2026-10-14T02:00:00+02:00'),
       expected: { revoked: false, list_valid: false, list_validity_reason: 'at_invalid', error: 'at_invalid' },
+    },
+    {
+      case: 'impossible-date-list-shape-invalid',
+      kind: 'revocation',
+      description: 'issued_at 2026-13-40T99:99:99Z matches the schema pattern but is not an instant; that list is shape-invalid, the valid list answers.',
+      input: q([impossible, l1], c.pub, '2026-10-14T00:00:00.000Z'),
+      expected: {
+        revoked: true,
+        revoked_at: '2026-08-15T00:00:00Z',
+        list_id: 'rl-0001',
+        reason: 'compromise',
+        list_valid: false,
+        list_validity_reason: 'shape_invalid: lists[0]',
+      },
+    },
+    {
+      case: 'invalid-leap-day-list-shape-invalid',
+      kind: 'revocation',
+      description: 'revoked_at 2027-02-29 does not exist (2027 is not a leap year); the list is shape-invalid.',
+      input: q([badLeap], c.pub, '2026-10-14T00:00:00.000Z'),
+      expected: { revoked: false, list_valid: false, list_validity_reason: 'shape_invalid: lists[0]' },
+    },
+    {
+      case: 'at-invalid-leap-day',
+      kind: 'revocation',
+      description: 'at 2027-02-29T00:00:00Z is not a real date.',
+      input: q([l1], c.pub, '2027-02-29T00:00:00Z'),
+      expected: atInvalid,
+    },
+    {
+      case: 'at-valid-leap-day',
+      kind: 'revocation',
+      description: 'at 2028-02-29T00:00:00Z exists (2028 is a leap year).',
+      input: q([l1], c.pub, '2028-02-29T00:00:00Z'),
+      expected: { revoked: true, revoked_at: '2026-08-15T00:00:00Z', list_id: 'rl-0001', reason: 'compromise', list_valid: true },
+    },
+    {
+      case: 'at-invalid-leap-second',
+      kind: 'revocation',
+      description: 'Second 60 is rejected (leap seconds are not instants in this library).',
+      input: q([l1], c.pub, '2026-06-30T23:59:60Z'),
+      expected: atInvalid,
+    },
+    {
+      case: 'at-year-0001-min',
+      kind: 'revocation',
+      description: 'Lower year bound 0001 is accepted; no list applies that early.',
+      input: q([l1], c.pub, '0001-01-01T00:00:00Z'),
+      expected: { revoked: false, list_valid: true },
+    },
+    {
+      case: 'at-year-0000-rejected',
+      kind: 'revocation',
+      description: 'Year 0000 is outside 0001..9999.',
+      input: q([l1], c.pub, '0000-12-31T23:59:59Z'),
+      expected: atInvalid,
+    },
+    {
+      case: 'at-year-9999-max',
+      kind: 'revocation',
+      description: 'Upper year bound 9999 is accepted.',
+      input: q([l1], c.pub, '9999-12-31T23:59:59Z'),
+      expected: { revoked: true, revoked_at: '2026-08-15T00:00:00Z', list_id: 'rl-0001', reason: 'compromise', list_valid: true },
     },
     {
       case: 'fractional-precision-boundary',

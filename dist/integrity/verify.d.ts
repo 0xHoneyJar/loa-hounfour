@@ -100,10 +100,12 @@ export interface RevocationLookupResult {
  * `at` is a `Date` (millisecond resolution) or a string in the strict
  * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
  * resolution). Timestamps compare at nanosecond resolution on their
- * textual value. An invalid `Date`, a Date outside years 0000..9999, or
- * a string not in that form yields the `at_invalid` result; it never
- * throws for `at`. The string form is checked textually only, like the
- * list timestamps (the shape pattern does not range-check fields).
+ * textual value. An invalid `Date`, a Date outside years 0001..9999, or
+ * a string that is not a real calendar instant (see `normalizeUtc`)
+ * yields the `at_invalid` result; it never throws for `at`. A list whose
+ * `valid_from`, `valid_until`, `issued_at` or any `revoked_at` is not a
+ * real instant is shape-invalid, because the schema pattern does not
+ * range-check fields.
  *
  * Pure. Throws `TypeError` only when `lists` is not an array.
  *

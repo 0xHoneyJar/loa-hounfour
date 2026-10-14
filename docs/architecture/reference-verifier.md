@@ -113,6 +113,7 @@ treats it as a failure.
 - A list is applicable when `valid_from <= at` and (`valid_until` is null or `at < valid_until`).
 - The key is revoked when an applicable list has an entry with `key_id == signerKeyId` and `revoked_at <= at`.
 - Applicable lists rank by `issued_at` descending, ties in input order. When revoked, `list_id`, `revoked_at` and `reason` come from the highest-ranked list carrying an effective entry. Otherwise `list_id` names the highest-ranked applicable list, or is absent.
+- Every timestamp must name a real instant. That means year 0001..9999, month 01..12, a day that exists in that month under proleptic Gregorian leap years, hour 00..23, minute 00..59 and second 00..59. Leap seconds (`:60`) are rejected. RFC 3339 allows them, but the library's other UTC patterns and JavaScript `Date` do not. The schema pattern does not range-check these fields, so a list holding `2026-13-40T99:99:99Z` or `2027-02-29T00:00:00Z` is treated as shape-invalid. An `at` like that returns `at_invalid`.
 - Lists failing `RevocationListSchema` shape validation are ignored. They set `list_valid: false` and `list_validity_reason: "shape_invalid: lists[i], ..."`.
 - Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. A `Date` argument carries milliseconds; a string argument keeps its full nanosecond precision. In Go, `LookupRevocationAt` takes the string form and `LookupRevocation` takes a `time.Time`.
 

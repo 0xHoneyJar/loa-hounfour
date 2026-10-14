@@ -118,6 +118,10 @@ Rules:
   `revoked_at` and `reason`.
 - Lists failing shape validation are skipped and reported
   (`list_valid: false`, `list_validity_reason: "shape_invalid: lists[i], ..."`).
+- Every timestamp must be a real calendar instant in years 0001..9999,
+  with no leap seconds. A list with an impossible date such as
+  `2027-02-29` is skipped as shape-invalid, and an impossible `at`
+  yields `error: 'at_invalid'`.
 - Timestamps compare on the instant, at nanosecond resolution:
   `00:00:00.5Z` equals `00:00:00.500Z`.
 

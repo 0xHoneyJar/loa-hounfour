@@ -146,6 +146,46 @@
     },
     {
       "kind": "revocation",
+      "case": "impossible-date-list-shape-invalid",
+      "description": "issued_at 2026-13-40T99:99:99Z matches the schema pattern but is not an instant; that list is shape-invalid, the valid list answers."
+    },
+    {
+      "kind": "revocation",
+      "case": "invalid-leap-day-list-shape-invalid",
+      "description": "revoked_at 2027-02-29 does not exist (2027 is not a leap year); the list is shape-invalid."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid-leap-day",
+      "description": "at 2027-02-29T00:00:00Z is not a real date."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-valid-leap-day",
+      "description": "at 2028-02-29T00:00:00Z exists (2028 is a leap year)."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid-leap-second",
+      "description": "Second 60 is rejected (leap seconds are not instants in this library)."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-0001-min",
+      "description": "Lower year bound 0001 is accepted; no list applies that early."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-0000-rejected",
+      "description": "Year 0000 is outside 0001..9999."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-year-9999-max",
+      "description": "Upper year bound 9999 is accepted."
+    },
+    {
+      "kind": "revocation",
       "case": "fractional-precision-boundary",
       "description": "revoked_at \".5Z\" equals at \".500Z\"; comparison is on the instant, not the text, and is inclusive."
     }
