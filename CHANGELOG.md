@@ -5,6 +5,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+<!-- v8.8.0 cycle-008 entries are added per feature PR -->
+
+## [8.7.0] — 2026-05-15
+
 ### Fixed
 
 - **`RELEASE-INTEGRITY.json` manifest contamination** (post-v8.6.0 hygiene, PR-B1.0). The v8.6.0 published manifest claimed 1,226 vector entries but only 1,080 of those were actual fixtures — 146 entries were leaked cargo `target/` cache paths (e.g., `vectors/runners/rust/target/.rustc_info.json`) that the `isVectorExcluded` predicate failed to filter at manifest-generation time. The PR-A3.13 prepack hook removed these from the published tarball but the tarball-internal manifest remained contaminated. The predicate is now extended to filter `vectors/runners/rust/target/`, `vectors/runners/go/cross-runner{,.exe}`, `vectors/runners/python/__pycache__/`, `vectors/runners/python/.venv/`, and `*.pyc`. Regenerated manifest reports the corrected 1,080 vector count.

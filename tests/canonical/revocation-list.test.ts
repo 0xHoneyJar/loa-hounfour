@@ -472,7 +472,7 @@ describe('RevocationList published JSON Schema $id contract', () => {
       $id: string;
     };
     expect(generated.$id).toBe(
-      'https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/revocation-list',
+      'https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/revocation-list',
     );
   });
 

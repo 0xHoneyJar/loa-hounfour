@@ -317,7 +317,7 @@ describe('InterSeriesScopingArtifact published JSON Schema $id contract (iter-2 
       $id: string;
     };
     expect(generated.$id).toBe(
-      'https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/inter-series-scoping-artifact',
+      'https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/inter-series-scoping-artifact',
     );
   });
 

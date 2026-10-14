@@ -1,6 +1,6 @@
 {
-  "release_version": "8.7.0",
-  "generated_at": "2026-05-14T16:53:52.559Z",
+  "release_version": "8.8.0",
+  "generated_at": "2026-10-14T02:53:51.231Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -15,1312 +15,1312 @@
     "schemas": [
       {
         "path": "schemas/access-decision.schema.json",
-        "sha256": "d534f4e21b1772b2c839e10db9a3b5ad949db468353b940cdbb1ca4d8be3b196",
+        "sha256": "7ddbce170718ddbb25706f2cd7aa2c3ca2b91d7fcd500ef614c6c3b6089ecfdb",
         "size_bytes": 1548
       },
       {
         "path": "schemas/agent-capacity-reservation.schema.json",
-        "sha256": "54ae84f07ed2465c841430e906fd03874bcc8bbd8dcb801fcdf703fefe302be4",
+        "sha256": "e284984ac9e38d7afe671df6071ce238e30cf52e7892a470c9ad5f42dbf23da1",
         "size_bytes": 2173
       },
       {
         "path": "schemas/agent-descriptor.schema.json",
-        "sha256": "31683472136fa9f3d933ab9b25b294e1d4015baba2e9d614b56ddf355fbdefca",
+        "sha256": "c0b27ef5b487c1b6ca4c7769423dc10fdea6f8fc768c3b34f398d60d119b3e95",
         "size_bytes": 4924
       },
       {
         "path": "schemas/agent-estate-status.schema.json",
-        "sha256": "5a97998fe3e690e220db32c1d71c9be6fa9e355bb47cf0dd537223138fa0e33f",
+        "sha256": "e668f78baa380ac4d99d83dd48123a0ca8be18b7ea600e967db5d367cd8e8e16",
         "size_bytes": 1209
       },
       {
         "path": "schemas/agent-estate.schema.json",
-        "sha256": "34d180e0a53461535c55204427b2fe8e1c4ac136d039ca39510919f780b0195f",
+        "sha256": "53f36dc11f675af59d6e2fc9b3bd267ffc213292f555d567944c2153e71b0799",
         "size_bytes": 2906
       },
       {
         "path": "schemas/agent-identity.schema.json",
-        "sha256": "b6a57429e041158d4c8ca9d55f788800998df4ed4d848205e4a93a047db7dc13",
+        "sha256": "fd7fbb7a49528f954b1c4ff58f85ef828af11b2300a7866ba0e4da7ad7889b2d",
         "size_bytes": 9241
       },
       {
         "path": "schemas/agent-lifecycle-state.schema.json",
-        "sha256": "e056d74cc2c0d5d00201edef6f15a6444aecde68fb1e0106cf8937d127f4e51a",
+        "sha256": "af81d4c49e04c4d137df79dd8bc521734f1457c1ff702d9eb5d7ba8d7e7998c8",
         "size_bytes": 651
       },
       {
         "path": "schemas/agent-requirements.schema.json",
-        "sha256": "f7cb4febae25f49258469291fad1247cbbb7ba91de6cc63ddc1a9a6c9ce7b591",
+        "sha256": "f94f4e3a0a36e4ea919692627bb365121e4b9eda5da4139b4e36076aa8e14b51",
         "size_bytes": 1104
       },
       {
         "path": "schemas/aggregate-snapshot.schema.json",
-        "sha256": "7c7b4c995ce0cf4e66e9a3e161a43b1950f6a26ff2780961e7429f04648bff37",
+        "sha256": "05f7bae0e5fa66312b5c3a84fa474f5df1fc9fd6265064b188ebf59f7fba0b4a",
         "size_bytes": 11536
       },
       {
         "path": "schemas/amendment-severity.schema.json",
-        "sha256": "e3b1a86ed197db1b7e841125be837d4ae56a419b3db43a717cdd60f235b1576c",
+        "sha256": "61f06a668f4128ed5d45c6c63226343375cdffd0bf8497a2ace7704fa96f7a69",
         "size_bytes": 574
       },
       {
         "path": "schemas/amendment-trigger-class.schema.json",
-        "sha256": "4eb0e27fa6886ee707774e5436327665e32eb30b2fe81f9ddbbe779bc9b145b4",
+        "sha256": "2be6bcd3ce4d102dad7bcad03d8cfd1ccfc9b887d172def402aca0d3f3dec13d",
         "size_bytes": 701
       },
       {
         "path": "schemas/assertion-class.schema.json",
-        "sha256": "18cc427979271f938f440dd5b48cf85718bbe13917b630e9dac1b639f474052a",
+        "sha256": "d4955691ae5842921a0882a54d0d1d5784782cd71af57fb3605f960a49003eed",
         "size_bytes": 2086
       },
       {
         "path": "schemas/assertion-status.schema.json",
-        "sha256": "63096f248ac33b394e78fa2e6b85bf1805edb2944686c94a0856a6c3073ece63",
+        "sha256": "3c20e9bacc27cb8f48fe942cbc20e7c2716f2e4a16e3e5888ca498d6974e5822",
         "size_bytes": 1674
       },
       {
         "path": "schemas/assertion.schema.json",
-        "sha256": "ebf29aaf6e22d74382e9a8e2eef5d5ad92d7be159fd3313b88e62572501f389a",
+        "sha256": "513cc49921ce3d67cd5bca07f479b0643ada59ffb73ac9f7cc116d2bbb3a9da2",
         "size_bytes": 227398
       },
       {
         "path": "schemas/audit-trail-entry.schema.json",
-        "sha256": "2cf4c7a02e8940b31d40e5af8852674d71ff4c5702ad8d7cc774948d4169bc5d",
+        "sha256": "7ba3a111e93a86f13c7d6f5b6b36fb8a464be695c38d61cc7e5a3899784c1976",
         "size_bytes": 2893
       },
       {
         "path": "schemas/basket-composition-entry.schema.json",
-        "sha256": "93c16fe64944221417dd6648ce43489bc0a325805a82b9596ddc5ac9a134979b",
+        "sha256": "7b6f396d1bebbc695f6b773214e6a884a74aae2b6974f049da06426b6af059f4",
         "size_bytes": 1028
       },
       {
         "path": "schemas/basket-composition.schema.json",
-        "sha256": "35d95cab562ac29141cba5d4006bea6703f377ad5bc0b8088a1bb06c2a586427",
+        "sha256": "4c68131176dec582ea49a1c7a71d594e66f6b9431a85dd988ddc90d183aa093f",
         "size_bytes": 2243
       },
       {
         "path": "schemas/billing-entry.schema.json",
-        "sha256": "c565471ee46c0fafb9f62ffdc1459e8769a765ca4644f32ed206a58e39c7f81a",
+        "sha256": "5a96bffcf3194ec87cd9fa8466ad575d22216082d71ed1fe3e5ce794cd9813fe",
         "size_bytes": 8414
       },
       {
         "path": "schemas/bridge-enforcement.schema.json",
-        "sha256": "8294c094c5f3d83bf6f42f89ee3024f3411c9a5ef4caa92ddee2098ba2df6245",
+        "sha256": "7cb38194f363d80d5d10fd1173f71a163e853b2b7ca496312c870ecab87637b4",
         "size_bytes": 501
       },
       {
         "path": "schemas/bridge-invariant.schema.json",
-        "sha256": "6cbb7bdc8d318e0717c1ec040ffcef7e410b47e67431bee2acabe3670be50976",
+        "sha256": "5fa225b152d716774a6c3c846e6a2e93f1546ed0d8198a372236577ea578e20a",
         "size_bytes": 1293
       },
       {
         "path": "schemas/bridge-transfer-saga.schema.json",
-        "sha256": "2dc0bf370c9eaf047d1c5f7eba7e511592544f99564bc2eb7948ee86a7b5ba45",
+        "sha256": "ba8d14659489433b3c1c082afd5e5813918a52bc1f40359d34d474dc150022e1",
         "size_bytes": 23631
       },
       {
         "path": "schemas/budget-allocation.schema.json",
-        "sha256": "a53c6d087ef1d4533fd92a4d71acbf1beaadefcf2ae8967ca3be9ddef0481ead",
+        "sha256": "2dbd25e6e6b25cc2b3e479b5899649f9abadb7dae2f5dfe1f0f6d05bcad0e22e",
         "size_bytes": 486
       },
       {
         "path": "schemas/budget-scope.schema.json",
-        "sha256": "18e5767dbc6014e79299350566a200d5b3864b43de13adc9529dbc094bac4982",
+        "sha256": "8b9652c0f73af93784daa7607e7be562c12e31a2199fcb14b2df676a4656e19c",
         "size_bytes": 3382
       },
       {
         "path": "schemas/canonical-run.schema.json",
-        "sha256": "979c4422602dda9cb8bb23071ef15bef887e46febb9cf0ac19a451d1d5a89f06",
+        "sha256": "f1bd44f6fed7656d31235b549933e45c8d4e0a13a83eae6775eba9e2a84e97d8",
         "size_bytes": 5815
       },
       {
         "path": "schemas/capability-query.schema.json",
-        "sha256": "4e0e15a405f2d634cb92fc4b15bd74cd1ee60eb2caed60d688e1c07f9be84152",
+        "sha256": "ef2149bf4df0031afe400c8efadaa9340cd8e6820682bb9044a5bcfe3e902f59",
         "size_bytes": 958
       },
       {
         "path": "schemas/capability-response.schema.json",
-        "sha256": "e3118b714c28d2a7c32d1ceceabefabf4c04657a85a4f1c87194555bfed4cccb",
+        "sha256": "07fc94d54c9882a48a3aeb44339519c84af7891cb800d1b9c376571c7cc5e915",
         "size_bytes": 2477
       },
       {
         "path": "schemas/capability-scope.schema.json",
-        "sha256": "acaf73b57f287a9dd0f0f47c1deb8282c76717083a0711f8e838e8d61392db34",
+        "sha256": "6b91d5fbc723a37fa71b42a513cae8e922e78e04737a78cd00f29af135a60a63",
         "size_bytes": 675
       },
       {
         "path": "schemas/capability-scoped-trust.schema.json",
-        "sha256": "e019dd961974706befd8383ee40bd33f70acbe15e8a19deb6ba2a9b14ca295a8",
+        "sha256": "2bbe5599615db526a57a15be87448d1b4d0ff430f1c77cfa674fbcb8559dfeba",
         "size_bytes": 6002
       },
       {
         "path": "schemas/capability.schema.json",
-        "sha256": "08fafd50b6fb49796680b04e906389138fa96af2735ba5de6f288d22bfa0e631",
+        "sha256": "2a76028b7af626674704b58919ef381622a648bdd2e01d208ffbef3dbf1c8adf",
         "size_bytes": 1282
       },
       {
         "path": "schemas/capital-layer-snapshot.schema.json",
-        "sha256": "13670ba6916c5fd86b09aeb85a7bb09f2a9482bdfa4b34e0868de291361f2f99",
+        "sha256": "45a327c21d2dec2b2a8e9587f21d388d2c565a9962654115fac28060e8d51e00",
         "size_bytes": 884
       },
       {
         "path": "schemas/challenge-requested-effect.schema.json",
-        "sha256": "28f48661088577f1023e7bdeaf37b4145ede272de59a4722967c0cfedf042921",
+        "sha256": "3f8ac3333103224bf978b7fd70b418f132173150e8879b0cb4deaaef9920e9b2",
         "size_bytes": 802
       },
       {
         "path": "schemas/challenge-type.schema.json",
-        "sha256": "81740fd8465e2f6d3cacbb59e01a00d4d112f6274a33071f44140ea05d6089c6",
+        "sha256": "2c2590498e87345923d43788b7faede9d1e79c34cb75e47c0314a9ee05ef2b27",
         "size_bytes": 1028
       },
       {
         "path": "schemas/challenge.schema.json",
-        "sha256": "073ec4963d76453eab9930f58cb80212ef299df5b55b28c28a8aa1794a38a38b",
+        "sha256": "d57a1a14414dee4977cbdc51ebfdbadf1f9f16787d9520b408f5eeaa91c7c55b",
         "size_bytes": 6577
       },
       {
         "path": "schemas/change-application-result.schema.json",
-        "sha256": "7633d4776ecce3c1dd9d8908e5792ee2ef82c989e2dde016a00027e3b0b42172",
+        "sha256": "f8bacef6869ba15c1653e90aa0d2e5eddb7d8abc62be414f574ff708e8b48b4e",
         "size_bytes": 1278
       },
       {
         "path": "schemas/checkpoint-health.schema.json",
-        "sha256": "6af9d00aecb7a47aa63b1d392c35e8b89f97ddc36dd2d2fba7c565789f6473dd",
+        "sha256": "a1c1df60b6b141b69c36f810ffbd13b8b004eaa7d6f8cac9ed2b1a8c4f682ccb",
         "size_bytes": 485
       },
       {
         "path": "schemas/cluster-run-series.schema.json",
-        "sha256": "a4ba76bc7c2309bc5b731f7fdd593e4c1171a5254f29aaf0be6b528ad6ae3823",
+        "sha256": "3a67555720b21eb93eddbbddd72d74ca7548866891ee2168422c7f362bf5a315",
         "size_bytes": 5074
       },
       {
         "path": "schemas/collection-governance-config.schema.json",
-        "sha256": "1794585e1a717363a6cf7a4b1b666b390ef2d1994b63727dcf2050d6adfe937c",
+        "sha256": "fca10094a677e6d04dac7042fd3c2eb3fdbae89542d3232b1b9c12c94dec9394",
         "size_bytes": 5664
       },
       {
         "path": "schemas/collection-score-updated-payload.schema.json",
-        "sha256": "5a1cc4f4558552f15bb73dbaed96464bfcc7195bfdc96846444aca00c2608684",
+        "sha256": "f448a41cfa21172ebcbe95ebccba6ab75cc564ae50040162a072b9de79359f26",
         "size_bytes": 1145
       },
       {
         "path": "schemas/commitment-root.schema.json",
-        "sha256": "dae1fb25d1328523b165f9828f60146f015aa4d898b17d7156dee79d65c228e2",
+        "sha256": "3e067675e5c95de5511974be79038fb2a9c7516fb471b99be18349045e209ef5",
         "size_bytes": 2942
       },
       {
         "path": "schemas/commitment-type.schema.json",
-        "sha256": "31b9237c3b96b8088d3267e237c0c43d3b358f24aafc9dff2fa37d45464ae1cd",
+        "sha256": "bbf2c2704c8cd8069c84aaf5fdc9a1b307da359e1c87bc1fe5ef1eadce877d7c",
         "size_bytes": 1002
       },
       {
         "path": "schemas/commons-dividend.schema.json",
-        "sha256": "3b61178c5e5265b10360bbc303cf4e80c2a95f2bb0d42de8a9687cf6d577dd66",
+        "sha256": "9e6c6acac965b3b3e48bfc8b9740233e305855c54d3539805cd2bb68c8921aab",
         "size_bytes": 3853
       },
       {
         "path": "schemas/commons/audit-entry.schema.json",
-        "sha256": "b84c3c13c88b382d4ebdcd741c5b2f7b81a7bcf42f819634fdda34b3e4818f1b",
+        "sha256": "4dae1de69b0cb4ec268adbcdb50dffe4e3ff305294246b3de23d5967eeb244d7",
         "size_bytes": 1681
       },
       {
         "path": "schemas/commons/audit-trail.schema.json",
-        "sha256": "28079c7180acdd73004f7aa10f1df0cd604fc35d90ae839c0c22c42f7a0a7537",
+        "sha256": "35df8beab21521fb611eba405e4b63370425ceb381aaccc1e4ccb7e426b128df",
         "size_bytes": 3634
       },
       {
         "path": "schemas/commons/conservation-law.schema.json",
-        "sha256": "0dfd432e794848c3caed2a0445e7dd1fd49aa760c4cbceb29ca203e42ccb2d06",
+        "sha256": "13ef2b191fe90c5afb577f6a2d159eec535306216d2f7bb470d47d8fed4517f8",
         "size_bytes": 2622
       },
       {
         "path": "schemas/commons/contract-negotiation.schema.json",
-        "sha256": "eb8c7692e6247d78cf48e80a8bb31d5980fe9da76b8c0c8301da0dc5b2717ac2",
+        "sha256": "a095ae50080e5e78d9431f8b6a75d66d984b9f2642e5a8c49432acda632ed543",
         "size_bytes": 5947
       },
       {
         "path": "schemas/commons/dynamic-contract.schema.json",
-        "sha256": "a9a797d66ccb9463ee206dc4ae9cd16318d5593420fec5f20a58e99f98603a2d",
+        "sha256": "cfd727e5c53eb89c89442053bd85b5353915c3169293184886ed114622dee0e1",
         "size_bytes": 9811
       },
       {
         "path": "schemas/commons/governance-class.schema.json",
-        "sha256": "a118cd9a8f1cb8bbfe0991d4f55e001b5648974a5b876daf1e93651a9d45a296",
+        "sha256": "dac12bd6710a1561dc9cfc552eaa1c8cb0142e09e36abeb72da7ceb2b5ff8f40",
         "size_bytes": 444
       },
       {
         "path": "schemas/commons/governance-error.schema.json",
-        "sha256": "5c3cdda78148d27d3a031a9f63305bd6c9cb9f64bfd031b821c214e339c150ce",
+        "sha256": "1472e373c57e1fc33100e4d8e9001e03689fcb81b8ed6b06b9ef65b9bc77ca6e",
         "size_bytes": 7546
       },
       {
         "path": "schemas/commons/governance-mutation.schema.json",
-        "sha256": "cc250f36e164ceccd3ca77546fa75be81b81b20e4722faeff7766068076575c1",
+        "sha256": "5f7eccaa138f4501772a2d7431dcc51fa6335f79097b5306c59fc17aa5ee799d",
         "size_bytes": 1053
       },
       {
         "path": "schemas/commons/governed-credits.schema.json",
-        "sha256": "292f6fa1f992b20a9e3013fa6428e18b252cd0950144421d2dfe8c8c1963119f",
+        "sha256": "9f48136bd4b7e8b1239c09808e0dd4591b56dbc66e7ff9e6427ca1dd0edc3154",
         "size_bytes": 12226
       },
       {
         "path": "schemas/commons/governed-freshness.schema.json",
-        "sha256": "ecbda0d948e3c85433decceeac16a65b7c835449de093da39bdab1d73e106d5f",
+        "sha256": "b1aaeb3b39caefb8f40eaccbe8a25bcee7e266237d667794faeab4d6c8fa1080",
         "size_bytes": 12235
       },
       {
         "path": "schemas/commons/governed-reputation.schema.json",
-        "sha256": "2496da39ebbc71d2afd543ca6606046035e7d3bd44f992a9441223f72be2c680",
+        "sha256": "11c693d618dae0a8c771bf4813f43b0afa0e9245eb5779afff9446314141380c",
         "size_bytes": 12780
       },
       {
         "path": "schemas/commons/hash-chain-discontinuity.schema.json",
-        "sha256": "f040c1cb3bccb07ca1cd76f8d0114b2cc60d2f56bdfd541eb146ddbc9e861208",
+        "sha256": "474811f4c571b423bea74de4c042a838e103dc98ccf3a7a5bfbd5970a6523a3e",
         "size_bytes": 1917
       },
       {
         "path": "schemas/commons/invariant.schema.json",
-        "sha256": "6c79e1369300fff92891f6776107a54c778e2b23311772044ac2204ba46ddb6a",
+        "sha256": "e2c4448233a053cfce9ab36d63a34a6171e76a13951214e85025da683ab1c1fd",
         "size_bytes": 1311
       },
       {
         "path": "schemas/commons/protocol-surface.schema.json",
-        "sha256": "97249a67a37a65d16275f4b5d6f6f6d6d47ab7206971cc9dd1bac1b9a06ee0f4",
+        "sha256": "f8b9e2c6a386b391ff542a0f0685867d98e6c458671c7e7e3ab635c605b8cd02",
         "size_bytes": 1761
       },
       {
         "path": "schemas/commons/quarantine-record.schema.json",
-        "sha256": "70764a3c44bbf11450b9349787d431b4d2cf46cf6817bf6ff3c2f17f492aab91",
+        "sha256": "e74ad06f0021cc179066f06ece9087c6f80bcd397131c2cee401770aa120128c",
         "size_bytes": 1722
       },
       {
         "path": "schemas/commons/quarantine-status.schema.json",
-        "sha256": "27a73bb40881c3ff4fbb5e1c9b1b1cff4b33e1e6d887426c634d0316d2bdb8cd",
+        "sha256": "1a0d5c624a704295e8d2cea9bd8980437732793a40d8c5f1503e2a9c3f210446",
         "size_bytes": 565
       },
       {
         "path": "schemas/commons/state-machine-config.schema.json",
-        "sha256": "c9374f96ea353583ba4742d46a6b6c6f7db068214d13162683e7c6d499f04e97",
+        "sha256": "148659a7229cdcdc27628392df85c24667024b14f0dc3e80ff79e920b030a368",
         "size_bytes": 2573
       },
       {
         "path": "schemas/commons/state.schema.json",
-        "sha256": "ba4f3a4fe911bcd0b89ce41c10625a835c7ab27ba576a31623833a7f3803906c",
+        "sha256": "e0d681a0d066708d56e0ffbc5bcfa8af261b942cd818d8c4709d9ce31c17fad5",
         "size_bytes": 857
       },
       {
         "path": "schemas/commons/transition.schema.json",
-        "sha256": "6737b0bfcaae7d4a9f0c25e6fa9ceab879e598076b11370e09eb2984f5e93878",
+        "sha256": "2662b3122e9bfa370e0799b33334fca58c874dbfb2733611224968e1e9a41811",
         "size_bytes": 745
       },
       {
         "path": "schemas/commons/vector-manifest-entry.schema.json",
-        "sha256": "74885f048647413e542ffb742cf105359fd8f070b5561b48d26206f63edf6f18",
+        "sha256": "d7a3aec897e58a8a2d9a451e59d31690c7339066bba642557215cec9f4031385",
         "size_bytes": 1227
       },
       {
         "path": "schemas/commons/vector-manifest.schema.json",
-        "sha256": "db3e556a14c0fa865042b2752c89db7c5976ec4da3f6931d6089744df04cfb3a",
+        "sha256": "9b1b2e06bd32d39b73d18e8753757c6619fc314fe830e3b5e8d1965026e4d058",
         "size_bytes": 2313
       },
       {
         "path": "schemas/community-engagement-signal.schema.json",
-        "sha256": "a1386b450253a0ace9a20e54dd8603ff5da8355c1fb94cf4d101accae3ae4b13",
+        "sha256": "10c6c7b56ba2fb17dd4f0e694b3a17d66f9e3a0935570c440a8cd043d1547559",
         "size_bytes": 2023
       },
       {
         "path": "schemas/completion-request.schema.json",
-        "sha256": "d2c5942e4de0d1c0fac62284adb908ca42849fd7ba1b706823db07ee8830d692",
+        "sha256": "7df258b145bc0ba9c02e950fe91502e21fe103458aeb5937461814212b69d973",
         "size_bytes": 7386
       },
       {
         "path": "schemas/completion-result.schema.json",
-        "sha256": "be4675ede74dad6963cd2e798312a278bbf886d666d97869ecebb003b691fd9d",
+        "sha256": "30d660ef9bcba137e2ddd7d2adae674fba419bafae310e48d5db8ae236177239",
         "size_bytes": 4188
       },
       {
         "path": "schemas/conformance-level.schema.json",
-        "sha256": "807c58ef707aebcd2eaf4b91eb69a28c355c3795b0afbaae8f97b171d6c8adf9",
+        "sha256": "78c4592a30ffc85e30acc1f23b59d1c162c342f2480058d03ee47a300805ae59",
         "size_bytes": 532
       },
       {
         "path": "schemas/conformance-vector.schema.json",
-        "sha256": "b9d61636aa590fa8a5ee8e98b17b95603bde5c42f9f2b246b94833b59eaa7748",
+        "sha256": "0e508905a5442c4a66f6178c23b2ed1f8baf45c90a7ac8a15c2a7c9fd722f775",
         "size_bytes": 7420
       },
       {
         "path": "schemas/conservation-property-registry.schema.json",
-        "sha256": "cee965133eff38902386e6d7c1c52abbe7893d82b8babc7a1c60214212f522f6",
+        "sha256": "c616edc497974e5f1f63b7d356b4a7632b969b0c86159667dd030fb022b13404",
         "size_bytes": 8746
       },
       {
         "path": "schemas/conservation-status.schema.json",
-        "sha256": "b5642f4f4c22219c9768d001ba95923a4d26eb902a460550796f4b0448bc1219",
+        "sha256": "20f9a2ac6ed2ce15c587f45b31f2e32f14d653838b700e06426556371335b027",
         "size_bytes": 492
       },
       {
         "path": "schemas/constraint-candidate.schema.json",
-        "sha256": "1bcebb3abd4677023db2181c06d6d980345a8bcc4dd11dc4f15370c45baa0ae1",
+        "sha256": "c7c51b4e30c1ff2c649286c08a1bca3e83f85108da888b0e810c78b5c3ad7beb",
         "size_bytes": 2509
       },
       {
         "path": "schemas/constraint-lifecycle-event.schema.json",
-        "sha256": "c58aef51d2bd258ff233e4bf6b82058f25757f08fe445f1b3b1a9c0192c54d32",
+        "sha256": "1b7cdc9646951baa285c3ca64baff266be5a85b34c18db1bae4d03b697ed790d",
         "size_bytes": 2296
       },
       {
         "path": "schemas/constraint-lifecycle-status.schema.json",
-        "sha256": "8be76a9b6314a46ff38bbafbe3b0c07f011a23cf27c8ee462fab8c117a11c7a5",
+        "sha256": "88aeaa211b8faa8ae99484ad523e90bd99ee931ac8cbc0e06c5cd3377e85e765",
         "size_bytes": 633
       },
       {
         "path": "schemas/constraint-proposal.schema.json",
-        "sha256": "a8d2b482f51be502c4be374c8174d334c6591a1d153c2b1c3d492d66184d2624",
+        "sha256": "f5b94ecdbf16907e304c9fdaf6fc054b491e5d78f879925116c536544f241724",
         "size_bytes": 3760
       },
       {
         "path": "schemas/constraint-type-signature.schema.json",
-        "sha256": "29ed191f861de7a5fc35ab1eac04dc41659916fe8b23f17a41e4b8bcf66eeccc",
+        "sha256": "49abdce9e549aca53eac95f0d418f2403d20c261421e462355bc8522c6423150",
         "size_bytes": 2413
       },
       {
         "path": "schemas/constraint-type.schema.json",
-        "sha256": "ce89d250609c09fbaf2ca28adf169a65fbbad457fd276373b9064015b6517e4a",
+        "sha256": "e282cc55ac6f7643a4345eecac32a93fd2786150535e4eb6052af4013f9954c8",
         "size_bytes": 798
       },
       {
         "path": "schemas/consumer-contract.schema.json",
-        "sha256": "2985513d4926ba892660d7e0e3a4a8053032f04e8c811fd1ccf3a33e9ece5c05",
+        "sha256": "242831cdc11fa6b7cddf0d85b355c1f82f948f4f4370c08741f5931fbdd57972",
         "size_bytes": 1873
       },
       {
         "path": "schemas/contribution-record.schema.json",
-        "sha256": "8b51cea16d7aed9e3c38f702dfb77481649313933e21b11276b7c4e6c65fe287",
+        "sha256": "2ddae182c3c20cf08f7fecb3ab35ea775ca763fef302f04cb33c40281ee43fd0",
         "size_bytes": 2274
       },
       {
         "path": "schemas/conversation.schema.json",
-        "sha256": "b11646ba9da590b171d52f3f084c919b5cd4deff80b2d1959b701d901a39d111",
+        "sha256": "572112bea6f5a739cfc983159eba6bb97a4a8dce21c0e8c0aece58f071e72f10",
         "size_bytes": 8840
       },
       {
         "path": "schemas/cost-per-token.schema.json",
-        "sha256": "263aa17642e07b08536af1f874bf3811ab6adb253e3d64bced7d481b5076e018",
+        "sha256": "398dbafd5569a12eaf833294b2c1828dfdc8f4b1847db2462291831836463fa6",
         "size_bytes": 645
       },
       {
         "path": "schemas/credential-update-event.schema.json",
-        "sha256": "47697cfcd5fa57d973b05251dbabb8d78f772951418ee7184f3d216bef5be372",
+        "sha256": "6f7a6a3f1ece6b5d3d78a8acc61617285a8087e777ca12d0508e29c0b39c9c8e",
         "size_bytes": 1925
       },
       {
         "path": "schemas/credit-note.schema.json",
-        "sha256": "8fb3f8bd9de42f0861ed0ee6bd29accab4767d4704a393d7ec6b9b51e63d393f",
+        "sha256": "09a757f48f77e719138851296e4a4ffc64f29ea5606186d8513d83e90852d726",
         "size_bytes": 3713
       },
       {
         "path": "schemas/cross-score-report.schema.json",
-        "sha256": "cbb0be9c4caf67a5f6b365bca751e0a48ff1ffb034a3057eac35b8d8df32825a",
+        "sha256": "83a9a538a344b2c56acbd644f25db21bc66f1510e8144f184eccd656ef2ee44e",
         "size_bytes": 28955
       },
       {
         "path": "schemas/delegation-chain.schema.json",
-        "sha256": "a71fb61b3f977d7ca0fe4a0165186e85f582c40f201e586da8f3c0b0e55c35b3",
+        "sha256": "bdf0bbbc6993086a6a90d4748a74e2d9718b3aec69f8a489dc62f81f88b01ead",
         "size_bytes": 3972
       },
       {
         "path": "schemas/delegation-outcome.schema.json",
-        "sha256": "c83ea211728894a966fa63eae426f977a839f3f8d0937c9cf4496d4e69f3ef44",
+        "sha256": "4f45cba441a4e7abdeaa617c5f53b273c998cdd97e02d452e348dbdfcef9f089",
         "size_bytes": 6349
       },
       {
         "path": "schemas/delegation-quality-event.schema.json",
-        "sha256": "32222b6415e7dbd03d60f8b40d8035991ce91b6adb37c09d056070aba16f08e5",
+        "sha256": "3cbe72c18fc66fdf83a73f21beedb4ae37269a0b22a6b3ebef7dbfb605ab4f69",
         "size_bytes": 5257
       },
       {
         "path": "schemas/delegation-tree-node.schema.json",
-        "sha256": "2432adf4c8c754235b0e41b9331fd5e23f4de2507434fe962da7753586425551",
+        "sha256": "c580eb74ebe5690d8cd410504d30cee34437d8a778cccbfea525f9c2ba784632",
         "size_bytes": 3520
       },
       {
         "path": "schemas/delegation-tree.schema.json",
-        "sha256": "746b7620dec6e728580b5c787bd1c526597c79bf28a57ee7dd743f961bd132f0",
+        "sha256": "7a2a42b8a6111634b725022123aba1614207538858f5c48460ad2866a6f9da4c",
         "size_bytes": 6081
       },
       {
         "path": "schemas/deliberation-dissent.schema.json",
-        "sha256": "30909f35d52d426699062af46df3e7c252ee21af677f89d4c0aa8068a94ae044",
+        "sha256": "ee561bac5a471ed62902d4bd0dc1f95ec8e6426aec7236a963472e8203c549d7",
         "size_bytes": 12684
       },
       {
         "path": "schemas/delivery-method.schema.json",
-        "sha256": "9f4849613161f5f9fb1002f128feb31d4618675c4399b33de597f87b18ab85c8",
+        "sha256": "046b74e659814afea7140c634f21135fbc18d8f9776f9717863a38dee22b871f",
         "size_bytes": 402
       },
       {
         "path": "schemas/demotion-rule.schema.json",
-        "sha256": "603cfb972229e8037b54ba38f5db04c32d453077dde65743281197051dfb7dfe",
+        "sha256": "d17468e74597c3c85b4c758465ddc83ccfc7cf8395e06cfd2e66a5c8eda9aa90",
         "size_bytes": 1859
       },
       {
         "path": "schemas/denial-code.schema.json",
-        "sha256": "d96cd95cd5b16ee3fe49573f81eb28e49c0ef519259d98f5bd409ed2c745617b",
+        "sha256": "461468a6742a7f8561e5eadad47c3710a1ff5557b4cfb80600fbc2240c55fe71",
         "size_bytes": 1001
       },
       {
         "path": "schemas/dispute-record.schema.json",
-        "sha256": "55f81a8adb1d3d72274a9076de10d0b663a7a01f767ac04cdf5171309e414915",
+        "sha256": "b03118e2dae4ee1a41d63ec3d9a6fee7751759a0a5c1b16217025ad8e20a5ff3",
         "size_bytes": 2678
       },
       {
         "path": "schemas/domain-event-batch.schema.json",
-        "sha256": "dedc58fb813dc621560614c8d40ebe858a8d708f140e620421d5f0b5b9686270",
+        "sha256": "cc44ce4843200c5a6582a076f392c7d9bcced6bf3ab11196a8171a4322f62c23",
         "size_bytes": 6928
       },
       {
         "path": "schemas/domain-event.schema.json",
-        "sha256": "e6c71d14a8644b86863350495107a7e4ee1af18b175b5253285555edb9cf41e1",
+        "sha256": "168685d3526e2b487459297833855e15eb382e9c6265a67d91656d1385507d38",
         "size_bytes": 2776
       },
       {
         "path": "schemas/economic-boundary-evaluation-event.schema.json",
-        "sha256": "6bed3e4b4b8daa07776cebb4836d1c2a06d0c5bc7a819a6e7630589f12e9d769",
+        "sha256": "47ee435021d1f43aceedb7f2e84183c22852b3449713335e030a1bc5a0a33482",
         "size_bytes": 9392
       },
       {
         "path": "schemas/economic-boundary.schema.json",
-        "sha256": "cdafbf1747481dedf543631a61dbe76bf2b47f088738d8fcfdf71eba08783339",
+        "sha256": "a13c56ffb6b1abed6aa885e97c64e7d57567e279e61916160596901cfc84ae3a",
         "size_bytes": 5979
       },
       {
         "path": "schemas/economic-impact-entry.schema.json",
-        "sha256": "26c3406c12eed3144bcc48e7603bac97cb973640c9dadc6cd1a854929a0cbda4",
+        "sha256": "c776ef5a4d42029f2ad8b90867ae522300ee1cb040de658c414816823a1fa63c",
         "size_bytes": 1356
       },
       {
         "path": "schemas/economic-impact-type.schema.json",
-        "sha256": "4ca4afe7e53d339f4aaaadab9fadd9bfccfe99724afcb7540f2e2964187d0f38",
+        "sha256": "6cafa3b5b7e2ed043f40bf1cf50064b44d9b35bd86e051e02c8bf5af5898c60a",
         "size_bytes": 718
       },
       {
         "path": "schemas/economic-performance-event.schema.json",
-        "sha256": "61e9f3fa60ad13cba45792eba55cca8d7b0641c0700b3715371d4d78636cf1a1",
+        "sha256": "2940669c51941a012df9675e6a0863e75f43bc27f7c839b68209c99fbb0dcb5c",
         "size_bytes": 3280
       },
       {
         "path": "schemas/engagement-signal-type.schema.json",
-        "sha256": "57f88511fe7b8c2733373a4f65fa101c5d9ed920787f936b83289a32593e9333",
+        "sha256": "0491ac7d83da61437e1c9ab9758c99b5511744e911545060dd3019dd9d3e3417",
         "size_bytes": 562
       },
       {
         "path": "schemas/ensemble-capability-profile.schema.json",
-        "sha256": "3243269727a454b70a18edb8ee2f5d462683e56a41e9b1a5180b1a28535a7f26",
+        "sha256": "6a2dbe681aeba4e38a645dc23cb416cb201a97c5ac61f70d37e7008607d18f4b",
         "size_bytes": 4451
       },
       {
         "path": "schemas/ensemble-request.schema.json",
-        "sha256": "b43590c96a02f6671202a94051ff16138ccfcc06eb8c82d15756b2dbbadcfe9e",
+        "sha256": "dd28f6d498ff5103e18f5a503e00c760ddbe10da6ce46c7db557630aeb00b9ea",
         "size_bytes": 11004
       },
       {
         "path": "schemas/ensemble-result.schema.json",
-        "sha256": "f8d325686dddc760e8719602cb6420963a53597ba9bfc15f58359c29139cea02",
+        "sha256": "9d0649b0e8ad29fa870feafd4f9abd47d0484fa3dfb646f5ab5611d7e201414d",
         "size_bytes": 19466
       },
       {
         "path": "schemas/epic-checkpoint.schema.json",
-        "sha256": "c63196a85d81b41e0f3f29f7d8e19f426b36264b09e44489aa1f136f1d55c41f",
+        "sha256": "bb28f441197b611455a05490854a602ac2505c0dfd7807ac5dc7eee87357fb7e",
         "size_bytes": 2502
       },
       {
         "path": "schemas/escalation-envelope.schema.json",
-        "sha256": "8aa5de4f9d3c15bdbb06f7c594b437806fef199971c0cd97603c7bbc59208b9d",
+        "sha256": "4a881f7d87481f91b177b4a53df0ca26e45b69b73317fdfae7c3b6140430b05e",
         "size_bytes": 2430
       },
       {
         "path": "schemas/escalation-severity.schema.json",
-        "sha256": "1bb38f089692b3ce0973fd8c54b53e2bb81624e166552747b2d31de4ce7d32ad",
+        "sha256": "09cb105dfaca8e4a980930f73c3998ba950156f3bb9959c90dc3e33a12315cd8",
         "size_bytes": 742
       },
       {
         "path": "schemas/escrow-entry.schema.json",
-        "sha256": "cc25efb31803e9d47505f2492aaad6dc66d51cfb7b6df480af86e7d6fc12f065",
+        "sha256": "abfdc35f0b1443c296d0093493363bbd74d0e5e2be7e129e30657eea4b3f0675",
         "size_bytes": 2004
       },
       {
         "path": "schemas/evaluation-gap.schema.json",
-        "sha256": "b0455e15a3a44f124b52b217fd623864e5e5b1e14627d94715076abd265333c5",
+        "sha256": "9c84294d9650ab3b652781595cd544e4ab0b109dacf0fd96c856b9f46f1aba5a",
         "size_bytes": 828
       },
       {
         "path": "schemas/event-cursor.schema.json",
-        "sha256": "13cfa7bf1fe52690b1a029c025f7a92bac27a5b1526a155f862ce261f0f44c25",
+        "sha256": "4a0018dd41f869fc95e314b413cae831eb2bfec3c25f11cb7aee9437226e5659",
         "size_bytes": 864
       },
       {
         "path": "schemas/event-filter.schema.json",
-        "sha256": "f91151b3667c288df40d601641cbd45faed89880bde7ef8de833386f78f37399",
+        "sha256": "e84e7182fc5624742c8f5268d0bbe072e5f4a09a4c4915f3a22cca8ed7f3be87",
         "size_bytes": 1587
       },
       {
         "path": "schemas/event-subscription.schema.json",
-        "sha256": "a3f32dabaee3de2d291cf57d7aea1ed3db9c4a64d47664f888e7037864834a20",
+        "sha256": "6dc88faf13971c21c0785f4d2e136bfa28cf1eb43c921d17d4ca1341c07c90fa",
         "size_bytes": 4697
       },
       {
         "path": "schemas/exchange-rate-spec.schema.json",
-        "sha256": "952802e4fb983cfb7dcb2e7dab730285a4bf0ec78264b793dccab16a9ffda4c2",
+        "sha256": "4fe4512a133c592c4bfbcae74212d99930e382aa9edc1203230b5750d753fbed",
         "size_bytes": 1527
       },
       {
         "path": "schemas/exchange-rate-type.schema.json",
-        "sha256": "ec5588e36a4771b18e7f7137b27ba103a370204731400b38b5b9b55283e09d77",
+        "sha256": "0cfd580b3a89308f5db76df4f08e640813d753ad2422c6e2ab525968d13c80fb",
         "size_bytes": 485
       },
       {
         "path": "schemas/execution-checkpoint.schema.json",
-        "sha256": "6ccaf637747e37baa23f01ff50e587185877b5fca01836ef676f960c35290abb",
+        "sha256": "6bb6f0ac00c228fccf5ee56504deb9558a524d9df6587f547c113894716579a2",
         "size_bytes": 2354
       },
       {
         "path": "schemas/execution-status.schema.json",
-        "sha256": "0d0b3a5cefca33ed62ed8e70f3f45f87976b5c78a3d9497b9e93cdf2f10bc966",
+        "sha256": "e417af26f3a65cadf3b30155b8f76898e0598e43b343dfc5428a75a9da151d6a",
         "size_bytes": 611
       },
       {
         "path": "schemas/execution-strategy.schema.json",
-        "sha256": "4acdd65e4c26681020dffd01147950731484d9affa71f652c059bbb6ca7bd990",
+        "sha256": "e846f0d48ebc6eae96ccacafedd989e0e0463703eeecfae7a7519f2471cfeabb",
         "size_bytes": 483
       },
       {
         "path": "schemas/feedback-dampening-config.schema.json",
-        "sha256": "e5c3eb8a58f4a10a9d1447a20d5803a2bd1d86868b6e30937af90f0b732f8713",
+        "sha256": "fbda88faae55d5142463b86b824c849cbc8addd5d325fc490f8b11bf67f9d56c",
         "size_bytes": 1264
       },
       {
         "path": "schemas/forget-record.schema.json",
-        "sha256": "ac4c9db00f9a1284e8f94243255cd4bdfeb0e87e8ad0e0cd985b121b52fd146d",
+        "sha256": "34984f9f891095e26a365d41818a86153e3f5c392fcdf772d8c09c513abedef9",
         "size_bytes": 7575
       },
       {
         "path": "schemas/fork-type.schema.json",
-        "sha256": "bff752b1cfebb8624041dca69abf40b904695953681a673816894ba4b7f157b5",
+        "sha256": "6d46fd129ab4edba8f0f2091c9f4652825d5bf2ebb1f404496452bdbbfa142d0",
         "size_bytes": 509
       },
       {
         "path": "schemas/governance-config.schema.json",
-        "sha256": "fb5229655fc3997bafd458b6d534efe117239ddc736a040d14dc09c20252f6a3",
+        "sha256": "32ae871067f20baae508df0fcdbf7804568b5752a46f7e0bf1a2514ee91f0f61",
         "size_bytes": 3599
       },
       {
         "path": "schemas/governance-proposal.schema.json",
-        "sha256": "02282c7e0dd41b538fd744b3462ba379fcc9fb9101f2d2a793fb882f006533c4",
+        "sha256": "2cf71c87c5aa5c9c00a045c78d27b6c32340ad373f5b3b8adc917faa3f14090e",
         "size_bytes": 6053
       },
       {
         "path": "schemas/health-status.schema.json",
-        "sha256": "0079bacf0043d71a8a99fe03ba90473b601a27df025ba60c957e4b0f07347a59",
+        "sha256": "53c7c0177101cdfc6b5b5cc4b08c945f5cbb35369b39d97a0907f77945a04c88",
         "size_bytes": 1570
       },
       {
         "path": "schemas/inbound-claims.schema.json",
-        "sha256": "3a02d857602ec60d6bed09b2ad4fdfd6c3976bf9aa73235f8fb220d9964751ff",
+        "sha256": "3d2868787864fd236cf87307c94ae2b1ef0eb175d5de7625fec8d76eb3404a16",
         "size_bytes": 1810
       },
       {
         "path": "schemas/inter-agent-transaction-audit.schema.json",
-        "sha256": "11d5213835e0130488c39c571ebff95cc8fd2c288c28ae8a78c1bebcb654a980",
+        "sha256": "3dbb220854607b8ee67e123d3464b73093fe739a9bcc01fd9e1adb264fa5cffd",
         "size_bytes": 4629
       },
       {
         "path": "schemas/inter-series-scoping-artifact.schema.json",
-        "sha256": "73c78a99b399da5832c8a7c13f74bec3eb103aa525e06993759c2dc726c2fc4d",
+        "sha256": "92c5835a6444e07cce479445379ab9e26907d101aeb9ae5f19efaefb66142431",
         "size_bytes": 7282
       },
       {
         "path": "schemas/invariant-result.schema.json",
-        "sha256": "d5be9404a1ff8152e38a346b5c56401292786a92a61af1411c6e987ee0ff78fc",
+        "sha256": "086658464b0e5cc8e18b5384bb1efc8541cb3c1d305a779c7b630307b8f9a045",
         "size_bytes": 579
       },
       {
         "path": "schemas/invoke-response.schema.json",
-        "sha256": "f723605dc4e3570caee8b31435c2fca9305648f95b56094654f6cdcf8ae06e87",
+        "sha256": "21219156d22c4de9a39afaa3e869ebf935e2c1b0dfa2577cd8bf73f5fa9646fe",
         "size_bytes": 3224
       },
       {
         "path": "schemas/jwt-boundary-spec.schema.json",
-        "sha256": "4186b5a6b192a730941a556a5734d7cde03283112a6c0a18f4df05ece63a0940",
+        "sha256": "720ced1f75ad7646aba6545541823249efbd0f754e38be82ad261afdc43b9aea",
         "size_bytes": 2770
       },
       {
         "path": "schemas/jwt-claims.schema.json",
-        "sha256": "b5d583a32210ea110ef5e75d87fd81ad58906bce6046334769ecee35321300bf",
+        "sha256": "8ad0b20bc33a396c0bc4c488d6658b88393efc8840228ec351935c001e959d35",
         "size_bytes": 2792
       },
       {
         "path": "schemas/keyring.schema.json",
-        "sha256": "390c21eeae0f135cea9dd7ba9cd47be11219b540dca969cfdde49776625aabd6",
+        "sha256": "e0b2ffcf6850ec2ffabb605b37a6489310cd0e1350c63b8e50228418b6087171",
         "size_bytes": 13148
       },
       {
         "path": "schemas/latency-histogram-envelope.schema.json",
-        "sha256": "1cc255b312664f24bb6e09e52e82f4b638aa24f152bb6030dfac54e10311d0ea",
+        "sha256": "2c7aa2527c5d1290d1fb489ec43808bd703fcf4d111b6ecd7a4df6fafd02037f",
         "size_bytes": 1842
       },
       {
         "path": "schemas/lifecycle-transition-payload.schema.json",
-        "sha256": "6df459182daac053458d335fc5ed0fbb890e06b15103778dea7737171dace03b",
+        "sha256": "920f27708e4bdfd4df9dda27792b5f4c83db86823f0bc872ce5bac7f19a13026",
         "size_bytes": 3676
       },
       {
         "path": "schemas/liveness-property.schema.json",
-        "sha256": "7eaa7a073a961903f8e1226cc480ae10e9759f30286b59f65ebec8fe7077287b",
+        "sha256": "672074993a52c8cf6a8a5399e207078f5d4939d1ce381b019932afe03c1178ed",
         "size_bytes": 3061
       },
       {
         "path": "schemas/merge-artifact.schema.json",
-        "sha256": "cab3848ff96949ecbe199ec60c078f05b7f6cc2e0ed11ac7bd235720725e1d0c",
+        "sha256": "5b27addf716b91a11bc2c1c75275d77bbc8878304466762ac3e8ea7d4639d85b",
         "size_bytes": 3827
       },
       {
         "path": "schemas/message.schema.json",
-        "sha256": "3caa9c76cf1862d37f26b40cb854a31e65914b9549034f075ec44e7a07571152",
+        "sha256": "c77d3c570a19ca1a6ef1f502959a81e5ede1cff2684802fd9be8c96e88087db3",
         "size_bytes": 2216
       },
       {
         "path": "schemas/micro-usdc.schema.json",
-        "sha256": "388b53da0d3756495e54b9e6d236f75da46817a189dd29fdaff7f2a97aba170b",
+        "sha256": "cf72d343f66c76beaf18065984b6bfe1592ce1eb183fccbe37e1b10088fe386c",
         "size_bytes": 351
       },
       {
         "path": "schemas/minting-policy.schema.json",
-        "sha256": "de467c4c4b4171318b3eb0db800ea43d07e7cc72444078a4f383d77305c1a8a9",
+        "sha256": "72d46ef46a69a9d3402dde3580c7f78f64cf0780b2016c04b7c80653510d318e",
         "size_bytes": 1620
       },
       {
         "path": "schemas/model-call-circuit-breaker-state.schema.json",
-        "sha256": "dac63a5e9859db5dd53e799302c29b10c8af2f0f1cddb4f72594160675e888eb",
+        "sha256": "98dbfe5306161a79dc9e3fc04f21fedfb3ab490745cab1bb5dd4f9ed39dd790d",
         "size_bytes": 693
       },
       {
         "path": "schemas/model-capabilities.schema.json",
-        "sha256": "fb73c5ec0fcd1defa7b718932db12c346d7a61e0ca774a8eb92f22ad7b0496df",
+        "sha256": "097db9d4f0afab0764be7de6f9046eeda08e72e50438e9473f660fd8723d3007",
         "size_bytes": 2960
       },
       {
         "path": "schemas/model-economic-profile.schema.json",
-        "sha256": "1b37b5d8e38aa62bd78b1f2e987452419d81a80babaf0f8369b2e41882455623",
+        "sha256": "8626ada6f18bc84ff6d3cee3704ee49b8ff80df319f06cb3ae8a4fcc1d39f704",
         "size_bytes": 2017
       },
       {
         "path": "schemas/model-performance-event.schema.json",
-        "sha256": "0172ca0c34dc7eae4560dadfb67fabe327428052d7267eb3442d936ae135bdf2",
+        "sha256": "1a9cd99829e5e88bad20a3862b6ba069574a87187c2402feabbcd07fb57310fe",
         "size_bytes": 4745
       },
       {
         "path": "schemas/model-provider-spec.schema.json",
-        "sha256": "4b539aee6d05ff52304f7b489bc97add4317db0b525e8394add429bde5761ea2",
+        "sha256": "17bb0b42e6cb695178af9eba1275d803dd851c346d9b0e3ca043b36ea9efa056",
         "size_bytes": 8735
       },
       {
         "path": "schemas/monetary-policy.schema.json",
-        "sha256": "c580d78b0f304411627c5dd3e4569685368748a07763a32cd56951fabd4f074d",
+        "sha256": "0e4830e7d8038a275ad58a8e5ff8b6c2296283c3c9c7a66e4e52a4da56c03945",
         "size_bytes": 2944
       },
       {
         "path": "schemas/mutation-context.schema.json",
-        "sha256": "dd85275f2093782455ef545ecf6349b5da41d45de4ac14318f1c2bc8acd88528",
+        "sha256": "693e569b4dea5ae2b93a8cff9a26d2bb9b720ebfe9341519e52c01955ced7869",
         "size_bytes": 1247
       },
       {
         "path": "schemas/mutual-credit.schema.json",
-        "sha256": "d9e10d4a2134d54a1919ca4d0fb5547c24e53a41b4a5ff620cadc50abfc51f6c",
+        "sha256": "a60c3154252f509408757d3ca89f6115e7fe3d4d5a263c11c64a61a2519d8ef7",
         "size_bytes": 2470
       },
       {
         "path": "schemas/oracle-digest.schema.json",
-        "sha256": "2ea436088b113cfcdf8f79090c90af23614bbc1d6c25eaf91aaf134b1983b91a",
+        "sha256": "c734221070da8c787b55ef3fb83ac0853c66bf3cb60f11d2b7e705742f19c1dc",
         "size_bytes": 5365
       },
       {
         "path": "schemas/oracle-health-envelope.schema.json",
-        "sha256": "750b0f103dabb61207a36566f6190257ac72b1ad916f1345e4fb93b755dc3ec2",
+        "sha256": "e19633c5b7fdf108cdcc32abeee8331a992cb49e1ebf6e0d449a41cfe8616ba8",
         "size_bytes": 3063
       },
       {
         "path": "schemas/org-identity.schema.json",
-        "sha256": "f2871a78204fe6a9a15d6b0f91bf08daec85d989ca3c7f67cb35fd9c68b88851",
+        "sha256": "ca4cb6a0adf8f0294d5d806934c480bf08d492899c8f938d8f8d25dd6771b7b1",
         "size_bytes": 12700
       },
       {
         "path": "schemas/org-representative-delegation.schema.json",
-        "sha256": "61411604422eb81bd7de5fa424ec5388708b3cd3997f7d0fa2d2ec458a5acf9d",
+        "sha256": "cedaf77a139ce5e75dfc67bb87b36cd9080f21e530f308adf67443cb35be7a31",
         "size_bytes": 17252
       },
       {
         "path": "schemas/outbound-claims.schema.json",
-        "sha256": "6b70eff1a971b9d789f029ca3f76ace9aebf342615535f76c32e8e0bdff6c5b7",
+        "sha256": "be1afc7b7c3c7d9376afb458f9bfad379b2e41b338492065bf731ab4123dd06e",
         "size_bytes": 1726
       },
       {
         "path": "schemas/outcome-quality-mapping.schema.json",
-        "sha256": "71b7b861ee5bafa98e373c2e330d97cc7621f63e85813da68e0ae0ede144c0c7",
+        "sha256": "a52e3182f1231637aecd82f8c5d9ddc9fea0886a311745177cee4e8d2845bd05",
         "size_bytes": 2322
       },
       {
         "path": "schemas/pairwise-score.schema.json",
-        "sha256": "aedc0b6feea16c5c731d6e59e56508edf2805f54cff05bd06d648c7eaf17e817",
+        "sha256": "b892edf7c0d4bd63a2393c4247ad87034c83c5b3818396e1d813aaeb46731cc1",
         "size_bytes": 21620
       },
       {
         "path": "schemas/panel-decision-artifact.schema.json",
-        "sha256": "ae371ebf4a1fed45eec580562b024e5bf363a72ee94510ed35fdc8c43e4db154",
+        "sha256": "926f3293b66cf615b2ec94e1318cc583e834bd03128b696267bc03daa025afca",
         "size_bytes": 21662
       },
       {
         "path": "schemas/panel-verdict.schema.json",
-        "sha256": "cd5ba4a5af24eed5abddbc1ba3cb9461b777ed3173cf2941bbf48685aedeab11",
+        "sha256": "be2543194cda36c7810bc3f9f9bd63c6b2e88d643473981933d0882c5bc1ebe6",
         "size_bytes": 20334
       },
       {
         "path": "schemas/performance-outcome-type.schema.json",
-        "sha256": "c175e09e550d2e990f2d9125bd30ed19ad4e0dd3ddfd0da72d3c24340aff29d1",
+        "sha256": "ba13532be8e4d61793366f1172aad63ece56160661fd194e70b1359c2cee5e36",
         "size_bytes": 729
       },
       {
         "path": "schemas/performance-quality-bridge.schema.json",
-        "sha256": "eedff9b40341b90960c1757c081e4bb4f9ae71e58f21de75c06f9720a4d7cdb5",
+        "sha256": "0e99392a39a2df1622bbc9213504836ee4040be38f84d122b0434cf288390bd5",
         "size_bytes": 2221
       },
       {
         "path": "schemas/performance-record.schema.json",
-        "sha256": "dfab955eaedfb90938688682cbb601ef6b1acdf699c9c285f9f73bc1d6eb9992",
+        "sha256": "de6ffd84fef0b4180c7855d5a6064bd5a092792eb4f971a270c8d7a2ac9ce29a",
         "size_bytes": 2573
       },
       {
         "path": "schemas/permission-boundary.schema.json",
-        "sha256": "eb999a6867f5bea8b366b2df7339802f1a05f041862d385eda19b9ec885c8b7e",
+        "sha256": "4da1fe3894a72342d765d9eed8dbf784f3228786190e4e1e9254f6950206e3fa",
         "size_bytes": 3849
       },
       {
         "path": "schemas/personality-assignment.schema.json",
-        "sha256": "4a7576da9978624fb189c145cfeba1cb6f550a12ef31b8470d5d9dd65a68e512",
+        "sha256": "6569000a66d0c919b5eaea0b37e5dc9bb7610528feaa9da53715669d5cfef388",
         "size_bytes": 2001
       },
       {
         "path": "schemas/personality-tier.schema.json",
-        "sha256": "cc2ff5e7981962fabdd611454a352add654594db8f01021b88f1833e8a0f7fce",
+        "sha256": "4e710a76400d57e1a4fb550e1a510d72110c902249e045a6b49d5709d8475d1e",
         "size_bytes": 534
       },
       {
         "path": "schemas/phase-completion-envelope-tier1.schema.json",
-        "sha256": "2e53652ff2086c8b029fdb72f352003feba71ee176f25436ecca1644edb4c1eb",
+        "sha256": "18e89ae9dcbf63cb1cfb59d04b6af474eb15c39def813f645048658b299dcb12",
         "size_bytes": 3028
       },
       {
         "path": "schemas/phase-completion-envelope.schema.json",
-        "sha256": "6867fee2f3eacb5d607d1749fe31042d32e6e9b0183f71d002643483b26858f4",
+        "sha256": "3ed22d5acf26de03ed41e24c65ca7e5a6dcd692b70fe8b27cde84123adeb09d7",
         "size_bytes": 6583
       },
       {
         "path": "schemas/phase-kind.schema.json",
-        "sha256": "00b32419a4fed1f0b4e50e52e77d09992556f28022d9f2e14c8c166d84cf58d8",
+        "sha256": "459376d0fcf113b4f347b5ca5d741733c9c879c5176cf148cf5e06e49318c4ba",
         "size_bytes": 689
       },
       {
         "path": "schemas/plan-amendment-request.schema.json",
-        "sha256": "c4433032833368175533d9f40d4692250ebceb58d8f17db0000f6bc194a5f5c6",
+        "sha256": "2b24c2664a283e0d5545039ed0bbe6ae171df5337fab9588b6c5bee495be7bb8",
         "size_bytes": 6439
       },
       {
         "path": "schemas/plan-signoff-envelope.schema.json",
-        "sha256": "b9ee4307f6bcc4234d86d4344401c74bd16872244ef4b5525737eac525a3545e",
+        "sha256": "543bf75b5581dac44e94ae6a15a77c6de508b982a5e2fdcff434e1d3b6fd298d",
         "size_bytes": 6798
       },
       {
         "path": "schemas/policy-decision-outcome.schema.json",
-        "sha256": "274e2f0ad9bf77783c5fecc95f5fdd17835e7ae02a057e74d3ad7a4634c7b920",
+        "sha256": "99a566c527d3782b9ff71c4445a1d8c66397ff94e9d6f093417347873a222eb7",
         "size_bytes": 1153
       },
       {
         "path": "schemas/policy-type.schema.json",
-        "sha256": "8eed2f4050c50e80f3b54f004dc2da4d8be7b2d7ec70c66eb144784b1f16f2aa",
+        "sha256": "7980c68c23afd6e26abef53a3c6a5d312e1ad36605ff7d3d71ca480dc0a55a0f",
         "size_bytes": 520
       },
       {
         "path": "schemas/policy-version.schema.json",
-        "sha256": "b9591141aa8c353cf4b91a1ce005ac32197d3b3582890f17c70056237bd47a9d",
+        "sha256": "b317e379b4849f9ddbb08c86a26dbd66bcc1466a0f1c6cea8b916e4ac6dbec7a",
         "size_bytes": 1981
       },
       {
         "path": "schemas/portability-response.schema.json",
-        "sha256": "db788fd540336ee297083b96be060f235c69ee0d2b4e8df37069e7b88141186d",
+        "sha256": "45cf30d863c21d0e2197641b1f952871d5c8cb424c19d9e7e263c9371ebab27b",
         "size_bytes": 1783
       },
       {
         "path": "schemas/portability-scope.schema.json",
-        "sha256": "03e1d7f49d7e5fa3cd17af01b7c9c5a94163fad260b3335214f13ed0f35d5770",
+        "sha256": "56551b1fc0f9ff31e23c1e37537b110c0d5ff44b77aed44bdf0fa4499308e259",
         "size_bytes": 528
       },
       {
         "path": "schemas/privacy-scope.schema.json",
-        "sha256": "e1146705772570fa3d5f37c29bb132235d54d1649a3b6141ba0f778282936941",
+        "sha256": "f1c63a89ceac3798d4a42f30932d51bfd3a1f986e64595e0035270f01cf784b8",
         "size_bytes": 1089
       },
       {
         "path": "schemas/proceed-decision.schema.json",
-        "sha256": "b3ec7a6fb35b346e193a65bfbdd217fd881705286df2180472c5fb45749b1ca8",
+        "sha256": "af2bec360e9db9b5672c4dc29308d5ebfd3b09cb08956a77bfcb122576aaace7",
         "size_bytes": 479
       },
       {
         "path": "schemas/proposal-event-type.schema.json",
-        "sha256": "7f4144ff2161812a75ed94a3c81a0a88ffbc3fa64f8dd43a90a90502a815acd7",
+        "sha256": "7bd75ddba9c102df8f973664f867fd33c3b10f45bfa8d1bedbc493142c9e37d9",
         "size_bytes": 891
       },
       {
         "path": "schemas/proposal-execution.schema.json",
-        "sha256": "1d1586c9939de4946a1a5dd3e7ff8646a95a853eb18c62a58ee424d73dc7bab8",
+        "sha256": "13d4598ec658e9381cacea64e6726294502c12c7b1ef19d01402878b0b821210",
         "size_bytes": 4279
       },
       {
         "path": "schemas/proposal-outcome-event.schema.json",
-        "sha256": "c48c8974b38f04674134ad94e579fa86076f950ed68cd4c612e9e3a32adc497e",
+        "sha256": "6c9327f535f10f02a682b181f073a1aa385609831c9470d0a34ae41a83ae6550",
         "size_bytes": 2111
       },
       {
         "path": "schemas/protocol-discovery.schema.json",
-        "sha256": "d4613ca82e854a42425ae958382f418b9d998b8cb62d379c08c960136aa9aa01",
+        "sha256": "16287395d208f3548d64dc697f4a70f621e850a52ace40a79142488e1f87e571",
         "size_bytes": 3651
       },
       {
         "path": "schemas/provider-wire-message.schema.json",
-        "sha256": "a038febb02fcad395dad2432dec8c5021a4fd00f256c899c651218be035d5fb0",
+        "sha256": "e581da4cd4dca6bbe26c3478bd157ad779b07cd10b190d53b4bd716c509d63b8",
         "size_bytes": 2325
       },
       {
         "path": "schemas/pulse-kind.schema.json",
-        "sha256": "4a92708ce9e614908bdd0aa2d88a2bf0ef986ea95500aae09bdcb52904db764d",
+        "sha256": "23bbfb8dba1192533f046685ee21349864182b2f2b30aea8bce446773e77315a",
         "size_bytes": 612
       },
       {
         "path": "schemas/quality-bridge-direction.schema.json",
-        "sha256": "43687aeea4cbf3d8627103b76efbe686808c29c94e04497a583a72888f8ecbb3",
+        "sha256": "ac2ef426d1a8b01e65628bed4d5373edc7fb75169dbfc956eed4dd441986553f",
         "size_bytes": 503
       },
       {
         "path": "schemas/quality-event-recorded-payload.schema.json",
-        "sha256": "d810ac171026020682084d663d1e33703fd00a1b3b5dc99493fa803dd1d561a3",
+        "sha256": "253643f06af26a8118a5ffe80cb18c4d424c7229e88d51f3225b982479c4a7d8",
         "size_bytes": 1100
       },
       {
         "path": "schemas/quality-event.schema.json",
-        "sha256": "251eb69db1d3f8890f34ffa4e6708181bd4aad9ac73c8974153ccf961fd98786",
+        "sha256": "887b6553017253dd2ea73c65bd7f0ddaa878736eadd076aea1fe7f5211a7c52a",
         "size_bytes": 1865
       },
       {
         "path": "schemas/quality-observation.schema.json",
-        "sha256": "af16acee4d30231be27cf2dd326a45d48d7ecb477ec81816c832d436448300ab",
+        "sha256": "9aa272eac30225f20c67463b124d296b39e1a47fcdde225a0bab491fdcdb5e2e",
         "size_bytes": 1365
       },
       {
         "path": "schemas/quality-signal-event.schema.json",
-        "sha256": "7dfa450f6bed184db91214d8cc9acc14244acca87b8c998283fee3c226cc27b2",
+        "sha256": "9303d1e1eb7fd3bdd8ca532a9e975b986ebda39a13a3090ff648a1642e1161a9",
         "size_bytes": 2781
       },
       {
         "path": "schemas/quality-signal-level.schema.json",
-        "sha256": "7dc9b725897a45db0d495005dff4a9863129799ff199f408e74146bc3f67bbee",
+        "sha256": "537b57620dc412de50fcc58381803f4d3c1bfd4ab6a38d26b8443a2e19ede537",
         "size_bytes": 569
       },
       {
         "path": "schemas/query-reputation-command.schema.json",
-        "sha256": "8e07f7cefdd947332d3643194f24ec571f44eebc68ca12c107461cce278ede80",
+        "sha256": "d7968460fcf927bb625536df2ebcb237395e40b2db2a3cafa8c694b4f3989fe9",
         "size_bytes": 1449
       },
       {
         "path": "schemas/rebalance-trigger-type.schema.json",
-        "sha256": "e57c7012c84a1b791f98a1ca9733bfd42584918ca94ab7f2159a3048227ccd3e",
+        "sha256": "9b231b6ed18c80d541b78f4d77bb944e2efbfc82611931a9f8866b0dd70d6597",
         "size_bytes": 558
       },
       {
         "path": "schemas/recall-pack.schema.json",
-        "sha256": "c76df62a14b436718ed9ad746e2d961076a558a9355062b6a84161c77ab5e86e",
+        "sha256": "e46cd58002269d3e65a71c6c9ba783602a832356eb779d999ed6d25637bbec33",
         "size_bytes": 4578
       },
       {
         "path": "schemas/recall-receipt.schema.json",
-        "sha256": "ffe4889152f5074bb6a67e3a028cc6dee6ca961754616f7f1295d8b6ad62385d",
+        "sha256": "108b50f85ef0daeacaaa30ae5040556590a270b88f8cfcdfb97f0b6ab7086edc",
         "size_bytes": 6097
       },
       {
         "path": "schemas/recall-request.schema.json",
-        "sha256": "a9dbd5addab8c28940a1c9a557c73bd7c2c9007342b6802a89a1756ac10a2746",
+        "sha256": "65cfa13e87e4d1fe76ceb475430f62385a9059ecd11065651cf92ad54294442e",
         "size_bytes": 4006
       },
       {
         "path": "schemas/receipt-detail-level.schema.json",
-        "sha256": "22fe0dc6322085c5b3da45c08510e1b85654dd862ed37faa0663ea6bfeab578a",
+        "sha256": "680eeee4587ff2f84564f4f97a6e73abe9f1a2593fa22568402507de80fe74a1",
         "size_bytes": 994
       },
       {
         "path": "schemas/reconciliation-mode.schema.json",
-        "sha256": "c10b7c83c2e74a21849cfd9169b7f059b0255e87f19cc288d9abbae752154044",
+        "sha256": "f779160514ddff227441b7291136eca93e6028bc662bf58373faa3417d052d1c",
         "size_bytes": 471
       },
       {
         "path": "schemas/record-quality-event-command.schema.json",
-        "sha256": "67244f6972ca414cd7e7b8ab3f823ce4b1ac1fdd6899a7a7f3f9c62469f12111",
+        "sha256": "7081787e613e85784ff0650a56718505ac9d1415e1218c832a3cca24bca0f30f",
         "size_bytes": 2680
       },
       {
         "path": "schemas/registry-bridge.schema.json",
-        "sha256": "837a1c67dc00308d73dbc043b8050871403445b88fc3d36dd3ce7b9ac04bb1e8",
+        "sha256": "dbc02cc0077f868e7fe5286a47dd0eab832a93ccc54e8a3dfbfa9f296d60c149",
         "size_bytes": 4659
       },
       {
         "path": "schemas/reputation-aggregate.schema.json",
-        "sha256": "588fa7be591afeb22449c693ead78d6d30cf742a56f17d9307556ff508d9f0c3",
+        "sha256": "75d8a9fc135aca6e526117d23f26b01ff4b6b640b53e1d282ed04c765f4c980d",
         "size_bytes": 9444
       },
       {
         "path": "schemas/reputation-credential.schema.json",
-        "sha256": "6abae8781b5cabb82d56610442359bc8b0344e80afe3719d411f6c96159b95e3",
+        "sha256": "9621ff0e2bff18c535c38f4972ea068ad70b5c4954a2c529890725b76d1d04f5",
         "size_bytes": 2584
       },
       {
         "path": "schemas/reputation-decay-policy.schema.json",
-        "sha256": "672496a7367b3d005033f601a7de853d4cafc04eb7d20e3b19541ed44b77574f",
+        "sha256": "51ecf50685fafd4b1f81e33a53b1df723f02f3f94ac100b9234bb02ae12c9f11",
         "size_bytes": 3186
       },
       {
         "path": "schemas/reputation-economic-impact.schema.json",
-        "sha256": "4da6255423c2ea1c862048eaf6f76db906a5d2518f6d412f8f9f1ac71516e683",
+        "sha256": "bd212842909662a17c06bc965a12bebf854acaeb9c76726392177061469d0998",
         "size_bytes": 4790
       },
       {
         "path": "schemas/reputation-event.schema.json",
-        "sha256": "d272ab56dd036663ee5f2a3fb97f3092c0674d2c95b6133c166820686470f742",
+        "sha256": "28e0aaa8c1f4a29085acbea39ac4f87cc1696fb4d08fc5902d57d9a066dbc7ad",
         "size_bytes": 13164
       },
       {
         "path": "schemas/reputation-portability-request.schema.json",
-        "sha256": "be7c465bf5ea149d47c479b434b9c1a2a21d58c1311625353bfa0ee77c6cee20",
+        "sha256": "7e7dfdcfc4fec42030de161135a00e4f035beffe44dab4048deb129e44cfc851",
         "size_bytes": 1900
       },
       {
         "path": "schemas/reputation-routing-signal.schema.json",
-        "sha256": "1ce9a4259c9c53218596a1fe1a59c0590c75e394c0307e1d51e6bae17c5fc515",
+        "sha256": "db166420756dd9d0e76603ddac7ba18397e5a72dc3eaebc7155de59af1cda304",
         "size_bytes": 3207
       },
       {
         "path": "schemas/reputation-score.schema.json",
-        "sha256": "f5f2e473c243d11b742a7aba162957a188c3d44be2057ca6b893d25bc087bac7",
+        "sha256": "9e0560ced4d293e5fc110b87a2888ccbcaaf4414c32bda5d5b07d2c41174e7fc",
         "size_bytes": 2253
       },
       {
         "path": "schemas/reputation-state-changed-payload.schema.json",
-        "sha256": "b18b583e28125132716a7d5d803b1a28db54c0c27fa308522e6c8687a74d6100",
+        "sha256": "d56c7db9d1a571c1deb5186e5dca17243a2ea6a6be6c4cba52919e641077be9e",
         "size_bytes": 2000
       },
       {
         "path": "schemas/reputation-state.schema.json",
-        "sha256": "698ab0059f36e3a5f9825d350f84e8d0e2c0f82be5482bf8159cc4cc66d8fb24",
+        "sha256": "114ee99e248ca2131d145a82f919b96981ec2ce84522dc439b51d0bacc735f24",
         "size_bytes": 612
       },
       {
         "path": "schemas/reputation-transition.schema.json",
-        "sha256": "eff5872b6cfdc19a26a5629d04e99e5cd316cd6bb3debc95e3e85bacfacb6eca",
+        "sha256": "c6312d2e992c69957b5f980045d2804f727f942f3677c496cdbe78ba6ca2518b",
         "size_bytes": 1611
       },
       {
         "path": "schemas/reputation-trigger-event.schema.json",
-        "sha256": "6de0161a136d29cd502d0571cd704ee613b63cbb3117d0dd54fad807fc5945f9",
+        "sha256": "7f81c1a7cec317a46f4d0063ceed8d5b13ba7aaf96993a0b33387d1235bb73aa",
         "size_bytes": 2009
       },
       {
         "path": "schemas/required-phase.schema.json",
-        "sha256": "b86c0553265a89aa8bae653a920657ce341b7e4d627cd08ab55a2ad0778eb20f",
+        "sha256": "4000bed881230d9a9b77e0fd6272279e933f2e57d8a7264690833883d5b49924",
         "size_bytes": 2175
       },
       {
         "path": "schemas/reservation-enforcement.schema.json",
-        "sha256": "acc400ac2f900bcf2713c96eaaad1a2c208cd53a4bb898d29b0905632f329098",
+        "sha256": "cf5cacfc0482f717f159ef8fc3cd98ab859b31167f80b7acd9a91f0617b4c453",
         "size_bytes": 495
       },
       {
         "path": "schemas/reservation-state.schema.json",
-        "sha256": "3007006232840f7c6d76e73fe401598dcc76db96c5717e31f18dd6d26d3ef016",
+        "sha256": "eddc7fea7e4200631671e9e3fa3148eb600ec7e76339301289ce601b57cca1e2",
         "size_bytes": 478
       },
       {
         "path": "schemas/reservation-tier.schema.json",
-        "sha256": "774f88a3b83726de5a98d86d70b42522cf8af0c71f7fe96a9ee61b0b3eed8561",
+        "sha256": "1defa6cf360ad8dbe0d54c922319c6303707c71b29dab3b041010e4bdf9b636a",
         "size_bytes": 340
       },
       {
         "path": "schemas/reset-reputation-command.schema.json",
-        "sha256": "9c34f51ce087c91629c3eaf636039af6164cc5e67aca85d9c802a9873c5518c0",
+        "sha256": "2587ba78fc76caa21515f8facf8b7defb2172cdbefd8867c881417f4a6c25ecd",
         "size_bytes": 1110
       },
       {
         "path": "schemas/revocation-list.schema.json",
-        "sha256": "dcb7375e756a477f00293211b80b6a088e5013d7fad310aa4fe86a6ab8c2575e",
+        "sha256": "ae0d6ad119f807236b13b0cf1b26fd0ac0eb5233a42cbc152ae40e5538893394",
         "size_bytes": 11218
       },
       {
         "path": "schemas/risk-level.schema.json",
-        "sha256": "65cd35b4c19dbb757cd0b8ae5787b920ea4b687c8415afab048f41bab935d279",
+        "sha256": "d4934dd29eb6cfc8c0058d69dc67c89cf3b0cb22977bd520c4ac81f076971b89",
         "size_bytes": 1014
       },
       {
         "path": "schemas/rollback-plan.schema.json",
-        "sha256": "a45eeea7e94beea47e86ef4b603981a0728dcaab0c2b992374d8b26d36d7b264",
+        "sha256": "00a3eb306888ca2159b83a9efbe8f335c7dd19018115e18860a6530c627e8248",
         "size_bytes": 3158
       },
       {
         "path": "schemas/rollback-scope.schema.json",
-        "sha256": "67de52a443ff1ad7b4353cdc79c9fd14d374e9186d7e09a278a57a54f2160d4c",
+        "sha256": "169c7533669a0248053e4aa268b56e753e4fb09252420f8b10c00241d8f2a64b",
         "size_bytes": 1624
       },
       {
         "path": "schemas/routing-constraint.schema.json",
-        "sha256": "5cfa5140ce8079a5e989f25dcbc56cfa7aae03bd6c31544acfc1e7cbe808250d",
+        "sha256": "31b180efc35a4d232eea6b155321a7bbef6a56806bd3d0b375e879e25596c85b",
         "size_bytes": 2191
       },
       {
         "path": "schemas/routing-policy.schema.json",
-        "sha256": "36d3027430aff9ec72f1e89f60458216343dd23b6ad9049a5b291c487ec2c4be",
+        "sha256": "4a5f0cdd970b34e39d5b7179703b77832e84966004405da0235d150ef019a6f2",
         "size_bytes": 5303
       },
       {
         "path": "schemas/routing-rebalance-event.schema.json",
-        "sha256": "4da73a0bc99ea7d0bdabc76ca7946dfe0d2f2975bffea381b7817430d187bf88",
+        "sha256": "8e560567ef71356824117d57ef2e4ddb85ead3d09e85128b4484c0cdbb9e2645",
         "size_bytes": 2171
       },
       {
         "path": "schemas/routing-resolution.schema.json",
-        "sha256": "458987fcf719de33ee3498261f4db51c91347fc584de73f229c972a6feac1546",
+        "sha256": "c8eaa64159b01bc966a5ba60231ad19925f2ba278e0eecc12d6ab43de404d74d",
         "size_bytes": 1382
       },
       {
         "path": "schemas/routing-signal-type.schema.json",
-        "sha256": "968b77a7bcaab2ee3e1fbdb4d3398902339306ff792cf62c9749876b3b754cca",
+        "sha256": "d86aafe7e2f6f4a2ccc2d8258314a29c80fc2d3e221acc1501139a67870b4257",
         "size_bytes": 501
       },
       {
         "path": "schemas/s2s-jwt-claims.schema.json",
-        "sha256": "55d9cb003e75c6d85d5f2ef1e8f5bee30844b28797b256f79784122a6dd53903",
+        "sha256": "d9d0bd4e3fcbd13ece9443cd762a16bda8b42c6e4bf503717e76ba191bc756a4",
         "size_bytes": 1095
       },
       {
         "path": "schemas/saga-context.schema.json",
-        "sha256": "54ec4b3d4d03e0d5666755cb05c3447664b23b4275e53d5f2a9a573dfc52ca84",
+        "sha256": "9214fcc9d2bdaa7aa238f68c342220eda70ed78835760c8b5f7f207c183c976d",
         "size_bytes": 1074
       },
       {
         "path": "schemas/sanction-severity.schema.json",
-        "sha256": "b1d28bf43bc3490f9e55019de10f936ed958150d8aed021f36bc71e8cc267104",
+        "sha256": "66276aa147dc3c9bbec75c24ab0202e4b99bd3482f49f80646fadd805b48559b",
         "size_bytes": 655
       },
       {
         "path": "schemas/sanction.schema.json",
-        "sha256": "f60a16b0f39c008ea2db3e97f49e5881d944c251141bcf9e6a4892c00ab9584e",
+        "sha256": "4741ddc8e4dc0d6c923a043b17b7ff91edd0ed15a920a57a942026aa7fe9e763",
         "size_bytes": 4126
       },
       {
         "path": "schemas/scoring-path-log.schema.json",
-        "sha256": "3a5fc64d4452bc480ccdb61a1c9c8226c7b2ee49fc23ab0be58c3a488e797154",
+        "sha256": "270081215db9261e75e8fe9a93ac34b5761824cd4063a9d8698bd40c4edf112a",
         "size_bytes": 2515
       },
       {
         "path": "schemas/scoring-path.schema.json",
-        "sha256": "b3e5d0d720f83dc344c50e59b1349ba202bb65865f6de00760b1843257f6d14c",
+        "sha256": "a71f2526e702c71deccd257773c266b592b94e464d2d59aa9316d2ad6147a24a",
         "size_bytes": 504
       },
       {
         "path": "schemas/settlement-policy.schema.json",
-        "sha256": "4c1ab31195d996e8cc714138a40da1e29caf6d2e896a2500e11206f122905509",
+        "sha256": "3bf46cc74956f62f8f148bd660406c0405c46907fa6133257b0552b13eea5227",
         "size_bytes": 472
       },
       {
         "path": "schemas/signature-envelope.schema.json",
-        "sha256": "74e32d607c1f08d36eb2fc943f79f11ca52265d4a3c5dadb3dfdb6ac09655a5c",
+        "sha256": "1d23786ff44d9169351e3d660c89d835a89c0fa4b0cfa6bc4d6c43d0b9f606bc",
         "size_bytes": 3308
       },
       {
         "path": "schemas/signature-type.schema.json",
-        "sha256": "34a270e912be61a80f3092e9f418a8bd1fb969b881388f0e8ed8bcff0f3537a8",
+        "sha256": "a14571ec3f3df3786662433794aa5541736981a9ba8189005f3e95da2c366111",
         "size_bytes": 965
       },
       {
         "path": "schemas/signer-competence-result.schema.json",
-        "sha256": "a10b09649823a3817c7e16db2e1d72ceb606c5e26a72bd0e9d6f2d7371020d29",
+        "sha256": "b13bfb3da6b114b42d140a518794ce51c6b3300a5e5a2ceb189ce49e9a5f6898",
         "size_bytes": 2376
       },
       {
         "path": "schemas/signer-competence-rule.schema.json",
-        "sha256": "0bc4eb026ed2a31b696368520be3a33a8bfa7b49181814ca2a2667ced7e5d206",
+        "sha256": "59d199aaeebca8d8567fb096f268adf360df6fb585aaed12172c6e93d5e87c82",
         "size_bytes": 2635
       },
       {
         "path": "schemas/signer-entry.schema.json",
-        "sha256": "425c5b2ff0811a9699ef7ab1cc851eb86dc8c706b79423e93f37f95da23c0502",
+        "sha256": "e236e115c82467ffe33aed25e5d0a7fd866a6b01209c1758ee06830b75dddbd3",
         "size_bytes": 9716
       },
       {
         "path": "schemas/signer-status.schema.json",
-        "sha256": "32738f911edc16d1a0adccabfc3a388b00f49394c5276aa99a7b1130d6a3f713",
+        "sha256": "6089fb9dafabfd091373cfa04b249dbf3961d475b5194cc60d0981f9b0ba8271",
         "size_bytes": 820
       },
       {
         "path": "schemas/signer-type.schema.json",
-        "sha256": "59f66d23933ebd5002aba99fa5a6a2aa5f82cccfa2a05e4427db9c33f2da0197",
+        "sha256": "9e5be557d0acfb0a26ed7c992990c3b03f45cf3193fd8d7ec7e2668beb0d33da",
         "size_bytes": 1506
       },
       {
         "path": "schemas/signing-context.schema.json",
-        "sha256": "8828ac1f8d6aaf67b9ccbd4b537f080f0bb4fbe49bccfadde8108c541651a76b",
+        "sha256": "902537649b46816e438755c6dfd75b829d01f05508d8e316f768be0e484d3ae0",
         "size_bytes": 1362
       },
       {
         "path": "schemas/signoff-actor-class.schema.json",
-        "sha256": "3359de205bd815de68ac32a4d537519e110f5d715f63a4d96e7278bdd8063765",
+        "sha256": "43bd3d523149c183c191129693309f33de55a18c64294ae31b7a153d5fc92632",
         "size_bytes": 670
       },
       {
         "path": "schemas/signoff-tier.schema.json",
-        "sha256": "25fa914ecf011237f7f4ac3b6c52d9a81b23fd86e4ebeb190c8ec8233ef06350",
+        "sha256": "fc8ef58c59585d3720ca5e559809c9b604dea7fe66a74c89523b65024adc0655",
         "size_bytes": 565
       },
       {
         "path": "schemas/stake-position.schema.json",
-        "sha256": "c2bd59534716e7a3f849a37b37f4429c82076f86e91058c9f736fc5c9b2fab2e",
+        "sha256": "c03ac2a98ef1db53a1ddadc21b38e251c093c223054f613fc6d87e53a5b04602",
         "size_bytes": 2677
       },
       {
         "path": "schemas/stream-event.schema.json",
-        "sha256": "356a218bfddb3446514651c50fc4203638d440685b799f9d2932c8802db1ce5e",
+        "sha256": "b57763b3c509ba7dd993ba024317ef8ab678768f5ee937bc029622e30859aeb1",
         "size_bytes": 6235
       },
       {
         "path": "schemas/subscription-pool-state.schema.json",
-        "sha256": "1c2f4a69e8b47a74eb45d076a2adcfce344ea2ca682bccd2304a71d0659c458a",
+        "sha256": "0cb2cbd6226fd934bdc0acc4b5803d454aecb8a900ed58d64ce7ae9dad7eec4d",
         "size_bytes": 7714
       },
       {
         "path": "schemas/succession-policy.schema.json",
-        "sha256": "f35675a9537c36e97386c8da68d721c903933a36fcadc3b0ecae81f3860dae89",
+        "sha256": "e29cae2c8c21a9d53e4b99c29061e9d8a487e6beb2f736d20aa43d9fcc0c3a17",
         "size_bytes": 4086
       },
       {
         "path": "schemas/surface-context.schema.json",
-        "sha256": "2bc87b999d85f92c0df7b09f0fb8917fe64deec648ca40b6835f616bfa1d398b",
+        "sha256": "02e02e09fba4df6d4a59c8c04f7ad7af7fb03d6ca536e4f2ac3c925bc62ccac4",
         "size_bytes": 1525
       },
       {
         "path": "schemas/task-completed-event.schema.json",
-        "sha256": "eda5b829be4d2302e350bc64059f46f624f695960777fc941f790a1d9457abe0",
+        "sha256": "8a0cda94f9c67c7aca2b39128d9141a073eb3ee7dfe14d33a3588daa77d086b6",
         "size_bytes": 2543
       },
       {
         "path": "schemas/task-type-cohort.schema.json",
-        "sha256": "7eb4d15ad779f3e1a25c0bf2ecd4151f9e757b0559ad25c658a99118f103180a",
+        "sha256": "6acc8fadde84ee1981acaeb4bfb89fb352f089c6b4654474a538002121375965",
         "size_bytes": 2620
       },
       {
         "path": "schemas/task-type.schema.json",
-        "sha256": "5786c130738e344324a90cbbf6e6f402d57c674cf01a3abc019a062741d24ee7",
+        "sha256": "e37ce9c9ea9371a400370d9868fb1884b9351f1a1bd70963a6e1b2f0ce7e205b",
         "size_bytes": 947
       },
       {
         "path": "schemas/thinking-trace.schema.json",
-        "sha256": "1c04c924359b0f9677e61558274894e88e87bd83ef9ba2b60af4494160e863c3",
+        "sha256": "8e613197c247fc62670accd1ab82d1221213a342652bbcb66c8e42786c4e5a69",
         "size_bytes": 1252
       },
       {
         "path": "schemas/timeout-behavior.schema.json",
-        "sha256": "102c1fb8dcc59657e2c20005d4dc7eeed105cc20a1d402954488eafa1527e33d",
+        "sha256": "f3da5d9af7342baf717c83dcd17489262a9baa1ada623c7c1d1a7ed9ee36dee9",
         "size_bytes": 552
       },
       {
         "path": "schemas/tool-call.schema.json",
-        "sha256": "4aac8977c3ccebbecf9715ed6d46ed70465ca47bf1a4fba9840c1aa47e04436b",
+        "sha256": "cb2f1ff9f6ae8006b71eca72aa49f28bfa00cc00ddfb4841081d8363d0c83147",
         "size_bytes": 820
       },
       {
         "path": "schemas/tool-definition.schema.json",
-        "sha256": "d60f6cfbb02eeda5c7c2263cf426a4c5dfc7096f42f24a189072cc21a525efdb",
+        "sha256": "00f2bc2004e9903946e9bf214a1f28587fa05b9100504bd1c34f570786b1daa3",
         "size_bytes": 927
       },
       {
         "path": "schemas/tool-result.schema.json",
-        "sha256": "b6bf1a999dc403674e2266f669397e98acc87b524421cb0e099578da61bfd634",
+        "sha256": "a95633ca001d3ea0503b0b2303c2d525c19a8c48ea0ea3d3e7d199d01ea8e52c",
         "size_bytes": 666
       },
       {
         "path": "schemas/transfer-event.schema.json",
-        "sha256": "8aba68a5ac0eee47ca0c9adbd6bc61d10bec3b400145b6358d1071d3874c5da8",
+        "sha256": "b6be878b61f3225678c8d65239182e2f4d362d88d34cf8ed9d7ba10f79038e37",
         "size_bytes": 8740
       },
       {
         "path": "schemas/transfer-spec.schema.json",
-        "sha256": "efe58d1c45952273f83df79968f7f55aa0ba9f6654cc4f0a59a13079eee6f07b",
+        "sha256": "84d3c9d90f84144b2bb02d5ad962081cdeae35cdc5ff0797b1c104b0782fc964",
         "size_bytes": 8336
       },
       {
         "path": "schemas/transition-result.schema.json",
-        "sha256": "849b70581555a8365800a6f927a78724e855bf31dafbd3f088e3dec0d644b359",
+        "sha256": "a7e8a68dc21894cec1a574a78e7a2658775e65bca83a0224f10545f48d9dfd1d",
         "size_bytes": 734
       },
       {
         "path": "schemas/tree-node-status.schema.json",
-        "sha256": "6022130bb8b5a00fbeeda6d01b06ac8ff6e9eeb86b4ffef6e06e0afc09cb24b6",
+        "sha256": "a3c01cff48994fedb15bbeaa79b0eeac66481863a63b941c061ab495044b0f49",
         "size_bytes": 587
       },
       {
         "path": "schemas/tree-strategy.schema.json",
-        "sha256": "9d145447d722b4dd026aaa6c713b3801cf9c3359de7cd526d51c0ef3d364714c",
+        "sha256": "45e1f1bc6fa5eb9715c7a7ab422e019845bdfa7ba9e33a0cf347225d67f6d6fd",
         "size_bytes": 553
       },
       {
         "path": "schemas/trust-layer-snapshot.schema.json",
-        "sha256": "6bc262d539f2118a91382683f3f51f5f1ff4aa6a1375c59d504d0ef5eee62287",
+        "sha256": "2d9b16f87d394ba26b292dc4dd8a72b0cbcc7f14f4c326503001387fea67205d",
         "size_bytes": 1273
       },
       {
         "path": "schemas/usage-report.schema.json",
-        "sha256": "3c59c6cfaf374d97fd55b09d857a1f03149997fbdd6e988ae9aa5eeb1f71b466",
+        "sha256": "8a9ebf429596bd3af894ce490255f1addc53c553e1707c62bc86a2233405f0df",
         "size_bytes": 2074
       },
       {
         "path": "schemas/validated-outcome.schema.json",
-        "sha256": "303c2b6ca066e9af41d7632f851461bd699c58ed8f4c8a340e47f1df963a62f7",
+        "sha256": "af990562a4fb4ac7c39dc96fab6023744925ab72fe2347358e7a764b18f1859a",
         "size_bytes": 1752
       },
       {
         "path": "schemas/x402-error-code.schema.json",
-        "sha256": "eb243ce3c23d18da9c58abeff2d933b9d9f152ada32967f12920d701854a0f57",
+        "sha256": "cb91ac4fdb1ecfb02f84fb4ea850122c7bc595fe437cab6bedbd5fd2d452b8f6",
         "size_bytes": 832
       },
       {
         "path": "schemas/x402-payment-proof.schema.json",
-        "sha256": "626e3c9e6d477f9f41a1cce7313993ff09f705ef5c3fbb9cf141152821dd4f74",
+        "sha256": "915d1600ba05ea12f8616bb0fdd99bf463d8202828cfcfb217452676b0ebfdfe",
         "size_bytes": 876
       },
       {
         "path": "schemas/x402-quote.schema.json",
-        "sha256": "95d0ceab6b766da83378b4266a6c88a6cc2e3c987223cd7a14c16e984f719091",
+        "sha256": "c80d9172b851d9e33930ab5d58955a5417c53c2953fdd5e428780e2301cf9248",
         "size_bytes": 2046
       },
       {
         "path": "schemas/x402-settlement-status.schema.json",
-        "sha256": "c656f86f8984622306108c792c17d77f049f00c05bd9283782c9e62e875e1f97",
+        "sha256": "f5f235a8d98ec1a6d50eb3f73d7d7356f693a98942afc4440dcbd3f84dd9d216",
         "size_bytes": 577
       },
       {
         "path": "schemas/x402-settlement.schema.json",
-        "sha256": "9ca6079f52327f5ce7e89974b0bdaba2323ebe4ce7a2ee11c95f0bd96e315b54",
+        "sha256": "c43664461292a78e905f076d7a3a98e8d1dc72a05078f3ed027d03bd7df11e86",
         "size_bytes": 1815
       }
     ],
@@ -7282,8 +7282,8 @@
       },
       {
         "path": "vectors/manifest.json",
-        "sha256": "125eeebd946bc99d5b097864e6ddadf5e3a8c8fbd2b65d58c381e8ce1ae69e2c",
-        "size_bytes": 79843
+        "sha256": "7ebf4c0346a059fcc047c79d242c17a76f77f398ce63ccd7f84460b3a2e9e261",
+        "size_bytes": 86941
       },
       {
         "path": "vectors/reputation-score/reputation-scores.json",
@@ -8236,7 +8236,7 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "85be3c5d67d84484601fb8acfa3a128af6c4a8857325525b359e8114e4ffb67d",
+        "sha256": "e09ced35432d92d071c9bf9522e94078a6ecf29d3271d9e7337dbeadec0f7f35",
         "size_bytes": 86831
       },
       {
