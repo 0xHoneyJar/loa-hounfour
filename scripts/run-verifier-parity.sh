@@ -21,7 +21,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_DIR="$(mktemp -d)"
-trap 'find "$TMP_DIR" -delete' EXIT
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 cd "$REPO_ROOT"
 

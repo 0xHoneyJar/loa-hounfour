@@ -82,7 +82,14 @@ func fail(reason string) Ed25519VerifyResult {
 // with the same step order and reason vocabulary. envelope is a ParseJSON
 // tree; publicKey is a 32-byte []byte / ed25519.PublicKey or an
 // "ed25519-pub:<43 base64url>" string. Never panics on malformed input.
-func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOptions) Ed25519VerifyResult {
+func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOptions) (result Ed25519VerifyResult) {
+	// Mirrors the TS catch-all: a panic from a hostile dynamic value (for
+	// example a json.Marshaler that panics) becomes verification_error.
+	defer func() {
+		if recover() != nil {
+			result = fail("verification_error")
+		}
+	}()
 	env, ok := envelope.(map[string]any)
 	if !ok {
 		return fail("envelope_not_object")

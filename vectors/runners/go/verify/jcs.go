@@ -31,6 +31,11 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+// MaxTreeDepth bounds recursion over value trees. A tree within the
+// 100 KB cap cannot legitimately nest deeper (each level costs at least
+// two bytes), so the bound only rejects cycles and pathological input.
+const MaxTreeDepth = 50_000
+
 // SafeCanonicalizeDefaultMaxBytes mirrors SAFE_CANONICALIZE_DEFAULT_MAX_BYTES.
 const SafeCanonicalizeDefaultMaxBytes = 100_000
 
@@ -45,6 +50,9 @@ var (
 	// or key is not well-formed Unicode (an unpaired surrogate), so it has
 	// no NFC form and no UTF-8 encoding. Reported as canonical_nfc_failed.
 	ErrCanonicalNFC = errors.New("canonical_nfc_failed")
+	// ErrTreeTooDeep reports nesting beyond MaxTreeDepth (or a cycle).
+	// Reported as canonicalization_failed, like a JS cycle's RangeError.
+	ErrTreeTooDeep = errors.New("tree_too_deep")
 )
 
 // ParseJSON decodes one JSON value into a tree of map[string]any, []any,
@@ -342,7 +350,12 @@ func (p *jsonParser) str() (string, error) {
 
 // nfcTree returns a copy of v with every string value and object key
 // NFC-normalised, failing on keys that fold to the same NFC form.
-func nfcTree(v any) (any, error) {
+func nfcTree(v any) (any, error) { return nfcTreeDepth(v, 0) }
+
+func nfcTreeDepth(v any, depth int) (any, error) {
+	if depth > MaxTreeDepth {
+		return nil, ErrTreeTooDeep
+	}
 	switch t := v.(type) {
 	case string:
 		if !utf8.ValidString(t) {
@@ -352,7 +365,7 @@ func nfcTree(v any) (any, error) {
 	case []any:
 		out := make([]any, len(t))
 		for i, e := range t {
-			n, err := nfcTree(e)
+			n, err := nfcTreeDepth(e, depth+1)
 			if err != nil {
 				return nil, err
 			}
@@ -369,7 +382,7 @@ func nfcTree(v any) (any, error) {
 			if _, seen := out[nk]; seen {
 				return nil, fmt.Errorf("%w on %q", ErrCanonicalKeyCollision, nk)
 			}
-			n, err := nfcTree(e)
+			n, err := nfcTreeDepth(e, depth+1)
 			if err != nil {
 				return nil, err
 			}
@@ -390,8 +403,8 @@ func nfcTree(v any) (any, error) {
 // with U+FFFD. The TS writer escapes such strings as \uXXXX, which RFC 8785
 // does not define; ports reject them rather than guess.
 func CanonicalizeRaw(v any) ([]byte, error) {
-	if !wellFormed(v) {
-		return nil, ErrCanonicalNFC
+	if err := checkTree(v, 0); err != nil {
+		return nil, err
 	}
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
@@ -402,24 +415,36 @@ func CanonicalizeRaw(v any) ([]byte, error) {
 	return jcs.Transform(bytes.TrimRight(buf.Bytes(), "\n"))
 }
 
-func wellFormed(v any) bool {
+// checkTree rejects strings or keys that are not valid UTF-8
+// (ErrCanonicalNFC) and trees deeper than MaxTreeDepth (ErrTreeTooDeep;
+// also stops a cyclic map from overflowing the stack, which is fatal in
+// Go rather than a recoverable panic).
+func checkTree(v any, depth int) error {
+	if depth > MaxTreeDepth {
+		return ErrTreeTooDeep
+	}
 	switch t := v.(type) {
 	case string:
-		return utf8.ValidString(t)
+		if !utf8.ValidString(t) {
+			return ErrCanonicalNFC
+		}
 	case []any:
 		for _, e := range t {
-			if !wellFormed(e) {
-				return false
+			if err := checkTree(e, depth+1); err != nil {
+				return err
 			}
 		}
 	case map[string]any:
 		for k, e := range t {
-			if !utf8.ValidString(k) || !wellFormed(e) {
-				return false
+			if !utf8.ValidString(k) {
+				return ErrCanonicalNFC
+			}
+			if err := checkTree(e, depth+1); err != nil {
+				return err
 			}
 		}
 	}
-	return true
+	return nil
 }
 
 // SafeCanonicalize mirrors safeCanonicalize: NFC-normalise every string

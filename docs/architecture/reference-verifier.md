@@ -116,6 +116,44 @@ treats it as a failure.
 - Lists failing `RevocationListSchema` shape validation are ignored. They set `list_valid: false` and `list_validity_reason: "shape_invalid: lists[i], ..."`.
 - Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. A `Date` argument carries milliseconds; a string argument keeps its full nanosecond precision. In Go, `LookupRevocationAt` takes the string form and `LookupRevocation` takes a `time.Time`.
 
+## Why the Go runner has its own JSON parser
+
+The Go port parses JSON with a small purpose-built parser,
+`ParseJSON` in `vectors/runners/go/verify/jcs.go`, not `encoding/json`.
+The goal is parity with what a JavaScript verifier sees after reading
+the bytes as UTF-8 and calling `JSON.parse`. Signatures cover exact
+bytes, so any silent difference between the runtimes would show up as a
+signature that verifies in one runtime and not the other.
+
+- **Unpaired surrogates are preserved.** JavaScript keeps an escape such
+  as `"\ud800"` as a lone UTF-16 code unit. `encoding/json` silently
+  substitutes U+FFFD. `ParseJSON` keeps the code unit as its 3-byte WTF-8
+  form, so the canonicaliser can reject it as `canonical_nfc_failed`, as
+  TS does.
+- **Duplicate keys are rejected.** `JSON.parse` and `encoding/json` both
+  take the last value for a repeated key. RFC 8785 §3.2.3 forbids
+  duplicates, and last-key-wins lets two parsers read different values
+  from the same bytes, so `ParseJSON` returns `ErrDuplicateKey`.
+- **Invalid UTF-8 bytes decode like Node's.** They are replaced with
+  U+FFFD per the WHATWG maximal-subpart rule before parsing.
+
+The cost is about 280 lines of parser to maintain in place of a standard
+library call. That cost is accepted deliberately: no standard Go API
+exposes unpaired surrogates. Tests keep the parser honest. Every
+committed `vectors/**/*.json` file must parse to the same tree as
+`encoding/json` with `UseNumber` wherever no surrogate edge or duplicate
+key is involved, and unit tests cover malformed input, the surrogate
+paths and Node-derived decoding cases.
+
+The Go functions also recover from panics caused by hostile dynamic
+values, such as a `json.Marshaler` that panics. The signature check
+reports those as `verification_error`, like the TS catch-all, and
+revocation lookup treats the affected list as shape-invalid. Recursion
+over value trees stops at `MaxTreeDepth`, so a cyclic Go map gives
+`canonicalization_failed` instead of a fatal stack overflow. Nesting
+deep enough to hit a runtime's own stack limit, roughly ten thousand
+levels in V8, is outside the conformance contract.
+
 ## What is NOT verified
 
 These are deliberate non-constraints (ADR-010: hounfour ships shape, not authority):

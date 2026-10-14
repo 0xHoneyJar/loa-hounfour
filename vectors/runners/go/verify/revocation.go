@@ -104,28 +104,54 @@ func timestampsNormalize(obj map[string]any) bool {
 	return true
 }
 
-func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jsonschema.Schema) RevocationLookupResult {
-	type app struct {
-		list   map[string]any
-		issued string
+type revEntry struct {
+	keyID, revokedAt, revokedAtNorm, reason string
+}
+
+type revList struct {
+	listID, from, until, issued string
+	entries                     []revEntry
+}
+
+// extractList validates one list and extracts the fields the lookup
+// reads. Any failure, including a panic from a hostile dynamic value,
+// makes the list shape-invalid, so later steps only touch typed data.
+func extractList(raw any, shape *jsonschema.Schema) (l revList, ok bool) {
+	defer func() {
+		if recover() != nil {
+			ok = false
+		}
+	}()
+	obj, isObj := raw.(map[string]any)
+	if !isObj || shape.Validate(raw) != nil || !timestampsNormalize(obj) {
+		return revList{}, false
 	}
+	l.listID = obj["list_id"].(string)
+	l.from, _ = normalizeUTC(obj["valid_from"].(string))
+	l.issued, _ = normalizeUTC(obj["issued_at"].(string))
+	if s, isStr := obj["valid_until"].(string); isStr {
+		l.until, _ = normalizeUTC(s)
+	}
+	for _, rawEntry := range obj["revoked_keys"].([]any) {
+		e := rawEntry.(map[string]any)
+		ra := e["revoked_at"].(string)
+		rn, _ := normalizeUTC(ra)
+		l.entries = append(l.entries, revEntry{e["key_id"].(string), ra, rn, e["reason"].(string)})
+	}
+	return l, true
+}
+
+func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jsonschema.Schema) RevocationLookupResult {
 	var invalid []string
-	var applicable []app
+	var applicable []revList
 	for i, raw := range lists {
-		obj, ok := raw.(map[string]any)
-		if !ok || shape.Validate(raw) != nil || !timestampsNormalize(obj) {
+		l, ok := extractList(raw, shape)
+		if !ok {
 			invalid = append(invalid, fmt.Sprintf("lists[%d]", i))
 			continue
 		}
-		// timestampsNormalize guarantees these succeed.
-		from, _ := normalizeUTC(obj["valid_from"].(string))
-		issued, _ := normalizeUTC(obj["issued_at"].(string))
-		until := ""
-		if s, ok := obj["valid_until"].(string); ok {
-			until, _ = normalizeUTC(s)
-		}
-		if from <= atNorm && (until == "" || atNorm < until) {
-			applicable = append(applicable, app{obj, issued})
+		if l.from <= atNorm && (l.until == "" || atNorm < l.until) {
+			applicable = append(applicable, l)
 		}
 	}
 	sort.SliceStable(applicable, func(a, b int) bool { return applicable[a].issued > applicable[b].issued })
@@ -134,24 +160,19 @@ func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jso
 	if !res.ListValid {
 		res.ListValidityReason = "shape_invalid: " + strings.Join(invalid, ", ")
 	}
-	for _, a := range applicable {
-		for _, rawEntry := range a.list["revoked_keys"].([]any) {
-			e := rawEntry.(map[string]any)
-			if e["key_id"].(string) != signerKeyID {
-				continue
-			}
-			revokedAt, _ := normalizeUTC(e["revoked_at"].(string))
-			if revokedAt <= atNorm {
+	for _, l := range applicable {
+		for _, e := range l.entries {
+			if e.keyID == signerKeyID && e.revokedAtNorm <= atNorm {
 				res.Revoked = true
-				res.RevokedAt = e["revoked_at"].(string)
-				res.ListID = a.list["list_id"].(string)
-				res.Reason = e["reason"].(string)
+				res.RevokedAt = e.revokedAt
+				res.ListID = l.listID
+				res.Reason = e.reason
 				return res
 			}
 		}
 	}
 	if len(applicable) > 0 {
-		res.ListID = applicable[0].list["list_id"].(string)
+		res.ListID = applicable[0].listID
 	}
 	return res
 }
