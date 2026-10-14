@@ -1,0 +1,75 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "IrreversibleActionAttestation",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "IAA-1",
+      "expression": "proposal.actor_id != execution.actor_id",
+      "severity": "error",
+      "message": "IrreversibleActionAttestation: the actor that proposes an irreversible action MUST NOT be the actor that executes it (proposer_is_not_executor). A separation_of_duties.waiver_reference does not relax this rule inside validate().",
+      "fields": ["proposal.actor_id", "execution.actor_id"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator validateIrreversibleActionAttestation. Exact string equality; the library does not normalise actor identifiers (non-constraint IAA-N3). A waiver is informational (IAA-N5): a consumer that honours waivers decides what to do with IAA-1 errors outside validate().",
+      "type_signature": {
+        "proposal.actor_id": "string",
+        "execution.actor_id": "string"
+      }
+    },
+    {
+      "id": "IAA-2",
+      "expression": "proposal.signer_key_id != execution.signer_key_id",
+      "severity": "error",
+      "message": "IrreversibleActionAttestation: proposal and execution MUST be made under different signer keys. A separation_of_duties.waiver_reference does not relax this rule inside validate().",
+      "fields": ["proposal.signer_key_id", "execution.signer_key_id"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator. signer_key_id is pinned to 64 lowercase hex characters so exact string inequality is inequality of key identifiers (a mixed-case alphabet would let one key appear as two identifiers). Proving the two keys belong to different principals is consumer keyring state (non-constraint IAA-N4).",
+      "type_signature": {
+        "proposal.signer_key_id": "string",
+        "execution.signer_key_id": "string"
+      }
+    },
+    {
+      "id": "IAA-3",
+      "expression": "!is_after(proposal.proposed_at, execution.executed_at)",
+      "severity": "error",
+      "message": "IrreversibleActionAttestation: execution.executed_at MUST NOT be before proposal.proposed_at. Equal instants are admitted.",
+      "fields": ["proposal.proposed_at", "execution.executed_at"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator, which compares the two ISO 8601 UTC instants exactly at nanosecond precision and handles mixed fractional precision (00:00:00Z equals 00:00:00.000Z). The DSL restatement uses the is_after builtin, which compares at millisecond precision; the two agree whenever the instants differ by at least one millisecond, and the cross-field validator is authoritative below that. No maximum gap between proposal and execution is imposed (non-constraint IAA-N6).",
+      "type_signature": {
+        "proposal.proposed_at": "string",
+        "execution.executed_at": "string"
+      }
+    },
+    {
+      "id": "IAA-4",
+      "expression": "len(target.schema_id) >= 1 && len(target.schema_id) <= 128",
+      "severity": "error",
+      "message": "IrreversibleActionAttestation: target.schema_id MUST be a non-empty PascalCase identifier of at most 128 characters matching ^[A-Z][A-Za-z0-9]*$. The PascalCase predicate ^[A-Z][A-Za-z0-9]*$ is enforced only by the structural tier (the schema pattern); the DSL row restates only the length bounds (1..128) for cross-runner parity, so a DSL-only evaluation of IAA-4 is NOT equivalent to the structural check.",
+      "fields": ["target.schema_id"],
+      "evaluator": "library",
+      "evaluation_note": "Structural-tier rule. The PascalCase predicate ^[A-Z][A-Za-z0-9]*$ is enforced only by the structural tier (the schema pattern); the DSL row restates only the length bounds (1..128) for cross-runner parity, so a DSL-only evaluation of IAA-4 is NOT equivalent to the structural check. The constraint DSL has no regular-expression builtin and none is added for this rule. Cross-language runners reject non-PascalCase values from the generated JSON Schema pattern, not from this expression. The constraint-file format has no structural-only marker, so this note records the layer.",
+      "type_signature": {
+        "target.schema_id": "string"
+      }
+    },
+    {
+      "id": "IAA-5",
+      "expression": "consumer verifies every present signature under its keyring: proposal.signature over the RFC 8785 JCS bytes of the attestation with execution and proposal.signature removed; execution.signature over the JCS bytes of the attestation with execution.signature removed",
+      "severity": "error",
+      "message": "IrreversibleActionAttestation: present signatures MUST verify under the consumer keyring. The library does not verify signatures; validate() fails closed with CRYPTO_DEFERRED unless the caller passes acceptDeferred.",
+      "fields": ["proposal.signature", "execution.signature", "proposal.signer_key_id", "execution.signer_key_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Runtime-deferred with reason crypto_deferred. The schema is x-crypto-bearing, so validate() returns CRYPTO_DEFERRED unless the consumer opts in to shape-only validation with acceptDeferred: true, in which case the CRYPTO_DEFERRED obligation is surfaced in the unverified-obligations manifest. The signing input binds the whole envelope (target and action_kind included), not only the signer's own sub-object, so a proposal signature cannot be replayed onto another target. Hounfour ships no ed25519 verifier (ADR-010 RULE-2). Key-to-actor binding is consumer keyring state (non-constraint IAA-N7).",
+      "type_signature": {
+        "proposal.signature": "string | undefined",
+        "execution.signature": "string | undefined",
+        "proposal.signer_key_id": "string",
+        "execution.signer_key_id": "string"
+      }
+    }
+  ]
+}

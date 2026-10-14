@@ -1,0 +1,83 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "SharedSurfaceDeclaration",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "SSD-1",
+      "expression": "array_contains(writer_agent_ids, owner_agent_id)",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: owner_agent_id MUST appear in writer_agent_ids. The owner of a shared surface is one of its declared writers.",
+      "fields": ["owner_agent_id", "writer_agent_ids"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator validateSharedSurfaceDeclaration; the DSL expression uses the LOCAL array_contains builtin (v8.8.0). Exact string membership; agent identifiers are not normalised (non-constraint SSD-N4). The owner is NOT required to appear in reader_agent_ids (non-constraint SSD-N3).",
+      "type_signature": {
+        "owner_agent_id": "string",
+        "writer_agent_ids": "string[]"
+      }
+    },
+    {
+      "id": "SSD-2",
+      "expression": "single_writer == false || writer_agent_ids.length == 1",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: when single_writer is true, writer_agent_ids MUST have exactly one entry. Together with SSD-1 that entry is the owner.",
+      "fields": ["single_writer", "writer_agent_ids"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator. A multi-writer surface may declare a single writer (single_writer false with one entry is admitted): the flag is a promise that the list will stay at one, not a description of the current count.",
+      "type_signature": {
+        "single_writer": "boolean",
+        "writer_agent_ids": "string[]"
+      }
+    },
+    {
+      "id": "SSD-3",
+      "expression": "array_values_distinct(writer_agent_ids)",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: writer_agent_ids MUST NOT contain duplicate entries.",
+      "fields": ["writer_agent_ids"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator, which reports each duplicated value with the indices where it occurs. The DSL expression uses the LOCAL array_values_distinct builtin (v8.8.0); unique_values applies to arrays of objects keyed by a field and is vacuously true on arrays of strings, so it cannot express this rule. Cross-language runners implement it as a set-size comparison. Duplicates are rejected rather than tolerated because SSD-6 runtime conformance checks compare observed writers against this list as a set.",
+      "type_signature": {
+        "writer_agent_ids": "string[]"
+      }
+    },
+    {
+      "id": "SSD-4",
+      "expression": "array_values_distinct(reader_agent_ids)",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: reader_agent_ids MUST NOT contain duplicate entries. An empty reader list is admitted.",
+      "fields": ["reader_agent_ids"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator. Same array_values_distinct builtin as SSD-3. No relationship between readers and writers is required (non-constraints SSD-N2 and SSD-N3).",
+      "type_signature": {
+        "reader_agent_ids": "string[]"
+      }
+    },
+    {
+      "id": "SSD-5",
+      "expression": "consumer verifies that locator is unique across every SharedSurfaceDeclaration in its registry",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: locator MUST be unique across the consumer's declarations. The library cannot see other declarations.",
+      "fields": ["locator"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Cross-record consumer state per ADR-010. The library does not parse locator (non-constraint SSD-N1), so equivalence between two spellings of one surface is also the consumer's to decide. A consumer registry that admits a second declaration for an existing locator has two owners for one surface, which is the ambiguity this schema exists to remove.",
+      "type_signature": {
+        "locator": "string"
+      }
+    },
+    {
+      "id": "SSD-6",
+      "expression": "consumer verifies at runtime that every agent observed writing to the surface appears in writer_agent_ids",
+      "severity": "error",
+      "message": "SharedSurfaceDeclaration: every runtime writer MUST be a declared writer. An undeclared writer is the incident class this declaration exists to detect: a cache that became a message board.",
+      "fields": ["writer_agent_ids"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Runtime observation per ADR-010: the library sees the declaration, not the writes. Consumers compare the set of agents in the surface's write log (or the audit trail named by audit_trail_id, when present) against writer_agent_ids and treat any agent outside the list as a violation. When single_writer is true the comparison reduces to every write coming from owner_agent_id.",
+      "type_signature": {
+        "writer_agent_ids": "string[]"
+      }
+    }
+  ]
+}

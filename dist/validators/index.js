@@ -55,6 +55,15 @@ import { validateManifestConsumptionReceipt } from '../constraints/manifest-cons
 // invariants if any are promoted from consumer-state to library-
 // evaluable in v8.8.0+.
 import { validateMergeArtifact } from '../canonical/merge-artifact.js';
+// v8.8.0 PR-C3 — FR-C3 separation-of-duties cross-field validators.
+// IrreversibleActionAttestation: IAA-1 (distinct actors), IAA-2 (distinct
+// signer keys), IAA-3 (execution not before proposal). IAA-5 (signature
+// verification) is consumer-side per ADR-010.
+// SharedSurfaceDeclaration: SSD-1 (owner is a writer), SSD-2 (single-writer
+// consistency), SSD-3 / SSD-4 (distinct writer / reader lists). SSD-5 and
+// SSD-6 need consumer registry / runtime observation.
+import { validateIrreversibleActionAttestation } from '../governance/irreversible-action-attestation.js';
+import { validateSharedSurfaceDeclaration } from '../governance/shared-surface-declaration.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // Strict semantics live in ./formats.js (single source of truth) and are
 // registered UNCONDITIONALLY at module load so host-application import order
@@ -1222,6 +1231,9 @@ registerCrossFieldValidator('MergeArtifact', validateMergeArtifact);
 // MCR-3 (every manifest rule decided) is consumer-side because the receipt
 // does not embed the manifest — see joinReceiptToManifest.
 registerCrossFieldValidator('ManifestConsumptionReceipt', validateManifestConsumptionReceipt);
+// v8.8.0 PR-C3 — FR-C3 separation of duties (SDD §2).
+registerCrossFieldValidator('IrreversibleActionAttestation', validateIrreversibleActionAttestation);
+registerCrossFieldValidator('SharedSurfaceDeclaration', validateSharedSurfaceDeclaration);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

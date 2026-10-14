@@ -197,6 +197,9 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'MergeArtifact',
     // v8.8.0 PR-C4 — ManifestConsumptionReceipt (MCR-1 rule_id distinct).
     'ManifestConsumptionReceipt',
+    // v8.8.0 PR-C3 — FR-C3 separation of duties.
+    'IrreversibleActionAttestation',
+    'SharedSurfaceDeclaration',
   ];
 
   it('returns an array of strings', () => {

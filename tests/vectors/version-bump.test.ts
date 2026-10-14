@@ -327,6 +327,8 @@ describe('version bump', () => {
     // RevocationList, MergeArtifact → 262. Stubs use Type.Never() so any
     // payload fails validation; the $id namespace is reserved.
     // cycle-008 PR-C4 adds ManifestConsumptionReceipt → 263.
-    expect(index.schemas).toHaveLength(263);
+    // cycle-008 PR-C3 (FR-C3) adds 2: IrreversibleActionAttestation,
+    // SharedSurfaceDeclaration → 265.
+    expect(index.schemas).toHaveLength(265);
   });
 });

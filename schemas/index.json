@@ -1580,6 +1580,18 @@
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt",
       "file": "manifest-consumption-receipt.schema.json",
       "description": "Consumer record of one decision per rule of an UnverifiedObligationsManifest, each with a human judgement. Shape only: the library does not grade judgements or decide authority (ADR-010). See SDD §3 and MC-1."
+    },
+    {
+      "name": "irreversible-action-attestation",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation",
+      "file": "irreversible-action-attestation.schema.json",
+      "description": "Proposer-is-not-executor attestation for an irreversible action. Records a proposal duty and an execution duty over one target record; the library enforces distinct actors (IAA-1), distinct signer keys (IAA-2) and execution not before proposal (IAA-3). Crypto-bearing: signatures, when present, are verified by the consumer (IAA-5)."
+    },
+    {
+      "name": "shared-surface-declaration",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/shared-surface-declaration",
+      "file": "shared-surface-declaration.schema.json",
+      "description": "Declaration of a surface shared between agents: owner, writers, readers and single-writer flag. The library enforces owner-is-a-writer (SSD-1), single-writer consistency (SSD-2) and distinct writer and reader lists (SSD-3, SSD-4); locator uniqueness and runtime writer conformance are consumer-side (SSD-5, SSD-6)."
     }
   ]
 }

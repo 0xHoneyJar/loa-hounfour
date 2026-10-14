@@ -58,6 +58,9 @@ import { SubscriptionPoolStateSchema } from '../src/canonical/subscription-pool-
 import { RevocationListSchema } from '../src/canonical/revocation-list.js';
 import { MergeArtifactSchema } from '../src/canonical/merge-artifact.js';
 import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-consumption-receipt.js';
+// v8.8.0 cycle-008 PR-C3 (FR-C3) — separation of duties.
+import { IrreversibleActionAttestationSchema } from '../src/governance/irreversible-action-attestation.js';
+import { SharedSurfaceDeclarationSchema } from '../src/governance/shared-surface-declaration.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -171,6 +174,19 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
   // is cross-field; its fixtures live in 'invalid-cross-field'.
   ManifestConsumptionReceipt: {
     schema: ManifestConsumptionReceiptSchema,
+    versionPath: 'v8.8.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  // v8.8.0 cycle-008 cluster — PR-C3 (FR-C3). Both schemas carry
+  // cross-field validators (IAA-1..3, SSD-1..4), so their
+  // cross-field-only invalids live in 'invalid-cross-field'.
+  IrreversibleActionAttestation: {
+    schema: IrreversibleActionAttestationSchema,
+    versionPath: 'v8.8.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  SharedSurfaceDeclaration: {
+    schema: SharedSurfaceDeclarationSchema,
     versionPath: 'v8.8.0',
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },

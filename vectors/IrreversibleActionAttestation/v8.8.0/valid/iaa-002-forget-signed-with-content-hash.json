@@ -1,0 +1,27 @@
+{
+  "_comment": "ForgetRecord crypto_full_destruction wrapper: requester proposes, authorized signer executes; both signatures and the target content hash present.",
+  "envelope_kind": "irreversible_action_attestation",
+  "contract_version": "8.8.0",
+  "attestation_id": "0a9b8c7d-6e5f-4a3b-9c2d-1e0f9a8b7c6d",
+  "action_kind": "forget",
+  "target": {
+    "schema_id": "ForgetRecord",
+    "record_id": "5d4c3b2a-1f0e-4d9c-8b7a-6f5e4d3c2b1a",
+    "content_hash": "sha256:9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e"
+  },
+  "proposal": {
+    "actor_id": "agent:subject-requester",
+    "signer_key_id": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+    "proposed_at": "2026-10-02T12:00:00Z",
+    "signature": "ed25519:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "execution": {
+    "actor_id": "signer:privacy-officer",
+    "signer_key_id": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "executed_at": "2026-10-03T08:15:00.250Z",
+    "signature": "ed25519:Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq_-Zq"
+  },
+  "separation_of_duties": {
+    "policy": "proposer_is_not_executor"
+  }
+}

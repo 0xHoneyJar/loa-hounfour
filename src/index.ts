@@ -136,6 +136,13 @@ export {
   AssertionStatusSchema, type AssertionStatus,
   AssertionClassSchema, type AssertionClass,
   AssertionSchema, type Assertion,
+  // v8.8.0 PR-C3 Separation of duties (FR-C3)
+  IrreversibleActionAttestationSchema, type IrreversibleActionAttestation,
+  IrreversibleActionKindSchema, type IrreversibleActionKind,
+  validateIrreversibleActionAttestation,
+  SharedSurfaceDeclarationSchema, type SharedSurfaceDeclaration,
+  SharedSurfaceKindSchema, type SharedSurfaceKind,
+  validateSharedSurfaceDeclaration,
 } from './governance/index.js';
 
 export * from './constraints/index.js';

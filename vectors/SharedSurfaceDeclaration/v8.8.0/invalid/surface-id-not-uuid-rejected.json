@@ -1,0 +1,18 @@
+{
+  "_comment": "surface_id must be a UUID.",
+  "surface_id": "cache-1",
+  "kind": "cache",
+  "locator": "redis://cache.internal:6379/0/embeddings:",
+  "owner_agent_id": "agent:indexer",
+  "writer_agent_ids": [
+    "agent:indexer"
+  ],
+  "reader_agent_ids": [
+    "agent:retriever",
+    "agent:planner"
+  ],
+  "single_writer": true,
+  "declared_at": "2026-10-01T00:00:00Z",
+  "declared_by": "agent:indexer",
+  "contract_version": "8.8.0"
+}

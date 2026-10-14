@@ -1764,5 +1764,80 @@ export const EVALUATOR_BUILTIN_SPECS = new Map([
                 'Malformed ts_emit (Date.parse → NaN) surfaces structured FAIL before TTL arithmetic; library does not emit ttl_until_ms=NaN downstream (iter-1 F-003)',
             ],
         }],
+    // LOCAL array builtins (v8.8.0, PR-C3 — FR-C3 SharedSurfaceDeclaration)
+    ['array_contains', {
+            name: 'array_contains',
+            signature: 'array_contains(array, value) → boolean',
+            description: 'LOCAL pure-shape membership check over an array of JSON primitives. Returns true when the array contains an element strictly equal to value (exact string equality, no normalisation). Used by SharedSurfaceDeclaration SSD-1 (owner_agent_id is one of writer_agent_ids).',
+            arguments: [
+                { name: 'array', type: 'array', description: 'Array whose elements are compared to value.' },
+                { name: 'value', type: 'unknown', description: 'JSON primitive (string, number, boolean or null) to look for.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Owner present among writers',
+                    context: { owner_agent_id: 'agent:a', writer_agent_ids: ['agent:b', 'agent:a'] },
+                    expression: 'array_contains(writer_agent_ids, owner_agent_id)',
+                    expected: true,
+                },
+                {
+                    description: 'Owner absent from writers',
+                    context: { owner_agent_id: 'agent:a', writer_agent_ids: ['agent:b'] },
+                    expression: 'array_contains(writer_agent_ids, owner_agent_id)',
+                    expected: false,
+                },
+                {
+                    description: 'Comparison is exact: case differences do not match',
+                    context: { owner_agent_id: 'Agent:A', writer_agent_ids: ['agent:a'] },
+                    expression: 'array_contains(writer_agent_ids, owner_agent_id)',
+                    expected: false,
+                },
+            ],
+            edge_cases: [
+                'Empty array returns false',
+                'Non-array first argument returns false',
+                'Object or array value returns false (only primitives are compared)',
+                'Object or array elements never match',
+                'Cross-runner: Go slices.Contains; Python value in arr; Rust iter().any(|x| x == value)',
+            ],
+        }],
+    ['array_values_distinct', {
+            name: 'array_values_distinct',
+            signature: 'array_values_distinct(array) → boolean',
+            description: 'LOCAL pure-shape distinctness check over an array of JSON primitives. Returns true when no two elements are strictly equal. Complements unique_values(array, field), which keys arrays of objects by a field and is vacuously true on arrays of primitives. Used by SharedSurfaceDeclaration SSD-3 and SSD-4.',
+            arguments: [
+                { name: 'array', type: 'array', description: 'Array of JSON primitives.' },
+            ],
+            return_type: 'boolean',
+            short_circuit: true,
+            examples: [
+                {
+                    description: 'Distinct writer list passes',
+                    context: { writer_agent_ids: ['agent:a', 'agent:b'] },
+                    expression: 'array_values_distinct(writer_agent_ids)',
+                    expected: true,
+                },
+                {
+                    description: 'Duplicate writer fails',
+                    context: { writer_agent_ids: ['agent:a', 'agent:b', 'agent:a'] },
+                    expression: 'array_values_distinct(writer_agent_ids)',
+                    expected: false,
+                },
+                {
+                    description: 'Empty array is distinct',
+                    context: { reader_agent_ids: [] },
+                    expression: 'array_values_distinct(reader_agent_ids)',
+                    expected: true,
+                },
+            ],
+            edge_cases: [
+                'Non-array input returns false',
+                'Any object or array element returns false (primitive distinctness is undefined for them)',
+                'Strict equality: the string "1" and the number 1 are distinct',
+                'Cross-runner: Python len(set(arr)) == len(arr); Go/Rust set-size comparison',
+            ],
+        }],
 ]);
 //# sourceMappingURL=evaluator-spec.js.map

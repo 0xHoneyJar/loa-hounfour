@@ -121,6 +121,9 @@ var Schemas = []SchemaReg{
 	{"MergeArtifact", "v8.7.0", []string{"valid", "invalid"}},
 	// v8.8.0 cycle-008 — versioned layout. PR-C4 (SDD §3, FR-C4).
 	{"ManifestConsumptionReceipt", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	// v8.8.0 cycle-008 cluster — versioned layout. PR-C3 (FR-C3).
+	{"IrreversibleActionAttestation", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	{"SharedSurfaceDeclaration", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
 }
 
 type ManifestEntry struct {

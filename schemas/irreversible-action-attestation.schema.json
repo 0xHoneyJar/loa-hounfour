@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation",
+  "additionalProperties": false,
+  "x-crypto-bearing": true,
+  "x-cross-field-validated": true,
+  "description": "Proposer-is-not-executor attestation for an irreversible action. Records a proposal duty and an execution duty over one target record; the library enforces distinct actors (IAA-1), distinct signer keys (IAA-2) and execution not before proposal (IAA-3). Crypto-bearing: signatures, when present, are verified by the consumer (IAA-5).",
+  "type": "object",
+  "required": [
+    "envelope_kind",
+    "contract_version",
+    "attestation_id",
+    "action_kind",
+    "target",
+    "proposal",
+    "execution",
+    "separation_of_duties"
+  ],
+  "properties": {
+    "envelope_kind": {
+      "description": "Discriminator pinning this envelope shape.",
+      "const": "irreversible_action_attestation",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Hounfour contract version. Pinned to \"8.8.0\", the line that introduced this envelope.",
+      "const": "8.8.0",
+      "type": "string"
+    },
+    "attestation_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this attestation (UUID).",
+      "type": "string"
+    },
+    "action_kind": {
+      "description": "Kind of irreversible action being attested. Which kinds are irreversible in a given system is consumer policy (IAA-N2).",
+      "anyOf": [
+        {
+          "const": "merge",
+          "type": "string"
+        },
+        {
+          "const": "apply",
+          "type": "string"
+        },
+        {
+          "const": "destroy",
+          "type": "string"
+        },
+        {
+          "const": "forget",
+          "type": "string"
+        },
+        {
+          "const": "transfer",
+          "type": "string"
+        },
+        {
+          "const": "revoke",
+          "type": "string"
+        },
+        {
+          "const": "publish",
+          "type": "string"
+        },
+        {
+          "const": "other",
+          "type": "string"
+        }
+      ]
+    },
+    "target": {
+      "additionalProperties": false,
+      "description": "The record the irreversible action applies to.",
+      "type": "object",
+      "required": [
+        "schema_id",
+        "record_id"
+      ],
+      "properties": {
+        "schema_id": {
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Z][A-Za-z0-9]*$",
+          "description": "PascalCase $id of the schema of the record the action applies to (for example \"MergeArtifact\" or \"ForgetRecord\"). IAA-4.",
+          "type": "string"
+        },
+        "record_id": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Identifier of the target record in the consumer system. Existence is not checked (IAA-N1).",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "Optional sha256 of the target record content at proposal time. Pattern only; the library does not recompute it (IAA-N1).",
+          "type": "string"
+        }
+      }
+    },
+    "proposal": {
+      "additionalProperties": false,
+      "description": "The proposing duty: who asked for the action.",
+      "type": "object",
+      "required": [
+        "actor_id",
+        "signer_key_id",
+        "proposed_at"
+      ],
+      "properties": {
+        "actor_id": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Consumer-shaped actor identifier. Compared by exact string equality (IAA-1); the library does not normalise identifiers (IAA-N3). The 256-character bound matches MergeArtifact.merger_actor_id so a merge actor can be carried unchanged.",
+          "type": "string"
+        },
+        "signer_key_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Signer key identifier, 64 lowercase hex characters (the bare sha256-derived form used by PhaseCompletionEnvelope). Compared by exact string equality (IAA-2).",
+          "type": "string"
+        },
+        "proposed_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "description": "ISO 8601 UTC instant at which the action was proposed.",
+          "type": "string"
+        },
+        "signature": {
+          "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+          "description": "Optional ed25519 signature (unpadded base64url, 86 characters after the \"ed25519:\" prefix) over the signing input described in the schema JSDoc (IAA-5). Not verified by the library.",
+          "type": "string"
+        }
+      }
+    },
+    "execution": {
+      "additionalProperties": false,
+      "description": "The executing duty: who carried the action out.",
+      "type": "object",
+      "required": [
+        "actor_id",
+        "signer_key_id",
+        "executed_at"
+      ],
+      "properties": {
+        "actor_id": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Consumer-shaped actor identifier. Compared by exact string equality (IAA-1); the library does not normalise identifiers (IAA-N3). The 256-character bound matches MergeArtifact.merger_actor_id so a merge actor can be carried unchanged.",
+          "type": "string"
+        },
+        "signer_key_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Signer key identifier, 64 lowercase hex characters (the bare sha256-derived form used by PhaseCompletionEnvelope). Compared by exact string equality (IAA-2).",
+          "type": "string"
+        },
+        "executed_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+          "description": "ISO 8601 UTC instant at which the action was executed. MUST NOT be before proposal.proposed_at (IAA-3).",
+          "type": "string"
+        },
+        "signature": {
+          "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+          "description": "Optional ed25519 signature (unpadded base64url, 86 characters after the \"ed25519:\" prefix) over the signing input described in the schema JSDoc (IAA-5). Not verified by the library.",
+          "type": "string"
+        }
+      }
+    },
+    "separation_of_duties": {
+      "additionalProperties": false,
+      "description": "Separation-of-duties policy declaration.",
+      "type": "object",
+      "required": [
+        "policy"
+      ],
+      "properties": {
+        "policy": {
+          "description": "The separation-of-duties policy this envelope attests.",
+          "const": "proposer_is_not_executor",
+          "type": "string"
+        },
+        "waiver_reference": {
+          "minLength": 1,
+          "maxLength": 1024,
+          "description": "Informational pointer to a consumer-side waiver. Does NOT relax IAA-1 / IAA-2 inside validate(); a consumer that honours waivers does so outside validate() (IAA-N5).",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$comment": "contract_version=8.8.0, min_supported=6.0.0"
+}

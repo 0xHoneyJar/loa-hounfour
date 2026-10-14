@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T04:26:03.456Z",
+  "generated_at": "2026-10-14T04:41:58.370Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
-    "schemas": 263,
-    "vectors": 1265,
-    "constraints": 141,
+    "schemas": 265,
+    "vectors": 1322,
+    "constraints": 143,
     "manifests": 2,
-    "total": 1671
+    "total": 1732
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -649,6 +649,11 @@
         "size_bytes": 3224
       },
       {
+        "path": "schemas/irreversible-action-attestation.schema.json",
+        "sha256": "f423afe0559cd3cbb91d9c59fe473d3c4188c74c33e0093924246617bbe970bb",
+        "size_bytes": 7083
+      },
+      {
         "path": "schemas/jwt-boundary-spec.schema.json",
         "sha256": "720ced1f75ad7646aba6545541823249efbd0f754e38be82ad261afdc43b9aea",
         "size_bytes": 2770
@@ -1147,6 +1152,11 @@
         "path": "schemas/settlement-policy.schema.json",
         "sha256": "3bf46cc74956f62f8f148bd660406c0405c46907fa6133257b0552b13eea5227",
         "size_bytes": 472
+      },
+      {
+        "path": "schemas/shared-surface-declaration.schema.json",
+        "sha256": "0663f80138f20641c35f0f1a29ded18932557cf9ff776529833b1a6dfe22ed97",
+        "size_bytes": 4980
       },
       {
         "path": "schemas/signature-envelope.schema.json",
@@ -2994,6 +3004,151 @@
         "path": "vectors/InterSeriesScopingArtifact/v8.7.0/valid/issa-010-deep-proof-path.json",
         "sha256": "a156807b6268273c20f8947231bc2243eb2a08da37ae66f4cbfd9aeed10ebdcb",
         "size_bytes": 5355
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa1-and-iaa2-and-iaa3-combined-rejected.json",
+        "sha256": "0688caa944a0668da7c6dd1cf368470d97fe72cbac44ce0a3f4693a561a20a71",
+        "size_bytes": 803
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa1-same-actor-rejected.json",
+        "sha256": "04793f102cb0076570f90d746c6d91f68f83431f0d4c1d2191bc523658ed88d9",
+        "size_bytes": 766
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa1-same-actor-with-waiver-rejected.json",
+        "sha256": "f4d29e0894f8f3321dde7c179c5d5cee2d4f040fbc57670284e6d062cb01ca53",
+        "size_bytes": 880
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa2-same-signer-key-rejected.json",
+        "sha256": "947df9ddcdc8d6e7a9bacbab1063610ea084c686433dadeef69875e0d0d22db6",
+        "size_bytes": 797
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa3-execution-before-proposal-rejected.json",
+        "sha256": "005ac4ec1f9e043224df9f83bbb36263334c16bc9cd8b5353fc3d9f94ec21245",
+        "size_bytes": 773
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid-cross-field/iaa3-execution-before-proposal-sub-millisecond-rejected.json",
+        "sha256": "b6c50b1d6da19dd83bcbb025488f883c796228512d63375af2cf4c1823bc2d79",
+        "size_bytes": 851
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/action-kind-out-of-vocab-rejected.json",
+        "sha256": "e7e31497e3e17e526725f1e7edc6d58d4db70c03e1622a482b4c004fdb098035",
+        "size_bytes": 768
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "d38aecb03796ff5c29ad82957c54afa8b62a4501317eac49ec455620e7c5c376",
+        "size_bytes": 782
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/attestation-id-not-uuid-rejected.json",
+        "sha256": "cb87fc613879b4e40bc40d249262bea989cd9b63671db5218ff9f56624df8fda",
+        "size_bytes": 729
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/contract-version-wrong-literal-rejected.json",
+        "sha256": "8959dc0160a424d6ed46086510c1afe92c7cc57e86cf257f3763e77019f6a35e",
+        "size_bytes": 773
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/envelope-kind-wrong-literal-rejected.json",
+        "sha256": "3491a33730617ce7d95486b093de4dbd09f747faff18ccdcb10d4eadc4919435",
+        "size_bytes": 762
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/execution-actor-id-empty-rejected.json",
+        "sha256": "92c41b49808dcb32495b4eb9150de2ab644dfdf0d9084808f02656ffb4a20286",
+        "size_bytes": 747
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/execution-missing-rejected.json",
+        "sha256": "adfb0f3c1017b1ee105bdc8eaa5abf9bc2128074156997325b7d1bb14c04d6b3",
+        "size_bytes": 559
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/execution-signature-pattern-violation-rejected.json",
+        "sha256": "1778dbd199f9ba86ea3c2d80c5bffbf133fcb61fbd0e4730cea34d2734782051",
+        "size_bytes": 827
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/policy-wrong-literal-rejected.json",
+        "sha256": "a6b303b3ae0009226cefc4536c05395b6a6254a9c403564823ac552c8a721ed7",
+        "size_bytes": 778
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/proposal-additional-property-rejected.json",
+        "sha256": "a859bfe9c2beb38e5966629679b3dda21664cb1fc8b633bf54286f65c554b47f",
+        "size_bytes": 801
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/proposal-proposed-at-non-utc-rejected.json",
+        "sha256": "1e91ba44f7e96c84a10fe88ce412735c7e4533a6432c61ef07babfa3c4f9cbc4",
+        "size_bytes": 764
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/proposal-signer-key-id-uppercase-rejected.json",
+        "sha256": "69af7f26163da926b8b341d853589632518db871b9ecd00b13f7c0cbc59098e3",
+        "size_bytes": 830
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/target-content-hash-malformed-rejected.json",
+        "sha256": "9d901d1512c1ea3833e4956a629189280017d950b36945d7d7381107ec87b644",
+        "size_bytes": 846
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/target-schema-id-not-pascal-case-rejected.json",
+        "sha256": "a9e271d68562a89800cbe1e1d149c7412c2adbad21806371e1423ff4ad8209e5",
+        "size_bytes": 754
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/target-schema-id-too-long-rejected.json",
+        "sha256": "1ece3ea1c2199bab73454ae7a56ff285539770ef6dfc68eb58bb01ea3cc2ba17",
+        "size_bytes": 876
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/invalid/waiver-reference-empty-rejected.json",
+        "sha256": "fa0d2f0fc77c76f27ec23fe9642b9778302d2da869c9bbc4b5badc738f206008",
+        "size_bytes": 798
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-001-minimal-merge.json",
+        "sha256": "6701164eff8385d7014dffa23131b60db561034bca4d08f7a547a06542211ad8",
+        "size_bytes": 823
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-002-forget-signed-with-content-hash.json",
+        "sha256": "aa639ab5fcb3222f3b274482fe2f19a9505e242a317024f410cde64bab9f7ac3",
+        "size_bytes": 1240
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-003-equal-instants.json",
+        "sha256": "661c5a1330db7e8efdfa815e0e85f3faf93b6e66d1209bfb09c99c05eca1c2f9",
+        "size_bytes": 784
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-004-mixed-fractional-precision.json",
+        "sha256": "733b45cd5b8baaeaf3528f84cb7f98e6c1329ff266ad2c2c53613fafbd968506",
+        "size_bytes": 885
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-005-waiver-reference-informational.json",
+        "sha256": "79301d9f7e4e93e8bb4e2139236b3c2d5dfbab61732cf6e8dd7dc6fb83d66a97",
+        "size_bytes": 882
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-006-other-kind-single-char-schema-id.json",
+        "sha256": "16253da9b74cbfe846a2e640b42f2559ff5250d69a81030210c66a5c8ed393b2",
+        "size_bytes": 756
+      },
+      {
+        "path": "vectors/IrreversibleActionAttestation/v8.8.0/valid/iaa-007-revoke-proposal-signed-only.json",
+        "sha256": "ea92a3159c01dffa02748dfa3caa73233a2be3493bb06ad063836d76f008b5c6",
+        "size_bytes": 899
       },
       {
         "path": "vectors/Keyring/invalid/additional-property.json",
@@ -5029,6 +5184,146 @@
         "path": "vectors/RollbackPlan/v8.6.0/valid/canonical-010-no-env-changes.json",
         "sha256": "01cfa54c3fc9aade91f540fcdff15a5e050ce69cbc028eac7f522c2656000db4",
         "size_bytes": 443
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd1-and-ssd2-combined-rejected.json",
+        "sha256": "17f043f214c190e6a74645e627e37b578ed2e9d69bae0ccbbcc895c0ab829c0a",
+        "size_bytes": 579
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd1-owner-not-writer-rejected.json",
+        "sha256": "283bdfcc02938d634db2689a99201bd09d8fb7b8a02cfdb3d3867e93d8c2ae8e",
+        "size_bytes": 497
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd2-single-writer-with-two-writers-rejected.json",
+        "sha256": "64e7a79da9a619fcff092a7d73da0cfc0dd75f4b5aac702088cb5608a80faa57",
+        "size_bytes": 519
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd3-duplicate-writer-rejected.json",
+        "sha256": "3dd215f70f5293eb903d9677845805ad0c3196bb10a7ae2a7525c2067bb8b4cf",
+        "size_bytes": 521
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd4-duplicate-reader-rejected.json",
+        "sha256": "9c24b1987a3451c31916cabfcadc4192ff681cd38c79211f15c579a02a62dc91",
+        "size_bytes": 498
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/additional-property-rejected.json",
+        "sha256": "e0433ff86c4fb51793e1818b3c940db556ee3691c6928335dc91b8b988c93a59",
+        "size_bytes": 506
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/audit-trail-id-empty-rejected.json",
+        "sha256": "eb967564fd723718330d454037f182c7ec8b560040d391342711a7b8720e4467",
+        "size_bytes": 510
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/contract-version-malformed-rejected.json",
+        "sha256": "39c71fed1d16e0d42f9e4c576ab861ef3fbe0411db7e0798c74752cc3c30d3e3",
+        "size_bytes": 480
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-at-malformed-rejected.json",
+        "sha256": "e597fa4cfb3480650244b8a1eb9666eefcfccd4771c22f5b53e1a89d09fa07ba",
+        "size_bytes": 471
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-at-offset-form-rejected.json",
+        "sha256": "f0d3c23a9cff55a557219d0250d1c68a9b681a751167228656091d538b610f30",
+        "size_bytes": 580
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-by-missing-rejected.json",
+        "sha256": "1fe42ec6a51f0ea8a9caa5a5f24709b1a2db4066d96304ce0f02907bc10fbec7",
+        "size_bytes": 433
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/kind-out-of-vocab-rejected.json",
+        "sha256": "985572e8d013e17c5a045198be6740a83b5aec4bc458984368b092e016b1a8d6",
+        "size_bytes": 483
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/locator-empty-rejected.json",
+        "sha256": "c093c02175cbeba6c5c2daf4a8c262c6c497236a056dccc36e65fb58b2f954ce",
+        "size_bytes": 423
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/locator-too-long-rejected.json",
+        "sha256": "8c339eb71158240300cf2ca752dbdd1423cb2b0ec54f4fa39376673690247c08",
+        "size_bytes": 1462
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/owner-agent-id-empty-rejected.json",
+        "sha256": "8967fa6b2c7be79449ed6cc944fc6f52cb80e7f1a89efc4feeb75a3bfabc3137",
+        "size_bytes": 458
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/retention-additional-property-rejected.json",
+        "sha256": "025da331a1d1b0ab0a5335c2ece91db4068dacca47570a890938d5fac73509c7",
+        "size_bytes": 542
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/retention-negative-max-age-rejected.json",
+        "sha256": "ce4c127cd3e85d88fff859543cdf3574d7554a081b0f2be47c4439c2bde176ce",
+        "size_bytes": 533
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/single-writer-not-boolean-rejected.json",
+        "sha256": "5ea20252902ab5daa20da65f51d0424bc1704d6a646e25123d86d1358ae54dbe",
+        "size_bytes": 472
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/surface-id-not-uuid-rejected.json",
+        "sha256": "b417ed9b98862da4587243fac45065473ec7301be0db62c71df768487dd168bd",
+        "size_bytes": 440
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/writer-agent-id-empty-string-rejected.json",
+        "sha256": "7dac1b2637fd4b8169339dbae30d5699b3e266dfefa78ff6bf2a78d14536f20d",
+        "size_bytes": 488
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/writer-agent-ids-empty-rejected.json",
+        "sha256": "5d89c0f929fdba4a4cb4eec18ce89b84649a97221c051642eaebde4405da1918",
+        "size_bytes": 460
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-001-single-writer-cache.json",
+        "sha256": "1349e812dd271ea099a1d9d11c64c65f2fa39eee53cdf733f52e47e0ca89142e",
+        "size_bytes": 506
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-002-multi-writer-message-board.json",
+        "sha256": "653fd156b9e95c4672723c5b3de06981ef33d1d6ef7869194e7d0b85ca86878f",
+        "size_bytes": 641
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-003-queue-empty-readers.json",
+        "sha256": "a956c8a528728852ecdd5201142c0996fa8d5e240141a532106c286139626e8f",
+        "size_bytes": 422
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-004-retention-and-audit-trail.json",
+        "sha256": "ea871bb9b2b5ea35f63b852c0f48b256c483cb1a27d44c197fe2f7dd44d28aa8",
+        "size_bytes": 635
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-005-declared-by-operator.json",
+        "sha256": "c23cfbfd7ca16ff1da662df77a90e2262005d7e45290202b4d4785d1d492b14f",
+        "size_bytes": 543
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-006-multi-writer-flag-with-one-writer.json",
+        "sha256": "6e949cdffadac2b71706f5806117a151c899aee4f7816bfd2025d7f35edeb41c",
+        "size_bytes": 502
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/valid/ssd-007-other-kind-zero-retention.json",
+        "sha256": "530cde34fd49972faf271306a5424ff13e8a24059eca9f6f79d87ca23707d0e7",
+        "size_bytes": 528
       },
       {
         "path": "vectors/SignatureEnvelope/invalid/edge-signature-88-rejected.json",
@@ -7988,6 +8283,11 @@
         "size_bytes": 8948
       },
       {
+        "path": "constraints/IrreversibleActionAttestation.constraints.json",
+        "sha256": "6a831942a8a987c95b5b19c39dbbf4e0630e086630c05d41e363f283f0c7dd34",
+        "size_bytes": 6027
+      },
+      {
         "path": "constraints/JwtBoundarySpec.constraints.json",
         "sha256": "bca9786dfd955fc6f107512daa4cf9a4bab607d2d744dc2cdb13d65b39522a46",
         "size_bytes": 1321
@@ -8293,6 +8593,11 @@
         "size_bytes": 4115
       },
       {
+        "path": "constraints/SharedSurfaceDeclaration.constraints.json",
+        "sha256": "d29acda085ff5244fcefcea0ebd7aafc345098485bd5c61ad8885a3368d96575",
+        "size_bytes": 5186
+      },
+      {
         "path": "constraints/SignatureEnvelope.constraints.json",
         "sha256": "d2edbb8a07bc08624d6a4c46f8bae80e5d33aa4d8931c92910677c75d63616e6",
         "size_bytes": 1887
@@ -8366,8 +8671,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "2efd7b2538526526225524883f1d7ab491244021218a3a50fff5d0d766364cec",
-        "size_bytes": 87276
+        "sha256": "374717a6bcefc8de1cefed9fce66e6d3cf5d6bedbf53c75becf09f4a1b865b50",
+        "size_bytes": 88397
       },
       {
         "path": "schemas/schemastore-catalog.json",
