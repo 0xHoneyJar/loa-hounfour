@@ -2,7 +2,7 @@
 
 **Contract version:** 8.8.0
 **Min supported:** 6.0.0
-**Schemas:** 266
+**Schemas:** 267
 
 ## Schemas
 
@@ -274,6 +274,7 @@
 | irreversible-action-attestation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation` | [irreversible-action-attestation.schema.json](irreversible-action-attestation.schema.json) |
 | shared-surface-declaration | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/shared-surface-declaration` | [shared-surface-declaration.schema.json](shared-surface-declaration.schema.json) |
 | scope-of-autonomy | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/scope-of-autonomy` | [scope-of-autonomy.schema.json](scope-of-autonomy.schema.json) |
+| agent-identity-binding | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/agent-identity-binding` | [agent-identity-binding.schema.json](agent-identity-binding.schema.json) |
 
 ## Usage
 
