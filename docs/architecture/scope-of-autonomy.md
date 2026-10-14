@@ -102,7 +102,7 @@ For a scope that carries `parent_scope_id`:
 | Same, child outside parent | `valid: false`, one `SOA-6: <CODE> at <field>: …` error per violation. The errors are the verdict. Manifest entries with `evaluator: 'library'` and `reason: 'scope_inheritance_violation'` are the transparency record. |
 | Same, `parent_scope` not a valid ScopeOfAutonomy | `valid: false`, and each of the parent's own diagnostics is returned prefixed `SOA-6 parent: `. |
 
-A root scope carries no SOA-6 obligation. The consumer resolves the parent
+SOA-6 is a cross-field rule. With `{ crossField: false }` it is skipped entirely, like SOA-1..5: the parent is not validated and no SOA-6 entry or error is produced. The deferral entry accompanies otherwise-valid records only (ADR-010): a scope that fails the structural tier or SOA-1..5 gets its errors and no manifest. A root scope carries no SOA-6 obligation. The consumer resolves the parent
 from its own store; the library never looks it up.
 
 ## Activity and stop-work

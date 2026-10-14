@@ -144,6 +144,22 @@ describe('SOA-6 suppression is call-scoped', () => {
   });
 });
 
+describe('SOA-6 manifest discipline (ADR-010)', () => {
+  it('a child failing SOA-1..5 gets its errors and no deferral entry', () => {
+    const bad = { ...CHILD, permitted_sub_goals: ['dup', 'dup'] };
+    const r = validate(ScopeOfAutonomySchema, bad, { now: NOW });
+    expect(r.valid).toBe(false);
+    if (!r.valid) expect(r.errors).toEqual([expect.stringMatching(/^SOA-1:/)]);
+    expect(r).not.toHaveProperty('unverified_obligations');
+  });
+
+  it('a structurally invalid child gets no deferral entry', () => {
+    const r = validate(ScopeOfAutonomySchema, { ...CHILD, permitted_sub_goals: [] }, { now: NOW });
+    expect(r.valid).toBe(false);
+    expect(r).not.toHaveProperty('unverified_obligations');
+  });
+});
+
 describe('SOA-6 verdict on violation', () => {
   it('returns valid: false, one SOA-6 error per violation, and a library transparency entry per violation', () => {
     const child = { ...GRANDCHILD, permitted_sub_goals: ['x', 'y'], expires_at: '2026-10-16T00:00:00Z' };
@@ -184,9 +200,15 @@ describe('SOA-6 parent option profile', () => {
 
   for (const [label, parent] of parents) {
     for (const profile of profiles) {
-      it(`${label} under ${JSON.stringify(profile)}: nested outcome equals direct validation with crossField pinned true`, () => {
-        const direct = validate(ScopeOfAutonomySchema, parent, { ...profile, crossField: true });
+      it(`${label} under ${JSON.stringify(profile)}: nested outcome equals direct validation of the parent`, () => {
         const nested = validate(ScopeOfAutonomySchema, CHILD, { ...profile, scopeContext: { parent_scope: parent } });
+        if (profile.crossField === false) {
+          // Cross-field opt-out: SOA-6 skipped entirely, parent never inspected.
+          expect(nested).toEqual({ valid: true });
+          expect(spy).not.toHaveBeenCalled();
+          return;
+        }
+        const direct = validate(ScopeOfAutonomySchema, parent, profile);
         if (direct.valid) {
           expect(nested.valid).toBe(true);
         } else {
@@ -224,10 +246,22 @@ describe('SOA-6 parent option profile', () => {
     }
   });
 
-  it('crossField: false on the caller does not relax parent validation', () => {
+  it('crossField enabled (default and explicit): the parent is validated with cross-field rules', () => {
     const badParent = { ...ROOT, stop_work: { requested: true, propagates_to_children: true } };
-    const r = validate(ScopeOfAutonomySchema, CHILD, { crossField: false, scopeContext: { parent_scope: badParent } });
-    expect(r.valid).toBe(false);
-    if (!r.valid) expect(r.errors[0]).toMatch(/^SOA-6 parent: SOA-4:/);
+    for (const opts of [{}, { crossField: true }]) {
+      const r = validate(ScopeOfAutonomySchema, CHILD, { ...opts, scopeContext: { parent_scope: badParent } });
+      expect(r.valid).toBe(false);
+      if (!r.valid) expect(r.errors[0]).toMatch(/^SOA-6 parent: SOA-4:/);
+    }
+  });
+
+  it('crossField: false skips SOA-6 entirely: no parent validation, no errors, no entry', () => {
+    const badParent = { ...ROOT, stop_work: { requested: true, propagates_to_children: true } };
+    expect(validate(ScopeOfAutonomySchema, CHILD, { crossField: false, scopeContext: { parent_scope: badParent } })).toEqual({ valid: true });
+    const violating = { ...CHILD, permitted_sub_goals: ['not in root'] };
+    expect(validate(ScopeOfAutonomySchema, violating, { crossField: false, scopeContext: { parent_scope: ROOT } })).toEqual({ valid: true });
+    // No parent supplied: the deferral entry is skipped as well.
+    expect(validate(ScopeOfAutonomySchema, CHILD, { crossField: false, now: NOW })).toEqual({ valid: true });
+    expect(spy).not.toHaveBeenCalled();
   });
 });

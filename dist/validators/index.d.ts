@@ -231,11 +231,20 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      *   mirroring the nonce / sequence / chain builtins. A passing check is
      *   `valid: true` with no SOA-6 entry.
      *
-     * Parent option profile: the supplied parent is validated with the
-     * caller's options minus `scopeContext`, and `crossField` pinned to
-     * `true`. SOA-6 checks one link only. The parent's own
+     * Cross-field opt-out: SOA-6 is a cross-field rule. With
+     * `{ crossField: false }` it is skipped entirely, like SOA-1..5. There
+     * is no parent validation, no SOA-6 manifest entry and no SOA-6 error.
+     *
+     * Parent option profile: with cross-field validation enabled (the
+     * default), the supplied parent is validated with the caller's options
+     * minus `scopeContext`. SOA-6 checks one link only. The parent's own
      * `parent_scope_id` is not followed and emits nothing, so consumers
      * validate a scope chain one link at a time.
+     *
+     * Manifest discipline (ADR-010, validation-result-vs-manifest): the
+     * deferral entry accompanies otherwise-valid records only. If the record
+     * fails the structural tier or SOA-1..5, validate() returns those errors
+     * and no `unverified_obligations` at all.
      *
      * @since v8.8.0 — FR-C1 (PR-C1)
      */

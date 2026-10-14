@@ -1653,11 +1653,20 @@ export function validate<T extends TSchema>(
      *   mirroring the nonce / sequence / chain builtins. A passing check is
      *   `valid: true` with no SOA-6 entry.
      *
-     * Parent option profile: the supplied parent is validated with the
-     * caller's options minus `scopeContext`, and `crossField` pinned to
-     * `true`. SOA-6 checks one link only. The parent's own
+     * Cross-field opt-out: SOA-6 is a cross-field rule. With
+     * `{ crossField: false }` it is skipped entirely, like SOA-1..5. There
+     * is no parent validation, no SOA-6 manifest entry and no SOA-6 error.
+     *
+     * Parent option profile: with cross-field validation enabled (the
+     * default), the supplied parent is validated with the caller's options
+     * minus `scopeContext`. SOA-6 checks one link only. The parent's own
      * `parent_scope_id` is not followed and emits nothing, so consumers
      * validate a scope chain one link at a time.
+     *
+     * Manifest discipline (ADR-010, validation-result-vs-manifest): the
+     * deferral entry accompanies otherwise-valid records only. If the record
+     * fails the structural tier or SOA-1..5, validate() returns those errors
+     * and no `unverified_obligations` at all.
      *
      * @since v8.8.0 — FR-C1 (PR-C1)
      */
@@ -2037,7 +2046,10 @@ function validateImpl<T extends TSchema>(
   // Skipped entirely inside the nested parent validation below
   // (suppressScopeParent, passed per call): SOA-6 evaluates one link,
   // child → supplied parent, and never re-enters for the parent's own parent.
+  // SOA-6 is a cross-field rule: `{ crossField: false }` skips it entirely
+  // (no parent validation, no SOA-6 entry, no SOA-6 errors), like SOA-1..5.
   if (
+    runCrossField &&
     !suppressScopeParent &&
     schema.$id === 'ScopeOfAutonomy' &&
     typeof data === 'object' &&
@@ -2060,12 +2072,12 @@ function validateImpl<T extends TSchema>(
         consumer_acknowledgment_required: true,
       });
     } else {
-      // Parent option profile: the caller's options minus scopeContext,
-      // with crossField pinned to true. The parent must satisfy SOA-1..5
-      // because evaluateScopeInheritance assumes schema-valid inputs, so a
-      // caller's crossField: false does not relax parent validation.
-      // strictWarnings, now, acceptDeferred, failClosed and chainContext
-      // are forwarded unchanged. The nested call runs with
+      // Parent option profile: the caller's options minus scopeContext.
+      // Cross-field validation is enabled here (this branch only runs when
+      // the caller did not opt out), so the parent must satisfy SOA-1..5,
+      // which evaluateScopeInheritance assumes. strictWarnings, now,
+      // acceptDeferred, failClosed and chainContext are forwarded
+      // unchanged. The nested call runs with
       // suppressScopeParent = true, so it cannot evaluate SOA-6 even if a
       // future refactor forwarded scopeContext.
       const { scopeContext: _omitScopeContext, ...forwarded } = options ?? {};
@@ -2073,7 +2085,7 @@ function validateImpl<T extends TSchema>(
       const parentResult = validateImpl(
         ScopeOfAutonomySchema,
         parentScope,
-        { ...forwarded, crossField: true },
+        forwarded,
         true,
       );
       if (!parentResult.valid) {
