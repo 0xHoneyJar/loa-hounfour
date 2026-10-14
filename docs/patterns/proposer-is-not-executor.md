@@ -30,7 +30,11 @@ else in the loop.
 - **IAA-2**: the proposing key and the executing key differ.
 - **IAA-3**: execution is not before proposal (equal instants are admitted;
   comparison is exact at nanosecond precision).
-- **IAA-4**: `target.schema_id` is PascalCase (structural pattern).
+- **IAA-4**: `target.schema_id` is PascalCase. The PascalCase predicate
+  `^[A-Z][A-Za-z0-9]*$` is enforced only by the structural tier (the
+  schema pattern). The constraint-file DSL row restates only the length
+  bounds for cross-runner parity, so a DSL-only evaluation of IAA-4 is
+  not equivalent to the structural check.
 
 Signature verification (**IAA-5**) is the consumer's. The schema is
 `x-crypto-bearing`, so `validate()` fails closed with `CRYPTO_DEFERRED`

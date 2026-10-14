@@ -89,8 +89,9 @@ export type SharedSurfaceDeclaration = Static<typeof SharedSurfaceDeclarationSch
  *
  * Callers normally reach this through `validate(...)`, which runs the
  * structural tier first. Direct callers get defensive behaviour: the
- * function never throws; a non-object input, or a non-array writer or
- * reader list, returns a tagged structural-precondition error. All
+ * function never throws; a non-object input, a non-array writer or
+ * reader list, or an `owner_agent_id` that is not a non-empty string
+ * returns a tagged structural-precondition error. All
  * violated rules are reported.
  *
  * @since v8.8.0 — FR-C3 (PR-C3).

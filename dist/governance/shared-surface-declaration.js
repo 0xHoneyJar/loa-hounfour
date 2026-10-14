@@ -167,8 +167,9 @@ export const SharedSurfaceDeclarationSchema = Type.Object({
  *
  * Callers normally reach this through `validate(...)`, which runs the
  * structural tier first. Direct callers get defensive behaviour: the
- * function never throws; a non-object input, or a non-array writer or
- * reader list, returns a tagged structural-precondition error. All
+ * function never throws; a non-object input, a non-array writer or
+ * reader list, or an `owner_agent_id` that is not a non-empty string
+ * returns a tagged structural-precondition error. All
  * violated rules are reported.
  *
  * @since v8.8.0 — FR-C3 (PR-C3).
@@ -194,11 +195,20 @@ export function validateSharedSurfaceDeclaration(data) {
             warnings: [],
         };
     }
-    const errors = [];
     const owner = data.owner_agent_id;
+    if (typeof owner !== 'string' || owner.length === 0) {
+        return {
+            valid: false,
+            errors: [
+                `SSD: structural shape precondition failed — owner_agent_id must be a non-empty string; got ${owner === '' ? 'empty string' : describeNonObject(owner)}. The cross-field validator requires the structural tier (Value.Check) to have passed first.`,
+            ],
+            warnings: [],
+        };
+    }
+    const errors = [];
     // SSD-1: owner is a writer.
     if (!writers.includes(owner)) {
-        errors.push(`SSD-1: owner_agent_id "${String(owner)}" does not appear in writer_agent_ids — the owner of a shared surface MUST be one of its declared writers.`);
+        errors.push(`SSD-1: owner_agent_id "${owner}" does not appear in writer_agent_ids — the owner of a shared surface MUST be one of its declared writers.`);
     }
     // SSD-2: single_writer implies exactly one writer.
     if (data.single_writer === true && writers.length !== 1) {

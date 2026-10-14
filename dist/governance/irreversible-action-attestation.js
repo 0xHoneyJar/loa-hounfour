@@ -43,9 +43,13 @@
  *     execution.signer_key_id`.
  *   - IAA-3 (library): execution is not before proposal —
  *     `executed_at >= proposed_at`. Equal instants are admitted.
- *   - IAA-4 (library): `target.schema_id` is a PascalCase identifier.
- *     Enforced by the TypeBox pattern; the constraint restates it for
- *     cross-runner parity.
+ *   - IAA-4 (library, structural tier): `target.schema_id` is a
+ *     PascalCase identifier. The PascalCase predicate
+ *     `^[A-Z][A-Za-z0-9]*$` is enforced only by the structural tier
+ *     (the TypeBox / JSON Schema pattern); the constraint-file DSL row
+ *     restates only the length bounds (1..128) for cross-runner
+ *     parity, so a DSL-only evaluation of IAA-4 is NOT equivalent to
+ *     the structural check.
  *   - IAA-5 (runtime-deferred, reason `crypto_deferred`): present
  *     signatures verify under the consumer's keyring over the signing
  *     input above.

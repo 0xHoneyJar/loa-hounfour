@@ -143,6 +143,14 @@ describe('validateSharedSurfaceDeclaration — branches', () => {
     expect(validateSharedSurfaceDeclaration({ ...SSD, writer_agent_ids: 'agent:owner' }).errors[0]).toMatch(/must both be arrays/);
     expect(validateSharedSurfaceDeclaration({ ...SSD, reader_agent_ids: undefined }).errors[0]).toMatch(/must both be arrays/);
   });
+  for (const owner of [undefined, null, 7, ['agent:owner'], { id: 'agent:owner' }, '']) {
+    it(`owner_agent_id ${JSON.stringify(owner) ?? 'undefined'} returns a precondition error, not SSD-1`, () => {
+      const r = validateSharedSurfaceDeclaration({ ...SSD, owner_agent_id: owner, writer_agent_ids: [owner, 'agent:w1'] });
+      expect(r.valid).toBe(false);
+      expect(r.errors).toHaveLength(1);
+      expect(r.errors[0]).toMatch(/^SSD: structural shape precondition failed — owner_agent_id must be a non-empty string/);
+    });
+  }
   it('reports SSD-1, SSD-2, SSD-3 and SSD-4 together', () => {
     const r = validateSharedSurfaceDeclaration({
       ...SSD,

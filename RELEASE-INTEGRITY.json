@@ -1,6 +1,6 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T03:44:36.613Z",
+  "generated_at": "2026-10-14T04:19:56.990Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -8159,8 +8159,8 @@
       },
       {
         "path": "constraints/IrreversibleActionAttestation.constraints.json",
-        "sha256": "4f7abda5f3430e5d5266afe928413cf81cfab1a5dd8da589c99f6deea0745840",
-        "size_bytes": 5604
+        "sha256": "6a831942a8a987c95b5b19c39dbbf4e0630e086630c05d41e363f283f0c7dd34",
+        "size_bytes": 6027
       },
       {
         "path": "constraints/JwtBoundarySpec.constraints.json",

@@ -48,10 +48,10 @@
       "id": "IAA-4",
       "expression": "len(target.schema_id) >= 1 && len(target.schema_id) <= 128",
       "severity": "error",
-      "message": "IrreversibleActionAttestation: target.schema_id MUST be a non-empty PascalCase identifier of at most 128 characters matching ^[A-Z][A-Za-z0-9]*$.",
+      "message": "IrreversibleActionAttestation: target.schema_id MUST be a non-empty PascalCase identifier of at most 128 characters matching ^[A-Z][A-Za-z0-9]*$. The PascalCase predicate ^[A-Z][A-Za-z0-9]*$ is enforced only by the structural tier (the schema pattern); the DSL row restates only the length bounds (1..128) for cross-runner parity, so a DSL-only evaluation of IAA-4 is NOT equivalent to the structural check.",
       "fields": ["target.schema_id"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated at the structural tier: the TypeBox pattern ^[A-Z][A-Za-z0-9]*$ with minLength 1 and maxLength 128 enforces the PascalCase shape, so cross-language runners reject the same inputs from the generated JSON Schema. The DSL expression restates the length bounds for cross-runner parity; the DSL has no regular-expression builtin, so the PascalCase character class is carried by the schema pattern alone.",
+      "evaluation_note": "Structural-tier rule. The PascalCase predicate ^[A-Z][A-Za-z0-9]*$ is enforced only by the structural tier (the schema pattern); the DSL row restates only the length bounds (1..128) for cross-runner parity, so a DSL-only evaluation of IAA-4 is NOT equivalent to the structural check. The constraint DSL has no regular-expression builtin and none is added for this rule. Cross-language runners reject non-PascalCase values from the generated JSON Schema pattern, not from this expression. The constraint-file format has no structural-only marker, so this note records the layer.",
       "type_signature": {
         "target.schema_id": "string"
       }

@@ -150,6 +150,18 @@ describe('IAA-3 — execution not before proposal (DSL agrees with validator)', 
 });
 
 describe('IAA-4 — PascalCase target.schema_id', () => {
+  it('documents that the PascalCase predicate is structural-only and the DSL row is not equivalent', () => {
+    const c = file.constraints.find((x) => x.id === 'IAA-4')!;
+    for (const text of [c.message, c.evaluation_note ?? '']) {
+      expect(text).toContain('enforced only by the structural tier');
+      expect(text).toContain('NOT equivalent to the structural check');
+    }
+  });
+  it('a DSL-only evaluation accepts a non-PascalCase id that the structural tier rejects', () => {
+    const d = variant({ target: { schema_id: 'merge-artifact' } });
+    expect(evaluateConstraint(d, expr('IAA-4'))).toBe(true);
+    expect(validate(IrreversibleActionAttestationSchema, d, { acceptDeferred: true }).valid).toBe(false);
+  });
   it('DSL length bounds hold for valid ids', () => {
     expect(evaluateConstraint(BASE, expr('IAA-4'))).toBe(true);
     expect(evaluateConstraint(variant({ target: { schema_id: 'X' } }), expr('IAA-4'))).toBe(true);
