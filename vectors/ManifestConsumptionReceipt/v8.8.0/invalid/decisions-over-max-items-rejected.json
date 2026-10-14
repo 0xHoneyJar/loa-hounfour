@@ -1,0 +1,2067 @@
+{
+  "_comment": "Structural: decisions has maxItems 256.",
+  "receipt_id": "7f9c2b1e-3a4d-4e5f-8a6b-1c2d3e4f5a6b",
+  "schema_id": "SignatureEnvelope",
+  "contract_version": "8.8.0",
+  "manifest_emitted_at": "2026-10-14T10:00:00Z",
+  "consumer_id": "consumer-billing-gateway",
+  "decisions": [
+    {
+      "rule_id": "RULE-0",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-1",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-2",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-3",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-4",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-5",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-6",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-7",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-8",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-9",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-10",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-11",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-12",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-13",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-14",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-15",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-16",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-17",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-18",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-19",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-20",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-21",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-22",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-23",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-24",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-25",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-26",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-27",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-28",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-29",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-30",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-31",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-32",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-33",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-34",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-35",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-36",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-37",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-38",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-39",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-40",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-41",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-42",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-43",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-44",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-45",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-46",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-47",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-48",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-49",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-50",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-51",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-52",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-53",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-54",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-55",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-56",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-57",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-58",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-59",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-60",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-61",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-62",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-63",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-64",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-65",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-66",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-67",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-68",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-69",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-70",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-71",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-72",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-73",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-74",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-75",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-76",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-77",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-78",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-79",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-80",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-81",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-82",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-83",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-84",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-85",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-86",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-87",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-88",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-89",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-90",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-91",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-92",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-93",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-94",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-95",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-96",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-97",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-98",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-99",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-100",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-101",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-102",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-103",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-104",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-105",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-106",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-107",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-108",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-109",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-110",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-111",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-112",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-113",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-114",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-115",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-116",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-117",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-118",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-119",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-120",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-121",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-122",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-123",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-124",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-125",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-126",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-127",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-128",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-129",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-130",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-131",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-132",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-133",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-134",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-135",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-136",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-137",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-138",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-139",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-140",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-141",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-142",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-143",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-144",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-145",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-146",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-147",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-148",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-149",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-150",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-151",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-152",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-153",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-154",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-155",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-156",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-157",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-158",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-159",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-160",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-161",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-162",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-163",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-164",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-165",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-166",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-167",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-168",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-169",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-170",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-171",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-172",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-173",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-174",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-175",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-176",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-177",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-178",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-179",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-180",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-181",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-182",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-183",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-184",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-185",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-186",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-187",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-188",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-189",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-190",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-191",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-192",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-193",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-194",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-195",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-196",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-197",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-198",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-199",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-200",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-201",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-202",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-203",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-204",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-205",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-206",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-207",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-208",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-209",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-210",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-211",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-212",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-213",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-214",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-215",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-216",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-217",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-218",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-219",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-220",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-221",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-222",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-223",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-224",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-225",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-226",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-227",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-228",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-229",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-230",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-231",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-232",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-233",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-234",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-235",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-236",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-237",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-238",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-239",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-240",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-241",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-242",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-243",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-244",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-245",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-246",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-247",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-248",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-249",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-250",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-251",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-252",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-253",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-254",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-255",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "RULE-256",
+      "reason": "crypto_deferred",
+      "decision": "verified_externally",
+      "judgement": "Yes. Signature verified against the signer entry public key in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    }
+  ],
+  "decided_at": "2026-10-14T10:10:00Z"
+}

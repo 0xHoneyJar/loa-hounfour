@@ -2,7 +2,7 @@
 
 **Contract version:** 8.8.0
 **Min supported:** 6.0.0
-**Schemas:** 262
+**Schemas:** 263
 
 ## Schemas
 
@@ -270,6 +270,7 @@
 | subscription-pool-state | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/subscription-pool-state` | [subscription-pool-state.schema.json](subscription-pool-state.schema.json) |
 | revocation-list | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/revocation-list` | [revocation-list.schema.json](revocation-list.schema.json) |
 | merge-artifact | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/merge-artifact` | [merge-artifact.schema.json](merge-artifact.schema.json) |
+| manifest-consumption-receipt | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt` | [manifest-consumption-receipt.schema.json](manifest-consumption-receipt.schema.json) |
 
 ## Usage
 

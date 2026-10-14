@@ -251,6 +251,7 @@ import {
   RevocationListSchema,
   MergeArtifactSchema,
 } from '../src/canonical/index.js';
+import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-consumption-receipt.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -608,6 +609,8 @@ export const SCHEMAS = [
   { name: 'subscription-pool-state', schema: SubscriptionPoolStateSchema },
   { name: 'revocation-list', schema: RevocationListSchema },
   { name: 'merge-artifact', schema: MergeArtifactSchema },
+  // v8.8.0 cycle-008 PR-C4 (SDD §3, FR-C4).
+  { name: 'manifest-consumption-receipt', schema: ManifestConsumptionReceiptSchema },
 ];
 
 // Guard the entry-point execution so `scripts/check-schemas.ts` can

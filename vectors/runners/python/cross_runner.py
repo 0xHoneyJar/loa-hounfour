@@ -87,6 +87,8 @@ SCHEMAS: list[tuple[str, str | None, tuple[str, ...]]] = [
     # v8.7.0 cycle-007 cluster — versioned layout. PR-A4.5 (FR-G5).
     # No cross-field validator: MA-1/MA-3 are structural; MA-2/MA-4 consumer-state.
     ("MergeArtifact", "v8.7.0", ("valid", "invalid")),
+    # v8.8.0 cycle-008 — versioned layout. PR-C4 (SDD §3, FR-C4).
+    ("ManifestConsumptionReceipt", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
 ]
 
 # Schema-name → schema-file-name (kebab-case). Most files map by

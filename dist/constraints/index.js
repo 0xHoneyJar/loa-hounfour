@@ -23,7 +23,11 @@ export { tokenize, TokenizerError } from './tokenizer.js';
 // is_valid_dag builtin (v8.4.0, FR-C1)
 export { evaluateIsValidDag, extractPath, IS_VALID_DAG_OP_CAP, IS_VALID_DAG_ITEMS_CAP, IS_VALID_DAG_BYTES_CAP, } from './is-valid-dag.js';
 // Unverified-Obligations Manifest (v8.4.0, FR-C1)
-export { buildUnverifiedObligationsManifest, hasUnverifiedObligations, } from './unverified-obligations.js';
+export { buildUnverifiedObligationsManifest, hasUnverifiedObligations, 
+// v8.8.0 (SDD §3, FR-C4) — consumer-obligation contract
+UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT, UNVERIFIED_OBLIGATION_REASONS, FAIL_CLOSED_DEFAULT_FLIP_VERSION, describeConsumerObligation, withConsumerObligation, } from './unverified-obligations.js';
+// Manifest-consumption receipt (v8.8.0, SDD §3, FR-C4)
+export { ManifestConsumptionReceiptSchema, validateManifestConsumptionReceipt, joinReceiptToManifest, } from './manifest-consumption-receipt.js';
 // Evaluator Builtin Specification Registry (v5.5.0, FR-5)
 export { EVALUATOR_BUILTIN_SPECS, } from './evaluator-spec.js';
 // Constraint Type System (v6.0.0, FR-3)

@@ -92,6 +92,7 @@ the same bar.
 
 | Schema `$id` | Rationale |
 |--------------|-----------|
+| `ManifestConsumptionReceipt` | `additionalProperties: false` (receipt and each decision). PR-C4 (SDD §3): the consumer's record of one decision per manifest `rule_id`, each with a human judgement; MCR-1 (`rule_id` distinct) is enforced by a registered cross-field validator. Manifest entries carrying a `reason` now also carry optional `judgement_requested` and `consumer_obligation_level` from the new `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`; consumers that deep-compare whole entries should expect the two extra keys. See docs/conformance/manifest-consumption-level-1.md (MC-1). |
 
 ### Planned v9.0.0 fail-closed default flip
 

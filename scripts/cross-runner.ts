@@ -57,6 +57,7 @@ import { InterSeriesScopingArtifactSchema } from '../src/canonical/inter-series-
 import { SubscriptionPoolStateSchema } from '../src/canonical/subscription-pool-state.js';
 import { RevocationListSchema } from '../src/canonical/revocation-list.js';
 import { MergeArtifactSchema } from '../src/canonical/merge-artifact.js';
+import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-consumption-receipt.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -165,6 +166,13 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
     schema: MergeArtifactSchema,
     versionPath: 'v8.7.0',
     buckets: ['valid', 'invalid'],
+  },
+  // v8.8.0 cycle-008 — PR-C4 (SDD §3, FR-C4). MCR-1 (rule_id distinct)
+  // is cross-field; its fixtures live in 'invalid-cross-field'.
+  ManifestConsumptionReceipt: {
+    schema: ManifestConsumptionReceiptSchema,
+    versionPath: 'v8.8.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },
 };
 

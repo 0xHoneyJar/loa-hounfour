@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T03:14:06.378Z",
+  "generated_at": "2026-10-14T03:22:17.138Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
-    "schemas": 262,
-    "vectors": 1241,
-    "constraints": 140,
+    "schemas": 263,
+    "vectors": 1265,
+    "constraints": 141,
     "manifests": 2,
-    "total": 1645
+    "total": 1671
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -677,6 +677,11 @@
         "path": "schemas/liveness-property.schema.json",
         "sha256": "672074993a52c8cf6a8a5399e207078f5d4939d1ce381b019932afe03c1178ed",
         "size_bytes": 3061
+      },
+      {
+        "path": "schemas/manifest-consumption-receipt.schema.json",
+        "sha256": "209ef292c888001098b1aeba683afa338bd4ecec2d61eef97b3e927c0beacee6",
+        "size_bytes": 3729
       },
       {
         "path": "schemas/merge-artifact.schema.json",
@@ -3189,6 +3194,126 @@
         "path": "vectors/LatencyHistogramEnvelope/v8.6.0/valid/canonical-010-equal-p99-max.json",
         "sha256": "7a3ecf401395d9d1d49bd6964104cda2d95c8c7a2bb232453601b0e4b825cf0f",
         "size_bytes": 258
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid-cross-field/duplicate-rule-id-conflicting-decisions-rejected.json",
+        "sha256": "d86007afa92d982e65c2e15d7b4eea4c137c9df6c1b58c561b433addc35fc9ca",
+        "size_bytes": 1156
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid-cross-field/duplicate-rule-id-rejected.json",
+        "sha256": "953b03b57f845378a54c268fa0496b951995497cfed4c1b74230e3ea5af95f89",
+        "size_bytes": 1037
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/additional-property-on-decision-rejected.json",
+        "sha256": "c7e9afe744e321f61c3bb9966460315e7a3f47372afa243bc9a64d6a5f5c263b",
+        "size_bytes": 686
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/additional-property-on-receipt-rejected.json",
+        "sha256": "4c2ef5331045e4d3a4e0bd80c9f9223d2d9c0542067e8e032c87d3bee51f96eb",
+        "size_bytes": 686
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/consumer-id-empty-rejected.json",
+        "sha256": "9da7404e51375f50400f9081b66debfce4f1497bb4b92b4bab9c61c12d28b4d1",
+        "size_bytes": 628
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/contract-version-malformed-rejected.json",
+        "sha256": "3b508d34a6b3b17742b38afdcdf1e777c9e06283bd0e242e85cf38ce04a18ccb",
+        "size_bytes": 671
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/decided-at-malformed-rejected.json",
+        "sha256": "ff164876574e91dc07808ca5c765ec8e0b00fb5c3dce0735cfce69a601c65cfe",
+        "size_bytes": 654
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/decision-kind-unknown-rejected.json",
+        "sha256": "960f9f62a8d69b1bc5232997a47ceb88d3c78712485df3aa5ac574894e84f011",
+        "size_bytes": 693
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/decisions-empty-rejected.json",
+        "sha256": "9c14c9d188bca3605377b47efcb995bf82c5bac2870ae9f3ebbaf856a52450c3",
+        "size_bytes": 334
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/decisions-over-max-items-rejected.json",
+        "sha256": "10d5c15b54abd3ff6de73741a05a46ffc3826c4c318d911b171c721188429c71",
+        "size_bytes": 78870
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/judgement-empty-rejected.json",
+        "sha256": "98448b0d58aea2500fc9915dd08152da65fbd1f62c10cd57426a20ccd85cff09",
+        "size_bytes": 596
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/judgement-too-long-rejected.json",
+        "sha256": "12324dc5849f4c75e44265a2393f93dce4cab7105b9fce50e5697e89eee65445",
+        "size_bytes": 1594
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/missing-decided-by-rejected.json",
+        "sha256": "cd20c16bd5bf44eb9ecfb3c92b307b07f47bade920f9ad67c279ffa1fc7b405f",
+        "size_bytes": 626
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/reason-leading-digit-rejected.json",
+        "sha256": "238d8df038e4f06781adafc836fa72dc4eacd33ef8d61fed1ee8ce35694e8d50",
+        "size_bytes": 662
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/reason-uppercase-rejected.json",
+        "sha256": "6aa3caa48a5e853a823937324d3bedbde34ef485e76da1a3ed0301627b9d8958",
+        "size_bytes": 683
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/invalid/rule-id-empty-rejected.json",
+        "sha256": "8e01c0de85d0f8ddf69cd062f5fa51d3c016bc38cac6a501b28ab392443bf780",
+        "size_bytes": 633
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-001-minimal-single-decision.json",
+        "sha256": "bf79199b51505df414b8e001f6034579573012a3a87e7276c3f4929b2d2fb032",
+        "size_bytes": 676
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-002-all-four-decision-kinds.json",
+        "sha256": "ed5b992c3aa3d0c47eb8dfe09e29c8f2691d36eb76271f6aebbabef879bacf23",
+        "size_bytes": 1611
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-003-with-evidence-ref.json",
+        "sha256": "75d509583290ffba9cf630ed46d4b7096f0d9bf9d303996aa6f6d1697d6ddce8",
+        "size_bytes": 713
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-004-decision-without-reason.json",
+        "sha256": "c32afdf89333267b357a67d2520b7bea83a1cfcecd398f7a1e0674654ce3a7f3",
+        "size_bytes": 644
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-005-judgement-at-max-length.json",
+        "sha256": "59c35cd5c5c102eb25cb499a698fe5771a8b5c014d90ca8678ed4ce8b7fb66f9",
+        "size_bytes": 1597
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-006-plan-signoff-ttl.json",
+        "sha256": "1f8bdc5862ae00e0386a080322d395271fbdbaae393278ac81032b8fb52aa70a",
+        "size_bytes": 720
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-007-fractional-second-timestamps.json",
+        "sha256": "d1576fc1045431c490189ec5462e1bb0f6e488b3f60e84c26874743c46eeece3",
+        "size_bytes": 606
+      },
+      {
+        "path": "vectors/ManifestConsumptionReceipt/v8.8.0/valid/mcr-008-reason-with-digit.json",
+        "sha256": "b24cfe10a17cb7b20c58d1f6e752235efe3ea38bd1d771429382f94a5c93c6e3",
+        "size_bytes": 693
       },
       {
         "path": "vectors/MergeArtifact/v8.7.0/invalid/additional-property-on-envelope-rejected.json",
@@ -7282,8 +7407,8 @@
       },
       {
         "path": "vectors/manifest.json",
-        "sha256": "125eeebd946bc99d5b097864e6ddadf5e3a8c8fbd2b65d58c381e8ce1ae69e2c",
-        "size_bytes": 79843
+        "sha256": "7ebf4c0346a059fcc047c79d242c17a76f77f398ce63ccd7f84460b3a2e9e261",
+        "size_bytes": 86941
       },
       {
         "path": "vectors/reputation-score/reputation-scores.json",
@@ -7883,6 +8008,11 @@
         "size_bytes": 584
       },
       {
+        "path": "constraints/ManifestConsumptionReceipt.constraints.json",
+        "sha256": "7d463f5cb38b9f6a401ffe5f4ce46ae0c6dc16345b0f7d620f74f7af153940fa",
+        "size_bytes": 3539
+      },
+      {
         "path": "constraints/MergeArtifact.constraints.json",
         "sha256": "df04b5b651dbf41e97393f740851b1894608f938cc26b6ad680938b7582e6f40",
         "size_bytes": 6489
@@ -8236,8 +8366,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "e09ced35432d92d071c9bf9522e94078a6ecf29d3271d9e7337dbeadec0f7f35",
-        "size_bytes": 86831
+        "sha256": "2efd7b2538526526225524883f1d7ab491244021218a3a50fff5d0d766364cec",
+        "size_bytes": 87276
       },
       {
         "path": "schemas/schemastore-catalog.json",

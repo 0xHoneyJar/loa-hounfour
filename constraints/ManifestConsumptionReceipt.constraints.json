@@ -1,0 +1,48 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "ManifestConsumptionReceipt",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "MCR-1",
+      "expression": "unique_values(decisions, 'rule_id')",
+      "severity": "error",
+      "message": "ManifestConsumptionReceipt.decisions[*].rule_id MUST be distinct. Each manifest rule gets exactly one decision; two decisions for the same rule_id make the receipt ambiguous about what was decided.",
+      "fields": ["decisions"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated. The DSL form uses the registered unique_values builtin; validate() enforces the same rule through the registered ManifestConsumptionReceipt cross-field validator (validateManifestConsumptionReceipt), so fixtures under invalid-cross-field pass the structural tier and fail validate(). Join granularity is rule_id: a manifest may carry several entries with one rule_id (ORD-5 emits one per drift key), and one decision covers all of them.",
+      "type_signature": {
+        "decisions": "array"
+      }
+    },
+    {
+      "id": "MCR-2",
+      "expression": "every decisions[*] satisfies decision == 'rejected' || decision == 'escalated' || judgement is non-empty; the schema requires judgement (minLength 1) for every decision, so the rule holds structurally and additionally rules out a rejected or escalated decision without a judgement.",
+      "severity": "error",
+      "message": "Every ManifestConsumptionReceipt decision MUST carry a non-empty judgement, including rejected and escalated decisions. The judgement is the approver's answer to the contract row's judgement_requested question.",
+      "fields": ["decisions"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluable via the TypeBox structural tier: judgement is Type.String with minLength 1 and maxLength 1024 on every decision item. Restated here (SDD §3) so no reader concludes that rejected or escalated decisions may omit a judgement. Non-constraint MCR-N1: the library does not grade judgements; any non-empty string within bounds is accepted.",
+      "type_signature": {
+        "decisions": "array"
+      }
+    },
+    {
+      "id": "MCR-3",
+      "expression": "consumer joins the receipt to the manifest identified by (schema_id, contract_version, manifest_emitted_at) and checks that every manifest rule_id has a decision, that no decision names a rule_id absent from the manifest, and that each decision's reason, when present, matches a manifest entry with that rule_id.",
+      "severity": "error",
+      "message": "Every rule in the referenced UnverifiedObligationsManifest MUST have a decision in the receipt. The receipt does not embed the manifest, so completeness is checked by joining the two.",
+      "fields": ["schema_id", "contract_version", "manifest_emitted_at", "decisions"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer-side join (ADR-010): the library does not hold the manifest when validating a receipt. joinReceiptToManifest(manifest, receipt) is the pure helper; its complete field is MCR-3 and its mc1_satisfied field adds the MC-1 fail-closed reading (no rejected or escalated decision). See docs/conformance/manifest-consumption-level-1.md.",
+      "type_signature": {
+        "schema_id": "string",
+        "contract_version": "string",
+        "manifest_emitted_at": "string",
+        "decisions": "array"
+      }
+    }
+  ]
+}

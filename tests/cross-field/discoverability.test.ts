@@ -195,6 +195,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     // v8.7.0 PR-A4.5 — FR-G5 MergeArtifact (defensive-shim cross-field
     // validator; no library-evaluable cross-field invariants in v8.7.0).
     'MergeArtifact',
+    // v8.8.0 PR-C4 — ManifestConsumptionReceipt (MCR-1 rule_id distinct).
+    'ManifestConsumptionReceipt',
   ];
 
   it('returns an array of strings', () => {
