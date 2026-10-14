@@ -45,20 +45,31 @@ const qualitySignalArb = envelopeArb.chain((env) =>
 
 const communityTaskTypeArb = fc.stringMatching(/^[a-z][a-z0-9_-]+:[a-z][a-z0-9_]+$/);
 
+// Hoisted: env-independent arbitraries, constructed once instead of once per
+// chained sample. Construction consumes no randomness, so draw order is unchanged.
+const taskTypeArb = fc.oneof(
+  fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
+  communityTaskTypeArb,
+);
+const modelIdArb = fc.stringMatching(/^[a-z][a-z0-9-]{0,49}$/);
+const providerArb = fc.constantFrom('openai', 'anthropic', 'google', 'meta');
+const poolIdArb = fc.stringMatching(/^pool-[a-z]{1,20}$/);
+const qualityObservationArb = fc.record({
+  score: scoreArb,
+});
+
 const taskCompletedArb = envelopeArb.chain((env) =>
   fc.record({
     ...Object.fromEntries(Object.entries(env).map(([k, v]) => [k, fc.constant(v)])),
     type: fc.constant('task_completed' as const),
-    task_type: fc.oneof(
-      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
-      communityTaskTypeArb,
-    ),
+    task_type: taskTypeArb,
     success: fc.boolean(),
   }),
 );
 
+const credIdTupleArb = fc.tuple(fc.uuid());
 const credentialUpdateArb = envelopeArb.chain((env) =>
-  fc.tuple(fc.uuid()).map(([credId]) => ({
+  credIdTupleArb.map(([credId]) => ({
     ...env,
     type: 'credential_update' as const,
     credential_id: credId,
@@ -70,16 +81,11 @@ const modelPerformanceArb = envelopeArb.chain((env) =>
   fc.record({
     ...Object.fromEntries(Object.entries(env).map(([k, v]) => [k, fc.constant(v)])),
     type: fc.constant('model_performance' as const),
-    model_id: fc.stringMatching(/^[a-z][a-z0-9-]{0,49}$/),
-    provider: fc.constantFrom('openai', 'anthropic', 'google', 'meta'),
-    pool_id: fc.stringMatching(/^pool-[a-z]{1,20}$/),
-    task_type: fc.oneof(
-      fc.constantFrom('code_review', 'creative_writing', 'analysis', 'summarization', 'general', 'unspecified'),
-      communityTaskTypeArb,
-    ),
-    quality_observation: fc.record({
-      score: scoreArb,
-    }),
+    model_id: modelIdArb,
+    provider: providerArb,
+    pool_id: poolIdArb,
+    task_type: taskTypeArb,
+    quality_observation: qualityObservationArb,
   }),
 );
 
