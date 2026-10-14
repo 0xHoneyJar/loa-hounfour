@@ -226,6 +226,12 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      *   and one `reason: 'scope_inheritance_violation'` manifest entry per
      *   violation. A passing check emits no SOA-6 entry.
      *
+     * Parent option profile: the supplied parent is validated with the
+     * caller's options minus `scopeContext`, and `crossField` pinned to
+     * `true`. SOA-6 checks one link only. The parent's own
+     * `parent_scope_id` is not followed and emits nothing, so consumers
+     * validate a scope chain one link at a time.
+     *
      * @since v8.8.0 — FR-C1 (PR-C1)
      */
     scopeContext?: {
