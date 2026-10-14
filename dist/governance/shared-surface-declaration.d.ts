@@ -58,6 +58,17 @@
  * and cross-runner byte identity holds. Offset forms such as
  * `+02:00` are rejected; producers convert to UTC first.
  *
+ * **Why `contract_version` is not pinned** (decision, SDD §2): envelope
+ * records that attest a single event pin the line that introduced them
+ * with a literal (`IrreversibleActionAttestation` pins `'8.8.0'`, as
+ * `MergeArtifact` and `RevocationList` pin `'8.7.0'`). A shared-surface
+ * declaration is instead a long-lived declarative statement that is
+ * re-emitted unchanged across contract versions, so it carries the
+ * `MAJOR.MINOR.PATCH` pattern, following the declarative-record
+ * precedents `PermissionBoundary` and `Keyring` (and `AgentIdentity`).
+ * Pinning it would force every surface to be re-declared on each
+ * release.
+ *
  * @see docs/patterns/proposer-is-not-executor.md (shared surfaces section)
  * @see ADR-010 — class-vs-policy boundary.
  * @since v8.8.0 — FR-C3 (PR-C3).
@@ -90,8 +101,9 @@ export type SharedSurfaceDeclaration = Static<typeof SharedSurfaceDeclarationSch
  * Callers normally reach this through `validate(...)`, which runs the
  * structural tier first. Direct callers get defensive behaviour: the
  * function never throws; a non-object input, a non-array writer or
- * reader list, or an `owner_agent_id` that is not a non-empty string
- * returns a tagged structural-precondition error. All
+ * reader list, an `owner_agent_id` that is not a non-empty string, or a
+ * non-boolean `single_writer` returns a tagged structural-precondition
+ * error. All
  * violated rules are reported.
  *
  * @since v8.8.0 — FR-C3 (PR-C3).

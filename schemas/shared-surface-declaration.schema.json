@@ -133,7 +133,7 @@
     },
     "contract_version": {
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Hounfour contract version this declaration was authored against.",
+      "description": "Hounfour contract version this declaration was authored against (MAJOR.MINOR.PATCH). Deliberately a pattern, not a pinned literal: declarations are long-lived records re-emitted across versions, like PermissionBoundary and Keyring, whereas event envelopes such as IrreversibleActionAttestation pin their ship line.",
       "type": "string"
     }
   },

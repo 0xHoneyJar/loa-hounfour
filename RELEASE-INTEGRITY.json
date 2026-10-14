@@ -1,6 +1,6 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T04:19:56.990Z",
+  "generated_at": "2026-10-14T04:35:21.388Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -1150,8 +1150,8 @@
       },
       {
         "path": "schemas/shared-surface-declaration.schema.json",
-        "sha256": "9dbb303eb4b696322ab4bbf40ecbb8a7453293c574ba27f18f3adad4551ac0be",
-        "size_bytes": 4730
+        "sha256": "0663f80138f20641c35f0f1a29ded18932557cf9ff776529833b1a6dfe22ed97",
+        "size_bytes": 4980
       },
       {
         "path": "schemas/signature-envelope.schema.json",
