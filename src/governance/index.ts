@@ -656,3 +656,14 @@ export {
   type ScopeInheritanceResult,
   type ScopeActivityResult,
 } from './scope-of-autonomy-eval.js';
+// Schemas — AgentIdentityBinding (v8.8.0, FR-C5, PR-C5)
+export {
+  AgentIdentityBindingSchema,
+  AgentIdentityBindingProfileSchema,
+  AGENT_IDENTITY_BINDING_PROFILES,
+  AGENT_IDENTITY_BINDING_PROFILE_BLOCK,
+  COMPACT_JWS_PATTERN,
+  validateAgentIdentityBinding,
+  type AgentIdentityBinding,
+  type AgentIdentityBindingProfile,
+} from './agent-identity-binding.js';

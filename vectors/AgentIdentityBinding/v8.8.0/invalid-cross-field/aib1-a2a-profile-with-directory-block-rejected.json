@@ -1,0 +1,16 @@
+{
+  "_comment": "AIB-1: profile a2a-agent-card carries only a directory block (profile/block mismatch).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "directory": {
+    "directory_kind": "entra",
+    "tenant_id": "tenant-0001",
+    "object_id": "obj-7f3a",
+    "accountable_role": "Platform Operations Lead",
+    "lifecycle_state": "active"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

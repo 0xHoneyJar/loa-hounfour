@@ -1,0 +1,190 @@
+/**
+ * PR-C5 (FR-C5) — AgentIdentityBinding schema + cross-field validator.
+ */
+import { describe, it, expect } from 'vitest';
+import fc from 'fast-check';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  AgentIdentityBindingSchema,
+  AGENT_IDENTITY_BINDING_PROFILES,
+  AGENT_IDENTITY_BINDING_PROFILE_BLOCK,
+  COMPACT_JWS_PATTERN,
+  validateAgentIdentityBinding,
+  type AgentIdentityBinding,
+} from '../../src/governance/agent-identity-binding.js';
+import * as root from '../../src/index.js';
+import * as governance from '../../src/governance/index.js';
+import { validate, getCrossFieldValidatorSchemas } from '../../src/validators/index.js';
+import { evaluateConstraint } from '../../src/constraints/evaluator.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const constraintFile = JSON.parse(
+  readFileSync(join(__dirname, '..', '..', 'constraints', 'AgentIdentityBinding.constraints.json'), 'utf-8'),
+) as { constraints: Array<{ id: string; expression: string }> };
+
+const BLOCKS = {
+  a2a: { card_url: 'https://agents.example.com/.well-known/agent-card.json' },
+  directory: {
+    directory_kind: 'okta',
+    tenant_id: 'tenant-1',
+    object_id: 'obj-1',
+    accountable_role: 'Agent Platform Owner',
+    lifecycle_state: 'active',
+  },
+  vc: { issuer: 'did:web:issuer.example.com', credential_type: 'AgentCredential', credential_hash: 'sha256:' + 'ab'.repeat(32) },
+} as const;
+type BlockKey = keyof typeof BLOCKS;
+const BLOCK_KEYS: BlockKey[] = ['a2a', 'directory', 'vc'];
+
+function binding(profile: string, present: BlockKey[]): Record<string, unknown> {
+  const rec: Record<string, unknown> = {
+    binding_id: '0b6f2d4e-1a3c-4e5f-8a7b-9c0d1e2f3a4b',
+    agent_id: 'research-agent',
+    profile,
+  };
+  for (const k of present) rec[k] = BLOCKS[k];
+  rec.bound_at = '2026-10-14T00:00:00Z';
+  rec.bound_by_signer_id = 'signer-1';
+  rec.contract_version = '8.8.0';
+  return rec;
+}
+
+describe('AgentIdentityBindingSchema metadata', () => {
+  it('carries $id, closed shape, description, and the cross-field marker', () => {
+    const s = AgentIdentityBindingSchema as Record<string, unknown>;
+    expect(s.$id).toBe('AgentIdentityBinding');
+    expect(s.additionalProperties).toBe(false);
+    expect(typeof s.description).toBe('string');
+    expect(s['x-cross-field-validated']).toBe(true);
+    expect(s['x-crypto-bearing']).toBeUndefined();
+  });
+
+  it('registers a cross-field validator', () => {
+    expect(getCrossFieldValidatorSchemas()).toContain('AgentIdentityBinding');
+  });
+
+  it('is reachable from the governance and root barrels', () => {
+    expect(governance.AgentIdentityBindingSchema).toBe(AgentIdentityBindingSchema);
+    expect(root.AgentIdentityBindingSchema).toBe(AgentIdentityBindingSchema);
+    expect(root.validateAgentIdentityBinding).toBe(validateAgentIdentityBinding);
+    expect(root.AGENT_IDENTITY_BINDING_PROFILES).toBe(AGENT_IDENTITY_BINDING_PROFILES);
+  });
+
+  it('maps each profile to a distinct block', () => {
+    expect(AGENT_IDENTITY_BINDING_PROFILES.map((p) => AGENT_IDENTITY_BINDING_PROFILE_BLOCK[p])).toEqual(['a2a', 'directory', 'vc']);
+  });
+});
+
+describe('COMPACT_JWS_PATTERN', () => {
+  const re = new RegExp(COMPACT_JWS_PATTERN);
+  it('accepts three non-empty base64url segments', () => {
+    expect(re.test('aGVhZGVy.cGF5bG9hZA.c2ln')).toBe(true);
+    expect(re.test('a-_.b-_.c-_')).toBe(true);
+  });
+  it('rejects detached, two-segment, four-segment, and padded forms', () => {
+    for (const v of ['aGVhZGVy..c2ln', 'a.b', 'a.b.c.d', 'a.b.c=', '.b.c', 'a.b.', 'a b.c.d']) {
+      expect(re.test(v)).toBe(false);
+    }
+  });
+});
+
+describe('validateAgentIdentityBinding — branches', () => {
+  it('rejects non-object input', () => {
+    for (const v of [null, [], 'x', 1, undefined]) {
+      const r = validateAgentIdentityBinding(v);
+      expect(r.valid).toBe(false);
+      expect(r.errors[0]).toMatch(/^AIB: structural shape precondition failed/);
+    }
+  });
+
+  it('rejects an unknown or missing profile', () => {
+    expect(validateAgentIdentityBinding({ profile: 'other' }).errors[0]).toMatch(/profile must be one of/);
+    expect(validateAgentIdentityBinding({}).valid).toBe(false);
+  });
+
+  for (const profile of AGENT_IDENTITY_BINDING_PROFILES) {
+    const required = AGENT_IDENTITY_BINDING_PROFILE_BLOCK[profile];
+    const id = `AIB-${AGENT_IDENTITY_BINDING_PROFILES.indexOf(profile) + 1}`;
+
+    it(`${id}: accepts profile ${profile} with only its own block`, () => {
+      expect(validateAgentIdentityBinding(binding(profile, [required]))).toEqual({ valid: true, errors: [], warnings: [] });
+    });
+
+    it(`${id}: reports the missing ${required} block`, () => {
+      const r = validateAgentIdentityBinding(binding(profile, []));
+      expect(r.errors).toEqual([`${id}: profile '${profile}' requires the ${required} block, which is absent.`]);
+    });
+
+    for (const other of BLOCK_KEYS.filter((k) => k !== required)) {
+      it(`${id}: reports the forbidden ${other} block`, () => {
+        const r = validateAgentIdentityBinding(binding(profile, [required, other]));
+        expect(r.errors).toEqual([`${id}: profile '${profile}' forbids the ${other} block, which is present.`]);
+      });
+    }
+
+    it(`${id}: reports missing and forbidden together`, () => {
+      const others = BLOCK_KEYS.filter((k) => k !== required);
+      const r = validateAgentIdentityBinding(binding(profile, others));
+      expect(r.errors).toHaveLength(3);
+    });
+  }
+
+  it('runs inside validate()', () => {
+    const r = validate(AgentIdentityBindingSchema, binding('a2a-agent-card', ['a2a', 'vc']));
+    expect(r.valid).toBe(false);
+    expect(r.errors).toEqual(["AIB-1: profile 'a2a-agent-card' forbids the vc block, which is present."]);
+  });
+
+  it('types a valid record', () => {
+    const rec = binding('directory-identity', ['directory']) as unknown as AgentIdentityBinding;
+    expect(validate(AgentIdentityBindingSchema, rec).valid).toBe(true);
+  });
+});
+
+describe('validateAgentIdentityBinding — properties', () => {
+  const profileArb = fc.constantFrom(...AGENT_IDENTITY_BINDING_PROFILES);
+  const subsetArb = fc.subarray(BLOCK_KEYS);
+
+  it('is valid iff the present blocks are exactly the profile block', () => {
+    fc.assert(
+      fc.property(profileArb, subsetArb, (profile, present) => {
+        const r = validateAgentIdentityBinding(binding(profile, present));
+        const expected = present.length === 1 && present[0] === AGENT_IDENTITY_BINDING_PROFILE_BLOCK[profile];
+        return r.valid === expected;
+      }),
+    );
+  });
+
+  it('error count equals missing-required plus forbidden-present blocks', () => {
+    fc.assert(
+      fc.property(profileArb, subsetArb, (profile, present) => {
+        const required = AGENT_IDENTITY_BINDING_PROFILE_BLOCK[profile];
+        const expected = (present.includes(required) ? 0 : 1) + present.filter((k) => k !== required).length;
+        return validateAgentIdentityBinding(binding(profile, present)).errors.length === expected;
+      }),
+    );
+  });
+
+  it('agrees with the AIB-1..3 DSL expressions', () => {
+    const exprs = constraintFile.constraints.filter((c) => ['AIB-1', 'AIB-2', 'AIB-3'].includes(c.id));
+    fc.assert(
+      fc.property(profileArb, subsetArb, (profile, present) => {
+        const rec = binding(profile, present);
+        const dsl = exprs.every((c) => evaluateConstraint(rec, c.expression));
+        return dsl === validateAgentIdentityBinding(rec).valid;
+      }),
+    );
+  });
+
+  it('adding a non-profile block to a valid record always invalidates it (monotone)', () => {
+    fc.assert(
+      fc.property(profileArb, fc.constantFrom(...BLOCK_KEYS), (profile, extra) => {
+        const required = AGENT_IDENTITY_BINDING_PROFILE_BLOCK[profile];
+        fc.pre(extra !== required);
+        return !validateAgentIdentityBinding(binding(profile, [required, extra])).valid;
+      }),
+    );
+  });
+});

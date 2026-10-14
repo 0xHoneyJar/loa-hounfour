@@ -1,0 +1,14 @@
+{
+  "_comment": "AIB-2: profile directory-identity carries only a vc block (profile/block mismatch).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
+  "agent_id": "research-agent",
+  "profile": "directory-identity",
+  "vc": {
+    "issuer": "did:web:issuer.example.com",
+    "credential_type": "AgentCapabilityCredential",
+    "credential_hash": "sha256:a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

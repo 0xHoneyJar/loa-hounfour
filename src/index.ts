@@ -158,6 +158,13 @@ export {
   type ScopeInheritanceViolation,
   type ScopeInheritanceResult,
   type ScopeActivityResult,
+  // v8.8.0 PR-C5 Identity binding (FR-C5)
+  AgentIdentityBindingSchema, type AgentIdentityBinding,
+  AgentIdentityBindingProfileSchema, type AgentIdentityBindingProfile,
+  AGENT_IDENTITY_BINDING_PROFILES,
+  AGENT_IDENTITY_BINDING_PROFILE_BLOCK,
+  COMPACT_JWS_PATTERN,
+  validateAgentIdentityBinding,
 } from './governance/index.js';
 
 export * from './constraints/index.js';

@@ -62,6 +62,7 @@ import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-co
 import { IrreversibleActionAttestationSchema } from '../src/governance/irreversible-action-attestation.js';
 import { SharedSurfaceDeclarationSchema } from '../src/governance/shared-surface-declaration.js';
 import { ScopeOfAutonomySchema } from '../src/governance/scope-of-autonomy.js';
+import { AgentIdentityBindingSchema } from '../src/governance/agent-identity-binding.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -196,6 +197,13 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
   // 'invalid-cross-field' and pass the structural tier.
   ScopeOfAutonomy: {
     schema: ScopeOfAutonomySchema,
+    versionPath: 'v8.8.0',
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
+  },
+  // v8.8.0 cycle-008 — PR-C5 (FR-C5). AIB-1/2/3 profile-block
+  // mismatches are cross-field-only and live in 'invalid-cross-field'.
+  AgentIdentityBinding: {
+    schema: AgentIdentityBindingSchema,
     versionPath: 'v8.8.0',
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },

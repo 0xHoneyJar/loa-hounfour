@@ -94,6 +94,8 @@ SCHEMAS: list[tuple[str, str | None, tuple[str, ...]]] = [
     ("SharedSurfaceDeclaration", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
     # v8.8.0 cycle-008 — versioned layout. PR-C1 (FR-C1).
     ("ScopeOfAutonomy", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
+    # v8.8.0 cycle-008 cluster — versioned layout. PR-C5 (FR-C5).
+    ("AgentIdentityBinding", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
 ]
 
 # Schema-name → schema-file-name (kebab-case). Most files map by
@@ -216,6 +218,34 @@ def _check_date_time(instance: Any) -> bool:
         return True  # type-mismatch is reported separately
     if not _DATE_TIME_RE.match(instance):
         raise ValueError(f"not RFC 3339 date-time: {instance!r}")
+    return True
+
+
+# Strict `uri` format (v8.8.0, PR-C5). Python `jsonschema` only checks
+# `uri` when the optional `rfc3987` package is installed, so without
+# this checker a malformed URI passes here while the TS reference
+# rejects it. Mirrors the TS `isStrictHttpUri` semantics: printable
+# ASCII only (no backslash), canonical `http://` or `https://` prefix,
+# and a non-empty host after parsing. Registering it unconditionally
+# also keeps the result independent of which optional packages happen
+# to be installed.
+_URI_FORBIDDEN_RE = _re.compile(r"[^\x21-\x5B\x5D-\x7E]")
+_URI_PREFIX_RE = _re.compile(r"^https?://")
+
+
+@FORMAT_CHECKER.checks("uri", raises=ValueError)
+def _check_uri(instance: Any) -> bool:
+    if not isinstance(instance, str):
+        return True  # type-mismatch is reported separately
+    if _URI_FORBIDDEN_RE.search(instance) or not _URI_PREFIX_RE.match(instance):
+        raise ValueError(f"not an http(s) URI: {instance!r}")
+    from urllib.parse import urlsplit
+    try:
+        host = urlsplit(instance).hostname
+    except ValueError as e:
+        raise ValueError(f"not an http(s) URI: {instance!r}") from e
+    if not host:
+        raise ValueError(f"not an http(s) URI: {instance!r}")
     return True
 
 
