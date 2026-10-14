@@ -1,0 +1,32 @@
+{
+  "case": "malformed-signature-noncanonical-encoding",
+  "kind": "signature",
+  "input": {
+    "envelope": {
+      "envelope_kind": "verifier_test_envelope",
+      "contract_version": "8.8.0",
+      "issued_at": "2026-10-14T10:00:00Z",
+      "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+      "body": {
+        "note": "café 가",
+        "amount_micro_usd": "2500000",
+        "weights": [
+          1,
+          2.5,
+          0.000001,
+          1e+21
+        ],
+        "flags": {
+          "enabled": true,
+          "label": null
+        }
+      },
+      "signature": "ed25519:tiY4ctty8-5DemAyikLpydC0PqARPMZTzoEUg4N5y52Yyy9BAr7UXiYu6LqVjYi1HotBepTB-gFfFxhO2BdVBR"
+    },
+    "public_key": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE"
+  },
+  "expected": {
+    "verified": false,
+    "reason": "signature_malformed"
+  }
+}

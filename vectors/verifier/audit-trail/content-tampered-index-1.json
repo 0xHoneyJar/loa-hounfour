@@ -1,0 +1,64 @@
+{
+  "case": "content-tampered-index-1",
+  "kind": "audit-trail",
+  "input": {
+    "trail": {
+      "entries": [
+        {
+          "entry_id": "6f1c2a40-0000-4000-8000-000000000001",
+          "timestamp": "2026-10-14T09:00:00.000Z",
+          "event_type": "commons.transition.executed",
+          "actor_id": "agent:alpha",
+          "payload": {
+            "amount_micro_usd": "1500000",
+            "ratio": 0.1,
+            "tiny": 1e-7,
+            "big": 1e+21
+          },
+          "entry_hash": "sha256:1848592b83f3d12dcffbdc0b55c78841ed955fff663ac772642ea7c11fbccb3e",
+          "previous_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "hash_domain_tag": "loa-commons:audit:governedcredits:8-8-0"
+        },
+        {
+          "entry_id": "6f1c2a40-0000-4000-8000-000000000002",
+          "timestamp": "2026-10-14T09:05:00.000Z",
+          "event_type": "commons.transition.executed",
+          "payload": {
+            "note": "tampered",
+            "nested": {
+              "z": [
+                1,
+                2.5,
+                "x"
+              ],
+              "a": null
+            },
+            "emoji": "😀"
+          },
+          "entry_hash": "sha256:17eacbc73a61873afed0b29210fdfadb9690d770a705e93ce93127a6c051dc1f",
+          "previous_hash": "sha256:1848592b83f3d12dcffbdc0b55c78841ed955fff663ac772642ea7c11fbccb3e",
+          "hash_domain_tag": "loa-commons:audit:governedcredits:8-8-0"
+        },
+        {
+          "entry_id": "6f1c2a40-0000-4000-8000-000000000003",
+          "timestamp": "2026-10-14T09:10:00.000Z",
+          "event_type": "commons.audit.sealed",
+          "actor_id": "agent:beta",
+          "entry_hash": "sha256:b6228511502325dafd5361630f78c2f57cc5f449020dcf00307009ae660107bf",
+          "previous_hash": "sha256:17eacbc73a61873afed0b29210fdfadb9690d770a705e93ce93127a6c051dc1f",
+          "hash_domain_tag": "loa-commons:audit:governedcredits:8-8-0"
+        }
+      ],
+      "hash_algorithm": "sha256",
+      "genesis_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "integrity_status": "unverified"
+    }
+  },
+  "expected": {
+    "valid": false,
+    "failure_phase": "content",
+    "failure_index": 1,
+    "expected_hash": "sha256:17eacbc73a61873afed0b29210fdfadb9690d770a705e93ce93127a6c051dc1f",
+    "actual_hash": "sha256:36c7bdadcfefa5e63d4270f2700b5ccfb5d7a1aedbbe7188976b7d2183166b49"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "case": "quorum-field-omitted-valid",
+  "kind": "signature",
+  "input": {
+    "envelope": {
+      "envelope_kind": "revocation_list",
+      "contract_version": "8.7.0",
+      "cluster_id": "cluster:verifier-conformance",
+      "list_id": "rl-quorum-0001",
+      "issued_at": "2026-10-14T00:00:00Z",
+      "valid_from": "2026-10-01T00:00:00Z",
+      "valid_until": null,
+      "max_staleness_seconds": 86400,
+      "nonce": 7,
+      "prev_envelope_hash": null,
+      "next_page_hash": null,
+      "revoked_keys": [
+        {
+          "key_id": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60",
+          "reason": "compromise",
+          "revoked_at": "2026-10-13T12:00:00Z",
+          "revocation_evidence_hash": null
+        }
+      ],
+      "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+      "root_of_trust_id": null,
+      "signature": "ed25519:7Dcj57VQND8ygQxGmYUP5gicBxM9E54xT8isN-xh6mt1ssjQxvC555dWqgHuG_2BlzpYlznAN4UHeNZ7bbPyBw",
+      "quorum_signatures": [
+        {
+          "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+          "signature": "ed25519:7Dcj57VQND8ygQxGmYUP5gicBxM9E54xT8isN-xh6mt1ssjQxvC555dWqgHuG_2BlzpYlznAN4UHeNZ7bbPyBw"
+        },
+        {
+          "signer_key_id": "ed25519-pub:tZgi9kWcdgdH4egBhCHFPwIuZR-FdpfLQMCRf_flySs",
+          "signature": "ed25519:HZOl_9qmMc-TtWbj1aJVk7Of8RyUUXJMwq72cfnMT-9v-h-NR3nL-1mOHSRL-PcH1rO3aU1M-hyU9jmuPcxnDg"
+        }
+      ]
+    },
+    "public_key": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE"
+  },
+  "expected": {
+    "verified": true
+  }
+}
