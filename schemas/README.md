@@ -2,7 +2,7 @@
 
 **Contract version:** 8.8.0
 **Min supported:** 6.0.0
-**Schemas:** 263
+**Schemas:** 265
 
 ## Schemas
 
@@ -271,6 +271,8 @@
 | revocation-list | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/revocation-list` | [revocation-list.schema.json](revocation-list.schema.json) |
 | merge-artifact | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/merge-artifact` | [merge-artifact.schema.json](merge-artifact.schema.json) |
 | manifest-consumption-receipt | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt` | [manifest-consumption-receipt.schema.json](manifest-consumption-receipt.schema.json) |
+| irreversible-action-attestation | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation` | [irreversible-action-attestation.schema.json](irreversible-action-attestation.schema.json) |
+| shared-surface-declaration | `https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/shared-surface-declaration` | [shared-surface-declaration.schema.json](shared-surface-declaration.schema.json) |
 
 ## Usage
 

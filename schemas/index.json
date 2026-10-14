@@ -1576,6 +1576,12 @@
       "description": "Cluster-level merge event. NOT crypto-bearing, NOT chain-bearing at the merge-artifact level — consumers wrap in SignatureEnvelope (v8.5.0) per their own policy when signing is required. Round-trip parse and re-serialize bit-identical: every well-formed payload satisfies JSON.stringify(JSON.parse(s)) equals s when s is itself the JSON-stringified canonical form."
     },
     {
+      "name": "manifest-consumption-receipt",
+      "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt",
+      "file": "manifest-consumption-receipt.schema.json",
+      "description": "Consumer record of one decision per rule of an UnverifiedObligationsManifest, each with a human judgement. Shape only: the library does not grade judgements or decide authority (ADR-010). See SDD §3 and MC-1."
+    },
+    {
       "name": "irreversible-action-attestation",
       "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/irreversible-action-attestation",
       "file": "irreversible-action-attestation.schema.json",
