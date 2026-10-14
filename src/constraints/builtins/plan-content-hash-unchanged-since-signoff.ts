@@ -47,7 +47,6 @@
  */
 
 import type { UnverifiedObligationEntry } from '../unverified-obligations.js';
-import { withConsumerObligation } from '../unverified-obligations.js';
 
 /**
  * Per-signoff entry in the consumer's signoff ledger. Mirrors the
@@ -170,21 +169,13 @@ function malformedEntryFail(
  *                         `undefined` or `null`, the obligation is
  *                         deferred (returns `result: 'deferred'`).
  *
- * v8.8.0 (SDD §3): reason-bearing manifest entries additionally carry
- * `judgement_requested` and `consumer_obligation_level` from
- * `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`.
+ * v8.8.0 (SDD §3): the returned `manifestEntry` is UNANNOTATED — it carries
+ * no `judgement_requested` / `consumer_obligation_level`. Consumer-obligation
+ * annotation happens at exactly one layer, the `validate()` manifest
+ * aggregation. Direct callers that surface this entry in their own manifest
+ * pass it through `withConsumerObligation` to attach the contract row.
  */
 export function evaluatePlanContentHashUnchangedSinceSignoff(
-  planHash: unknown,
-  ledgerSnapshot: PlanSignoffLedgerSnapshot | null | undefined,
-): EvaluatePlanContentHashUnchangedSinceSignoffResult {
-  const out = evaluatePlanContentHashUnchangedSinceSignoffUnannotated(planHash, ledgerSnapshot);
-  return out.manifestEntry === undefined
-    ? out
-    : { ...out, manifestEntry: withConsumerObligation(out.manifestEntry) };
-}
-
-function evaluatePlanContentHashUnchangedSinceSignoffUnannotated(
   planHash: unknown,
   ledgerSnapshot: PlanSignoffLedgerSnapshot | null | undefined,
 ): EvaluatePlanContentHashUnchangedSinceSignoffResult {

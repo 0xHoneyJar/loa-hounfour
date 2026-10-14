@@ -9,6 +9,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- v8.8.0 cycle-008 entries are added per feature PR -->
 
+- **Manifest-consumption contract (PR-C4, FR-C4).** `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT` gives every `UnverifiedObligationReason` a row: obligation level (`MUST`/`SHOULD`), the consumer action, one yes/no `judgement_requested` question for a human approver, and whether the v9.0.0 fail-closed default flip changes the `validate()` outcome. New exports: `describeConsumerObligation`, `withConsumerObligation`, `UNVERIFIED_OBLIGATION_REASONS`, `FAIL_CLOSED_DEFAULT_FLIP_VERSION`, and the `UnverifiedObligationReason`, `ConsumerObligation` and `ConsumerObligationLevel` types.
+- **Manifest entries carry their judgement.** `UnverifiedObligationEntry` gains optional `judgement_requested` and `consumer_obligation_level`. `validate()` populates both on every entry that has a `reason`, at its single manifest-aggregation layer; standalone builtins return unannotated entries for `withConsumerObligation`. Entries without a reason are unchanged.
+- **Manifest entry widening (FR-C4).** The two new entry fields are optional and additive, with no toggle; consumers MUST tolerate unknown keys on manifest entries (see MIGRATION.md v8.7.0 → v8.8.0).
+- **`ManifestConsumptionReceiptSchema`** (`/constraints`): the consumer's record of one decision (`verified_externally`, `accepted_risk`, `rejected`, `escalated`) per manifest rule, with constraints MCR-1..MCR-3 and the pure `joinReceiptToManifest` helper for the MCR-3 completeness join. Vectors under `vectors/ManifestConsumptionReceipt/v8.8.0/`.
+- **`UnverifiedObligationReason`** gains `scope_parent_context_deferred` and `scope_inheritance_violation` (for ScopeOfAutonomy, PR-C1), each with a contract row.
+- **MC-1 conformance level**: `docs/conformance/manifest-consumption-level-1.md`, generated from the contract table by `scripts/generate-manifest-contract-doc.ts` (`npm run docs:manifest-contract`) and drift-checked in tests.
+
 ## [8.7.0] — 2026-05-15
 
 > Released at tag `v8.7.0` on 2026-05-15. This header was added retroactively in the v8.8.0 kickoff: the tag shipped while these entries still sat under `[Unreleased]`. The entries themselves are unchanged.

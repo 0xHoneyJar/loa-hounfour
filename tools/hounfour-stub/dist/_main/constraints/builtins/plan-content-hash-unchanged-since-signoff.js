@@ -45,7 +45,6 @@
  * @see SDD §4.7 — Builtin → Manifest Reason Map
  * @since v8.6.0 — FR-C4 (PR-A3.6)
  */
-import { withConsumerObligation } from '../unverified-obligations.js';
 /** Stable rule_id surfaced in every manifest entry from this builtin. */
 export const PLAN_CONTENT_HASH_RULE_ID = 'plan-signoff-envelope/plan-hash-unchanged';
 /**
@@ -92,17 +91,13 @@ function malformedEntryFail(index, detail) {
  *                         `undefined` or `null`, the obligation is
  *                         deferred (returns `result: 'deferred'`).
  *
- * v8.8.0 (SDD §3): reason-bearing manifest entries additionally carry
- * `judgement_requested` and `consumer_obligation_level` from
- * `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`.
+ * v8.8.0 (SDD §3): the returned `manifestEntry` is UNANNOTATED — it carries
+ * no `judgement_requested` / `consumer_obligation_level`. Consumer-obligation
+ * annotation happens at exactly one layer, the `validate()` manifest
+ * aggregation. Direct callers that surface this entry in their own manifest
+ * pass it through `withConsumerObligation` to attach the contract row.
  */
 export function evaluatePlanContentHashUnchangedSinceSignoff(planHash, ledgerSnapshot) {
-    const out = evaluatePlanContentHashUnchangedSinceSignoffUnannotated(planHash, ledgerSnapshot);
-    return out.manifestEntry === undefined
-        ? out
-        : { ...out, manifestEntry: withConsumerObligation(out.manifestEntry) };
-}
-function evaluatePlanContentHashUnchangedSinceSignoffUnannotated(planHash, ledgerSnapshot) {
     if (typeof planHash !== 'string') {
         return {
             result: 'fail',

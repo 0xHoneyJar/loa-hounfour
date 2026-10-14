@@ -316,9 +316,12 @@ export declare function describeConsumerObligation(reason: UnverifiedObligationR
  * filled from the contract row for its `reason`. Entries without a `reason`
  * are returned unchanged (no judgement). Never mutates its input.
  *
- * Every emission site in the library routes entries through this helper.
- * Consumers that attach their own entries (for example a `*_CONTEXT_DEFERRED`
- * entry from a validate wrapper) can use it too.
+ * The library applies it at exactly one layer: the `validate()` manifest
+ * aggregation. Emitters (validate()'s own obligation sites and standalone
+ * builtins such as `evaluatePlanContentHashUnchangedSinceSignoff`) produce
+ * unannotated entries. Consumers that surface builtin entries or attach their
+ * own (for example a `*_CONTEXT_DEFERRED` entry from a validate wrapper) pass
+ * them through this helper.
  *
  * Idempotent: an entry that already carries the contract row's values is
  * returned as-is (same reference), so annotating twice is byte-identical to

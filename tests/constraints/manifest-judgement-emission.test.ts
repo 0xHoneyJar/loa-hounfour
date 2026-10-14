@@ -155,36 +155,94 @@ describe('validate() — x-crypto-bearing (+ x-integrity-bearing) with acceptDef
   });
 });
 
-describe('plan_content_hash_unchanged_since_signoff builtin', () => {
+describe('plan_content_hash_unchanged_since_signoff builtin (emitter: unannotated)', () => {
   const HASH_A = 'sha256:' + 'a'.repeat(64);
   const HASH_B = 'sha256:' + 'b'.repeat(64);
   const signoff = { signoff_id: 's-1', plan_content_hash: HASH_A, ttl_seconds_at_emit: 3600n, ts_emit: '2026-05-09T12:00:00Z' };
   const snap = (signoffs: unknown[]) => ({ ts_snapshot: '2026-05-09T12:30:00Z', signoffs }) as never;
 
-  it('ledger_context_deferred (no snapshot)', () => {
-    const r = evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, undefined);
-    expect(r.manifestEntry!.reason).toBe('ledger_context_deferred');
-    expectAnnotated(r.manifestEntry!);
-  });
+  const cases: Array<[string, () => UnverifiedObligationEntry, string | undefined]> = [
+    ['ledger_context_deferred (no snapshot)', () => evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, undefined).manifestEntry!, 'ledger_context_deferred'],
+    ['signoff_plan_hash_mismatch', () => evaluatePlanContentHashUnchangedSinceSignoff(HASH_B, snap([signoff])).manifestEntry!, 'signoff_plan_hash_mismatch'],
+    ['signoff_ttl_observed (pass path)', () => evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, snap([signoff])).manifestEntry!, 'signoff_ttl_observed'],
+    ['non-string plan hash (library, no reason)', () => evaluatePlanContentHashUnchangedSinceSignoff(42, undefined).manifestEntry!, undefined],
+    ['malformed ts_emit (library, no reason)', () => evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, snap([{ ...signoff, ts_emit: 'not-a-date' }])).manifestEntry!, undefined],
+  ];
 
-  it('signoff_plan_hash_mismatch (no matching signoff)', () => {
-    const r = evaluatePlanContentHashUnchangedSinceSignoff(HASH_B, snap([signoff]));
-    expect(r.result).toBe('fail');
-    expect(r.manifestEntry!.reason).toBe('signoff_plan_hash_mismatch');
-    expectAnnotated(r.manifestEntry!);
-  });
+  for (const [name, run, reason] of cases) {
+    it(`${name}: emits an unannotated entry; withConsumerObligation attaches the row once`, () => {
+      const e = run();
+      expect(e.reason).toBe(reason);
+      expect('judgement_requested' in e).toBe(false);
+      expect('consumer_obligation_level' in e).toBe(false);
+      const annotated = withConsumerObligation(e);
+      if (reason === undefined) {
+        expect(annotated).toBe(e);
+      } else {
+        expectAnnotated(annotated);
+        expect(JSON.stringify(withConsumerObligation(annotated))).toBe(JSON.stringify(annotated));
+      }
+    });
+  }
+});
 
-  it('signoff_ttl_observed (pass path)', () => {
-    const r = evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, snap([signoff]));
-    expect(r.result).toBe('pass');
-    expect(r.manifestEntry!.reason).toBe('signoff_ttl_observed');
-    expectAnnotated(r.manifestEntry!);
-  });
+describe('single annotation layer invariant (validate() aggregation)', () => {
+  /** Strip the two annotation fields, i.e. recover the emitter's raw entry. */
+  function raw(e: UnverifiedObligationEntry): UnverifiedObligationEntry {
+    const { judgement_requested: _j, consumer_obligation_level: _l, ...rest } = e;
+    void _j;
+    void _l;
+    return rest;
+  }
 
-  it('reason-less library entries (non-string plan hash, malformed ts_emit) carry no judgement', () => {
-    expectUnannotated(evaluatePlanContentHashUnchangedSinceSignoff(42, undefined).manifestEntry!);
-    expectUnannotated(
-      evaluatePlanContentHashUnchangedSinceSignoff(HASH_A, snap([{ ...signoff, ts_emit: 'not-a-date' }])).manifestEntry!,
+  function validateResults(): UnverifiedObligationEntry[] {
+    const out: UnverifiedObligationEntry[] = [];
+    const dir = join(VECTORS, 'OrgRepresentativeDelegation', 'v8.6.0-fail-closed');
+    for (const f of readdirSync(dir).filter((x) => x.endsWith('.json'))) {
+      const c = JSON.parse(readFileSync(join(dir, f), 'utf8')) as { validate_options: Record<string, unknown>; data: Record<string, unknown> };
+      const data = { ...c.data, capability_scope: { ...(c.data.capability_scope as object), zz_custom: 'x' } };
+      const r = validate(OrgRepresentativeDelegationSchema, data, { ...c.validate_options, now: NOW });
+      if (r.valid) out.push(...(r.unverified_obligations?.unverified_rules ?? []));
+    }
+    const sps = readdirSync(join(VECTORS, 'SubscriptionPoolState', 'v8.7.0', 'valid')).filter((x) => x.endsWith('.json')).sort()[0];
+    const crs = readdirSync(join(VECTORS, 'CommitmentRoot', 'valid')).filter((x) => x.endsWith('.json')).sort()[0];
+    for (const r of [
+      validate(SubscriptionPoolStateSchema, readJson('SubscriptionPoolState', 'v8.7.0', 'valid', sps), { acceptDeferred: true, now: NOW }),
+      validate(CommitmentRootSchema, readJson('CommitmentRoot', 'valid', crs), { acceptDeferred: true, now: NOW }),
+    ]) {
+      if (r.valid) out.push(...(r.unverified_obligations?.unverified_rules ?? []));
+    }
+    return out;
+  }
+
+  it('every reason-bearing validate() entry equals exactly one annotation of its raw form', () => {
+    const entries = validateResults();
+    const reasons = new Set(entries.map((e) => e.reason).filter(Boolean));
+    expect([...reasons].sort()).toEqual(
+      ['chain_context_provided', 'context_absent', 'crypto_deferred', 'integrity_deferred', 'pattern_matching', 'vocabulary_drift'],
     );
+    for (const e of entries) {
+      if (e.reason === undefined) {
+        expectUnannotated(e);
+        continue;
+      }
+      expectAnnotated(e);
+      // Exactly once: the entry is byte-identical to a single annotation of
+      // the raw emitter entry, and a further pass is a no-op.
+      expect(JSON.stringify(e)).toBe(JSON.stringify(withConsumerObligation(raw(e))));
+      expect(withConsumerObligation(e)).toBe(e);
+      // The two fields appear once, after the emitter's own keys.
+      const keys = Object.keys(e);
+      expect(keys.slice(-2)).toEqual(['judgement_requested', 'consumer_obligation_level']);
+    }
+  });
+
+  it('the plan-signoff builtin module no longer imports the annotation helper', () => {
+    const src = readFileSync(
+      join(__dirname, '..', '..', 'src', 'constraints', 'builtins', 'plan-content-hash-unchanged-since-signoff.ts'),
+      'utf8',
+    );
+    expect(src).not.toMatch(/import[^;]*withConsumerObligation/);
+    expect(src).not.toMatch(/withConsumerObligation\(/);
   });
 });
