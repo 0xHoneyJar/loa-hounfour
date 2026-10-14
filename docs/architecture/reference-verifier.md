@@ -69,19 +69,39 @@ alphabet explicitly first.
 ## Result vocabulary
 
 `verifyEnvelopeSignatureEd25519` never throws. Checks run in this order
-and the first failing step decides the result:
+and the first failing step decides the result. Each reason is produced
+identically by both reference runtimes:
 
-| Step | `verified` | `reason` |
-|------|-----------|----------|
-| envelope not a plain object | `false` | `envelope_not_object` |
-| options not usable | `false` | `options_invalid` |
-| signature field absent or `null` | `'unverifiable'` | `signature_missing` |
-| signature not `ed25519:` + 64 canonical bytes | `false` | `signature_malformed` |
-| public key not 32 bytes / `ed25519-pub:` + 32 canonical bytes | `false` | `public_key_malformed` |
-| canonicalisation failed | `false` | `canonical_size_cap_exceeded`, `canonical_key_collision`, `canonical_nfc_failed`, `canonicalization_failed` |
-| runtime lacks WebCrypto Ed25519 | `'unverifiable'` | `webcrypto_ed25519_unavailable` |
-| signature does not verify | `false` | `signature_mismatch` |
-| verifies | `true` | (none) |
+| Step | `verified` | `reason` | TS trigger | Go trigger |
+|------|-----------|----------|------------|------------|
+| 1 | `false` | `envelope_not_object` | envelope is null, an array or a primitive | envelope is not `map[string]any` |
+| 1 | `false` | `options_invalid` | `signatureField` not a non-empty string, or `omitFields` not a string array | `SignatureField` points at `""` (type errors are caught when decoding options) |
+| 2 | `'unverifiable'` | `signature_missing` | signature field absent, `undefined` or `null` | key absent or value `nil` |
+| 3 | `false` | `signature_malformed` | value not `ed25519:` + 86 canonical base64url chars | same, with an explicit alphabet check |
+| 4 | `false` | `public_key_malformed` | not 32 bytes or `ed25519-pub:` + 43 canonical chars; WebCrypto `DataError` on import | not 32 bytes or `ed25519-pub:` + 43 canonical chars |
+| 5 | `false` | `canonical_nfc_failed` | a string or key holds an unpaired UTF-16 surrogate | a string or key is not valid UTF-8 (`ErrCanonicalNFC`) |
+| 5 | `false` | `canonical_key_collision` | `CanonicalizeKeyCollisionError` | `ErrCanonicalKeyCollision` |
+| 5 | `false` | `canonical_size_cap_exceeded` | `CanonicalizeSizeError` (over 100 000 bytes) | `ErrCanonicalSizeCap` |
+| 5 | `false` | `canonicalization_failed` | any other canonicalisation error, such as BigInt or a cycle | any other error, such as an unencodable Go value |
+| 6 | `'unverifiable'` | `webcrypto_ed25519_unavailable` | no `crypto.subtle`, or Ed25519 unsupported | never (Go always has `crypto/ed25519`) |
+| 7 | `false` | `signature_mismatch` | WebCrypto verify returns false | `ed25519.Verify` returns false |
+| 7 | `true` | (none) | verifies | verifies |
+| any | `false` | `verification_error` | unexpected exception, such as a hostile Proxy | never (no equivalent input) |
+
+**Why `canonical_nfc_failed` means "ill-formed string".** NFC normalisation
+itself cannot fail on well-formed input in either runtime:
+`String.prototype.normalize` never throws, and Go's `norm.NFC` accepts any
+valid UTF-8. The only input with no NFC form is a string that is not
+well-formed Unicode. In JSON that is an unpaired surrogate escape such as
+`"\ud800"`. JavaScript keeps it as a lone UTF-16 code unit, and the JCS
+writer would emit it as an escape. `encoding/json` in Go silently
+replaces it with U+FFFD, so the two runtimes would sign different bytes.
+Both reference runtimes therefore reject such strings before
+canonicalisation. The Go parser keeps the code unit, as 3-byte WTF-8, so
+the rejection can happen. Raw invalid UTF-8 bytes in a document are a
+different case. They are decoded to U+FFFD by the WHATWG maximal-subpart
+rule, exactly as Node's UTF-8 decoder does, before parsing in both
+runtimes. Vector: `signature/lone-surrogate-nfc-failed`.
 
 `'unverifiable'` is not a pass. A caller that requires a signature
 treats it as a failure.

@@ -86,6 +86,11 @@
     },
     {
       "kind": "signature",
+      "case": "lone-surrogate-nfc-failed",
+      "description": "A body string holds an unpaired UTF-16 surrogate (\\ud800 in the file); it has no NFC or UTF-8 form, so every runtime rejects it before any crypto."
+    },
+    {
+      "kind": "signature",
       "case": "public-key-malformed",
       "description": "Public key string lacks the ed25519-pub: prefix."
     },

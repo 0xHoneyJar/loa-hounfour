@@ -123,9 +123,9 @@ func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOpt
 			pub, _ = decodeB64URLStrict(k[len(pubkeyPrefix):], ed25519.PublicKeySize)
 		}
 	case ed25519.PublicKey:
-		pub = k
+		pub = append([]byte(nil), k...) // defensive copy, as TS does
 	case []byte:
-		pub = k
+		pub = append([]byte(nil), k...)
 	}
 	if len(pub) != ed25519.PublicKeySize {
 		return fail("public_key_malformed")
@@ -148,6 +148,8 @@ func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOpt
 			return fail("canonical_size_cap_exceeded")
 		case errors.Is(err, ErrCanonicalKeyCollision):
 			return fail("canonical_key_collision")
+		case errors.Is(err, ErrCanonicalNFC):
+			return fail("canonical_nfc_failed")
 		default:
 			return fail("canonicalization_failed")
 		}

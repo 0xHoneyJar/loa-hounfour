@@ -45,7 +45,8 @@ export interface Ed25519VerifyOptions {
  *   4. The public key must be 32 raw bytes or `ed25519-pub:` + 43
  *      canonical base64url chars, else `false / public_key_malformed`.
  *   5. Canonical signing input = UTF-8 of `safeCanonicalize(envelope
- *      minus omitted fields)`. Failures map to
+ *      minus omitted fields)`. Any string or key holding an unpaired
+ *      surrogate is rejected first as `canonical_nfc_failed`. Failures map to
  *      `canonical_size_cap_exceeded`, `canonical_key_collision`,
  *      `canonical_nfc_failed` or `canonicalization_failed` (all `false`).
  *   6. WebCrypto Ed25519 must be available, else

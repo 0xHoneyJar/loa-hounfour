@@ -89,6 +89,36 @@ function decodeBase64UrlStrict(text, expectedBytes) {
         return null;
     return out;
 }
+// An unpaired UTF-16 surrogate: a high surrogate not followed by a low
+// one, or a low surrogate not preceded by a high one.
+const LONE_SURROGATE_RE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+/**
+ * Throw CanonicalizeNFCError when any string or key in the tree contains
+ * an unpaired surrogate. `String.prototype.normalize` does not throw on
+ * such strings and the JCS writer would escape them as `\uXXXX`, but
+ * ill-formed strings have no UTF-8 encoding, and runtimes with UTF-8
+ * strings cannot reproduce those bytes. Both reference runtimes therefore
+ * reject them as `canonical_nfc_failed` (decision, bridge iter-2).
+ */
+function assertWellFormedTree(value) {
+    if (typeof value === 'string') {
+        if (LONE_SURROGATE_RE.test(value)) {
+            throw new CanonicalizeNFCError('string contains an unpaired surrogate');
+        }
+        return;
+    }
+    if (Array.isArray(value)) {
+        for (const v of value)
+            assertWellFormedTree(v);
+        return;
+    }
+    if (value !== null && typeof value === 'object') {
+        for (const [k, v] of Object.entries(value)) {
+            assertWellFormedTree(k);
+            assertWellFormedTree(v);
+        }
+    }
+}
 function isPlainObject(value) {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -119,7 +149,8 @@ function resolvePublicKey(publicKey) {
  *   4. The public key must be 32 raw bytes or `ed25519-pub:` + 43
  *      canonical base64url chars, else `false / public_key_malformed`.
  *   5. Canonical signing input = UTF-8 of `safeCanonicalize(envelope
- *      minus omitted fields)`. Failures map to
+ *      minus omitted fields)`. Any string or key holding an unpaired
+ *      surrogate is rejected first as `canonical_nfc_failed`. Failures map to
  *      `canonical_size_cap_exceeded`, `canonical_key_collision`,
  *      `canonical_nfc_failed` or `canonicalization_failed` (all `false`).
  *   6. WebCrypto Ed25519 must be available, else
@@ -170,6 +201,7 @@ export async function verifyEnvelopeSignatureEd25519(envelope, publicKey, option
         }
         let canonical;
         try {
+            assertWellFormedTree(unsigned);
             canonical = safeCanonicalize(unsigned);
         }
         catch (e) {
@@ -275,11 +307,20 @@ export function lookupRevocation(lists, signerKeyId, at) {
             invalid.push(`lists[${i}]`);
             return;
         }
-        // Shape validation guarantees the pattern, so normalisation succeeds.
+        // The shape pattern already guarantees these normalise; a failure is
+        // still treated as shape-invalid (defence in depth, mirrored in Go).
         const from = normalizeUtc(list.valid_from);
+        const issued = normalizeUtc(list.issued_at);
         const until = list.valid_until === null ? null : normalizeUtc(list.valid_until);
+        if (from === null ||
+            issued === null ||
+            (list.valid_until !== null && until === null) ||
+            list.revoked_keys.some((e) => normalizeUtc(e.revoked_at) === null)) {
+            invalid.push(`lists[${i}]`);
+            return;
+        }
         if (from <= atNorm && (until === null || atNorm < until)) {
-            applicable.push({ list, issued: normalizeUtc(list.issued_at) });
+            applicable.push({ list, issued });
         }
     });
     // Stable sort: issued_at descending, ties keep input order.

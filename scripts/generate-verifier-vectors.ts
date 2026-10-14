@@ -346,6 +346,13 @@ function signatureCases(keys: Record<string, TestKey>): Case[] {
       expected: { verified: false, reason: 'options_invalid' },
     },
     {
+      case: 'lone-surrogate-nfc-failed',
+      kind: 'signature',
+      description: 'A body string holds an unpaired UTF-16 surrogate (\\ud800 in the file); it has no NFC or UTF-8 form, so every runtime rejects it before any crypto.',
+      input: { envelope: { ...envelope, body: { ...envelope.body, note: 'x\ud800y' } }, public_key: a.pub },
+      expected: { verified: false, reason: 'canonical_nfc_failed' },
+    },
+    {
       case: 'public-key-malformed',
       kind: 'signature',
       description: 'Public key string lacks the ed25519-pub: prefix.',

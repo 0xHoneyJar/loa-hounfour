@@ -71,6 +71,39 @@ func LookupRevocation(lists []any, signerKeyID string, at time.Time, shape *json
 	return lookupNormalized(lists, signerKeyID, u.Format("2006-01-02T15:04:05.000000000Z"), shape)
 }
 
+// timestampsNormalize reports whether every timestamp the lookup reads
+// normalises. The schema pattern already guarantees this, so it is a
+// defence in depth: a failure is treated as shape-invalid, as in TS.
+func timestampsNormalize(obj map[string]any) bool {
+	for _, f := range []string{"valid_from", "issued_at"} {
+		s, ok := obj[f].(string)
+		if _, norm := normalizeUTC(s); !ok || !norm {
+			return false
+		}
+	}
+	if u, present := obj["valid_until"]; present && u != nil {
+		s, ok := u.(string)
+		if _, norm := normalizeUTC(s); !ok || !norm {
+			return false
+		}
+	}
+	entries, ok := obj["revoked_keys"].([]any)
+	if !ok {
+		return false
+	}
+	for _, raw := range entries {
+		e, ok := raw.(map[string]any)
+		if !ok {
+			return false
+		}
+		s, ok := e["revoked_at"].(string)
+		if _, norm := normalizeUTC(s); !ok || !norm {
+			return false
+		}
+	}
+	return true
+}
+
 func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jsonschema.Schema) RevocationLookupResult {
 	type app struct {
 		list   map[string]any
@@ -80,10 +113,11 @@ func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jso
 	var applicable []app
 	for i, raw := range lists {
 		obj, ok := raw.(map[string]any)
-		if !ok || shape.Validate(raw) != nil {
+		if !ok || shape.Validate(raw) != nil || !timestampsNormalize(obj) {
 			invalid = append(invalid, fmt.Sprintf("lists[%d]", i))
 			continue
 		}
+		// timestampsNormalize guarantees these succeed.
 		from, _ := normalizeUTC(obj["valid_from"].(string))
 		issued, _ := normalizeUTC(obj["issued_at"].(string))
 		until := ""

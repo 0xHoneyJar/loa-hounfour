@@ -166,6 +166,20 @@ describe('verifyEnvelopeSignatureEd25519', () => {
     });
   });
 
+  it('canonical_nfc_failed for unpaired surrogates in values or keys; pairs are fine', async () => {
+    const k = await newKey();
+    const sig = `ed25519:${'A'.repeat(86)}`;
+    const expected = { verified: false, reason: 'canonical_nfc_failed' };
+    for (const bad of ['a\uD800', '\uDC00b', '\uD800\uD800', 'x\uDBFFy']) {
+      expect(await verifyEnvelopeSignatureEd25519({ s: bad, signature: sig }, k.pub)).toEqual(expected);
+      expect(await verifyEnvelopeSignatureEd25519({ nested: [{ [bad]: 1 }], signature: sig }, k.pub)).toEqual(expected);
+    }
+    expect(await verifyEnvelopeSignatureEd25519({ s: '\uD83D\uDE00', signature: sig }, k.pub)).toEqual({
+      verified: false,
+      reason: 'signature_mismatch',
+    });
+  });
+
   it('canonicalization_failed for values JSON cannot represent', async () => {
     const k = await newKey();
     const env = { n: 10n, signature: `ed25519:${'A'.repeat(86)}` };
