@@ -24,7 +24,7 @@ Inputs per kind:
 |------|---------|------|
 | `audit-trail` | `{ trail }` | `verifyAuditTrailIntegrity(trail)` |
 | `signature` | `{ envelope, public_key, options? }` | `verifyEnvelopeSignatureEd25519(envelope, public_key, options)` |
-| `revocation` | `{ lists, signer_key_id, at }` | `lookupRevocation(lists, signer_key_id, new Date(at))` |
+| `revocation` | `{ lists, signer_key_id, at }` | `lookupRevocation(lists, signer_key_id, at)` with `at` as the string |
 
 `expected` is compared as JSON. Fields that are absent in `expected`
 must be absent in the result, not `null`.

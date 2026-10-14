@@ -100,7 +100,8 @@ After the lists you hold have passed section 3, ask whether a signer key
 was revoked at the instant an envelope was signed (or at "now"):
 
 ```ts
-const r = lookupRevocation(trustedLists, envelope.signer_key_id, new Date(envelope.signed_at));
+const r = lookupRevocation(trustedLists, envelope.signer_key_id, envelope.signed_at); // Date or ISO 8601 UTC string
+if (r.error === 'at_invalid') { /* reject: the instant itself is malformed */ }
 if (r.revoked) { /* reject: r.reason, r.revoked_at, r.list_id */ }
 if (!r.list_valid) { /* some supplied lists were malformed: r.list_validity_reason */ }
 ```

@@ -109,16 +109,17 @@ describe('verifyEnvelopeSignatureEd25519', () => {
     });
   });
 
-  it('signature_missing is unverifiable (absent or undefined)', async () => {
+  it('signature_missing is unverifiable (absent, undefined or null)', async () => {
     const k = await newKey();
     const expected = { verified: 'unverifiable', reason: 'signature_missing' };
     expect(await verifyEnvelopeSignatureEd25519({ a: 1 }, k.pub)).toEqual(expected);
     expect(await verifyEnvelopeSignatureEd25519({ a: 1, signature: undefined }, k.pub)).toEqual(expected);
+    expect(await verifyEnvelopeSignatureEd25519({ a: 1, signature: null }, k.pub)).toEqual(expected);
   });
 
   it.each([
-    ['null', null],
     ['number', 5],
+    ['boolean', true],
     ['wrong prefix', `ed448:${'A'.repeat(86)}`],
     ['short', 'ed25519:AAAA'],
     ['long', `ed25519:${'A'.repeat(87)}`],
@@ -362,11 +363,37 @@ describe('lookupRevocation', () => {
     });
   });
 
-  it('throws TypeError on programmer errors', () => {
+  it('throws TypeError only when lists is not an array', () => {
     expect(() => lookupRevocation('x' as never, KEY_X, AT)).toThrow(TypeError);
-    expect(() => lookupRevocation([], KEY_X, new Date('nope'))).toThrow(TypeError);
-    expect(() => lookupRevocation([], KEY_X, '2026-01-01' as never)).toThrow(TypeError);
-    expect(() => lookupRevocation([], KEY_X, new Date('+012026-01-01T00:00:00Z'))).toThrow(TypeError);
+  });
+
+  it.each([
+    ['invalid Date', new Date('nope')],
+    ['Date beyond year 9999', new Date('+012026-01-01T00:00:00Z')],
+    ['date-only string', '2026-01-01'],
+    ['offset string', '2026-10-01T02:00:00+02:00'],
+    ['space separator', '2026-10-01 00:00:00Z'],
+    ['ten fractional digits', '2026-10-01T00:00:00.0000000001Z'],
+    ['empty string', ''],
+    ['number', 1234 as unknown as string],
+  ])('returns the typed at_invalid result for %s (never throws)', (_n, at) => {
+    expect(lookupRevocation([list()], KEY_X, at)).toEqual({
+      revoked: false,
+      list_valid: false,
+      list_validity_reason: 'at_invalid',
+      error: 'at_invalid',
+    });
+  });
+
+  it('accepts a strict ISO 8601 UTC string at nanosecond resolution', () => {
+    expect(lookupRevocation([list()], KEY_X, '2026-10-01T00:00:00Z')).toEqual(lookupRevocation([list()], KEY_X, AT));
+    const nanos = list({
+      revoked_keys: [
+        { key_id: KEY_X, reason: 'manual', revoked_at: '2026-08-15T00:00:00.000000002Z', revocation_evidence_hash: null },
+      ],
+    });
+    expect(lookupRevocation([nanos], KEY_X, '2026-08-15T00:00:00.000000001Z').revoked).toBe(false);
+    expect(lookupRevocation([nanos], KEY_X, '2026-08-15T00:00:00.000000002Z').revoked).toBe(true);
   });
 
   it('is pure: inputs are not mutated', () => {

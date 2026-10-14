@@ -76,6 +76,16 @@
     },
     {
       "kind": "signature",
+      "case": "null-signature-unverifiable",
+      "description": "Signature field present but JSON null; treated like an absent signature in every runtime."
+    },
+    {
+      "kind": "signature",
+      "case": "options-invalid-empty-signature-field",
+      "description": "options.signatureField is the empty string; rejected before any other check except envelope shape."
+    },
+    {
+      "kind": "signature",
       "case": "public-key-malformed",
       "description": "Public key string lacks the ed25519-pub: prefix."
     },
@@ -123,6 +133,11 @@
       "kind": "revocation",
       "case": "shape-invalid-list-ignored",
       "description": "A list failing shape validation is ignored and reported; the valid list still answers."
+    },
+    {
+      "kind": "revocation",
+      "case": "at-invalid",
+      "description": "at carries a +02:00 offset instead of Z; no lookup is performed and the typed at_invalid result is returned."
     },
     {
       "kind": "revocation",

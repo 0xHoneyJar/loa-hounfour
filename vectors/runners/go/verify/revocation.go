@@ -18,6 +18,8 @@ type RevocationLookupResult struct {
 	Reason             string `json:"reason,omitempty"`
 	ListValid          bool   `json:"list_valid"`
 	ListValidityReason string `json:"list_validity_reason,omitempty"`
+	// Error is "at_invalid" when no lookup was performed; check it first.
+	Error string `json:"error,omitempty"`
 }
 
 // LoadRevocationListSchema compiles the generated JSON Schema
@@ -40,14 +42,36 @@ func normalizeUTC(ts string) (string, bool) {
 	return m[1] + "." + m[2] + strings.Repeat("0", 9-len(m[2])) + "Z", true
 }
 
-// LookupRevocation mirrors lookupRevocation: lists failing shape
+// LookupRevocationAt mirrors lookupRevocation called with a string `at`:
+// at must match the strict ISO 8601 UTC form (checked textually), else
+// the at_invalid result is returned. Nanosecond resolution.
+func LookupRevocationAt(lists []any, signerKeyID string, at string, shape *jsonschema.Schema) RevocationLookupResult {
+	atNorm, ok := normalizeUTC(at)
+	if !ok {
+		return atInvalid()
+	}
+	return lookupNormalized(lists, signerKeyID, atNorm, shape)
+}
+
+func atInvalid() RevocationLookupResult {
+	return RevocationLookupResult{Revoked: false, ListValid: false, ListValidityReason: "at_invalid", Error: "at_invalid"}
+}
+
+// LookupRevocation mirrors lookupRevocation called with a Date: lists failing shape
 // validation are ignored and reported; a list is applicable when
 // valid_from <= at < valid_until (null = open); the key is revoked when
 // an applicable list has key_id == signerKeyID with revoked_at <= at;
 // applicable lists rank by issued_at descending, ties in input order.
 // lists are ParseJSON trees. at is compared at nanosecond resolution.
 func LookupRevocation(lists []any, signerKeyID string, at time.Time, shape *jsonschema.Schema) RevocationLookupResult {
-	atNorm := at.UTC().Format("2006-01-02T15:04:05.000000000Z")
+	u := at.UTC()
+	if u.Year() < 0 || u.Year() > 9999 {
+		return atInvalid()
+	}
+	return lookupNormalized(lists, signerKeyID, u.Format("2006-01-02T15:04:05.000000000Z"), shape)
+}
+
+func lookupNormalized(lists []any, signerKeyID string, atNorm string, shape *jsonschema.Schema) RevocationLookupResult {
 	type app struct {
 		list   map[string]any
 		issued string

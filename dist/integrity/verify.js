@@ -112,7 +112,7 @@ function resolvePublicKey(publicKey) {
  *
  *   1. `envelope` must be a plain object, else `false / envelope_not_object`.
  *      Invalid options give `false / options_invalid`.
- *   2. The signature field must be present, else
+ *   2. The signature field must be present and not null, else
  *      `'unverifiable' / signature_missing`.
  *   3. Its value must be `ed25519:` + 86 canonical base64url chars
  *      decoding to 64 bytes, else `false / signature_malformed`.
@@ -142,8 +142,11 @@ export async function verifyEnvelopeSignatureEd25519(envelope, publicKey, option
             !omitFields.every((f) => typeof f === 'string')) {
             return { verified: false, reason: 'options_invalid' };
         }
+        // Absent, undefined and JSON null all mean "no signature" (decision,
+        // bridge iter-1): a null placeholder cannot be told apart from an
+        // unsigned envelope, so both runtimes report it as unverifiable.
         if (!Object.prototype.hasOwnProperty.call(envelope, signatureField) ||
-            envelope[signatureField] === undefined) {
+            envelope[signatureField] === undefined || envelope[signatureField] === null) {
             return { verified: 'unverifiable', reason: 'signature_missing' };
         }
         const sigValue = envelope[signatureField];
@@ -205,6 +208,12 @@ export async function verifyEnvelopeSignatureEd25519(envelope, publicKey, option
         return { verified: false, reason: 'verification_error' };
     }
 }
+const AT_INVALID = {
+    revoked: false,
+    list_valid: false,
+    list_validity_reason: 'at_invalid',
+    error: 'at_invalid',
+};
 const ISO_UTC_RE = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z$/;
 /**
  * Normalise an ISO 8601 UTC timestamp to the fixed-width form
@@ -231,11 +240,15 @@ function normalizeUtc(ts) {
  *     and reported as `list_valid: false` with
  *     `list_validity_reason: "shape_invalid: lists[i], ..."`.
  *
- * Timestamps compare at nanosecond resolution on their textual value;
- * `at` carries the millisecond resolution of a JS `Date`.
+ * `at` is a `Date` (millisecond resolution) or a string in the strict
+ * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
+ * resolution). Timestamps compare at nanosecond resolution on their
+ * textual value. An invalid `Date`, a Date outside years 0000..9999, or
+ * a string not in that form yields the `at_invalid` result; it never
+ * throws for `at`. The string form is checked textually only, like the
+ * list timestamps (the shape pattern does not range-check fields).
  *
- * Pure. Throws `TypeError` only for programmer errors: `at` is not a
- * valid Date in years 0000..9999, or `lists` is not an array.
+ * Pure. Throws `TypeError` only when `lists` is not an array.
  *
  * Non-constraints: list signatures, cross-field invariants (RL-1..RL-12),
  * chain linkage and freshness are NOT checked here (ADR-010; see the
@@ -245,12 +258,15 @@ export function lookupRevocation(lists, signerKeyId, at) {
     if (!Array.isArray(lists)) {
         throw new TypeError('lookupRevocation: lists must be an array');
     }
-    if (!(at instanceof Date) || !Number.isFinite(at.getTime())) {
-        throw new TypeError('lookupRevocation: at must be a valid Date');
+    let atNorm = null;
+    if (typeof at === 'string') {
+        atNorm = normalizeUtc(at);
     }
-    const atNorm = normalizeUtc(at.toISOString());
+    else if (at instanceof Date && Number.isFinite(at.getTime())) {
+        atNorm = normalizeUtc(at.toISOString());
+    }
     if (atNorm === null) {
-        throw new TypeError('lookupRevocation: at must fall within years 0000..9999');
+        return { ...AT_INVALID };
     }
     const invalid = [];
     const applicable = [];

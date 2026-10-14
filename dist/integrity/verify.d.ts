@@ -38,7 +38,7 @@ export interface Ed25519VerifyOptions {
  *
  *   1. `envelope` must be a plain object, else `false / envelope_not_object`.
  *      Invalid options give `false / options_invalid`.
- *   2. The signature field must be present, else
+ *   2. The signature field must be present and not null, else
  *      `'unverifiable' / signature_missing`.
  *   3. Its value must be `ed25519:` + 86 canonical base64url chars
  *      decoding to 64 bytes, else `false / signature_malformed`.
@@ -68,6 +68,10 @@ export declare function verifyEnvelopeSignatureEd25519(envelope: Record<string, 
  * - `list_valid`: false when at least one supplied list failed structural
  *   shape validation; such lists are ignored and named in
  *   `list_validity_reason`.
+ * - `error`: `'at_invalid'` when `at` is not a valid instant. No lookup
+ *   was performed; the result then carries `revoked: false`,
+ *   `list_valid: false` and `list_validity_reason: 'at_invalid'`.
+ *   Callers MUST check `error` before reading `revoked`.
  */
 export interface RevocationLookupResult {
     revoked: boolean;
@@ -76,6 +80,7 @@ export interface RevocationLookupResult {
     reason?: string;
     list_valid: boolean;
     list_validity_reason?: string;
+    error?: 'at_invalid';
 }
 /**
  * Look up whether `signerKeyId` is revoked at instant `at`.
@@ -91,15 +96,19 @@ export interface RevocationLookupResult {
  *     and reported as `list_valid: false` with
  *     `list_validity_reason: "shape_invalid: lists[i], ..."`.
  *
- * Timestamps compare at nanosecond resolution on their textual value;
- * `at` carries the millisecond resolution of a JS `Date`.
+ * `at` is a `Date` (millisecond resolution) or a string in the strict
+ * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
+ * resolution). Timestamps compare at nanosecond resolution on their
+ * textual value. An invalid `Date`, a Date outside years 0000..9999, or
+ * a string not in that form yields the `at_invalid` result; it never
+ * throws for `at`. The string form is checked textually only, like the
+ * list timestamps (the shape pattern does not range-check fields).
  *
- * Pure. Throws `TypeError` only for programmer errors: `at` is not a
- * valid Date in years 0000..9999, or `lists` is not an array.
+ * Pure. Throws `TypeError` only when `lists` is not an array.
  *
  * Non-constraints: list signatures, cross-field invariants (RL-1..RL-12),
  * chain linkage and freshness are NOT checked here (ADR-010; see the
  * module JSDoc).
  */
-export declare function lookupRevocation(lists: RevocationList[], signerKeyId: string, at: Date): RevocationLookupResult;
+export declare function lookupRevocation(lists: RevocationList[], signerKeyId: string, at: string | Date): RevocationLookupResult;
 //# sourceMappingURL=verify.d.ts.map

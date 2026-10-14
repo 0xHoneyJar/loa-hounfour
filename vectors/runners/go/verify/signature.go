@@ -37,12 +37,21 @@ type Ed25519VerifyResult struct {
 	Reason   string       `json:"reason,omitempty"`
 }
 
-// VerifyOptions mirrors Ed25519VerifyOptions. A nil OmitFields means the
-// default [SignatureField, "quorum_signatures"]; a non-nil (even empty)
-// slice is used as given. SignatureField is always omitted.
+// VerifyOptions mirrors Ed25519VerifyOptions. A nil SignatureField means
+// the default "signature"; a pointer to "" is invalid (options_invalid),
+// as an empty signatureField is in TS. A nil OmitFields means the default
+// [signature field, "quorum_signatures"]; a non-nil (even empty) slice is
+// used as given. The signature field is always omitted.
 type VerifyOptions struct {
-	SignatureField string
+	SignatureField *string
 	OmitFields     []string
+}
+
+// validate mirrors the TS options_invalid check. Type errors that TS
+// also rejects (non-string field, non-array omitFields) cannot be
+// expressed in this struct; OptionsFromTree reports those.
+func (o *VerifyOptions) validate() bool {
+	return o == nil || o.SignatureField == nil || *o.SignatureField != ""
 }
 
 const (
@@ -78,11 +87,14 @@ func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOpt
 	if !ok {
 		return fail("envelope_not_object")
 	}
+	if !opts.validate() {
+		return fail("options_invalid")
+	}
 	sigField := "signature"
 	var omit []string
 	if opts != nil {
-		if opts.SignatureField != "" {
-			sigField = opts.SignatureField
+		if opts.SignatureField != nil {
+			sigField = *opts.SignatureField
 		}
 		omit = opts.OmitFields
 	}
@@ -90,8 +102,9 @@ func VerifyEnvelopeSignatureEd25519(envelope any, publicKey any, opts *VerifyOpt
 		omit = []string{sigField, "quorum_signatures"}
 	}
 
+	// Absent key and JSON null both mean "no signature", as in TS.
 	rawSig, present := env[sigField]
-	if !present {
+	if !present || rawSig == nil {
 		return Ed25519VerifyResult{Verified: StatusUnverifiable, Reason: "signature_missing"}
 	}
 	sigText, ok := rawSig.(string)
@@ -159,10 +172,10 @@ func OptionsFromTree(v any) (*VerifyOptions, bool) {
 	o := &VerifyOptions{}
 	if sf, present := obj["signatureField"]; present {
 		s, ok := sf.(string)
-		if !ok || s == "" {
-			return nil, false // TS reports options_invalid for these
+		if !ok {
+			return nil, false // TS reports options_invalid for this
 		}
-		o.SignatureField = s
+		o.SignatureField = &s // "" is rejected by the core function
 	}
 	if of, present := obj["omitFields"]; present {
 		arr, ok := of.([]any)

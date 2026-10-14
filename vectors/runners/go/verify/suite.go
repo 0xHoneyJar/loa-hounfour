@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
@@ -116,11 +115,7 @@ func RunCase(c Case, shape *jsonschema.Schema) (any, error) {
 		}
 		key, _ := c.Input["signer_key_id"].(string)
 		atText, _ := c.Input["at"].(string)
-		at, err := time.Parse(time.RFC3339Nano, atText)
-		if err != nil {
-			return nil, err
-		}
-		return LookupRevocation(lists, key, at, shape), nil
+		return LookupRevocationAt(lists, key, atText, shape), nil
 	}
 	return nil, fmt.Errorf("unknown kind %q", c.Kind)
 }

@@ -75,7 +75,7 @@ and the first failing step decides the result:
 |------|-----------|----------|
 | envelope not a plain object | `false` | `envelope_not_object` |
 | options not usable | `false` | `options_invalid` |
-| signature field absent | `'unverifiable'` | `signature_missing` |
+| signature field absent or `null` | `'unverifiable'` | `signature_missing` |
 | signature not `ed25519:` + 64 canonical bytes | `false` | `signature_malformed` |
 | public key not 32 bytes / `ed25519-pub:` + 32 canonical bytes | `false` | `public_key_malformed` |
 | canonicalisation failed | `false` | `canonical_size_cap_exceeded`, `canonical_key_collision`, `canonical_nfc_failed`, `canonicalization_failed` |
@@ -86,13 +86,15 @@ and the first failing step decides the result:
 `'unverifiable'` is not a pass. A caller that requires a signature
 treats it as a failure.
 
-`lookupRevocation` returns `{ revoked, revoked_at?, list_id?, reason?, list_valid, list_validity_reason? }`:
+`lookupRevocation(lists, signerKeyId, at)` takes `at` as a `Date` or a strict ISO 8601 UTC string (`YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z`). It returns `{ revoked, revoked_at?, list_id?, reason?, list_valid, list_validity_reason?, error? }`:
+
+- When `at` is not a valid instant, no lookup runs. The result is `{ revoked: false, list_valid: false, list_validity_reason: 'at_invalid', error: 'at_invalid' }`, and callers check `error` before `revoked`. The function never throws for `at`.
 
 - A list is applicable when `valid_from <= at` and (`valid_until` is null or `at < valid_until`).
 - The key is revoked when an applicable list has an entry with `key_id == signerKeyId` and `revoked_at <= at`.
 - Applicable lists rank by `issued_at` descending, ties in input order. When revoked, `list_id`, `revoked_at` and `reason` come from the highest-ranked list carrying an effective entry. Otherwise `list_id` names the highest-ranked applicable list, or is absent.
 - Lists failing `RevocationListSchema` shape validation are ignored. They set `list_valid: false` and `list_validity_reason: "shape_invalid: lists[i], ..."`.
-- Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. The TS `at` argument is a `Date`, so it carries milliseconds.
+- Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. A `Date` argument carries milliseconds; a string argument keeps its full nanosecond precision. In Go, `LookupRevocationAt` takes the string form and `LookupRevocation` takes a `time.Time`.
 
 ## What is NOT verified
 
@@ -126,7 +128,8 @@ These are deliberate non-constraints (ADR-010: hounfour ships shape, not authori
 3. Implement the audit-entry hash with raw RFC 8785, no NFC, and the
    domain-tag sanitisation grammar from `src/commons/audit-trail-hash.ts`.
 4. Implement the signature check with the step order and reason codes
-   above, using your platform's RFC 8032 Ed25519 verify.
+   above, using your platform's RFC 8032 Ed25519 verify. Validate options
+   inside the core function so typed APIs report `options_invalid` too.
 5. Implement revocation lookup, validating list shape with the generated
    `schemas/revocation-list.schema.json`.
 6. Run every `vectors/verifier/<kind>/<case>.json` file. Each holds

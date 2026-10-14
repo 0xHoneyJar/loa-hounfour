@@ -63,7 +63,7 @@ export async function runVerifierCase(c: VerifierCase): Promise<unknown> {
       return lookupRevocation(
         c.input.lists as RevocationList[],
         c.input.signer_key_id as string,
-        new Date(c.input.at as string),
+        c.input.at as string,
       );
     default:
       throw new Error(`unknown verifier kind ${(c as { kind: string }).kind}`);

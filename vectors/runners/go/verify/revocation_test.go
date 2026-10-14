@@ -44,6 +44,29 @@ func lookup(t *testing.T, lists []any, key, at string) string {
 	return string(b)
 }
 
+func TestLookupRevocationAtInvalid(t *testing.T) {
+	shape, err := LoadRevocationListSchema(filepath.Join(repoRoot(t), "schemas", "revocation-list.schema.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	l1 := rl(t, "l1", "2026-09-01T00:00:00Z", "", "2026-08-15T00:00:00Z")
+	want := `{"revoked":false,"list_valid":false,"list_validity_reason":"at_invalid","error":"at_invalid"}`
+	for _, at := range []string{"", "2026-10-01T00:00:00+02:00", "2026-10-01", "2026-10-01T00:00:00.0000000001Z", "2026-10-01 00:00:00Z"} {
+		b, _ := json.Marshal(LookupRevocationAt([]any{l1}, keyX, at, shape))
+		if string(b) != want {
+			t.Errorf("at %q: got %s", at, b)
+		}
+	}
+	b, _ := json.Marshal(LookupRevocation([]any{l1}, keyX, time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC), shape))
+	if string(b) != want {
+		t.Errorf("year 10000: got %s", b)
+	}
+	b, _ = json.Marshal(LookupRevocationAt([]any{l1}, keyX, "2026-10-01T00:00:00.000000001Z", shape))
+	if !strings.Contains(string(b), `"revoked":true`) {
+		t.Errorf("nanosecond string at: got %s", b)
+	}
+}
+
 func TestLookupRevocationBranches(t *testing.T) {
 	at := "2026-10-01T00:00:00Z"
 	l1 := rl(t, "l1", "2026-09-01T00:00:00Z", "", "2026-08-15T00:00:00Z")

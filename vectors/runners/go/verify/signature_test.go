@@ -49,7 +49,8 @@ func TestVerifyEnvelopeBranches(t *testing.T) {
 	expect(t, "wrong key", VerifyEnvelopeSignatureEd25519(env, otherPub, nil), `{"verified":false,"reason":"signature_mismatch"}`)
 	expect(t, "not object", VerifyEnvelopeSignatureEd25519([]any{}, pub, nil), `{"verified":false,"reason":"envelope_not_object"}`)
 	expect(t, "missing", VerifyEnvelopeSignatureEd25519(map[string]any{"a": "b"}, pub, nil), `{"verified":"unverifiable","reason":"signature_missing"}`)
-	for _, bad := range []any{nil, json.Number("5"), "ed448:" + strings.Repeat("A", 86), "ed25519:AAAA",
+	expect(t, "nil value", VerifyEnvelopeSignatureEd25519(map[string]any{"signature": nil}, pub, nil), `{"verified":"unverifiable","reason":"signature_missing"}`)
+	for _, bad := range []any{json.Number("5"), true, []any{}, "ed448:" + strings.Repeat("A", 86), "ed25519:AAAA",
 		signaturePrefix + strings.Repeat("A", 85) + "B", signaturePrefix + strings.Repeat("+", 86),
 		signaturePrefix + strings.Repeat("A", 40) + "\n" + strings.Repeat("A", 45)} {
 		expect(t, "malformed sig", VerifyEnvelopeSignatureEd25519(map[string]any{"signature": bad}, pub, nil), `{"verified":false,"reason":"signature_malformed"}`)
@@ -69,14 +70,29 @@ func TestVerifyEnvelopeBranches(t *testing.T) {
 	expect(t, "explicit empty omit", VerifyEnvelopeSignatureEd25519(env, pub, &VerifyOptions{OmitFields: []string{}}), `{"verified":false,"reason":"signature_mismatch"}`)
 	env["sig2"] = env["signature"]
 	delete(env, "signature")
-	expect(t, "custom field", VerifyEnvelopeSignatureEd25519(env, pub, &VerifyOptions{SignatureField: "sig2", OmitFields: []string{"quorum_signatures"}}), `{"verified":true}`)
+	expect(t, "custom field", VerifyEnvelopeSignatureEd25519(env, pub, &VerifyOptions{SignatureField: strPtr("sig2"), OmitFields: []string{"quorum_signatures"}}), `{"verified":true}`)
+}
+
+func strPtr(s string) *string { return &s }
+
+func TestVerifyOptionsValidatedInCore(t *testing.T) {
+	priv, pub := testKey(t, 3)
+	env := signed(t, priv, `{"kind":"x"}`)
+	expect(t, "empty signature field", VerifyEnvelopeSignatureEd25519(env, pub, &VerifyOptions{SignatureField: strPtr("")}), `{"verified":false,"reason":"options_invalid"}`)
+	expect(t, "envelope check first", VerifyEnvelopeSignatureEd25519("x", pub, &VerifyOptions{SignatureField: strPtr("")}), `{"verified":false,"reason":"envelope_not_object"}`)
+	expect(t, "nil field means default", VerifyEnvelopeSignatureEd25519(env, pub, &VerifyOptions{}), `{"verified":true}`)
+	o, ok := OptionsFromTree(mustParse(t, `{"signatureField":""}`))
+	if !ok {
+		t.Fatal("tree layer should pass an empty string through to the core check")
+	}
+	expect(t, "tree empty field", VerifyEnvelopeSignatureEd25519(env, pub, o), `{"verified":false,"reason":"options_invalid"}`)
 }
 
 func TestOptionsFromTree(t *testing.T) {
 	if o, ok := OptionsFromTree(nil); !ok || o != nil {
 		t.Error("nil options")
 	}
-	for _, s := range []string{`5`, `{"signatureField":""}`, `{"signatureField":1}`, `{"omitFields":"x"}`, `{"omitFields":[1]}`} {
+	for _, s := range []string{`5`, `{"signatureField":1}`, `{"omitFields":"x"}`, `{"omitFields":[1]}`} {
 		if _, ok := OptionsFromTree(mustParse(t, s)); ok {
 			t.Errorf("accepted %s", s)
 		}

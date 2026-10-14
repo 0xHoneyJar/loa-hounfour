@@ -332,6 +332,20 @@ function signatureCases(keys: Record<string, TestKey>): Case[] {
       expected: { verified: 'unverifiable', reason: 'signature_missing' },
     },
     {
+      case: 'null-signature-unverifiable',
+      kind: 'signature',
+      description: 'Signature field present but JSON null; treated like an absent signature in every runtime.',
+      input: { envelope: { ...unsigned, signature: null }, public_key: a.pub },
+      expected: { verified: 'unverifiable', reason: 'signature_missing' },
+    },
+    {
+      case: 'options-invalid-empty-signature-field',
+      kind: 'signature',
+      description: 'options.signatureField is the empty string; rejected before any other check except envelope shape.',
+      input: { envelope, public_key: a.pub, options: { signatureField: '' } },
+      expected: { verified: false, reason: 'options_invalid' },
+    },
+    {
       case: 'public-key-malformed',
       kind: 'signature',
       description: 'Public key string lacks the ed25519-pub: prefix.',
@@ -448,6 +462,13 @@ function revocationCases(keys: Record<string, TestKey>): Case[] {
         list_valid: false,
         list_validity_reason: 'shape_invalid: lists[0]',
       },
+    },
+    {
+      case: 'at-invalid',
+      kind: 'revocation',
+      description: 'at carries a +02:00 offset instead of Z; no lookup is performed and the typed at_invalid result is returned.',
+      input: q([l1], c.pub, '2026-10-14T02:00:00+02:00'),
+      expected: { revoked: false, list_valid: false, list_validity_reason: 'at_invalid', error: 'at_invalid' },
     },
     {
       case: 'fractional-precision-boundary',
