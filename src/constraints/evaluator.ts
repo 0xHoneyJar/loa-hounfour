@@ -1406,12 +1406,28 @@ class Parser {
   /**
    * unique_values(array, field) — returns true if all values of field
    * within the array are unique.
+   *
+   * unique_values(array) — one-argument form (v8.8.0, FR-C1): returns true
+   * if all primitive elements of the array are distinct (strict equality).
+   * Object elements are skipped, mirroring the two-argument form's
+   * skip-on-missing-field behaviour. The two-argument form is unchanged.
    * @see SDD §2.5.4 — Registry composition constraints (FR-5)
    */
   private parseUniqueValues(): boolean {
     this.advance(); // consume 'unique_values'
     this.expect('paren', '(');
     const arr = this.parseExpr();
+    if (this.peek()?.type === 'paren' && this.peek()?.value === ')') {
+      this.advance(); // consume ')'
+      if (!Array.isArray(arr)) return true;
+      const seenPrimitive = new Set<unknown>();
+      for (const item of arr) {
+        if (item !== null && typeof item === 'object') continue;
+        if (seenPrimitive.has(item)) return false;
+        seenPrimitive.add(item);
+      }
+      return true;
+    }
     this.expect('comma');
     const field = this.parseExpr();
     this.expect('paren', ')');

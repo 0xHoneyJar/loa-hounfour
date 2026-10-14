@@ -59,9 +59,10 @@
  *
  * ## Decisions (SDD §1 left these open)
  *
- * - SOA-1 is enforced by the cross-field validator rather than by a DSL
- *   `unique_values` expression: the DSL builtin only compares a named field
- *   of object elements, and `permitted_sub_goals` is an array of strings.
+ * - SOA-1 is the DSL expression `unique_values(permitted_sub_goals)`, using
+ *   the one-argument form of the builtin added in v8.8.0 for arrays of
+ *   primitives (the two-argument form compares a named field of object
+ *   elements and is unchanged).
  * - The cross-field validator enforces all five library rules (SOA-1..5),
  *   not only SOA-2/3/4, so `validate()` and the constraint file agree.
  * - `stop_work.propagates_to_children` is pinned to `true`: a stop request
