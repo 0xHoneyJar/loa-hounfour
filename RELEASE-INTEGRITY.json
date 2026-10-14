@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T05:22:15.708Z",
+  "generated_at": "2026-10-14T05:45:39.380Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 267,
-    "vectors": 1404,
+    "vectors": 1438,
     "constraints": 145,
     "manifests": 2,
-    "total": 1818
+    "total": 1852
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -8369,6 +8369,176 @@
         "path": "vectors/transfer/transfers.json",
         "sha256": "eb4dee8fdd43ca4c390e174772e2347b518738dba47e114c907824c0bcead574",
         "size_bytes": 3592
+      },
+      {
+        "path": "vectors/verifier/audit-trail/chain-broken-index-2.json",
+        "sha256": "87d4b8185e70f56f5c6f08bd15094d1ccfeb7a71569ffeb4b8fca01a15f6caef",
+        "size_bytes": 2442
+      },
+      {
+        "path": "vectors/verifier/audit-trail/content-tampered-index-1.json",
+        "sha256": "e45ef8cf633e50649af4f2c0a29b8bf3240bd3f53165e70a455c740c407b13ca",
+        "size_bytes": 2450
+      },
+      {
+        "path": "vectors/verifier/audit-trail/empty-trail-valid.json",
+        "sha256": "b033928e411317d6744151b90f0b5a5406be47d09258c4b1910a3ee6c9318179",
+        "size_bytes": 328
+      },
+      {
+        "path": "vectors/verifier/audit-trail/genesis-mismatch.json",
+        "sha256": "038f39c1576e10a8be7e002a5fcb185db191b353e5b05346a1d68f6b0689f2d6",
+        "size_bytes": 2438
+      },
+      {
+        "path": "vectors/verifier/audit-trail/valid-3-entries.json",
+        "sha256": "bdd64170c93b81bd5fc08175fa5bac8968b31e4d8deedd86300e95bc364d9aaa",
+        "size_bytes": 2192
+      },
+      {
+        "path": "vectors/verifier/revocation/at-invalid-leap-day.json",
+        "sha256": "a31afe60570b4baa39415521322e620524e002496699eeffae312b52fb69318e",
+        "size_bytes": 1322
+      },
+      {
+        "path": "vectors/verifier/revocation/at-invalid-leap-second.json",
+        "sha256": "4120f190822d1efac77905d428e663271ad54f82838cd956aa78076f9e3245c8",
+        "size_bytes": 1325
+      },
+      {
+        "path": "vectors/verifier/revocation/at-invalid.json",
+        "sha256": "f3b1d1a751d8f92227097e4165985bdd7305ac4fad181f31da084097da8ad93f",
+        "size_bytes": 1318
+      },
+      {
+        "path": "vectors/verifier/revocation/at-valid-leap-day.json",
+        "sha256": "1e0f59aec28b27f329fe4938618ac7af0bedf5c0a313a5b2879b90b15015f87f",
+        "size_bytes": 1345
+      },
+      {
+        "path": "vectors/verifier/revocation/at-year-0000-rejected.json",
+        "sha256": "18b0f4687dc7270b99795803723d77b7f9c784e99a33394720e3bcf30c63d55f",
+        "size_bytes": 1324
+      },
+      {
+        "path": "vectors/verifier/revocation/at-year-0001-min.json",
+        "sha256": "d82a10f34e75738aeeba7eff5a5e5836c771c939e20180aadfe658789ff1bba1",
+        "size_bytes": 1249
+      },
+      {
+        "path": "vectors/verifier/revocation/at-year-9999-max.json",
+        "sha256": "026ae968afc91830debce74a9a57f33e2690bfb59b85fb17fe3368ca2c7433dc",
+        "size_bytes": 1344
+      },
+      {
+        "path": "vectors/verifier/revocation/fractional-precision-boundary.json",
+        "sha256": "ac3fcc92aea62a4f9db820216ae162aa580bfb592480edeea2324f50c51cf918",
+        "size_bytes": 1365
+      },
+      {
+        "path": "vectors/verifier/revocation/impossible-date-list-shape-invalid.json",
+        "sha256": "5e80baed4f7ccdc5da27cc4a77e85426b9cc14010d64b22bc7a947e3ff69e65d",
+        "size_bytes": 2402
+      },
+      {
+        "path": "vectors/verifier/revocation/invalid-leap-day-list-shape-invalid.json",
+        "sha256": "289e384ff3d4b0403d0ee0e9c21d1fd4e16f218b7d3ae3316f34c34a0715b6d2",
+        "size_bytes": 1328
+      },
+      {
+        "path": "vectors/verifier/revocation/list-expired.json",
+        "sha256": "aca5216681425ca5d396d4ba2f468a9e0b7797fd708f9c663524ac48ec4a48d6",
+        "size_bytes": 1270
+      },
+      {
+        "path": "vectors/verifier/revocation/list-not-yet-valid.json",
+        "sha256": "28a59d86ee5b2bc24296f191ddc8c2011c67f00d3438a643082717823e566696",
+        "size_bytes": 1255
+      },
+      {
+        "path": "vectors/verifier/revocation/not-revoked.json",
+        "sha256": "c33339060285cf57d17f8ceecedf0d055811b67cf97efc7c0990430e9639e814",
+        "size_bytes": 1274
+      },
+      {
+        "path": "vectors/verifier/revocation/revoked-after-at-not-yet.json",
+        "sha256": "d93c570b4f73400f02878befeec3409a69622caf7fa891c29c11fb5e75932a02",
+        "size_bytes": 1287
+      },
+      {
+        "path": "vectors/verifier/revocation/revoked-before-at.json",
+        "sha256": "936d655b04a573db4b7e084298e921382d14fa1d1db19ddde42df2f083c9aeee",
+        "size_bytes": 1349
+      },
+      {
+        "path": "vectors/verifier/revocation/shape-invalid-list-ignored.json",
+        "sha256": "c24f14f269ce4803c375a00dde78c4740fbab858fe6da276d7e0af0166063d74",
+        "size_bytes": 2390
+      },
+      {
+        "path": "vectors/verifier/revocation/two-lists-latest-wins.json",
+        "sha256": "01a908d3150b4e42804460bc63e9aa4a876a278c85bc8d84d2f0e17be5009212",
+        "size_bytes": 2323
+      },
+      {
+        "path": "vectors/verifier/signature/body-tampered.json",
+        "sha256": "8de71fec475f7c4c8646a4d7e76ae5910b945b2f53deef7ae9f1724715f91859",
+        "size_bytes": 849
+      },
+      {
+        "path": "vectors/verifier/signature/lone-surrogate-nfc-failed.json",
+        "sha256": "a9e2f3113b9090a280277fdf2bd4cd5c6fb54d272b27b6158e774ef4ea9e6ad9",
+        "size_bytes": 858
+      },
+      {
+        "path": "vectors/verifier/signature/malformed-signature-noncanonical-encoding.json",
+        "sha256": "2e6fc5bae588c8780d4952cfa6a0b0cc6e4eee4619831ddff76b092670811348",
+        "size_bytes": 878
+      },
+      {
+        "path": "vectors/verifier/signature/malformed-signature.json",
+        "sha256": "3e3ece77361aa0beb370f9936028399bf59b15af34f6742722dca6515dcae34d",
+        "size_bytes": 774
+      },
+      {
+        "path": "vectors/verifier/signature/missing-signature-unverifiable.json",
+        "sha256": "2572bb8afcb47e97f1bf95d3da372e3aef31b954105d12f97d4352c6312b956c",
+        "size_bytes": 757
+      },
+      {
+        "path": "vectors/verifier/signature/null-signature-unverifiable.json",
+        "sha256": "6a744b79912fabc4cce4d1aadd65999fe98f6c53130e9485eb008c8fb0d9c974",
+        "size_bytes": 779
+      },
+      {
+        "path": "vectors/verifier/signature/options-invalid-empty-signature-field.json",
+        "sha256": "5828494e9baf4f4b6c6bb3b1a4cb531e569be314be754480d9e4c19e73816f63",
+        "size_bytes": 921
+      },
+      {
+        "path": "vectors/verifier/signature/public-key-malformed.json",
+        "sha256": "cf78a6a6ed27851a9defeb4780cf7d818bf1cbcba7cf64eb5d566918e2c18a51",
+        "size_bytes": 846
+      },
+      {
+        "path": "vectors/verifier/signature/quorum-entry-valid.json",
+        "sha256": "60662efbd1e86a3c198d9d39965ae867cbe3b85183c96542e65e8bae6b098a75",
+        "size_bytes": 1878
+      },
+      {
+        "path": "vectors/verifier/signature/quorum-field-omitted-valid.json",
+        "sha256": "01f201b1a79058cf3bcfe4f1423f25a8901f30b18ba5705e62cab54e7380a622",
+        "size_bytes": 1603
+      },
+      {
+        "path": "vectors/verifier/signature/valid.json",
+        "sha256": "0c2b2c09b06b9bffb19eb4723203d02be153c62c3c1f8e5a53d817e7258524c0",
+        "size_bytes": 804
+      },
+      {
+        "path": "vectors/verifier/signature/wrong-key.json",
+        "sha256": "8ed63537f7c6c816e339d4f2137e3b12e6b7d9913229e350949a6cd5a3273b25",
+        "size_bytes": 845
       }
     ],
     "constraints": [
