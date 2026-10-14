@@ -135,4 +135,7 @@ export { PlanAmendmentRequestSchema, AmendmentSeveritySchema, AmendmentTriggerCl
 // Schemas — Challenge layer (v8.6.0, FR-A1, PR-A3.7)
 export { ChallengeTypeSchema, ChallengeRequestedEffectSchema, } from './challenge-types.js';
 export { ChallengeSchema, } from './challenge.js';
+// Schemas — Separation of duties (v8.8.0, FR-C3, PR-C3)
+export { IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, } from './irreversible-action-attestation.js';
+export { SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, } from './shared-surface-declaration.js';
 //# sourceMappingURL=index.js.map

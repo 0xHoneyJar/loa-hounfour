@@ -45,7 +45,6 @@ import { validateSubscriptionPoolState } from '../canonical/subscription-pool-st
 // from revocation-list-local). RL-2/3/4/6/11 are consumer-state per
 // ADR-010 with manifest reason codes.
 import { validateRevocationList } from '../canonical/revocation-list.js';
-import { validateManifestConsumptionReceipt } from '../constraints/manifest-consumption-receipt.js';
 // v8.7.0 PR-A4.5 — FR-G5 MergeArtifact cross-field validator
 // (defensive-shim). MergeArtifact has no library-evaluable cross-
 // field invariants in v8.7.0 — MA-1 + MA-3 are pure TypeBox
@@ -55,6 +54,15 @@ import { validateManifestConsumptionReceipt } from '../constraints/manifest-cons
 // invariants if any are promoted from consumer-state to library-
 // evaluable in v8.8.0+.
 import { validateMergeArtifact } from '../canonical/merge-artifact.js';
+// v8.8.0 PR-C3 — FR-C3 separation-of-duties cross-field validators.
+// IrreversibleActionAttestation: IAA-1 (distinct actors), IAA-2 (distinct
+// signer keys), IAA-3 (execution not before proposal). IAA-5 (signature
+// verification) is consumer-side per ADR-010.
+// SharedSurfaceDeclaration: SSD-1 (owner is a writer), SSD-2 (single-writer
+// consistency), SSD-3 / SSD-4 (distinct writer / reader lists). SSD-5 and
+// SSD-6 need consumer registry / runtime observation.
+import { validateIrreversibleActionAttestation } from '../governance/irreversible-action-attestation.js';
+import { validateSharedSurfaceDeclaration } from '../governance/shared-surface-declaration.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // Strict semantics live in ./formats.js (single source of truth) and are
 // registered UNCONDITIONALLY at module load so host-application import order
@@ -119,7 +127,6 @@ import { CrossScoreReportSchema } from '../governance/cross-score-report.js';
 import { OrgIdentitySchema } from '../governance/org-identity.js';
 import { OrgRepresentativeDelegationSchema } from '../governance/org-representative-delegation.js';
 import { SuccessionPolicySchema } from '../governance/succession-policy.js';
-import { withConsumerObligation } from '../constraints/unverified-obligations.js';
 /** Internal collector that keeps `warnings` (legacy strings) and `warning_details` in lockstep. */
 function warningSink() {
     const details = [];
@@ -1217,11 +1224,9 @@ registerCrossFieldValidator('RevocationList', validateRevocationList);
 // (manifest reasons `MERGE_ARTIFACT_CONTENT_HASH_CONTEXT_DEFERRED` +
 // `MERGE_ARTIFACT_CONTENT_HASH_CANONICALIZATION_CONTEXT_DEFERRED`).
 registerCrossFieldValidator('MergeArtifact', validateMergeArtifact);
-// v8.8.0 (SDD §3, FR-C4) — ManifestConsumptionReceipt cross-field validator.
-// Enforces MCR-1 (decisions[*].rule_id distinct). MCR-2 is structural;
-// MCR-3 (every manifest rule decided) is consumer-side because the receipt
-// does not embed the manifest — see joinReceiptToManifest.
-registerCrossFieldValidator('ManifestConsumptionReceipt', validateManifestConsumptionReceipt);
+// v8.8.0 PR-C3 — FR-C3 separation of duties (SDD §2).
+registerCrossFieldValidator('IrreversibleActionAttestation', validateIrreversibleActionAttestation);
+registerCrossFieldValidator('SharedSurfaceDeclaration', validateSharedSurfaceDeclaration);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.
@@ -1634,11 +1639,7 @@ export function validate(schema, data, options) {
                 // snapshot / golden-file parity tests can reproduce manifest output
                 // byte-for-byte across runs. Falls through to wall-clock when absent.
                 manifest_emitted_at: options?.now ?? new Date().toISOString(),
-                // v8.8.0 (SDD §3): every reason-bearing entry carries the contract
-                // row's judgement_requested + consumer_obligation_level. This is the
-                // single annotation point in validate(); emission sites above push
-                // unannotated entries, and withConsumerObligation is idempotent.
-                unverified_rules: obligations.map((entry) => withConsumerObligation(entry)),
+                unverified_rules: obligations,
             },
         };
     }

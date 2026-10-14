@@ -82,4 +82,6 @@ export { PlanSignoffEnvelopeSchema, SignoffActorClassSchema, SignoffTierSchema, 
 export { PlanAmendmentRequestSchema, AmendmentSeveritySchema, AmendmentTriggerClassSchema, type PlanAmendmentRequest, type AmendmentSeverity, type AmendmentTriggerClass, } from './plan-amendment-request.js';
 export { ChallengeTypeSchema, ChallengeRequestedEffectSchema, type ChallengeType, type ChallengeRequestedEffect, } from './challenge-types.js';
 export { ChallengeSchema, type Challenge, } from './challenge.js';
+export { IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, type IrreversibleActionAttestation, type IrreversibleActionKind, } from './irreversible-action-attestation.js';
+export { SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, type SharedSurfaceDeclaration, type SharedSurfaceKind, } from './shared-surface-declaration.js';
 //# sourceMappingURL=index.d.ts.map

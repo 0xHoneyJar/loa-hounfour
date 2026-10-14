@@ -25,7 +25,7 @@ describe('ConstraintOrigin', () => {
     const files = fs.readdirSync(CONSTRAINTS_DIR)
       .filter(f => f.endsWith('.constraints.json'));
 
-    expect(files.length).toBe(141); // +1 v8.8.0 PR-C4 ManifestConsumptionReceipt
+    expect(files.length).toBe(143); // +1 v8.8.0 PR-C4 ManifestConsumptionReceipt, +2 PR-C3 IrreversibleActionAttestation + SharedSurfaceDeclaration
 
     for (const file of files) {
       const content = JSON.parse(fs.readFileSync(path.join(CONSTRAINTS_DIR, file), 'utf8'));

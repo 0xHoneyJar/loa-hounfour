@@ -1,0 +1,24 @@
+{
+  "_comment": "IAA-1: the proposer executes their own action.",
+  "envelope_kind": "irreversible_action_attestation",
+  "contract_version": "8.8.0",
+  "attestation_id": "6f1d2c3b-4a5e-4f60-8a7b-9c0d1e2f3a4b",
+  "action_kind": "merge",
+  "target": {
+    "schema_id": "MergeArtifact",
+    "record_id": "acme/widgets#412"
+  },
+  "proposal": {
+    "actor_id": "user:alice",
+    "signer_key_id": "3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+    "proposed_at": "2026-10-01T09:00:00Z"
+  },
+  "execution": {
+    "actor_id": "user:alice",
+    "signer_key_id": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+    "executed_at": "2026-10-01T09:30:00Z"
+  },
+  "separation_of_duties": {
+    "policy": "proposer_is_not_executor"
+  }
+}

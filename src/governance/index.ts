@@ -612,3 +612,20 @@ export {
   ChallengeSchema,
   type Challenge,
 } from './challenge.js';
+
+// Schemas — Separation of duties (v8.8.0, FR-C3, PR-C3)
+export {
+  IrreversibleActionAttestationSchema,
+  IrreversibleActionKindSchema,
+  validateIrreversibleActionAttestation,
+  type IrreversibleActionAttestation,
+  type IrreversibleActionKind,
+} from './irreversible-action-attestation.js';
+
+export {
+  SharedSurfaceDeclarationSchema,
+  SharedSurfaceKindSchema,
+  validateSharedSurfaceDeclaration,
+  type SharedSurfaceDeclaration,
+  type SharedSurfaceKind,
+} from './shared-surface-declaration.js';
