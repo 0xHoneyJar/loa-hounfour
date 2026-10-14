@@ -393,7 +393,7 @@ describe('SubscriptionPoolState published JSON Schema $id contract (PR-A4.2 iter
       $id: string;
     };
     expect(generated.$id).toBe(
-      'https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/subscription-pool-state',
+      'https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/subscription-pool-state',
     );
   });
 

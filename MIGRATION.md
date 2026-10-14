@@ -82,6 +82,33 @@ the same bar.
 
 ---
 
+## v8.7.0 → v8.8.0 (Minor — Additive Only)
+
+**No breaking changes.** cycle-008 adds additive governance envelopes; no existing schema changes meaning. Existing v8.7.0 code continues to work unchanged. Consumers adopt the new surface by adding imports.
+
+### New schemas (added per feature PR)
+
+<!-- Rows are appended by PR-C1..C5 as each feature PR lands its schemas. -->
+
+| Schema `$id` | Rationale |
+|--------------|-----------|
+
+### Planned v9.0.0 fail-closed default flip
+
+Two flags, two defaults. `x-crypto-bearing` schemas already fail closed by
+default: `validate()` returns `{ valid: false }` with a `CRYPTO_DEFERRED`
+error unless the caller passes `{ acceptDeferred: true }` to acknowledge
+that signature verification is deferred to the consumer. `x-chain-bearing`
+schemas remain fail-open by default in every 8.x release: chain context
+that is absent is surfaced in the unverified-obligations manifest, not
+rejected, unless the caller passes `{ failClosed: true }` (FR-A4, v8.6.0).
+The chain-bearing default flips to fail-closed in v9.0.0 (planned window:
+no earlier than 2027-01-15; the date is a planning target set 2026-10-14,
+not a commitment). Consumers can adopt the v9.0.0 behaviour today with
+`validate(schema, payload, { failClosed: true })`.
+
+---
+
 ## v8.5.x → v8.6.0 (Minor — pre-release: FR-A5 + FR-A4 + FR-A3)
 
 > **Status:** in-flight on `cycle-005`. Landed changes documented below

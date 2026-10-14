@@ -192,7 +192,7 @@ describe('MergeArtifact published JSON Schema $id contract', () => {
       $id: string;
     };
     expect(generated.$id).toBe(
-      'https://schemas.0xhoneyjar.com/loa-hounfour/8.7.0/merge-artifact',
+      'https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/merge-artifact',
     );
   });
 
