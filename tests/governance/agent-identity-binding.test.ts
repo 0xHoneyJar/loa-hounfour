@@ -36,7 +36,7 @@ const BLOCKS = {
   vc: { issuer: 'did:web:issuer.example.com', credential_type: 'AgentCredential', credential_hash: 'sha256:' + 'ab'.repeat(32) },
 } as const;
 type BlockKey = keyof typeof BLOCKS;
-const BLOCK_KEYS: BlockKey[] = ['a2a', 'directory', 'vc'];
+const BLOCK_KEYS = Object.keys(BLOCKS) as BlockKey[];
 
 function binding(profile: string, present: BlockKey[]): Record<string, unknown> {
   const rec: Record<string, unknown> = {
@@ -245,5 +245,25 @@ describe('card_url host looseness (documented, pinned)', () => {
     expect(a2a.description).toContain('http://x-/');
     expect(a2a.description).toContain('scheme and a non-empty host only');
   });
+});
+
+describe('cross-field note (AIB-1..3 are not enforced by the JSON Schema alone)', () => {
+  it('BLOCK_KEYS derived from BLOCKS matches the schema module profile map', () => {
+    expect([...BLOCK_KEYS].sort()).toEqual(Object.values(AGENT_IDENTITY_BINDING_PROFILE_BLOCK).sort());
+  });
+
+  it('the schema description states it', () => {
+    const d = String((AgentIdentityBindingSchema as Record<string, unknown>).description);
+    expect(d).toContain('validate() enforces AIB-1..3 with the registered cross-field validator');
+    expect(d).toContain('The JSON Schema alone does NOT enforce AIB-1..3');
+  });
+
+  for (const doc of ['agent-identity-a2a-card.md', 'agent-identity-directory.md']) {
+    it(`docs/profiles/${doc} states it`, () => {
+      const text = readFileSync(join(__dirname, '..', '..', 'docs', 'profiles', doc), 'utf-8');
+      expect(text).toContain('**The JSON Schema alone does not enforce this rule.**');
+      expect(text).toContain('constraints/AgentIdentityBinding.constraints.json');
+    });
+  }
 });
 
