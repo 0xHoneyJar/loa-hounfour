@@ -8,14 +8,12 @@
  *
  * @see BB-V3-F002 — Extract duplicated if/then injection
  */
-import { AGENT_IDENTITY_BINDING_PROFILE_BLOCK } from '../src/governance/agent-identity-binding.js';
 
 /**
  * Apply post-generation transforms to a JSON Schema object.
  *
  * Currently handles:
  * - ConversationSealingPolicy if/then encryption invariant (BB-V3-008)
- * - AgentIdentityBinding profile/block exclusivity AIB-1..3 (v8.8.0, PR-C5)
  * - Stripping `$id` from inlined sub-schemas so the only `$id` remaining
  *   is the top-level versioned URI set by `generate-schemas.ts`. TypeBox
  *   inlines literal-union and object schemas with their declared `$id`
@@ -32,9 +30,6 @@ export function postProcessSchema(
 ): void {
   if (name === 'conversation') {
     injectSealingPolicyConstraint(jsonSchema);
-  }
-  if (name === 'agent-identity-binding') {
-    injectAgentIdentityBindingProfileConstraint(jsonSchema);
   }
   stripNestedIds(jsonSchema);
 }
@@ -101,34 +96,3 @@ function injectSealingPolicyConstraint(
     },
   };
 }
-
-/**
- * Inject AIB-1..3 for AgentIdentityBinding (v8.8.0, PR-C5, SDD §4).
- *
- * One `if/then` clause per profile, derived from
- * AGENT_IDENTITY_BINDING_PROFILE_BLOCK so the published JSON Schema and
- * the TS cross-field validator share one source: when `profile` equals
- * the profile literal, its block is required and the other two blocks
- * are forbidden. Consumers validating with the JSON Schema alone then
- * reject profile/block mismatches; the registered TS cross-field
- * validator stays in place and enforces the same rule in validate().
- */
-function injectAgentIdentityBindingProfileConstraint(
-  jsonSchema: Record<string, unknown>,
-): void {
-  const entries = Object.entries(AGENT_IDENTITY_BINDING_PROFILE_BLOCK) as Array<[string, string]>;
-  const blocks = entries.map(([, block]) => block);
-  jsonSchema.allOf = entries.map(([profile, block]) => ({
-    if: {
-      properties: { profile: { const: profile } },
-      required: ['profile'],
-    },
-    then: {
-      required: [block],
-      not: {
-        anyOf: blocks.filter((b) => b !== block).map((b) => ({ required: [b] })),
-      },
-    },
-  }));
-}
-

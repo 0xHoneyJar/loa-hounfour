@@ -20,26 +20,30 @@
  * ## Profile discriminator (AIB-1 / AIB-2 / AIB-3)
  *
  * `profile` names exactly one block. That block MUST be present and the
- * other two MUST be absent. The rule is enforced in three places:
+ * other two MUST be absent. The rule is enforced at `validate()` time by
+ * the registered cross-field validator {@link validateAgentIdentityBinding}
+ * and restated in `constraints/AgentIdentityBinding.constraints.json` as
+ * library-evaluable DSL expressions.
  *
- *   1. at `validate()` time by the registered cross-field validator
- *      {@link validateAgentIdentityBinding};
- *   2. in the published JSON Schema (`schemas/agent-identity-binding.schema.json`),
- *      which carries a root `allOf` of one `if/then` clause per profile,
- *      injected by the schema generator's post-processing step. Consumers
- *      that validate with the JSON Schema alone therefore reject
- *      profile/block mismatches;
- *   3. in `constraints/AgentIdentityBinding.constraints.json` as
- *      library-evaluable DSL expressions.
- *
- * TypeBox `Value.Check` on this TypeScript schema object does NOT evaluate
- * the rule (the clauses exist only in the published JSON Schema). Use
- * `validate()` in TypeScript.
+ * **The JSON Schema shape alone does NOT enforce AIB-1..3.** Neither TypeBox
+ * `Value.Check` nor a JSON Schema validator running the published
+ * `schemas/agent-identity-binding.schema.json` rejects a profile/block
+ * mismatch. This matches every other `x-cross-field-validated` schema:
+ * the structural tier is the shape, and the cross-field tier is the
+ * registered validator. TypeScript consumers call `validate()`; consumers
+ * in other languages MUST implement AIB-1..3 themselves, using the
+ * constraint file as the specification.
  *
  * **Decision (SDD §4 shape).** The SDD specifies one object with three
  * optional blocks plus a cross-field rule, not a TypeBox discriminated
  * union. The single-object shape is kept so the generated JSON Schema stays
  * a flat object for non-TypeScript consumers.
+ *
+ * **Decision (card_url pattern).** `format: 'uri'` checks URI syntax. The
+ * pattern adds the profile-specific rules: an `http` or `https` scheme, a
+ * host containing at least one character other than `.` and `-`, and an
+ * end anchor so no whitespace or trailing garbage follows the host and
+ * path. It does not attempt full host validation.
  *
  * ## Deferred obligations (consumer-side per ADR-010)
  *
@@ -126,13 +130,13 @@ const BLOCK_KEYS = ['a2a', 'directory', 'vc'];
 const A2aAgentCardBlock = Type.Object({
     card_url: Type.String({
         format: 'uri',
-        pattern: '^https?://[^\\s/?#]+',
+        pattern: '^https?://[^\\s/?#]*[^\\s/?#.-][^\\s/?#]*(?:[/?#][^\\s]*)?$',
         maxLength: 2048,
-        description: 'URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host; other URI schemes such as did: or urn: are rejected by the pattern. The library does not fetch it (AIB-N1).',
+        description: 'URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than "." and "-"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The library does not fetch it (AIB-N1).',
     }),
     card_hash: Type.Optional(Type.String({
         pattern: SHA256_HEX_PATTERN,
-        description: 'sha256 of the JCS (RFC 8785) canonical form of the fetched Agent Card. Consumers recompute and compare.',
+        description: 'sha256 of the JCS (RFC 8785) canonical form of the fetched Agent Card, written as "sha256:" followed by 64 hex characters (SHA256_HEX_PATTERN). The "sha256:" prefix is required. Consumers recompute and compare.',
     })),
     card_signature_jws: Type.Optional(Type.String({
         pattern: COMPACT_JWS_PATTERN,
@@ -181,7 +185,7 @@ const VerifiableCredentialBlock = Type.Object({
     }),
     credential_hash: Type.String({
         pattern: SHA256_HEX_PATTERN,
-        description: 'sha256 of the credential bytes as recorded by the binder. Consumers recompute and compare.',
+        description: 'sha256 of the credential bytes as recorded by the binder, written as "sha256:" followed by 64 hex characters (SHA256_HEX_PATTERN). The "sha256:" prefix is required. Consumers recompute and compare.',
     }),
     expires_at: Type.Optional(Type.String({
         format: 'date-time',
@@ -224,7 +228,7 @@ export const AgentIdentityBindingSchema = Type.Object({
     $id: 'AgentIdentityBinding',
     additionalProperties: false,
     'x-cross-field-validated': true,
-    description: 'Binds an AgentIdentity.agent_id to one external identity surface: an A2A Agent Card, an organizational directory identity, or a verifiable credential. The profile field names exactly one block, which must be present while the other two are absent (AIB-1..3). The published JSON Schema enforces AIB-1..3 with allOf if/then clauses, and validate() enforces them with the registered cross-field validator; TypeBox Value.Check on the TypeScript schema alone does not. Signatures are carried, not verified, and agent resolution plus binder authority are consumer-side (AIB-4, AIB-5).',
+    description: 'Binds an AgentIdentity.agent_id to one external identity surface: an A2A Agent Card, an organizational directory identity, or a verifiable credential. The profile field names exactly one block, which must be present while the other two are absent (AIB-1..3). validate() enforces AIB-1..3 with the registered cross-field validator. The JSON Schema alone does NOT enforce AIB-1..3: TypeBox Value.Check and JSON Schema validators accept profile/block mismatches, so non-TypeScript consumers MUST implement AIB-1..3 from the constraint file. Signatures are carried, not verified, and agent resolution plus binder authority are consumer-side (AIB-4, AIB-5).',
 });
 /**
  * Cross-field validator for AIB-1 / AIB-2 / AIB-3: the block named by

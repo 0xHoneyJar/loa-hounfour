@@ -1,5 +1,5 @@
 {
-  "_comment": "AIB-1: profile a2a-agent-card carries only a directory block (profile/block mismatch). Rejected by validate() via the cross-field validator and by the published JSON Schema via its injected if/then clauses.",
+  "_comment": "AIB-1: profile a2a-agent-card carries only a directory block (profile/block mismatch). Passes the structural tier; rejected by validate() via the registered cross-field validator.",
   "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
   "agent_id": "research-agent",
   "profile": "a2a-agent-card",

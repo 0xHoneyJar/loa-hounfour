@@ -1,0 +1,12 @@
+{
+  "_comment": "Structural: the a2a.card_url host must contain at least one character other than \".\" and \"-\".",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000001",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "http://."
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

@@ -121,7 +121,7 @@ const SCHEMAS: &[SchemaReg] = &[
     // v8.8.0 cycle-008 — versioned layout. PR-C1 (FR-C1).
     SchemaReg { name: "ScopeOfAutonomy", version_path: Some("v8.8.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
     // v8.8.0 cycle-008 cluster — versioned layout. PR-C5 (FR-C5).
-    SchemaReg { name: "AgentIdentityBinding", version_path: Some("v8.8.0"), buckets: &["valid", "invalid"] },
+    SchemaReg { name: "AgentIdentityBinding", version_path: Some("v8.8.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
 ];
 
 #[derive(Serialize, Debug)]

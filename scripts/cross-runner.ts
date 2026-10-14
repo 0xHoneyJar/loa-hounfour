@@ -62,10 +62,7 @@ import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-co
 import { IrreversibleActionAttestationSchema } from '../src/governance/irreversible-action-attestation.js';
 import { SharedSurfaceDeclarationSchema } from '../src/governance/shared-surface-declaration.js';
 import { ScopeOfAutonomySchema } from '../src/governance/scope-of-autonomy.js';
-import {
-  AgentIdentityBindingSchema,
-  validateAgentIdentityBinding,
-} from '../src/governance/agent-identity-binding.js';
+import { AgentIdentityBindingSchema } from '../src/governance/agent-identity-binding.js';
 import { evaluateIsValidDag, extractPath } from '../src/constraints/is-valid-dag.js';
 import '../src/validators/index.js';
 
@@ -107,16 +104,6 @@ interface SchemaRegistration {
    * the cross-field tier rejection is consumer-side per ADR-010).
    */
   buckets?: ReadonlyArray<'valid' | 'invalid' | 'invalid-cross-field' | 'boundary'>;
-  /**
-   * Rules the PUBLISHED JSON Schema encodes (via scripts/schema-postprocess.ts
-   * `if/then` injection) but TypeBox's Value.Check does not evaluate. The
-   * TS reference applies this check as part of the structural tier so its
-   * outcome matches the Python / Go / Rust runners, which validate against
-   * the generated JSON Schema. Must be the same rule the injection encodes.
-   *
-   * @since v8.8.0 — PR-C5 (AgentIdentityBinding AIB-1..3).
-   */
-  publishedSchemaRules?: (data: unknown) => boolean;
 }
 
 const SCHEMAS: Record<string, SchemaRegistration> = {
@@ -214,15 +201,11 @@ const SCHEMAS: Record<string, SchemaRegistration> = {
     buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },
   // v8.8.0 cycle-008 — PR-C5 (FR-C5). AIB-1/2/3 profile-block
-  // exclusivity is injected into the published JSON Schema as if/then
-  // clauses, so mismatches are structural-invalid in every runner and
-  // live in 'invalid'. The TS reference applies the same rule through
-  // publishedSchemaRules.
+  // mismatches are cross-field-only and live in 'invalid-cross-field'.
   AgentIdentityBinding: {
     schema: AgentIdentityBindingSchema,
     versionPath: 'v8.8.0',
-    buckets: ['valid', 'invalid'],
-    publishedSchemaRules: (data) => validateAgentIdentityBinding(data).valid,
+    buckets: ['valid', 'invalid', 'invalid-cross-field'],
   },
 };
 
@@ -374,9 +357,7 @@ for (const [schemaName, registration] of Object.entries(SCHEMAS)) {
             return rest;
           })()
         : parsed.data;
-      const ok =
-        Value.Check(schema, data) &&
-        (registration.publishedSchemaRules?.(data) ?? true);
+      const ok = Value.Check(schema, data);
       const key = `${schemaName}/${vectorPathPrefix}/${f}`;
       let result: ManifestEntry['result'];
       if (bucket === 'invalid-cross-field') {

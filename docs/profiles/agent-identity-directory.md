@@ -39,10 +39,14 @@ lifecycle state when the binding was recorded.
 When `profile` is `directory-identity`, the `directory` block must be
 present and the `a2a` and `vc` blocks must be absent (AIB-2).
 
-This rule is enforced by `validate()` and by the published JSON Schema,
-which carries one `if/then` clause per profile in its root `allOf`. In
-TypeScript, call `validate()`: TypeBox `Value.Check` on the schema object
-does not evaluate the rule.
+> **The JSON Schema alone does not enforce this rule.** `validate()`
+> enforces it through the registered cross-field validator. TypeBox
+> `Value.Check` and JSON Schema validators running the published
+> `schemas/agent-identity-binding.schema.json` accept a record whose
+> blocks do not match its `profile`. TypeScript consumers call
+> `validate()`. Consumers in other languages must implement AIB-1..3
+> themselves, using `constraints/AgentIdentityBinding.constraints.json`
+> as the specification.
 
 ## Principles
 

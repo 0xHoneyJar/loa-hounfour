@@ -20,26 +20,30 @@
  * ## Profile discriminator (AIB-1 / AIB-2 / AIB-3)
  *
  * `profile` names exactly one block. That block MUST be present and the
- * other two MUST be absent. The rule is enforced in three places:
+ * other two MUST be absent. The rule is enforced at `validate()` time by
+ * the registered cross-field validator {@link validateAgentIdentityBinding}
+ * and restated in `constraints/AgentIdentityBinding.constraints.json` as
+ * library-evaluable DSL expressions.
  *
- *   1. at `validate()` time by the registered cross-field validator
- *      {@link validateAgentIdentityBinding};
- *   2. in the published JSON Schema (`schemas/agent-identity-binding.schema.json`),
- *      which carries a root `allOf` of one `if/then` clause per profile,
- *      injected by the schema generator's post-processing step. Consumers
- *      that validate with the JSON Schema alone therefore reject
- *      profile/block mismatches;
- *   3. in `constraints/AgentIdentityBinding.constraints.json` as
- *      library-evaluable DSL expressions.
- *
- * TypeBox `Value.Check` on this TypeScript schema object does NOT evaluate
- * the rule (the clauses exist only in the published JSON Schema). Use
- * `validate()` in TypeScript.
+ * **The JSON Schema shape alone does NOT enforce AIB-1..3.** Neither TypeBox
+ * `Value.Check` nor a JSON Schema validator running the published
+ * `schemas/agent-identity-binding.schema.json` rejects a profile/block
+ * mismatch. This matches every other `x-cross-field-validated` schema:
+ * the structural tier is the shape, and the cross-field tier is the
+ * registered validator. TypeScript consumers call `validate()`; consumers
+ * in other languages MUST implement AIB-1..3 themselves, using the
+ * constraint file as the specification.
  *
  * **Decision (SDD §4 shape).** The SDD specifies one object with three
  * optional blocks plus a cross-field rule, not a TypeBox discriminated
  * union. The single-object shape is kept so the generated JSON Schema stays
  * a flat object for non-TypeScript consumers.
+ *
+ * **Decision (card_url pattern).** `format: 'uri'` checks URI syntax. The
+ * pattern adds the profile-specific rules: an `http` or `https` scheme, a
+ * host containing at least one character other than `.` and `-`, and an
+ * end anchor so no whitespace or trailing garbage follows the host and
+ * path. It does not attempt full host validation.
  *
  * ## Deferred obligations (consumer-side per ADR-010)
  *

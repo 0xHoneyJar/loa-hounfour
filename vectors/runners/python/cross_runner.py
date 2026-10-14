@@ -95,7 +95,7 @@ SCHEMAS: list[tuple[str, str | None, tuple[str, ...]]] = [
     # v8.8.0 cycle-008 — versioned layout. PR-C1 (FR-C1).
     ("ScopeOfAutonomy", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
     # v8.8.0 cycle-008 cluster — versioned layout. PR-C5 (FR-C5).
-    ("AgentIdentityBinding", "v8.8.0", ("valid", "invalid")),
+    ("AgentIdentityBinding", "v8.8.0", ("valid", "invalid", "invalid-cross-field")),
 ]
 
 # Schema-name → schema-file-name (kebab-case). Most files map by

@@ -3,7 +3,7 @@
   "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/agent-identity-binding",
   "additionalProperties": false,
   "x-cross-field-validated": true,
-  "description": "Binds an AgentIdentity.agent_id to one external identity surface: an A2A Agent Card, an organizational directory identity, or a verifiable credential. The profile field names exactly one block, which must be present while the other two are absent (AIB-1..3). The published JSON Schema enforces AIB-1..3 with allOf if/then clauses, and validate() enforces them with the registered cross-field validator; TypeBox Value.Check on the TypeScript schema alone does not. Signatures are carried, not verified, and agent resolution plus binder authority are consumer-side (AIB-4, AIB-5).",
+  "description": "Binds an AgentIdentity.agent_id to one external identity surface: an A2A Agent Card, an organizational directory identity, or a verifiable credential. The profile field names exactly one block, which must be present while the other two are absent (AIB-1..3). validate() enforces AIB-1..3 with the registered cross-field validator. The JSON Schema alone does NOT enforce AIB-1..3: TypeBox Value.Check and JSON Schema validators accept profile/block mismatches, so non-TypeScript consumers MUST implement AIB-1..3 from the constraint file. Signatures are carried, not verified, and agent resolution plus binder authority are consumer-side (AIB-4, AIB-5).",
   "type": "object",
   "required": [
     "binding_id",
@@ -51,14 +51,14 @@
       "properties": {
         "card_url": {
           "format": "uri",
-          "pattern": "^https?://[^\\s/?#]+",
+          "pattern": "^https?://[^\\s/?#]*[^\\s/?#.-][^\\s/?#]*(?:[/?#][^\\s]*)?$",
           "maxLength": 2048,
-          "description": "URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host; other URI schemes such as did: or urn: are rejected by the pattern. The library does not fetch it (AIB-N1).",
+          "description": "URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than \".\" and \"-\"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The library does not fetch it (AIB-N1).",
           "type": "string"
         },
         "card_hash": {
           "pattern": "^sha256:[A-Fa-f0-9]{64}$",
-          "description": "sha256 of the JCS (RFC 8785) canonical form of the fetched Agent Card. Consumers recompute and compare.",
+          "description": "sha256 of the JCS (RFC 8785) canonical form of the fetched Agent Card, written as \"sha256:\" followed by 64 hex characters (SHA256_HEX_PATTERN). The \"sha256:\" prefix is required. Consumers recompute and compare.",
           "type": "string"
         },
         "card_signature_jws": {
@@ -167,7 +167,7 @@
         },
         "credential_hash": {
           "pattern": "^sha256:[A-Fa-f0-9]{64}$",
-          "description": "sha256 of the credential bytes as recorded by the binder. Consumers recompute and compare.",
+          "description": "sha256 of the credential bytes as recorded by the binder, written as \"sha256:\" followed by 64 hex characters (SHA256_HEX_PATTERN). The \"sha256:\" prefix is required. Consumers recompute and compare.",
           "type": "string"
         },
         "expires_at": {
@@ -198,100 +198,5 @@
       "type": "string"
     }
   },
-  "$comment": "contract_version=8.8.0, min_supported=6.0.0",
-  "allOf": [
-    {
-      "if": {
-        "properties": {
-          "profile": {
-            "const": "a2a-agent-card"
-          }
-        },
-        "required": [
-          "profile"
-        ]
-      },
-      "then": {
-        "required": [
-          "a2a"
-        ],
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "directory"
-              ]
-            },
-            {
-              "required": [
-                "vc"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "profile": {
-            "const": "directory-identity"
-          }
-        },
-        "required": [
-          "profile"
-        ]
-      },
-      "then": {
-        "required": [
-          "directory"
-        ],
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "a2a"
-              ]
-            },
-            {
-              "required": [
-                "vc"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "profile": {
-            "const": "verifiable-credential"
-          }
-        },
-        "required": [
-          "profile"
-        ]
-      },
-      "then": {
-        "required": [
-          "vc"
-        ],
-        "not": {
-          "anyOf": [
-            {
-              "required": [
-                "a2a"
-              ]
-            },
-            {
-              "required": [
-                "directory"
-              ]
-            }
-          ]
-        }
-      }
-    }
-  ]
+  "$comment": "contract_version=8.8.0, min_supported=6.0.0"
 }

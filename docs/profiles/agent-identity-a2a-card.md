@@ -29,18 +29,22 @@ signature when it has one. The binding does not copy the card.
 
 | Field | Meaning |
 |-------|---------|
-| `a2a.card_url` | Where the card is published. Required. Must be an `http` or `https` URL with a host, because Agent Cards are published over HTTP(S). Other URI schemes such as `did:` are rejected. At most 2048 characters. |
-| `a2a.card_hash` | sha256 of the JCS (RFC 8785) canonical form of the fetched card. Optional. |
+| `a2a.card_url` | Where the card is published. Required. Must be an `http` or `https` URL whose host has at least one character other than `.` and `-`, because Agent Cards are published over HTTP(S). Other URI schemes such as `did:`, and URLs with whitespace or trailing garbage, are rejected. At most 2048 characters. |
+| `a2a.card_hash` | sha256 of the JCS (RFC 8785) canonical form of the fetched card, written `sha256:` followed by 64 hex characters. The prefix is required. Optional. |
 | `a2a.card_signature_jws` | Compact JWS over the canonical card. Three non-empty segments. Optional. |
 | `a2a.protocol_version` | A2A protocol version the card declares, `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`. Optional. |
 
 When `profile` is `a2a-agent-card`, the `a2a` block must be present and the
 `directory` and `vc` blocks must be absent (AIB-1).
 
-This rule is enforced by `validate()` and by the published JSON Schema,
-which carries one `if/then` clause per profile in its root `allOf`. In
-TypeScript, call `validate()`: TypeBox `Value.Check` on the schema object
-does not evaluate the rule.
+> **The JSON Schema alone does not enforce this rule.** `validate()`
+> enforces it through the registered cross-field validator. TypeBox
+> `Value.Check` and JSON Schema validators running the published
+> `schemas/agent-identity-binding.schema.json` accept a record whose
+> blocks do not match its `profile`. TypeScript consumers call
+> `validate()`. Consumers in other languages must implement AIB-1..3
+> themselves, using `constraints/AgentIdentityBinding.constraints.json`
+> as the specification.
 
 ## Field mapping: AgentIdentity to Agent Card
 
