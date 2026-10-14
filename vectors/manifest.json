@@ -1,8 +1,8 @@
 {
   "manifest_version": "1.0.0",
-  "generated_at": "2026-10-14T02:53:44.258Z",
-  "contract_version": "8.8.0",
-  "total_vectors": 238,
+  "generated_at": "2026-02-25T04:59:18.958Z",
+  "contract_version": "8.2.0",
+  "total_vectors": 219,
   "vectors": [
     {
       "vector_id": "conformance-access-policy-compound-002",
@@ -187,15 +187,6 @@
     {
       "vector_id": "conformance-audit-trail-hash-001",
       "category": "commons",
-      "path": "conformance/commons/audit-trail/hash-reference-vector-v8.3.0-legacy.json",
-      "layer": 1,
-      "description": "Cross-language reference vector for domain-separated audit entry hashing. Other implementations (Python, Go, Rust) must produce identical hashes from the same inputs using RFC 8785 JCS canonicalization.",
-      "contract_version": "8.0.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-audit-trail-hash-001",
-      "category": "commons",
       "path": "conformance/commons/audit-trail/hash-reference-vector.json",
       "layer": 1,
       "description": "Cross-language reference vector for domain-separated audit entry hashing. Other implementations (Python, Go, Rust) must produce identical hashes from the same inputs using RFC 8785 JCS canonicalization.",
@@ -344,33 +335,6 @@
       "layer": 1,
       "description": "Valid constraint lifecycle event: proposed → under_review transition.",
       "contract_version": "7.6.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-consumer-contract-002",
-      "category": "consumer-contract",
-      "path": "conformance/consumer-contract/missing-symbol.json",
-      "layer": 1,
-      "description": "Contract with missing symbol should fail validation",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-consumer-contract-003",
-      "category": "consumer-contract",
-      "path": "conformance/consumer-contract/unknown-entrypoint.json",
-      "layer": 1,
-      "description": "Contract with unknown entrypoint should fail validation",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-consumer-contract-001",
-      "category": "consumer-contract",
-      "path": "conformance/consumer-contract/valid-contract.json",
-      "layer": 1,
-      "description": "Valid consumer contract with two entrypoints",
-      "contract_version": "8.3.0",
       "expected_valid": true
     },
     {
@@ -677,96 +641,6 @@
       "layer": 1,
       "description": "Valid governance proposal to update a parameter with full voting record",
       "contract_version": "7.0.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-003",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/invalid-transition-invariant-violation.json",
-      "layer": 1,
-      "description": "Failed transition with invariant violation and rollback",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-008",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/mutation-context-autonomous.json",
-      "layer": 1,
-      "description": "MutationContext with autonomous actor type",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-006",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/mutation-context-human.json",
-      "layer": 1,
-      "description": "MutationContext with human actor type",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-007",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/mutation-context-system.json",
-      "layer": 1,
-      "description": "MutationContext with system actor type",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-009",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/mutation-context-with-access-policy.json",
-      "layer": 1,
-      "description": "MutationContext with access policy fields populated",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-001",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/valid-transition-success.json",
-      "layer": 1,
-      "description": "Successful state transition with invariants holding",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-002",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/valid-transition-version-increment.json",
-      "layer": 1,
-      "description": "Version increments from 0 to 1 on first transition",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-005",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/valid-verify-all-invariants.json",
-      "layer": 1,
-      "description": "All invariants pass verification",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-004",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/valid-verify-single-invariant.json",
-      "layer": 1,
-      "description": "Single invariant check passes",
-      "contract_version": "8.3.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-governed-resource-runtime-010",
-      "category": "governed-resource-runtime",
-      "path": "conformance/governed-resource-runtime/version-monotonicity.json",
-      "layer": 1,
-      "description": "Version only increases — monotonicity invariant",
-      "contract_version": "8.3.0",
       "expected_valid": true
     },
     {
@@ -1181,51 +1055,6 @@
       "layer": 1,
       "description": "OpenAI response with tool calls — function calling normalization",
       "contract_version": "5.1.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-recall-wedge-001",
-      "category": "recall-wedge",
-      "path": "conformance/recall-wedge/assertion-admitted.json",
-      "layer": 1,
-      "description": "Recall Wedge round-trip — admitted Assertion that becomes the subject of the recall (per ADR-010 consumer-side composition).",
-      "contract_version": "8.7.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-recall-wedge-005",
-      "category": "recall-wedge",
-      "path": "conformance/recall-wedge/commitment-root.json",
-      "layer": 1,
-      "description": "Recall Wedge round-trip — CommitmentRoot anchoring the receipt body hash (commitment_type=recall_receipt; crypto-bearing, deferred per ADR-010).",
-      "contract_version": "8.7.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-recall-wedge-003",
-      "category": "recall-wedge",
-      "path": "conformance/recall-wedge/recall-pack.json",
-      "layer": 1,
-      "description": "Recall Wedge round-trip — RecallPack assembled from the admitted Assertion; recall_request_ref points back to the RecallRequest.",
-      "contract_version": "8.7.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-recall-wedge-004",
-      "category": "recall-wedge",
-      "path": "conformance/recall-wedge/recall-receipt.json",
-      "layer": 1,
-      "description": "Recall Wedge round-trip — RecallReceipt signed over the RecallPack body hash (crypto-bearing, deferred per ADR-010).",
-      "contract_version": "8.7.0",
-      "expected_valid": true
-    },
-    {
-      "vector_id": "conformance-recall-wedge-002",
-      "category": "recall-wedge",
-      "path": "conformance/recall-wedge/recall-request.json",
-      "layer": 1,
-      "description": "Recall Wedge round-trip — RecallRequest scoped to the private surface (per ADR-010 consumer-side composition).",
-      "contract_version": "8.7.0",
       "expected_valid": true
     },
     {
