@@ -1659,9 +1659,17 @@ export function validate<T extends TSchema>(
      *
      * Parent option profile: with cross-field validation enabled (the
      * default), the supplied parent is validated with the caller's options
-     * minus `scopeContext`. SOA-6 checks one link only. The parent's own
-     * `parent_scope_id` is not followed and emits nothing, so consumers
-     * validate a scope chain one link at a time.
+     * minus `scopeContext`. SOA-6 checks one link only, and the parent's own
+     * `parent_scope_id` is not followed, so consumers validate a scope chain
+     * one link at a time. Obligations the valid parent itself carries are
+     * not dropped. They are merged into this result with provenance:
+     * `rule_id` is prefixed `SOA-6 parent:` (for example
+     * `SOA-6 parent:SOA-6`), `evaluation_note` is prefixed "Inherited from
+     * the supplied parent scope: ", and `reason` and `evaluator` are kept.
+     *
+     * Evaluator label: the SOA-6 constraint row is `runtime-deferred`. The
+     * context-absent deferral entry carries `evaluator: 'consumer'`,
+     * matching ORD-3 `context_absent` entries (v8.5.0 widening).
      *
      * Manifest discipline (ADR-010, validation-result-vs-manifest): the
      * deferral entry accompanies otherwise-valid records only. If the record
@@ -1678,9 +1686,11 @@ export function validate<T extends TSchema>(
 
 /**
  * Implementation of {@link validate}. `suppressScopeParent` is call-scoped
- * re-entrancy state for SOA-6 (PR-C1): it is `true` only for the nested
- * validation of a supplied `scopeContext.parent_scope`, which therefore
- * never evaluates SOA-6 itself. No module-level mutable state is involved,
+ * re-entrancy state for SOA-6 (PR-C1). It is `true` only for the nested
+ * validation of a supplied `scopeContext.parent_scope`. That nested call
+ * never consults a parent context: it can only emit the SOA-6 deferral for
+ * the parent's own `parent_scope_id`, never evaluate or recurse.
+ * No module-level mutable state is involved,
  * so concurrent or interleaved validate() calls cannot suppress each other.
  * The flag is not reachable through the public `validate()` signature.
  */
@@ -2043,21 +2053,26 @@ function validateImpl<T extends TSchema>(
   // SOA-6 scope inheritance (PR-C1, v8.8.0 — FR-C1). $id-keyed like the
   // ORD-5 block above: ScopeOfAutonomy is the only inheritance-bearing
   // schema. Root scopes (no parent_scope_id) carry no SOA-6 obligation.
-  // Skipped entirely inside the nested parent validation below
-  // (suppressScopeParent, passed per call): SOA-6 evaluates one link,
-  // child → supplied parent, and never re-enters for the parent's own parent.
+  // Inside the nested parent validation below (suppressScopeParent, passed
+  // per call) no parent context is ever consulted. The parent's own
+  // parent_scope_id can only produce a deferral entry, which the outer call
+  // inherits with provenance. SOA-6 evaluates one link, child → supplied
+  // parent, and never recurses.
   // SOA-6 is a cross-field rule: `{ crossField: false }` skips it entirely
   // (no parent validation, no SOA-6 entry, no SOA-6 errors), like SOA-1..5.
   if (
     runCrossField &&
-    !suppressScopeParent &&
     schema.$id === 'ScopeOfAutonomy' &&
     typeof data === 'object' &&
     data !== null &&
     (data as Record<string, unknown>).parent_scope_id !== undefined
   ) {
-    const parentScope = options?.scopeContext?.parent_scope;
+    const parentScope = suppressScopeParent ? undefined : options?.scopeContext?.parent_scope;
     if (parentScope === undefined) {
+      // Evaluator label: the constraint-file row is `runtime-deferred`; a
+      // context-absent deferral surfaces as `evaluator: 'consumer'`,
+      // matching ORD-3 `context_absent` entries (v8.5.0 widening; see
+      // UnverifiedObligationEntry.evaluator).
       obligations.push({
         rule_id: 'SOA-6',
         rule: 'The child scope is within its parent scope (evaluateScopeInheritance(child, parent).within_parent).',
@@ -2095,6 +2110,16 @@ function validateImpl<T extends TSchema>(
           valid: false,
           errors: parentResult.errors.map((e) => `SOA-6 parent: ${e}`),
         };
+      }
+      // Inherited obligations: a valid parent may still carry deferred
+      // rules (e.g. its own SOA-6 deferral). Surface them with provenance
+      // so they are not silently dropped. reason and evaluator are kept.
+      for (const entry of parentResult.unverified_obligations?.unverified_rules ?? []) {
+        obligations.push({
+          ...entry,
+          rule_id: `SOA-6 parent:${entry.rule_id}`,
+          evaluation_note: `Inherited from the supplied parent scope: ${entry.evaluation_note}`,
+        });
       }
       const inheritance = evaluateScopeInheritance(
         data as ScopeOfAutonomy,

@@ -52,7 +52,22 @@ describe('SOA-6 non-recursion guard', () => {
     const r = validate(ScopeOfAutonomySchema, GRANDCHILD, { now: NOW, scopeContext: { parent_scope: CHILD } });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(GRANDCHILD, CHILD);
-    // The parent's own deferred SOA-6 (CHILD → ROOT) does not leak in.
+    // The parent's own deferred SOA-6 (CHILD → ROOT) is inherited with
+    // provenance, not dropped and not evaluated.
+    expect(r.valid).toBe(true);
+    expect(r.unverified_obligations?.unverified_rules).toEqual([
+      expect.objectContaining({
+        rule_id: 'SOA-6 parent:SOA-6',
+        evaluator: 'consumer',
+        reason: 'scope_parent_context_deferred',
+        evaluation_note: expect.stringMatching(/^Inherited from the supplied parent scope: parent_scope_id is set/),
+        consumer_acknowledgment_required: true,
+      }),
+    ]);
+  });
+
+  it('a root parent carries no obligations, so nothing is inherited', () => {
+    const r = validate(ScopeOfAutonomySchema, CHILD, { now: NOW, scopeContext: { parent_scope: ROOT } });
     expect(r).toEqual({ valid: true });
   });
 
@@ -70,7 +85,10 @@ describe('SOA-6 non-recursion guard', () => {
     const r = validate(ScopeOfAutonomySchema, child, { scopeContext: { parent_scope: CHILD } });
     expect(spy).toHaveBeenCalledTimes(1);
     expect(r.valid).toBe(false);
-    expect(r.unverified_obligations?.unverified_rules.map((e) => e.reason)).toEqual(['scope_inheritance_violation']);
+    expect(r.unverified_obligations?.unverified_rules.map((e) => [e.rule_id, e.reason])).toEqual([
+      ['SOA-6 parent:SOA-6', 'scope_parent_context_deferred'],
+      ['SOA-6', 'scope_inheritance_violation'],
+    ]);
   });
 
   it('suppression does not leak after a nested parent validation throws', () => {
@@ -119,8 +137,10 @@ describe('SOA-6 suppression is call-scoped', () => {
     try {
       const outer = validate(ScopeOfAutonomySchema, GRANDCHILD, { now: NOW, scopeContext: { parent_scope: CHILD } });
       expect(armed).toBe(false);
-      // Outer: one link evaluated (GRANDCHILD → CHILD), within parent.
-      expect(outer).toEqual({ valid: true });
+      // Outer: one link evaluated (GRANDCHILD → CHILD), within parent; the
+      // parent's own deferral is inherited.
+      expect(outer.valid).toBe(true);
+      expect(outer.unverified_obligations?.unverified_rules.map((e) => e.rule_id)).toEqual(['SOA-6 parent:SOA-6']);
       // Inner deferred call still emits its own SOA-6 deferral.
       expect(inner.deferred?.unverified_obligations?.unverified_rules.map((e) => e.reason)).toEqual([
         'scope_parent_context_deferred',
@@ -171,7 +191,10 @@ describe('SOA-6 verdict on violation', () => {
       'SOA-6: SUB_GOAL_NOT_IN_PARENT',
       'SOA-6: EXPIRES_AFTER_PARENT',
     ]);
-    const entries = r.unverified_obligations?.unverified_rules ?? [];
+    const all = r.unverified_obligations?.unverified_rules ?? [];
+    // The parent (CHILD) contributes its own inherited deferral first.
+    expect(all[0]?.rule_id).toBe('SOA-6 parent:SOA-6');
+    const entries = all.filter((e) => e.rule_id === 'SOA-6');
     expect(entries).toHaveLength(r.errors.length);
     for (const e of entries) {
       expect(e).toMatchObject({ rule_id: 'SOA-6', evaluator: 'library', reason: 'scope_inheritance_violation' });

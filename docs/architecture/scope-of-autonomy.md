@@ -98,9 +98,13 @@ For a scope that carries `parent_scope_id`:
 | Call | Outcome |
 |------|---------|
 | `validate(S, child)` | `valid: true` with a SOA-6 manifest entry, `evaluator: 'consumer'`, `reason: 'scope_parent_context_deferred'`. |
-| `validate(S, child, { scopeContext: { parent_scope } })`, child within parent | `valid: true`, no SOA-6 entry. |
+| `validate(S, child, { scopeContext: { parent_scope } })`, child within parent | `valid: true`, no SOA-6 entry for this link. Obligations the parent itself carries are inherited (see below). |
 | Same, child outside parent | `valid: false`, one `SOA-6: <CODE> at <field>: …` error per violation. The errors are the verdict. Manifest entries with `evaluator: 'library'` and `reason: 'scope_inheritance_violation'` are the transparency record. |
 | Same, `parent_scope` not a valid ScopeOfAutonomy | `valid: false`, and each of the parent's own diagnostics is returned prefixed `SOA-6 parent: `. |
+
+Obligations a valid parent carries are not dropped. A parent that has its own `parent_scope_id` carries a SOA-6 deferral, for example. These entries are merged into the child's result with provenance. `rule_id` is prefixed `SOA-6 parent:` (so `SOA-6 parent:SOA-6`), and `evaluation_note` is prefixed "Inherited from the supplied parent scope: ". `reason` and `evaluator` are kept. SOA-6 still checks one link only; the parent's own parent is never resolved.
+
+The SOA-6 constraint row is `runtime-deferred`. Its context-absent deferral surfaces with `evaluator: 'consumer'`, matching ORD-3 `context_absent` entries (the v8.5.0 evaluator widening).
 
 SOA-6 is a cross-field rule. With `{ crossField: false }` it is skipped entirely, like SOA-1..5: the parent is not validated and no SOA-6 entry or error is produced. The deferral entry accompanies otherwise-valid records only (ADR-010): a scope that fails the structural tier or SOA-1..5 gets its errors and no manifest. A root scope carries no SOA-6 obligation. The consumer resolves the parent
 from its own store; the library never looks it up.

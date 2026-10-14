@@ -237,9 +237,17 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      *
      * Parent option profile: with cross-field validation enabled (the
      * default), the supplied parent is validated with the caller's options
-     * minus `scopeContext`. SOA-6 checks one link only. The parent's own
-     * `parent_scope_id` is not followed and emits nothing, so consumers
-     * validate a scope chain one link at a time.
+     * minus `scopeContext`. SOA-6 checks one link only, and the parent's own
+     * `parent_scope_id` is not followed, so consumers validate a scope chain
+     * one link at a time. Obligations the valid parent itself carries are
+     * not dropped. They are merged into this result with provenance:
+     * `rule_id` is prefixed `SOA-6 parent:` (for example
+     * `SOA-6 parent:SOA-6`), `evaluation_note` is prefixed "Inherited from
+     * the supplied parent scope: ", and `reason` and `evaluator` are kept.
+     *
+     * Evaluator label: the SOA-6 constraint row is `runtime-deferred`. The
+     * context-absent deferral entry carries `evaluator: 'consumer'`,
+     * matching ORD-3 `context_absent` entries (v8.5.0 widening).
      *
      * Manifest discipline (ADR-010, validation-result-vs-manifest): the
      * deferral entry accompanies otherwise-valid records only. If the record
