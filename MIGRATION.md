@@ -95,6 +95,7 @@ the same bar.
 | `ManifestConsumptionReceipt` | `additionalProperties: false` (receipt and each decision). PR-C4 (SDD §3): the consumer's record of one decision per manifest `rule_id`, each with a human judgement; MCR-1 (`rule_id` distinct) is enforced by a registered cross-field validator. Manifest entries carrying a `reason` now also carry optional `judgement_requested` and `consumer_obligation_level` from the new `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`; consumers that deep-compare whole entries should expect the two extra keys. See docs/conformance/manifest-consumption-level-1.md (MC-1). |
 | `IrreversibleActionAttestation` | `additionalProperties: false` (envelope and every sub-object). Proposer-is-not-executor attestation for an irreversible action (FR-C3). Crypto-bearing: `validate()` returns `CRYPTO_DEFERRED` unless `{ acceptDeferred: true }`. Cross-field IAA-1..3 (distinct actors, distinct signer keys, execution not before proposal). Existing schemas such as `MergeArtifact` and `ForgetRecord` are not changed; see `docs/patterns/proposer-is-not-executor.md` for wrapping them. |
 | `SharedSurfaceDeclaration` | `additionalProperties: false` (declaration and `retention`). Declares owner, writers, readers and single-writer flag for a surface shared between agents (FR-C3). Cross-field SSD-1..4 (owner is a writer, single-writer consistency, distinct lists); SSD-5 locator uniqueness and SSD-6 runtime writer conformance are consumer-side. |
+| `ScopeOfAutonomy` | strict (`additionalProperties: false` at every object level). New governance record of the autonomy a principal grants an agent: sub-goals, side-effect budget, tools, clarification triggers, ending condition, stop-work. SOA-1..5 enforced by `validate()`; SOA-6 inheritance via `evaluateScopeInheritance` or `validate(..., { scopeContext: { parent_scope } })`. Adds manifest reasons `scope_parent_context_deferred` and `scope_inheritance_violation`, and conformance category `scope-inheritance` (FR-C1). |
 
 ### Manifest entry widening (FR-C4)
 
@@ -110,7 +111,6 @@ against a closed schema must allow the two keys. No toggle is provided,
 because the shape is additive. Standalone builtin evaluators (for example
 `evaluatePlanContentHashUnchangedSinceSignoff`) return unannotated entries;
 pass them through `withConsumerObligation` to attach the fields.
-| `ScopeOfAutonomy` | strict (`additionalProperties: false` at every object level). New governance record of the autonomy a principal grants an agent: sub-goals, side-effect budget, tools, clarification triggers, ending condition, stop-work. SOA-1..5 enforced by `validate()`; SOA-6 inheritance via `evaluateScopeInheritance` or `validate(..., { scopeContext: { parent_scope } })`. Adds manifest reasons `scope_parent_context_deferred` and `scope_inheritance_violation`, and conformance category `scope-inheritance` (FR-C1). |
 
 ### Planned v9.0.0 fail-closed default flip
 

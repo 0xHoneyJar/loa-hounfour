@@ -2135,6 +2135,8 @@ function validateImpl<T extends TSchema>(
             schema_id: manifestSchemaId,
             contract_version: CONTRACT_VERSION,
             manifest_emitted_at: options?.now ?? new Date().toISOString(),
+            // Annotated with the consumer contract row (FR-C4) exactly like
+            // the closing return below; this early return must not bypass it.
             unverified_rules: [
               ...obligations,
               ...inheritance.violations.map((v): UnverifiedObligationEntry => ({
@@ -2145,7 +2147,7 @@ function validateImpl<T extends TSchema>(
                 evaluation_note: `${v.code} at ${v.field}: ${v.message}`,
                 consumer_acknowledgment_required: true,
               })),
-            ],
+            ].map((entry) => withConsumerObligation(entry)),
           },
         };
       }

@@ -12,6 +12,7 @@ import { ScopeOfAutonomySchema, type ScopeOfAutonomy } from '../../src/governanc
 import * as root from '../../src/index.js';
 import * as governance from '../../src/governance/index.js';
 import { CONTRACT_VERSION } from '../../src/version.js';
+import { describeConsumerObligation } from '../../src/constraints/unverified-obligations.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VALID = join(__dirname, '..', '..', 'vectors', 'ScopeOfAutonomy', 'v8.8.0', 'valid');
@@ -132,5 +133,39 @@ describe('validate() SOA-6 emission', () => {
     const r = validate(ScopeOfAutonomySchema, PARENT, { scopeContext: { parent_scope: CHILD } });
     // A root scope with a supplied parent is still a root scope: no SOA-6.
     expect(r).toEqual({ valid: true });
+  });
+});
+
+describe('SOA-6 entries carry the consumer contract annotation (FR-C4)', () => {
+  const expectAnnotated = (entry: Record<string, unknown> | undefined, reason: 'scope_parent_context_deferred' | 'scope_inheritance_violation') => {
+    const row = describeConsumerObligation(reason);
+    expect(entry).toMatchObject({
+      reason,
+      judgement_requested: row.judgement_requested,
+      consumer_obligation_level: row.level,
+    });
+  };
+
+  it('the deferral entry is annotated', () => {
+    const r = validate(ScopeOfAutonomySchema, CHILD, { now: NOW });
+    expect(r.unverified_obligations?.unverified_rules).toHaveLength(1);
+    expectAnnotated(r.unverified_obligations?.unverified_rules[0] as unknown as Record<string, unknown>, 'scope_parent_context_deferred');
+  });
+
+  it('violation entries on the valid:false path are annotated', () => {
+    const wide: ScopeOfAutonomy = { ...CHILD, permitted_sub_goals: ['deploy to production'] };
+    const r = validate(ScopeOfAutonomySchema, wide, { now: NOW, scopeContext: { parent_scope: PARENT } });
+    expect(r.valid).toBe(false);
+    const entries = r.unverified_obligations?.unverified_rules ?? [];
+    expect(entries.length).toBeGreaterThan(0);
+    for (const e of entries) expectAnnotated(e as unknown as Record<string, unknown>, 'scope_inheritance_violation');
+  });
+
+  it('an inherited parent deferral is annotated', () => {
+    const grandchild: ScopeOfAutonomy = { ...CHILD, scope_id: 'c4d5e6f7-a8b9-4c0d-8e1f-a2b3c4d5e604', parent_scope_id: CHILD.scope_id };
+    const r = validate(ScopeOfAutonomySchema, grandchild, { now: NOW, scopeContext: { parent_scope: CHILD } });
+    expect(r.valid).toBe(true);
+    const inherited = r.unverified_obligations?.unverified_rules.find((e) => e.rule_id === 'SOA-6 parent:SOA-6');
+    expectAnnotated(inherited as unknown as Record<string, unknown>, 'scope_parent_context_deferred');
   });
 });
