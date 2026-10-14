@@ -154,6 +154,22 @@ describe('validateAgentIdentityBinding — branches', () => {
     expect(r.errors!.some((e) => e.startsWith('/directory'))).toBe(true);
   });
 
+  for (const [label, value] of [['string', 'x'], ['array', []], ['number', 42]] as const) {
+    it(`rejects a present ${label} block on the direct-call path`, () => {
+      const r = validateAgentIdentityBinding({ ...binding('a2a-agent-card', []), a2a: value });
+      expect(r.valid).toBe(false);
+      expect(r.errors).toEqual([
+        `AIB: structural shape precondition failed — a2a block must be an object when present; got ${label}. The cross-field validator requires the structural tier (Value.Check) to have passed first.`,
+      ]);
+    });
+
+    it(`rejects a forbidden ${label} block on the direct-call path`, () => {
+      const r = validateAgentIdentityBinding({ ...binding('a2a-agent-card', ['a2a']), vc: value });
+      expect(r.valid).toBe(false);
+      expect(r.errors[0]).toMatch(/^AIB: structural shape precondition failed — vc block must be an object/);
+    });
+  }
+
   it('runs inside validate()', () => {
     const r = validate(AgentIdentityBindingSchema, binding('a2a-agent-card', ['a2a', 'vc']));
     expect(r.valid).toBe(false);
@@ -211,3 +227,23 @@ describe('validateAgentIdentityBinding — properties', () => {
     );
   });
 });
+
+describe('card_url host looseness (documented, pinned)', () => {
+  const rec = (url: string) => ({
+    ...binding('a2a-agent-card', []),
+    a2a: { card_url: url },
+  });
+
+  it('admits a host label ending in "-" (http://x-/); label rules are the consumer\'s', () => {
+    expect(validate(AgentIdentityBindingSchema, rec('http://x-/')).valid).toBe(true);
+  });
+
+  it('documents the looseness in the card_url description', () => {
+    const a2a = (AgentIdentityBindingSchema.properties.a2a as unknown as {
+      properties: { card_url: { description: string } };
+    }).properties.card_url;
+    expect(a2a.description).toContain('http://x-/');
+    expect(a2a.description).toContain('scheme and a non-empty host only');
+  });
+});
+

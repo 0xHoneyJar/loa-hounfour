@@ -53,7 +53,7 @@
           "format": "uri",
           "pattern": "^https?://[^\\s/?#]*[^\\s/?#.-][^\\s/?#]*(?:[/?#][^\\s]*)?$",
           "maxLength": 2048,
-          "description": "URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than \".\" and \"-\"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The library does not fetch it (AIB-N1).",
+          "description": "URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than \".\" and \"-\"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The pattern checks the scheme and a non-empty host only: hostname label rules and reachability are the consumer's. For example http://x-/ (a label ending in \"-\") is admitted by the pattern and by format uri as the library and the reference runners apply it. The library does not fetch it (AIB-N1).",
           "type": "string"
         },
         "card_hash": {

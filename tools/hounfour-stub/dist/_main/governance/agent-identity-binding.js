@@ -132,7 +132,7 @@ const A2aAgentCardBlock = Type.Object({
         format: 'uri',
         pattern: '^https?://[^\\s/?#]*[^\\s/?#.-][^\\s/?#]*(?:[/?#][^\\s]*)?$',
         maxLength: 2048,
-        description: 'URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than "." and "-"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The library does not fetch it (AIB-N1).',
+        description: 'URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than "." and "-"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The pattern checks the scheme and a non-empty host only: hostname label rules and reachability are the consumer\'s. For example http://x-/ (a label ending in "-") is admitted by the pattern and by format uri as the library and the reference runners apply it. The library does not fetch it (AIB-N1).',
     }),
     card_hash: Type.Optional(Type.String({
         pattern: SHA256_HEX_PATTERN,
@@ -241,7 +241,10 @@ export const AgentIdentityBindingSchema = Type.Object({
  * block that is `undefined` or `null` counts as absent. The structural
  * tier never lets a `null` block through, because the blocks are optional
  * objects and not nullable, so this matters only for direct calls that
- * skip the structural tier.
+ * skip the structural tier. On that direct-call path, a block that is
+ * present (not `null` and not `undefined`) MUST be a plain object; a
+ * string, number, boolean or array block fails the structural shape
+ * precondition before AIB-1..3 are evaluated.
  *
  * @since v8.8.0 (PR-C5)
  */
@@ -270,6 +273,16 @@ export function validateAgentIdentityBinding(data) {
     const p = profile;
     const ruleId = PROFILE_RULE_ID[p];
     const required = AGENT_IDENTITY_BINDING_PROFILE_BLOCK[p];
+    const shapeErrors = [];
+    for (const key of BLOCK_KEYS) {
+        const block = record[key];
+        if (block != null && (typeof block !== 'object' || Array.isArray(block))) {
+            shapeErrors.push(`AIB: structural shape precondition failed — ${key} block must be an object when present; got ${Array.isArray(block) ? 'array' : typeof block}. The cross-field validator requires the structural tier (Value.Check) to have passed first.`);
+        }
+    }
+    if (shapeErrors.length > 0) {
+        return { valid: false, errors: shapeErrors, warnings: [] };
+    }
     const errors = [];
     if (record[required] == null) {
         errors.push(`${ruleId}: profile '${p}' requires the ${required} block, which is absent.`);

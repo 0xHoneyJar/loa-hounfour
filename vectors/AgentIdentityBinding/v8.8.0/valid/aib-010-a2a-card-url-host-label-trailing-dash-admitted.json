@@ -1,0 +1,12 @@
+{
+  "_comment": "A2A profile whose card_url host label ends in \"-\" (http://x-/). The card_url pattern checks scheme and a non-empty host only; hostname label rules and reachability are the consumer's. Pinned so the looseness cannot change silently.",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000010",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "http://x-/"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

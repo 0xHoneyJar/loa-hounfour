@@ -146,7 +146,10 @@ export type AgentIdentityBinding = Static<typeof AgentIdentityBindingSchema>;
  * block that is `undefined` or `null` counts as absent. The structural
  * tier never lets a `null` block through, because the blocks are optional
  * objects and not nullable, so this matters only for direct calls that
- * skip the structural tier.
+ * skip the structural tier. On that direct-call path, a block that is
+ * present (not `null` and not `undefined`) MUST be a plain object; a
+ * string, number, boolean or array block fails the structural shape
+ * precondition before AIB-1..3 are evaluated.
  *
  * @since v8.8.0 (PR-C5)
  */

@@ -29,10 +29,17 @@ signature when it has one. The binding does not copy the card.
 
 | Field | Meaning |
 |-------|---------|
-| `a2a.card_url` | Where the card is published. Required. Must be an `http` or `https` URL whose host has at least one character other than `.` and `-`, because Agent Cards are published over HTTP(S). Other URI schemes such as `did:`, and URLs with whitespace or trailing garbage, are rejected. At most 2048 characters. |
+| `a2a.card_url` | Where the card is published. Required. Must be an `http` or `https` URL whose host has at least one character other than `.` and `-`, because Agent Cards are published over HTTP(S). Other URI schemes such as `did:`, and URLs with whitespace or trailing garbage, are rejected. At most 2048 characters. See the host note below. |
 | `a2a.card_hash` | sha256 of the JCS (RFC 8785) canonical form of the fetched card, written `sha256:` followed by 64 hex characters. The prefix is required. Optional. |
 | `a2a.card_signature_jws` | Compact JWS over the canonical card. Three non-empty segments. Optional. |
 | `a2a.protocol_version` | A2A protocol version the card declares, `MAJOR.MINOR` or `MAJOR.MINOR.PATCH`. Optional. |
+
+**Host note.** The `card_url` pattern checks the scheme and that the host
+is non-empty. It does not apply hostname label rules and does not check
+reachability; both are the consumer's. For example, `http://x-/` has a
+label ending in `-`. Both the pattern and `format: uri` admit it, as the
+library and the TypeScript, Python, Go and Rust reference runners apply
+them. A consumer that needs strict hostnames checks them itself.
 
 When `profile` is `a2a-agent-card`, the `a2a` block must be present and the
 `directory` and `vc` blocks must be absent (AIB-1).
