@@ -142,6 +142,12 @@ export type AgentIdentityBinding = Static<typeof AgentIdentityBindingSchema>;
  * Pure function; runs after the structural tier. Returns one error per
  * violated sub-rule so a record that is wrong in two ways reports both.
  *
+ * Presence semantics match the AIB-1..3 DSL expressions (`!= null`): a
+ * block that is `undefined` or `null` counts as absent. The structural
+ * tier never lets a `null` block through, because the blocks are optional
+ * objects and not nullable, so this matters only for direct calls that
+ * skip the structural tier.
+ *
  * @since v8.8.0 (PR-C5)
  */
 export declare function validateAgentIdentityBinding(data: unknown): {

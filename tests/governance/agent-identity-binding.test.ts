@@ -131,6 +131,29 @@ describe('validateAgentIdentityBinding — branches', () => {
     });
   }
 
+  it('treats a null block as absent, matching the DSL (direct call)', () => {
+    const rec = { ...binding('a2a-agent-card', ['a2a']), directory: null, vc: null };
+    expect(validateAgentIdentityBinding(rec)).toEqual({ valid: true, errors: [], warnings: [] });
+    const exprs = constraintFile.constraints.filter((c) => ['AIB-1', 'AIB-2', 'AIB-3'].includes(c.id));
+    expect(exprs.every((c) => evaluateConstraint(rec, c.expression))).toBe(true);
+  });
+
+  it('reports a null required block as missing (direct call)', () => {
+    const rec = { ...binding('directory-identity', []), directory: null };
+    expect(validateAgentIdentityBinding(rec).errors).toEqual([
+      "AIB-2: profile 'directory-identity' requires the directory block, which is absent.",
+    ]);
+    const aib2 = constraintFile.constraints.find((c) => c.id === 'AIB-2')!;
+    expect(evaluateConstraint(rec, aib2.expression)).toBe(false);
+  });
+
+  it('rejects a null block at the structural tier in validate()', () => {
+    const rec = { ...binding('a2a-agent-card', ['a2a']), directory: null };
+    const r = validate(AgentIdentityBindingSchema, rec);
+    expect(r.valid).toBe(false);
+    expect(r.errors!.some((e) => e.startsWith('/directory'))).toBe(true);
+  });
+
   it('runs inside validate()', () => {
     const r = validate(AgentIdentityBindingSchema, binding('a2a-agent-card', ['a2a', 'vc']));
     expect(r.valid).toBe(false);

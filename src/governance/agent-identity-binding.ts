@@ -287,6 +287,12 @@ export type AgentIdentityBinding = Static<typeof AgentIdentityBindingSchema>;
  * Pure function; runs after the structural tier. Returns one error per
  * violated sub-rule so a record that is wrong in two ways reports both.
  *
+ * Presence semantics match the AIB-1..3 DSL expressions (`!= null`): a
+ * block that is `undefined` or `null` counts as absent. The structural
+ * tier never lets a `null` block through, because the blocks are optional
+ * objects and not nullable, so this matters only for direct calls that
+ * skip the structural tier.
+ *
  * @since v8.8.0 (PR-C5)
  */
 export function validateAgentIdentityBinding(data: unknown): {
@@ -321,11 +327,11 @@ export function validateAgentIdentityBinding(data: unknown): {
   const ruleId = PROFILE_RULE_ID[p];
   const required = AGENT_IDENTITY_BINDING_PROFILE_BLOCK[p];
   const errors: string[] = [];
-  if (record[required] === undefined) {
+  if (record[required] == null) {
     errors.push(`${ruleId}: profile '${p}' requires the ${required} block, which is absent.`);
   }
   for (const key of BLOCK_KEYS) {
-    if (key !== required && record[key] !== undefined) {
+    if (key !== required && record[key] != null) {
       errors.push(`${ruleId}: profile '${p}' forbids the ${key} block, which is present.`);
     }
   }
