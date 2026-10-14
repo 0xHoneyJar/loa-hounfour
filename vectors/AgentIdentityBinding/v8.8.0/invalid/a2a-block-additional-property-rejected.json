@@ -1,0 +1,17 @@
+{
+  "_comment": "Structural: the a2a block is closed (additionalProperties false).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000002",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "https://agents.example.com/.well-known/agent-card.json",
+    "card_hash": "sha256:3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f3f",
+    "card_signature_jws": "eyJhbGciOiJFZERTQSIsImtpZCI6ImNhcmQta2V5LTEifQ.eyJuYW1lIjoicmVzZWFyY2gtYWdlbnQifQ.c2lnbmF0dXJlLWJ5dGVzLWJhc2U2NHVybA",
+    "protocol_version": "1.0",
+    "skills": []
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "signature": "ed25519:A1b2C3d4E5f6G7h8I9j0A1b2C3d4E5f6G7h8I9j0A1b2C3d4E5f6G7h8I9j0A1b2C3d4E5f6G7h8I9j0A1b2C3",
+  "contract_version": "8.8.0"
+}

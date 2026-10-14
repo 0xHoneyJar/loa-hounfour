@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T04:59:50.624Z",
+  "generated_at": "2026-10-14T05:22:15.708Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
-    "schemas": 266,
-    "vectors": 1364,
-    "constraints": 144,
+    "schemas": 267,
+    "vectors": 1404,
+    "constraints": 145,
     "manifests": 2,
-    "total": 1776
+    "total": 1818
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -37,6 +37,11 @@
         "path": "schemas/agent-estate.schema.json",
         "sha256": "53f36dc11f675af59d6e2fc9b3bd267ffc213292f555d567944c2153e71b0799",
         "size_bytes": 2906
+      },
+      {
+        "path": "schemas/agent-identity-binding.schema.json",
+        "sha256": "a7c9578816ce835b8028f9c6bbb5d78277294f070878805f9f5658a7edb35904",
+        "size_bytes": 7716
       },
       {
         "path": "schemas/agent-identity.schema.json",
@@ -1429,6 +1434,206 @@
         "path": "vectors/AgentEstateStatus/valid/transferring-literal.json",
         "sha256": "1490f16699b95e713ce29222022579056e6fc7da3f2752344a297bc4b73431f1",
         "size_bytes": 15
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib1-a2a-profile-with-directory-block-rejected.json",
+        "sha256": "d751e2337acf59c75c873912f0bad81545021daf99fe2ed27a65e41c8e418f2a",
+        "size_bytes": 626
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib1-a2a-profile-with-two-blocks-rejected.json",
+        "sha256": "473fd4cd709fbab0811378007138f1b8decd4713aba2ffba0938705a1050f8f0",
+        "size_bytes": 724
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib2-directory-profile-missing-block-rejected.json",
+        "sha256": "37c68e62431e39c0821385ab78c3bcc21d8acb033d1681daa8085d1883d3bdf4",
+        "size_bytes": 428
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib2-directory-profile-with-vc-block-rejected.json",
+        "sha256": "fa4ed872372747dd5d0a2f257785938fd42329fcccb697eade5bc27f532381d6",
+        "size_bytes": 637
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib3-vc-profile-with-a2a-block-rejected.json",
+        "sha256": "681d7f6f1540c4dc0224369c3c2b1a34d5eabba75091ecf04846654218a0b22c",
+        "size_bytes": 526
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid-cross-field/aib3-vc-profile-with-all-three-blocks-rejected.json",
+        "sha256": "9aa82523f28a9e3796b5e11d65f1fc2fcf86dd9058215178cdf505ffcbc6e3c3",
+        "size_bytes": 906
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/a2a-block-additional-property-rejected.json",
+        "sha256": "984477481018e1304430811bc0bfa69fcfdda0218ae44deb333e825cc3906364",
+        "size_bytes": 803
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/a2a-block-missing-card-url-rejected.json",
+        "sha256": "726ce17634bcf8c43a9c32cfa8ced895cdb0b03b274f8ec21807264b10655bef",
+        "size_bytes": 704
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/accountable-role-empty-rejected.json",
+        "sha256": "9675cce9675b50695678989101a13bc9e64570cee569ed20a9eac5bc0e982fe5",
+        "size_bytes": 484
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/additional-property-on-envelope-rejected.json",
+        "sha256": "52b8323aed330a2805a6488a5ba669485d9f9ba2c516ee980f3551e5dae52bb3",
+        "size_bytes": 551
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/agent-id-empty-rejected.json",
+        "sha256": "5b74fb4da08b372dcd7e208fbfb98490d4846b4aaffa3c0c59774a3886932d5e",
+        "size_bytes": 476
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/bad-card-url-rejected.json",
+        "sha256": "d92efd504999172a84e170d2f26a0453c95ecc9361741741568314d959a4f311",
+        "size_bytes": 714
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/bound-at-missing-rejected.json",
+        "sha256": "67d7218f9276dff13ef61ca31ac0f348f6d28ebe162bf2bc5803a714bf36c349",
+        "size_bytes": 446
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/bound-by-signer-id-empty-rejected.json",
+        "sha256": "1d9ddda38fc085c420d6f886d4ff2067f093225daf87547cfbe26079938dd759",
+        "size_bytes": 488
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-hash-malformed-rejected.json",
+        "sha256": "56f89e4b605a78bd9461c7f23f13c817764af3e17474481a0cc3b0659800ac43",
+        "size_bytes": 769
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-signature-jws-detached-payload-rejected.json",
+        "sha256": "99324104275d36425ceeaf1fab81729eb00003cdf0c6fcb4f5ef071b3ab170fd",
+        "size_bytes": 719
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-signature-jws-two-segments-rejected.json",
+        "sha256": "7377f267565651d177d06e774ff2e4b50b7b257d7eaa9e131e628c5a26ccec00",
+        "size_bytes": 707
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-url-did-scheme-rejected.json",
+        "sha256": "2078e62a4b7e3df6f4f4f5764b3cb73b089440a02544d1982f15cf19747799e5",
+        "size_bytes": 474
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-url-dot-host-rejected.json",
+        "sha256": "c7ddc411766111b8c44732fdcfd3217a0fbecad4c7788ca2175e54682c817ea8",
+        "size_bytes": 389
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-url-too-long-rejected.json",
+        "sha256": "85dc52d1f7dba3168405b3dee020fdc9586cdc3afda75ef00c5ffd28184144c2",
+        "size_bytes": 2766
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/card-url-trailing-garbage-rejected.json",
+        "sha256": "da645f900cc0f1e9a36c00f15f905aa06c6827721d863c5c809c4e2b9a752f6d",
+        "size_bytes": 453
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/contract-version-malformed-rejected.json",
+        "sha256": "db73eccedea5a851383b3c2b890dd5c81fec539cecbdb4b5e9a744451387a6fc",
+        "size_bytes": 504
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/directory-block-null-rejected.json",
+        "sha256": "01fc18461982462fd497332aca6b4d412b02db200c3c429a78d54e32a6bdfb68",
+        "size_bytes": 567
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/directory-kind-unknown-rejected.json",
+        "sha256": "8ff473c3b56aec6a89df34d05b78846674cb29531d1284f9264f42e71e6374d8",
+        "size_bytes": 522
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/lifecycle-state-unknown-rejected.json",
+        "sha256": "dd4021d176e99a70758cd010f237c0593b35c83dbcb0b32bbc87b08b7296ef8f",
+        "size_bytes": 513
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/profile-unknown-rejected.json",
+        "sha256": "d4d31dd084f563b401c88363695b4bfa5fbe17592ce7023f9f0a199ed805f2d6",
+        "size_bytes": 778
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/protocol-version-malformed-rejected.json",
+        "sha256": "861379b63707e54e6911397b7ed42c2e792eb7e7bf132eea46f38b832dc9708b",
+        "size_bytes": 793
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/signature-malformed-rejected.json",
+        "sha256": "18fde7ec043ef19bb70672115e372a32c300a774e40b573cb35054123f50b8fa",
+        "size_bytes": 702
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/vc-credential-hash-missing-rejected.json",
+        "sha256": "7e5f9d00aea1c21593e0ca1fa9ca4acf1dd6a71d67caace215c3a0ae582605b5",
+        "size_bytes": 409
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/invalid/vc-expires-at-malformed-rejected.json",
+        "sha256": "ca87aeaaec6dbdf66ffc63bd89bfcd153ef2830699e0e6a3673b52efd37022f2",
+        "size_bytes": 541
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-001-a2a-card-minimal.json",
+        "sha256": "fcf730eb4f01738e0703ada18d4607de20b056d3616aecf3e305ec4289009bd2",
+        "size_bytes": 393
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-002-a2a-card-full.json",
+        "sha256": "5ba7754afc98bd44b00e57ac99702381763cde0a6813501a2f3d733abe3919bc",
+        "size_bytes": 828
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-003-directory-identity-active.json",
+        "sha256": "34a98381e438d4e8cc0bfc617f698ec518b203230a8276df5bf5f749def706dc",
+        "size_bytes": 521
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-004-directory-identity-retired-ldap.json",
+        "sha256": "afc55d1676fbc6e48a806e78bfe0d1639c8e468dd0f6545ef0e4f7148d210c0b",
+        "size_bytes": 562
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-005-directory-identity-suspended-other.json",
+        "sha256": "2f69d3d423167c26d0c41dc16c5c150137da47013ee923423bcdc964198d83d7",
+        "size_bytes": 516
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-006-verifiable-credential-minimal.json",
+        "sha256": "2eb73b2d8721523a30329c6af1a0bb233330cef327ac9176e6657a1a01923339",
+        "size_bytes": 509
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-007-verifiable-credential-full.json",
+        "sha256": "5ca6fe96c744456bf9071a96429b01bb8a3ddb6e64607bf64824a814407fd320",
+        "size_bytes": 729
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-008-a2a-card-three-part-protocol-version.json",
+        "sha256": "f36e8bbfc9e832fd0b6ffaeba6cc7ee2313518b3b4621dce6fb4815e468c2f36",
+        "size_bytes": 425
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-009-a2a-card-url-https-accepted.json",
+        "sha256": "0dc8fae1826902a0bb8b783a0d32989b3f649fe3312ad600183c409049bb9b39",
+        "size_bytes": 458
+      },
+      {
+        "path": "vectors/AgentIdentityBinding/v8.8.0/valid/aib-010-a2a-card-url-host-label-trailing-dash-admitted.json",
+        "sha256": "df8affeba889c36d8d2cb7521fb0891c72d21e3c5d1ec332ee4525646f117bf2",
+        "size_bytes": 527
       },
       {
         "path": "vectors/Assertion/invalid/admitted-empty-signatures.json",
@@ -8193,6 +8398,11 @@
         "size_bytes": 2165
       },
       {
+        "path": "constraints/AgentIdentityBinding.constraints.json",
+        "sha256": "80d80031a7ff42191673091bc347bd11e103dd56a5cfc524a39acad0a02029ad",
+        "size_bytes": 5258
+      },
+      {
         "path": "constraints/Assertion.constraints.json",
         "sha256": "3abd597b96a886009225e44da0b2f04ecd570d7cd1c306503fb3b99fe5d0e91f",
         "size_bytes": 4083
@@ -8891,8 +9101,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "af658633347b355a3ce72c3c295a1229c437bd1baf2d24de0caed09c836fcc9b",
-        "size_bytes": 89087
+        "sha256": "72969b7a646b5936d8229a6937aba72eb449f83655bab67dd016408d1832007b",
+        "size_bytes": 89957
       },
       {
         "path": "schemas/schemastore-catalog.json",

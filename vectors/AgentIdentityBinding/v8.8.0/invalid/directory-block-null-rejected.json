@@ -1,0 +1,13 @@
+{
+  "_comment": "Structural: profile blocks are optional objects, not nullable. A null directory block is rejected by the structural tier, even though the cross-field validator and the AIB-1..3 DSL would treat null as absent.",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000001",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "https://agents.example.com/.well-known/agent-card.json"
+  },
+  "directory": null,
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

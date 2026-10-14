@@ -1,0 +1,12 @@
+{
+  "_comment": "Structural: a2a.card_url is a valid RFC 3986 URI but not an HTTP(S) URL. The card_url pattern requires http or https because Agent Cards are published over HTTP(S).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000001",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "did:web:agents.example.com"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

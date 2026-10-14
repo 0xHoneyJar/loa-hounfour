@@ -1,0 +1,12 @@
+{
+  "_comment": "AIB-3: profile verifiable-credential carries only an a2a block (profile/block mismatch). Passes the structural tier; rejected by validate() via the registered cross-field validator.",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
+  "agent_id": "research-agent",
+  "profile": "verifiable-credential",
+  "a2a": {
+    "card_url": "https://agents.example.com/.well-known/agent-card.json"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

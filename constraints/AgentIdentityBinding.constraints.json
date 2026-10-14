@@ -1,0 +1,81 @@
+{
+  "$schema": "https://loa-hounfour.dev/schemas/constraint-file.json",
+  "schema_id": "AgentIdentityBinding",
+  "origin": "genesis",
+  "contract_version": "8.8.0",
+  "expression_version": "1.0",
+  "constraints": [
+    {
+      "id": "AIB-1",
+      "expression": "profile != 'a2a-agent-card' || (a2a != null && directory == null && vc == null)",
+      "severity": "error",
+      "message": "profile 'a2a-agent-card' requires the a2a block and forbids the directory and vc blocks.",
+      "fields": ["profile", "a2a", "directory", "vc"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-1 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule. The JSON Schema alone does not enforce it.",
+      "type_signature": {
+        "profile": "string",
+        "a2a": "object",
+        "directory": "object",
+        "vc": "object"
+      }
+    },
+    {
+      "id": "AIB-2",
+      "expression": "profile != 'directory-identity' || (directory != null && a2a == null && vc == null)",
+      "severity": "error",
+      "message": "profile 'directory-identity' requires the directory block and forbids the a2a and vc blocks.",
+      "fields": ["profile", "a2a", "directory", "vc"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-2 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule. The JSON Schema alone does not enforce it.",
+      "type_signature": {
+        "profile": "string",
+        "a2a": "object",
+        "directory": "object",
+        "vc": "object"
+      }
+    },
+    {
+      "id": "AIB-3",
+      "expression": "profile != 'verifiable-credential' || (vc != null && a2a == null && directory == null)",
+      "severity": "error",
+      "message": "profile 'verifiable-credential' requires the vc block and forbids the a2a and directory blocks.",
+      "fields": ["profile", "a2a", "directory", "vc"],
+      "evaluator": "library",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-3 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule. The JSON Schema alone does not enforce it.",
+      "type_signature": {
+        "profile": "string",
+        "a2a": "object",
+        "directory": "object",
+        "vc": "object"
+      }
+    },
+    {
+      "id": "AIB-4",
+      "expression": "consumer verifies the ed25519 signature by bound_by_signer_id over the JCS-canonical binding with the signature field omitted when signature is present, and verifies a2a.card_signature_jws over the JCS-canonical Agent Card when present",
+      "severity": "warning",
+      "message": "AgentIdentityBinding carries signatures but the library does NOT verify them. Consumers verify both signature and a2a.card_signature_jws before treating the binding as authoritative.",
+      "fields": ["signature", "bound_by_signer_id", "a2a"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Crypto verification is consumer-side per ADR-010; obligation reason: crypto_deferred. The expression is a consumer obligation statement, not DSL: per the repository convention for runtime-deferred rules (ForgetRecord FR-2, RevocationList RL-2..RL-4), the evaluator never parses it and the unverified-obligations manifest carries it verbatim as the rule text. The schema is deliberately NOT marked x-crypto-bearing because signature is optional and the flag cannot be conditional on field presence, so validate() does not require acceptDeferred for this schema. Consumers MUST treat a present signature or card_signature_jws as unverified until their own verifier has checked it against the key referenced by bound_by_signer_id (for signature) or the key material published for the card (for card_signature_jws). The library also does not fetch card_url or recompute card_hash (AIB-N1).",
+      "type_signature": {
+        "signature": "string | undefined",
+        "bound_by_signer_id": "string",
+        "a2a": "object"
+      }
+    },
+    {
+      "id": "AIB-5",
+      "expression": "consumer resolves agent_id to an AgentIdentity and confirms bound_by_signer_id is authorized to bind identities for that agent",
+      "severity": "warning",
+      "message": "agent_id resolution and binder authority are consumer authority. The library checks shape only.",
+      "fields": ["agent_id", "bound_by_signer_id"],
+      "evaluator": "runtime-deferred",
+      "evaluation_note": "Consumer authority per ADR-010. Resolving agent_id requires an agent registry and authorizing bound_by_signer_id requires the consumer's keyring and competence rules; neither is available to a single-record validator. The library does not validate directory.accountable_role against any directory (AIB-N2) and does not enforce one binding per agent across records (AIB-N4).",
+      "type_signature": {
+        "agent_id": "string",
+        "bound_by_signer_id": "string"
+      }
+    }
+  ]
+}

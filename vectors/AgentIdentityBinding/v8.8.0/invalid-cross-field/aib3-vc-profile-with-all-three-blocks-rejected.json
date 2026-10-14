@@ -1,0 +1,24 @@
+{
+  "_comment": "AIB-3: profile verifiable-credential carries all three blocks. Passes the structural tier; rejected by validate() via the registered cross-field validator.",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
+  "agent_id": "research-agent",
+  "profile": "verifiable-credential",
+  "a2a": {
+    "card_url": "https://agents.example.com/.well-known/agent-card.json"
+  },
+  "directory": {
+    "directory_kind": "entra",
+    "tenant_id": "tenant-0001",
+    "object_id": "obj-7f3a",
+    "accountable_role": "Platform Operations Lead",
+    "lifecycle_state": "active"
+  },
+  "vc": {
+    "issuer": "did:web:issuer.example.com",
+    "credential_type": "AgentCapabilityCredential",
+    "credential_hash": "sha256:a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

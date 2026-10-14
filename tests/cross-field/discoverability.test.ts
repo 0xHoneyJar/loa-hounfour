@@ -202,6 +202,8 @@ describe('getCrossFieldValidatorSchemas()', () => {
     'SharedSurfaceDeclaration',
     // v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy (SOA-1..5).
     'ScopeOfAutonomy',
+    // v8.8.0 PR-C5 — FR-C5 AgentIdentityBinding (AIB-1..3).
+    'AgentIdentityBinding',
   ];
 
   it('returns an array of strings', () => {

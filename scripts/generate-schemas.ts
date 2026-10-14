@@ -255,6 +255,8 @@ import { ManifestConsumptionReceiptSchema } from '../src/constraints/manifest-co
 // v8.8.0 cycle-008 PR-C3 — FR-C3 separation of duties
 import { IrreversibleActionAttestationSchema } from '../src/governance/irreversible-action-attestation.js';
 import { SharedSurfaceDeclarationSchema } from '../src/governance/shared-surface-declaration.js';
+// v8.8.0 cycle-008 PR-C5 — FR-C5 AgentIdentityBinding
+import { AgentIdentityBindingSchema } from '../src/governance/agent-identity-binding.js';
 import { PrivacyScopeSchema } from '../src/governance/privacy-scope.js';
 import { RiskLevelSchema } from '../src/governance/risk-level.js';
 import { AssertionStatusSchema } from '../src/governance/assertion-status.js';
@@ -621,6 +623,8 @@ export const SCHEMAS = [
   { name: 'shared-surface-declaration', schema: SharedSurfaceDeclarationSchema },
   // v8.8.0 PR-C1 — FR-C1 ScopeOfAutonomy
   { name: 'scope-of-autonomy', schema: ScopeOfAutonomySchema },
+  // v8.8.0 cycle-008 PR-C5 — FR-C5.
+  { name: 'agent-identity-binding', schema: AgentIdentityBindingSchema },
 ];
 
 // Guard the entry-point execution so `scripts/check-schemas.ts` can

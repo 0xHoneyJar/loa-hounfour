@@ -1,0 +1,16 @@
+{
+  "_comment": "Directory profile: retired object in an LDAP directory. Non-active lifecycle states are valid records (AIB-N5).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000004",
+  "agent_id": "research-agent",
+  "profile": "directory-identity",
+  "directory": {
+    "directory_kind": "ldap",
+    "tenant_id": "tenant-0001",
+    "object_id": "obj-7f3a",
+    "accountable_role": "Platform Operations Lead",
+    "lifecycle_state": "retired"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

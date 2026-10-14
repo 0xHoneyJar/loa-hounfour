@@ -69,6 +69,9 @@ import { validateSharedSurfaceDeclaration } from '../governance/shared-surface-d
 // consumer supplies `scopeContext.parent_scope`.
 import { ScopeOfAutonomySchema, validateScopeOfAutonomy, } from '../governance/scope-of-autonomy.js';
 import { evaluateScopeInheritance } from '../governance/scope-of-autonomy-eval.js';
+// v8.8.0 PR-C5 — FR-C5 AgentIdentityBinding cross-field validator
+// (AIB-1/2/3 profile-block exclusivity; SDD §4).
+import { validateAgentIdentityBinding } from '../governance/agent-identity-binding.js';
 // Register string formats so TypeCompiler validates them at runtime.
 // Strict semantics live in ./formats.js (single source of truth) and are
 // registered UNCONDITIONALLY at module load so host-application import order
@@ -1244,6 +1247,12 @@ registerCrossFieldValidator('SharedSurfaceDeclaration', validateSharedSurfaceDec
 // parent is supplied, else surfaces as a manifest entry; SOA-7 is
 // consumer authority (ADR-010).
 registerCrossFieldValidator('ScopeOfAutonomy', validateScopeOfAutonomy);
+// v8.8.0 PR-C5 — AgentIdentityBinding cross-field validator. Enforces
+// AIB-1/2/3: the block named by `profile` is present and the other two
+// blocks are absent. AIB-4 (signature verification, reason
+// crypto_deferred) and AIB-5 (agent resolution + binder authority) are
+// consumer-side per ADR-010; see constraints/AgentIdentityBinding.constraints.json.
+registerCrossFieldValidator('AgentIdentityBinding', validateAgentIdentityBinding);
 /**
  * Returns schema $ids that have registered cross-field validators.
  * Enables consumers to discover which schemas benefit from cross-field validation.

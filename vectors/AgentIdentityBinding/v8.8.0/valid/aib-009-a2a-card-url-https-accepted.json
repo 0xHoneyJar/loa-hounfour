@@ -1,0 +1,12 @@
+{
+  "_comment": "A2A profile whose card_url is an https URL with a port, path and query. Agent Cards are published over HTTP(S).",
+  "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000009",
+  "agent_id": "research-agent",
+  "profile": "a2a-agent-card",
+  "a2a": {
+    "card_url": "https://agents.example.com:8443/cards/research-agent.json?rev=3"
+  },
+  "bound_at": "2026-10-14T09:30:00Z",
+  "bound_by_signer_id": "signer-ops-1",
+  "contract_version": "8.8.0"
+}

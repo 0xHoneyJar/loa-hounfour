@@ -141,4 +141,6 @@ export { SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateShared
 // Schemas — Scope of autonomy (v8.8.0, FR-C1, PR-C1)
 export { ScopeOfAutonomySchema, DataAccessModeSchema, DataAccessGrantSchema, SideEffectBudgetSchema, EndingConditionKindSchema, EndingConditionSchema, StopWorkSchema, validateScopeOfAutonomy, } from './scope-of-autonomy.js';
 export { evaluateScopeInheritance, evaluateScopeActivity, } from './scope-of-autonomy-eval.js';
+// Schemas — AgentIdentityBinding (v8.8.0, FR-C5, PR-C5)
+export { AgentIdentityBindingSchema, AgentIdentityBindingProfileSchema, AGENT_IDENTITY_BINDING_PROFILES, AGENT_IDENTITY_BINDING_PROFILE_BLOCK, COMPACT_JWS_PATTERN, validateAgentIdentityBinding, } from './agent-identity-binding.js';
 //# sourceMappingURL=index.js.map

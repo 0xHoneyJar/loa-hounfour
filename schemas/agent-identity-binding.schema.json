@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/agent-identity-binding",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Binds an AgentIdentity.agent_id to one external identity surface: an A2A Agent Card, an organizational directory identity, or a verifiable credential. The profile field names exactly one block, which must be present while the other two are absent (AIB-1..3). validate() enforces AIB-1..3 with the registered cross-field validator. The JSON Schema alone does NOT enforce AIB-1..3: TypeBox Value.Check and JSON Schema validators accept profile/block mismatches, so non-TypeScript consumers MUST implement AIB-1..3 from the constraint file. Signatures are carried, not verified, and agent resolution plus binder authority are consumer-side (AIB-4, AIB-5).",
+  "type": "object",
+  "required": [
+    "binding_id",
+    "agent_id",
+    "profile",
+    "bound_at",
+    "bound_by_signer_id",
+    "contract_version"
+  ],
+  "properties": {
+    "binding_id": {
+      "format": "uuid",
+      "description": "Stable opaque identifier for this binding record.",
+      "type": "string"
+    },
+    "agent_id": {
+      "minLength": 1,
+      "description": "AgentIdentity.agent_id this binding attaches an external identity to. Resolution is consumer-side (AIB-5).",
+      "type": "string"
+    },
+    "profile": {
+      "description": "Identity-binding profile. Names exactly one of the a2a / directory / vc blocks, which MUST be present while the other two are absent (AIB-1..3).",
+      "anyOf": [
+        {
+          "const": "a2a-agent-card",
+          "type": "string"
+        },
+        {
+          "const": "directory-identity",
+          "type": "string"
+        },
+        {
+          "const": "verifiable-credential",
+          "type": "string"
+        }
+      ]
+    },
+    "a2a": {
+      "additionalProperties": false,
+      "description": "a2a-agent-card profile block.",
+      "type": "object",
+      "required": [
+        "card_url"
+      ],
+      "properties": {
+        "card_url": {
+          "format": "uri",
+          "pattern": "^https?://[^\\s/?#]*[^\\s/?#.-][^\\s/?#]*(?:[/?#][^\\s]*)?$",
+          "maxLength": 2048,
+          "description": "URL the A2A Agent Card is published at. Agent Cards are published over HTTP(S), so the URL MUST use the http or https scheme and name a host containing at least one character other than \".\" and \"-\"; other URI schemes such as did: or urn: and URLs with whitespace or trailing garbage are rejected by the pattern. The pattern checks the scheme and a non-empty host only: hostname label rules and reachability are the consumer's. For example http://x-/ (a label ending in \"-\") is admitted by the pattern and by format uri as the library and the reference runners apply it. The library does not fetch it (AIB-N1).",
+          "type": "string"
+        },
+        "card_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "sha256 of the JCS (RFC 8785) canonical form of the fetched Agent Card, written as \"sha256:\" followed by 64 hex characters (SHA256_HEX_PATTERN). The \"sha256:\" prefix is required. Consumers recompute and compare.",
+          "type": "string"
+        },
+        "card_signature_jws": {
+          "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+          "description": "Compact JWS over the JCS-canonical Agent Card. Carried, not verified (AIB-4).",
+          "type": "string"
+        },
+        "protocol_version": {
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+          "description": "A2A protocol version the card declares (MAJOR.MINOR or MAJOR.MINOR.PATCH).",
+          "type": "string"
+        }
+      }
+    },
+    "directory": {
+      "additionalProperties": false,
+      "description": "directory-identity profile block.",
+      "type": "object",
+      "required": [
+        "directory_kind",
+        "tenant_id",
+        "object_id",
+        "accountable_role",
+        "lifecycle_state"
+      ],
+      "properties": {
+        "directory_kind": {
+          "description": "Kind of identity directory holding the agent object.",
+          "anyOf": [
+            {
+              "const": "entra",
+              "type": "string"
+            },
+            {
+              "const": "okta",
+              "type": "string"
+            },
+            {
+              "const": "ldap",
+              "type": "string"
+            },
+            {
+              "const": "other",
+              "type": "string"
+            }
+          ]
+        },
+        "tenant_id": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Directory tenant or realm identifier. Opaque to the library.",
+          "type": "string"
+        },
+        "object_id": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Directory object identifier of the agent. Opaque to the library.",
+          "type": "string"
+        },
+        "accountable_role": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The human role accountable for the agent. A role, not a person. Not validated against any directory (AIB-N2).",
+          "type": "string"
+        },
+        "lifecycle_state": {
+          "description": "Directory lifecycle state of the agent object at bound_at (AIB-N5).",
+          "anyOf": [
+            {
+              "const": "active",
+              "type": "string"
+            },
+            {
+              "const": "suspended",
+              "type": "string"
+            },
+            {
+              "const": "retired",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "vc": {
+      "additionalProperties": false,
+      "description": "verifiable-credential profile block.",
+      "type": "object",
+      "required": [
+        "issuer",
+        "credential_type",
+        "credential_hash"
+      ],
+      "properties": {
+        "issuer": {
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Credential issuer identifier (for example a DID or URL). Opaque to the library.",
+          "type": "string"
+        },
+        "credential_type": {
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Credential type name. Opaque to the library.",
+          "type": "string"
+        },
+        "credential_hash": {
+          "pattern": "^sha256:[A-Fa-f0-9]{64}$",
+          "description": "sha256 of the credential bytes as recorded by the binder, written as \"sha256:\" followed by 64 hex characters (SHA256_HEX_PATTERN). The \"sha256:\" prefix is required. Consumers recompute and compare.",
+          "type": "string"
+        },
+        "expires_at": {
+          "format": "date-time",
+          "description": "Credential expiry. Not compared against any clock (AIB-N3).",
+          "type": "string"
+        }
+      }
+    },
+    "bound_at": {
+      "format": "date-time",
+      "description": "When the binding was recorded.",
+      "type": "string"
+    },
+    "bound_by_signer_id": {
+      "minLength": 1,
+      "description": "Signer that recorded the binding. Authority to bind is consumer-side (AIB-5).",
+      "type": "string"
+    },
+    "signature": {
+      "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+      "description": "Optional ed25519 signature by bound_by_signer_id. Carried, not verified (AIB-4).",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Hounfour contract version this binding was authored against.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.8.0, min_supported=6.0.0"
+}

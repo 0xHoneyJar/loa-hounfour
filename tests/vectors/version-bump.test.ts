@@ -330,6 +330,7 @@ describe('version bump', () => {
     // cycle-008 PR-C3 (FR-C3) adds 2: IrreversibleActionAttestation,
     // SharedSurfaceDeclaration → 265.
     // cycle-008 PR-C1 (FR-C1) adds ScopeOfAutonomy → 266.
-    expect(index.schemas).toHaveLength(266);
+    // cycle-008 PR-C5 (FR-C5) adds AgentIdentityBinding → 267.
+    expect(index.schemas).toHaveLength(267);
   });
 });
