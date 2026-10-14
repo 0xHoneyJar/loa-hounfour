@@ -1,6 +1,6 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T03:31:51.179Z",
+  "generated_at": "2026-10-14T03:39:37.201Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {

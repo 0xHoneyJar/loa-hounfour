@@ -320,6 +320,11 @@ export declare function describeConsumerObligation(reason: UnverifiedObligationR
  * Consumers that attach their own entries (for example a `*_CONTEXT_DEFERRED`
  * entry from a validate wrapper) can use it too.
  *
+ * Idempotent: an entry that already carries the contract row's values is
+ * returned as-is (same reference), so annotating twice is byte-identical to
+ * annotating once. Values that differ from the row are replaced by the
+ * row's values; the contract table, not the caller, is authoritative.
+ *
  * @since v8.8.0 (SDD §3, FR-C4)
  */
 export declare function withConsumerObligation(entry: UnverifiedObligationEntry): UnverifiedObligationEntry;

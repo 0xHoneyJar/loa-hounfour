@@ -43,6 +43,18 @@ describe('UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT — completeness', () => {
     expect(UNVERIFIED_OBLIGATION_REASONS).toContain('scope_inheritance_violation');
   });
 
+  it('no two rows share a judgement or an action (copy-paste guard)', () => {
+    const rows = UNVERIFIED_OBLIGATION_REASONS.map((r) => UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT[r]);
+    expect(new Set(rows.map((r) => r.judgement_requested)).size).toBe(rows.length);
+    expect(new Set(rows.map((r) => r.action)).size).toBe(rows.length);
+  });
+
+  it('pattern_matching has its own row, distinct from chain_context_provided', () => {
+    const pm = UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT.pattern_matching;
+    expect(pm.judgement_requested).toBe('Has the pattern-matched obligation been evaluated and satisfied for this record?');
+    expect(pm.judgement_requested).not.toBe(UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT.chain_context_provided.judgement_requested);
+  });
+
   it('UNVERIFIED_OBLIGATION_REASONS is sorted and frozen', () => {
     expect([...UNVERIFIED_OBLIGATION_REASONS]).toEqual([...UNVERIFIED_OBLIGATION_REASONS].sort());
     expect(Object.isFrozen(UNVERIFIED_OBLIGATION_REASONS)).toBe(true);
@@ -153,9 +165,26 @@ describe('withConsumerObligation', () => {
     expect(JSON.stringify(entry)).toBe(snapshot);
   });
 
-  it('is idempotent', () => {
-    const once = withConsumerObligation({ ...base, reason: 'context_absent' });
-    expect(withConsumerObligation(once)).toEqual(once);
+  it('is idempotent: annotating twice is byte-identical to annotating once', () => {
+    for (const reason of UNVERIFIED_OBLIGATION_REASONS) {
+      const once = withConsumerObligation({ ...base, reason });
+      const twice = withConsumerObligation(once);
+      expect(JSON.stringify(twice)).toBe(JSON.stringify(once));
+      expect(twice).toBe(once);
+    }
+  });
+
+  it('replaces stale or forged annotation values with the contract row', () => {
+    const stale = {
+      ...base,
+      reason: 'crypto_deferred' as const,
+      judgement_requested: 'Is it fine?',
+      consumer_obligation_level: 'SHOULD' as const,
+    };
+    const out = withConsumerObligation(stale);
+    expect(out.judgement_requested).toBe(UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT.crypto_deferred.judgement_requested);
+    expect(out.consumer_obligation_level).toBe('MUST');
+    expect(JSON.stringify(withConsumerObligation(out))).toBe(JSON.stringify(out));
   });
 
   it('throws on an unknown reason rather than emitting an entry without judgement', () => {

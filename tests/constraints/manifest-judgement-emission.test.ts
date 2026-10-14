@@ -20,6 +20,7 @@ import { CommitmentRootSchema } from '../../src/governance/commitment-root.js';
 import { SubscriptionPoolStateSchema } from '../../src/canonical/subscription-pool-state.js';
 import {
   UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT,
+  withConsumerObligation,
   type UnverifiedObligationEntry,
 } from '../../src/constraints/unverified-obligations.js';
 import { evaluatePlanContentHashUnchangedSinceSignoff } from '../../src/constraints/builtins/plan-content-hash-unchanged-since-signoff.js';
@@ -70,6 +71,22 @@ describe('validate() — x-chain-bearing ORD-3 entries (FR-A4 fixture matrix)', 
       }
     });
   }
+
+  it('validate() output is a fixed point of the annotation (no double application drift)', () => {
+    const c = JSON.parse(readFileSync(join(dir, 'case-03-default-present-genesis.json'), 'utf8')) as {
+      validate_options: Record<string, unknown>;
+      data: unknown;
+    };
+    const result = validate(OrgRepresentativeDelegationSchema, c.data, { ...c.validate_options, now: NOW });
+    expect(result.valid).toBe(true);
+    if (!result.valid) return;
+    const rules = result.unverified_obligations!.unverified_rules;
+    expect(rules.length).toBeGreaterThan(0);
+    for (const e of rules) {
+      expect(JSON.stringify(withConsumerObligation(e))).toBe(JSON.stringify(e));
+      expect(withConsumerObligation(e)).toBe(e);
+    }
+  });
 
   it('the matrix exercised context_absent, pattern_matching and chain_context_provided', () => {
     expect(seenReasons).toContain('context_absent');

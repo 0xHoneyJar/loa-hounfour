@@ -145,9 +145,11 @@ export type ManifestConsumptionReceipt = Static<typeof ManifestConsumptionReceip
 
 /**
  * Cross-field validator for ManifestConsumptionReceipt. Enforces MCR-1
- * (distinct `decisions[*].rule_id`). Expects the structural tier to have
- * passed; a non-object or non-array `decisions` fails with a precondition
- * error.
+ * (distinct `decisions[*].rule_id`). Safe to call directly, without the
+ * structural tier: a non-object record, a non-array `decisions`, or any
+ * element that is not a plain object with a string `rule_id` returns a
+ * tagged `MCR: structural shape precondition failed` error rather than
+ * passing.
  *
  * @since v8.8.0 (SDD §3, FR-C4)
  */
@@ -170,6 +172,24 @@ export function validateManifestConsumptionReceipt(data: unknown): {
       errors: ['MCR: structural shape precondition failed — decisions must be an array.'],
       warnings: [],
     };
+  }
+  // Direct callers can reach this function without the structural tier, so
+  // malformed elements fail loudly instead of being skipped by the
+  // distinctness helper (which would let them pass MCR-1 vacuously).
+  const shapeErrors: string[] = [];
+  decisions.forEach((d: unknown, i: number) => {
+    if (d === null || typeof d !== 'object' || Array.isArray(d)) {
+      shapeErrors.push(
+        `MCR: structural shape precondition failed — decisions[${i}] must be a non-null object; got ${d === null ? 'null' : Array.isArray(d) ? 'array' : typeof d}.`,
+      );
+    } else if (typeof (d as { rule_id?: unknown }).rule_id !== 'string') {
+      shapeErrors.push(
+        `MCR: structural shape precondition failed — decisions[${i}].rule_id must be a string; got ${typeof (d as { rule_id?: unknown }).rule_id}.`,
+      );
+    }
+  });
+  if (shapeErrors.length > 0) {
+    return { valid: false, errors: shapeErrors, warnings: [] };
   }
   const errors: string[] = [];
   const distinct = arrayFieldDistinct(decisions, 'rule_id');

@@ -1635,8 +1635,10 @@ export function validate(schema, data, options) {
                 // byte-for-byte across runs. Falls through to wall-clock when absent.
                 manifest_emitted_at: options?.now ?? new Date().toISOString(),
                 // v8.8.0 (SDD §3): every reason-bearing entry carries the contract
-                // row's judgement_requested + consumer_obligation_level.
-                unverified_rules: obligations.map(withConsumerObligation),
+                // row's judgement_requested + consumer_obligation_level. This is the
+                // single annotation point in validate(); emission sites above push
+                // unannotated entries, and withConsumerObligation is idempotent.
+                unverified_rules: obligations.map((entry) => withConsumerObligation(entry)),
             },
         };
     }

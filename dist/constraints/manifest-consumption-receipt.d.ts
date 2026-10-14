@@ -97,9 +97,11 @@ export declare const ManifestConsumptionReceiptSchema: import("@sinclair/typebox
 export type ManifestConsumptionReceipt = Static<typeof ManifestConsumptionReceiptSchema>;
 /**
  * Cross-field validator for ManifestConsumptionReceipt. Enforces MCR-1
- * (distinct `decisions[*].rule_id`). Expects the structural tier to have
- * passed; a non-object or non-array `decisions` fails with a precondition
- * error.
+ * (distinct `decisions[*].rule_id`). Safe to call directly, without the
+ * structural tier: a non-object record, a non-array `decisions`, or any
+ * element that is not a plain object with a string `rule_id` returns a
+ * tagged `MCR: structural shape precondition failed` error rather than
+ * passing.
  *
  * @since v8.8.0 (SDD §3, FR-C4)
  */

@@ -107,7 +107,7 @@ export const UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT = Object.freeze({
     ledger_context_deferred: row('MUST', 'Look up plan_content_hash in your persistent signoff ledger and evaluate signoff expiry from the matched ts_emit and recorded TTL.', 'Has the plan hash been matched to an unexpired signoff in the signoff ledger?'),
     nonce_context_deferred: row('MUST', "Check, using your nonce state, that the (signer_id, nonce) pair has not been seen within the signer's window.", "Has the nonce been checked against the signer's recent nonces and found unused?"),
     nonce_replay_detected: row('MUST', 'Reject the record as a replay candidate. The (signer_id, nonce) pair was already observed within the window.', 'Is there an approved reason to accept this record although the same signer already used its nonce?'),
-    pattern_matching: row('MUST', 'Run the delegation-chain check over the supplied chain. validate() received the chain but does not evaluate it. Under v9.0.0 defaults this case reports chain_context_provided instead.', 'Has the supplied delegation chain been checked to be acyclic, rooted at the genesis sentinel, and at most 20 deep?'),
+    pattern_matching: row('MUST', "Evaluate the pattern-matched obligation with your own pattern engine; the library surfaced it without evaluating it. Today validate() emits this reason only for ORD-3 when chain context is supplied, where it means running the delegation-chain check yourself.", 'Has the pattern-matched obligation been evaluated and satisfied for this record?'),
     percentiles_monotonic_violation: row('MUST', 'Reject the histogram. Its percentile values decrease somewhere, which no latency distribution can produce.', 'Is there an approved reason to accept latency percentiles that are not non-decreasing?'),
     scope_inheritance_violation: row('MUST', 'Reject the child scope. It grants more than its parent scope permits; the violation codes name each excess.', 'Is there an approved reason to let this child scope exceed what its parent scope grants?'),
     scope_parent_context_deferred: row('MUST', 'Resolve the parent scope named by parent_scope_id and run the scope-inheritance check against it. Treat the scope as unusable until the check passes.', 'Has this scope been checked against its resolved parent scope and found to stay within it?'),
@@ -152,12 +152,21 @@ export function describeConsumerObligation(reason) {
  * Consumers that attach their own entries (for example a `*_CONTEXT_DEFERRED`
  * entry from a validate wrapper) can use it too.
  *
+ * Idempotent: an entry that already carries the contract row's values is
+ * returned as-is (same reference), so annotating twice is byte-identical to
+ * annotating once. Values that differ from the row are replaced by the
+ * row's values; the contract table, not the caller, is authoritative.
+ *
  * @since v8.8.0 (SDD §3, FR-C4)
  */
 export function withConsumerObligation(entry) {
     if (entry.reason === undefined)
         return entry;
     const obligation = describeConsumerObligation(entry.reason);
+    if (entry.judgement_requested === obligation.judgement_requested
+        && entry.consumer_obligation_level === obligation.level) {
+        return entry;
+    }
     return {
         ...entry,
         judgement_requested: obligation.judgement_requested,

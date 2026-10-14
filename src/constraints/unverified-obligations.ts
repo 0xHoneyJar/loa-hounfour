@@ -429,8 +429,8 @@ export const UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT: Readonly<
   ),
   pattern_matching: row(
     'MUST',
-    'Run the delegation-chain check over the supplied chain. validate() received the chain but does not evaluate it. Under v9.0.0 defaults this case reports chain_context_provided instead.',
-    'Has the supplied delegation chain been checked to be acyclic, rooted at the genesis sentinel, and at most 20 deep?',
+    "Evaluate the pattern-matched obligation with your own pattern engine; the library surfaced it without evaluating it. Today validate() emits this reason only for ORD-3 when chain context is supplied, where it means running the delegation-chain check yourself.",
+    'Has the pattern-matched obligation been evaluated and satisfied for this record?',
   ),
   percentiles_monotonic_violation: row(
     'MUST',
@@ -524,11 +524,22 @@ export function describeConsumerObligation(
  * Consumers that attach their own entries (for example a `*_CONTEXT_DEFERRED`
  * entry from a validate wrapper) can use it too.
  *
+ * Idempotent: an entry that already carries the contract row's values is
+ * returned as-is (same reference), so annotating twice is byte-identical to
+ * annotating once. Values that differ from the row are replaced by the
+ * row's values; the contract table, not the caller, is authoritative.
+ *
  * @since v8.8.0 (SDD §3, FR-C4)
  */
 export function withConsumerObligation(entry: UnverifiedObligationEntry): UnverifiedObligationEntry {
   if (entry.reason === undefined) return entry;
   const obligation = describeConsumerObligation(entry.reason);
+  if (
+    entry.judgement_requested === obligation.judgement_requested
+    && entry.consumer_obligation_level === obligation.level
+  ) {
+    return entry;
+  }
   return {
     ...entry,
     judgement_requested: obligation.judgement_requested,

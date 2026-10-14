@@ -99,8 +99,53 @@ describe('validateManifestConsumptionReceipt', () => {
     expect(r.errors.find((e) => e.includes('"B"'))).toContain('1, 3');
   });
 
-  it('skips non-object decision elements (structural tier rejects them first)', () => {
-    expect(validateManifestConsumptionReceipt({ decisions: [null, 'x', d('A')] }).valid).toBe(true);
+  describe('direct-call structural preconditions (no Value.Check tier)', () => {
+    const PRE = /^MCR: structural shape precondition failed — /;
+
+    it('non-array decisions (missing, object, string, null)', () => {
+      for (const decisions of [undefined, {}, 'A', null]) {
+        const r = validateManifestConsumptionReceipt({ decisions });
+        expect(r.valid).toBe(false);
+        expect(r.errors[0]).toMatch(PRE);
+      }
+    });
+
+    it('element null', () => {
+      const r = validateManifestConsumptionReceipt({ decisions: [d('A'), null] });
+      expect(r.valid).toBe(false);
+      expect(r.errors).toEqual([expect.stringMatching(PRE)]);
+      expect(r.errors[0]).toContain('decisions[1] must be a non-null object; got null');
+    });
+
+    it('element array or primitive', () => {
+      const r = validateManifestConsumptionReceipt({ decisions: [[], 'x', 7] });
+      expect(r.valid).toBe(false);
+      expect(r.errors).toHaveLength(3);
+      expect(r.errors[0]).toContain('got array');
+      expect(r.errors[1]).toContain('got string');
+      expect(r.errors[2]).toContain('got number');
+    });
+
+    it('element missing rule_id', () => {
+      const r = validateManifestConsumptionReceipt({ decisions: [{ decision: 'rejected' }] });
+      expect(r.valid).toBe(false);
+      expect(r.errors[0]).toMatch(PRE);
+      expect(r.errors[0]).toContain('decisions[0].rule_id must be a string; got undefined');
+    });
+
+    it('rule_id non-string', () => {
+      for (const rule_id of [1, null, {}, ['A']]) {
+        const r = validateManifestConsumptionReceipt({ decisions: [{ rule_id }] });
+        expect(r.valid).toBe(false);
+        expect(r.errors[0]).toMatch(PRE);
+      }
+    });
+
+    it('a malformed element cannot let a duplicate pass vacuously', () => {
+      const r = validateManifestConsumptionReceipt({ decisions: [d('A'), { rule_id: 5 }, d('A')] });
+      expect(r.valid).toBe(false);
+      expect(r.errors[0]).toMatch(PRE);
+    });
   });
 });
 
