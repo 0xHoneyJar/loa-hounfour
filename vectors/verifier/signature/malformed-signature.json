@@ -6,7 +6,7 @@
       "envelope_kind": "verifier_test_envelope",
       "contract_version": "8.8.0",
       "issued_at": "2026-10-14T10:00:00Z",
-      "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+      "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
       "body": {
         "note": "café 가",
         "amount_micro_usd": "2500000",
@@ -23,7 +23,7 @@
       },
       "signature": "ed25519:AAAA"
     },
-    "public_key": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE"
+    "public_key": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ"
   },
   "expected": {
     "verified": false,

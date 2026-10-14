@@ -86,7 +86,7 @@ identically by both reference runtimes:
 | 6 | `'unverifiable'` | `webcrypto_ed25519_unavailable` | no `crypto.subtle`, or Ed25519 unsupported | never (Go always has `crypto/ed25519`) |
 | 7 | `false` | `signature_mismatch` | WebCrypto verify returns false | `ed25519.Verify` returns false |
 | 7 | `true` | (none) | verifies | verifies |
-| any | `false` | `verification_error` | unexpected exception, such as a hostile Proxy | never (no equivalent input) |
+| any | `false` | `verification_error` | unexpected exception, such as a hostile Proxy | recovered panic from a hostile dynamic value, such as a panicking `json.Marshaler` |
 
 **Why `canonical_nfc_failed` means "ill-formed string".** NFC normalisation
 itself cannot fail on well-formed input in either runtime:
@@ -207,5 +207,11 @@ false, which gives `signature_mismatch`. Both are `verified: false`.
 `npx tsx scripts/generate-verifier-vectors.ts` rewrites `vectors/verifier/`
 from fixed seeds and literal timestamps. Ed25519 signing is deterministic,
 so the output is byte-identical on every run. `--check` exits 1 on drift,
-and `tests/integrity/verifier-vectors.test.ts` asserts the same. The keys
-under `vectors/verifier/keys/` are test keys only.
+and `tests/integrity/verifier-vectors.test.ts` asserts the same.
+
+The keys under `vectors/verifier/keys/` are test-only. They are derived
+from public seeds, `SHA-256("loa-hounfour verifier conformance test key " + label)`
+for labels `a`, `b` and `c`, so they are worthless as secrets by
+construction. Only public keys are committed. Any runtime can regenerate
+the private keys from the rule in `vectors/verifier/keys/README.md`, and
+the Go test `TestTestKeysDeriveFromPublicSeeds` checks that it does.

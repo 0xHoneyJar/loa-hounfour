@@ -1,2 +1,2 @@
 # TEST KEY — generated 2026-10-14 for conformance vectors; never use for anything else
-ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE
+ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ

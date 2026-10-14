@@ -17,19 +17,19 @@
         "next_page_hash": null,
         "revoked_keys": [
           {
-            "key_id": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60",
+            "key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
             "reason": "manual",
             "revoked_at": "2026-08-15T00:00:00.5Z",
             "revocation_evidence_hash": null
           }
         ],
-        "signer_key_id": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE",
+        "signer_key_id": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ",
         "root_of_trust_id": null,
-        "signature": "ed25519:Mh5qMw9D0ijLNy72QLe-WXir-8zUuXx88tG0F1r1VRnesw-g0nWlZgY58K50FiEqjDEfYKNoc5igXZ7p47ZvDw",
+        "signature": "ed25519:s9xnTdDsJQUvRodiJbbe0M93IX7WbbygSZhjRvOcd6gUqlIe-ULAxu_mSsFZu5CbFMdJ-M2Vz_UBGi5ETsUKAQ",
         "quorum_signatures": null
       }
     ],
-    "signer_key_id": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60",
+    "signer_key_id": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI",
     "at": "2026-08-15T00:00:00.500Z"
   },
   "expected": {

@@ -56,7 +56,9 @@ describe('verifier conformance suite (TS reference)', () => {
   it('every key file carries the test-key notice', () => {
     const dir = join(repoRoot, 'vectors/verifier/keys');
     const files = readdirSync(dir).filter((f) => f !== 'README.md');
-    expect(files.length).toBeGreaterThanOrEqual(6);
+    expect(files.length).toBeGreaterThanOrEqual(3);
+    // No private key material is committed; keys derive from public seeds.
+    expect(files.every((f) => f.endsWith('.pub.txt'))).toBe(true);
     for (const f of files) {
       expect(readFileSync(join(dir, f), 'utf8').split('\n')[0]).toBe(`# ${TEST_KEY_NOTICE}`);
     }

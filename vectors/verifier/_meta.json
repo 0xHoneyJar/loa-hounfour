@@ -7,15 +7,15 @@
   "keys": [
     {
       "name": "signer-a",
-      "public_key": "ed25519-pub:CxVUhUhos_eIHKuP9RUbCTi2HZN6aBUty2JQ0aNVowE"
+      "public_key": "ed25519-pub:VmoZNth7BC6kHKN-qWzudSbjQgaa3adlVcPkBZ8YFaQ"
     },
     {
       "name": "signer-b",
-      "public_key": "ed25519-pub:tZgi9kWcdgdH4egBhCHFPwIuZR-FdpfLQMCRf_flySs"
+      "public_key": "ed25519-pub:F-O3AHdAZ3I-dmDAcI0ejiwZaFeoyLacdfn5M23aD1o"
     },
     {
       "name": "signer-c",
-      "public_key": "ed25519-pub:ZUl-zGZiBqy-UB369V2qG7pHcX99l3NRBME2MFp0c60"
+      "public_key": "ed25519-pub:GsDRzNUM4zID0517GUNEmasa4qZC3yi4PyR_NJ-asRI"
     }
   ],
   "cases": [
