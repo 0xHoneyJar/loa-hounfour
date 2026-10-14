@@ -43,5 +43,5 @@ export { SHA256_HEX_PATTERN, SHA256_HEX_BARE_PATTERN, } from './sha256-pattern.j
 // no new dependency) and revocation-list lookup. Key resolution and
 // signer-competence policy remain consumer-side per ADR-010.
 // @see docs/architecture/reference-verifier.md
-export { verifyEnvelopeSignatureEd25519, lookupRevocation, } from './verify.js';
+export { verifyEnvelopeSignatureEd25519, isEd25519VerifyAvailable, lookupRevocation, } from './verify.js';
 //# sourceMappingURL=index.js.map

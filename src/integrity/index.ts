@@ -104,6 +104,7 @@ export {
 // @see docs/architecture/reference-verifier.md
 export {
   verifyEnvelopeSignatureEd25519,
+  isEd25519VerifyAvailable,
   lookupRevocation,
   type Ed25519VerifyResult,
   type Ed25519VerifyOptions,

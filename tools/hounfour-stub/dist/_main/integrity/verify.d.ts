@@ -58,6 +58,19 @@ export interface Ed25519VerifyOptions {
  */
 export declare function verifyEnvelopeSignatureEd25519(envelope: Record<string, unknown>, publicKey: Uint8Array | string, options?: Ed25519VerifyOptions): Promise<Ed25519VerifyResult>;
 /**
+ * Preflight: resolves true when this runtime's WebCrypto can import an
+ * Ed25519 public key for verification, false otherwise (no
+ * `crypto.subtle`, or Ed25519 unsupported). Consumers call it once at
+ * startup to fail fast instead of meeting
+ * `'unverifiable' / webcrypto_ed25519_unavailable` per envelope.
+ *
+ * Performs one `importKey` of a fixed RFC 8032 test public key and
+ * caches the result for the life of the module. Never rejects.
+ *
+ * @since v8.8.0 (FR-C2)
+ */
+export declare function isEd25519VerifyAvailable(): Promise<boolean>;
+/**
  * Result of `lookupRevocation`.
  *
  * - `revoked`: true when an applicable list carries an entry for the key
@@ -99,7 +112,13 @@ export interface RevocationLookupResult {
  *
  * `at` is a `Date` (millisecond resolution) or a string in the strict
  * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
- * resolution). Timestamps compare at nanosecond resolution on their
+ * resolution). **Precision note:** a `Date` is normalised through
+ * `toISOString()`, so it is millisecond-precise, while list timestamps
+ * keep up to nanosecond precision. For example, with
+ * `revoked_at = …00.000000500Z`, a Date at `…00.000Z` resolves as not
+ * revoked, and so would any Date in that millisecond. Pass an ISO 8601
+ * UTC string when a boundary is sub-millisecond-sensitive; the string
+ * form compares exactly. Timestamps compare at nanosecond resolution on their
  * textual value. An invalid `Date`, a Date outside years 0001..9999, or
  * a string that is not a real calendar instant (see `normalizeUtc`)
  * yields the `at_invalid` result; it never throws for `at`. A list whose

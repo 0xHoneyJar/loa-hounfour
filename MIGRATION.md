@@ -129,7 +129,7 @@ not a commitment). Consumers can adopt the v9.0.0 behaviour today with
 
 ### Reference verifier functions (FR-C2)
 
-No new schemas. Additive exports from `@0xhoneyjar/loa-hounfour/integrity` (and the root barrel): `verifyEnvelopeSignatureEd25519`, `lookupRevocation`, and the types `Ed25519VerifyResult`, `Ed25519VerifyOptions`, `RevocationLookupResult`. Consumers that hand-rolled signature checks can switch to the reference function; the signing input (`safeCanonicalize` of the envelope minus `signature` and `quorum_signatures`) is unchanged from the v8.7.0 RevocationList contract. The function needs WebCrypto Ed25519 (Node 22+, current browsers) and returns `verified: 'unverifiable'` where it is absent. See `docs/architecture/reference-verifier.md`.
+No new schemas. Additive exports from `@0xhoneyjar/loa-hounfour/integrity` (and the root barrel): `verifyEnvelopeSignatureEd25519`, `isEd25519VerifyAvailable`, `lookupRevocation`, and the types `Ed25519VerifyResult`, `Ed25519VerifyOptions`, `RevocationLookupResult`. Consumers that hand-rolled signature checks can switch to the reference function; the signing input (`safeCanonicalize` of the envelope minus `signature` and `quorum_signatures`) is unchanged from the v8.7.0 RevocationList contract. The function needs WebCrypto Ed25519 (Node 22+, current browsers) and returns `verified: 'unverifiable'` where it is absent. See `docs/architecture/reference-verifier.md`.
 
 ---
 

@@ -103,7 +103,7 @@ different case. They are decoded to U+FFFD by the WHATWG maximal-subpart
 rule, exactly as Node's UTF-8 decoder does, before parsing in both
 runtimes. Vector: `signature/lone-surrogate-nfc-failed`.
 
-`'unverifiable'` is not a pass. A caller that requires a signature
+`'unverifiable'` is not a pass. To fail fast, call `isEd25519VerifyAvailable()` once at startup. It resolves `true` when WebCrypto can import an Ed25519 key, probing once with a fixed RFC 8032 test public key, and the result is cached. A caller that requires a signature
 treats it as a failure.
 
 `lookupRevocation(lists, signerKeyId, at)` takes `at` as a `Date` or a strict ISO 8601 UTC string (`YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z`). It returns `{ revoked, revoked_at?, list_id?, reason?, list_valid, list_validity_reason?, error? }`:
@@ -115,7 +115,7 @@ treats it as a failure.
 - Applicable lists rank by `issued_at` descending, ties in input order. When revoked, `list_id`, `revoked_at` and `reason` come from the highest-ranked list carrying an effective entry. Otherwise `list_id` names the highest-ranked applicable list, or is absent.
 - Every timestamp must name a real instant. That means year 0001..9999, month 01..12, a day that exists in that month under proleptic Gregorian leap years, hour 00..23, minute 00..59 and second 00..59. Leap seconds (`:60`) are rejected. RFC 3339 allows them, but the library's other UTC patterns and JavaScript `Date` do not. The schema pattern does not range-check these fields, so a list holding `2026-13-40T99:99:99Z` or `2027-02-29T00:00:00Z` is treated as shape-invalid. An `at` like that returns `at_invalid`.
 - Lists failing `RevocationListSchema` shape validation are ignored. They set `list_valid: false` and `list_validity_reason: "shape_invalid: lists[i], ..."`.
-- Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. A `Date` argument carries milliseconds; a string argument keeps its full nanosecond precision. In Go, `LookupRevocationAt` takes the string form and `LookupRevocation` takes a `time.Time`.
+- Instants compare at nanosecond resolution on their text, after padding the fractional seconds to nine digits. A `Date` argument is normalised through `toISOString()` and so is millisecond-precise, while list timestamps keep nanosecond precision. A Date at `…00.0007Z` truncates to `…00.000Z` and misses a `revoked_at` of `…00.0005Z`. Pass an ISO 8601 UTC string when a boundary is sub-millisecond-sensitive; the string form compares exactly. In Go, `LookupRevocationAt` takes the string form and `LookupRevocation` takes a `time.Time`.
 
 ## Why the Go runner has its own JSON parser
 

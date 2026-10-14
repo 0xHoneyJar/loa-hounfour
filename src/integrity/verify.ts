@@ -291,6 +291,43 @@ export async function verifyEnvelopeSignatureEd25519(
   }
 }
 
+// RFC 8032 §7.1 test 1 public key: a valid curve point, used only to
+// probe whether the runtime's WebCrypto supports Ed25519 import.
+const PROBE_PUBLIC_KEY = new Uint8Array([
+  0xd7, 0x5a, 0x98, 0x01, 0x82, 0xb1, 0x0a, 0xb7, 0xd5, 0x4b, 0xfe, 0xd3, 0xc9, 0x64, 0x07, 0x3a,
+  0x0e, 0xe1, 0x72, 0xf3, 0xda, 0xa6, 0x23, 0x25, 0xaf, 0x02, 0x1a, 0x68, 0xf7, 0x07, 0x51, 0x1a,
+]);
+
+let ed25519Probe: Promise<boolean> | undefined;
+
+/**
+ * Preflight: resolves true when this runtime's WebCrypto can import an
+ * Ed25519 public key for verification, false otherwise (no
+ * `crypto.subtle`, or Ed25519 unsupported). Consumers call it once at
+ * startup to fail fast instead of meeting
+ * `'unverifiable' / webcrypto_ed25519_unavailable` per envelope.
+ *
+ * Performs one `importKey` of a fixed RFC 8032 test public key and
+ * caches the result for the life of the module. Never rejects.
+ *
+ * @since v8.8.0 (FR-C2)
+ */
+export function isEd25519VerifyAvailable(): Promise<boolean> {
+  if (ed25519Probe === undefined) {
+    ed25519Probe = (async () => {
+      try {
+        const subtle = (globalThis as { crypto?: { subtle?: SubtleCrypto } }).crypto?.subtle;
+        if (subtle === undefined) return false;
+        await subtle.importKey('raw', PROBE_PUBLIC_KEY, { name: 'Ed25519' }, false, ['verify']);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+  }
+  return ed25519Probe;
+}
+
 // ---------------------------------------------------------------------------
 // Revocation lookup
 // ---------------------------------------------------------------------------
@@ -381,7 +418,13 @@ function normalizeUtc(ts: string): string | null {
  *
  * `at` is a `Date` (millisecond resolution) or a string in the strict
  * ISO 8601 UTC form `YYYY-MM-DDTHH:MM:SS(.f{1,9})?Z` (nanosecond
- * resolution). Timestamps compare at nanosecond resolution on their
+ * resolution). **Precision note:** a `Date` is normalised through
+ * `toISOString()`, so it is millisecond-precise, while list timestamps
+ * keep up to nanosecond precision. For example, with
+ * `revoked_at = …00.000000500Z`, a Date at `…00.000Z` resolves as not
+ * revoked, and so would any Date in that millisecond. Pass an ISO 8601
+ * UTC string when a boundary is sub-millisecond-sensitive; the string
+ * form compares exactly. Timestamps compare at nanosecond resolution on their
  * textual value. An invalid `Date`, a Date outside years 0001..9999, or
  * a string that is not a real calendar instant (see `normalizeUtc`)
  * yields the `at_invalid` result; it never throws for `at`. A list whose

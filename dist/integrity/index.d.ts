@@ -12,5 +12,5 @@ export { safeCanonicalize, SAFE_CANONICALIZE_DEFAULT_MAX_BYTES, CanonicalizeKeyC
 export { PhaseCompletionEnvelopeTier1Schema, type PhaseCompletionEnvelopeTier1, } from './phase-completion-envelope-tier1.js';
 export { PhaseCompletionEnvelopeSchema, type PhaseCompletionEnvelope, } from './phase-completion-envelope.js';
 export { SHA256_HEX_PATTERN, SHA256_HEX_BARE_PATTERN, } from './sha256-pattern.js';
-export { verifyEnvelopeSignatureEd25519, lookupRevocation, type Ed25519VerifyResult, type Ed25519VerifyOptions, type RevocationLookupResult, } from './verify.js';
+export { verifyEnvelopeSignatureEd25519, isEd25519VerifyAvailable, lookupRevocation, type Ed25519VerifyResult, type Ed25519VerifyOptions, type RevocationLookupResult, } from './verify.js';
 //# sourceMappingURL=index.d.ts.map

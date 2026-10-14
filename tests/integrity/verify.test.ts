@@ -10,6 +10,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import fc from 'fast-check';
 import {
   verifyEnvelopeSignatureEd25519,
+  isEd25519VerifyAvailable,
   lookupRevocation,
   type RevocationLookupResult,
 } from '../../src/integrity/index.js';
@@ -47,6 +48,15 @@ describe('barrel reachability', () => {
     expect(typeof lookupRevocation).toBe('function');
     expect(RootBarrel.verifyEnvelopeSignatureEd25519).toBe(verifyEnvelopeSignatureEd25519);
     expect(RootBarrel.lookupRevocation).toBe(lookupRevocation);
+  });
+});
+
+describe('isEd25519VerifyAvailable', () => {
+  it('resolves true on this runtime, caches the promise, and is exported from the root barrel', async () => {
+    const first = isEd25519VerifyAvailable();
+    expect(await first).toBe(true);
+    expect(isEd25519VerifyAvailable()).toBe(first);
+    expect(RootBarrel.isEd25519VerifyAvailable).toBe(isEd25519VerifyAvailable);
   });
 });
 
@@ -428,6 +438,21 @@ describe('lookupRevocation', () => {
     const d = new Date(Date.UTC(2000, 0, 1));
     d.setUTCFullYear(0);
     expect(lookupRevocation([list()], KEY_X, d).error).toBe('at_invalid');
+  });
+
+  it('Date input is millisecond-precise; the string form resolves sub-millisecond boundaries exactly', () => {
+    const l = list({
+      revoked_keys: [
+        { key_id: KEY_X, reason: 'manual', revoked_at: '2026-08-15T00:00:00.000500000Z', revocation_evidence_hash: null },
+      ],
+    });
+    // 0.0007 s is after revoked_at, but a Date cannot hold it: it truncates to .000.
+    expect(lookupRevocation([l], KEY_X, '2026-08-15T00:00:00.000700Z').revoked).toBe(true);
+    expect(lookupRevocation([l], KEY_X, new Date('2026-08-15T00:00:00.000700Z')).revoked).toBe(false);
+    // The string form is exact at the boundary itself and one nanosecond either side.
+    expect(lookupRevocation([l], KEY_X, '2026-08-15T00:00:00.000500Z').revoked).toBe(true);
+    expect(lookupRevocation([l], KEY_X, '2026-08-15T00:00:00.000499999Z').revoked).toBe(false);
+    expect(lookupRevocation([l], KEY_X, '2026-08-15T00:00:00.000500001Z').revoked).toBe(true);
   });
 
   it('accepts a strict ISO 8601 UTC string at nanosecond resolution', () => {
