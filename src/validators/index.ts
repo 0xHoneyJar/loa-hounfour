@@ -1641,12 +1641,17 @@ export function validate<T extends TSchema>(
      *
      * - `parent_scope` absent: validate() stays `valid: true` and emits a
      *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
-     * - `parent_scope` supplied: it is validated as a ScopeOfAutonomy
-     *   (invalid → `SCOPE_PARENT_CONTEXT_INVALID:` error), then
-     *   `evaluateScopeInheritance(record, parent_scope)` runs. Violations
-     *   return `valid: false` with one `SCOPE_INHERITANCE_VIOLATION:` error
-     *   and one `reason: 'scope_inheritance_violation'` manifest entry per
-     *   violation. A passing check emits no SOA-6 entry.
+     * - `parent_scope` supplied but not itself a valid ScopeOfAutonomy:
+     *   `valid: false`, and each of the parent's own diagnostics is
+     *   returned prefixed `SOA-6 parent: `.
+     * - `parent_scope` supplied and valid: `evaluateScopeInheritance(record,
+     *   parent_scope)` runs. On violation the result is `valid: false` with
+     *   one `SOA-6: <CODE> at <field>: <message>` error per violation. The
+     *   `errors` array is the verdict. The result also carries one manifest
+     *   entry per violation (`evaluator: 'library'`,
+     *   `reason: 'scope_inheritance_violation'`) as the transparency record,
+     *   mirroring the nonce / sequence / chain builtins. A passing check is
+     *   `valid: true` with no SOA-6 entry.
      *
      * Parent option profile: the supplied parent is validated with the
      * caller's options minus `scopeContext`, and `crossField` pinned to
@@ -1658,6 +1663,23 @@ export function validate<T extends TSchema>(
      */
     scopeContext?: { parent_scope?: unknown };
   },
+): ValidationResult {
+  return validateImpl(schema, data, options, false);
+}
+
+/**
+ * Implementation of {@link validate}. `suppressScopeParent` is call-scoped
+ * re-entrancy state for SOA-6 (PR-C1): it is `true` only for the nested
+ * validation of a supplied `scopeContext.parent_scope`, which therefore
+ * never evaluates SOA-6 itself. No module-level mutable state is involved,
+ * so concurrent or interleaved validate() calls cannot suppress each other.
+ * The flag is not reachable through the public `validate()` signature.
+ */
+function validateImpl<T extends TSchema>(
+  schema: T,
+  data: unknown,
+  options: Parameters<typeof validate>[2],
+  suppressScopeParent: boolean,
 ): ValidationResult {
   const compiled = getOrCompile(schema);
   if (!compiled.Check(data)) {
@@ -2013,10 +2035,10 @@ export function validate<T extends TSchema>(
   // ORD-5 block above: ScopeOfAutonomy is the only inheritance-bearing
   // schema. Root scopes (no parent_scope_id) carry no SOA-6 obligation.
   // Skipped entirely inside the nested parent validation below
-  // (scopeParentValidationDepth > 0): SOA-6 evaluates one link, child →
-  // supplied parent, and never re-enters for the parent's own parent.
+  // (suppressScopeParent, passed per call): SOA-6 evaluates one link,
+  // child → supplied parent, and never re-enters for the parent's own parent.
   if (
-    scopeParentValidationDepth === 0 &&
+    !suppressScopeParent &&
     schema.$id === 'ScopeOfAutonomy' &&
     typeof data === 'object' &&
     data !== null &&
@@ -2043,24 +2065,23 @@ export function validate<T extends TSchema>(
       // because evaluateScopeInheritance assumes schema-valid inputs, so a
       // caller's crossField: false does not relax parent validation.
       // strictWarnings, now, acceptDeferred, failClosed and chainContext
-      // are forwarded unchanged. The depth guard makes non-recursion
-      // explicit: even if a future refactor forwarded scopeContext, the
-      // nested call cannot evaluate SOA-6.
+      // are forwarded unchanged. The nested call runs with
+      // suppressScopeParent = true, so it cannot evaluate SOA-6 even if a
+      // future refactor forwarded scopeContext.
       const { scopeContext: _omitScopeContext, ...forwarded } = options ?? {};
       void _omitScopeContext;
-      let parentResult: ValidationResult;
-      scopeParentValidationDepth += 1;
-      try {
-        parentResult = validate(ScopeOfAutonomySchema, parentScope, { ...forwarded, crossField: true });
-      } finally {
-        scopeParentValidationDepth -= 1;
-      }
+      const parentResult = validateImpl(
+        ScopeOfAutonomySchema,
+        parentScope,
+        { ...forwarded, crossField: true },
+        true,
+      );
       if (!parentResult.valid) {
+        // The parent's own diagnostics, each prefixed so they are not
+        // mistaken for errors on the record under validation.
         return {
           valid: false,
-          errors: parentResult.errors.map(
-            (e) => `SCOPE_PARENT_CONTEXT_INVALID: scopeContext.parent_scope is not a valid ScopeOfAutonomy: ${e}`,
-          ),
+          errors: parentResult.errors.map((e) => `SOA-6 parent: ${e}`),
         };
       }
       const inheritance = evaluateScopeInheritance(
@@ -2071,7 +2092,7 @@ export function validate<T extends TSchema>(
         return {
           valid: false,
           errors: inheritance.violations.map(
-            (v) => `SCOPE_INHERITANCE_VIOLATION: ${v.code} at ${v.field}: ${v.message}`,
+            (v) => `SOA-6: ${v.code} at ${v.field}: ${v.message}`,
           ),
           unverified_obligations: {
             schema_id: manifestSchemaId,
@@ -2124,14 +2145,6 @@ export function validate<T extends TSchema>(
   }
   return { valid: true };
 }
-
-/**
- * Re-entrancy guard for the SOA-6 nested parent validation (PR-C1). Greater
- * than zero while validate() is checking a supplied
- * `scopeContext.parent_scope`; the SOA-6 block is skipped at depth > 0.
- * validate() is synchronous, so a module-level counter is sufficient.
- */
-let scopeParentValidationDepth = 0;
 
 /**
  * Detect whether the consumer supplied a non-empty `granted_by_chain_records`

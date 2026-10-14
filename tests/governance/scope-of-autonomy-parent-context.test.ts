@@ -73,7 +73,7 @@ describe('SOA-6 non-recursion guard', () => {
     expect(r.unverified_obligations?.unverified_rules.map((e) => e.reason)).toEqual(['scope_inheritance_violation']);
   });
 
-  it('the guard resets after a nested parent validation throws', () => {
+  it('suppression does not leak after a nested parent validation throws', () => {
     // Force the nested cross-field validator to throw once.
     registerCrossFieldValidator(
       'ScopeOfAutonomy',
@@ -87,9 +87,79 @@ describe('SOA-6 non-recursion guard', () => {
     } finally {
       registerCrossFieldValidator('ScopeOfAutonomy', validateScopeOfAutonomy, { override: true });
     }
-    // Depth back at zero: a plain child validation still emits its deferred SOA-6.
+    // No suppression leaks: a plain child validation still emits its deferred SOA-6.
     const r = validate(ScopeOfAutonomySchema, CHILD, { now: NOW });
     expect(r.unverified_obligations?.unverified_rules[0].reason).toBe('scope_parent_context_deferred');
+  });
+});
+
+describe('SOA-6 suppression is call-scoped', () => {
+  it('validate() calls interleaved inside a nested parent validation are not suppressed', () => {
+    type Result = ReturnType<typeof validate>;
+    const inner: { deferred?: Result; violating?: Result } = {};
+    let armed = true;
+    registerCrossFieldValidator(
+      'ScopeOfAutonomy',
+      (data) => {
+        // Fires once, while the OUTER call validates its supplied parent
+        // (the nested, suppressed path).
+        if (armed && (data as ScopeOfAutonomy).scope_id === CHILD.scope_id) {
+          armed = false;
+          inner.deferred = validate(ScopeOfAutonomySchema, CHILD, { now: NOW });
+          inner.violating = validate(
+            ScopeOfAutonomySchema,
+            { ...CHILD, permitted_sub_goals: ['not in root'] },
+            { scopeContext: { parent_scope: ROOT } },
+          );
+        }
+        return validateScopeOfAutonomy(data);
+      },
+      { override: true },
+    );
+    try {
+      const outer = validate(ScopeOfAutonomySchema, GRANDCHILD, { now: NOW, scopeContext: { parent_scope: CHILD } });
+      expect(armed).toBe(false);
+      // Outer: one link evaluated (GRANDCHILD → CHILD), within parent.
+      expect(outer).toEqual({ valid: true });
+      // Inner deferred call still emits its own SOA-6 deferral.
+      expect(inner.deferred?.unverified_obligations?.unverified_rules.map((e) => e.reason)).toEqual([
+        'scope_parent_context_deferred',
+      ]);
+      // Inner violating call still evaluates SOA-6 and returns the verdict.
+      expect(inner.violating?.valid).toBe(false);
+      if (inner.violating && !inner.violating.valid) {
+        expect(inner.violating.errors).toEqual([expect.stringMatching(/^SOA-6: SUB_GOAL_NOT_IN_PARENT at permitted_sub_goals\[0\]:/)]);
+      }
+      // Two SOA-6 evaluations in total: the outer link and the inner violating call.
+      expect(spy).toHaveBeenCalledTimes(2);
+    } finally {
+      registerCrossFieldValidator('ScopeOfAutonomy', validateScopeOfAutonomy, { override: true });
+    }
+  });
+
+  it('a later top-level call after a nested one is unaffected', () => {
+    validate(ScopeOfAutonomySchema, GRANDCHILD, { scopeContext: { parent_scope: CHILD } });
+    const r = validate(ScopeOfAutonomySchema, CHILD, { now: NOW });
+    expect(r.unverified_obligations?.unverified_rules[0].reason).toBe('scope_parent_context_deferred');
+  });
+});
+
+describe('SOA-6 verdict on violation', () => {
+  it('returns valid: false, one SOA-6 error per violation, and a library transparency entry per violation', () => {
+    const child = { ...GRANDCHILD, permitted_sub_goals: ['x', 'y'], expires_at: '2026-10-16T00:00:00Z' };
+    const r = validate(ScopeOfAutonomySchema, child, { now: NOW, scopeContext: { parent_scope: CHILD } });
+    expect(r.valid).toBe(false);
+    if (r.valid) return;
+    expect(r.errors.map((e) => e.split(' at ')[0])).toEqual([
+      'SOA-6: SUB_GOAL_NOT_IN_PARENT',
+      'SOA-6: SUB_GOAL_NOT_IN_PARENT',
+      'SOA-6: EXPIRES_AFTER_PARENT',
+    ]);
+    const entries = r.unverified_obligations?.unverified_rules ?? [];
+    expect(entries).toHaveLength(r.errors.length);
+    for (const e of entries) {
+      expect(e).toMatchObject({ rule_id: 'SOA-6', evaluator: 'library', reason: 'scope_inheritance_violation' });
+    }
   });
 });
 
@@ -123,7 +193,7 @@ describe('SOA-6 parent option profile', () => {
           expect(nested.valid).toBe(false);
           if (!nested.valid) {
             expect(nested.errors).toEqual(
-              direct.errors.map((e) => `SCOPE_PARENT_CONTEXT_INVALID: scopeContext.parent_scope is not a valid ScopeOfAutonomy: ${e}`),
+              direct.errors.map((e) => `SOA-6 parent: ${e}`),
             );
           }
         }
@@ -149,7 +219,7 @@ describe('SOA-6 parent option profile', () => {
     expect(strict.valid).toBe(false);
     if (!strict.valid) {
       expect(strict.errors).toEqual([
-        'SCOPE_PARENT_CONTEXT_INVALID: scopeContext.parent_scope is not a valid ScopeOfAutonomy: TEST_PARENT_WARNING: parent warning',
+        'SOA-6 parent: TEST_PARENT_WARNING: parent warning',
       ]);
     }
   });
@@ -158,6 +228,6 @@ describe('SOA-6 parent option profile', () => {
     const badParent = { ...ROOT, stop_work: { requested: true, propagates_to_children: true } };
     const r = validate(ScopeOfAutonomySchema, CHILD, { crossField: false, scopeContext: { parent_scope: badParent } });
     expect(r.valid).toBe(false);
-    if (!r.valid) expect(r.errors[0]).toMatch(/^SCOPE_PARENT_CONTEXT_INVALID: .*SOA-4:/);
+    if (!r.valid) expect(r.errors[0]).toMatch(/^SOA-6 parent: SOA-4:/);
   });
 });

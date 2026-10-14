@@ -99,8 +99,8 @@ For a scope that carries `parent_scope_id`:
 |------|---------|
 | `validate(S, child)` | `valid: true` with a SOA-6 manifest entry, `evaluator: 'consumer'`, `reason: 'scope_parent_context_deferred'`. |
 | `validate(S, child, { scopeContext: { parent_scope } })`, child within parent | `valid: true`, no SOA-6 entry. |
-| Same, child outside parent | `valid: false`, one `SCOPE_INHERITANCE_VIOLATION: <CODE> at <field>: …` error per violation, plus manifest entries with `reason: 'scope_inheritance_violation'`. |
-| Same, `parent_scope` not a valid ScopeOfAutonomy | `valid: false`, errors prefixed `SCOPE_PARENT_CONTEXT_INVALID:`. |
+| Same, child outside parent | `valid: false`, one `SOA-6: <CODE> at <field>: …` error per violation. The errors are the verdict. Manifest entries with `evaluator: 'library'` and `reason: 'scope_inheritance_violation'` are the transparency record. |
+| Same, `parent_scope` not a valid ScopeOfAutonomy | `valid: false`, and each of the parent's own diagnostics is returned prefixed `SOA-6 parent: `. |
 
 A root scope carries no SOA-6 obligation. The consumer resolves the parent
 from its own store; the library never looks it up.

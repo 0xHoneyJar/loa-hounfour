@@ -88,8 +88,8 @@ describe('validate() SOA-6 emission', () => {
     expect(r.valid).toBe(false);
     if (r.valid) return;
     expect(r.errors).toEqual([
-      expect.stringMatching(/^SCOPE_INHERITANCE_VIOLATION: SUB_GOAL_NOT_IN_PARENT at permitted_sub_goals\[0\]:/),
-      expect.stringMatching(/^SCOPE_INHERITANCE_VIOLATION: EXPIRES_AFTER_PARENT at expires_at:/),
+      expect.stringMatching(/^SOA-6: SUB_GOAL_NOT_IN_PARENT at permitted_sub_goals\[0\]:/),
+      expect.stringMatching(/^SOA-6: EXPIRES_AFTER_PARENT at expires_at:/),
     ]);
     expect(r.unverified_obligations?.unverified_rules.map((e) => [e.rule_id, e.evaluator, e.reason])).toEqual([
       ['SOA-6', 'library', 'scope_inheritance_violation'],
@@ -102,23 +102,23 @@ describe('validate() SOA-6 emission', () => {
     const other = { ...PARENT, scope_id: 'b2c3d4e5-f6a7-4b8c-9d0e-f1a2b3c4d503' };
     const r = validate(ScopeOfAutonomySchema, CHILD, { scopeContext: { parent_scope: other } });
     expect(r.valid).toBe(false);
-    if (!r.valid) expect(r.errors[0]).toMatch(/^SCOPE_INHERITANCE_VIOLATION: PARENT_ID_MISMATCH/);
+    if (!r.valid) expect(r.errors[0]).toMatch(/^SOA-6: PARENT_ID_MISMATCH/);
   });
 
-  it('structurally invalid parent: SCOPE_PARENT_CONTEXT_INVALID, no manifest', () => {
+  it('structurally invalid parent: parent diagnostics prefixed SOA-6 parent, no manifest', () => {
     const r = validate(ScopeOfAutonomySchema, CHILD, { scopeContext: { parent_scope: { scope_id: PARENT.scope_id } } });
     expect(r.valid).toBe(false);
     if (r.valid) return;
     expect(r.errors.length).toBeGreaterThan(0);
-    for (const e of r.errors) expect(e).toMatch(/^SCOPE_PARENT_CONTEXT_INVALID:/);
+    for (const e of r.errors) expect(e).toMatch(/^SOA-6 parent: \//);
     expect(r).not.toHaveProperty('unverified_obligations');
   });
 
-  it('cross-field-invalid parent (SOA-4) is rejected as SCOPE_PARENT_CONTEXT_INVALID', () => {
+  it('cross-field-invalid parent (SOA-4) is rejected with its own SOA-4 diagnostic', () => {
     const badParent = { ...PARENT, stop_work: { requested: true, propagates_to_children: true } };
     const r = validate(ScopeOfAutonomySchema, CHILD, { scopeContext: { parent_scope: badParent } });
     expect(r.valid).toBe(false);
-    if (!r.valid) expect(r.errors[0]).toMatch(/^SCOPE_PARENT_CONTEXT_INVALID: .*SOA-4:/);
+    if (!r.valid) expect(r.errors[0]).toMatch(/^SOA-6 parent: SOA-4: stop_work.requested is true/);
   });
 
   it('cross-field failures on the child take precedence over SOA-6', () => {

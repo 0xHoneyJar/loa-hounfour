@@ -219,12 +219,17 @@ export declare function validate<T extends TSchema>(schema: T, data: unknown, op
      *
      * - `parent_scope` absent: validate() stays `valid: true` and emits a
      *   SOA-6 manifest entry with `reason: 'scope_parent_context_deferred'`.
-     * - `parent_scope` supplied: it is validated as a ScopeOfAutonomy
-     *   (invalid → `SCOPE_PARENT_CONTEXT_INVALID:` error), then
-     *   `evaluateScopeInheritance(record, parent_scope)` runs. Violations
-     *   return `valid: false` with one `SCOPE_INHERITANCE_VIOLATION:` error
-     *   and one `reason: 'scope_inheritance_violation'` manifest entry per
-     *   violation. A passing check emits no SOA-6 entry.
+     * - `parent_scope` supplied but not itself a valid ScopeOfAutonomy:
+     *   `valid: false`, and each of the parent's own diagnostics is
+     *   returned prefixed `SOA-6 parent: `.
+     * - `parent_scope` supplied and valid: `evaluateScopeInheritance(record,
+     *   parent_scope)` runs. On violation the result is `valid: false` with
+     *   one `SOA-6: <CODE> at <field>: <message>` error per violation. The
+     *   `errors` array is the verdict. The result also carries one manifest
+     *   entry per violation (`evaluator: 'library'`,
+     *   `reason: 'scope_inheritance_violation'`) as the transparency record,
+     *   mirroring the nonce / sequence / chain builtins. A passing check is
+     *   `valid: true` with no SOA-6 entry.
      *
      * Parent option profile: the supplied parent is validated with the
      * caller's options minus `scopeContext`, and `crossField` pinned to
