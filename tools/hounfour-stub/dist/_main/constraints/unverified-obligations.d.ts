@@ -38,7 +38,7 @@ import type { ConstraintFile } from './types.js';
  * ORD-3 context-absent manifest promotion + the `CRYPTO_DEFERRED` /
  * `INTEGRITY_DEFERRED` paths) populate the new values.
  */
-export type UnverifiedObligationReason = 'canonical_size_cap_exceeded' | 'chain_context_provided' | 'chain_ledger_mismatch' | 'chain_prev_hash_mismatch' | 'cluster_id_mismatch' | 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'key_version_regression' | 'ledger_context_deferred' | 'nonce_context_deferred' | 'nonce_replay_detected' | 'pattern_matching' | 'percentiles_monotonic_violation' | 'sequence_context_deferred' | 'sequence_monotonic_violation' | 'signer_key_id_mismatch' | 'signoff_plan_hash_mismatch' | 'signoff_ttl_observed' | 'utf8_byte_length_exceeded' | 'vocabulary_drift';
+export type UnverifiedObligationReason = 'canonical_size_cap_exceeded' | 'chain_context_provided' | 'chain_ledger_mismatch' | 'chain_prev_hash_mismatch' | 'cluster_id_mismatch' | 'context_absent' | 'crypto_deferred' | 'integrity_deferred' | 'key_version_regression' | 'ledger_context_deferred' | 'nonce_context_deferred' | 'nonce_replay_detected' | 'pattern_matching' | 'percentiles_monotonic_violation' | 'scope_inheritance_violation' | 'scope_parent_context_deferred' | 'sequence_context_deferred' | 'sequence_monotonic_violation' | 'signer_key_id_mismatch' | 'signoff_plan_hash_mismatch' | 'signoff_ttl_observed' | 'utf8_byte_length_exceeded' | 'vocabulary_drift';
 export interface UnverifiedObligationEntry {
     /** Stable rule identifier (e.g., `"ORD-1"`, `"ORD-2"`, `"ORD-3"`, `"CRYPTO_DEFERRED"`). */
     rule_id: string;
@@ -138,10 +138,36 @@ export interface UnverifiedObligationEntry {
      *   expiry deliberately (NA-3). Hounfour does NOT decide what
      *   "expired" means (ADR-010); the entry fires on hash-match
      *   regardless of age.
+     *
+     * The following 2 members were added in v8.8.0 (SDD §1, FR-C1) for the
+     * ScopeOfAutonomy inheritance check:
+     *
+     * `scope_parent_context_deferred` — the scope names a `parent_scope_id`
+     *   but the resolved parent scope was not supplied; the consumer MUST
+     *   run the inheritance check against the resolved parent.
+     * `scope_inheritance_violation` — the child scope grants more than its
+     *   parent scope (a sub-goal, budget, tool, data-access mode or time
+     *   bound outside the parent's).
+     *
+     * Every member has a row in `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT`
+     * (v8.8.0, SDD §3) telling the consumer what to do with the entry.
      */
     reason?: UnverifiedObligationReason;
     /** Human explanation of the consumer obligation. */
     evaluation_note: string;
+    /**
+     * One yes/no question a human approver answers for this entry, copied
+     * from `UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT[reason]`. Present exactly
+     * when `reason` is present; entries without a `reason` carry no
+     * judgement. Optional and additive (v8.8.0, SDD §3).
+     */
+    judgement_requested?: string;
+    /**
+     * `'MUST'` or `'SHOULD'`, copied from the contract row for `reason`.
+     * Present exactly when `reason` is present. Optional and additive
+     * (v8.8.0, SDD §3).
+     */
+    consumer_obligation_level?: ConsumerObligationLevel;
     /** Always `true` — pinned to keep the wire shape uniform. */
     consumer_acknowledgment_required: true;
 }
@@ -191,4 +217,118 @@ export declare function hasUnverifiedObligations<T extends {
 }>(result: T): result is T & {
     unverified_obligations: UnverifiedObligationsManifest;
 };
+/**
+ * Strength of a consumer obligation, in RFC 2119 terms. `'MUST'` means a
+ * conforming consumer does not treat the record as authoritative until the
+ * obligation is discharged; `'SHOULD'` means the consumer may proceed with a
+ * recorded reason for deviating.
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export type ConsumerObligationLevel = 'MUST' | 'SHOULD';
+/**
+ * What a consumer does with a manifest entry carrying a given `reason`.
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export interface ConsumerObligation {
+    /** RFC 2119 strength of the obligation. */
+    level: ConsumerObligationLevel;
+    /** What the consumer does with an entry carrying this reason. */
+    action: string;
+    /**
+     * ONE sentence a human approver can answer yes/no. Always ends with a
+     * question mark and is at most 200 characters (tested).
+     */
+    judgement_requested: string;
+    /**
+     * `true` when the planned v9.0.0 flip of the `x-chain-bearing` default
+     * (`failClosed` becoming the default, so absent chain context is rejected
+     * instead of surfaced) changes the `validate()` outcome for records whose
+     * entries carry this reason.
+     *
+     * Current semantics, stated precisely: `x-crypto-bearing` schemas ALREADY
+     * fail closed by default (`CRYPTO_DEFERRED` error unless the caller passes
+     * `acceptDeferred: true`), so the flip does not affect `crypto_deferred` or
+     * `integrity_deferred`. `x-chain-bearing` schemas are fail-open by default
+     * until v9.0.0: absent chain context yields `valid: true` plus an ORD-3
+     * entry with `reason: 'context_absent'`. After the flip that same record
+     * yields `valid: false`, so only `context_absent` is marked `true`.
+     *
+     * Decision (SDD §3 ambiguity): `pattern_matching` is marked `false`. After
+     * the flip a chain-bearing record WITH chain context still validates; the
+     * entry's reason becomes `chain_context_provided` but the outcome does not
+     * change.
+     */
+    affected_by_fail_closed_flip: boolean;
+}
+/**
+ * Contract version at which the `x-chain-bearing` default flips to fail
+ * closed. Planning target only; see MIGRATION.md "Planned v9.0.0 fail-closed
+ * default flip".
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export declare const FAIL_CLOSED_DEFAULT_FLIP_VERSION: "9.0.0";
+/**
+ * The consumer-obligation contract: one row per `UnverifiedObligationReason`.
+ * The `Record` key type makes a missing row a compile error; the test suite
+ * additionally checks every row's judgement sentence.
+ *
+ * `docs/conformance/manifest-consumption-level-1.md` renders this table via
+ * `scripts/generate-manifest-contract-doc.ts`; a drift test keeps the two
+ * byte-identical.
+ *
+ * Non-constraints (ADR-010):
+ * - The table does NOT decide whether a record is authorized. It tells the
+ *   consumer which question to ask; the consumer's approver answers it.
+ * - The table is NOT exhaustive over consumer policy. A consumer MAY apply a
+ *   stricter action than the row states; it MUST NOT apply a weaker one and
+ *   still claim MC-1 conformance.
+ * - `level` is NOT derived from the constraint rule's `severity`. Severity
+ *   describes the rule; `level` describes what a consumer does on seeing the
+ *   entry, which can be stricter (a `warning` rule can carry a MUST action).
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export declare const UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT: Readonly<Record<UnverifiedObligationReason, Readonly<ConsumerObligation>>>;
+/**
+ * Every `UnverifiedObligationReason`, sorted. Derived from the contract
+ * table, which the `Record` type forces to be complete.
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export declare const UNVERIFIED_OBLIGATION_REASONS: ReadonlyArray<UnverifiedObligationReason>;
+/**
+ * Look up the contract row for a reason.
+ *
+ * Decision (SDD §3 ambiguity): an unknown reason throws `TypeError` rather
+ * than returning `undefined`. TypeScript callers cannot reach that branch;
+ * JavaScript callers passing an unknown string get a loud failure instead of
+ * a silently missing obligation.
+ *
+ * @throws TypeError when `reason` is not a member of the union.
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export declare function describeConsumerObligation(reason: UnverifiedObligationReason): ConsumerObligation;
+/**
+ * Return `entry` with `judgement_requested` and `consumer_obligation_level`
+ * filled from the contract row for its `reason`. Entries without a `reason`
+ * are returned unchanged (no judgement). Never mutates its input.
+ *
+ * The library applies it at exactly one layer: the `validate()` manifest
+ * aggregation. Emitters (validate()'s own obligation sites and standalone
+ * builtins such as `evaluatePlanContentHashUnchangedSinceSignoff`) produce
+ * unannotated entries. Consumers that surface builtin entries or attach their
+ * own (for example a `*_CONTEXT_DEFERRED` entry from a validate wrapper) pass
+ * them through this helper.
+ *
+ * Idempotent: an entry that already carries the contract row's values is
+ * returned as-is (same reference), so annotating twice is byte-identical to
+ * annotating once. Values that differ from the row are replaced by the
+ * row's values; the contract table, not the caller, is authoritative.
+ *
+ * @since v8.8.0 (SDD §3, FR-C4)
+ */
+export declare function withConsumerObligation(entry: UnverifiedObligationEntry): UnverifiedObligationEntry;
 //# sourceMappingURL=unverified-obligations.d.ts.map

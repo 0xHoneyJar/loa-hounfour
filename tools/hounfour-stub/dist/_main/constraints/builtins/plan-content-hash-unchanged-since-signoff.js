@@ -90,6 +90,12 @@ function malformedEntryFail(index, detail) {
  * @param ledgerSnapshot - Consumer's persistent signoff ledger; when
  *                         `undefined` or `null`, the obligation is
  *                         deferred (returns `result: 'deferred'`).
+ *
+ * v8.8.0 (SDD §3): the returned `manifestEntry` is UNANNOTATED — it carries
+ * no `judgement_requested` / `consumer_obligation_level`. Consumer-obligation
+ * annotation happens at exactly one layer, the `validate()` manifest
+ * aggregation. Direct callers that surface this entry in their own manifest
+ * pass it through `withConsumerObligation` to attach the contract row.
  */
 export function evaluatePlanContentHashUnchangedSinceSignoff(planHash, ledgerSnapshot) {
     if (typeof planHash !== 'string') {

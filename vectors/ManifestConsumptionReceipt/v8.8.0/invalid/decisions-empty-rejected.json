@@ -1,0 +1,10 @@
+{
+  "_comment": "Structural: decisions has minItems 1.",
+  "receipt_id": "7f9c2b1e-3a4d-4e5f-8a6b-1c2d3e4f5a6b",
+  "schema_id": "SignatureEnvelope",
+  "contract_version": "8.8.0",
+  "manifest_emitted_at": "2026-10-14T10:00:00Z",
+  "consumer_id": "consumer-billing-gateway",
+  "decisions": [],
+  "decided_at": "2026-10-14T10:10:00Z"
+}

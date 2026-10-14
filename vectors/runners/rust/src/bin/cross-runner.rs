@@ -113,6 +113,8 @@ const SCHEMAS: &[SchemaReg] = &[
     SchemaReg { name: "RevocationList", version_path: Some("v8.7.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
     // v8.7.0 cycle-007 cluster — versioned layout. PR-A4.5 (FR-G5).
     SchemaReg { name: "MergeArtifact", version_path: Some("v8.7.0"), buckets: &["valid", "invalid"] },
+    // v8.8.0 cycle-008 — versioned layout. PR-C4 (SDD §3, FR-C4).
+    SchemaReg { name: "ManifestConsumptionReceipt", version_path: Some("v8.8.0"), buckets: &["valid", "invalid", "invalid-cross-field"] },
 ];
 
 #[derive(Serialize, Debug)]

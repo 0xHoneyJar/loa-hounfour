@@ -5,8 +5,8 @@
 
 | Inventory | Count |
 |-----------|-------|
-| Schemas marked `x-cross-field-validated` | 34 |
-| Registered cross-field validators | 140 |
+| Schemas marked `x-cross-field-validated` | 35 |
+| Registered cross-field validators | 141 |
 | Marked but UNREGISTERED (must be 0) | 0 |
 | Registered but unmarked (ratchet ≤ 106) | 106 |
 

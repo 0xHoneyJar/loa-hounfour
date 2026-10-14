@@ -41,7 +41,28 @@ export {
   hasUnverifiedObligations,
   type UnverifiedObligationEntry,
   type UnverifiedObligationsManifest,
+  // v8.8.0 (SDD §3, FR-C4) — consumer-obligation contract
+  UNVERIFIED_OBLIGATION_CONSUMER_CONTRACT,
+  UNVERIFIED_OBLIGATION_REASONS,
+  FAIL_CLOSED_DEFAULT_FLIP_VERSION,
+  describeConsumerObligation,
+  withConsumerObligation,
+  type UnverifiedObligationReason,
+  type ConsumerObligation,
+  type ConsumerObligationLevel,
 } from './unverified-obligations.js';
+
+// Manifest-consumption receipt (v8.8.0, SDD §3, FR-C4)
+export {
+  ManifestConsumptionReceiptSchema,
+  validateManifestConsumptionReceipt,
+  joinReceiptToManifest,
+  type ManifestConsumptionReceipt,
+  type ManifestConsumptionDecision,
+  type ManifestConsumptionDecisionKind,
+  type ReceiptManifestHeaderField,
+  type ReceiptManifestJoinResult,
+} from './manifest-consumption-receipt.js';
 
 // Evaluator Builtin Specification Registry (v5.5.0, FR-5)
 export {

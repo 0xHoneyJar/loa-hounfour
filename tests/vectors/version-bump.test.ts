@@ -326,6 +326,7 @@ describe('version bump', () => {
     // ClusterRunSeries, InterSeriesScopingArtifact, SubscriptionPoolState,
     // RevocationList, MergeArtifact → 262. Stubs use Type.Never() so any
     // payload fails validation; the $id namespace is reserved.
-    expect(index.schemas).toHaveLength(262);
+    // cycle-008 PR-C4 adds ManifestConsumptionReceipt → 263.
+    expect(index.schemas).toHaveLength(263);
   });
 });

@@ -1,0 +1,43 @@
+{
+  "_comment": "One decision of each kind. Distinct rule_ids satisfy MCR-1; MC-1 would still fail closed on the rejected and escalated rules.",
+  "receipt_id": "7f9c2b1e-3a4d-4e5f-8a6b-1c2d3e4f5a6b",
+  "schema_id": "OrgRepresentativeDelegation",
+  "contract_version": "8.8.0",
+  "manifest_emitted_at": "2026-10-14T10:00:00Z",
+  "consumer_id": "consumer-billing-gateway",
+  "decisions": [
+    {
+      "rule_id": "ORD-3",
+      "reason": "context_absent",
+      "decision": "verified_externally",
+      "judgement": "Yes. Chain assembled and checked back to the genesis sentinel, depth 3.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "ORD-5",
+      "reason": "vocabulary_drift",
+      "decision": "accepted_risk",
+      "judgement": "No maintainer confirmation yet; key treated as default trust for this pilot window.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "CRYPTO_DEFERRED",
+      "reason": "crypto_deferred",
+      "decision": "rejected",
+      "judgement": "No. The signer key is not present in the keyring snapshot.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    },
+    {
+      "rule_id": "INTEGRITY_DEFERRED",
+      "reason": "integrity_deferred",
+      "decision": "escalated",
+      "judgement": "Hash recomputation disagrees between two canonicalizers; escalated to the integrity owner.",
+      "decided_by": "approver-alice",
+      "decided_at": "2026-10-14T10:05:00Z"
+    }
+  ],
+  "decided_at": "2026-10-14T10:10:00Z"
+}

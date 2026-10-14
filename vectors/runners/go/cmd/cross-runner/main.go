@@ -119,6 +119,8 @@ var Schemas = []SchemaReg{
 	{"RevocationList", "v8.7.0", []string{"valid", "invalid", "invalid-cross-field"}},
 	// v8.7.0 cycle-007 cluster — versioned layout. PR-A4.5 (FR-G5).
 	{"MergeArtifact", "v8.7.0", []string{"valid", "invalid"}},
+	// v8.8.0 cycle-008 — versioned layout. PR-C4 (SDD §3, FR-C4).
+	{"ManifestConsumptionReceipt", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
 }
 
 type ManifestEntry struct {

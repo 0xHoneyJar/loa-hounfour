@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.0xhoneyjar.com/loa-hounfour/8.8.0/manifest-consumption-receipt",
+  "additionalProperties": false,
+  "x-cross-field-validated": true,
+  "description": "Consumer record of one decision per rule of an UnverifiedObligationsManifest, each with a human judgement. Shape only: the library does not grade judgements or decide authority (ADR-010). See SDD §3 and MC-1.",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "schema_id",
+    "contract_version",
+    "manifest_emitted_at",
+    "consumer_id",
+    "decisions",
+    "decided_at"
+  ],
+  "properties": {
+    "receipt_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "schema_id": {
+      "minLength": 1,
+      "description": "schema_id of the manifest this receipt answers.",
+      "type": "string"
+    },
+    "contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "contract_version of the manifest this receipt answers.",
+      "type": "string"
+    },
+    "manifest_emitted_at": {
+      "format": "date-time",
+      "description": "manifest_emitted_at of the manifest this receipt answers; together with schema_id it identifies the manifest.",
+      "type": "string"
+    },
+    "consumer_id": {
+      "minLength": 1,
+      "description": "Opaque identifier of the consuming system (MCR-N3).",
+      "type": "string"
+    },
+    "decisions": {
+      "minItems": 1,
+      "maxItems": 256,
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_id",
+          "decision",
+          "judgement",
+          "decided_by",
+          "decided_at"
+        ],
+        "properties": {
+          "rule_id": {
+            "minLength": 1,
+            "description": "rule_id of the manifest entry (or entries) this decision covers.",
+            "type": "string"
+          },
+          "reason": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "The manifest entry reason this decision answers. Not checked against the reason union (MCR-N2).",
+            "type": "string"
+          },
+          "decision": {
+            "description": "Consumer decision for one manifest rule (SDD §3).",
+            "anyOf": [
+              {
+                "const": "verified_externally",
+                "type": "string"
+              },
+              {
+                "const": "accepted_risk",
+                "type": "string"
+              },
+              {
+                "const": "rejected",
+                "type": "string"
+              },
+              {
+                "const": "escalated",
+                "type": "string"
+              }
+            ]
+          },
+          "judgement": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "The approver's answer to the contract row's judgement_requested question, with any rationale. Never graded by the library (MCR-N1).",
+            "type": "string"
+          },
+          "decided_by": {
+            "minLength": 1,
+            "description": "Opaque identifier of the approver (MCR-N3).",
+            "type": "string"
+          },
+          "decided_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "description": "Opaque pointer to evidence supporting the decision (URI, hash, ticket id).",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "decided_at": {
+      "format": "date-time",
+      "description": "When the receipt as a whole was finalized.",
+      "type": "string"
+    }
+  },
+  "$comment": "contract_version=8.8.0, min_supported=6.0.0"
+}
