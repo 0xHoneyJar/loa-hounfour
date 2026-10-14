@@ -1,6 +1,6 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T03:22:17.138Z",
+  "generated_at": "2026-10-14T03:31:51.179Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
@@ -7407,8 +7407,8 @@
       },
       {
         "path": "vectors/manifest.json",
-        "sha256": "7ebf4c0346a059fcc047c79d242c17a76f77f398ce63ccd7f84460b3a2e9e261",
-        "size_bytes": 86941
+        "sha256": "125eeebd946bc99d5b097864e6ddadf5e3a8c8fbd2b65d58c381e8ce1ae69e2c",
+        "size_bytes": 79843
       },
       {
         "path": "vectors/reputation-score/reputation-scores.json",
