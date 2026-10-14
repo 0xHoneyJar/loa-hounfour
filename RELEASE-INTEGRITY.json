@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T04:41:58.370Z",
+  "generated_at": "2026-10-14T04:59:50.624Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
-    "schemas": 265,
-    "vectors": 1322,
-    "constraints": 143,
+    "schemas": 266,
+    "vectors": 1364,
+    "constraints": 144,
     "manifests": 2,
-    "total": 1732
+    "total": 1776
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -345,8 +345,8 @@
       },
       {
         "path": "schemas/conformance-vector.schema.json",
-        "sha256": "0e508905a5442c4a66f6178c23b2ed1f8baf45c90a7ac8a15c2a7c9fd722f775",
-        "size_bytes": 7420
+        "sha256": "d41408d08014240bb4e1d0a199289c98f0292291986b0fdc872124f058090c40",
+        "size_bytes": 7508
       },
       {
         "path": "schemas/conservation-property-registry.schema.json",
@@ -1137,6 +1137,11 @@
         "path": "schemas/sanction.schema.json",
         "sha256": "4741ddc8e4dc0d6c923a043b17b7ff91edd0ed15a920a57a942026aa7fe9e763",
         "size_bytes": 4126
+      },
+      {
+        "path": "schemas/scope-of-autonomy.schema.json",
+        "sha256": "c0af52bbe586156685c5f496b1ae67b8ffd99194671c81e613f032680775e002",
+        "size_bytes": 7535
       },
       {
         "path": "schemas/scoring-path-log.schema.json",
@@ -5186,6 +5191,136 @@
         "size_bytes": 443
       },
       {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa1-duplicate-sub-goals-rejected.json",
+        "sha256": "48f5bcf3adffce1be0e05c46bc115ae011d8e3117991783a92b9c825f99ebd8e",
+        "size_bytes": 608
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa2-time-limit-without-latest-time-rejected.json",
+        "sha256": "5981c2d587ae524b975535509a083464cd18574ae8aacfd4a58307cffd1047f7",
+        "size_bytes": 545
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa3-expires-before-issued-rejected.json",
+        "sha256": "61b97f6e9ecf68cc75d81775ff84236a80dd10d5a67316f7c5afd47a64fcf976",
+        "size_bytes": 594
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa3-expires-equal-issued-rejected.json",
+        "sha256": "9e23434167a68499c3addd36dbbd8b538f441bae51ded13e836bc629a7931fde",
+        "size_bytes": 618
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa4-stop-requested-without-timestamp-rejected.json",
+        "sha256": "c7fe81e349e44f95aa57a0792bf649da7b24aea56c8a845e7f2a368aefa35508",
+        "size_bytes": 551
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid-cross-field/soa5-latest-time-after-expires-rejected.json",
+        "sha256": "2d89a5ff2855e6380528f71e6bc8167df90c342c1f002e54af83831d5afb3c4f",
+        "size_bytes": 630
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/additional-property-rejected.json",
+        "sha256": "d9156c3210c2428106943d157ca44716d4648d1334b10a6e10ce4afa837e68bd",
+        "size_bytes": 572
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/bad-cost-pattern-rejected.json",
+        "sha256": "86b999db67e8ee6cacc1e648c4d609f89b577ed4829bead364c21d3934c8bed4",
+        "size_bytes": 590
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/budget-additional-property-rejected.json",
+        "sha256": "29d1928474ca26b783479851958deaecb1056062b71070a46d89a433d6485185",
+        "size_bytes": 577
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/contract-version-malformed-rejected.json",
+        "sha256": "dbf18a6c375d893d3201b4ee5ccb128b959a6a6b1d048d5e45895e76c0d848fb",
+        "size_bytes": 547
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/data-access-missing-rejected.json",
+        "sha256": "61da57964ccd2d5982e0963f4fd2ede1609aad52b9c8874ea7d0412bec682626",
+        "size_bytes": 543
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/data-access-mode-out-of-vocab-rejected.json",
+        "sha256": "60f64e72798ed3e546cd6f7a0358222ce1594032ee6d02c7eaaaf3eaff638197",
+        "size_bytes": 640
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/empty-sub-goals-rejected.json",
+        "sha256": "40c5c31de83c003926a66b6f348d2bc63963f7296c3a5103586f35d58cd8c396",
+        "size_bytes": 506
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/ending-kind-out-of-vocab-rejected.json",
+        "sha256": "4363ee45441cb4060d3606c7bd0d6030a6146ca716d54d133f1a20b27e4581b3",
+        "size_bytes": 553
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/negative-wall-clock-rejected.json",
+        "sha256": "1f466eb051fe6a3f37f0efe20fa65f591e68531d12ee18471f268d03571d51aa",
+        "size_bytes": 564
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/principal-id-empty-rejected.json",
+        "sha256": "0bd15b3bed8e5b67c71c9f16e3032436dcade7057f85ccfe445216b060916e75",
+        "size_bytes": 525
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/propagates-false-rejected.json",
+        "sha256": "a18b51bdd2c15b12027c742def6d87bb66988653d824194116904b58258417fb",
+        "size_bytes": 555
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/invalid/sub-goal-too-long-rejected.json",
+        "sha256": "e950ce107194659f4851a18117dc63a58e77bdb644e382d3c4f3949f4e2f3c10",
+        "size_bytes": 780
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-001-minimal-root.json",
+        "sha256": "1dd0464c03e16662a70e4336dab4d5b5599e3ae26aacda9dd4bddb9dc385630f",
+        "size_bytes": 590
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-002-full-root.json",
+        "sha256": "a37be776ed163d673e281751758ea7dbc5124cb6b597d0ba79dffd5d8b6f4507",
+        "size_bytes": 1465
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-003-child-with-parent-ref.json",
+        "sha256": "8d6ffd3fa665e30d503a52728344ef57e86f6941ca0fa9e8106dfa80b4b9256e",
+        "size_bytes": 1040
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-004-stop-work-requested.json",
+        "sha256": "564590ef8849588c589fd46cc96efbb17f830b57af8327a2b4555409ef797938",
+        "size_bytes": 642
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-005-time-limit-with-latest-time.json",
+        "sha256": "91a5d047455da8cacf71383d714de0d2c32acdb2f2af85e43907594d726e4538",
+        "size_bytes": 667
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-006-latest-time-equals-expires.json",
+        "sha256": "ef509d1a6a87d21b26d71afe43e56a7c9afda9e1761df20ef3f65b058ef9480c",
+        "size_bytes": 641
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-007-zero-budget.json",
+        "sha256": "736b72ed2f23427a1918afdf89f0a74307815ea5b44107b4daad90b33f7d91dc",
+        "size_bytes": 614
+      },
+      {
+        "path": "vectors/ScopeOfAutonomy/v8.8.0/valid/soa-008-explicit-stop-millisecond-expiry.json",
+        "sha256": "197c676ebbc884dfeb4f1ff79611586323cd638c4b4ef8b4055a75f1fa40b354",
+        "size_bytes": 692
+      },
+      {
         "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid-cross-field/ssd1-and-ssd2-combined-rejected.json",
         "sha256": "17f043f214c190e6a74645e627e37b578ed2e9d69bae0ccbbcc895c0ab829c0a",
         "size_bytes": 579
@@ -7306,6 +7441,86 @@
         "size_bytes": 678
       },
       {
+        "path": "vectors/conformance/scope-inheritance/001-within-parent.json",
+        "sha256": "5f5e107436ebd0ee12b6a5d8492f5d7def32d4c589044c66351747d497fb9d12",
+        "size_bytes": 3199
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/002-unbounded-parent-limits.json",
+        "sha256": "3a47b0c3b060307ffa01a892c8e13969909efd382182a4c0d150e50d9454e326",
+        "size_bytes": 2404
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/003-data-access-mode-union.json",
+        "sha256": "17e8b80f45f3add16c3262e3f21851c0c9634682ef3425554260e95d553cc1dd",
+        "size_bytes": 3056
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/004-sub-goal-not-in-parent.json",
+        "sha256": "88feada2acbb73b99b6c230a5277c222acf1c085799508787d2ddd4968d3e76b",
+        "size_bytes": 3273
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/005-cost-exceeds-parent.json",
+        "sha256": "de3f74925d7f22549f14fd257d749e727dad90c39c087059c06e7f2aef3ff2ae",
+        "size_bytes": 3261
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/006-cost-absent-under-bounded-parent.json",
+        "sha256": "9799e9c4a3d92043f0974011ff01ff7a951e5ea95f267caebeb2d073ce14b9f2",
+        "size_bytes": 3197
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/007-wall-clock-exceeds-parent.json",
+        "sha256": "2b9f8ff8d86eb60df9e3afecf5bb94d8d6b6ca5e326283b5ca3b3e810c8943ab",
+        "size_bytes": 3242
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/008-data-access-exceeds-parent.json",
+        "sha256": "139c943b45d493e8c1285d7be52153dd0bd143c9485416a2973628d9fa1847b7",
+        "size_bytes": 3160
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/009-data-access-unknown-resource.json",
+        "sha256": "b8b2919019358193d1c1f36f6ad1c9cd8d130d5b50650229a6746a2246c86509",
+        "size_bytes": 3148
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/010-tool-not-in-parent.json",
+        "sha256": "16d3527f8a3f11cdb4762fb974cd3883fea617771739e7ea455ce3a19e17d6ad",
+        "size_bytes": 3224
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/011-tools-unrestricted-under-restricted-parent.json",
+        "sha256": "469905a77d42081e5e6006e8de43afd902a1ca1bcb46e392b0ba4b1efb59a7fd",
+        "size_bytes": 3167
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/012-latest-time-after-parent.json",
+        "sha256": "a9e25e555c853026524182f3815a3f8dbdb0451ef4f40b819be98c25d35562ab",
+        "size_bytes": 3244
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/013-expires-after-parent.json",
+        "sha256": "7664ed6d9a7258395505de84cf773c51e6ce22c9af0d27c89a165a4e6d326006",
+        "size_bytes": 3232
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/014-stop-work-not-inherited.json",
+        "sha256": "a92a4cf26f164c5d35ed107ca1233e7834377c67ee9f14605aae38dfa14b547b",
+        "size_bytes": 3296
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/015-parent-id-mismatch.json",
+        "sha256": "c81acb324b62a45fdefce7278aa70778a13cec94b8d23d25e2d525071ba314ed",
+        "size_bytes": 3233
+      },
+      {
+        "path": "vectors/conformance/scope-inheritance/016-multiple-violations.json",
+        "sha256": "79fb5c44876c47b7ff68ba974b2a8602354c00ef04a4c7757f67ec0ddb6fa675",
+        "size_bytes": 3307
+      },
+      {
         "path": "vectors/conformance/scoring-path-log/aggregate-path-valid.json",
         "sha256": "a46c94034069de436ee39fc4155d32abf79337731a83add1573a70f73a478e1d",
         "size_bytes": 360
@@ -8588,6 +8803,11 @@
         "size_bytes": 3593
       },
       {
+        "path": "constraints/ScopeOfAutonomy.constraints.json",
+        "sha256": "5d76bcb940300860156f7b17737bb6a2198795252cd315842e69c116ab2f7fa0",
+        "size_bytes": 7483
+      },
+      {
         "path": "constraints/ScoringPathLog.constraints.json",
         "sha256": "b44e5d437aa0480f742a04737c70560bf1b9ffdb74424b1d4391baa0d14440c4",
         "size_bytes": 4115
@@ -8671,8 +8891,8 @@
     "manifests": [
       {
         "path": "schemas/index.json",
-        "sha256": "374717a6bcefc8de1cefed9fce66e6d3cf5d6bedbf53c75becf09f4a1b865b50",
-        "size_bytes": 88397
+        "sha256": "af658633347b355a3ce72c3c295a1229c437bd1baf2d24de0caed09c836fcc9b",
+        "size_bytes": 89087
       },
       {
         "path": "schemas/schemastore-catalog.json",

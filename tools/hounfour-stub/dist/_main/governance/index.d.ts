@@ -84,4 +84,6 @@ export { ChallengeTypeSchema, ChallengeRequestedEffectSchema, type ChallengeType
 export { ChallengeSchema, type Challenge, } from './challenge.js';
 export { IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, type IrreversibleActionAttestation, type IrreversibleActionKind, } from './irreversible-action-attestation.js';
 export { SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, type SharedSurfaceDeclaration, type SharedSurfaceKind, } from './shared-surface-declaration.js';
+export { ScopeOfAutonomySchema, DataAccessModeSchema, DataAccessGrantSchema, SideEffectBudgetSchema, EndingConditionKindSchema, EndingConditionSchema, StopWorkSchema, validateScopeOfAutonomy, type ScopeOfAutonomy, type DataAccessMode, type DataAccessGrant, type SideEffectBudget, type EndingConditionKind, type EndingCondition, type StopWork, } from './scope-of-autonomy.js';
+export { evaluateScopeInheritance, evaluateScopeActivity, type ScopeInheritanceViolationCode, type ScopeInheritanceViolation, type ScopeInheritanceResult, type ScopeActivityResult, } from './scope-of-autonomy-eval.js';
 //# sourceMappingURL=index.d.ts.map

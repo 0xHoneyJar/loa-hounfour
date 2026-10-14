@@ -59,7 +59,9 @@ ForgetRecordSchema, CommitmentTypeSchema, CommitmentRootSchema, AgentEstateStatu
 // v8.5.0 PR-A2.3 Assertion family
 PrivacyScopeSchema, RiskLevelSchema, AssertionStatusSchema, AssertionClassSchema, AssertionSchema, 
 // v8.8.0 PR-C3 Separation of duties (FR-C3)
-IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, } from './governance/index.js';
+IrreversibleActionAttestationSchema, IrreversibleActionKindSchema, validateIrreversibleActionAttestation, SharedSurfaceDeclarationSchema, SharedSurfaceKindSchema, validateSharedSurfaceDeclaration, 
+// v8.8.0 PR-C1 Scope of autonomy (FR-C1)
+ScopeOfAutonomySchema, DataAccessModeSchema, DataAccessGrantSchema, SideEffectBudgetSchema, EndingConditionKindSchema, EndingConditionSchema, StopWorkSchema, validateScopeOfAutonomy, evaluateScopeInheritance, evaluateScopeActivity, } from './governance/index.js';
 export * from './constraints/index.js';
 export * from './integrity/index.js';
 // v8.6.0 PR-A3.5 — Operations cluster (FR-B3..B8).
