@@ -12,7 +12,7 @@
       "message": "profile 'a2a-agent-card' requires the a2a block and forbids the directory and vc blocks.",
       "fields": ["profile", "a2a", "directory", "vc"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-1 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule.",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-1 at validate() time via the validateAgentIdentityBinding cross-field validator; the published JSON Schema encodes the same rule as an if/then clause in its root allOf, and the DSL expression restates it for constraint-file consumers.",
       "type_signature": {
         "profile": "string",
         "a2a": "object",
@@ -27,7 +27,7 @@
       "message": "profile 'directory-identity' requires the directory block and forbids the a2a and vc blocks.",
       "fields": ["profile", "a2a", "directory", "vc"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-2 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule.",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-2 at validate() time via the validateAgentIdentityBinding cross-field validator; the published JSON Schema encodes the same rule as an if/then clause in its root allOf, and the DSL expression restates it for constraint-file consumers.",
       "type_signature": {
         "profile": "string",
         "a2a": "object",
@@ -42,7 +42,7 @@
       "message": "profile 'verifiable-credential' requires the vc block and forbids the a2a and directory blocks.",
       "fields": ["profile", "a2a", "directory", "vc"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-3 at validate() time via the validateAgentIdentityBinding cross-field validator; the DSL expression restates it so cross-language runners replicate the profile-block exclusivity rule.",
+      "evaluation_note": "Library-evaluated. The TS reference enforces AIB-3 at validate() time via the validateAgentIdentityBinding cross-field validator; the published JSON Schema encodes the same rule as an if/then clause in its root allOf, and the DSL expression restates it for constraint-file consumers.",
       "type_signature": {
         "profile": "string",
         "a2a": "object",

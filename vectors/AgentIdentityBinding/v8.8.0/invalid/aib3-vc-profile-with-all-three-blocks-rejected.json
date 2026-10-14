@@ -1,10 +1,17 @@
 {
-  "_comment": "AIB-1: profile a2a-agent-card carries its own a2a block plus a vc block (two blocks).",
+  "_comment": "AIB-3: profile verifiable-credential carries all three blocks. Rejected by validate() via the cross-field validator and by the published JSON Schema via its injected if/then clauses.",
   "binding_id": "7d1e4c2a-0b3f-4c5d-9e6f-000000000003",
   "agent_id": "research-agent",
-  "profile": "a2a-agent-card",
+  "profile": "verifiable-credential",
   "a2a": {
     "card_url": "https://agents.example.com/.well-known/agent-card.json"
+  },
+  "directory": {
+    "directory_kind": "entra",
+    "tenant_id": "tenant-0001",
+    "object_id": "obj-7f3a",
+    "accountable_role": "Platform Operations Lead",
+    "lifecycle_state": "active"
   },
   "vc": {
     "issuer": "did:web:issuer.example.com",

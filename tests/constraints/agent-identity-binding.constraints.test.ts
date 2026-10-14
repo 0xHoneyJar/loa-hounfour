@@ -66,9 +66,9 @@ describe('AIB-1..3 DSL expressions against the vector corpus', () => {
     });
   }
 
-  for (const [f, data] of loadBucket('invalid-cross-field')) {
+  for (const [f, data] of loadBucket('invalid').filter(([name]) => /^aib\d-/.test(name))) {
     const n = /^aib(\d)-/.exec(f)![1];
-    it(`invalid-cross-field ${f} fails exactly AIB-${n}`, () => {
+    it(`invalid ${f} fails exactly AIB-${n}`, () => {
       for (const id of LIBRARY) {
         expect(evaluateConstraint(data, rule(id).expression as string)).toBe(id !== `AIB-${n}`);
       }

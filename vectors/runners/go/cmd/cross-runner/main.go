@@ -127,7 +127,7 @@ var Schemas = []SchemaReg{
 	// v8.8.0 cycle-008 — versioned layout. PR-C1 (FR-C1).
 	{"ScopeOfAutonomy", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
 	// v8.8.0 cycle-008 cluster — versioned layout. PR-C5 (FR-C5).
-	{"AgentIdentityBinding", "v8.8.0", []string{"valid", "invalid", "invalid-cross-field"}},
+	{"AgentIdentityBinding", "v8.8.0", []string{"valid", "invalid"}},
 }
 
 type ManifestEntry struct {

@@ -3,9 +3,11 @@
  * `AgentIdentityBindingSchema`.
  *
  *   - valid/: pass Value.Check AND validate() (structural + AIB-1..3).
- *   - invalid/: fail Value.Check AND validate().
- *   - invalid-cross-field/: pass Value.Check, fail validate() with the
- *     AIB rule id named in the fixture file name.
+ *   - invalid/: fail validate(). Files named `aib<N>-*` are AIB-1..3
+ *     profile/block mismatches: they pass TypeBox Value.Check (which does
+ *     not evaluate the if/then clauses injected into the published JSON
+ *     Schema), fail validate() with the named AIB rule id, and fail the
+ *     published JSON Schema. Every other invalid/ file fails Value.Check.
  */
 import { describe, it, expect } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
@@ -33,12 +35,13 @@ function load(bucket: string, name: string): Record<string, unknown> {
 describe('AgentIdentityBinding vector fixtures (FR-C5 / PR-C5)', () => {
   const valid = list('valid');
   const invalid = list('invalid');
-  const crossField = list('invalid-cross-field');
+  const crossField = list('invalid').filter((f) => /^aib\d-/.test(f));
+  const structural = list('invalid').filter((f) => !/^aib\d-/.test(f));
 
   it('publishes the SDD §0 cardinality (>=4 valid, >=6 invalid)', () => {
     expect(valid.length).toBeGreaterThanOrEqual(4);
-    expect(invalid.length + crossField.length).toBeGreaterThanOrEqual(6);
     expect(invalid.length).toBeGreaterThanOrEqual(6);
+    expect(structural.length).toBeGreaterThanOrEqual(6);
   });
 
   it('covers every profile in valid/', () => {
@@ -51,6 +54,8 @@ describe('AgentIdentityBinding vector fixtures (FR-C5 / PR-C5)', () => {
     expect(crossField.some((f) => f.includes('two-blocks'))).toBe(true);
     expect(crossField.some((f) => f.includes('missing-block'))).toBe(true);
     expect(invalid.some((f) => f.includes('bad-card-url'))).toBe(true);
+    expect(invalid.some((f) => f.includes('card-url-did-scheme'))).toBe(true);
+    expect(valid.some((f) => f.includes('card-url-https-accepted'))).toBe(true);
   });
 
   describe('valid/ — structural and validate()', () => {
@@ -66,7 +71,7 @@ describe('AgentIdentityBinding vector fixtures (FR-C5 / PR-C5)', () => {
   });
 
   describe('invalid/ — structural rejection', () => {
-    for (const f of invalid) {
+    for (const f of structural) {
       it(`rejects ${f}`, () => {
         const data = load('invalid', f);
         expect(Value.Check(AgentIdentityBindingSchema, data)).toBe(false);
@@ -75,10 +80,10 @@ describe('AgentIdentityBinding vector fixtures (FR-C5 / PR-C5)', () => {
     }
   });
 
-  describe('invalid-cross-field/ — structural pass, cross-field rejection', () => {
+  describe('invalid/aib* — TypeBox structural pass, cross-field rejection', () => {
     for (const f of crossField) {
       it(`rejects ${f} with its AIB rule id`, () => {
-        const data = load('invalid-cross-field', f);
+        const data = load('invalid', f);
         expect(Value.Check(AgentIdentityBindingSchema, data)).toBe(true);
         const r = validate(AgentIdentityBindingSchema, data);
         expect(r.valid).toBe(false);
@@ -90,7 +95,7 @@ describe('AgentIdentityBinding vector fixtures (FR-C5 / PR-C5)', () => {
 
     it('passes structurally when cross-field validation is disabled', () => {
       for (const f of crossField) {
-        expect(validate(AgentIdentityBindingSchema, load('invalid-cross-field', f), { crossField: false }).valid).toBe(true);
+        expect(validate(AgentIdentityBindingSchema, load('invalid', f), { crossField: false }).valid).toBe(true);
       }
     });
   });

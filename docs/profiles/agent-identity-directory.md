@@ -39,6 +39,11 @@ lifecycle state when the binding was recorded.
 When `profile` is `directory-identity`, the `directory` block must be
 present and the `a2a` and `vc` blocks must be absent (AIB-2).
 
+This rule is enforced by `validate()` and by the published JSON Schema,
+which carries one `if/then` clause per profile in its root `allOf`. In
+TypeScript, call `validate()`: TypeBox `Value.Check` on the schema object
+does not evaluate the rule.
+
 ## Principles
 
 **One identity per agent.** Each agent has exactly one directory object,

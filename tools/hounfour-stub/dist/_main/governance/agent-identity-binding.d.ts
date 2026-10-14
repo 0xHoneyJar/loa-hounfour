@@ -20,16 +20,26 @@
  * ## Profile discriminator (AIB-1 / AIB-2 / AIB-3)
  *
  * `profile` names exactly one block. That block MUST be present and the
- * other two MUST be absent. The rule is enforced at `validate()` time by
- * the registered cross-field validator {@link validateAgentIdentityBinding}
- * and restated in `constraints/AgentIdentityBinding.constraints.json` as
- * library-evaluable DSL expressions so cross-language runners replicate it.
+ * other two MUST be absent. The rule is enforced in three places:
+ *
+ *   1. at `validate()` time by the registered cross-field validator
+ *      {@link validateAgentIdentityBinding};
+ *   2. in the published JSON Schema (`schemas/agent-identity-binding.schema.json`),
+ *      which carries a root `allOf` of one `if/then` clause per profile,
+ *      injected by the schema generator's post-processing step. Consumers
+ *      that validate with the JSON Schema alone therefore reject
+ *      profile/block mismatches;
+ *   3. in `constraints/AgentIdentityBinding.constraints.json` as
+ *      library-evaluable DSL expressions.
+ *
+ * TypeBox `Value.Check` on this TypeScript schema object does NOT evaluate
+ * the rule (the clauses exist only in the published JSON Schema). Use
+ * `validate()` in TypeScript.
  *
  * **Decision (SDD §4 shape).** The SDD specifies one object with three
  * optional blocks plus a cross-field rule, not a TypeBox discriminated
  * union. The single-object shape is kept so the generated JSON Schema stays
- * a flat object for non-TypeScript consumers; the cross-field validator
- * carries the exclusivity rule.
+ * a flat object for non-TypeScript consumers.
  *
  * ## Deferred obligations (consumer-side per ADR-010)
  *
