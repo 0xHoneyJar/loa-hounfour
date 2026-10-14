@@ -121,8 +121,8 @@
       }
     },
     "declared_at": {
-      "format": "date-time",
-      "description": "ISO 8601 timestamp at which the declaration was made.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "description": "ISO 8601 UTC instant (Z suffix, optional 1-9 digit fraction) at which the declaration was made. Offset forms are rejected.",
       "type": "string"
     },
     "declared_by": {

@@ -7,12 +7,12 @@
   "constraints": [
     {
       "id": "SSD-1",
-      "expression": "!writer_agent_ids.every(w => w != owner_agent_id)",
+      "expression": "array_contains(writer_agent_ids, owner_agent_id)",
       "severity": "error",
       "message": "SharedSurfaceDeclaration: owner_agent_id MUST appear in writer_agent_ids. The owner of a shared surface is one of its declared writers.",
       "fields": ["owner_agent_id", "writer_agent_ids"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated by the registered cross-field validator validateSharedSurfaceDeclaration. Exact string membership; agent identifiers are not normalised (non-constraint SSD-N4). The owner is NOT required to appear in reader_agent_ids (non-constraint SSD-N3).",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator validateSharedSurfaceDeclaration; the DSL expression uses the LOCAL array_contains builtin (v8.8.0). Exact string membership; agent identifiers are not normalised (non-constraint SSD-N4). The owner is NOT required to appear in reader_agent_ids (non-constraint SSD-N3).",
       "type_signature": {
         "owner_agent_id": "string",
         "writer_agent_ids": "string[]"
@@ -33,24 +33,24 @@
     },
     {
       "id": "SSD-3",
-      "expression": "writer_agent_ids entries are pairwise distinct under exact string equality",
+      "expression": "array_values_distinct(writer_agent_ids)",
       "severity": "error",
       "message": "SharedSurfaceDeclaration: writer_agent_ids MUST NOT contain duplicate entries.",
       "fields": ["writer_agent_ids"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated by the registered cross-field validator, which reports each duplicated value with the indices where it occurs. The constraint DSL has no distinctness builtin for arrays of strings (unique_values applies to arrays of objects keyed by a field), so the expression is stated in prose; cross-language runners implement it as a set-size comparison. Duplicates are rejected rather than tolerated because SSD-6 runtime conformance checks compare observed writers against this list as a set.",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator, which reports each duplicated value with the indices where it occurs. The DSL expression uses the LOCAL array_values_distinct builtin (v8.8.0); unique_values applies to arrays of objects keyed by a field and is vacuously true on arrays of strings, so it cannot express this rule. Cross-language runners implement it as a set-size comparison. Duplicates are rejected rather than tolerated because SSD-6 runtime conformance checks compare observed writers against this list as a set.",
       "type_signature": {
         "writer_agent_ids": "string[]"
       }
     },
     {
       "id": "SSD-4",
-      "expression": "reader_agent_ids entries are pairwise distinct under exact string equality",
+      "expression": "array_values_distinct(reader_agent_ids)",
       "severity": "error",
       "message": "SharedSurfaceDeclaration: reader_agent_ids MUST NOT contain duplicate entries. An empty reader list is admitted.",
       "fields": ["reader_agent_ids"],
       "evaluator": "library",
-      "evaluation_note": "Library-evaluated by the registered cross-field validator. Same prose-expression rationale as SSD-3. No relationship between readers and writers is required (non-constraints SSD-N2 and SSD-N3).",
+      "evaluation_note": "Library-evaluated by the registered cross-field validator. Same array_values_distinct builtin as SSD-3. No relationship between readers and writers is required (non-constraints SSD-N2 and SSD-N3).",
       "type_signature": {
         "reader_agent_ids": "string[]"
       }

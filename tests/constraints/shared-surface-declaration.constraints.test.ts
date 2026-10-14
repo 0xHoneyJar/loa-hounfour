@@ -2,9 +2,9 @@
  * PR-C3 (FR-C3) — Tests for `SharedSurfaceDeclaration.constraints.json`.
  *
  * Covers the file structure, every constraint id, and agreement between
- * the DSL restatements (SSD-1, SSD-2) and the registered cross-field
- * validator. SSD-3 / SSD-4 are prose (the DSL has no string-array
- * distinctness builtin) and are exercised through the validator.
+ * the DSL expressions (SSD-1..SSD-4) and the registered cross-field
+ * validator. SSD-1 uses the LOCAL array_contains builtin; SSD-3 / SSD-4
+ * use array_values_distinct.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -112,14 +112,27 @@ describe('SSD-2 — single_writer consistency', () => {
 });
 
 describe('SSD-3 / SSD-4 — distinct lists', () => {
-  it('duplicate writer reports SSD-3 with indices', () => {
+  it('distinct lists: DSL true for SSD-3 and SSD-4', () => {
+    expect(evaluateConstraint(BASE, expr('SSD-3'))).toBe(true);
+    expect(evaluateConstraint(BASE, expr('SSD-4'))).toBe(true);
+    expect(evaluateConstraint({ ...BASE, reader_agent_ids: [] }, expr('SSD-4'))).toBe(true);
+  });
+  it('duplicate writer reports SSD-3 with indices; DSL false', () => {
     const d = { ...BASE, single_writer: false, writer_agent_ids: ['agent:indexer', 'agent:x', 'agent:indexer'] };
+    expect(evaluateConstraint(d, expr('SSD-3'))).toBe(false);
     const r = validate(SharedSurfaceDeclarationSchema, d);
     expect(r.valid).toBe(false);
     if (!r.valid) expect(r.errors).toContainEqual(expect.stringMatching(/^SSD-3: .*indices 0, 2/));
   });
-  it('duplicate reader reports SSD-4', () => {
-    expect(rules({ ...BASE, reader_agent_ids: ['a', 'b', 'a', 'b'] })).toEqual(['SSD-4']);
+  it('duplicate reader reports SSD-4; DSL false', () => {
+    const d = { ...BASE, reader_agent_ids: ['a', 'b', 'a', 'b'] };
+    expect(evaluateConstraint(d, expr('SSD-4'))).toBe(false);
+    expect(rules(d)).toEqual(['SSD-4']);
+  });
+  it('library expressions are DSL builtin calls, not prose or lambdas', () => {
+    expect(expr('SSD-1')).toBe('array_contains(writer_agent_ids, owner_agent_id)');
+    expect(expr('SSD-3')).toBe('array_values_distinct(writer_agent_ids)');
+    expect(expr('SSD-4')).toBe('array_values_distinct(reader_agent_ids)');
   });
   it('the same agent may be both writer and reader (SSD-N2 / SSD-N3)', () => {
     expect(rules({ ...BASE, reader_agent_ids: ['agent:indexer'] })).toEqual([]);

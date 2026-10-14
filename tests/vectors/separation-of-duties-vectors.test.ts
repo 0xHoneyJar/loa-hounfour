@@ -213,3 +213,60 @@ describe('separation-of-duties vector coverage required by SDD §2', () => {
     expect(ssd.some((f) => f.startsWith('ssd2-single-writer-with-two-writers'))).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// DSL agreement: every library constraint expression is evaluated with
+// evaluateConstraint against the on-disk vectors (bridge iter-1 fix).
+// ---------------------------------------------------------------------------
+import { evaluateConstraint } from '../../src/constraints/evaluator.js';
+import type { ConstraintFile } from '../../src/constraints/types.js';
+
+/**
+ * The single documented DSL/validator divergence: IAA-3's DSL form uses
+ * the millisecond-granular is_after builtin, so a sub-millisecond
+ * inversion is caught by the cross-field validator only (see the IAA-3
+ * evaluation_note).
+ */
+const DSL_GRANULARITY_EXCEPTIONS = new Set([
+  'iaa3-execution-before-proposal-sub-millisecond-rejected.json:IAA-3',
+]);
+
+for (const suite of SUITES) {
+  describe(`${suite.name} constraint DSL agrees with the vectors`, () => {
+    const file = JSON.parse(
+      readFileSync(
+        join(__dirname, '..', '..', 'constraints', `${suite.name}.constraints.json`),
+        'utf8',
+      ),
+    ) as ConstraintFile;
+    const library = file.constraints.filter((c) => c.evaluator !== 'runtime-deferred');
+
+    it('every library constraint has a parseable DSL expression', () => {
+      expect(library.length).toBeGreaterThan(0);
+      for (const c of library) {
+        expect(() => evaluateConstraint(load(suite.name, 'valid', list(suite.name, 'valid')[0]!) as Record<string, unknown>, c.expression), c.id).not.toThrow();
+      }
+    });
+
+    for (const f of list(suite.name, 'valid')) {
+      it(`every library expression is true on valid/${f}`, () => {
+        const data = load(suite.name, 'valid', f) as Record<string, unknown>;
+        for (const c of library) {
+          expect(evaluateConstraint(data, c.expression), `${c.id}: ${c.expression}`).toBe(true);
+        }
+      });
+    }
+
+    for (const f of list(suite.name, 'invalid-cross-field')) {
+      it(`named rules are false and the others true on invalid-cross-field/${f}`, () => {
+        const data = load(suite.name, 'invalid-cross-field', f) as Record<string, unknown>;
+        const named = new Set(expectedRules(suite.prefix, f));
+        for (const c of library) {
+          const exception = DSL_GRANULARITY_EXCEPTIONS.has(`${f}:${c.id}`);
+          const want = !named.has(c.id) || exception;
+          expect(evaluateConstraint(data, c.expression), `${c.id}: ${c.expression}`).toBe(want);
+        }
+      });
+    }
+  });
+}

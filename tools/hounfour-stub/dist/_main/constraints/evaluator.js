@@ -30,6 +30,7 @@ import { evaluateCanonicalSizeCap } from './builtins/canonical-size-cap.js';
 import { evaluateSignerKeyIdMatchesDerivation } from './builtins/signer-key-id-matches-derivation.js';
 import { evaluatePercentilesMonotonicNondecreasing } from './builtins/percentiles-monotonic-nondecreasing.js';
 import { evaluateUtf8ByteLengthMax } from './builtins/utf8-byte-length-max.js';
+import { evaluateArrayContains, evaluateArrayValuesDistinct } from './builtins/array-membership.js';
 import { evaluatePlanContentHashUnchangedSinceSignoff } from './builtins/plan-content-hash-unchanged-since-signoff.js';
 export const MAX_EXPRESSION_DEPTH = 32;
 /**
@@ -162,6 +163,9 @@ class Parser {
             ['utf8_byte_length_max', () => this.parseUtf8ByteLengthMax()],
             // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
             ['plan_content_hash_unchanged_since_signoff', () => this.parsePlanContentHashUnchangedSinceSignoff()],
+            // LOCAL array builtins (v8.8.0, PR-C3 — FR-C3 SharedSurfaceDeclaration)
+            ['array_contains', () => this.parseArrayContains()],
+            ['array_values_distinct', () => this.parseArrayValuesDistinct()],
         ]);
     }
     peek() {
@@ -1042,6 +1046,36 @@ class Parser {
      *
      * @since v8.6.0 — FR-B3 (PR-A3.5 iter-1 F-002, iter-2 F8 diagnostic)
      */
+    /**
+     * Parse `array_contains(array, value)` — LOCAL builtin (v8.8.0,
+     * PR-C3): true when `array` contains an element strictly equal to the
+     * primitive `value`. See src/constraints/builtins/array-membership.ts.
+     *
+     * @since v8.8.0 — FR-C3 (PR-C3)
+     */
+    parseArrayContains() {
+        this.advance(); // consume 'array_contains'
+        this.expect('paren', '(');
+        const arr = this.parseExpr();
+        this.expect('comma');
+        const value = this.parseExpr();
+        this.expect('paren', ')');
+        return evaluateArrayContains(arr, value);
+    }
+    /**
+     * Parse `array_values_distinct(array)` — LOCAL builtin (v8.8.0,
+     * PR-C3): true when `array` is an array of primitives with no
+     * duplicates. See src/constraints/builtins/array-membership.ts.
+     *
+     * @since v8.8.0 — FR-C3 (PR-C3)
+     */
+    parseArrayValuesDistinct() {
+        this.advance(); // consume 'array_values_distinct'
+        this.expect('paren', '(');
+        const arr = this.parseExpr();
+        this.expect('paren', ')');
+        return evaluateArrayValuesDistinct(arr);
+    }
     parseUtf8ByteLengthMax() {
         this.advance(); // consume 'utf8_byte_length_max'
         this.expect('paren', '(');
@@ -2061,6 +2095,9 @@ export const EVALUATOR_BUILTINS = [
     'utf8_byte_length_max',
     // State-bearing plan-binding builtin (v8.6.0, PR-A3.6 — FR-C4)
     'plan_content_hash_unchanged_since_signoff',
+    // LOCAL array builtins (v8.8.0, PR-C3 — FR-C3)
+    'array_contains',
+    'array_values_distinct',
 ];
 /**
  * Reserved names in the evaluator namespace.

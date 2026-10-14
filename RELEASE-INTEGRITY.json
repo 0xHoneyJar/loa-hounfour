@@ -1,14 +1,14 @@
 {
   "release_version": "8.8.0",
-  "generated_at": "2026-10-14T03:32:10.630Z",
+  "generated_at": "2026-10-14T03:44:36.613Z",
   "generator": "generate-release-integrity.ts",
   "notes": "Authoritative manifest tracked at HEAD; see CHANGELOG.md for any post-publish corrections under the same release_version label.",
   "totals": {
     "schemas": 264,
-    "vectors": 1297,
+    "vectors": 1298,
     "constraints": 142,
     "manifests": 2,
-    "total": 1705
+    "total": 1706
   },
   "verification": "sha256sum <file> | grep $(jq -r '.checksums.<category>[] | select(.path==\"<file>\") | .sha256' RELEASE-INTEGRITY.json)",
   "checksums": {
@@ -1150,8 +1150,8 @@
       },
       {
         "path": "schemas/shared-surface-declaration.schema.json",
-        "sha256": "3a221367a7c95c1b938fe01ec0597031ec10ecd10b14e1d771c602921c1b556a",
-        "size_bytes": 4611
+        "sha256": "9dbb303eb4b696322ab4bbf40ecbb8a7453293c574ba27f18f3adad4551ac0be",
+        "size_bytes": 4730
       },
       {
         "path": "schemas/signature-envelope.schema.json",
@@ -5102,8 +5102,13 @@
       },
       {
         "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-at-malformed-rejected.json",
-        "sha256": "45877fafe004ff82d678cbcd5f0f1d02dd61a41885aa9166b90fbe8009fcf350",
-        "size_bytes": 469
+        "sha256": "e597fa4cfb3480650244b8a1eb9666eefcfccd4771c22f5b53e1a89d09fa07ba",
+        "size_bytes": 471
+      },
+      {
+        "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-at-offset-form-rejected.json",
+        "sha256": "f0d3c23a9cff55a557219d0250d1c68a9b681a751167228656091d538b610f30",
+        "size_bytes": 580
       },
       {
         "path": "vectors/SharedSurfaceDeclaration/v8.8.0/invalid/declared-by-missing-rejected.json",
@@ -8459,8 +8464,8 @@
       },
       {
         "path": "constraints/SharedSurfaceDeclaration.constraints.json",
-        "sha256": "7ee1869fd2225feb0946f5292210dac75314b7a303cd16fb84886fae4edc0843",
-        "size_bytes": 5147
+        "sha256": "d29acda085ff5244fcefcea0ebd7aafc345098485bd5c61ad8885a3368d96575",
+        "size_bytes": 5186
       },
       {
         "path": "constraints/SignatureEnvelope.constraints.json",

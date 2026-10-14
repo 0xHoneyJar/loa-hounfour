@@ -52,6 +52,12 @@
  *     may declare a surface on an agent's behalf; whether that is
  *     allowed is consumer policy.
  *
+ * **Timestamp decision**: `declared_at` uses `ISO8601_UTC_PATTERN`
+ * (Z suffix only), not `format: 'date-time'`, so that both schemas in
+ * SDD §2 share one timestamp form with `IrreversibleActionAttestation`
+ * and cross-runner byte identity holds. Offset forms such as
+ * `+02:00` are rejected; producers convert to UTC first.
+ *
  * @see docs/patterns/proposer-is-not-executor.md (shared surfaces section)
  * @see ADR-010 — class-vs-policy boundary.
  * @since v8.8.0 — FR-C3 (PR-C3).
